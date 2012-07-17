@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty.datagram;
+package com.kaazing.mina.netty.datagram;
 
 import java.net.InetSocketAddress;
 
@@ -9,7 +9,7 @@ import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
-import com.kaazing.mina.transport.netty.AbstractChannelIoAcceptor;
+import com.kaazing.mina.netty.AbstractChannelIoAcceptor;
 
 public class DatagramChannelIoAcceptor extends AbstractChannelIoAcceptor<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
 

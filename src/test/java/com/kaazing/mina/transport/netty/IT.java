@@ -33,8 +33,10 @@ import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.Test;
 
-import com.kaazing.mina.transport.netty.socket.SocketChannelIoAcceptor;
-import com.kaazing.mina.transport.netty.socket.SocketChannelIoConnector;
+import com.kaazing.mina.netty.ChannelIoAcceptor;
+import com.kaazing.mina.netty.ChannelIoConnector;
+import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
 public class IT {
 

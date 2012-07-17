@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.write.WriteRequest;

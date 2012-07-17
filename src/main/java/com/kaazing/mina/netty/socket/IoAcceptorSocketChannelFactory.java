@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.kaazing.mina.transport.netty.socket;
+package com.kaazing.mina.netty.socket;
 
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelPipeline;

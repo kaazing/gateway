@@ -1,10 +1,10 @@
-package com.kaazing.mina.transport.netty.socket;
+package com.kaazing.mina.netty.socket;
 
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
-import com.kaazing.mina.transport.netty.AbstractChannelIoSessionConfig;
+import com.kaazing.mina.netty.AbstractChannelIoSessionConfig;
 
 public class SocketChannelIoSessionConfig extends AbstractChannelIoSessionConfig<SocketChannelConfig> implements SocketSessionConfig {
 

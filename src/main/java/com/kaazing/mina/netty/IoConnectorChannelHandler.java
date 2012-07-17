@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;

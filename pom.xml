@@ -13,7 +13,7 @@
     <dependency>
       <groupId>org.jboss.netty</groupId>
       <artifactId>netty</artifactId>
-      <version>${netty.version}</version>
+      <version>3.5.0.Final</version>
     </dependency>
     <dependency>
       <groupId>com.kaazing.mina</groupId>
@@ -61,7 +61,6 @@
   </build>
 
   <properties>
-	<netty.version>3.2.4.Final</netty.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 

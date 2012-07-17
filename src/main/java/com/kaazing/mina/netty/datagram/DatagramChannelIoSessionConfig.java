@@ -1,10 +1,10 @@
-package com.kaazing.mina.transport.netty.datagram;
+package com.kaazing.mina.netty.datagram;
 
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 
-import com.kaazing.mina.transport.netty.AbstractChannelIoSessionConfig;
+import com.kaazing.mina.netty.AbstractChannelIoSessionConfig;
 
 public class DatagramChannelIoSessionConfig extends AbstractChannelIoSessionConfig<DatagramChannelConfig> implements DatagramSessionConfig {
 

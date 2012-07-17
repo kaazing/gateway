@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.DefaultChannelConfig;

@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import java.util.Map;
 

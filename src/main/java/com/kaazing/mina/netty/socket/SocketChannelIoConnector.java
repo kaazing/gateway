@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty.socket;
+package com.kaazing.mina.netty.socket;
 
 import java.net.InetSocketAddress;
 
@@ -8,7 +8,7 @@ import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 
-import com.kaazing.mina.transport.netty.AbstractChannelIoConnector;
+import com.kaazing.mina.netty.AbstractChannelIoConnector;
 
 public class SocketChannelIoConnector extends AbstractChannelIoConnector<SocketSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
 

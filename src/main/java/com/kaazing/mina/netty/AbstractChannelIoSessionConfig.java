@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import org.apache.mina.core.session.AbstractIoSessionConfig;
 import org.apache.mina.core.session.IoSessionConfig;
