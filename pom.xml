@@ -3,8 +3,8 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.kaazing.net</groupId>
-  <artifactId>mina-netty</artifactId>
+  <groupId>com.kaazing.mina.netty</groupId>
+  <artifactId>com.kaazing.mina.netty</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Mina Netty Adapter</name>
