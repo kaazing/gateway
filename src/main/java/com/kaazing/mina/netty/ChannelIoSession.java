@@ -15,7 +15,7 @@ public class ChannelIoSession extends AbstractIoSession {
 
 	private final ChannelIoService service;
 	private final Channel channel;
-	private final ChannelIoSessionConfig config;
+	private final DefaultChannelIoSessionConfig config;
 	private final IoHandler handler;
 	private final ChannelIoProcessor processor;
 	private final IoFilterChain filterChain;
@@ -24,7 +24,7 @@ public class ChannelIoSession extends AbstractIoSession {
 	public ChannelIoSession(ChannelIoService service, Channel channel) {
 		this.service = service;
 		this.channel = channel;
-		this.config = new ChannelIoSessionConfig(channel.getConfig());
+		this.config = new DefaultChannelIoSessionConfig(channel.getConfig());
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
 		this.processor = new ChannelIoProcessor();

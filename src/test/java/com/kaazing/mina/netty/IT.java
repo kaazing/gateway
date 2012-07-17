@@ -28,7 +28,7 @@ public class IT {
 		
 		ServerChannelFactory serverChannelFactory = new DefaultLocalServerChannelFactory();
 		
-		ChannelIoAcceptor acceptor = new ChannelIoAcceptor(serverChannelFactory);
+		DefaultChannelIoAcceptor acceptor = new DefaultChannelIoAcceptor(serverChannelFactory);
 		DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
 		builder.addLast("logger", new LoggingFilter());
 		acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
@@ -46,7 +46,7 @@ public class IT {
 
 		ChannelFactory clientChannelFactory = new DefaultLocalClientChannelFactory();
 
-		ChannelIoConnector connector = new ChannelIoConnector(clientChannelFactory);
+		DefaultChannelIoConnector connector = new DefaultChannelIoConnector(clientChannelFactory);
 		connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
 		connector.setFilterChainBuilder(builder);
 		connector.setHandler(new IoHandlerAdapter());

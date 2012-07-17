@@ -4,9 +4,9 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 
-import com.kaazing.mina.netty.AbstractChannelIoSessionConfig;
+import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class DatagramChannelIoSessionConfig extends AbstractChannelIoSessionConfig<DatagramChannelConfig> implements DatagramSessionConfig {
+public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig> implements DatagramSessionConfig {
 
 	public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig) {
 		super(channelConfig);

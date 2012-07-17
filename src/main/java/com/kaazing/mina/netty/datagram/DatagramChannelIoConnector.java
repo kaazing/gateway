@@ -8,9 +8,9 @@ import org.apache.mina.transport.socket.DatagramConnector;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
-import com.kaazing.mina.netty.AbstractChannelIoConnector;
+import com.kaazing.mina.netty.ChannelIoConnector;
 
-public class DatagramChannelIoConnector extends AbstractChannelIoConnector<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramConnector {
+public class DatagramChannelIoConnector extends ChannelIoConnector<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramConnector {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,

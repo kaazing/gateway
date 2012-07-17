@@ -9,9 +9,10 @@ import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
-import com.kaazing.mina.netty.AbstractChannelIoAcceptor;
+import com.kaazing.mina.netty.ChannelIoAcceptor;
+import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 
-public class DatagramChannelIoAcceptor extends AbstractChannelIoAcceptor<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
+public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
@@ -21,7 +22,7 @@ public class DatagramChannelIoAcceptor extends AbstractChannelIoAcceptor<Datagra
 	
 	public DatagramChannelIoAcceptor(DatagramSessionConfig sessionConfig,
 			DatagramChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory);
+		super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
 	}
 
 	@Override
