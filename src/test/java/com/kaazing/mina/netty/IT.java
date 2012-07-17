@@ -1,4 +1,4 @@
-package com.kaazing.mina.transport.netty;
+package com.kaazing.mina.netty;
 
 import static org.jboss.netty.channel.Channels.pipeline;
 import static org.jboss.netty.channel.Channels.pipelineFactory;
