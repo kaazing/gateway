@@ -92,8 +92,9 @@ public abstract class AbstractChannelIoAcceptor<C extends IoSessionConfig, F ext
 	}
 
 	@Override
-	protected void dispose0() throws Exception {
+	protected IoFuture dispose0() throws Exception {
 		bootstrap.releaseExternalResources();
+		return null;
 	}
 
 	@Override

@@ -95,8 +95,9 @@ public abstract class AbstractChannelIoConnector<C extends IoSessionConfig, F ex
 	}
 
 	@Override
-	protected void dispose0() throws Exception {
+	protected IoFuture dispose0() throws Exception {
 		channelFactory.releaseExternalResources();
+		return null;
 	}
 
 	@Override
