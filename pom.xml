@@ -2,6 +2,12 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>com.kaazing.gateway.core</groupId>
+    <artifactId>com.kaazing.gateway.core.common</artifactId>
+    <version>1.0.0.14</version>
+  </parent>
+
   <groupId>com.kaazing.mina.netty</groupId>
   <artifactId>com.kaazing.mina.netty</artifactId>
   <version>1.0.0.2-SNAPSHOT</version>
