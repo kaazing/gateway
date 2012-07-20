@@ -9,6 +9,11 @@
   <packaging>jar</packaging>
   <name>Mina Netty Adapter</name>
 
+  <scm>
+      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/trunk</connection>
+      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/trunk</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>io.netty</groupId>
