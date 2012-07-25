@@ -10,6 +10,7 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
@@ -39,6 +40,12 @@ public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 		childPipeline.replace(this, "session", newHandler);
 
 		newHandler.channelConnected(ctx, e);
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+			throws Exception {
+		connectFuture.setException(e.getCause());
 	}
 
 }
