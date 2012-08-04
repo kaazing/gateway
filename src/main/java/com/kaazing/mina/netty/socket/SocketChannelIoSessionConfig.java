@@ -4,9 +4,10 @@
 
 package com.kaazing.mina.netty.socket;
 
+import io.netty.channel.socket.SocketChannelConfig;
+
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 

@@ -4,7 +4,14 @@
 
 package com.kaazing.mina.netty;
 
-import static org.jboss.netty.channel.Channels.pipeline;
+import static io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ChannelBufType;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.EventLoop;
 
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
@@ -15,34 +22,25 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.AbstractIoConnector;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelConfig;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
 
-public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
+public abstract class ChannelIoConnector<S extends IoSessionConfig, C extends Channel, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
 
-	private final F channelFactory;
-	private ChannelPipelineFactory pipelineFactory;
-
-	public ChannelIoConnector(C sessionConfig, F channelFactory) {
+	private final EventLoop eventLoop;
+	private final ChannelBufType bufType;
+	
+	public ChannelIoConnector(S sessionConfig, EventLoop eventLoop, ChannelBufType bufType) {
 		super(sessionConfig, new Executor() {
 			@Override
 			public void execute(Runnable command) {
 			}
 		});
-
-		this.channelFactory = channelFactory;
+		
+		this.eventLoop = eventLoop;
+		this.bufType = bufType;
 	}
+
+	protected abstract C newChannel();
 	
-	public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
-		this.pipelineFactory = pipelineFactory;
-	}
-
 	@Override
 	protected ConnectFuture connect0(SocketAddress remoteAddress,
 			SocketAddress localAddress,
@@ -50,47 +48,20 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 
 		final ConnectFuture connectFuture = new DefaultConnectFuture();
 		
-		ClientBootstrap bootstrap = new ClientBootstrap(new ChannelFactory() {
-
-			@Override
-			public Channel newChannel(ChannelPipeline pipeline) {
-				Channel newChannel = channelFactory.newChannel(pipeline);
-				ChannelConfig newChannelConfig = newChannel.getConfig();
-				newChannelConfig.setConnectTimeoutMillis((int)getConnectTimeoutMillis());
-				return newChannel;
-			}
-
-			@Override
-			public void releaseExternalResources() {
-				channelFactory.releaseExternalResources();
-			}
-			
-		});
-
-		// support custom channel handlers before bridge
-		ChannelPipeline newPipeline;
-		if (pipelineFactory != null) {
-			try {
-				newPipeline = pipelineFactory.getPipeline();
-			} catch (Exception e) {
-				connectFuture.setException(e);
-				return connectFuture;
-			}
-		}
-		else {
-			newPipeline = pipeline();
-		}
+		C newChannel = newChannel();
 		
-		
-		newPipeline.addLast("mina-bridge", new IoConnectorChannelHandler(this, connectFuture, sessionInitializer));
-		bootstrap.setPipeline(newPipeline);
-		ChannelFuture channelFuture = bootstrap.connect(remoteAddress, localAddress);
-		channelFuture.addListener(new ChannelFutureListener() {
-			
+		Bootstrap bootstrap = new Bootstrap();
+		bootstrap.eventLoop(eventLoop);
+		bootstrap.handler(new IoConnectorChannelHandler(this, bufType, connectFuture, sessionInitializer));
+		bootstrap.channel(newChannel);
+		bootstrap.option(CONNECT_TIMEOUT_MILLIS, (int)getConnectTimeoutMillis());
+		bootstrap.localAddress(localAddress);
+		bootstrap.remoteAddress(remoteAddress);
+		bootstrap.connect().addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
 				if (!future.isSuccess()) {
-					connectFuture.setException(future.getCause());
+					connectFuture.setException(future.cause());
 				}
 			}
 		});
@@ -100,7 +71,10 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
-		channelFactory.releaseExternalResources();
+		if (!eventLoop.isShutdown()) {
+			eventLoop.shutdown();
+			eventLoop.awaitTermination(10, SECONDS);
+		}
 		return null;
 	}
 
@@ -111,8 +85,8 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public C getSessionConfig() {
-		return (C)super.getSessionConfig();
+	public S getSessionConfig() {
+		return (S)super.getSessionConfig();
 	}
 
 	@Override

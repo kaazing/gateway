@@ -4,53 +4,66 @@
 
 package com.kaazing.mina.netty.socket;
 
+import static io.netty.buffer.ChannelBufType.BYTE;
+import static io.netty.channel.ChannelOption.SO_BACKLOG;
+import static io.netty.channel.ChannelOption.SO_REUSEADDR;
+import io.netty.channel.EventLoop;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.ServerSocketChannelConfig;
+import io.netty.channel.socket.SocketChannel;
+
 import java.net.InetSocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
-import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
-import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 
-public class SocketChannelIoAcceptor extends ChannelIoAcceptor<SocketSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress> implements SocketAcceptor {
+public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends ChannelIoAcceptor<E, SocketSessionConfig, ServerSocketChannel, SocketChannel, InetSocketAddress> implements SocketAcceptor {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+	static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
-			final ServerSocketChannelFactory channelFactory) {
-		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), new DefaultIoAcceptorChannelHandlerFactory());
+	private volatile int backlog;
+	private volatile boolean reuseAddress;
+
+	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig, E parentEventLoop, E childEventLoop) {
+		super(BYTE, sessionConfig, parentEventLoop, childEventLoop);
+		
+		ServerSocketChannel newServerChannel = newServerChannel(parentEventLoop);
+		ServerSocketChannelConfig config = newServerChannel.config();
+		this.backlog = config.getBacklog();
+		this.reuseAddress = config.isReuseAddress();
+		newServerChannel.close();
 	}
 
-	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
-			final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
-	}
 
 	@Override
 	public int getBacklog() {
-		return getChannelFactory().getBacklog();
+		return backlog;
 	}
 
 	@Override
 	public void setBacklog(int backlog) {
-		getChannelFactory().setBacklog(backlog);
+		this.backlog = backlog;
+		
+		getBootstrap().option(SO_BACKLOG, backlog);
 	}
 	
 	@Override
 	public boolean isReuseAddress() {
-		return getChannelFactory().isReuseAddress();
+		return reuseAddress;
 	}
 
 	@Override
 	public void setReuseAddress(boolean reuseAddress) {
-		getChannelFactory().setReuseAddress(reuseAddress);
-	}
+		this.reuseAddress = reuseAddress;
+
+		getBootstrap().option(SO_REUSEADDR, reuseAddress);
+}
 
 	@Override
 	public void setDefaultLocalAddress(InetSocketAddress localAddress) {
@@ -61,4 +74,8 @@ public class SocketChannelIoAcceptor extends ChannelIoAcceptor<SocketSessionConf
 	public TransportMetadata getTransportMetadata() {
 		return TRANSPORT_METADATA;
 	}
+
+
+	@Override
+	protected abstract ServerSocketChannel newServerChannel(E parentEventLoop);
 }

@@ -7,7 +7,10 @@
  */
 package com.kaazing.mina.netty;
 
-import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
+import static io.netty.buffer.Unpooled.wrappedBuffer;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +26,6 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
 
 
 final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
@@ -64,8 +65,7 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
 	@Override
 	public void updateTrafficControl(ChannelIoSession session) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("updateTrafficControl");
 	}
 
 	protected void init(ChannelIoSession session) {
@@ -194,7 +194,8 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
                 
                 if (message instanceof IoBuffer) {
                 	IoBuffer buf = (IoBuffer)message;
-					ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+					ByteBuf byteBuf = wrappedBuffer(buf.buf());
+					ChannelFuture future = channel.write(byteBuf);
 					future.addListener(new ChannelWriteFutureListener(filterChain, req));
                 } else if (message instanceof FileRegion) {
                 	FileRegion region = (FileRegion)message;

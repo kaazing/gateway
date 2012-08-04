@@ -4,6 +4,9 @@
 
 package com.kaazing.mina.netty;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelConfig;
+
 import java.net.SocketAddress;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChain;
@@ -13,13 +16,12 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSessionConfig;
-import org.jboss.netty.channel.Channel;
 
 public class ChannelIoSession extends AbstractIoSession {
 
 	private final ChannelIoService service;
 	private final Channel channel;
-	private final DefaultChannelIoSessionConfig config;
+	private final ChannelIoSessionConfig<?> config;
 	private final IoHandler handler;
 	private final ChannelIoProcessor processor;
 	private final IoFilterChain filterChain;
@@ -28,7 +30,7 @@ public class ChannelIoSession extends AbstractIoSession {
 	public ChannelIoSession(ChannelIoService service, Channel channel) {
 		this.service = service;
 		this.channel = channel;
-		this.config = new DefaultChannelIoSessionConfig(channel.getConfig());
+		this.config = new ChannelIoSessionConfig<ChannelConfig>(channel.config());
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
 		this.processor = new ChannelIoProcessor();
@@ -66,12 +68,12 @@ public class ChannelIoSession extends AbstractIoSession {
 
 	@Override
 	public SocketAddress getLocalAddress() {
-		return channel.getLocalAddress();
+		return channel.localAddress();
 	}
 
 	@Override
 	public SocketAddress getRemoteAddress() {
-		return channel.getRemoteAddress();
+		return channel.remoteAddress();
 	}
 
 	@Override

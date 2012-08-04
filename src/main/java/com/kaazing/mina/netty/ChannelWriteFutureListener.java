@@ -7,10 +7,11 @@
  */
 package com.kaazing.mina.netty;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.write.WriteRequest;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
 
 final class ChannelWriteFutureListener implements ChannelFutureListener {
 	private final IoFilterChain filterChain;
@@ -27,7 +28,7 @@ final class ChannelWriteFutureListener implements ChannelFutureListener {
 			filterChain.fireMessageSent(request);
 		}
 		else {
-			filterChain.fireExceptionCaught(future.getCause());
+			filterChain.fireExceptionCaught(future.cause());
 		}
 	}
 }

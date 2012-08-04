@@ -4,9 +4,14 @@
 
 package com.kaazing.mina.netty;
 
-import static org.jboss.netty.channel.Channels.pipeline;
-import static org.jboss.netty.channel.Channels.pipelineFactory;
 import static org.junit.Assert.assertTrue;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.local.LocalAddress;
+import io.netty.channel.local.LocalChannel;
+import io.netty.channel.local.LocalEventLoop;
+import io.netty.channel.local.LocalServerChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,25 +22,30 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.filter.logging.LoggingFilter;
-import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ServerChannelFactory;
-import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
-import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
-import org.jboss.netty.channel.local.LocalAddress;
-import org.jboss.netty.handler.logging.LoggingHandler;
-import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.Test;
 
-public class IT {
+import com.kaazing.mina.netty.local.LocalChannelIoAcceptor;
+import com.kaazing.mina.netty.local.LocalChannelIoConnector;
+
+public class IntegrationTest {
 	@Test
 	public void testNettyLocal() throws Exception {
-		
-		ServerChannelFactory serverChannelFactory = new DefaultLocalServerChannelFactory();
-		
-		DefaultChannelIoAcceptor acceptor = new DefaultChannelIoAcceptor(serverChannelFactory);
+
+		LocalEventLoop eventLoop = new LocalEventLoop();
+		LocalChannelIoAcceptor acceptor = new LocalChannelIoAcceptor(eventLoop) {
+
+			@Override
+			protected LocalServerChannel newServerChannel(
+					LocalEventLoop parentEventLoop) {
+				LocalServerChannel newServerChannel = super.newServerChannel(parentEventLoop);
+				ChannelPipeline pipeline = newServerChannel.pipeline();
+				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+				return newServerChannel;
+			}
+			
+		};
 		DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
 		builder.addLast("logger", new LoggingFilter());
-		acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
 		acceptor.setFilterChainBuilder(builder);
 		acceptor.setHandler(new IoHandlerAdapter() {
 			@Override
@@ -46,18 +56,22 @@ public class IT {
 			}
 		});
 		
-		acceptor.bind(new LocalAddress(8000));
+		acceptor.bind(new LocalAddress("8000"));
 
-		ChannelFactory clientChannelFactory = new DefaultLocalClientChannelFactory();
-
-		DefaultChannelIoConnector connector = new DefaultChannelIoConnector(clientChannelFactory);
-		connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
+		LocalChannelIoConnector connector = new LocalChannelIoConnector(eventLoop) {
+			@Override
+			protected LocalChannel newChannel() {
+				LocalChannel newChannel = super.newChannel();
+				ChannelPipeline pipeline = newChannel.pipeline();
+				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+				return newChannel;
+			}
+		};
 		connector.setFilterChainBuilder(builder);
 		connector.setHandler(new IoHandlerAdapter());
 		
 		final AtomicBoolean sessionInitialized = new AtomicBoolean();
-		ConnectFuture connectFuture = connector.connect(new LocalAddress(8000), new IoSessionInitializer<ConnectFuture>() {
-		
+		ConnectFuture connectFuture = connector.connect(new LocalAddress("8000"), new IoSessionInitializer<ConnectFuture>() {
 			@Override
 			public void initializeSession(IoSession session, ConnectFuture future) {
 				sessionInitialized.set(true);
@@ -70,7 +84,7 @@ public class IT {
 		session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })).awaitUninterruptibly();
 		Thread.sleep(1000);
 		session.close(true).awaitUninterruptibly();
-		acceptor.unbind(new LocalAddress(8000));
+		acceptor.unbind(new LocalAddress("8000"));
 		
 		connector.dispose();
 		acceptor.dispose();

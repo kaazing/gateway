@@ -4,25 +4,23 @@
 
 package com.kaazing.mina.netty.socket;
 
+import static com.kaazing.mina.netty.socket.SocketChannelIoAcceptor.TRANSPORT_METADATA;
+import static io.netty.buffer.ChannelBufType.BYTE;
+import io.netty.channel.EventLoop;
+import io.netty.channel.socket.SocketChannel;
+
 import java.net.InetSocketAddress;
 
-import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 
-public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
+public abstract class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, SocketChannel, InetSocketAddress> implements SocketConnector {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
-			SocketSessionConfig.class, Object.class);
-	
-	public SocketChannelIoConnector(SocketSessionConfig sessionConfig,
-			ClientSocketChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory);
+	public SocketChannelIoConnector(SocketSessionConfig sessionConfig, EventLoop eventLoop) {
+		super(sessionConfig, eventLoop, BYTE);
 	}
 
 	@Override
@@ -34,4 +32,7 @@ public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionCo
 	public TransportMetadata getTransportMetadata() {
 		return TRANSPORT_METADATA;
 	}
+
+	@Override
+	protected abstract SocketChannel newChannel();
 }
