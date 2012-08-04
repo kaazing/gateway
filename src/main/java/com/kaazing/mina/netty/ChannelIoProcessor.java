@@ -204,11 +204,11 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
                 	IoBuffer buf = (IoBuffer)message;
 					ByteBuf byteBuf = wrappedBuffer(buf.buf());
 					ChannelFuture future = channel.write(byteBuf);
-					future.addListener(new ChannelWriteFutureListener(filterChain, req));
+					future.addListener(new IoSessionWriteFutureListener(filterChain, req));
                 } else if (message instanceof FileRegion) {
                 	FileRegion region = (FileRegion)message;
                 	ChannelFuture future = channel.write(region);  // TODO: FileRegion
-					future.addListener(new ChannelWriteFutureListener(filterChain, req));
+					future.addListener(new IoSessionWriteFutureListener(filterChain, req));
                 } else {
                     throw new IllegalStateException(
                             "Don't know how to handle message of type '"
