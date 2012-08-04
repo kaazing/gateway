@@ -20,7 +20,7 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor<NioEvent
 	}
 
 	@Override
-	protected ServerSocketChannel newServerChannel(NioEventLoop parentEventLoop) {
+	protected ServerSocketChannel newServerChannel(NioEventLoop parentEventLoop, NioEventLoop childEventLoop) {
 		return new NioServerSocketChannel();
 	}
 

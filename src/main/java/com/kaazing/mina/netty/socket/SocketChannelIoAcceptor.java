@@ -33,7 +33,7 @@ public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends Chann
 	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig, E parentEventLoop, E childEventLoop) {
 		super(BYTE, sessionConfig, parentEventLoop, childEventLoop);
 		
-		ServerSocketChannel newServerChannel = newServerChannel(parentEventLoop);
+		ServerSocketChannel newServerChannel = newServerChannel(parentEventLoop, childEventLoop);
 		ServerSocketChannelConfig config = newServerChannel.config();
 		this.backlog = config.getBacklog();
 		this.reuseAddress = config.isReuseAddress();
@@ -77,5 +77,5 @@ public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends Chann
 
 
 	@Override
-	protected abstract ServerSocketChannel newServerChannel(E parentEventLoop);
+	protected abstract ServerSocketChannel newServerChannel(E parentEventLoop, E childEventLoop);
 }

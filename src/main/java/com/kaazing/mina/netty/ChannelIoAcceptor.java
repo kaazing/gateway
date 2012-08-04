@@ -27,6 +27,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 
 	private final ServerBootstrap bootstrap;
 	private final E parentEventLoop;
+	private final E childEventLoop;
 	private final ConcurrentMap<SocketAddress, Channel> boundChannels;
 	
 	public ChannelIoAcceptor(ChannelBufType bufType, S sessionConfig, E parentEventLoop, E childEventLoop) {
@@ -41,10 +42,11 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 			.childHandler(new IoAcceptorChildChannelInitializer(this, bufType));
 		
 		this.parentEventLoop = parentEventLoop;
+		this.childEventLoop = childEventLoop;
 		this.boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();
 	}
 
-	protected abstract P newServerChannel(E parentEventLoop);
+	protected abstract P newServerChannel(E parentEventLoop, E childEventLoop);
 	
 	@Override
 	public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer) {
@@ -60,7 +62,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 			List<? extends SocketAddress> localAddresses) throws Exception {
 
 		for (SocketAddress localAddress : localAddresses) {
-			bootstrap.channel(newServerChannel(parentEventLoop));
+			bootstrap.channel(newServerChannel(parentEventLoop, childEventLoop));
 			bootstrap.localAddress(localAddress);
 			// must sync to maintain equivalence with Mina semantics
 			Channel channel = bootstrap.bind().sync().channel();

@@ -36,7 +36,7 @@ public class LocalChannelIoAcceptor extends ChannelIoAcceptor<LocalEventLoop, Io
 	}
 
 	@Override
-	protected LocalServerChannel newServerChannel(LocalEventLoop parentEventLoop) {
+	protected LocalServerChannel newServerChannel(LocalEventLoop parentEventLoop, LocalEventLoop childEventLoop) {
 		return new LocalServerChannel();
 	}
 

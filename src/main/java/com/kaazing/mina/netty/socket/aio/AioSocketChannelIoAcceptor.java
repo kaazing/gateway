@@ -20,8 +20,15 @@ public class AioSocketChannelIoAcceptor extends SocketChannelIoAcceptor<AioEvent
 	}
 
 	@Override
-	protected ServerSocketChannel newServerChannel(AioEventLoop parentEventLoop) {
-		return new AioServerSocketChannel(parentEventLoop);
+	protected ServerSocketChannel newServerChannel(AioEventLoop parentEventLoop, AioEventLoop childEventLoop) {
+		return new AioServerSocketChannel(childEventLoop) {
+			@Override
+			protected Runnable doRegister() throws Exception {
+				// skip check during registration since we need to
+				// use the child event loop for all child channels
+				return null;
+			}
+		};
 	}
 
 }

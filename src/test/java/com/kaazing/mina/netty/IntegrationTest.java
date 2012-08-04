@@ -36,8 +36,8 @@ public class IntegrationTest {
 
 			@Override
 			protected LocalServerChannel newServerChannel(
-					LocalEventLoop parentEventLoop) {
-				LocalServerChannel newServerChannel = super.newServerChannel(parentEventLoop);
+					LocalEventLoop parentEventLoop, LocalEventLoop childEventLoop) {
+				LocalServerChannel newServerChannel = super.newServerChannel(parentEventLoop, childEventLoop);
 				ChannelPipeline pipeline = newServerChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newServerChannel;
