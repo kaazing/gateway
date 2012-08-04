@@ -4,7 +4,6 @@
 
 package com.kaazing.mina.netty;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ChannelBufType;
 import io.netty.channel.Channel;
