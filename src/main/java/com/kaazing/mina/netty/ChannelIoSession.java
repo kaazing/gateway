@@ -6,6 +6,7 @@ package com.kaazing.mina.netty;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.net.SocketAddress;
 
@@ -20,6 +21,7 @@ import org.apache.mina.core.session.IoSessionConfig;
 public class ChannelIoSession extends AbstractIoSession {
 
 	private final ChannelIoService service;
+	private final ChannelHandlerContext ctx;
 	private final Channel channel;
 	private final ChannelIoSessionConfig<?> config;
 	private final IoHandler handler;
@@ -27,9 +29,10 @@ public class ChannelIoSession extends AbstractIoSession {
 	private final IoFilterChain filterChain;
 	private final TransportMetadata transportMetadata;
 	
-	public ChannelIoSession(ChannelIoService service, Channel channel) {
+	public ChannelIoSession(ChannelIoService service, ChannelHandlerContext ctx) {
 		this.service = service;
-		this.channel = channel;
+		this.ctx = ctx;
+		this.channel = ctx.channel();
 		this.config = new ChannelIoSessionConfig<ChannelConfig>(channel.config());
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
@@ -40,6 +43,10 @@ public class ChannelIoSession extends AbstractIoSession {
 
 	public ChannelIoService getService() {
 		return service;
+	}
+	
+	public ChannelHandlerContext getChannelHandlerContext() {
+		return ctx;
 	}
 	
 	public Channel getChannel() {

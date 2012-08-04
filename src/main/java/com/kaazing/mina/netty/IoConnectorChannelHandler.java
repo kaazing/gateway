@@ -36,7 +36,7 @@ public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
 		Channel channel = ctx.channel();
 		ChannelPipeline childPipeline = channel.pipeline();
 
-		ChannelIoSession session = new ChannelIoSession(connector, channel);
+		ChannelIoSession session = new ChannelIoSession(connector, ctx);
 		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(session,
 				bufType, connectFuture, sessionInitializer);
 		childPipeline.replace(this, "session", newHandler);

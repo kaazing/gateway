@@ -81,6 +81,8 @@ public class IntegrationTest {
 		connectFuture.awaitUninterruptibly();
 		assertTrue(sessionInitialized.get());
 		IoSession session = connectFuture.getSession();
+		session.suspendRead();
+		session.resumeRead();
 		session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })).awaitUninterruptibly();
 		Thread.sleep(1000);
 		session.close(true).awaitUninterruptibly();

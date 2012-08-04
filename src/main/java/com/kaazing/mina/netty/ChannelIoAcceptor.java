@@ -38,7 +38,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 		
 		this.bootstrap = new ServerBootstrap()
 			.eventLoop(parentEventLoop, childEventLoop)
-			.childHandler(new IoAcceptorChildChannelInitializer<C>(this, bufType));
+			.childHandler(new IoAcceptorChildChannelInitializer(this, bufType));
 		
 		this.parentEventLoop = parentEventLoop;
 		this.boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();

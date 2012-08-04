@@ -11,6 +11,7 @@ import static io.netty.buffer.Unpooled.wrappedBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,14 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
 	@Override
 	public void updateTrafficControl(ChannelIoSession session) {
-		throw new UnsupportedOperationException("updateTrafficControl");
+
+		boolean readable = !session.isReadSuspended();
+		ChannelHandlerContext ctx = session.getChannelHandlerContext();
+		ctx.readable(readable);
+		
+		if (!session.isWriteSuspended()) {
+			flush(session);
+		}
 	}
 
 	protected void init(ChannelIoSession session) {
