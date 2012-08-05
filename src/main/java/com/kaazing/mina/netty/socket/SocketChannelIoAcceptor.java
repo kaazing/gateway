@@ -27,43 +27,38 @@ public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends Chann
 			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-	private volatile int backlog;
-	private volatile boolean reuseAddress;
+	private final int defaultBacklog;
+	private final boolean defaultReuseAddress;
 
 	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig, E parentEventLoop, E childEventLoop) {
 		super(BYTE, sessionConfig, parentEventLoop, childEventLoop);
 		
 		ServerSocketChannel newServerChannel = newServerChannel(parentEventLoop, childEventLoop);
 		ServerSocketChannelConfig config = newServerChannel.config();
-		this.backlog = config.getBacklog();
-		this.reuseAddress = config.isReuseAddress();
-		newServerChannel.close();
+		this.defaultBacklog = config.getBacklog();
+		this.defaultReuseAddress = config.isReuseAddress();
 	}
 
 
 	@Override
 	public int getBacklog() {
-		return backlog;
+		return getBootstrapOption(SO_BACKLOG, defaultBacklog);
 	}
 
 	@Override
 	public void setBacklog(int backlog) {
-		this.backlog = backlog;
-		
-		getBootstrap().option(SO_BACKLOG, backlog);
+		setBootstrapOption(SO_BACKLOG, backlog);
 	}
 	
 	@Override
 	public boolean isReuseAddress() {
-		return reuseAddress;
+		return getBootstrapOption(SO_REUSEADDR, defaultReuseAddress);
 	}
 
 	@Override
 	public void setReuseAddress(boolean reuseAddress) {
-		this.reuseAddress = reuseAddress;
-
-		getBootstrap().option(SO_REUSEADDR, reuseAddress);
-}
+		setBootstrapOption(SO_REUSEADDR, reuseAddress);
+	}
 
 	@Override
 	public void setDefaultLocalAddress(InetSocketAddress localAddress) {

@@ -13,6 +13,7 @@ import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -98,7 +99,8 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 	private static final IoBuffer asIoBuffer(ByteBuf byteBuf) {
 		if (byteBuf.hasNioBuffer()) {
-			return IoBuffer.wrap(byteBuf.nioBuffer());
+			ByteBuffer buffer = byteBuf.nioBuffer(byteBuf.readerIndex(), byteBuf.readableBytes());
+			return IoBuffer.wrap(buffer);
 		}
 		else if (byteBuf.hasArray()) {
 			byte[] byteArray = byteBuf.array();

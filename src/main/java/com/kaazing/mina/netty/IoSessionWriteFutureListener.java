@@ -7,6 +7,7 @@ package com.kaazing.mina.netty;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.write.WriteRequest;
 
@@ -22,6 +23,8 @@ final class IoSessionWriteFutureListener implements ChannelFutureListener {
 	@Override
 	public void operationComplete(ChannelFuture future) throws Exception {
 		if (future.isSuccess()) {
+			IoBuffer buf = (IoBuffer)request.getMessage();
+			buf.reset();
 			filterChain.fireMessageSent(request);
 		}
 		else {

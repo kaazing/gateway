@@ -202,12 +202,29 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
                 
                 if (message instanceof IoBuffer) {
                 	IoBuffer buf = (IoBuffer)message;
-					ByteBuf byteBuf = wrappedBuffer(buf.buf());
-					ChannelFuture future = channel.write(byteBuf);
-					future.addListener(new IoSessionWriteFutureListener(filterChain, req));
+                	// compatibility: MINA skips empty buffers
+                	if (buf.hasRemaining()) {
+						ByteBuf byteBuf = wrappedBuffer(buf.buf());
+						buf.skip(buf.remaining());
+						ChannelFuture future = channel.write(byteBuf);
+						// clear before future completion in case resume read flushes writes
+						// causing the current write request to be resent
+		                session.setCurrentWriteRequest(null);
+						future.addListener(new IoSessionWriteFutureListener(filterChain, req));
+                	}
+                	else {
+						// clear before future completion in case resume read flushes writes
+						// causing the current write request to be resent
+		                session.setCurrentWriteRequest(null);
+                		filterChain.fireMessageSent(req);
+                	}
+                	session.increaseWrittenBytes(buf.remaining(), currentTime);
                 } else if (message instanceof FileRegion) {
                 	FileRegion region = (FileRegion)message;
                 	ChannelFuture future = channel.write(region);  // TODO: FileRegion
+					// clear before future completion in case resume read flushes writes
+					// causing the current write request to be resent
+                	session.setCurrentWriteRequest(null);
 					future.addListener(new IoSessionWriteFutureListener(filterChain, req));
                 } else {
                     throw new IllegalStateException(
@@ -216,7 +233,6 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
                                     + "'.  Are you missing a protocol encoder?");
                 }
                 
-                session.setCurrentWriteRequest(null);
             }
         } catch (Exception e) {
             if (req != null) {

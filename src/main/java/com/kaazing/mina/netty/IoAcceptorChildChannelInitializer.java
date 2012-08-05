@@ -6,10 +6,12 @@ package com.kaazing.mina.netty;
 
 import io.netty.buffer.ChannelBufType;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelStateHandlerAdapter;
 
+@Sharable
 public class IoAcceptorChildChannelInitializer extends ChannelStateHandlerAdapter {
 
 	private final ChannelIoService acceptor;
