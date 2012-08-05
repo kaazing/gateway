@@ -23,12 +23,12 @@ import org.apache.mina.core.service.AbstractIoConnector;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
 
-public abstract class ChannelIoConnector<S extends IoSessionConfig, C extends Channel, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
+public abstract class ChannelIoConnector<E extends EventLoop, S extends IoSessionConfig, C extends Channel, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
 
-	private final EventLoop eventLoop;
+	private final E eventLoop;
 	private final ChannelBufType bufType;
 	
-	public ChannelIoConnector(S sessionConfig, EventLoop eventLoop, ChannelBufType bufType) {
+	public ChannelIoConnector(S sessionConfig, E eventLoop, ChannelBufType bufType) {
 		super(sessionConfig, new Executor() {
 			@Override
 			public void execute(Runnable command) {
@@ -39,7 +39,7 @@ public abstract class ChannelIoConnector<S extends IoSessionConfig, C extends Ch
 		this.bufType = bufType;
 	}
 
-	protected abstract C newChannel();
+	protected abstract C newChannel(E eventLoop);
 	
 	@Override
 	protected ConnectFuture connect0(SocketAddress remoteAddress,
@@ -48,7 +48,7 @@ public abstract class ChannelIoConnector<S extends IoSessionConfig, C extends Ch
 
 		final ConnectFuture connectFuture = new DefaultConnectFuture();
 		
-		C newChannel = newChannel();
+		C newChannel = newChannel(eventLoop);
 		
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.eventLoop(eventLoop);

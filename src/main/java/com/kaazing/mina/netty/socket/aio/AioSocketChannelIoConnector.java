@@ -6,13 +6,13 @@ package com.kaazing.mina.netty.socket.aio;
 
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.aio.AioEventLoop;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.channel.socket.aio.AioSocketChannel;
 
 import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
-public class AioSocketChannelIoConnector extends SocketChannelIoConnector {
+public class AioSocketChannelIoConnector extends SocketChannelIoConnector<AioEventLoop> {
 
 	public AioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
 			AioEventLoop eventLoop) {
@@ -20,8 +20,8 @@ public class AioSocketChannelIoConnector extends SocketChannelIoConnector {
 	}
 
 	@Override
-	protected SocketChannel newChannel() {
-		return new NioSocketChannel();
+	protected SocketChannel newChannel(AioEventLoop eventLoop) {
+		return new AioSocketChannel(eventLoop);
 	}
 
 }

@@ -15,7 +15,7 @@ import org.apache.mina.core.session.IoSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 
-public class LocalChannelIoConnector extends ChannelIoConnector<IoSessionConfig, LocalChannel, LocalAddress> {
+public class LocalChannelIoConnector extends ChannelIoConnector<LocalEventLoop, IoSessionConfig, LocalChannel, LocalAddress> {
 
 	public LocalChannelIoConnector() {
 		this(new LocalEventLoop());
@@ -31,7 +31,7 @@ public class LocalChannelIoConnector extends ChannelIoConnector<IoSessionConfig,
 	}
 
 	@Override
-	protected LocalChannel newChannel() {
+	protected LocalChannel newChannel(LocalEventLoop eventLoop) {
 		return new LocalChannel();
 	}
 

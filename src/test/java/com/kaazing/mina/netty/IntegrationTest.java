@@ -60,8 +60,8 @@ public class IntegrationTest {
 
 		LocalChannelIoConnector connector = new LocalChannelIoConnector(eventLoop) {
 			@Override
-			protected LocalChannel newChannel() {
-				LocalChannel newChannel = super.newChannel();
+			protected LocalChannel newChannel(LocalEventLoop eventLoop) {
+				LocalChannel newChannel = super.newChannel(eventLoop);
 				ChannelPipeline pipeline = newChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newChannel;

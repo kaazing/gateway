@@ -31,7 +31,7 @@ public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
 
 		Channel channel = ctx.channel();
 		ChannelPipeline childPipeline = channel.pipeline();
@@ -41,7 +41,7 @@ public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
 				bufType, connectFuture, sessionInitializer);
 		childPipeline.replace(this, "session", newHandler);
 
-		newHandler.channelActive(ctx);
+		newHandler.channelRegistered(ctx);
 	}
 
 	@Override

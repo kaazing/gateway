@@ -17,9 +17,9 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 
-public abstract class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, SocketChannel, InetSocketAddress> implements SocketConnector {
+public abstract class SocketChannelIoConnector<E extends EventLoop> extends ChannelIoConnector<E, SocketSessionConfig, SocketChannel, InetSocketAddress> implements SocketConnector {
 
-	public SocketChannelIoConnector(SocketSessionConfig sessionConfig, EventLoop eventLoop) {
+	public SocketChannelIoConnector(SocketSessionConfig sessionConfig, E eventLoop) {
 		super(sessionConfig, eventLoop, BYTE);
 	}
 
@@ -34,5 +34,5 @@ public abstract class SocketChannelIoConnector extends ChannelIoConnector<Socket
 	}
 
 	@Override
-	protected abstract SocketChannel newChannel();
+	protected abstract SocketChannel newChannel(E eventLoop);
 }

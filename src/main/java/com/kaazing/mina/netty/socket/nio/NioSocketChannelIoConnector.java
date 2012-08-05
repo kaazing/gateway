@@ -12,7 +12,7 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
-public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
+public class NioSocketChannelIoConnector extends SocketChannelIoConnector<NioEventLoop> {
 
 	public NioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
 			NioEventLoop eventLoop) {
@@ -20,7 +20,7 @@ public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 	}
 
 	@Override
-	protected SocketChannel newChannel() {
+	protected SocketChannel newChannel(NioEventLoop eventLoop) {
 		return new NioSocketChannel();
 	}
 
