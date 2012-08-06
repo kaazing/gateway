@@ -15,8 +15,8 @@
   <name>Mina Netty Adapter</name>
 
   <scm>
-      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/trunk</connection>
-      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/trunk</url>
+      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/branches/1.0.x.y</connection>
+      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.0.x.y</url>
   </scm>
 
   <dependencies>
