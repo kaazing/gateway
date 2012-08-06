@@ -8,11 +8,20 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioEventLoop;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
 public class NioSocketChannelIoConnector extends SocketChannelIoConnector<NioEventLoop> {
+
+	public NioSocketChannelIoConnector() {
+		this(new NioEventLoop());
+	}
+	
+	public NioSocketChannelIoConnector(NioEventLoop eventLoop) {
+		this(new DefaultSocketSessionConfig(), eventLoop);
+	}
 
 	public NioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
 			NioEventLoop eventLoop) {

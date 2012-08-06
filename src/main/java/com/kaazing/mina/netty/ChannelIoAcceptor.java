@@ -86,8 +86,15 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 		
 			bootstrap.channel(newServerChannel(parentEventLoop, childEventLoop));
 			bootstrap.localAddress(localAddress);
+			
+			for (Map.Entry<ChannelOption<?>, Object> entry : parentOptions.entrySet()) {
+				@SuppressWarnings("unchecked")
+				ChannelOption<Object> option = (ChannelOption<Object>)entry.getKey();
+				Object value = entry.getValue();
+				bootstrap.option(option, value);
+			}
 
-			// must sync to maintain equivalence with Mina semantics
+			// must sync to maintain equivalence with MINA semantics
 			Channel channel = bootstrap.bind().sync().channel();
 			boundChannels.put(localAddress, channel);
 		}

@@ -10,9 +10,13 @@ import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalChannel;
 import io.netty.channel.local.LocalEventLoop;
 import io.netty.channel.local.LocalServerChannel;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioEventLoop;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -26,6 +30,8 @@ import org.junit.Test;
 
 import com.kaazing.mina.netty.local.LocalChannelIoAcceptor;
 import com.kaazing.mina.netty.local.LocalChannelIoConnector;
+import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
 public class IntegrationTest {
 	@Test
@@ -72,6 +78,72 @@ public class IntegrationTest {
 		
 		final AtomicBoolean sessionInitialized = new AtomicBoolean();
 		ConnectFuture connectFuture = connector.connect(new LocalAddress("8000"), new IoSessionInitializer<ConnectFuture>() {
+			@Override
+			public void initializeSession(IoSession session, ConnectFuture future) {
+				sessionInitialized.set(true);
+			}
+		});
+		
+		connectFuture.awaitUninterruptibly();
+		assertTrue(sessionInitialized.get());
+		IoSession session = connectFuture.getSession();
+		session.suspendRead();
+		session.resumeRead();
+		session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })).awaitUninterruptibly();
+		Thread.sleep(1000);
+		session.close(true).awaitUninterruptibly();
+		acceptor.unbind(new LocalAddress("8000"));
+		
+		connector.dispose();
+		acceptor.dispose();
+	}
+
+	@Test
+	public void testNettyNio() throws Exception {
+
+		NioEventLoop eventLoop = new NioEventLoop();
+		NioSocketChannelIoAcceptor acceptor = new NioSocketChannelIoAcceptor(eventLoop) {
+
+			@Override
+			protected ServerSocketChannel newServerChannel(
+					NioEventLoop parentEventLoop, NioEventLoop childEventLoop) {
+				ServerSocketChannel newServerChannel = super.newServerChannel(parentEventLoop, childEventLoop);
+				ChannelPipeline pipeline = newServerChannel.pipeline();
+				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+				return newServerChannel;
+			}
+			
+		};
+		DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
+		builder.addLast("logger", new LoggingFilter());
+		acceptor.setFilterChainBuilder(builder);
+		acceptor.setHandler(new IoHandlerAdapter() {
+			@Override
+			public void messageReceived(IoSession session, Object message)
+					throws Exception {
+				IoBuffer buf = (IoBuffer)message;
+				session.write(buf.duplicate());
+			}
+		});
+		acceptor.setBacklog(1000);
+		acceptor.setReuseAddress(true);
+		
+		acceptor.bind(new InetSocketAddress("127.0.0.1", 65123));
+
+		NioSocketChannelIoConnector connector = new NioSocketChannelIoConnector(eventLoop) {
+			@Override
+			protected SocketChannel newChannel(NioEventLoop eventLoop) {
+				SocketChannel newChannel = super.newChannel(eventLoop);
+				ChannelPipeline pipeline = newChannel.pipeline();
+				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+				return newChannel;
+			}
+		};
+		connector.setFilterChainBuilder(builder);
+		connector.setHandler(new IoHandlerAdapter());
+		
+		final AtomicBoolean sessionInitialized = new AtomicBoolean();
+		ConnectFuture connectFuture = connector.connect(new InetSocketAddress("127.0.0.1", 65123), new IoSessionInitializer<ConnectFuture>() {
 			@Override
 			public void initializeSession(IoSession session, ConnectFuture future) {
 				sessionInitialized.set(true);
