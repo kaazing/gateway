@@ -17,30 +17,30 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
 
 public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 	private final ChannelIoSession session;
 	private final ChannelBufType bufType;
-	private final IoFuture future;
+	private final ConnectFuture connectFuture;
 	private final IoSessionInitializer<?> initializer;
 	
 	public IoSessionChannelHandler(ChannelIoSession session, ChannelBufType bufType) {
 		this(session, bufType, null, null);
 	}
 
-	public IoSessionChannelHandler(ChannelIoSession session, ChannelBufType bufType, IoFuture future, IoSessionInitializer<?> initializer) {
+	public IoSessionChannelHandler(ChannelIoSession session, ChannelBufType bufType, ConnectFuture connectFuture, IoSessionInitializer<?> initializer) {
 		this.session = session;
 		this.bufType = bufType;
-		this.future = future;
+		this.connectFuture = connectFuture;
 		this.initializer = initializer;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		session.getService().initializeSession(session, future, initializer);
+		session.getService().initializeSession(session, connectFuture, initializer);
 		session.getProcessor().add(session);
 	}
 	
@@ -51,7 +51,12 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		session.getFilterChain().fireExceptionCaught(cause);
+		if (!connectFuture.isDone()) {
+			connectFuture.setException(cause);
+		}
+		else {
+			session.getFilterChain().fireExceptionCaught(cause);
+		}
 	}
 
 	@Override

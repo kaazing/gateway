@@ -47,6 +47,7 @@ public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
+		// in case an exception occurs before or during registration
 		connectFuture.setException(cause);
 	}
 
