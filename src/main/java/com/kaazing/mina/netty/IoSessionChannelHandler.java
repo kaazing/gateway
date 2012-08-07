@@ -51,10 +51,9 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		if (!connectFuture.isDone()) {
-			connectFuture.setException(cause);
-		}
-		else {
+		// ChannelIoConnector handles the failure case with a ChannelFutureListener
+		// ChannelIoAcceptor instantiates this handler with null connect future
+		if (connectFuture == null || connectFuture.isConnected()) {
 			session.getFilterChain().fireExceptionCaught(cause);
 		}
 	}
