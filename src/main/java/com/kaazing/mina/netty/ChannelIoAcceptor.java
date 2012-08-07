@@ -131,10 +131,21 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
-		parentEventLoop.shutdown();
-		childEventLoop.shutdown();
-		parentEventLoop.awaitTermination(10, SECONDS);
-		childEventLoop.awaitTermination(10, SECONDS);
+		if (!parentEventLoop.isShutdown()) {
+			parentEventLoop.shutdown();
+		}
+
+		if (!childEventLoop.isShutdown()) {
+			childEventLoop.shutdown();
+		}
+		
+		if (!parentEventLoop.isShutdown()) {
+			parentEventLoop.awaitTermination(5, SECONDS);
+		}
+		
+		if (!childEventLoop.isShutdown()) {
+			childEventLoop.awaitTermination(5, SECONDS);
+		}
 		return null;
 	}
 
