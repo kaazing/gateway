@@ -7,7 +7,7 @@ package com.kaazing.mina.netty.socket;
 import static io.netty.buffer.ChannelBufType.BYTE;
 import static io.netty.channel.ChannelOption.SO_BACKLOG;
 import static io.netty.channel.ChannelOption.SO_REUSEADDR;
-import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.ServerSocketChannelConfig;
 import io.netty.channel.socket.SocketChannel;
@@ -21,7 +21,7 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 
-public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends ChannelIoAcceptor<E, SocketSessionConfig, ServerSocketChannel, SocketChannel, InetSocketAddress> implements SocketAcceptor {
+public abstract class SocketChannelIoAcceptor<E extends EventLoopGroup> extends ChannelIoAcceptor<E, SocketSessionConfig, ServerSocketChannel, SocketChannel, InetSocketAddress> implements SocketAcceptor {
 
 	static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
@@ -72,5 +72,5 @@ public abstract class SocketChannelIoAcceptor<E extends EventLoop> extends Chann
 
 
 	@Override
-	protected abstract ServerSocketChannel newServerChannel(E parentEventLoop, E childEventLoop);
+	protected abstract ServerSocketChannel newServerChannel(E parentGroup, E childGroup);
 }

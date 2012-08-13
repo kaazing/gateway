@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalChannel;
-import io.netty.channel.local.LocalEventLoop;
+import io.netty.channel.local.LocalEventLoopGroup;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioEventLoop;
+import io.netty.channel.socket.nio.NioEventLoopGroup;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
@@ -37,13 +37,13 @@ public class IntegrationTest {
 	@Test
 	public void testNettyLocal() throws Exception {
 
-		LocalEventLoop eventLoop = new LocalEventLoop();
-		LocalChannelIoAcceptor acceptor = new LocalChannelIoAcceptor(eventLoop) {
+		LocalEventLoopGroup childGroup = new LocalEventLoopGroup();
+		LocalChannelIoAcceptor acceptor = new LocalChannelIoAcceptor(childGroup) {
 
 			@Override
 			protected LocalServerChannel newServerChannel(
-					LocalEventLoop parentEventLoop, LocalEventLoop childEventLoop) {
-				LocalServerChannel newServerChannel = super.newServerChannel(parentEventLoop, childEventLoop);
+					LocalEventLoopGroup parentGroup, LocalEventLoopGroup childGroup) {
+				LocalServerChannel newServerChannel = super.newServerChannel(parentGroup, childGroup);
 				ChannelPipeline pipeline = newServerChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newServerChannel;
@@ -64,10 +64,10 @@ public class IntegrationTest {
 		
 		acceptor.bind(new LocalAddress("8000"));
 
-		LocalChannelIoConnector connector = new LocalChannelIoConnector(eventLoop) {
+		LocalChannelIoConnector connector = new LocalChannelIoConnector(childGroup) {
 			@Override
-			protected LocalChannel newChannel(LocalEventLoop eventLoop) {
-				LocalChannel newChannel = super.newChannel(eventLoop);
+			protected LocalChannel newChannel(LocalEventLoopGroup group) {
+				LocalChannel newChannel = super.newChannel(group);
 				ChannelPipeline pipeline = newChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newChannel;
@@ -101,13 +101,13 @@ public class IntegrationTest {
 	@Test
 	public void testNettyNio() throws Exception {
 
-		NioEventLoop eventLoop = new NioEventLoop();
-		NioSocketChannelIoAcceptor acceptor = new NioSocketChannelIoAcceptor(eventLoop) {
+		NioEventLoopGroup childGroup = new NioEventLoopGroup();
+		NioSocketChannelIoAcceptor acceptor = new NioSocketChannelIoAcceptor(childGroup) {
 
 			@Override
 			protected ServerSocketChannel newServerChannel(
-					NioEventLoop parentEventLoop, NioEventLoop childEventLoop) {
-				ServerSocketChannel newServerChannel = super.newServerChannel(parentEventLoop, childEventLoop);
+					NioEventLoopGroup parentGroup, NioEventLoopGroup childGroup) {
+				ServerSocketChannel newServerChannel = super.newServerChannel(parentGroup, childGroup);
 				ChannelPipeline pipeline = newServerChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newServerChannel;
@@ -130,10 +130,10 @@ public class IntegrationTest {
 		
 		acceptor.bind(new InetSocketAddress("127.0.0.1", 65123));
 
-		NioSocketChannelIoConnector connector = new NioSocketChannelIoConnector(eventLoop) {
+		NioSocketChannelIoConnector connector = new NioSocketChannelIoConnector(childGroup) {
 			@Override
-			protected SocketChannel newChannel(NioEventLoop eventLoop) {
-				SocketChannel newChannel = super.newChannel(eventLoop);
+			protected SocketChannel newChannel(NioEventLoopGroup group) {
+				SocketChannel newChannel = super.newChannel(group);
 				ChannelPipeline pipeline = newChannel.pipeline();
 				pipeline.addLast(new LoggingHandler(LogLevel.INFO));
 				return newChannel;

@@ -13,12 +13,13 @@ import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
+
+import com.kaazing.mina.netty.buffer.ChannelIoBuffers;
 
 public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
@@ -63,7 +64,8 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 			throws Exception {
 		switch (bufType) {
 		case BYTE:
-			return directBuffer();
+			// TODO: eliminate magic values
+			return directBuffer(8192, 1048576);
 		case MESSAGE:
 			return new DefaultMessageBuf<ByteBuf>(new LinkedList<ByteBuf>());
 		default:
@@ -78,9 +80,7 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 		switch (bufType) {
 		case BYTE:
 			ByteBuf in = ctx.inboundByteBuffer();
-			IoBuffer buf = asIoBuffer(in);
-			in.skipBytes(in.readableBytes());
-			
+			IoBuffer buf = ChannelIoBuffers.wrap(in);
 			session.getFilterChain().fireMessageReceived(buf);
 			break;
 		case MESSAGE:
@@ -89,8 +89,7 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 				LinkedList<ByteBuf> inBufs = new LinkedList<ByteBuf>();
 				inMsg.drainTo(inBufs);
 				for (ByteBuf inBuf : inBufs) {
-					IoBuffer ioBuf = asIoBuffer(inBuf);
-					inBuf.skipBytes(inBuf.readableBytes());
+					IoBuffer ioBuf = ChannelIoBuffers.wrap(inBuf);
 					session.getFilterChain().fireMessageReceived(ioBuf);
 					
 				}
@@ -98,22 +97,6 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 			break;
 		default:
 			throw new IllegalStateException("Unrecognized channel buffer type: " + bufType);
-		}
-	}
-
-	private static final IoBuffer asIoBuffer(ByteBuf byteBuf) {
-		if (byteBuf.hasNioBuffer()) {
-			ByteBuffer buffer = byteBuf.nioBuffer(byteBuf.readerIndex(), byteBuf.readableBytes());
-			return IoBuffer.wrap(buffer);
-		}
-		else if (byteBuf.hasArray()) {
-			byte[] byteArray = byteBuf.array();
-			int offset = byteBuf.arrayOffset();
-			int length = byteBuf.readableBytes();
-			return IoBuffer.wrap(byteArray, offset, length);
-		}
-		else {
-			throw new IllegalStateException("Unable to convert ByteBuf to IoBuffer");
 		}
 	}
 }

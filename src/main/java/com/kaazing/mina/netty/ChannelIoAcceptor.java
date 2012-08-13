@@ -10,7 +10,7 @@ import io.netty.buffer.ChannelBufType;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 
 import java.net.SocketAddress;
@@ -28,7 +28,7 @@ import org.apache.mina.core.service.AbstractIoAcceptor;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
 
-public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSessionConfig, P extends ServerChannel, C extends Channel, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
+public abstract class ChannelIoAcceptor<E extends EventLoopGroup, S extends IoSessionConfig, P extends ServerChannel, C extends Channel, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
 
 	private final E parentEventLoop;
 	private final E childEventLoop;
@@ -50,7 +50,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 		this.boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();
 	}
 
-	protected abstract P newServerChannel(E parentEventLoop, E childEventLoop);
+	protected abstract P newServerChannel(E parentGroup, E childGroup);
 	
 	@Override
 	public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer) {
@@ -81,7 +81,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoop, S extends IoSession
 
 		for (SocketAddress localAddress : localAddresses) {
 			ServerBootstrap bootstrap = new ServerBootstrap()
-				.eventLoop(parentEventLoop, childEventLoop)
+				.group(parentEventLoop, childEventLoop)
 				.childHandler(childHandler);
 		
 			bootstrap.channel(newServerChannel(parentEventLoop, childEventLoop));

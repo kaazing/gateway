@@ -8,30 +8,30 @@ import static com.kaazing.mina.netty.local.LocalChannelIoAcceptor.TRANSPORT_META
 import static io.netty.buffer.ChannelBufType.MESSAGE;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalChannel;
-import io.netty.channel.local.LocalEventLoop;
+import io.netty.channel.local.LocalEventLoopGroup;
 
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 
-public class LocalChannelIoConnector extends ChannelIoConnector<LocalEventLoop, IoSessionConfig, LocalChannel, LocalAddress> {
+public class LocalChannelIoConnector extends ChannelIoConnector<LocalEventLoopGroup, IoSessionConfig, LocalChannel, LocalAddress> {
 
 	public LocalChannelIoConnector() {
-		this(new LocalEventLoop());
+		this(new LocalEventLoopGroup());
 	}
 
-	public LocalChannelIoConnector(LocalEventLoop eventLoop) {
-		this(new LocalChannelIoSessionConfig(), eventLoop);
+	public LocalChannelIoConnector(LocalEventLoopGroup group) {
+		this(new LocalChannelIoSessionConfig(), group);
 	}
 
 	public LocalChannelIoConnector(IoSessionConfig sessionConfig,
-			LocalEventLoop eventLoop) {
-		super(sessionConfig, eventLoop, MESSAGE);
+			LocalEventLoopGroup group) {
+		super(sessionConfig, group, MESSAGE);
 	}
 
 	@Override
-	protected LocalChannel newChannel(LocalEventLoop eventLoop) {
+	protected LocalChannel newChannel(LocalEventLoopGroup group) {
 		return new LocalChannel();
 	}
 

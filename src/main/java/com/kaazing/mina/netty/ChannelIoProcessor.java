@@ -28,6 +28,8 @@ import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
 
+import com.kaazing.mina.netty.buffer.ChannelReadableIoBuffer;
+
 
 final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
@@ -81,6 +83,7 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 	}
 	
 	protected void destroy(ChannelIoSession session) {
+//		new Exception(String.format("%s (closing ChannelIoSession)", session.getChannel())).printStackTrace();
 		session.getChannel().close();
 	}
 
@@ -200,7 +203,26 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
                 Object message = req.getMessage();
                 
-                if (message instanceof IoBuffer) {
+                if (message instanceof ChannelReadableIoBuffer) {
+                	ChannelReadableIoBuffer buf = (ChannelReadableIoBuffer)message;
+                	ByteBuf byteBuf = buf.byteBuf();
+                	// compatibility: MINA skips empty buffers
+                	if (byteBuf.readable()) {
+						ChannelFuture future = channel.write(byteBuf);
+						// clear before future completion in case resume read flushes writes
+						// causing the current write request to be resent
+		                session.setCurrentWriteRequest(null);
+						future.addListener(new IoSessionWriteFutureListener(filterChain, req));
+                	}
+                	else {
+						// clear before future completion in case resume read flushes writes
+						// causing the current write request to be resent
+		                session.setCurrentWriteRequest(null);
+                		filterChain.fireMessageSent(req);
+                	}
+                	session.increaseWrittenBytes(buf.remaining(), currentTime);
+                }
+                else if (message instanceof IoBuffer) {
                 	IoBuffer buf = (IoBuffer)message;
                 	// compatibility: MINA skips empty buffers
                 	if (buf.hasRemaining()) {

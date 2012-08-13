@@ -6,7 +6,7 @@ package com.kaazing.mina.netty.socket;
 
 import static com.kaazing.mina.netty.socket.SocketChannelIoAcceptor.TRANSPORT_METADATA;
 import static io.netty.buffer.ChannelBufType.BYTE;
-import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 
 import java.net.InetSocketAddress;
@@ -17,7 +17,7 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 
-public abstract class SocketChannelIoConnector<E extends EventLoop> extends ChannelIoConnector<E, SocketSessionConfig, SocketChannel, InetSocketAddress> implements SocketConnector {
+public abstract class SocketChannelIoConnector<E extends EventLoopGroup> extends ChannelIoConnector<E, SocketSessionConfig, SocketChannel, InetSocketAddress> implements SocketConnector {
 
 	public SocketChannelIoConnector(SocketSessionConfig sessionConfig, E eventLoop) {
 		super(sessionConfig, eventLoop, BYTE);
@@ -34,5 +34,5 @@ public abstract class SocketChannelIoConnector<E extends EventLoop> extends Chan
 	}
 
 	@Override
-	protected abstract SocketChannel newChannel(E eventLoop);
+	protected abstract SocketChannel newChannel(E group);
 }

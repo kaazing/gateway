@@ -11,7 +11,7 @@ import io.netty.buffer.ChannelBufType;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
@@ -23,7 +23,7 @@ import org.apache.mina.core.service.AbstractIoConnector;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
 
-public abstract class ChannelIoConnector<E extends EventLoop, S extends IoSessionConfig, C extends Channel, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
+public abstract class ChannelIoConnector<E extends EventLoopGroup, S extends IoSessionConfig, C extends Channel, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
 
 	private final E eventLoop;
 	private final ChannelBufType bufType;
@@ -39,7 +39,7 @@ public abstract class ChannelIoConnector<E extends EventLoop, S extends IoSessio
 		this.bufType = bufType;
 	}
 
-	protected abstract C newChannel(E eventLoop);
+	protected abstract C newChannel(E group);
 	
 	@Override
 	protected ConnectFuture connect0(SocketAddress remoteAddress,
@@ -51,7 +51,7 @@ public abstract class ChannelIoConnector<E extends EventLoop, S extends IoSessio
 		C newChannel = newChannel(eventLoop);
 		
 		Bootstrap bootstrap = new Bootstrap();
-		bootstrap.eventLoop(eventLoop);
+		bootstrap.group(eventLoop);
 		bootstrap.handler(new IoConnectorChannelHandler(this, bufType, connectFuture, sessionInitializer));
 		bootstrap.channel(newChannel);
 		bootstrap.option(CONNECT_TIMEOUT_MILLIS, (int)getConnectTimeoutMillis());

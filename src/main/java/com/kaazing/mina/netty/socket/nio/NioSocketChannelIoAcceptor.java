@@ -5,7 +5,7 @@
 package com.kaazing.mina.netty.socket.nio;
 
 import io.netty.channel.socket.ServerSocketChannel;
-import io.netty.channel.socket.nio.NioEventLoop;
+import io.netty.channel.socket.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
@@ -13,23 +13,23 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
 
-public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor<NioEventLoop> {
+public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor<NioEventLoopGroup> {
 
 	public NioSocketChannelIoAcceptor() {
-		this(new NioEventLoop());
+		this(new NioEventLoopGroup());
 	}
 	
-	public NioSocketChannelIoAcceptor(NioEventLoop childEventLoop) {
-		this(new DefaultSocketSessionConfig(), new NioEventLoop(), childEventLoop);
+	public NioSocketChannelIoAcceptor(NioEventLoopGroup childGroup) {
+		this(new DefaultSocketSessionConfig(), new NioEventLoopGroup(), childGroup);
 	}
 
 	public NioSocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
-			NioEventLoop parentEventLoop, NioEventLoop childEventLoop) {
-		super(sessionConfig, parentEventLoop, childEventLoop);
+			NioEventLoopGroup parentGroup, NioEventLoopGroup childGroup) {
+		super(sessionConfig, parentGroup, childGroup);
 	}
 
 	@Override
-	protected ServerSocketChannel newServerChannel(NioEventLoop parentEventLoop, NioEventLoop childEventLoop) {
+	protected ServerSocketChannel newServerChannel(NioEventLoopGroup parentGroup, NioEventLoopGroup childGroup) {
 		return new NioServerSocketChannel();
 	}
 

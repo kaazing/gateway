@@ -7,7 +7,7 @@ package com.kaazing.mina.netty.local;
 import static io.netty.buffer.ChannelBufType.MESSAGE;
 import io.netty.channel.local.LocalAddress;
 import io.netty.channel.local.LocalChannel;
-import io.netty.channel.local.LocalEventLoop;
+import io.netty.channel.local.LocalEventLoopGroup;
 import io.netty.channel.local.LocalServerChannel;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
@@ -16,27 +16,27 @@ import org.apache.mina.core.session.IoSessionConfig;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 
-public class LocalChannelIoAcceptor extends ChannelIoAcceptor<LocalEventLoop, IoSessionConfig, LocalServerChannel, LocalChannel, LocalAddress> {
+public class LocalChannelIoAcceptor extends ChannelIoAcceptor<LocalEventLoopGroup, IoSessionConfig, LocalServerChannel, LocalChannel, LocalAddress> {
 
 	static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "LocalChannel", false, true, LocalAddress.class,
 			IoSessionConfig.class, Object.class);
 	
 	public LocalChannelIoAcceptor() {
-		this(new LocalEventLoop());
+		this(new LocalEventLoopGroup());
 	}
 	
-	public LocalChannelIoAcceptor(LocalEventLoop childEventLoop) {
-		this(new LocalChannelIoSessionConfig(), new LocalEventLoop(), childEventLoop);
+	public LocalChannelIoAcceptor(LocalEventLoopGroup childGroup) {
+		this(new LocalChannelIoSessionConfig(), new LocalEventLoopGroup(), childGroup);
 	}
 	
 	public LocalChannelIoAcceptor(IoSessionConfig sessionConfig,
-			LocalEventLoop parentEventLoop, LocalEventLoop childEventLoop) {
-		super(MESSAGE, sessionConfig, parentEventLoop, childEventLoop);
+			LocalEventLoopGroup parentGroup, LocalEventLoopGroup childGroup) {
+		super(MESSAGE, sessionConfig, parentGroup, childGroup);
 	}
 
 	@Override
-	protected LocalServerChannel newServerChannel(LocalEventLoop parentEventLoop, LocalEventLoop childEventLoop) {
+	protected LocalServerChannel newServerChannel(LocalEventLoopGroup parentGroup, LocalEventLoopGroup childGroup) {
 		return new LocalServerChannel();
 	}
 

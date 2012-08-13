@@ -5,23 +5,23 @@
 package com.kaazing.mina.netty.socket.aio;
 
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.aio.AioEventLoop;
+import io.netty.channel.socket.aio.AioEventLoopGroup;
 import io.netty.channel.socket.aio.AioSocketChannel;
 
 import org.apache.mina.transport.socket.SocketSessionConfig;
 
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
-public class AioSocketChannelIoConnector extends SocketChannelIoConnector<AioEventLoop> {
+public class AioSocketChannelIoConnector extends SocketChannelIoConnector<AioEventLoopGroup> {
 
 	public AioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
-			AioEventLoop eventLoop) {
+			AioEventLoopGroup eventLoop) {
 		super(sessionConfig, eventLoop);
 	}
 
 	@Override
-	protected SocketChannel newChannel(AioEventLoop eventLoop) {
-		return new AioSocketChannel(eventLoop);
+	protected SocketChannel newChannel(AioEventLoopGroup group) {
+		return new AioSocketChannel(group);
 	}
 
 }
