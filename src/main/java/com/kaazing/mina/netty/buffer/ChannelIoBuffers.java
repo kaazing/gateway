@@ -6,8 +6,6 @@ package com.kaazing.mina.netty.buffer;
 
 import io.netty.buffer.ByteBuf;
 
-import java.nio.ByteBuffer;
-
 import org.apache.mina.core.buffer.IoBuffer;
 
 public class ChannelIoBuffers {
@@ -16,20 +14,22 @@ public class ChannelIoBuffers {
 		// no instances
 	}
 	
-	public static IoBuffer wrap(ByteBuf byteBuf) {
+	public static ChannelIoBuffer wrap(ByteBuf byteBuf) {
         if (byteBuf.hasNioBuffer()) {
-            ByteBuffer buffer = byteBuf.nioBuffer(byteBuf.readerIndex(), byteBuf.readableBytes());
-            return IoBuffer.wrap(buffer);
+            ByteBuf sliceByteBuf = byteBuf.slice();
+            IoBuffer sliceBuf = IoBuffer.wrap(sliceByteBuf.nioBuffer());
+            return new ChannelIoBufferImpl(sliceBuf, sliceByteBuf);
         }
         else if (byteBuf.hasArray()) {
-            byte[] byteArray = byteBuf.array();
-            int offset = byteBuf.arrayOffset();
-            int length = byteBuf.readableBytes();
-            return IoBuffer.wrap(byteArray, offset, length);
+            ByteBuf sliceByteBuf = byteBuf.slice();
+            byte[] byteArray = sliceByteBuf.array();
+            int offset = sliceByteBuf.arrayOffset();
+            int index = sliceByteBuf.readerIndex();
+            int length = sliceByteBuf.readableBytes();
+            return new ChannelIoBufferImpl(IoBuffer.wrap(byteArray, offset + index, length), sliceByteBuf);
         }
         else {
             throw new IllegalStateException("Unable to convert ByteBuf to IoBuffer");
         }
-//        return new ChannelReadableIoBuffer(buf);
 	}
 }

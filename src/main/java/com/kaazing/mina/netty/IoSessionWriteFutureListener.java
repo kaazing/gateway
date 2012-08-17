@@ -23,8 +23,11 @@ final class IoSessionWriteFutureListener implements ChannelFutureListener {
 	@Override
 	public void operationComplete(ChannelFuture future) throws Exception {
 		if (future.isSuccess()) {
-			IoBuffer buf = (IoBuffer)request.getMessage();
-			buf.reset();
+			Object message = request.getMessage();
+			if (message != ChannelIoSession.FLUSH) {
+			    IoBuffer buf = (IoBuffer)message;
+			    buf.reset();
+			}
 			filterChain.fireMessageSent(request);
 		}
 		else {

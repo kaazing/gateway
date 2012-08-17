@@ -47,8 +47,7 @@ public class IoAcceptorChildChannelInitializer extends ChannelStateHandlerAdapte
 		Channel childChannel = ctx.channel();
 		ChannelPipeline childPipeline = childChannel.pipeline();
 
-		ChannelIoSession session = new ChannelIoSession(acceptor, ctx);
-		childPipeline.addLast("session", new IoSessionChannelHandler(session, bufType));
+		childPipeline.addLast("session", new IoSessionChannelHandler(acceptor, bufType));
 	}
 
 }

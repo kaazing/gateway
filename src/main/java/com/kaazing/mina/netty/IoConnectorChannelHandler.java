@@ -36,19 +36,22 @@ public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
 		Channel channel = ctx.channel();
 		ChannelPipeline childPipeline = channel.pipeline();
 
-		ChannelIoSession session = new ChannelIoSession(connector, ctx);
-		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(session,
+		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(connector,
 				bufType, connectFuture, sessionInitializer);
-		childPipeline.replace(this, "session", newHandler);
+		childPipeline.addLast("session", newHandler);
 
-		newHandler.channelRegistered(ctx);
+		super.channelRegistered(ctx);
+		
+		childPipeline.remove(this);
 	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
 			throws Exception {
-		// in case an exception occurs before or during registration
-		connectFuture.setException(cause);
+	    // in case an exception occurs before or during registration
+	    if (!connectFuture.isDone()) {
+    		connectFuture.setException(cause);
+	    }
 	}
 
 }

@@ -23,7 +23,7 @@
     <dependency>
       <groupId>com.kaazing.io.netty</groupId>
       <artifactId>netty</artifactId>
-      <version>netty-4.0.0.Alpha1-55-g06fd869</version>
+      <version>netty-4.0.0.Alpha2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.kaazing.mina</groupId>
