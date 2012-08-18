@@ -11,17 +11,14 @@ import io.netty.buffer.ChannelBuf;
 import io.netty.buffer.ChannelBufType;
 import io.netty.buffer.DefaultCompositeByteBuf;
 import io.netty.buffer.DefaultMessageBuf;
-import io.netty.buffer.MessageBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.LinkedList;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
-
-import com.kaazing.mina.netty.buffer.ChannelIoBuffers;
 
 public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
@@ -29,7 +26,7 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 	private final ChannelBufType bufType;
 	private final ConnectFuture connectFuture;
 	private final IoSessionInitializer<?> initializer;
-
+	
 	private volatile ChannelIoSession session;
 	
 	public IoSessionChannelHandler(ChannelIoService service, ChannelBufType bufType) {
@@ -45,13 +42,10 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
     public void beforeAdd(ChannelHandlerContext ctx) throws Exception {
-	    session = new ChannelIoSession(service, ctx);
-    }
+	    DefaultCompositeByteBuf outboundBuffer = new DefaultCompositeByteBuf(8192 * 4);
+	    setHeadOutboundBuffer(ctx, outboundBuffer);
 
-    @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-        DefaultCompositeByteBuf outboundBuffer = new DefaultCompositeByteBuf(8192 / 4);
-        setHeadOutboundBuffer(ctx, outboundBuffer);
+	    session = new ChannelIoSession(service, ctx);
     }
 
     @Override
@@ -79,8 +73,9 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 			throws Exception {
 		switch (bufType) {
 		case BYTE:
-			// TODO: eliminate magic values
-			return directBuffer(8192, 8192);
+		    IoSessionConfig sessionConfig = service.getSessionConfig();
+		    int maxReadBufferSize = sessionConfig.getMaxReadBufferSize();
+            return directBuffer(maxReadBufferSize, maxReadBufferSize);
 		case MESSAGE:
 			return new DefaultMessageBuf<ByteBuf>(new LinkedList<ByteBuf>());
 		default:
@@ -94,30 +89,10 @@ public class IoSessionChannelHandler extends ChannelInboundHandlerAdapter {
 
 		switch (bufType) {
 		case BYTE:
-			ByteBuf in = ctx.inboundByteBuffer();
-			IoBuffer buf = ChannelIoBuffers.wrap(in).ioBuf();
-			session.getFilterChain().fireMessageReceived(buf);
-
-			// assumes in-bound buffer can be recycled if reads are not suspended
-			// if reads are suspended, then in-bound buffer will be recycled later,
-			// when reads are resumed (see ChannelIoProcessor)
-			// TODO: Ctrl-S to close slow client, then Ctrl-Q to resume after closed
-			//       the flush causes framing bytes to jump across the proxy!
-			if (ctx.isReadable()) {
-			    in.setIndex(0, 0);
-			}
-
+			session.notifyInboundByteBufferUpdated();
 			break;
 		case MESSAGE:
-			MessageBuf<ByteBuf> inMsg = ctx.inboundMessageBuffer();
-			if (!inMsg.isEmpty()) {
-				LinkedList<ByteBuf> inBufs = new LinkedList<ByteBuf>();
-				inMsg.drainTo(inBufs);
-				for (ByteBuf inBuf : inBufs) {
-					IoBuffer ioBuf = ChannelIoBuffers.wrap(inBuf).ioBuf();
-					session.getFilterChain().fireMessageReceived(ioBuf);
-				}
-			}
+            session.notifyInboundMessageBufferUpdated();
 			break;
 		default:
 			throw new IllegalStateException("Unrecognized channel buffer type: " + bufType);
