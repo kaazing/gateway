@@ -12,6 +12,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
@@ -27,6 +29,7 @@ public abstract class ChannelIoConnector<E extends EventLoopGroup, S extends IoS
 
 	private final E eventLoop;
 	private final ChannelBufType bufType;
+	private final ChannelGroup channelGroup;
 	
 	public ChannelIoConnector(S sessionConfig, E eventLoop, ChannelBufType bufType) {
 		super(sessionConfig, new Executor() {
@@ -37,6 +40,7 @@ public abstract class ChannelIoConnector<E extends EventLoopGroup, S extends IoS
 		
 		this.eventLoop = eventLoop;
 		this.bufType = bufType;
+		this.channelGroup = new DefaultChannelGroup();
 	}
 
 	protected abstract C newChannel(E group);
@@ -62,6 +66,8 @@ public abstract class ChannelIoConnector<E extends EventLoopGroup, S extends IoS
 			public void operationComplete(ChannelFuture future) throws Exception {
 				if (!future.isSuccess()) {
 					connectFuture.setException(future.cause());
+				} else {
+					channelGroup.add(future.channel());
 				}
 			}
 		});
@@ -71,6 +77,8 @@ public abstract class ChannelIoConnector<E extends EventLoopGroup, S extends IoS
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
+		channelGroup.close();
+
 		if (!eventLoop.isShutdown()) {
 			eventLoop.shutdown();
 			eventLoop.awaitTermination(10, SECONDS);

@@ -12,6 +12,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 
 import java.net.SocketAddress;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ public abstract class ChannelIoAcceptor<E extends EventLoopGroup, S extends IoSe
 	private final E childEventLoop;
 	private final ChannelHandler childHandler;
 	private final ConcurrentMap<SocketAddress, Channel> boundChannels;
+	private final ChannelGroup channelGroup;
 
 	private final Map<ChannelOption<?>, Object> parentOptions = new LinkedHashMap<ChannelOption<?>, Object>();
 	
@@ -43,10 +46,11 @@ public abstract class ChannelIoAcceptor<E extends EventLoopGroup, S extends IoSe
 			public void execute(Runnable command) {
 			}
 		});
-		
+	
+		this.channelGroup = new DefaultChannelGroup();	
 		this.parentEventLoop = parentEventLoop;
 		this.childEventLoop = childEventLoop;
-		this.childHandler = new IoAcceptorChildChannelInitializer(this, bufType);
+		this.childHandler = new IoAcceptorChildChannelInitializer(this, bufType, channelGroup);
 		this.boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();
 	}
 
@@ -131,6 +135,8 @@ public abstract class ChannelIoAcceptor<E extends EventLoopGroup, S extends IoSe
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
+		channelGroup.close();
+
 		if (!parentEventLoop.isShutdown()) {
 			parentEventLoop.shutdown();
 		}
