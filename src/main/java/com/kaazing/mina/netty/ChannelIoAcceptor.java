@@ -21,12 +21,15 @@ import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 public abstract class ChannelIoAcceptor<C extends IoSessionConfig, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
 
 	private final ServerBootstrap bootstrap;
 	private final Map<SocketAddress, Channel> boundChannels;
 	private final IoAcceptorChannelHandler parentHandler;
+	private final ChannelGroup channelGroup;
 	
 	public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory factory) {
 		super(sessionConfig, new Executor() {
@@ -35,7 +38,10 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfig, F extends Cha
 			}
 		});
 		
+		channelGroup = new DefaultChannelGroup();
+
 		parentHandler = factory.createHandler(this);
+		parentHandler.setChannelGroup(channelGroup);
 		
 		bootstrap = new ServerBootstrap(channelFactory);
 		bootstrap.setParentHandler(parentHandler);
@@ -62,12 +68,13 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfig, F extends Cha
 			List<? extends SocketAddress> localAddresses) throws Exception {
 
 		for (SocketAddress localAddress : localAddresses) {
-			bootstrap.bind(localAddress);
+			Channel channel = bootstrap.bind(localAddress);
+			boundChannels.put(localAddress, channel);
 		}
 		
 		Set<SocketAddress> newLocalAddresses = new HashSet<SocketAddress>();
-		for (Channel channel : boundChannels.values()) {
-			newLocalAddresses.add(channel.getLocalAddress());
+		for (SocketAddress localAddress : localAddresses) {
+			newLocalAddresses.add(localAddress);
 		}
 		
 		return newLocalAddresses;
@@ -97,6 +104,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfig, F extends Cha
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
+		channelGroup.close();
 		bootstrap.releaseExternalResources();
 		return null;
 	}

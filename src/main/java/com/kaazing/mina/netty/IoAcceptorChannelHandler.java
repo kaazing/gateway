@@ -13,14 +13,20 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChildChannelStateEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.group.ChannelGroup;
 
 public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 
 	private final ChannelIoService acceptor;
 	private ChannelPipelineFactory pipelineFactory;
+	private ChannelGroup channelGroup;
 	
 	public IoAcceptorChannelHandler(ChannelIoService acceptor) {
 		this.acceptor = acceptor;
+	}
+
+	public void setChannelGroup(ChannelGroup channelGroup) {
+		this.channelGroup = channelGroup;
 	}
 	
 	public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
@@ -32,6 +38,10 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 			ChildChannelStateEvent e) throws Exception {
 		
 		Channel childChannel = e.getChildChannel();
+		if (channelGroup != null) {
+			channelGroup.add(childChannel);
+		}
+
 		ChannelPipeline childPipeline = childChannel.getPipeline();
 
 		if (pipelineFactory != null) {

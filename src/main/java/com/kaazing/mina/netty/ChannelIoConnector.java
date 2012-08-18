@@ -23,11 +23,14 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
 
 	private final F channelFactory;
 	private ChannelPipelineFactory pipelineFactory;
+	private final ChannelGroup channelGroup;
 
 	public ChannelIoConnector(C sessionConfig, F channelFactory) {
 		super(sessionConfig, new Executor() {
@@ -37,6 +40,7 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 		});
 
 		this.channelFactory = channelFactory;
+		this.channelGroup = new DefaultChannelGroup();
 	}
 	
 	public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
@@ -91,6 +95,8 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 			public void operationComplete(ChannelFuture future) throws Exception {
 				if (!future.isSuccess()) {
 					connectFuture.setException(future.getCause());
+				} else {
+					channelGroup.add(future.getChannel());
 				}
 			}
 		});
@@ -100,6 +106,7 @@ public abstract class ChannelIoConnector<C extends IoSessionConfig, F extends Ch
 
 	@Override
 	protected IoFuture dispose0() throws Exception {
+		channelGroup.close();
 		channelFactory.releaseExternalResources();
 		return null;
 	}
