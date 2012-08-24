@@ -4,8 +4,6 @@
 
 package com.kaazing.mina.netty;
 
-import static io.netty.buffer.ChannelBufType.BYTE;
-import static io.netty.buffer.ChannelBufType.MESSAGE;
 import static io.netty.buffer.Unpooled.wrappedBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ChannelBufType;
@@ -33,6 +31,7 @@ import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 
 import com.kaazing.mina.netty.buffer.ChannelIoBuffer;
+import com.kaazing.mina.netty.buffer.ChannelIoBufferImpl;
 import com.kaazing.mina.netty.buffer.ChannelIoBuffers;
 
 public class ChannelIoSession extends AbstractIoSession implements MutableIoSession {
@@ -55,6 +54,8 @@ public class ChannelIoSession extends AbstractIoSession implements MutableIoSess
     private final ByteBuf outboundByteBuffer;
     private final CompositeByteBuf compositeOutboundByteBuffer;
     private final MessageBuf<Object> outboundMessageBuffer;
+    private final ByteBuf inboundByteBuffer;
+    private final IoBuffer inboundIoBuffer;
     
     private IoHandler handler;
 	
@@ -121,10 +122,33 @@ public class ChannelIoSession extends AbstractIoSession implements MutableIoSess
         this.readSuspendCount = new AtomicInteger();
         this.interestOps = EnumSet.allOf(InterestOps.class);
 
-        this.bufferType = channel.metadata().bufferType();
-        this.outboundByteBuffer = (bufferType == BYTE) ? (ByteBuf)channel.outboundByteBuffer() : null;
-        this.compositeOutboundByteBuffer = (outboundByteBuffer instanceof CompositeByteBuf) ? (CompositeByteBuf)outboundByteBuffer : null;
-        this.outboundMessageBuffer = (bufferType == MESSAGE) ? channel.outboundMessageBuffer() : null;
+        ChannelBufType bufferType = channel.metadata().bufferType();
+        switch (bufferType) {
+        case BYTE:
+            ByteBuf inboundByteBuffer = ctx.inboundByteBuffer();
+            ByteBuf outboundByteBuffer = channel.outboundByteBuffer();
+            IoBuffer inboundIoBuffer = IoBuffer.wrap(inboundByteBuffer.nioBuffer(0, inboundByteBuffer.capacity())).flip();
+            
+            this.inboundByteBuffer = inboundByteBuffer;
+            this.inboundIoBuffer = new ChannelIoBufferImpl(inboundIoBuffer, inboundByteBuffer);
+            this.outboundByteBuffer = outboundByteBuffer;
+            this.compositeOutboundByteBuffer = (outboundByteBuffer instanceof CompositeByteBuf) ? (CompositeByteBuf)outboundByteBuffer : null;
+            this.outboundMessageBuffer = null;
+            break;
+        case MESSAGE:
+            MessageBuf<Object> outboundMessageBuffer = channel.outboundMessageBuffer();
+
+            this.inboundByteBuffer = null;
+            this.inboundIoBuffer = null;
+            this.outboundByteBuffer = null;
+            this.compositeOutboundByteBuffer = null;
+            this.outboundMessageBuffer = outboundMessageBuffer;
+            break;
+        default:
+            throw new IllegalArgumentException("bufferType");
+        }
+        
+        this.bufferType = bufferType;
 	}
 
 	public ChannelIoService getService() {
@@ -229,26 +253,30 @@ public class ChannelIoSession extends AbstractIoSession implements MutableIoSess
     }
 
     public void notifyInboundByteBufferUpdated() {
-        ByteBuf in = ctx.inboundByteBuffer();
+        IoBuffer inboundIoBuffer = this.inboundIoBuffer;
+        ByteBuf inboundByteBuffer = this.inboundByteBuffer;
 
-        IoBuffer buf = ChannelIoBuffers.wrap(in).ioBuf();
+        // sync indexes before message delivery
+        inboundIoBuffer.position(inboundByteBuffer.readerIndex());
+        inboundIoBuffer.limit(inboundByteBuffer.writerIndex());
+        
         if (filterCount.get() == 0) {
             try {
-                handler.messageReceived(this, buf);
+                handler.messageReceived(this, inboundIoBuffer);
             }
             catch (Exception e) {
                 filterChain.fireExceptionCaught(e);
             }
         }
         else {
-            filterChain.fireMessageReceived(buf);
+            filterChain.fireMessageReceived(inboundIoBuffer);
         }
         
         // assumes in-bound buffer can be recycled if reads are not suspended
         // if reads are suspended, then in-bound buffer will be recycled later,
         // when reads are resumed (see ChannelIoProcessor)
         if (ctx.isReadable()) {
-            in.setIndex(0, 0);
+            inboundByteBuffer.setIndex(0, 0);
         }
     }
 

@@ -76,7 +76,9 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
 	@Override
 	public void updateTrafficControl(ChannelIoSession session) {
-        
+
+	    // TODO: patch MINA so we can override suspendRead / resumeRead
+	    //       and eliminate the elaborate guess-work here
 	    Set<InterestOps> interestOps = session.getInterestOps();
         boolean wasWritable = interestOps.contains(InterestOps.WRITE);
 	    
@@ -98,15 +100,15 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
             AtomicInteger readSuspendCount = session.getReadSuspendCount();
             boolean willSuspendOrResumeRead = ((wantReadable ? readSuspendCount.decrementAndGet() : readSuspendCount.getAndIncrement()) == 0);
 
-            // reset the reader index on resume read 
-            // to prevent direct buffer from growing
-            if (wantReadable && willSuspendOrResumeRead && ctx.hasInboundByteBuffer()) {
-                ByteBuf inbound = ctx.inboundByteBuffer();
-                inbound.setIndex(0, 0);
-            }
-
-            // must defer resume read until after in-bound buffer has been reset
             if (willSuspendOrResumeRead) {
+                // reset the reader index on resume read 
+                // to prevent direct buffer from growing
+                if (wantReadable && ctx.hasInboundByteBuffer()) {
+                    ByteBuf inbound = ctx.inboundByteBuffer();
+                    inbound.setIndex(0, 0);
+                }
+                
+                // must defer resume read until after in-bound buffer has been reset
                 ctx.readable(wantReadable);
             }
         }

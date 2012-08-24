@@ -10,11 +10,11 @@ import io.netty.buffer.ByteBuf;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.IoBufferWrapper;
 
-class ChannelIoBufferImpl extends IoBufferWrapper implements ChannelIoBuffer {
+public class ChannelIoBufferImpl extends IoBufferWrapper implements ChannelIoBuffer {
 
     private final ByteBuf byteBuf;
     
-    ChannelIoBufferImpl(IoBuffer buf, ByteBuf byteBuf) {
+    public ChannelIoBufferImpl(IoBuffer buf, ByteBuf byteBuf) {
         super(buf);
         this.byteBuf = byteBuf;
     }
