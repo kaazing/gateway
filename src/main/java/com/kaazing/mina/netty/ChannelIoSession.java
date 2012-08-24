@@ -30,9 +30,6 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 
-import com.kaazing.mina.netty.buffer.ChannelIoBuffer;
-import com.kaazing.mina.netty.buffer.ChannelIoBufferImpl;
-import com.kaazing.mina.netty.buffer.ChannelIoBuffers;
 
 public class ChannelIoSession extends AbstractIoSession implements MutableIoSession {
 

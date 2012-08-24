@@ -36,7 +36,6 @@ import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
 
 import com.kaazing.mina.netty.ChannelIoSession.InterestOps;
-import com.kaazing.mina.netty.buffer.ChannelIoBuffer;
 
 
 final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
