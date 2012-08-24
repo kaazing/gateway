@@ -2,7 +2,7 @@
  * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
  */
 
-package com.kaazing.mina.netty.buffer;
+package com.kaazing.mina.netty;
 
 import static io.netty.buffer.Unpooled.unmodifiableBuffer;
 import io.netty.buffer.ByteBuf;
