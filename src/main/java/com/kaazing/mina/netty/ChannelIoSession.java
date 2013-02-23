@@ -6,7 +6,6 @@ package com.kaazing.mina.netty;
 
 import java.net.SocketAddress;
 
-import org.apache.mina.core.filterchain.DefaultIoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
@@ -15,7 +14,10 @@ import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.Channel;
 
-public class ChannelIoSession extends AbstractIoSession {
+import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
+import com.kaazing.mina.core.session.AbstractIoSessionEx;
+
+public class ChannelIoSession extends AbstractIoSessionEx {
 
 	private final ChannelIoService service;
 	private final Channel channel;
