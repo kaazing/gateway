@@ -26,7 +26,6 @@ import org.apache.mina.core.future.DefaultWriteFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.ReadFuture;
 import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.AbstractIoService;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoService;

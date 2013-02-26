@@ -14,7 +14,7 @@ import org.apache.mina.core.session.AbstractIoSession;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.Channel;
 
-import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
+import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 public class ChannelIoSession extends AbstractIoSessionEx {
@@ -24,7 +24,6 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	private final DefaultChannelIoSessionConfig config;
 	private final IoHandler handler;
 	private final ChannelIoProcessor processor;
-	private final IoFilterChain filterChain;
 	private final TransportMetadata transportMetadata;
 	
 	public ChannelIoSession(ChannelIoService service, Channel channel) {
@@ -34,7 +33,6 @@ public class ChannelIoSession extends AbstractIoSessionEx {
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
 		this.processor = new ChannelIoProcessor();
-		this.filterChain = new DefaultIoFilterChain(this);
 		this.transportMetadata = service.getTransportMetadata();
 	}
 
@@ -59,11 +57,6 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	@Override
 	public IoProcessor<ChannelIoSession> getProcessor() {
 		return processor;
-	}
-
-	@Override
-	public IoFilterChain getFilterChain() {
-		return filterChain;
 	}
 
 	@Override
