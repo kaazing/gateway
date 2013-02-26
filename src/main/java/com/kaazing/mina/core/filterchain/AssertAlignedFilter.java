@@ -94,10 +94,11 @@ class AssertAlignedFilter extends IoFilterAdapter {
     private void checkThread(IoSession session) {
         Thread current = Thread.currentThread();
         if ( current != expected ) {
-            String error = String.format("AssertAlignedFilter: expected current thread %s to match %s in session %s", current, expected, session);
+            String error = String.format("expected current thread %s to match %s in session %s", current, expected, session);
             RuntimeException e = new RuntimeException(error);
             String caller = e.getStackTrace()[1].toString().replace(this.getClass().getName(), this.getClass().getSimpleName());
-            error = error + " in " + caller;
+            error = String.format("%s: %s", caller , error);
+            //System.out.println(error);
             //e.printStackTrace();
             LOGGER.error(error, e);
             throw e;

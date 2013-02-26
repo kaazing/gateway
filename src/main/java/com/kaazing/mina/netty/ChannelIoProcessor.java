@@ -28,6 +28,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import com.kaazing.mina.core.service.AbstractIoService;
 
 final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
+    //TODO: why isn't this a singleton? There's no session-specific state
 
 	@Override
 	public void add(ChannelIoSession session) {
