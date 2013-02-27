@@ -36,18 +36,41 @@ class AssertAlignedFilter extends IoFilterAdapter {
     public AssertAlignedFilter(AbstractIoSessionEx session) {
         expected = session.getIoThread();
     }
-    
+
     @Override
     public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
         if (!assertsAreEnabled) {
             parent.remove(this);
         }
+        else {
+            checkThread(parent.getSession());
+        }
+    }
+
+    @Override
+    public void onPostRemove(IoFilterChain parent, String name,
+            NextFilter nextFilter) throws Exception {
+    }
+    
+    @Override
+    public void onPreAdd(IoFilterChain parent, String name,
+            NextFilter nextFilter) throws Exception {
+    }
+
+    @Override
+    public void onPreRemove(IoFilterChain parent, String name,
+            NextFilter nextFilter) throws Exception {
     }
 
     @Override
     public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
         checkThread(session);
         super.filterWrite(nextFilter, session, writeRequest);
+    }
+    
+    public void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception {
+        //checkThread(session);
+        super.exceptionCaught(nextFilter, session, cause);
     }
 
     @Override

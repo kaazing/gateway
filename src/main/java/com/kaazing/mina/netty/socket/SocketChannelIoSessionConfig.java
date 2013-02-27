@@ -10,7 +10,8 @@ import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class SocketChannelIoSessionConfig extends ChannelIoSessionConfig<SocketChannelConfig> implements SocketSessionConfig {
+public class SocketChannelIoSessionConfig extends ChannelIoSessionConfig<SocketChannelConfig> 
+                                          implements SocketSessionConfig {
 
 	public SocketChannelIoSessionConfig(SocketChannelConfig channelConfig) {
 		super(channelConfig);
@@ -114,5 +115,5 @@ public class SocketChannelIoSessionConfig extends ChannelIoSessionConfig<SocketC
 	public void setTrafficClass(int trafficClass) {
 		channelConfig.setTrafficClass(trafficClass);
 	}
-
+	
 }

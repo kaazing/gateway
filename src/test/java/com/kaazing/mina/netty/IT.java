@@ -7,17 +7,17 @@ package com.kaazing.mina.netty;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.jboss.netty.channel.Channels.pipeline;
 import static org.jboss.netty.channel.Channels.pipelineFactory;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
@@ -122,8 +122,13 @@ public class IT {
     public void testThreadAlignment() throws Exception {
         bindTo = new InetSocketAddress(8123);
         
+        final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
+        
         // Mimic what NioSocketAcceptor does (in initAcceptor)
-        WorkerPool<NioWorker> workerPool = new NioWorkerPool(Executors.newCachedThreadPool(), 3, false);
+        WorkerPool<NioWorker> workerPool = new NioWorkerPool(
+                Executors.newCachedThreadPool(), // worker executor 
+                3, // number of workers
+                false);
         ServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
@@ -145,7 +150,7 @@ public class IT {
         });
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
-        builder.addLast("logger", new LoggingFilter());
+        //builder.addLast("logger", new LoggingFilter());
         acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         acceptor.setFilterChainBuilder(builder);
         acceptor.setHandler(new IoHandlerAdapter() {
@@ -154,12 +159,16 @@ public class IT {
                     throws Exception {
                 IoBuffer buf = (IoBuffer)message;
                 session.write(buf.duplicate());
+            }            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                acceptExceptionsCaught.incrementAndGet();
             }
         });
         
         acceptor.bind(bindTo);
 
         final CountDownLatch echoedMessageReceived = new CountDownLatch(1);
+        final AtomicInteger connectExceptionsCaught = new AtomicInteger(0);
         
         ClientSocketChannelFactory clientChannelFactory = new NioClientSocketChannelFactory(
                 newCachedThreadPool(), 
@@ -169,9 +178,13 @@ public class IT {
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
-            public void messageReceived(IoSession session, Object message)
-                    throws Exception {
+            @Override
+            public void messageReceived(IoSession session, Object message) throws Exception {
                 echoedMessageReceived.countDown();
+            }
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                connectExceptionsCaught.incrementAndGet();
             }
         });
         
@@ -188,23 +201,15 @@ public class IT {
         assertTrue(sessionInitialized.get());
         final IoSession session = connectFuture.getSession();
         
-//        Callable<WriteFuture> writeTask = new Callable<WriteFuture>() {
-//
-//            @Override
-//            public WriteFuture call() throws Exception {
-//                return session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
-//            }
-//            
-//        };
-//        
-//        WriteFuture written = new ScheduledThreadPoolExecutor(1).submit(writeTask).get();
-        
         WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
         
         await(written, "session.write called in another thread");
         
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");
+        
+        assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
+        assertEquals("Exceptions caught by except handler", 0, acceptExceptionsCaught.get());
     }
 	  
 	private void await(IoFuture future, String description) throws InterruptedException {

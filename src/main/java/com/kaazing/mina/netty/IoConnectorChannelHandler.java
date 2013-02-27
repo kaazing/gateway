@@ -31,12 +31,20 @@ public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 
-		Channel channel = e.getChannel();
+		final Channel channel = e.getChannel();
 		ChannelPipeline childPipeline = channel.getPipeline();
 
-		ChannelIoSession session = new ChannelIoSession(connector, channel);
-		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(session,
-				connectFuture, sessionInitializer);
+		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(
+		        new ChannelIoSessionFactory() {
+                    
+                    @Override
+                    public ChannelIoSession createSession() {
+                        ChannelIoSession session = new ChannelIoSession(connector, channel);
+                        return session;
+                    }
+                },
+				connectFuture, 
+				sessionInitializer);
 		childPipeline.replace(this, "session", newHandler);
 
 		newHandler.channelConnected(ctx, e);

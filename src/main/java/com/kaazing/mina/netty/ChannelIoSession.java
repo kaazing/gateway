@@ -27,6 +27,7 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	private final TransportMetadata transportMetadata;
 	
 	public ChannelIoSession(ChannelIoService service, Channel channel) {
+	    super(Thread.currentThread(), null); // TODO: set the (worker) executor
 		this.service = service;
 		this.channel = channel;
 		this.config = new DefaultChannelIoSessionConfig(channel.getConfig());

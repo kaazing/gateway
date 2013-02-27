@@ -37,7 +37,7 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 	public void childChannelOpen(ChannelHandlerContext ctx,
 			ChildChannelStateEvent e) throws Exception {
 		
-		Channel childChannel = e.getChildChannel();
+		final Channel childChannel = e.getChildChannel();
 		if (channelGroup != null) {
 			channelGroup.add(childChannel);
 		}
@@ -53,8 +53,15 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 			}
 		}
 		
-		ChannelIoSession session = new ChannelIoSession(acceptor, childChannel);
-		childPipeline.addLast("session", new IoSessionChannelHandler(session));
+		childPipeline.addLast("session", new IoSessionChannelHandler(new ChannelIoSessionFactory() {
+
+            @Override
+            public ChannelIoSession createSession() {
+                ChannelIoSession session = new ChannelIoSession(acceptor, childChannel);
+                return session;
+            }
+		    
+		}));
 		
 		super.childChannelOpen(ctx, e);
 	}

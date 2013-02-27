@@ -18,12 +18,13 @@ import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
     private final IoFilterChain filterChain;
     
-    private final Thread owner;
-    private Executor executor; // TODO: how/when is this set?
+    private final Thread ioThread;
+    private final Executor ioExecutor;
     
-    protected AbstractIoSessionEx() {
+    protected AbstractIoSessionEx(Thread ioThread, Executor ioExecutor) {
         super();
-        this.owner = Thread.currentThread();
+        this.ioThread = ioThread;
+        this.ioExecutor = ioExecutor;
         this.filterChain = new DefaultIoFilterChainEx(this);
     }
     
@@ -34,21 +35,12 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
 
     @Override
     public Thread getIoThread() {
-        return owner;
+        return ioThread;
     }
     
     @Override
     public Executor getIoExecutor() {
-        return executor;
+        return ioExecutor;
     }
-    
-    protected void setIoExecutor(Executor executor) {
-        this.executor = executor;
-    }
-    
-//    protected void setIoThread(Thread thread) {
-//        this.owner = thread;
-//    }
 
-    
 }
