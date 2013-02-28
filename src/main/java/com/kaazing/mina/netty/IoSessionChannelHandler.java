@@ -16,17 +16,17 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 
 public class IoSessionChannelHandler extends SimpleChannelHandler {
 
-    private ChannelIoSessionFactory sessionFactory;
+    private ChannelIoService service;
 	private final IoFuture future;
 	private final IoSessionInitializer<?> initializer;
 	private ChannelIoSession session;
 	
-	public IoSessionChannelHandler(ChannelIoSessionFactory sessionFactory) {
-		this(sessionFactory, null, null);
+	public IoSessionChannelHandler(ChannelIoService service) {
+		this(service, null, null);
 	}
 
-	public IoSessionChannelHandler(ChannelIoSessionFactory sessionFactory, IoFuture future, IoSessionInitializer<?> initializer) {
-		this.sessionFactory = sessionFactory;
+	public IoSessionChannelHandler(ChannelIoService service, IoFuture future, IoSessionInitializer<?> initializer) {
+		this.service = service;
 		this.future = future;
 		this.initializer = initializer;
 	}
@@ -34,8 +34,7 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 	throws Exception {
-	    session = sessionFactory.createSession();
-	    sessionFactory = null; // don't hold any references we no longer need
+	    session = service.createSession(ctx);
 		session.getService().initializeSession(session, future, initializer);
 		session.getProcessor().add(session);
 	}

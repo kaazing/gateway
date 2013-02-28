@@ -53,15 +53,7 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 			}
 		}
 		
-		childPipeline.addLast("session", new IoSessionChannelHandler(new ChannelIoSessionFactory() {
-
-            @Override
-            public ChannelIoSession createSession() {
-                ChannelIoSession session = new ChannelIoSession(acceptor, childChannel);
-                return session;
-            }
-		    
-		}));
+		childPipeline.addLast("session", new IoSessionChannelHandler(acceptor));
 		
 		super.childChannelOpen(ctx, e);
 	}

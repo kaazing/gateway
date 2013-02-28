@@ -37,7 +37,6 @@ import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
 import org.jboss.netty.channel.local.LocalAddress;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -48,9 +47,12 @@ import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
 import org.junit.Test;
 
-import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
+import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
+/**
+ * Integration test for mina.netty layer
+ */
 public class IT {
     SocketAddress bindTo;
     ChannelIoAcceptor<?, ?, ?> acceptor = null;
@@ -129,10 +131,10 @@ public class IT {
                 Executors.newCachedThreadPool(), // worker executor 
                 3, // number of workers
                 false);
-        ServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
+        NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new SocketChannelIoAcceptor(new DefaultSocketSessionConfig(), serverChannelFactory, 
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketSessionConfig(), serverChannelFactory, 
                 new IoAcceptorChannelHandlerFactory() {
 
                     @Override

@@ -10,9 +10,12 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
+import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.DefaultChannelIoSession;
 
 public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
 
@@ -34,4 +37,9 @@ public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionCo
 	public TransportMetadata getTransportMetadata() {
 		return TRANSPORT_METADATA;
 	}
+
+    @Override
+    public ChannelIoSession createSession(ChannelHandlerContext context) {
+        return new DefaultChannelIoSession(this, context.getChannel());
+    }
 }

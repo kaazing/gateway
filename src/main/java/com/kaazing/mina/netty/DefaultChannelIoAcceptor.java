@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ServerChannelFactory;
 
 public class DefaultChannelIoAcceptor extends ChannelIoAcceptor<IoSessionConfig, ServerChannelFactory, SocketAddress> {
@@ -17,7 +18,7 @@ public class DefaultChannelIoAcceptor extends ChannelIoAcceptor<IoSessionConfig,
 			"Kaazing", "Channel", false, true, SocketAddress.class,
 			IoSessionConfig.class, Object.class);
 	
-	public DefaultChannelIoAcceptor(ServerChannelFactory channelFactory) {
+    public DefaultChannelIoAcceptor(ServerChannelFactory channelFactory) {
 		this(new DefaultChannelIoSessionConfig(), channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
 	}
 
@@ -31,4 +32,9 @@ public class DefaultChannelIoAcceptor extends ChannelIoAcceptor<IoSessionConfig,
 		return TRANSPORT_METADATA;
 	}
 
+    @Override
+    public ChannelIoSession createSession(ChannelHandlerContext context) {
+        return new DefaultChannelIoSession(this, context.getChannel());
+    }
+    
 }

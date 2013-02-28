@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.kaazing.gateway.core</groupId>
     <artifactId>com.kaazing.gateway.core.common</artifactId>
-    <version>1.0.0.14</version>
+    <version>1.0.0.20</version>
   </parent>
 
   <groupId>com.kaazing.mina.netty</groupId>
@@ -40,8 +40,15 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jmock</groupId>
+      <artifactId>jmock-legacy</artifactId>
     </dependency>
   </dependencies>
 

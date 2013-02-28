@@ -10,9 +10,12 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.DatagramConnector;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
+import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.DefaultChannelIoSession;
 
 public class DatagramChannelIoConnector extends ChannelIoConnector<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramConnector {
 
@@ -34,4 +37,9 @@ public class DatagramChannelIoConnector extends ChannelIoConnector<DatagramSessi
 	public TransportMetadata getTransportMetadata() {
 		return TRANSPORT_METADATA;
 	}
+
+    @Override
+    public ChannelIoSession createSession(ChannelHandlerContext context) {
+        return new DefaultChannelIoSession(this, context.getChannel());
+    }
 }

@@ -23,6 +23,12 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     
     protected AbstractIoSessionEx(Thread ioThread, Executor ioExecutor) {
         super();
+        if (ioThread == null) {
+            throw new NullPointerException("ioThread");
+        }
+        if (ioExecutor == null) {
+            throw new NullPointerException("ioExecutor");
+        }
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
         this.filterChain = new DefaultIoFilterChainEx(this);

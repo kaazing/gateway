@@ -11,9 +11,12 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
+import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 
 public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
@@ -48,4 +51,9 @@ public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramSession
 	public TransportMetadata getTransportMetadata() {
 		return TRANSPORT_METADATA;
 	}
+
+    @Override
+    public ChannelIoSession createSession(ChannelHandlerContext context) {
+        return new DefaultChannelIoSession(this, context.getChannel());
+    }
 }
