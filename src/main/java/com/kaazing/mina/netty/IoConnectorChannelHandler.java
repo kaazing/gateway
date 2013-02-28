@@ -34,10 +34,11 @@ public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 		final Channel channel = e.getChannel();
 		ChannelPipeline childPipeline = channel.getPipeline();
 
-        IoSessionChannelHandler newHandler = new IoSessionChannelHandler(connector, connectFuture, sessionInitializer);
-		childPipeline.replace(this, "session", newHandler);
+		IoSessionFactoryChannelHandler newHandler = new IoSessionFactoryChannelHandler(connector, connectFuture, sessionInitializer);
+		childPipeline.replace(this, "factory", newHandler);
 
-		newHandler.channelConnected(ctx, e);
+		ChannelHandlerContext childCtx = childPipeline.getContext(newHandler);
+		newHandler.channelConnected(childCtx, e);
 	}
 
 	@Override

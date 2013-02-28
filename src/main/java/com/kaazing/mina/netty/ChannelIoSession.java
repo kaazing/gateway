@@ -12,15 +12,10 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.socket.Worker;
-import org.jboss.netty.channel.socket.nio.NioSocketChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 public class ChannelIoSession extends AbstractIoSessionEx {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelIoSession.class);
     
 	private final ChannelIoService service;
 	private final Channel channel;
@@ -76,31 +71,6 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	@Override
 	public TransportMetadata getTransportMetadata() {
 		return transportMetadata;
-	}
-	
-	private static Executor getWorkerExecutor(Channel channel) {
-	    if (!(channel instanceof NioSocketChannel)) {
-	        String message = String.format("Unable to get worker: channel %s is not an instance of NioSocketChannel");
-	        RuntimeException e = new UnsupportedOperationException(message); 
-	        LOGGER.error(message, e);
-	        throw e;
-	    }
-        NioSocketChannel socketChannel = (NioSocketChannel)channel;
-        Worker worker = socketChannel.getWorker();
-        return new WorkerExecutor(worker);
-	}
-	
-	private static class WorkerExecutor implements Executor {
-	    private Worker worker; 
-	    
-	    WorkerExecutor(Worker worker) {
-	        this.worker = worker;
-	    }
-
-        @Override
-        public void execute(Runnable command) {
-            worker.executeInIoThread(command);
-        }
 	}
 
 }

@@ -36,7 +36,6 @@ import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
 import org.jboss.netty.channel.local.LocalAddress;
-import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -48,7 +47,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
-import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
+import com.kaazing.mina.netty.nio.NioSocketChannelIoConnector;
 
 /**
  * Integration test for mina.netty layer
@@ -172,11 +171,11 @@ public class IT {
         final CountDownLatch echoedMessageReceived = new CountDownLatch(1);
         final AtomicInteger connectExceptionsCaught = new AtomicInteger(0);
         
-        ClientSocketChannelFactory clientChannelFactory = new NioClientSocketChannelFactory(
+        NioClientSocketChannelFactory clientChannelFactory = new NioClientSocketChannelFactory(
                 newCachedThreadPool(), 
                 1, // boss thread count
                 workerPool);
-        connector = new SocketChannelIoConnector(new DefaultSocketSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultSocketSessionConfig(), clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
@@ -205,7 +204,7 @@ public class IT {
         
         WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
         
-        await(written, "session.write called in another thread");
+        await(written, "session.write");
         
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");

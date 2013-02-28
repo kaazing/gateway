@@ -25,7 +25,8 @@ public class DefaultChannelIoSession extends ChannelIoSession {
         public void execute(Runnable command) {
             if (Thread.currentThread() != ownerThread) {
                 throw new UnsupportedOperationException(
-                        String.format("Current thread %s is different from session creator thread %s") );
+                        String.format("Current thread %s is different from session creator thread %s", 
+                                      Thread.currentThread(), ownerThread) );
             }            
         }
     }
