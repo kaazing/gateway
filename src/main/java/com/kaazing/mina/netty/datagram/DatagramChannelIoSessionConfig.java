@@ -4,10 +4,10 @@
 
 package com.kaazing.mina.netty.datagram;
 
-import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
 public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig> implements DatagramSessionConfig {
@@ -17,7 +17,7 @@ public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<Datag
 	}
 	
 	@Override
-	protected final void doSetAll(IoSessionConfig config) {
+	protected final void doSetAll(IoSessionConfigEx config) {
 
 		super.doSetAll(config);
 		

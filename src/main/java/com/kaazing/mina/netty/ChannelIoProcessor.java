@@ -64,9 +64,8 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 	}
 
 	@Override
-	public void updateTrafficControl(ChannelIoSession session) {
-		// TODO Auto-generated method stub
-		
+	public final void updateTrafficControl(ChannelIoSession session) {
+		throw new UnsupportedOperationException(); // done from ChannelIoSession instead
 	}
 
 	protected void init(ChannelIoSession session) {

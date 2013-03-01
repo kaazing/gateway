@@ -72,5 +72,21 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	public TransportMetadata getTransportMetadata() {
 		return transportMetadata;
 	}
+	
+	@Override
+    public boolean isReadSuspended() {
+        return channel.isReadable();
+    }
+	
+    @Override
+    public void resumeRead() {
+        channel.setReadable(true);
+    }
+	
+    @Override
+    public void suspendRead() {
+        channel.setReadable(false);
+    }
+
 
 }

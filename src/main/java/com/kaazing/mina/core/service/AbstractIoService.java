@@ -22,6 +22,7 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultIoFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.service.IoServiceListener;
 import org.apache.mina.core.service.IoServiceListenerSupport;
@@ -47,6 +48,13 @@ import com.kaazing.mina.core.session.AbstractIoSession;
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
+/* This class originates from Mina.
+ * The following changes were made from the version in Mina 2.0.0-RC1g:
+ * 1. Change package name
+ * 2. Use our versions of AbstractIoSession and DefaultIoFilterChain 
+ * 3. Do not maintain stats like last IO times, scheduled write messages and scheduled write bytes 
+ *    (presumably for performance reasons)
+*/
 public abstract class AbstractIoService implements IoService {
     /** 
      * The unique number identifying the Service. It's incremented
@@ -77,7 +85,7 @@ public abstract class AbstractIoService implements IoService {
     /**
      * The IoHandler in charge of managing all the I/O Events. It is 
      */
-    private org.apache.mina.core.service.IoHandler handler;
+    private IoHandler handler;
 
     /**
      * The default {@link IoSessionConfig} which will be used to configure new sessions.
@@ -325,7 +333,7 @@ public abstract class AbstractIoService implements IoService {
     /**
      * {@inheritDoc}
      */
-    public final org.apache.mina.core.service.IoHandler getHandler() {
+    public final IoHandler getHandler() {
         return handler;
     }
 

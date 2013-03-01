@@ -56,6 +56,7 @@ import org.apache.mina.util.ExceptionMonitor;
  * 3. Remove synchronization from poll method
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods that
  *    we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
+ * 5. Remove support for suspend/resume write (because it makes no sense!)
 */   
 public abstract class AbstractIoSession implements IoSession {
 
@@ -107,7 +108,7 @@ public abstract class AbstractIoSession implements IoSession {
     
     // traffic control
     private volatile boolean readSuspended=false;
-    private volatile boolean writeSuspended=false;
+//    private volatile boolean writeSuspended=false;
 
     // Status variables
     private final AtomicBoolean scheduledForFlush = new AtomicBoolean();
@@ -555,7 +556,7 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
-    public final void suspendRead() {
+    public void suspendRead() {
         readSuspended = true;
         if (isClosing() || !isConnected()) {
             return;
@@ -567,18 +568,19 @@ public abstract class AbstractIoSession implements IoSession {
      * {@inheritDoc}
      */
     public final void suspendWrite() {
-        writeSuspended = true;
-        if (isClosing() || !isConnected()) {
-            return;
-        }
-        getProcessor().updateTrafficControl(this);
+//        writeSuspended = true;
+//        if (isClosing() || !isConnected()) {
+//            return;
+//        }
+//        getProcessor().updateTrafficControl(this);
+        throw new UnsupportedOperationException();
     }
 
     /**
      * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
-    public final void resumeRead() {
+    public void resumeRead() {
         readSuspended = false;
         if (isClosing() || !isConnected()) {
             return;
@@ -591,11 +593,12 @@ public abstract class AbstractIoSession implements IoSession {
      */
     @SuppressWarnings("unchecked")
     public final void resumeWrite() {
-        writeSuspended = false;
-        if (isClosing() || !isConnected()) {
-            return;
-        }
-        getProcessor().updateTrafficControl(this);
+//        writeSuspended = false;
+//        if (isClosing() || !isConnected()) {
+//            return;
+//        }
+//        getProcessor().updateTrafficControl(this);
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -609,7 +612,8 @@ public abstract class AbstractIoSession implements IoSession {
      * {@inheritDoc}
      */
     public boolean isWriteSuspended() {
-        return writeSuspended; 
+//        return writeSuspended;
+        return false;
     }
     
     /**

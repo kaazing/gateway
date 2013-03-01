@@ -4,10 +4,10 @@
 
 package com.kaazing.mina.netty.socket;
 
-import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
 public class SocketChannelIoSessionConfig extends ChannelIoSessionConfig<SocketChannelConfig> 
@@ -18,7 +18,7 @@ public class SocketChannelIoSessionConfig extends ChannelIoSessionConfig<SocketC
 	}
 	
 	@Override
-	protected final void doSetAll(IoSessionConfig config) {
+	protected final void doSetAll(IoSessionConfigEx config) {
 
 		super.doSetAll(config);
 		
