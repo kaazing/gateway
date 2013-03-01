@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -24,8 +23,9 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.service.AbstractIoAcceptor;
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class ChannelIoAcceptor<C extends IoSessionConfig, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
+public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
 
 	private final ServerBootstrap bootstrap;
 	private final Map<SocketAddress, Channel> boundChannels;

@@ -56,7 +56,8 @@ import org.apache.mina.util.ExceptionMonitor;
  * 3. Remove synchronization from poll method
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods that
  *    we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
- * 5. Remove support for suspend/resume write (because it makes no sense!)
+ * 5. Allow suspend/resumeRead to be overridden (remove final)
+ * 6. Remove support for suspend/resumeWrite (because it makes no sense!)
 */   
 public abstract class AbstractIoSession implements IoSession {
 

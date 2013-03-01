@@ -19,15 +19,15 @@ import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 
-public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
+public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
-			DatagramSessionConfig.class, Object.class);
+			DatagramChannelIoSessionConfig.class, Object.class);
 	
 	private IoSessionRecycler sessionRecycler;  // TODO
 	
-	public DatagramChannelIoAcceptor(DatagramSessionConfig sessionConfig,
+	public DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
 			DatagramChannelFactory channelFactory) {
 		super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
 	}

@@ -15,6 +15,7 @@ import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
+import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 
@@ -22,7 +23,7 @@ public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 			"Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-    public NioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
+    public NioSocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
             NioClientSocketChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);
     }

@@ -31,7 +31,7 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 		this.config = new DefaultChannelIoSessionConfig(channel.getConfig());
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
-		this.processor = new ChannelIoProcessor();
+		this.processor = ChannelIoProcessor.getInstance();
 		this.transportMetadata = service.getTransportMetadata();
 	}
 

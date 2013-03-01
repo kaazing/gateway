@@ -16,7 +16,6 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.file.FileRegion;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
-import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoServiceListenerSupport;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
@@ -25,30 +24,40 @@ import org.apache.mina.util.ExceptionMonitor;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
+import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
 
-final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
-    //TODO: why isn't this a singleton? There's no session-specific state
+/**
+ * Since this class is stateless it is a singleton.
+ */
+final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
+    private static final ChannelIoProcessor INSTANCE = new ChannelIoProcessor();
+    
+    public static ChannelIoProcessor getInstance() {
+        return INSTANCE;
+    }
+    
+    private ChannelIoProcessor() {
+    };
 
 	@Override
-	public void add(ChannelIoSession session) {
+	protected void add0(ChannelIoSession session) {
         addNow(session);
 	}
 
 	@Override
-	public void remove(ChannelIoSession session) {
+	protected void remove0(ChannelIoSession session) {
 		removeNow(session);
 	}
 	
 	@Override
-	public void flush(ChannelIoSession session) {
+	protected void flush0(ChannelIoSession session) {
 		flushNow(session, System.currentTimeMillis());
 	}
 
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
@@ -64,8 +73,9 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 	}
 
 	@Override
-	public final void updateTrafficControl(ChannelIoSession session) {
-		throw new UnsupportedOperationException(); // done from ChannelIoSession instead
+	protected final void updateTrafficControl0(ChannelIoSession session) {
+	    // suspend/resumeRead is implemented directly in ChannelIoSession so this should never be called
+	    throw new UnsupportedOperationException();
 	}
 
 	protected void init(ChannelIoSession session) {

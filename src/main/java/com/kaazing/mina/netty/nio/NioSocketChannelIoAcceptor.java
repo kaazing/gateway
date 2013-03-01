@@ -18,6 +18,7 @@ import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.socket.IoAcceptorSocketChannelFactory;
 import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 
@@ -25,12 +26,12 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 			"Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-	public NioSocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
+	public NioSocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
 			final NioServerSocketChannelFactory channelFactory) {
 		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), new DefaultIoAcceptorChannelHandlerFactory());
 	}
 
-	public NioSocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
+	public NioSocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
 			final NioServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
 		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
 	}

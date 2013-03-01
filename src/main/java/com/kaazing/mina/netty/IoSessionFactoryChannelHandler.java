@@ -10,13 +10,17 @@ import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This creates the session then immediately replaces itself with IoSessionChannelHandler, in order to allow
  * the session member variable in IoSessionChannelHandler to be final, which is more efficient.
  */
 public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IoSessionFactoryChannelHandler.class);
 
     private final ChannelIoService service;
 	private final IoFuture future;
@@ -33,8 +37,7 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-	throws Exception {
+	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 	    ChannelIoSession session = service.createSession(ctx);
 	    String baseName = ctx.getName();
 	    String name = String.format("%s#session", baseName);
@@ -44,5 +47,11 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
         ctx.sendUpstream(e);
         pipeline.remove(this);
 	}
+	
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        LOGGER.error("Exception caught in IoSessionFactoryChannelHandler", e.getCause());
+    }
+
 	
 }

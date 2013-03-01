@@ -19,18 +19,18 @@ import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 
-public class SocketChannelIoAcceptor extends ChannelIoAcceptor<SocketSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress> implements SocketAcceptor {
+public class SocketChannelIoAcceptor extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress> implements SocketAcceptor {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
+	public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
 			final ServerSocketChannelFactory channelFactory) {
 		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), new DefaultIoAcceptorChannelHandlerFactory());
 	}
 
-	public SocketChannelIoAcceptor(SocketSessionConfig sessionConfig,
+	public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
 			final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
 		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
 	}

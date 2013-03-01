@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -28,7 +29,6 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.filter.logging.LoggingFilter;
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChildChannelStateEvent;
@@ -36,6 +36,8 @@ import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
 import org.jboss.netty.channel.local.LocalAddress;
+import org.jboss.netty.channel.socket.DefaultSocketChannelConfig;
+import org.jboss.netty.channel.socket.SocketChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -48,6 +50,8 @@ import org.junit.Test;
 
 import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.nio.NioSocketChannelIoConnector;
+import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 /**
  * Integration test for mina.netty layer
@@ -133,7 +137,7 @@ public class IT {
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketSessionConfig(), serverChannelFactory, 
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(), serverChannelFactory, 
                 new IoAcceptorChannelHandlerFactory() {
 
                     @Override
@@ -175,7 +179,7 @@ public class IT {
                 newCachedThreadPool(), 
                 1, // boss thread count
                 workerPool);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
