@@ -17,13 +17,13 @@ import com.kaazing.mina.netty.ChannelIoConnector;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 
-public class DatagramChannelIoConnector extends ChannelIoConnector<DatagramSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramConnector {
+public class DatagramChannelIoConnector extends ChannelIoConnector<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramConnector {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
 			DatagramSessionConfig.class, Object.class);
 	
-	public DatagramChannelIoConnector(DatagramSessionConfig sessionConfig,
+	public DatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig,
 			DatagramChannelFactory channelFactory) {
 		super(sessionConfig, channelFactory);
 	}

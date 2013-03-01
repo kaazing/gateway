@@ -12,7 +12,9 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfig, ChannelFactory, SocketAddress> {
+import com.kaazing.mina.core.session.IoSessionConfigEx;
+
+public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfigEx, ChannelFactory, SocketAddress> {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "Channel", false, true, SocketAddress.class,
@@ -22,7 +24,7 @@ public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfi
 		super(new DefaultChannelIoSessionConfig(), channelFactory);
 	}
 
-	public DefaultChannelIoConnector(IoSessionConfig sessionConfig,
+	public DefaultChannelIoConnector(IoSessionConfigEx sessionConfig,
 			ChannelFactory channelFactory) {
 		super(sessionConfig, channelFactory);
 	}

@@ -17,13 +17,13 @@ import com.kaazing.mina.netty.ChannelIoConnector;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 
-public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
+public class SocketChannelIoConnector extends ChannelIoConnector<SocketChannelIoSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
 
 	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
 			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
 			SocketSessionConfig.class, Object.class);
 	
-	public SocketChannelIoConnector(SocketSessionConfig sessionConfig,
+	public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
 			ClientSocketChannelFactory channelFactory) {
 		super(sessionConfig, channelFactory);
 	}
