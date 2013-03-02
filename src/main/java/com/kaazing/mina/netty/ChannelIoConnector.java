@@ -24,10 +24,10 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
-import com.kaazing.mina.core.service.AbstractIoConnector;
+import com.kaazing.mina.core.service.AbstractIoConnectorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class ChannelIoConnector<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoConnector implements ChannelIoService {
+public abstract class ChannelIoConnector<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoConnectorEx implements ChannelIoService {
 
 	private final F channelFactory;
 	private ChannelPipelineFactory pipelineFactory;

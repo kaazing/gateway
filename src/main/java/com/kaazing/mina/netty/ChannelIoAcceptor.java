@@ -22,10 +22,10 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
-import com.kaazing.mina.core.service.AbstractIoAcceptor;
+import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoAcceptor implements ChannelIoService {
+public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoAcceptorEx implements ChannelIoService {
 
 	private final ServerBootstrap bootstrap;
 	private final Map<SocketAddress, Channel> boundChannels;

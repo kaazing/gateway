@@ -5,11 +5,12 @@
 package com.kaazing.mina.netty;
 
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-public interface ChannelIoService extends IoService {
+import com.kaazing.mina.core.service.IoServiceEx;
+
+public interface ChannelIoService extends IoServiceEx {
 
     public ChannelIoSession createSession(ChannelHandlerContext context);
     

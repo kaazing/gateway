@@ -8,6 +8,8 @@ import java.util.concurrent.Executor;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.kaazing.mina.core.service.IoServiceEx;
+
 
 /**
  * Extended version of IoSession to add support for thread alignment.
@@ -27,9 +29,10 @@ public interface IoSessionEx extends IoSession  {
      */
     Executor getIoExecutor();
 
-    /**
-     * @return the configuration of this session.
-     */
+    @Override
     IoSessionConfigEx getConfig();
+
+    @Override
+    IoServiceEx getService();
     
 }

@@ -39,6 +39,7 @@ import org.apache.mina.util.NamePreservingRunnable;
 
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.session.AbstractIoSession;
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 /**
  * Base implementation of {@link IoService}s.
@@ -54,8 +55,9 @@ import com.kaazing.mina.core.session.AbstractIoSession;
  * 2. Use our versions of AbstractIoSession and DefaultIoFilterChain 
  * 3. Do not maintain stats like last IO times, scheduled write messages and scheduled write bytes 
  *    (presumably for performance reasons)
+ * 4. Capture strongly-typed IoSessionConfigEx session configuration
 */
-public abstract class AbstractIoService implements IoService {
+public abstract class AbstractIoService implements IoServiceEx {
     /** 
      * The unique number identifying the Service. It's incremented
      * for each new IoService created.
@@ -90,7 +92,7 @@ public abstract class AbstractIoService implements IoService {
     /**
      * The default {@link IoSessionConfig} which will be used to configure new sessions.
      */
-    private final IoSessionConfig sessionConfig;
+    private final IoSessionConfigEx sessionConfig;
 
     private final IoServiceListener serviceActivationListener = new IoServiceListener() {
         public void serviceActivated(IoService service) {
@@ -162,7 +164,7 @@ public abstract class AbstractIoService implements IoService {
      *            the {@link Executor} used for handling execution of I/O
      *            events. Can be <code>null</code>.
      */
-    protected AbstractIoService(IoSessionConfig sessionConfig, Executor executor) {
+    protected AbstractIoService(IoSessionConfigEx sessionConfig, Executor executor) {
         if (sessionConfig == null) {
             throw new NullPointerException("sessionConfig");
         }
@@ -356,7 +358,7 @@ public abstract class AbstractIoService implements IoService {
     /**
      * {@inheritDoc}
      */
-    public IoSessionConfig getSessionConfig() {
+    public IoSessionConfigEx getSessionConfig() {
         return sessionConfig;
     }
 

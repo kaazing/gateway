@@ -16,8 +16,9 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
+
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 /**
  * A base implementation of {@link IoConnector}.
@@ -53,7 +54,7 @@ public abstract class AbstractIoConnector
      *            the {@link Executor} used for handling execution of I/O
      *            events. Can be <code>null</code>.
      */
-    protected AbstractIoConnector(IoSessionConfig sessionConfig, Executor executor) {
+    protected AbstractIoConnector(IoSessionConfigEx sessionConfig, Executor executor) {
         super(sessionConfig, executor);
     }
 

@@ -19,7 +19,8 @@ import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.session.IoSessionConfig;
+
+import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 
 /**
@@ -67,7 +68,7 @@ public abstract class AbstractIoAcceptor
      *            the {@link Executor} used for handling execution of I/O
      *            events. Can be <code>null</code>.
      */
-    protected AbstractIoAcceptor(IoSessionConfig sessionConfig, Executor executor) {
+    protected AbstractIoAcceptor(IoSessionConfigEx sessionConfig, Executor executor) {
         super(sessionConfig, executor);
         defaultLocalAddresses.add(null);
     }
