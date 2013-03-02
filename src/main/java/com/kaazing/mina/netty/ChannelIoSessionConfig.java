@@ -4,8 +4,6 @@
 
 package com.kaazing.mina.netty;
 
-import org.apache.mina.core.session.IdleStatus;
-
 import org.jboss.netty.channel.ChannelConfig;
 
 import com.kaazing.mina.core.session.AbstractIoSessionConfigEx;

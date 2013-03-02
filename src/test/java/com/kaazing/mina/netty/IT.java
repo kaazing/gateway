@@ -12,7 +12,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -36,8 +35,6 @@ import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
 import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
 import org.jboss.netty.channel.local.LocalAddress;
-import org.jboss.netty.channel.socket.DefaultSocketChannelConfig;
-import org.jboss.netty.channel.socket.SocketChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
@@ -51,7 +48,6 @@ import org.junit.Test;
 import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.nio.NioSocketChannelIoConnector;
 import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
-import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 /**
  * Integration test for mina.netty layer

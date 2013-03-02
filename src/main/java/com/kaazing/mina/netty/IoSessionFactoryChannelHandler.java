@@ -5,7 +5,6 @@
 package com.kaazing.mina.netty;
 
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;

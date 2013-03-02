@@ -8,7 +8,6 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ServerChannelFactory;
 
