@@ -4,9 +4,8 @@
 
 package com.kaazing.mina.core.service;
 
-import static org.junit.Assert.*;
-
-import java.util.concurrent.Executor;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
