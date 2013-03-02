@@ -32,16 +32,13 @@ public class AbstractIoProcessorTest {
         assertEquals("add0", ((TestIoProcessor<?>)processor).called);
     }
     
-    @Test
-    public void add_shouldExecuteAsynchronouslyIfNotInIoThread() throws Exception{
+    @Test(expected = RuntimeException.class)
+    public void add_shouldThrowExceptionIfNotInIoThread() throws Exception{
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        final Executor executor = context.mock(Executor.class);
         
         context.checking(new Expectations() {{
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-            oneOf(session).getIoExecutor(); will(returnValue(executor));
-            oneOf(executor).execute(with(any(Runnable.class)));
         }});
         
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -65,16 +62,13 @@ public class AbstractIoProcessorTest {
         assertEquals("flush0", ((TestIoProcessor<?>)processor).called);
     }
     
-    @Test
-    public void flush_shouldExecuteAsynchronouslyIfNotInIoThread() throws Exception{
+    @Test(expected = RuntimeException.class)
+    public void flush_shouldThrowExceptionIfNotInIoThread() throws Exception{
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        final Executor executor = context.mock(Executor.class);
         
         context.checking(new Expectations() {{
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-            oneOf(session).getIoExecutor(); will(returnValue(executor));
-            oneOf(executor).execute(with(any(Runnable.class)));
         }});
         
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -98,16 +92,13 @@ public class AbstractIoProcessorTest {
         assertEquals("remove0", ((TestIoProcessor<?>)processor).called);
     }
     
-    @Test
-    public void remove_shouldExecuteAsynchronouslyIfNotInIoThread() throws Exception{
+    @Test(expected = RuntimeException.class)
+    public void remove_shouldThrowExceptionIfNotInIoThread() throws Exception{
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        final Executor executor = context.mock(Executor.class);
         
         context.checking(new Expectations() {{
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-            oneOf(session).getIoExecutor(); will(returnValue(executor));
-            oneOf(executor).execute(with(any(Runnable.class)));
         }});
         
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -131,16 +122,13 @@ public class AbstractIoProcessorTest {
         assertEquals("updateTrafficControl0", ((TestIoProcessor<?>)processor).called);
     }
     
-    @Test
-    public void updateTrafficControl_shouldExecuteAsynchronouslyIfNotInIoThread() throws Exception{
+    @Test(expected = RuntimeException.class)
+    public void updateTrafficControl_shouldThrowExceptionIfNotInIoThread() throws Exception{
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        final Executor executor = context.mock(Executor.class);
         
         context.checking(new Expectations() {{
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-            oneOf(session).getIoExecutor(); will(returnValue(executor));
-            oneOf(executor).execute(with(any(Runnable.class)));
         }});
         
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
