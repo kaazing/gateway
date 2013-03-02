@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.netty;
 
+import static java.lang.Thread.currentThread;
+
 import java.util.concurrent.Executor;
 
 import org.jboss.netty.channel.Channel;
@@ -14,19 +16,32 @@ import org.jboss.netty.channel.Channel;
  */
 public class DefaultChannelIoSession extends ChannelIoSession {
 
+	private static final ThreadLocal<Executor> CREATION_ALIGNED_EXECUTOR = new ThreadLocal<Executor>() {
+
+		@Override
+		protected Executor initialValue() {
+			return new CreationAlignedExecutor(currentThread());
+		}
+		
+	};
+	
 	public DefaultChannelIoSession(ChannelIoService service, Channel channel) {
-          super(service, channel, Thread.currentThread(), new CurrentThreadOnlyExecutor());
+          super(service, channel, currentThread(), CREATION_ALIGNED_EXECUTOR.get());
     }
 
-    private static class CurrentThreadOnlyExecutor implements Executor {
-        private Thread ownerThread = Thread.currentThread();
+    private static final class CreationAlignedExecutor implements Executor {
+        private final Thread creationThread;
+        
+        public CreationAlignedExecutor(Thread creationThread) {
+        	this.creationThread = creationThread;
+		}
     
         @Override
         public void execute(Runnable command) {
-            if (Thread.currentThread() != ownerThread) {
+            if (currentThread() != creationThread) {
                 throw new UnsupportedOperationException(
                         String.format("Current thread %s is different from session creator thread %s", 
-                                      Thread.currentThread(), ownerThread) );
+                                      currentThread(), creationThread) );
             }            
         }
     }
