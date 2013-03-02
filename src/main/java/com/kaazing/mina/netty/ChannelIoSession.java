@@ -8,7 +8,6 @@ import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.Channel;
@@ -54,7 +53,7 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	}
 
 	@Override
-	public IoProcessor<ChannelIoSession> getProcessor() {
+	public ChannelIoProcessor getProcessor() {
 		return processor;
 	}
 
