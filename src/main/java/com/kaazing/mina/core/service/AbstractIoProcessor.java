@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.core.service;
 
+import static com.kaazing.mina.core.util.Util.verifyInIoThread;
+
 import org.apache.mina.core.service.IoProcessor;
 
 import com.kaazing.mina.core.session.IoSessionEx;
@@ -22,74 +24,30 @@ public abstract class AbstractIoProcessor<T extends IoSessionEx> implements IoPr
 
     @Override
     public final void add(final T session) {
-        if (aligned(session)) {
-            add0(session);
-        }
-        else {
-            execute(session, new Runnable() {
-                @Override
-                public void run() {
-                    add0(session);
-                }
-            });
-        }
+    	verifyInIoThread(session, session.getIoThread());
+        add0(session);
     }
     protected abstract void add0(T session);
 
     @Override
     public final void flush(final T session) {
-        if (aligned(session)) {
-            flush0(session);
-        }
-        else {
-            execute(session, new Runnable() {
-                @Override
-                public void run() {
-                    flush0(session);
-                }
-            });
-        }
+    	verifyInIoThread(session, session.getIoThread());
+        flush0(session);
     }
     protected abstract void flush0(T session);
 
     @Override
     public final void remove(final T session) {
-        if (aligned(session)) {
-            remove0(session);
-        }
-        else {
-            execute(session, new Runnable() {
-                @Override
-                public void run() {
-                    remove0(session);
-                }
-            });
-        }
+    	verifyInIoThread(session, session.getIoThread());
+        remove0(session);
     }
     protected abstract void remove0(T session);
     
     @Override
     public final void updateTrafficControl(final T session) {
-        if (aligned(session)) {
-            updateTrafficControl0(session);
-        }
-        else {
-            execute(session, new Runnable() {
-                @Override
-                public void run() {
-                    updateTrafficControl0(session);
-                }
-            });
-        }
+    	verifyInIoThread(session, session.getIoThread());
+        updateTrafficControl0(session);
     }
     protected abstract void updateTrafficControl0(T session);
-
-    private boolean aligned(T session) {
-        return Thread.currentThread() == session.getIoThread();
-    }
-    
-    private void execute(IoSessionEx session, Runnable command) {
-        session.getIoExecutor().execute(command);
-    }
 
 }

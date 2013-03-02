@@ -21,6 +21,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     
     private final Thread ioThread;
     private final Executor ioExecutor;
+    private final Runnable readSuspender;
+    private final Runnable readResumer;
     
     protected AbstractIoSessionEx(Thread ioThread, Executor ioExecutor) {
         super();
@@ -33,6 +35,18 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
         this.filterChain = new DefaultIoFilterChainEx(this);
+        this.readResumer = new Runnable() {
+        	@Override
+        	public void run() {
+        		AbstractIoSessionEx.super.resumeRead();
+        	}
+        };
+        this.readSuspender = new Runnable() {
+        	@Override
+        	public void run() {
+        		AbstractIoSessionEx.super.suspendRead();
+        	}
+        };
     }
     
     @Override
@@ -52,4 +66,25 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
 
     @SuppressWarnings("rawtypes")
 	public abstract AbstractIoProcessor getProcessor();
+
+	@Override
+	public void suspendRead() {
+		if (Thread.currentThread() == ioThread) {
+			super.suspendRead();
+		}
+		else {
+			ioExecutor.execute(readSuspender);
+		}
+	}
+
+	@Override
+	public void resumeRead() {
+		if (Thread.currentThread() == ioThread) {
+			super.resumeRead();
+		}
+		else {
+			ioExecutor.execute(readResumer);
+		}
+	}
+
 }

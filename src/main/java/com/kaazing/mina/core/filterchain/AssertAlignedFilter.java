@@ -4,18 +4,17 @@
 
 package com.kaazing.mina.core.filterchain;
 
+import static com.kaazing.mina.core.util.Util.verifyInIoThread;
+
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 class AssertAlignedFilter extends IoFilterAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AssertAlignedFilter.class); 
     
     private static final boolean assertEnabled;
     static {
@@ -46,7 +45,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
             parent.remove(this);
         }
         else {
-            checkThread(parent.getSession());
+        	verifyInIoThread(parent.getSession(), expected);
         }
     }
 
@@ -67,25 +66,25 @@ class AssertAlignedFilter extends IoFilterAdapter {
 
     @Override
     public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.filterWrite(nextFilter, session, writeRequest);
     }
     
     public void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception {
-        //checkThread(session);
+        //verifyInIoThread(session, expected);
         super.exceptionCaught(nextFilter, session, cause);
     }
 
     @Override
     public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.messageReceived(nextFilter, session, message);
     }
 
     @Override
     public void messageSent(NextFilter nextFilter, IoSession session,
             WriteRequest writeRequest) throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.messageSent(nextFilter, session, writeRequest);
     }
 
@@ -93,42 +92,28 @@ class AssertAlignedFilter extends IoFilterAdapter {
     public void sessionClosed(NextFilter nextFilter, IoSession session)
             throws Exception {
         // This is called by NioSocketAcceptor during gateway shutdown so thread is not expected to match
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.sessionClosed(nextFilter, session);
     }
 
     @Override
     public void sessionCreated(NextFilter nextFilter, IoSession session)
             throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.sessionCreated(nextFilter, session);
     }
 
     @Override
     public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.sessionIdle(nextFilter, session, status);
     }
 
     @Override
     public void sessionOpened(NextFilter nextFilter, IoSession session)
             throws Exception {
-        checkThread(session);
+        verifyInIoThread(session, expected);
         super.sessionOpened(nextFilter, session);
-    }
-
-    private void checkThread(IoSession session) {
-        Thread current = Thread.currentThread();
-        if ( current != expected ) {
-            String error = String.format("expected current thread %s to match %s in session %s", current, expected, session);
-            RuntimeException e = new RuntimeException(error);
-            String caller = e.getStackTrace()[1].toString().replace(this.getClass().getName(), this.getClass().getSimpleName());
-            error = String.format("%s: %s", caller , error);
-            //System.out.println(error);
-            //e.printStackTrace();
-            LOGGER.error(error, e);
-            throw e;
-        }
     }
     
 }
