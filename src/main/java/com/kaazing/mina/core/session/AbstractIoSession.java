@@ -58,6 +58,7 @@ import org.apache.mina.util.ExceptionMonitor;
  *    we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
  * 5. Allow suspend/resumeRead to be overridden (remove final)
  * 6. Remove support for suspend/resumeWrite (because it makes no sense!)
+ * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
 */   
 public abstract class AbstractIoSession implements IoSession {
 
@@ -177,7 +178,8 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * TODO Add method documentation
      */
-    public abstract IoProcessor getProcessor();
+    @SuppressWarnings("rawtypes")
+	public abstract IoProcessor getProcessor();
 
     /**
      * {@inheritDoc}
@@ -242,7 +244,8 @@ public abstract class AbstractIoSession implements IoSession {
         return closeFuture;
     }
 
-    private final CloseFuture closeOnFlush() {
+    @SuppressWarnings("unchecked")
+	private final CloseFuture closeOnFlush() {
         getWriteRequestQueue().offer(this, CLOSE_REQUEST);
         getProcessor().flush(this);
         return closeFuture;
@@ -318,7 +321,8 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * TODO Add method documentation
      */
-    private Queue<ReadFuture> getReadyReadFutures() {
+    @SuppressWarnings("unchecked")
+	private Queue<ReadFuture> getReadyReadFutures() {
         Queue<ReadFuture> readyReadFutures =
             (Queue<ReadFuture>) getAttribute(READY_READ_FUTURES_KEY);
         if (readyReadFutures == null) {
@@ -337,7 +341,8 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * TODO Add method documentation
      */
-    private Queue<ReadFuture> getWaitingReadFutures() {
+    @SuppressWarnings("unchecked")
+	private Queue<ReadFuture> getWaitingReadFutures() {
         Queue<ReadFuture> waitingReadyReadFutures =
             (Queue<ReadFuture>) getAttribute(WAITING_READ_FUTURES_KEY);
         if (waitingReadyReadFutures == null) {
@@ -557,7 +562,8 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
-    public void suspendRead() {
+    @SuppressWarnings("unchecked")
+	public void suspendRead() {
         readSuspended = true;
         if (isClosing() || !isConnected()) {
             return;
@@ -592,7 +598,7 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
+//    @SuppressWarnings("unchecked")
     public final void resumeWrite() {
 //        writeSuspended = false;
 //        if (isClosing() || !isConnected()) {
