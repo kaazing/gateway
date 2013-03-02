@@ -438,7 +438,7 @@ public abstract class AbstractIoService implements IoService {
     }
 
     // TODO Figure out make it work without causing a compiler error / warning.
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected final void initSession(IoSession session,
             IoFuture future, IoSessionInitializer sessionInitializer) {
         // Update lastIoTime if needed.
