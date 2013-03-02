@@ -20,8 +20,7 @@ public class Util extends IoFilterAdapter {
             RuntimeException e = new RuntimeException(error);
             String caller = e.getStackTrace()[1].toString().replace(Util.class.getName(), Util.class.getSimpleName());
             error = String.format("%s: %s", caller , error);
-            //System.out.println(error);
-            //e.printStackTrace();
+            // TODO: remove this logging and use a LoggingChannelHandler to log the exception on the Netty pipeline instead?
             LOGGER.error(error, e);
             throw e;
         }
