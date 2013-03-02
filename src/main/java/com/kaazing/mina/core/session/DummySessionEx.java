@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.core.session;
 
+import static java.lang.Thread.currentThread;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
@@ -71,7 +73,13 @@ public class DummySessionEx extends AbstractIoSessionEx {
      * Creates a new instance.
      */
     public DummySessionEx() {
-    	super(Thread.currentThread(), new Executor() {
+    	this(currentThread());
+    }
+    /**
+     * Creates a new instance.
+     */
+    public DummySessionEx(Thread ioThread) {
+    	super(ioThread, new Executor() {
     		@Override
     		public void execute(Runnable command) {
     			command.run();

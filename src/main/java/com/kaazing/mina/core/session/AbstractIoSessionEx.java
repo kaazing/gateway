@@ -4,7 +4,10 @@
 
 package com.kaazing.mina.core.session;
 
+import static java.lang.Thread.currentThread;
+
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 
@@ -21,6 +24,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     
     private final Thread ioThread;
     private final Executor ioExecutor;
+
+    private final AtomicInteger readSuspendCount;
     private final Runnable readSuspender;
     private final Runnable readResumer;
     
@@ -35,16 +40,17 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
         this.filterChain = new DefaultIoFilterChainEx(this);
-        this.readResumer = new Runnable() {
-        	@Override
-        	public void run() {
-        		AbstractIoSessionEx.super.resumeRead();
-        	}
-        };
+        this.readSuspendCount = new AtomicInteger();
         this.readSuspender = new Runnable() {
         	@Override
         	public void run() {
         		AbstractIoSessionEx.super.suspendRead();
+        	}
+        };
+        this.readResumer = new Runnable() {
+        	@Override
+        	public void run() {
+        		AbstractIoSessionEx.super.resumeRead();
         	}
         };
     }
@@ -69,21 +75,30 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
 
 	@Override
 	public void suspendRead() {
-		if (Thread.currentThread() == ioThread) {
-			super.suspendRead();
-		}
-		else {
-			ioExecutor.execute(readSuspender);
+		// manage the readSuspendCount here atomically instead of superclass to minimize scheduling overhead
+		if (readSuspendCount.getAndIncrement() == 0) {
+			if (currentThread() == ioThread) {
+				super.suspendRead();
+			}
+			else {
+				ioExecutor.execute(readSuspender);
+			}
 		}
 	}
 
 	@Override
 	public void resumeRead() {
-		if (Thread.currentThread() == ioThread) {
-			super.resumeRead();
-		}
-		else {
-			ioExecutor.execute(readResumer);
+		switch (readSuspendCount.decrementAndGet()) {
+		case -1:
+			throw new IllegalStateException("resumeRead not balanced by previous suspendRead");
+		case 0:
+			if (currentThread() == ioThread) {
+				super.resumeRead();
+			}
+			else {
+				ioExecutor.execute(readResumer);
+			}
+			break;
 		}
 	}
 

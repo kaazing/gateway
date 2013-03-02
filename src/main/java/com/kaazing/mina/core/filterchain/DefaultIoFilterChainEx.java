@@ -34,7 +34,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextSessionCreated(final Entry entry, final IoSession session) {
+    protected final void callNextSessionCreated(final Entry entry, final IoSession session) {
         if (aligned()) {
             super.callNextSessionCreated(entry, session);
         }
@@ -49,7 +49,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextSessionOpened(final Entry entry, final IoSession session) {
+    protected final void callNextSessionOpened(final Entry entry, final IoSession session) {
         if (aligned()) {
             super.callNextSessionOpened(entry, session);
         }
@@ -64,7 +64,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextSessionClosed(final Entry entry, final IoSession session) {
+    protected final void callNextSessionClosed(final Entry entry, final IoSession session) {
         if (aligned()) {
             super.callNextSessionClosed(entry, session);
         }
@@ -79,7 +79,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextSessionIdle(final Entry entry, final IoSession session, final IdleStatus status) {
+    protected final void callNextSessionIdle(final Entry entry, final IoSession session, final IdleStatus status) {
         if (aligned()) {
             super.callNextSessionIdle(entry, session, status);
         }
@@ -89,22 +89,32 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextMessageReceived(final Entry entry, final IoSession session, final Object message) {
+    protected final void callNextMessageReceived(final Entry entry, final IoSession session, final Object message) {
         if (aligned()) {
+        	// Note: no suspendRead / resumeRead coordination necessary when thread-aligned
             super.callNextMessageReceived(entry, session, message);
         }
         else {
+        	// Note: reads will be resumed after completion of scheduled callNextMessageReceived
+        	session.suspendRead();
+        	
             execute(new Runnable() {
                 @Override
                 public void run() {
                     DefaultIoFilterChainEx.super.callNextMessageReceived(entry, session, message);
+        		    
+        		    // Note: reads were suspended before scheduling callNextMessageReceived
+                    //       if suspendRead was called during callNextNessageReceived
+                    //       then calling resumeRead below will not actually resume reads
+                    //       due to internal read suspend counter
+        		    session.resumeRead();
                 }
             });
         }
     }
 
     @Override
-    protected void callNextMessageSent(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
+    protected final void callNextMessageSent(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
         if (aligned()) {
             super.callNextMessageSent(entry, session, writeRequest);
         }
@@ -119,7 +129,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callNextExceptionCaught(final Entry entry, final IoSession session, final Throwable cause) {
+    protected final void callNextExceptionCaught(final Entry entry, final IoSession session, final Throwable cause) {
         if (aligned()) {
             super.callNextExceptionCaught(entry, session, cause);
         }
@@ -134,7 +144,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callPreviousFilterWrite(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
+    protected final void callPreviousFilterWrite(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
         if (aligned()) {
             super.callPreviousFilterWrite(entry, session, writeRequest);
         }
@@ -149,7 +159,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected void callPreviousFilterClose(final Entry entry, final IoSession session) {
+    protected final void callPreviousFilterClose(final Entry entry, final IoSession session) {
         if (aligned()) {
             super.callPreviousFilterClose(entry, session);
         }
@@ -171,6 +181,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
         ioExecutor.execute(command);
     }
     
+	// allow detection of legitimate non-IoThread commands
 	public final class CallNextSessionIdleCommand implements Runnable {
 		private final IdleStatus status;
 		private final Entry entry;
@@ -185,7 +196,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
 
 		@Override
 		public void run() {
-		    DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
+			DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
 		}
 	}
 
