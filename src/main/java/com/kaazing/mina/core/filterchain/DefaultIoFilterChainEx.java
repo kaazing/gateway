@@ -15,7 +15,7 @@ import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 /**
  * Extended version of DefaultIoFilterChain to add support for thread alignment. Every method is 
- * executed explicity on the IoSession's I/O worker thread that is not the current thread.
+ * executed explicitly on the IoSession's I/O worker thread that is not the current thread.
 */   
 public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     private final Thread ioThread;
@@ -25,7 +25,11 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
         super(session);
         ioThread = session.getIoThread();
         ioExecutor = session.getIoExecutor();
-        addFirst("assert thread aligned", new AssertAlignedFilter(session));
+
+        // conditionally add alignment checking filter if assert is enabled
+        if (AssertAlignedFilter.isAssertEnabled()) {
+        	addFirst("assert thread aligned", new AssertAlignedFilter(session));
+        }
     }
 
     @Override

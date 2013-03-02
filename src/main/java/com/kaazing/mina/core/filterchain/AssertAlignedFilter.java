@@ -17,7 +17,7 @@ import com.kaazing.mina.core.session.AbstractIoSessionEx;
 class AssertAlignedFilter extends IoFilterAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(AssertAlignedFilter.class); 
     
-    private static final boolean assertsAreEnabled;
+    private static final boolean assertEnabled;
     static {
         boolean enabled;
         try {
@@ -27,7 +27,11 @@ class AssertAlignedFilter extends IoFilterAdapter {
         catch (AssertionError e) {
             enabled = true;
         }
-        assertsAreEnabled = enabled;
+        assertEnabled = enabled;
+    }
+    
+    static final boolean isAssertEnabled() {
+    	return assertEnabled;
     }
     
     private final Thread expected;
@@ -38,7 +42,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
 
     @Override
     public void onPostAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
-        if (!assertsAreEnabled) {
+        if (!assertEnabled) {
             parent.remove(this);
         }
         else {
