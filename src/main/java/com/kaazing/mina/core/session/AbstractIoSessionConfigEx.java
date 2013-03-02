@@ -25,12 +25,12 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
     protected abstract void doSetAll(IoSessionConfigEx config);
 
     @Override
-    public final int getIdleTime(IdleStatus status) {
+    public int getIdleTime(IdleStatus status) {
         return (int) getIdleTimeInMillis(status) / 1000;
     }
     
     @Override
-    public final long getIdleTimeInMillis(IdleStatus status) {
+    public long getIdleTimeInMillis(IdleStatus status) {
         if (status == IdleStatus.BOTH_IDLE) {
             return idleTimeMillisForBoth;
         }
@@ -47,7 +47,7 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
     }
     
     @Override
-    public final void setIdleTime(IdleStatus status, int idleTime) {
+    public void setIdleTime(IdleStatus status, int idleTime) {
         if (idleTime < 0) {
             throw new IllegalArgumentException("Illegal idle time: " + idleTime);
         }
@@ -56,7 +56,7 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
     }
 
     @Override
-    public final void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
+    public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
         if (idleTimeMillis < 0) {
             throw new IllegalArgumentException("Illegal idle time: " + idleTimeMillis);
         }

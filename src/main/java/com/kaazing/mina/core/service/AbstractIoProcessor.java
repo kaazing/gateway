@@ -6,8 +6,6 @@ package com.kaazing.mina.core.service;
 
 import static com.kaazing.mina.core.util.Util.verifyInIoThread;
 
-import org.apache.mina.core.service.IoProcessor;
-
 import com.kaazing.mina.core.session.IoSessionEx;
 
 /**
@@ -17,7 +15,7 @@ import com.kaazing.mina.core.session.IoSessionEx;
  * otherwise it will be executed immediately. This is similar to what is done in DefaultIoFilterChainEx. The objective
  * is to ensure that all pipeline processing for a given IoSession is done in the same thread.
  */
-public abstract class AbstractIoProcessor<T extends IoSessionEx> implements IoProcessor<T>  {
+public abstract class AbstractIoProcessor<T extends IoSessionEx> implements IoProcessorEx<T>  {
 
     // By definition, dispose() (and isDisposed/ing) must be callable from a non-IO thread, as must processor constructors,
     // since in principle the I/O threads don't even exist until the processor is created and started

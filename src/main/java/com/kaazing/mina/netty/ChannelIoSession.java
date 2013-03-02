@@ -12,6 +12,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 public class ChannelIoSession extends AbstractIoSessionEx {
@@ -53,7 +54,7 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	}
 
 	@Override
-	public ChannelIoProcessor getProcessor() {
+	public IoProcessorEx<ChannelIoSession> getProcessor() {
 		return processor;
 	}
 
