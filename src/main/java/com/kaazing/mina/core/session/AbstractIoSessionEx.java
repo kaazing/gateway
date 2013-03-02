@@ -9,6 +9,7 @@ import java.util.concurrent.Executor;
 import org.apache.mina.core.filterchain.IoFilterChain;
 
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
+import com.kaazing.mina.core.service.AbstractIoProcessor;
 
 
 /**
@@ -49,4 +50,6 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         return ioExecutor;
     }
 
+    @SuppressWarnings("rawtypes")
+	public abstract AbstractIoProcessor getProcessor();
 }
