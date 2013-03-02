@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 
 import org.jboss.netty.channel.Channel;
 
+import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx.CallNextSessionIdleCommand;
+
 /**
  * This session will throw runtime exceptions if any operation is attempted on the session in a thread other than the
  * thread that created the session.
@@ -38,7 +40,8 @@ public class DefaultChannelIoSession extends ChannelIoSession {
     
         @Override
         public void execute(Runnable command) {
-            if (currentThread() != creationThread) {
+        	// READ_IDLE commands are coming from the Timer thread, but still legitimate
+            if (currentThread() != creationThread && !(CallNextSessionIdleCommand.class.equals(command.getClass()))) {
                 throw new UnsupportedOperationException(
                         String.format("Current thread %s is different from session creator thread %s", 
                                       currentThread(), creationThread) );

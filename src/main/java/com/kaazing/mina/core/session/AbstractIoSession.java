@@ -110,7 +110,7 @@ public abstract class AbstractIoSession implements IoSession {
     
     // traffic control
     private volatile boolean readSuspended=false;
-//    private volatile boolean writeSuspended=false;
+    private volatile boolean writeSuspended=false;
 
     // Status variables
     private final AtomicBoolean scheduledForFlush = new AtomicBoolean();
@@ -575,12 +575,12 @@ public abstract class AbstractIoSession implements IoSession {
      * {@inheritDoc}
      */
     public final void suspendWrite() {
-//        writeSuspended = true;
+        writeSuspended = true;
 //        if (isClosing() || !isConnected()) {
 //            return;
 //        }
 //        getProcessor().updateTrafficControl(this);
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     /**
@@ -600,12 +600,12 @@ public abstract class AbstractIoSession implements IoSession {
      */
 //    @SuppressWarnings("unchecked")
     public final void resumeWrite() {
-//        writeSuspended = false;
+        writeSuspended = false;
 //        if (isClosing() || !isConnected()) {
 //            return;
 //        }
 //        getProcessor().updateTrafficControl(this);
-        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException();
     }
 
     /**
@@ -619,8 +619,7 @@ public abstract class AbstractIoSession implements IoSession {
      * {@inheritDoc}
      */
     public boolean isWriteSuspended() {
-//        return writeSuspended;
-        return false;
+        return writeSuspended;
     }
     
     /**

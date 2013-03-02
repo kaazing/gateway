@@ -18,7 +18,8 @@ import com.kaazing.mina.core.session.AbstractIoSessionEx;
  * executed explicitly on the IoSession's I/O worker thread that is not the current thread.
 */   
 public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
-    private final Thread ioThread;
+
+	private final Thread ioThread;
     private final Executor ioExecutor;
 
     public DefaultIoFilterChainEx(AbstractIoSessionEx session) {
@@ -83,12 +84,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
             super.callNextSessionIdle(entry, session, status);
         }
         else {
-            execute(new Runnable() {
-                @Override
-                public void run() {
-                    DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
-                }
-            });
+            execute(new CallNextSessionIdleCommand(status, entry, session));
         }
     }
 
@@ -175,4 +171,22 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
         ioExecutor.execute(command);
     }
     
+	public final class CallNextSessionIdleCommand implements Runnable {
+		private final IdleStatus status;
+		private final Entry entry;
+		private final IoSession session;
+
+		public CallNextSessionIdleCommand(IdleStatus status, Entry entry,
+				IoSession session) {
+			this.status = status;
+			this.entry = entry;
+			this.session = session;
+		}
+
+		@Override
+		public void run() {
+		    DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
+		}
+	}
+
 }
