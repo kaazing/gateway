@@ -9,8 +9,8 @@ import java.util.concurrent.Executor;
 
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.IoSessionConfig;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
@@ -48,7 +48,7 @@ public class ChannelIoSession extends AbstractIoSessionEx {
 	}
 
 	@Override
-	public IoSessionConfig getConfig() {
+	public ChannelIoSessionConfig<ChannelConfig> getConfig() {
 		return config;
 	}
 

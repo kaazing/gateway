@@ -26,5 +26,10 @@ public interface IoSessionEx extends IoSession  {
      * task will be queued for asynchronous (but quasi-immediate) execution in the worker thread.
      */
     Executor getIoExecutor();
+
+    /**
+     * @return the configuration of this session.
+     */
+    IoSessionConfigEx getConfig();
     
 }
