@@ -13,6 +13,7 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.util.ExternalResourceReleasable;
 
 public class IoSessionChannelHandler extends SimpleChannelHandler {
 
@@ -30,6 +31,7 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
 	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
 	throws Exception {
 		session.getService().initializeSession(session, future, initializer);
+        IdleTimeoutTask.add(session);
 		session.getProcessor().add(session);
 	}
 	
@@ -37,6 +39,7 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
 	public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
 			throws Exception {
 		session.close(true);
+		IdleTimeoutTask.remove(session);
 	}
 
 	@Override
