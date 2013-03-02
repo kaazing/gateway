@@ -7,6 +7,11 @@ package com.kaazing.mina.core.session;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -14,13 +19,16 @@ import org.junit.Test;
 
 public class DummySessionExTest {
 
+	private ExecutorService executor = Executors.newFixedThreadPool(1);
+	
 	@Test
-	public void shouldNotBeReadSuspendedAfterThreadRealignment() {
+	public void shouldNotBeReadSuspendedAfterThreadRealignment() throws Exception {
 
-		Thread alignment = new Thread();
-		DummySessionEx session = new DummySessionEx(alignment);
+		DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
 		IoFilterChain filterChain = session.getFilterChain();
 		filterChain.fireMessageReceived(new Object());
+		executor.shutdown();
+		executor.awaitTermination(1, TimeUnit.SECONDS);
 		assertFalse(session.isReadSuspended());
 	}
 
@@ -34,10 +42,9 @@ public class DummySessionExTest {
 	}
 
 	@Test
-	public void shouldBeReadSuspendedAfterThreadRealignment() {
+	public void shouldBeReadSuspendedAfterThreadRealignment() throws Exception {
 
-		Thread alignment = new Thread();
-		DummySessionEx session = new DummySessionEx(alignment);
+		DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
 		session.setHandler(new IoHandlerAdapter() {
 
 			@Override
@@ -49,6 +56,8 @@ public class DummySessionExTest {
 		});
 		IoFilterChain filterChain = session.getFilterChain();
 		filterChain.fireMessageReceived(new Object());
+		executor.shutdown();
+		executor.awaitTermination(1, TimeUnit.SECONDS);
 		assertTrue(session.isReadSuspended());
 	}
 
@@ -69,4 +78,12 @@ public class DummySessionExTest {
 		filterChain.fireMessageReceived(new Object());
 		assertTrue(session.isReadSuspended());
 	}
+
+	private final class DummySessionExFactory implements Callable<DummySessionEx> {
+		@Override
+		public DummySessionEx call() {
+			return new DummySessionEx(executor);
+		}
+	}
+
 }

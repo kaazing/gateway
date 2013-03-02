@@ -73,19 +73,16 @@ public class DummySessionEx extends AbstractIoSessionEx {
      * Creates a new instance.
      */
     public DummySessionEx() {
-    	this(currentThread());
-    }
-    /**
-     * Creates a new instance.
-     */
-    public DummySessionEx(Thread ioThread) {
-    	super(ioThread, new Executor() {
+    	this(new Executor() {
     		@Override
     		public void execute(Runnable command) {
     			command.run();
     		}
         });
-    	
+    }
+    
+    public DummySessionEx(Executor executor) {
+    	super(currentThread(), executor);
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
                 new AbstractIoSessionConfigEx() {
