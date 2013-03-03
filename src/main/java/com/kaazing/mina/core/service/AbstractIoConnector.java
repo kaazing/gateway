@@ -30,6 +30,7 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service) 
+ * 3. Change constructor to take IoSessionConfigEx (to accommodate change to AbstractIoService)
 */
 public abstract class AbstractIoConnector 
         extends AbstractIoService implements IoConnector {

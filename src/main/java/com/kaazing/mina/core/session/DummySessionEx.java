@@ -31,7 +31,7 @@ import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.service.IoServiceEx;
 
 /**
- * This is based on Mina's DummSession. It is a dummy IoSessionEx for unit-testing or non-network-use of
+ * This is based on Mina's DummySession. It is a dummy IoSessionEx for unit-testing or non-network-use of
  * the classes that depends on IoSessionEx.
  * 
  * 

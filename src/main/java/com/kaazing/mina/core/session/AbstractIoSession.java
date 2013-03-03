@@ -57,7 +57,8 @@ import org.apache.mina.util.ExceptionMonitor;
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods that
  *    we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
  * 5. Allow suspend/resumeRead to be overridden (remove final)
- * 6. Remove support for suspend/resumeWrite (because it makes no sense!)
+ * 6. Do not pass suspend/resumeWrite through to the processor, but still support them (for now) because used 
+ *    by the Gateway codebase
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
 */   
 public abstract class AbstractIoSession implements IoSession {
@@ -580,7 +581,8 @@ public abstract class AbstractIoSession implements IoSession {
 //            return;
 //        }
 //        getProcessor().updateTrafficControl(this);
-//        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException(); // would like to do this but method is still used by Gateway codebase
+
     }
 
     /**
@@ -605,7 +607,7 @@ public abstract class AbstractIoSession implements IoSession {
 //            return;
 //        }
 //        getProcessor().updateTrafficControl(this);
-//        throw new UnsupportedOperationException();
+//        throw new UnsupportedOperationException(); // would like to do this but method is still used by Gateway codebase
     }
 
     /**

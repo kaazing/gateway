@@ -55,7 +55,7 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
  * 2. Use our versions of AbstractIoSession and DefaultIoFilterChain 
  * 3. Do not maintain stats like last IO times, scheduled write messages and scheduled write bytes 
  *    (presumably for performance reasons)
- * 4. Capture strongly-typed IoSessionConfigEx session configuration
+ * 4. Capture strongly-typed IoSessionConfigEx session configuration (constructor, member variable)
 */
 public abstract class AbstractIoService implements IoServiceEx {
     /** 

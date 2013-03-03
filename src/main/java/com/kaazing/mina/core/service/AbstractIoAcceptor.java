@@ -33,7 +33,8 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
  * AbstractIoSessionEx (which requires ChannelIoAcceptor to be derived from our version of AbstractIoService).
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
- * 2. Add imports of needed classes from the original package (org.apache.mina.core.service) 
+ * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
+ * 3. Change constructor to take IoSessionConfigEx (to accommodate change to AbstractIoService) 
 */
 public abstract class AbstractIoAcceptor 
         extends AbstractIoService implements IoAcceptor {
