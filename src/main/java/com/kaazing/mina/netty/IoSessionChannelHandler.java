@@ -127,12 +127,15 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
 		            return; // no sessions left, stop running
 		        }
 		        // TailFilter in DefaultIoFilterChain(Ex) maintains last read time for us on each session
+		        long currentTime = System.currentTimeMillis();
 		        for (AbstractIoSessionEx session : sessions) {
-		            long sinceLastRead = System.currentTimeMillis() - session.getLastReadTime();
-		            long readerIdleTimeout = session.getConfig().getReaderIdleTimeInMillis();
-		            if (sinceLastRead >  readerIdleTimeout) {
-		                session.getFilterChain().fireSessionIdle(IdleStatus.READER_IDLE);
-		            }
+		        	long readerIdleTimeout = session.getConfig().getReaderIdleTimeInMillis();
+		        	if (readerIdleTimeout > 0) {
+						long sinceLastRead = currentTime - session.getLastReadTime();
+			            if (sinceLastRead >  readerIdleTimeout) {
+		            		session.getFilterChain().fireSessionIdle(IdleStatus.READER_IDLE);
+			            }
+		        	}
 		        }
 		    }
 
