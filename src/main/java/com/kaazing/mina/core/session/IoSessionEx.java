@@ -10,12 +10,11 @@ import org.apache.mina.core.session.IoSession;
 
 import com.kaazing.mina.core.service.IoServiceEx;
 
-
 /**
  * Extended version of IoSession to add support for thread alignment.
-*/   
-public interface IoSessionEx extends IoSession  {
-    
+*/
+public interface IoSessionEx extends IoSession {
+
     /**
      * Returns the IO worker thread in which all filters on the filter chain for this session will be executed
      */
@@ -23,9 +22,9 @@ public interface IoSessionEx extends IoSession  {
 
     /**
      * Returns an Executor which can be used to execute tasks in the IO worker thread that owns this session.
-     * This executor delegates to the executeInIoThread method of the corresponding Netty NioWorker, so when invoked from
-     * that same thread, the Executor will immediately execute the task, and when invoked from a different thread, the 
-     * task will be queued for asynchronous (but quasi-immediate) execution in the worker thread.
+     * This executor delegates to the executeInIoThread method of the corresponding Netty NioWorker, so when invoked
+     * from that same thread, the Executor will immediately execute the task, and when invoked from a different thread,
+     * the task will be queued for asynchronous (but quasi-immediate) execution in the worker thread.
      */
     Executor getIoExecutor();
 
@@ -34,5 +33,5 @@ public interface IoSessionEx extends IoSession  {
 
     @Override
     IoServiceEx getService();
-    
+
 }

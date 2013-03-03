@@ -18,38 +18,40 @@ import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 
-public class DatagramChannelIoAcceptor extends ChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress> implements DatagramAcceptor {
+public class DatagramChannelIoAcceptor
+    extends ChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
+    implements DatagramAcceptor {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
-			DatagramChannelIoSessionConfig.class, Object.class);
-	
-	private IoSessionRecycler sessionRecycler;  // TODO
-	
-	public DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
-			DatagramChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
-	}
+    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
+            DatagramChannelIoSessionConfig.class, Object.class);
 
-	@Override
-	public IoSessionRecycler getSessionRecycler() {
-		return sessionRecycler;
-	}
+    private IoSessionRecycler sessionRecycler;  // TODO
 
-	@Override
-	public void setSessionRecycler(IoSessionRecycler sessionRecycler) {
-		this.sessionRecycler = sessionRecycler;
-	}
+    public DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
+            DatagramChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+    }
 
-	@Override
-	public void setDefaultLocalAddress(InetSocketAddress localAddress) {
-		super.setDefaultLocalAddress(localAddress);
-	}
+    @Override
+    public IoSessionRecycler getSessionRecycler() {
+        return sessionRecycler;
+    }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    @Override
+    public void setSessionRecycler(IoSessionRecycler sessionRecycler) {
+        this.sessionRecycler = sessionRecycler;
+    }
+
+    @Override
+    public void setDefaultLocalAddress(InetSocketAddress localAddress) {
+        super.setDefaultLocalAddress(localAddress);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return TRANSPORT_METADATA;
+    }
 
     @Override
     public ChannelIoSession createSession(ChannelHandlerContext context) {

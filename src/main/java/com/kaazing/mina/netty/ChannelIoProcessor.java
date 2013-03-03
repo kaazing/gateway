@@ -2,9 +2,6 @@
  * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
  */
 
-/**
- * 
- */
 package com.kaazing.mina.netty;
 
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
@@ -32,62 +29,61 @@ import com.kaazing.mina.core.service.AbstractIoService;
  */
 final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
     private static final ChannelIoProcessor INSTANCE = new ChannelIoProcessor();
-    
+
     public static ChannelIoProcessor getInstance() {
         return INSTANCE;
     }
-    
+
     private ChannelIoProcessor() {
     };
 
-	@Override
-	protected void add0(ChannelIoSession session) {
+    @Override
+    protected void add0(ChannelIoSession session) {
         addNow(session);
-	}
+    }
 
-	@Override
-	protected void remove0(ChannelIoSession session) {
-		removeNow(session);
-	}
-	
-	@Override
-	protected void flush0(ChannelIoSession session) {
-		flushNow(session, System.currentTimeMillis());
-	}
+    @Override
+    protected void remove0(ChannelIoSession session) {
+        removeNow(session);
+    }
 
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public boolean isDisposed() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    protected void flush0(ChannelIoSession session) {
+        flushNow(session, System.currentTimeMillis());
+    }
 
-	@Override
-	public boolean isDisposing() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public void dispose() {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	protected final void updateTrafficControl0(ChannelIoSession session) {
-	    // suspend/resumeRead is implemented directly in ChannelIoSession so this should never be called
-	    throw new UnsupportedOperationException();
-	}
+    @Override
+    public boolean isDisposed() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	protected void init(ChannelIoSession session) {
-		
-	}
-	
-	protected void destroy(ChannelIoSession session) {
-		session.getChannel().close();
-	}
+    @Override
+    public boolean isDisposing() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    protected void updateTrafficControl0(ChannelIoSession session) {
+        // suspend/resumeRead is implemented directly in ChannelIoSession so this should never be called
+        throw new UnsupportedOperationException();
+    }
+
+    protected void init(ChannelIoSession session) {
+    }
+
+    protected void destroy(ChannelIoSession session) {
+        session.getChannel().close();
+    }
 
     private void addNow(ChannelIoSession session) {
-		try {
+        try {
             init(session);
 
             // Build the filter chain of this session.
@@ -101,14 +97,14 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
             listeners.fireSessionCreated(session);
         } catch (Throwable e) {
             ExceptionMonitor.getInstance().exceptionCaught(e);
-            
+
             try {
                 destroy(session);
             } catch (Exception e1) {
                 ExceptionMonitor.getInstance().exceptionCaught(e1);
             }
         }
-	}
+    }
 
     private boolean removeNow(ChannelIoSession session) {
         clearWriteRequestQueue(session);
@@ -135,9 +131,9 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
 
         if ((req = writeRequestQueue.poll(session)) != null) {
             Object message = req.getMessage();
-            
+
             if (message instanceof IoBuffer) {
-                IoBuffer buf = (IoBuffer)message;
+                IoBuffer buf = (IoBuffer) message;
 
                 // The first unwritten empty buffer must be
                 // forwarded to the filter chain.
@@ -162,12 +158,12 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
         if (!failedRequests.isEmpty()) {
             WriteToClosedSessionException cause = new WriteToClosedSessionException(
                     failedRequests);
-            
+
             for (WriteRequest r : failedRequests) {
                 session.decreaseScheduledBytesAndMessages(r);
                 r.getFuture().setException(cause);
             }
-            
+
             IoFilterChain filterChain = session.getFilterChain();
             filterChain.fireExceptionCaught(cause);
         }
@@ -184,46 +180,46 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
         final Channel channel = session.getChannel();
         final IoFilterChain filterChain = session.getFilterChain();
         WriteRequest req = null;
-        
+
         try {
-            for(;;) {
+            for (;;) {
                 // Check for pending writes.
                 req = session.getCurrentWriteRequest();
-                
+
                 if (req == null) {
                     req = writeRequestQueue.poll(session);
-                    
+
                     if (req == null) {
                         break;
                     }
-                    
+
                     session.setCurrentWriteRequest(req);
                 }
 
                 Object message = req.getMessage();
-                
+
                 if (message instanceof IoBuffer) {
-                	IoBuffer buf = (IoBuffer)message;
-					ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-					future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    IoBuffer buf = (IoBuffer) message;
+                    ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
                 } else if (message instanceof FileRegion) {
-                	FileRegion region = (FileRegion)message;
-                	ChannelFuture future = channel.write(region);  // TODO: FileRegion
-					future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    FileRegion region = (FileRegion) message;
+                    ChannelFuture future = channel.write(region);  // TODO: FileRegion
+                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
                 } else {
                     throw new IllegalStateException(
                             "Don't know how to handle message of type '"
                                     + message.getClass().getName()
                                     + "'.  Are you missing a protocol encoder?");
                 }
-                
+
                 session.setCurrentWriteRequest(null);
             }
         } catch (Exception e) {
             if (req != null) {
                 req.getFuture().setException(e);
             }
-            
+
             filterChain.fireExceptionCaught(e);
             return false;
         }

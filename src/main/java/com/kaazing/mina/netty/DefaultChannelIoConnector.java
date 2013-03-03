@@ -16,23 +16,23 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfigEx, ChannelFactory, SocketAddress> {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "Channel", false, true, SocketAddress.class,
-			IoSessionConfig.class, Object.class);
-	
-	public DefaultChannelIoConnector(ChannelFactory channelFactory) {
-		super(new DefaultChannelIoSessionConfig(), channelFactory);
-	}
+    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "Channel", false, true, SocketAddress.class,
+            IoSessionConfig.class, Object.class);
 
-	public DefaultChannelIoConnector(IoSessionConfigEx sessionConfig,
-			ChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory);
-	}
+    public DefaultChannelIoConnector(ChannelFactory channelFactory) {
+        super(new DefaultChannelIoSessionConfig(), channelFactory);
+    }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    public DefaultChannelIoConnector(IoSessionConfigEx sessionConfig,
+            ChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return TRANSPORT_METADATA;
+    }
 
     @Override
     public ChannelIoSession createSession(ChannelHandlerContext context) {

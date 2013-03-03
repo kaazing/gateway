@@ -18,34 +18,34 @@ import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx.CallNextSessionI
  */
 public class DefaultChannelIoSession extends ChannelIoSession {
 
-	private static final ThreadLocal<Executor> CREATION_ALIGNED_EXECUTOR = new ThreadLocal<Executor>() {
+    private static final ThreadLocal<Executor> CREATION_ALIGNED_EXECUTOR = new ThreadLocal<Executor>() {
 
-		@Override
-		protected Executor initialValue() {
-			return new CreationAlignedExecutor(currentThread());
-		}
-		
-	};
-	
-	public DefaultChannelIoSession(ChannelIoService service, Channel channel) {
+        @Override
+        protected Executor initialValue() {
+            return new CreationAlignedExecutor(currentThread());
+        }
+
+    };
+
+    public DefaultChannelIoSession(ChannelIoService service, Channel channel) {
           super(service, channel, currentThread(), CREATION_ALIGNED_EXECUTOR.get());
     }
 
     private static final class CreationAlignedExecutor implements Executor {
         private final Thread creationThread;
-        
+
         public CreationAlignedExecutor(Thread creationThread) {
-        	this.creationThread = creationThread;
-		}
-    
+            this.creationThread = creationThread;
+        }
+
         @Override
         public void execute(Runnable command) {
-        	// READ_IDLE commands are coming from the Timer thread, but still legitimate
+            // READ_IDLE commands are coming from the Timer thread, but still legitimate
             if (currentThread() != creationThread && !(CallNextSessionIdleCommand.class.equals(command.getClass()))) {
                 throw new UnsupportedOperationException(
-                        String.format("Current thread %s is different from session creator thread %s", 
-                                      currentThread(), creationThread) );
-            }            
+                        String.format("Current thread %s is different from session creator thread %s",
+                                      currentThread(), creationThread));
+            }
         }
     }
 

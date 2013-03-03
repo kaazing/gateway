@@ -23,35 +23,34 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(IoSessionFactoryChannelHandler.class);
 
     private final ChannelIoService service;
-	private final IoFuture future;
-	private final IoSessionInitializer<?> initializer;
-	
-	public IoSessionFactoryChannelHandler(ChannelIoService service) {
-		this(service, null, null);
-	}
+    private final IoFuture future;
+    private final IoSessionInitializer<?> initializer;
 
-	public IoSessionFactoryChannelHandler(ChannelIoService service, IoFuture future, IoSessionInitializer<?> initializer) {
-		this.service = service;
-		this.future = future;
-		this.initializer = initializer;
-	}
+    public IoSessionFactoryChannelHandler(ChannelIoService service) {
+        this(service, null, null);
+    }
 
-	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-	    ChannelIoSession session = service.createSession(ctx);
-	    String baseName = ctx.getName();
-	    String name = String.format("%s#session", baseName);
-	    ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer);
-	    ChannelPipeline pipeline = ctx.getPipeline();
+    public IoSessionFactoryChannelHandler(ChannelIoService service, IoFuture future,
+            IoSessionInitializer<?> initializer) {
+        this.service = service;
+        this.future = future;
+        this.initializer = initializer;
+    }
+
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+        ChannelIoSession session = service.createSession(ctx);
+        String baseName = ctx.getName();
+        String name = String.format("%s#session", baseName);
+        ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer);
+        ChannelPipeline pipeline = ctx.getPipeline();
         pipeline.addAfter(baseName, name, handler);
         ctx.sendUpstream(e);
         pipeline.remove(this);
-	}
-	
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         LOGGER.error("Exception caught in IoSessionFactoryChannelHandler", e.getCause());
     }
-
-	
 }

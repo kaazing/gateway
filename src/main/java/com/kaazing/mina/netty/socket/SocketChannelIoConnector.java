@@ -17,26 +17,28 @@ import com.kaazing.mina.netty.ChannelIoConnector;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 
-public class SocketChannelIoConnector extends ChannelIoConnector<SocketChannelIoSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
+public class SocketChannelIoConnector
+    extends ChannelIoConnector<SocketChannelIoSessionConfig, ClientSocketChannelFactory, InetSocketAddress>
+    implements SocketConnector {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
-			SocketSessionConfig.class, Object.class);
-	
-	public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
-			ClientSocketChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory);
-	}
+    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
+            SocketSessionConfig.class, Object.class);
 
-	@Override
-	public void setDefaultRemoteAddress(InetSocketAddress remoteAddress) {
-		super.setDefaultRemoteAddress(remoteAddress);
-	}
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
+            ClientSocketChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory);
+    }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    @Override
+    public void setDefaultRemoteAddress(InetSocketAddress remoteAddress) {
+        super.setDefaultRemoteAddress(remoteAddress);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return TRANSPORT_METADATA;
+    }
 
     @Override
     public ChannelIoSession createSession(ChannelHandlerContext context) {

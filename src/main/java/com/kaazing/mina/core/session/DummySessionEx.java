@@ -33,9 +33,6 @@ import com.kaazing.mina.core.service.IoServiceEx;
 /**
  * This is based on Mina's DummySession. It is a dummy IoSessionEx for unit-testing or non-network-use of
  * the classes that depends on IoSessionEx.
- * 
- * 
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DummySessionEx extends AbstractIoSessionEx {
 
@@ -73,16 +70,16 @@ public class DummySessionEx extends AbstractIoSessionEx {
      * Creates a new instance.
      */
     public DummySessionEx() {
-    	this(new Executor() {
-    		@Override
-    		public void execute(Runnable command) {
-    			command.run();
-    		}
+        this(new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
         });
     }
-    
+
     public DummySessionEx(Executor executor) {
-    	super(currentThread(), executor);
+        super(currentThread(), executor);
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
                 new AbstractIoSessionConfigEx() {
@@ -134,7 +131,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
             public void flush(AbstractIoSessionEx session) {
                 DummySessionEx s = (DummySessionEx) session;
                 WriteRequest req = s.getWriteRequestQueue().poll(session);
-                
+
                 // Chek that the request is not null. If the session has been closed,
                 // we may not have any pending requests.
                 if (req != null) {
@@ -187,7 +184,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
 
     @Override
     public IoSessionConfigEx getConfig() {
-    	return config;
+        return config;
     }
 
     /**
@@ -283,7 +280,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     @Override
-    public void setScheduledWriteBytes(int byteCount){
+    public void setScheduledWriteBytes(int byteCount) {
         super.setScheduledWriteBytes(byteCount);
     }
 

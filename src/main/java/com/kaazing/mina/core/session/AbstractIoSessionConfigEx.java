@@ -10,16 +10,16 @@ import org.apache.mina.core.session.IoSessionConfig;
 
 /**
  * Extended version of AbstractIoSessionConfig to add support for millisecond precise idle timeouts.
-*/   
+*/
 public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig implements IoSessionConfigEx  {
-    
+
     private volatile long idleTimeMillisForRead;
     private volatile long idleTimeMillisForWrite;
     private volatile long idleTimeMillisForBoth;
 
     @Override
     protected final void doSetAll(IoSessionConfig config) {
-        doSetAll( (IoSessionConfigEx)config );
+        doSetAll((IoSessionConfigEx) config);
     }
 
     protected abstract void doSetAll(IoSessionConfigEx config);
@@ -28,7 +28,7 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
     public int getIdleTime(IdleStatus status) {
         return (int) getIdleTimeInMillis(status) / 1000;
     }
-    
+
     @Override
     public long getIdleTimeInMillis(IdleStatus status) {
         if (status == IdleStatus.BOTH_IDLE) {
@@ -45,7 +45,7 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
 
         throw new IllegalArgumentException("Unknown idle status: " + status);
     }
-    
+
     @Override
     public void setIdleTime(IdleStatus status, int idleTime) {
         if (idleTime < 0) {
@@ -71,5 +71,5 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
             throw new IllegalArgumentException("Unknown idle status: " + status);
         }
     }
-    
+
 }

@@ -19,23 +19,23 @@ import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
-			SocketSessionConfig.class, Object.class);
-	
+    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
+            SocketSessionConfig.class, Object.class);
+
     public NioSocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
             NioClientSocketChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);
     }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
-	
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return TRANSPORT_METADATA;
+    }
+
     @Override
     public ChannelIoSession createSession(ChannelHandlerContext context) {
         return new NioSocketChannelIoSession(this, (NioSocketChannel) context.getChannel());
     }
-    
+
 }

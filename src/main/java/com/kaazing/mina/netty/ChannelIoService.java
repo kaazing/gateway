@@ -12,8 +12,8 @@ import com.kaazing.mina.core.service.IoServiceEx;
 
 public interface ChannelIoService extends IoServiceEx {
 
-    public ChannelIoSession createSession(ChannelHandlerContext context);
-    
-	public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
-	
+    ChannelIoSession createSession(ChannelHandlerContext context);
+
+    void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
+
 }

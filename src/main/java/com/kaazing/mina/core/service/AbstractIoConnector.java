@@ -16,23 +16,19 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionInitializer;
-
-import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 /**
  * A base implementation of {@link IoConnector}.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 /* This class (based on the Mina version) is needed for use in ChannelIoConnector in order to use our
  * AbstractIoSessionEx (which requires ChannelIoConnector to be derived from our version of AbstractIoService).
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
- * 2. Add imports of needed classes from the original package (org.apache.mina.core.service) 
- * 3. Change constructor to take IoSessionConfigEx (to accommodate change to AbstractIoService)
-*/
-public abstract class AbstractIoConnector 
+ * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
+ */
+public abstract class AbstractIoConnector
         extends AbstractIoService implements IoConnector {
     /**
      * The minimum timeout value that is supported (in milliseconds).
@@ -48,20 +44,20 @@ public abstract class AbstractIoConnector
      * {@link Executors#newCachedThreadPool()}.
      *
      * {@see AbstractIoService#AbstractIoService(IoSessionConfig, Executor)}
-     * 
+     *
      * @param sessionConfig
      *            the default configuration for the managed {@link IoSession}
      * @param executor
      *            the {@link Executor} used for handling execution of I/O
      *            events. Can be <code>null</code>.
      */
-    protected AbstractIoConnector(IoSessionConfigEx sessionConfig, Executor executor) {
+    protected AbstractIoConnector(IoSessionConfig sessionConfig, Executor executor) {
         super(sessionConfig, executor);
     }
 
     /**
      * Returns the minimum connection timeout value for this connector
-     * 
+     *
      * @return
      *  The minimum time that this connector can have for a connection
      *  timeout in milliseconds.
@@ -71,10 +67,10 @@ public abstract class AbstractIoConnector
     }
 
     public void setConnectTimeoutCheckInterval(long minimumConnectTimeout) {
-        if( getConnectTimeoutMillis() < minimumConnectTimeout ){
+        if (getConnectTimeoutMillis() < minimumConnectTimeout) {
             this.connectTimeoutInMillis = minimumConnectTimeout;
         }
-        
+
         this.connectTimeoutCheckInterval = minimumConnectTimeout;
     }
 
@@ -83,12 +79,13 @@ public abstract class AbstractIoConnector
      *  Take a look at <tt>getConnectTimeoutMillis()</tt>
      */
     public final int getConnectTimeout() {
-        return (int)connectTimeoutInMillis/1000;
+        return (int) connectTimeoutInMillis / 1000;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final long getConnectTimeoutMillis() {
         return connectTimeoutInMillis;
     }
@@ -98,13 +95,12 @@ public abstract class AbstractIoConnector
      *  Take a look at <tt>setConnectTimeoutMillis(long)</tt>
      */
     public final void setConnectTimeout(int connectTimeout) {
-        
-        setConnectTimeoutMillis( connectTimeout * 1000L );
+        setConnectTimeoutMillis(connectTimeout * 1000L);
     }
-    
+
     /**
      * Sets the connect timeout value in milliseconds.
-     * 
+     *
      */
     public final void setConnectTimeoutMillis(long connectTimeoutInMillis) {
         if (connectTimeoutInMillis <= connectTimeoutCheckInterval) {
@@ -116,6 +112,7 @@ public abstract class AbstractIoConnector
     /**
      * {@inheritDoc}
      */
+    @Override
     public SocketAddress getDefaultRemoteAddress() {
         return defaultRemoteAddress;
     }
@@ -123,11 +120,12 @@ public abstract class AbstractIoConnector
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setDefaultRemoteAddress(SocketAddress defaultRemoteAddress) {
         if (defaultRemoteAddress == null) {
             throw new NullPointerException("defaultRemoteAddress");
         }
-        
+
         if (!getTransportMetadata().getAddressType().isAssignableFrom(
                 defaultRemoteAddress.getClass())) {
             throw new IllegalArgumentException("defaultRemoteAddress type: "
@@ -136,49 +134,54 @@ public abstract class AbstractIoConnector
         }
         this.defaultRemoteAddress = defaultRemoteAddress;
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public final ConnectFuture connect() {
         SocketAddress defaultRemoteAddress = getDefaultRemoteAddress();
         if (defaultRemoteAddress == null) {
             throw new IllegalStateException("defaultRemoteAddress is not set.");
         }
-        
+
         return connect(defaultRemoteAddress, null, null);
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public ConnectFuture connect(IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
         SocketAddress defaultRemoteAddress = getDefaultRemoteAddress();
         if (defaultRemoteAddress == null) {
             throw new IllegalStateException("defaultRemoteAddress is not set.");
         }
-        
+
         return connect(defaultRemoteAddress, null, sessionInitializer);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final ConnectFuture connect(SocketAddress remoteAddress) {
         return connect(remoteAddress, null, null);
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public ConnectFuture connect(SocketAddress remoteAddress,
             IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
         return connect(remoteAddress, null, sessionInitializer);
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public ConnectFuture connect(SocketAddress remoteAddress,
             SocketAddress localAddress) {
         return connect(remoteAddress, localAddress, null);
@@ -187,6 +190,7 @@ public abstract class AbstractIoConnector
     /**
      * {@inheritDoc}
      */
+    @Override
     public final ConnectFuture connect(SocketAddress remoteAddress,
             SocketAddress localAddress, IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
         if (isDisposing()) {
@@ -287,14 +291,14 @@ public abstract class AbstractIoConnector
             }
         });
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
         TransportMetadata m = getTransportMetadata();
-        return '(' + m.getProviderName() + ' ' + m.getName() + " connector: " + 
-               "managedSessionCount: " + getManagedSessionCount() + ')'; 
+        return '(' + m.getProviderName() + ' ' + m.getName() + " connector: " +
+               "managedSessionCount: " + getManagedSessionCount() + ')';
     }
 }

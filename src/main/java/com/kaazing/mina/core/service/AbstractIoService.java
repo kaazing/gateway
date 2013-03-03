@@ -39,34 +39,31 @@ import org.apache.mina.util.NamePreservingRunnable;
 
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.session.AbstractIoSession;
-import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 /**
  * Base implementation of {@link IoService}s.
- * 
+ *
  * An instance of IoService contains an Executor which will handle the incoming
  * events.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 /* This class originates from Mina.
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
- * 2. Use our versions of AbstractIoSession and DefaultIoFilterChain 
- * 3. Do not maintain stats like last IO times, scheduled write messages and scheduled write bytes 
+ * 2. Use our versions of AbstractIoSession and DefaultIoFilterChain
+ * 3. Do not maintain stats like last IO times, scheduled write messages and scheduled write bytes
  *    (presumably for performance reasons)
  * 4. Capture strongly-typed IoSessionConfigEx session configuration (constructor, member variable)
-*/
-public abstract class AbstractIoService implements IoServiceEx {
-    /** 
+ */
+public abstract class AbstractIoService implements IoService {
+    /**
      * The unique number identifying the Service. It's incremented
      * for each new IoService created.
      */
     private static final AtomicInteger id = new AtomicInteger();
 
-    /** 
-     * The thread name built from the IoService inherited 
-     * instance class name and the IoService Id 
+    /**
+     * The thread name built from the IoService inherited
+     * instance class name and the IoService Id
      **/
     private final String threadName;
 
@@ -78,21 +75,21 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * A flag used to indicate that the local executor has been created
      * inside this instance, and not passed by a caller.
-     * 
+     *
      * If the executor is locally created, then it will be an instance
      * of the ThreadPoolExecutor class.
      */
     private final boolean createdExecutor;
 
     /**
-     * The IoHandler in charge of managing all the I/O Events. It is 
+     * The IoHandler in charge of managing all the I/O Events. It is
      */
     private IoHandler handler;
 
     /**
      * The default {@link IoSessionConfig} which will be used to configure new sessions.
      */
-    private final IoSessionConfigEx sessionConfig;
+    private final IoSessionConfig sessionConfig;
 
     private final IoServiceListener serviceActivationListener = new IoServiceListener() {
         public void serviceActivated(IoService service) {
@@ -149,22 +146,22 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
-    private IoServiceStatistics stats = null; //new IoServiceStatistics(this);
-    
+    private IoServiceStatistics stats; //new IoServiceStatistics(this);
+
 
     /**
      * Constructor for {@link AbstractIoService}. You need to provide a default
      * session configuration and an {@link Executor} for handling I/O events. If
      * a null {@link Executor} is provided, a default one will be created using
      * {@link Executors#newCachedThreadPool()}.
-     * 
+     *
      * @param sessionConfig
      *            the default configuration for the managed {@link IoSession}
      * @param executor
      *            the {@link Executor} used for handling execution of I/O
      *            events. Can be <code>null</code>.
      */
-    protected AbstractIoService(IoSessionConfigEx sessionConfig, Executor executor) {
+    protected AbstractIoService(IoSessionConfig sessionConfig, Executor executor) {
         if (sessionConfig == null) {
             throw new NullPointerException("sessionConfig");
         }
@@ -206,6 +203,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final IoFilterChainBuilder getFilterChainBuilder() {
         return filterChainBuilder;
     }
@@ -213,6 +211,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setFilterChainBuilder(IoFilterChainBuilder builder) {
         if (builder == null) {
             builder = new DefaultIoFilterChainBuilder();
@@ -223,12 +222,13 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final DefaultIoFilterChainBuilder getFilterChain() {
         if (filterChainBuilder instanceof DefaultIoFilterChainBuilder) {
             return (DefaultIoFilterChainBuilder) filterChainBuilder;
         }
-        
-        
+
+
         throw new IllegalStateException(
                     "Current filter chain builder is not a DefaultIoFilterChainBuilder.");
     }
@@ -236,6 +236,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void addListener(IoServiceListener listener) {
         listeners.add(listener);
     }
@@ -243,6 +244,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void removeListener(IoServiceListener listener) {
         listeners.remove(listener);
     }
@@ -250,6 +252,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean isActive() {
         return listeners.isActive();
     }
@@ -257,6 +260,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean isDisposing() {
         return disposing;
     }
@@ -264,6 +268,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final boolean isDisposed() {
         return disposed;
     }
@@ -271,6 +276,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void dispose() {
         if (disposed) {
             return;
@@ -292,7 +298,7 @@ public abstract class AbstractIoService implements IoServiceEx {
                 }
             }
         }
-        
+
         if (disposalFuture != null) {
             disposalFuture.awaitUninterruptibly();
         }
@@ -321,6 +327,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Map<Long, IoSession> getManagedSessions() {
         return listeners.getManagedSessions();
     }
@@ -328,6 +335,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final int getManagedSessionCount() {
         return listeners.getManagedSessionCount();
     }
@@ -335,6 +343,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final IoHandler getHandler() {
         return handler;
     }
@@ -342,6 +351,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setHandler(org.apache.mina.core.service.IoHandler handler) {
         if (handler == null) {
             throw new NullPointerException("handler cannot be null");
@@ -358,13 +368,15 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
-    public IoSessionConfigEx getSessionConfig() {
+    @Override
+    public IoSessionConfig getSessionConfig() {
         return sessionConfig;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public final IoSessionDataStructureFactory getSessionDataStructureFactory() {
         return sessionDataStructureFactory;
     }
@@ -372,6 +384,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void setSessionDataStructureFactory(
             IoSessionDataStructureFactory sessionDataStructureFactory) {
         if (sessionDataStructureFactory == null) {
@@ -389,6 +402,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public IoServiceStatistics getStatistics() {
         return stats;
     }
@@ -396,6 +410,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final long getActivationTime() {
         return listeners.getActivationTime();
     }
@@ -403,6 +418,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final Set<WriteFuture> broadcast(Object message) {
         // Convert to Set.  We do not return a List here because only the
         // direct caller of MessageBroadcaster knows the order of write
@@ -447,7 +463,7 @@ public abstract class AbstractIoService implements IoServiceEx {
 //        if (stats.getLastReadTime() == 0) {
 //            stats.setLastReadTime(getActivationTime());
 //        }
-        
+
 //        if (stats.getLastWriteTime() == 0) {
 //            stats.setLastWriteTime(getActivationTime());
 //        }
@@ -498,7 +514,7 @@ public abstract class AbstractIoService implements IoServiceEx {
      */
     protected void finishSessionInitialization0(IoSession session,
             IoFuture future) {
-        // Do nothing. Extended class might add some specific code 
+        // Do nothing. Extended class might add some specific code
     }
 
     protected static class ServiceOperationFuture extends DefaultIoFuture {
@@ -518,7 +534,7 @@ public abstract class AbstractIoService implements IoServiceEx {
             if (getValue() instanceof Exception) {
                 return (Exception) getValue();
             }
-            
+
             return null;
         }
 
@@ -533,6 +549,7 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getScheduledWriteBytes() {
         return 0; //stats.getScheduledWriteBytes();
     }
@@ -540,8 +557,9 @@ public abstract class AbstractIoService implements IoServiceEx {
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getScheduledWriteMessages() {
         return 0; //stats.getScheduledWriteMessages();
     }
-    
+
 }

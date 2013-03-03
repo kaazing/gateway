@@ -10,87 +10,88 @@ import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig> implements DatagramSessionConfig {
+public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig>
+    implements DatagramSessionConfig {
 
-	public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig) {
-		super(channelConfig);
-	}
-	
-	@Override
-	protected final void doSetAll(IoSessionConfigEx config) {
+    public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig) {
+        super(channelConfig);
+    }
 
-		super.doSetAll(config);
-		
-		if (config instanceof DatagramSessionConfig) {
-			DatagramSessionConfig datagramConfig = (DatagramSessionConfig)config;
+    @Override
+    protected final void doSetAll(IoSessionConfigEx config) {
 
-			setReceiveBufferSize(datagramConfig.getReceiveBufferSize());
-			setSendBufferSize(datagramConfig.getSendBufferSize());
-			setTrafficClass(datagramConfig.getTrafficClass());
-			setBroadcast(datagramConfig.isBroadcast());
-			setCloseOnPortUnreachable(datagramConfig.isCloseOnPortUnreachable());
-			setReuseAddress(datagramConfig.isReuseAddress());
-		}
-	}
+        super.doSetAll(config);
 
-	@Override
-	public int getReceiveBufferSize() {
-		return channelConfig.getReceiveBufferSize();
-	}
+        if (config instanceof DatagramSessionConfig) {
+            DatagramSessionConfig datagramConfig = (DatagramSessionConfig) config;
 
-	@Override
-	public int getSendBufferSize() {
-		return channelConfig.getSendBufferSize();
-	}
+            setReceiveBufferSize(datagramConfig.getReceiveBufferSize());
+            setSendBufferSize(datagramConfig.getSendBufferSize());
+            setTrafficClass(datagramConfig.getTrafficClass());
+            setBroadcast(datagramConfig.isBroadcast());
+            setCloseOnPortUnreachable(datagramConfig.isCloseOnPortUnreachable());
+            setReuseAddress(datagramConfig.isReuseAddress());
+        }
+    }
 
-	@Override
-	public int getTrafficClass() {
-		return channelConfig.getTrafficClass();
-	}
+    @Override
+    public int getReceiveBufferSize() {
+        return channelConfig.getReceiveBufferSize();
+    }
 
-	@Override
-	public boolean isBroadcast() {
-		return channelConfig.isBroadcast();
-	}
+    @Override
+    public int getSendBufferSize() {
+        return channelConfig.getSendBufferSize();
+    }
 
-	@Override
-	public boolean isCloseOnPortUnreachable() {
-		return true; // TODO
-	}
+    @Override
+    public int getTrafficClass() {
+        return channelConfig.getTrafficClass();
+    }
 
-	@Override
-	public boolean isReuseAddress() {
-		return channelConfig.isReuseAddress();
-	}
+    @Override
+    public boolean isBroadcast() {
+        return channelConfig.isBroadcast();
+    }
 
-	@Override
-	public void setBroadcast(boolean broadcast) {
-		channelConfig.setBroadcast(broadcast);
-	}
+    @Override
+    public boolean isCloseOnPortUnreachable() {
+        return true; // TODO
+    }
 
-	@Override
-	public void setCloseOnPortUnreachable(boolean closeOnPortUnreachable) {
-		// TODO
-	}
+    @Override
+    public boolean isReuseAddress() {
+        return channelConfig.isReuseAddress();
+    }
 
-	@Override
-	public void setReceiveBufferSize(int receiveBufferSize) {
-		channelConfig.setReceiveBufferSize(receiveBufferSize);
-	}
+    @Override
+    public void setBroadcast(boolean broadcast) {
+        channelConfig.setBroadcast(broadcast);
+    }
 
-	@Override
-	public void setReuseAddress(boolean reuseAddress) {
-		channelConfig.setReuseAddress(reuseAddress);
-	}
+    @Override
+    public void setCloseOnPortUnreachable(boolean closeOnPortUnreachable) {
+        // TODO
+    }
 
-	@Override
-	public void setSendBufferSize(int sendBufferSize) {
-		channelConfig.setSendBufferSize(sendBufferSize);
-	}
+    @Override
+    public void setReceiveBufferSize(int receiveBufferSize) {
+        channelConfig.setReceiveBufferSize(receiveBufferSize);
+    }
 
-	@Override
-	public void setTrafficClass(int trafficClass) {
-		channelConfig.setTrafficClass(trafficClass);
-	}
+    @Override
+    public void setReuseAddress(boolean reuseAddress) {
+        channelConfig.setReuseAddress(reuseAddress);
+    }
+
+    @Override
+    public void setSendBufferSize(int sendBufferSize) {
+        channelConfig.setSendBufferSize(sendBufferSize);
+    }
+
+    @Override
+    public void setTrafficClass(int trafficClass) {
+        channelConfig.setTrafficClass(trafficClass);
+    }
 
 }

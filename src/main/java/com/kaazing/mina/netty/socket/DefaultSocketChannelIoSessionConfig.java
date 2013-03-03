@@ -10,8 +10,8 @@ import org.jboss.netty.channel.socket.DefaultSocketChannelConfig;
 
 public class DefaultSocketChannelIoSessionConfig extends SocketChannelIoSessionConfig {
 
-	public DefaultSocketChannelIoSessionConfig() {
-		super(new DefaultSocketChannelConfig(new Socket()));
-	}
-		
+    public DefaultSocketChannelIoSessionConfig() {
+        super(new DefaultSocketChannelConfig(new Socket()));
+    }
+
 }

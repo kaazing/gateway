@@ -46,8 +46,6 @@ import com.kaazing.mina.core.session.DummySessionEx;
  *
  * Object message = session.getProtocolDecoderOutputQueue().poll();
  * </pre>
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class ProtocolCodecSessionEx extends DummySessionEx {
 

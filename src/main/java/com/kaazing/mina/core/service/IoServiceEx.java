@@ -10,6 +10,6 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 public interface IoServiceEx extends IoService  {
 
-	@Override
-	public IoSessionConfigEx getSessionConfig();
+    @Override
+    IoSessionConfigEx getSessionConfig();
 }

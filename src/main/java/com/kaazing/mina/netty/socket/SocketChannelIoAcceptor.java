@@ -19,55 +19,58 @@ import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 
-public class SocketChannelIoAcceptor extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress> implements SocketAcceptor {
+public class SocketChannelIoAcceptor
+    extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
+    implements SocketAcceptor {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
-			SocketSessionConfig.class, Object.class);
-	
-	public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
-			final ServerSocketChannelFactory channelFactory) {
-		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), new DefaultIoAcceptorChannelHandlerFactory());
-	}
+    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
+            SocketSessionConfig.class, Object.class);
 
-	public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
-			final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-		super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
-	}
+    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
+            final ServerSocketChannelFactory channelFactory) {
+        super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory),
+                new DefaultIoAcceptorChannelHandlerFactory());
+    }
 
-	@Override
-	public int getBacklog() {
-		return getChannelFactory().getBacklog();
-	}
+    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
+            final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
+    }
 
-	@Override
-	public void setBacklog(int backlog) {
-		getChannelFactory().setBacklog(backlog);
-	}
-	
-	@Override
-	public boolean isReuseAddress() {
-		return getChannelFactory().isReuseAddress();
-	}
+    @Override
+    public int getBacklog() {
+        return getChannelFactory().getBacklog();
+    }
 
-	@Override
-	public void setReuseAddress(boolean reuseAddress) {
-		getChannelFactory().setReuseAddress(reuseAddress);
-	}
+    @Override
+    public void setBacklog(int backlog) {
+        getChannelFactory().setBacklog(backlog);
+    }
 
-	@Override
-	public void setDefaultLocalAddress(InetSocketAddress localAddress) {
-		super.setDefaultLocalAddress(localAddress);
-	}
+    @Override
+    public boolean isReuseAddress() {
+        return getChannelFactory().isReuseAddress();
+    }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    @Override
+    public void setReuseAddress(boolean reuseAddress) {
+        getChannelFactory().setReuseAddress(reuseAddress);
+    }
+
+    @Override
+    public void setDefaultLocalAddress(InetSocketAddress localAddress) {
+        super.setDefaultLocalAddress(localAddress);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return TRANSPORT_METADATA;
+    }
 
     @Override
     public ChannelIoSession createSession(ChannelHandlerContext context) {
         return new DefaultChannelIoSession(this, context.getChannel());
     }
-    
+
 }

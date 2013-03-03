@@ -15,7 +15,7 @@ import org.apache.mina.core.write.WriteRequest;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 class AssertAlignedFilter extends IoFilterAdapter {
-    
+
     private static final boolean assertEnabled;
     static {
         boolean enabled;
@@ -28,13 +28,13 @@ class AssertAlignedFilter extends IoFilterAdapter {
         }
         assertEnabled = enabled;
     }
-    
+
     static final boolean isAssertEnabled() {
-    	return assertEnabled;
+        return assertEnabled;
     }
-    
+
     private final Thread expected;
-    
+
     public AssertAlignedFilter(AbstractIoSessionEx session) {
         expected = session.getIoThread();
     }
@@ -45,7 +45,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
             parent.remove(this);
         }
         else {
-        	verifyInIoThread(parent.getSession(), expected);
+            verifyInIoThread(parent.getSession(), expected);
         }
     }
 
@@ -53,7 +53,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
     public void onPostRemove(IoFilterChain parent, String name,
             NextFilter nextFilter) throws Exception {
     }
-    
+
     @Override
     public void onPreAdd(IoFilterChain parent, String name,
             NextFilter nextFilter) throws Exception {
@@ -69,7 +69,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
         verifyInIoThread(session, expected);
         super.filterWrite(nextFilter, session, writeRequest);
     }
-    
+
     public void exceptionCaught(NextFilter nextFilter, IoSession session, Throwable cause) throws Exception {
         //verifyInIoThread(session, expected);
         super.exceptionCaught(nextFilter, session, cause);
@@ -115,5 +115,5 @@ class AssertAlignedFilter extends IoFilterAdapter {
         verifyInIoThread(session, expected);
         super.sessionOpened(nextFilter, session);
     }
-    
+
 }

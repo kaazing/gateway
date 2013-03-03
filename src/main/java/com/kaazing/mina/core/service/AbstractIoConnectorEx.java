@@ -8,11 +8,15 @@ import java.util.concurrent.Executor;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class AbstractIoConnectorEx extends AbstractIoConnector implements IoConnectorEx  {
+public abstract class AbstractIoConnectorEx extends AbstractIoConnector implements IoConnectorEx {
 
-	protected AbstractIoConnectorEx(IoSessionConfigEx sessionConfig,
-			Executor executor) {
-		super(sessionConfig, executor);
-	}
+    protected AbstractIoConnectorEx(IoSessionConfigEx sessionConfig,
+            Executor executor) {
+        super(sessionConfig, executor);
+    }
 
+    @Override
+    public IoSessionConfigEx getSessionConfig() {
+        return (IoSessionConfigEx) super.getSessionConfig();
+    }
 }

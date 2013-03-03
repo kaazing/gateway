@@ -27,106 +27,107 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import com.kaazing.mina.core.service.AbstractIoConnectorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class ChannelIoConnector<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress> extends AbstractIoConnectorEx implements ChannelIoService {
+public abstract
+    class ChannelIoConnector<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
+    extends AbstractIoConnectorEx implements ChannelIoService {
 
-	private final F channelFactory;
-	private ChannelPipelineFactory pipelineFactory;
-	private final ChannelGroup channelGroup;
+    private final F channelFactory;
+    private ChannelPipelineFactory pipelineFactory;
+    private final ChannelGroup channelGroup;
 
-	public ChannelIoConnector(C sessionConfig, F channelFactory) {
-		super(sessionConfig, new Executor() {
-			@Override
-			public void execute(Runnable command) {
-			}
-		});
+    public ChannelIoConnector(C sessionConfig, F channelFactory) {
+        super(sessionConfig, new Executor() {
+            @Override
+            public void execute(Runnable command) {
+            }
+        });
 
-		this.channelFactory = channelFactory;
-		this.channelGroup = new DefaultChannelGroup();
-	}
-	
-	public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
-		this.pipelineFactory = pipelineFactory;
-	}
+        this.channelFactory = channelFactory;
+        this.channelGroup = new DefaultChannelGroup();
+    }
 
-	@Override
-	protected ConnectFuture connect0(SocketAddress remoteAddress,
-			SocketAddress localAddress,
-			final IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
+    public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
+        this.pipelineFactory = pipelineFactory;
+    }
 
-		final ConnectFuture connectFuture = new DefaultConnectFuture();
-		
-		ClientBootstrap bootstrap = new ClientBootstrap(new ChannelFactory() {
+    @Override
+    protected ConnectFuture connect0(SocketAddress remoteAddress,
+            SocketAddress localAddress,
+            final IoSessionInitializer<? extends ConnectFuture> sessionInitializer) {
 
-			@Override
-			public Channel newChannel(ChannelPipeline pipeline) {
-				Channel newChannel = channelFactory.newChannel(pipeline);
-				ChannelConfig newChannelConfig = newChannel.getConfig();
-				newChannelConfig.setConnectTimeoutMillis((int)getConnectTimeoutMillis());
-				return newChannel;
-			}
+        final ConnectFuture connectFuture = new DefaultConnectFuture();
 
-			@Override
-			public void releaseExternalResources() {
-				channelFactory.releaseExternalResources();
-			}
-			
-		});
+        ClientBootstrap bootstrap = new ClientBootstrap(new ChannelFactory() {
 
-		// support custom channel handlers before bridge
-		ChannelPipeline newPipeline;
-		if (pipelineFactory != null) {
-			try {
-				newPipeline = pipelineFactory.getPipeline();
-			} catch (Exception e) {
-				connectFuture.setException(e);
-				return connectFuture;
-			}
-		}
-		else {
-			newPipeline = pipeline();
-		}
-		
-		
-		newPipeline.addLast("mina-bridge", new IoConnectorChannelHandler(this, connectFuture, sessionInitializer));
-		bootstrap.setPipeline(newPipeline);
-		ChannelFuture channelFuture = bootstrap.connect(remoteAddress, localAddress);
-		channelFuture.addListener(new ChannelFutureListener() {
-			
-			@Override
-			public void operationComplete(ChannelFuture future) throws Exception {
-				if (!future.isSuccess()) {
-					connectFuture.setException(future.getCause());
-				} else {
-					channelGroup.add(future.getChannel());
-				}
-			}
-		});
-		
-		return connectFuture;
-	}
+            @Override
+            public Channel newChannel(ChannelPipeline pipeline) {
+                Channel newChannel = channelFactory.newChannel(pipeline);
+                ChannelConfig newChannelConfig = newChannel.getConfig();
+                newChannelConfig.setConnectTimeoutMillis((int) getConnectTimeoutMillis());
+                return newChannel;
+            }
 
-	@Override
-	protected IoFuture dispose0() throws Exception {
-		channelGroup.close();
-		channelFactory.releaseExternalResources();
-		return null;
-	}
+            @Override
+            public void releaseExternalResources() {
+                channelFactory.releaseExternalResources();
+            }
 
-	@Override
-	public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer) {
-		initSession(session, future, sessionInitializer);
-	}
+        });
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public C getSessionConfig() {
-		return (C)super.getSessionConfig();
-	}
+        // support custom channel handlers before bridge
+        ChannelPipeline newPipeline;
+        if (pipelineFactory != null) {
+            try {
+                newPipeline = pipelineFactory.getPipeline();
+            } catch (Exception e) {
+                connectFuture.setException(e);
+                return connectFuture;
+            }
+        }
+        else {
+            newPipeline = pipeline();
+        }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public A getDefaultRemoteAddress() {
-		return (A)super.getDefaultRemoteAddress();
-	}
+        newPipeline.addLast("mina-bridge", new IoConnectorChannelHandler(this, connectFuture, sessionInitializer));
+        bootstrap.setPipeline(newPipeline);
+        ChannelFuture channelFuture = bootstrap.connect(remoteAddress, localAddress);
+        channelFuture.addListener(new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {
+                    connectFuture.setException(future.getCause());
+                } else {
+                    channelGroup.add(future.getChannel());
+                }
+            }
+        });
+
+        return connectFuture;
+    }
+
+    @Override
+    protected IoFuture dispose0() throws Exception {
+        channelGroup.close();
+        channelFactory.releaseExternalResources();
+        return null;
+    }
+
+    @Override
+    public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> initializer) {
+        initSession(session, future, initializer);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public C getSessionConfig() {
+        return (C) super.getSessionConfig();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public A getDefaultRemoteAddress() {
+        return (A) super.getDefaultRemoteAddress();
+    }
 
 }

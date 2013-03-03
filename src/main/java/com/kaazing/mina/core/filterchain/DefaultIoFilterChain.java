@@ -30,8 +30,6 @@ import com.kaazing.mina.core.session.AbstractIoSession;
  * A default implementation of {@link IoFilterChain} that provides
  * all operations for developers who want to implement their own
  * transport layer once used with {@link AbstractIoSession}.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public class DefaultIoFilterChain implements IoFilterChain {
     /**
@@ -55,7 +53,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
     private final EntryImpl tail;
 
     /** The logger for this class */
-    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultIoFilterChain.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultIoFilterChain.class);
 
 
     /**
@@ -618,7 +616,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
         @Override
         public void filterClose(NextFilter nextFilter, IoSession session)
                 throws Exception {
-            ((AbstractIoSession) session).getProcessor().remove(((AbstractIoSession) session));
+            ((AbstractIoSession) session).getProcessor().remove((AbstractIoSession) session);
         }
     }
 
@@ -728,7 +726,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
         }
     }
 
-    private class EntryImpl implements Entry {
+    private final class EntryImpl implements Entry {
         private EntryImpl prevEntry;
 
         private EntryImpl nextEntry;

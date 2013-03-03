@@ -8,9 +8,9 @@ import java.util.concurrent.Executor;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
-public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements IoAcceptorEx  {
+public abstract class AbstractIoServiceEx extends AbstractIoService implements IoServiceEx  {
 
-    protected AbstractIoAcceptorEx(IoSessionConfigEx sessionConfig,
+    protected AbstractIoServiceEx(IoSessionConfigEx sessionConfig,
             Executor executor) {
         super(sessionConfig, executor);
     }

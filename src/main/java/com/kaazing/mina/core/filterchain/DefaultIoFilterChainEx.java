@@ -12,14 +12,13 @@ import org.apache.mina.core.write.WriteRequest;
 
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
-
 /**
- * Extended version of DefaultIoFilterChain to add support for thread alignment. Every method is 
+ * Extended version of DefaultIoFilterChain to add support for thread alignment. Every method is
  * executed explicitly on the IoSession's I/O worker thread that is not the current thread.
-*/   
-public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
+ */
+public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
 
-	private final Thread ioThread;
+    private final Thread ioThread;
     private final Executor ioExecutor;
 
     public DefaultIoFilterChainEx(AbstractIoSessionEx session) {
@@ -29,7 +28,7 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
 
         // conditionally add alignment checking filter if assert is enabled
         if (AssertAlignedFilter.isAssertEnabled()) {
-        	addFirst("assert thread aligned", new AssertAlignedFilter(session));
+            addFirst("assert thread aligned", new AssertAlignedFilter(session));
         }
     }
 
@@ -91,30 +90,31 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     @Override
     protected final void callNextMessageReceived(final Entry entry, final IoSession session, final Object message) {
         if (aligned()) {
-        	// Note: no suspendRead / resumeRead coordination necessary when thread-aligned
+            // Note: no suspendRead / resumeRead coordination necessary when thread-aligned
             super.callNextMessageReceived(entry, session, message);
         }
         else {
-        	// Note: reads will be resumed after completion of scheduled callNextMessageReceived
-        	session.suspendRead();
-        	
+            // Note: reads will be resumed after completion of scheduled callNextMessageReceived
+            session.suspendRead();
+
             execute(new Runnable() {
                 @Override
                 public void run() {
                     DefaultIoFilterChainEx.super.callNextMessageReceived(entry, session, message);
-        		    
-        		    // Note: reads were suspended before scheduling callNextMessageReceived
+
+                    // Note: reads were suspended before scheduling callNextMessageReceived
                     //       if suspendRead was called during callNextNessageReceived
                     //       then calling resumeRead below will not actually resume reads
                     //       due to internal read suspend counter
-        		    session.resumeRead();
+                    session.resumeRead();
                 }
             });
         }
     }
 
     @Override
-    protected final void callNextMessageSent(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
+    protected final void callNextMessageSent(
+            final Entry entry, final IoSession session, final WriteRequest writeRequest) {
         if (aligned()) {
             super.callNextMessageSent(entry, session, writeRequest);
         }
@@ -144,15 +144,17 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
     }
 
     @Override
-    protected final void callPreviousFilterWrite(final Entry entry, final IoSession session, final WriteRequest writeRequest) {
+    protected final void callPreviousFilterWrite(
+            final Entry entry, final IoSession session, final WriteRequest writeRequest) {
         if (aligned()) {
             super.callPreviousFilterWrite(entry, session, writeRequest);
         }
         else {
+            final Entry entry0 = entry;
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callPreviousFilterWrite(entry, session, writeRequest);
+                    DefaultIoFilterChainEx.super.callPreviousFilterWrite(entry0, session, writeRequest);
                 }
             });
         }
@@ -172,32 +174,32 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain  {
             });
         }
     }
-    
+
     private boolean aligned() {
         return Thread.currentThread() == ioThread;
     }
-    
+
     private void execute(Runnable command) {
         ioExecutor.execute(command);
     }
-    
-	// allow detection of legitimate non-IoThread commands
-	public final class CallNextSessionIdleCommand implements Runnable {
-		private final IdleStatus status;
-		private final Entry entry;
-		private final IoSession session;
 
-		public CallNextSessionIdleCommand(IdleStatus status, Entry entry,
-				IoSession session) {
-			this.status = status;
-			this.entry = entry;
-			this.session = session;
-		}
+    // allow detection of legitimate non-IoThread commands
+    public final class CallNextSessionIdleCommand implements Runnable {
+        private final IdleStatus status;
+        private final Entry entry;
+        private final IoSession session;
 
-		@Override
-		public void run() {
-			DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
-		}
-	}
+        public CallNextSessionIdleCommand(IdleStatus status, Entry entry,
+                IoSession session) {
+            this.status = status;
+            this.entry = entry;
+            this.session = session;
+        }
+
+        @Override
+        public void run() {
+            DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
+        }
+    }
 
 }
