@@ -146,7 +146,7 @@
               <logViolationsToConsole>true</logViolationsToConsole>
               <failsOnError>true</failsOnError>
               <failOnViolation>true</failOnViolation>
-              <configLocation>com/kaazing/checkstyle.xml</configLocation>
+              <configLocation>com/kaazing/build/checkstyle.xml</configLocation>
             </configuration>
           </execution>
         </executions>
