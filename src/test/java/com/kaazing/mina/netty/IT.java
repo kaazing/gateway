@@ -128,8 +128,7 @@ public class IT {
         // Mimic what NioSocketAcceptor does (in initAcceptor)
         WorkerPool<NioWorker> workerPool = new NioWorkerPool(
                 Executors.newCachedThreadPool(), // worker executor 
-                3, // number of workers
-                false);
+                3); // number of workers
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);

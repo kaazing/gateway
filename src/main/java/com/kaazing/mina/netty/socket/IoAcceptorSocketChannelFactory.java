@@ -49,4 +49,9 @@ public final class IoAcceptorSocketChannelFactory implements ServerSocketChannel
     public void releaseExternalResources() {
         channelFactory.releaseExternalResources();
     }
+
+    @Override
+    public void shutdown() {
+        channelFactory.shutdown();
+    }
 }

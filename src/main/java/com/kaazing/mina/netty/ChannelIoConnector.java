@@ -72,6 +72,11 @@ public abstract
                 channelFactory.releaseExternalResources();
             }
 
+            @Override
+            public void shutdown() {
+                channelFactory.shutdown();
+            }
+
         });
 
         // support custom channel handlers before bridge
