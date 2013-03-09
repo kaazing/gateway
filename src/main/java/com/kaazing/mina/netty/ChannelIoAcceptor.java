@@ -18,10 +18,14 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
+import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.DefaultBindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
@@ -81,6 +85,20 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         }
 
         return newLocalAddresses;
+    }
+
+    @Override
+    protected BindFuture bindAsyncInternal(final SocketAddress localAddress) {
+        final BindFuture bound = new DefaultBindFuture();
+        ChannelFuture channelBound = bootstrap.bindAsync(localAddress);
+        channelBound.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                 boundChannels.put(localAddress, future.getChannel());
+                 bound.setBound();
+            }
+        });
+        return bound;
     }
 
     @Override

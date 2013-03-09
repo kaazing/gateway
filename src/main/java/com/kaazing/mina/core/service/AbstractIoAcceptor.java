@@ -32,6 +32,8 @@ import org.apache.mina.core.session.IoSessionConfig;
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
+ * 3. Change checkAddressType and boundAddresses from private to protected so they can be used in
+ *    AbstractIoAcceptorEx
  */
 public abstract class AbstractIoAcceptor
         extends AbstractIoService implements IoAcceptor {
@@ -40,7 +42,7 @@ public abstract class AbstractIoAcceptor
         new ArrayList<SocketAddress>();
     private final List<SocketAddress> unmodifiableDefaultLocalAddresses =
         Collections.unmodifiableList(defaultLocalAddresses);
-    private final Set<SocketAddress> boundAddresses =
+    protected final Set<SocketAddress> boundAddresses =
         new HashSet<SocketAddress>();
 
     private boolean disconnectOnUnbind = true;
@@ -294,6 +296,7 @@ public abstract class AbstractIoAcceptor
             }
         }
 
+        // TODO: Mina bug? the following should be inside synchronized, else we have race with unbind
         if (activate) {
             getListeners().fireServiceActivated();
         }
@@ -384,6 +387,8 @@ public abstract class AbstractIoAcceptor
             }
         }
 
+        // TODO: Mina bug? the following should be inside synchronized, else we have race with bind
+        // The code is unchanged in Mina 2.0.7. Mina 3.0.0 is very different and this class does not even exist.
         if (deactivate) {
             getListeners().fireServiceDeactivated();
         }
@@ -412,7 +417,7 @@ public abstract class AbstractIoAcceptor
                            "not bound") + ')';
     }
 
-    private void checkAddressType(SocketAddress a) {
+    protected void checkAddressType(SocketAddress a) {
         if (a != null &&
             !getTransportMetadata().getAddressType().isAssignableFrom(
                         a.getClass())) {
