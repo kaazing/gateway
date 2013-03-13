@@ -52,10 +52,9 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
                             activate = true;
                         }
                         boundAddresses.add(localAddress);
-                    }
-                    // TODO: Mina bug? the following should be inside synchronized, else we have race with unbind
-                    if (activate) {
-                        getListeners().fireServiceActivated();
+                        if (activate) {
+                            getListeners().fireServiceActivated();
+                        }
                     }
                 }
             }
@@ -80,12 +79,11 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
                         if (boundAddresses.isEmpty()) {
                             deactivate = true;
                         }
+                        if (deactivate) {
+                            getListeners().fireServiceDeactivated();
+                        }
                     }
 
-                    // TODO: Mina bug? the following should be inside synchronized, else we have race with bind
-                    if (deactivate) {
-                        getListeners().fireServiceDeactivated();
-                    }
                 }
             }
         });

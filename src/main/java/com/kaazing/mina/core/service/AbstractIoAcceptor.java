@@ -34,6 +34,8 @@ import org.apache.mina.core.session.IoSessionConfig;
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
  * 3. Change checkAddressType and boundAddresses from private to protected so they can be used in
  *    AbstractIoAcceptorEx
+ * 4. Fix apparent Mina bugs in bind and unbind: fire service listeners to indicate service activated or deactivated
+ *    inside the synchronized bindLock block, to avoid possible wrong outcome in case of race between bind and unbind.
  */
 public abstract class AbstractIoAcceptor
         extends AbstractIoService implements IoAcceptor {
@@ -294,12 +296,11 @@ public abstract class AbstractIoAcceptor
                 throw new RuntimeIoException(
                         "Failed to bind to: " + getLocalAddresses(), e);
             }
+            if (activate) {
+                getListeners().fireServiceActivated();
+            }
         }
 
-        // TODO: Mina bug? the following should be inside synchronized, else we have race with unbind
-        if (activate) {
-            getListeners().fireServiceActivated();
-        }
     }
 
     /**
@@ -385,12 +386,9 @@ public abstract class AbstractIoAcceptor
                     deactivate = true;
                 }
             }
-        }
-
-        // TODO: Mina bug? the following should be inside synchronized, else we have race with bind
-        // The code is unchanged in Mina 2.0.7. Mina 3.0.0 is very different and this class does not even exist.
-        if (deactivate) {
-            getListeners().fireServiceDeactivated();
+            if (deactivate) {
+                getListeners().fireServiceDeactivated();
+            }
         }
     }
 

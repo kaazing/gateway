@@ -50,6 +50,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.nio.NioSocketChannelIoConnector;
@@ -322,7 +323,115 @@ public class IT {
         assertTrue("Bind in IO thread failed with exception " + boundInIoThread[0].getException(), 
                    boundInIoThread[0].isBound());
         
-        acceptor.unbind(bindTo);    }
+        acceptor.unbind(bindTo);    
+    }
+    
+    @Test
+    public void testUnbindAsync() throws Exception {
+        bindTo = new InetSocketAddress("localhost", 8123); // LocalAddress(8123);  
+        bindTo2 = new InetSocketAddress("localhost", 8124); // LocalAddress(8124);
+        final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
+        
+        // Mimic what NioSocketAcceptor does (in initAcceptor)
+        WorkerPool<NioWorker> workerPool = new NioWorkerPool(
+                Executors.newCachedThreadPool(), // worker executor 
+                3); // number of workers
+        NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
+                Executors.newCachedThreadPool(), // boss executor
+                workerPool);
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
+                   serverChannelFactory, 
+                   new IoAcceptorChannelHandlerFactory() {
+                       @Override
+                       public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor) {
+                           return new IoAcceptorChannelHandler(acceptor) {
+                               @Override
+                               public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+                                   super.childChannelOpen(ctx, e);
+                               }
+                           };
+                       }
+                   });
+
+        DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
+        //builder.addLast("logger", new LoggingFilter());
+        acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
+        acceptor.setFilterChainBuilder(builder);
+        final Throwable[] unbindException = new Throwable[]{null};
+        final UnbindFuture[] unboundInIoThread = new UnbindFuture[]{null};
+        acceptor.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void messageReceived(IoSession session, Object message)
+                    throws Exception {
+                IoBuffer buf = (IoBuffer)message;
+                // Test asynchronous acceptor.unbind call from an IO worker thread.
+                try {
+                    unboundInIoThread[0] = acceptor.unbindAsync(bindTo2);
+                }
+                catch (Throwable t) {
+                    unbindException[0] = t;
+                }
+                session.write(buf.duplicate());
+            }            
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                acceptExceptionsCaught.incrementAndGet();
+            }
+        });
+        
+        acceptor.bind(bindTo);
+        acceptor.bind(bindTo2);
+
+        final CountDownLatch echoedMessageReceived = new CountDownLatch(1);
+        final AtomicInteger connectExceptionsCaught = new AtomicInteger(0);
+        
+        NioClientSocketChannelFactory clientChannelFactory = new NioClientSocketChannelFactory(
+                newCachedThreadPool(), 
+                1, // boss thread count
+                workerPool);
+        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
+        connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
+        connector.setFilterChainBuilder(builder);
+        connector.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void messageReceived(IoSession session, Object message) throws Exception {
+                echoedMessageReceived.countDown();
+            }
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                connectExceptionsCaught.incrementAndGet();
+            }
+        });
+        
+        final AtomicBoolean sessionInitialized = new AtomicBoolean();
+        ConnectFuture connectFuture = connector.connect(bindTo, new IoSessionInitializer<ConnectFuture>() {
+        
+            @Override
+            public void initializeSession(IoSession session, ConnectFuture future) {
+                sessionInitialized.set(true);
+            }
+        });
+        
+        await(connectFuture, "connect");
+        assertTrue(sessionInitialized.get());
+        final IoSession session = connectFuture.getSession();
+        
+        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        
+        await(written, "session.write");
+        
+        await(echoedMessageReceived, "echoedMessageReceived");
+        //await(session.close(true), "session close(true) future");
+        
+        assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
+        assertEquals("Exceptions caught by accept handler", 0, acceptExceptionsCaught.get());
+        assertNull("acceptor.bind in acceptor IO thread threw exception " + unbindException[0], unbindException[0]);
+        unboundInIoThread[0].await();
+        assertTrue("Unbind in IO thread failed with exception " + unboundInIoThread[0].getException(), 
+                   unboundInIoThread[0].isUnbound());
+        
+        acceptor.unbindAsync(bindTo).await();  
+    }
     
     @Test
     public void testIdleTimeout() throws Exception {
