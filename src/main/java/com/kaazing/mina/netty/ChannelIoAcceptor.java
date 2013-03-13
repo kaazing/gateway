@@ -94,8 +94,13 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         channelBound.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                 boundChannels.put(localAddress, future.getChannel());
-                 bound.setBound();
+                if (future.isSuccess()) {
+                     boundChannels.put(localAddress, future.getChannel());
+                     bound.setBound();
+                }
+                else {
+                    bound.setException(future.getCause());
+                }
             }
         });
         return bound;
