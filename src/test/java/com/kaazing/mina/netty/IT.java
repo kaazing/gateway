@@ -66,10 +66,14 @@ public class IT {
     
     @After
     public void tearDown() throws Exception {
-        acceptor.unbind(bindTo);
-        acceptor.unbind(bindTo2);        
-        connector.dispose();
-        acceptor.dispose();
+        if (connector != null) {
+            connector.dispose();
+        }
+        if (acceptor != null) {            
+            acceptor.unbind(bindTo);
+            acceptor.unbind(bindTo2);        
+            acceptor.dispose();
+        }
     }
     
 	@Test
@@ -127,7 +131,6 @@ public class IT {
     @Test
     public void testThreadAlignment() throws Exception {
         bindTo = new InetSocketAddress(8123);
-        
         final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
         
         // Mimic what NioSocketAcceptor does (in initAcceptor)
@@ -217,8 +220,8 @@ public class IT {
     
     @Test
     public void testBindAsync() throws Exception {
-        bindTo = new InetSocketAddress(8123);
-        
+        bindTo = new InetSocketAddress("localhost", 8123); // LocalAddress(8123);  
+        bindTo2 = new InetSocketAddress("localhost", 8124); // LocalAddress(8124); 
         final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
         
         // Mimic what NioSocketAcceptor does (in initAcceptor)
@@ -256,7 +259,7 @@ public class IT {
                 // Synchronous acceptor.bind call fails from an IO worker thread. But we should be able to do 
                 // an asynchronous bind (see KG-7179)
                 try {
-                    boundInIoThread[0] = acceptor.bindAsync(new InetSocketAddress(8124));
+                    boundInIoThread[0] = acceptor.bindAsync(bindTo2);
                 }
                 catch (Throwable t) {
                     bindException[0] = t;
@@ -310,7 +313,7 @@ public class IT {
         await(written, "session.write");
         
         await(echoedMessageReceived, "echoedMessageReceived");
-        await(session.close(true), "session close(true) future");
+        //await(session.close(true), "session close(true) future");
         
         assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
         assertEquals("Exceptions caught by accept handler", 0, acceptExceptionsCaught.get());
@@ -318,7 +321,8 @@ public class IT {
         boundInIoThread[0].await();
         assertTrue("Bind in IO thread failed with exception " + boundInIoThread[0].getException(), 
                    boundInIoThread[0].isBound());
-    }
+        
+        acceptor.unbind(bindTo);    }
     
     @Test
     public void testIdleTimeout() throws Exception {

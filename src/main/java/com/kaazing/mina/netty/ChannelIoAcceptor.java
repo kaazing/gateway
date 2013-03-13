@@ -22,6 +22,8 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.ChannelGroupFuture;
+import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.future.BindFuture;
@@ -130,8 +132,14 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
 
     @Override
     protected IoFuture dispose0() throws Exception {
-        channelGroup.close();
-        bootstrap.releaseExternalResources();
+        channelGroup.close().addListener(new ChannelGroupFutureListener() {
+            @Override
+            public void operationComplete(ChannelGroupFuture future) throws Exception {
+                // releaseExternalResources may throw errors if everything isn't yet unbound so wait for this
+                // If the future fails presumably we want to try to clean up anyway so we don't check for success
+                bootstrap.releaseExternalResources();
+            }
+        });
         return null;
     }
 

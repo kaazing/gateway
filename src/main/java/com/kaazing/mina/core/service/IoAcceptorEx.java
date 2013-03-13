@@ -4,7 +4,6 @@
 
 package com.kaazing.mina.core.service;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.apache.mina.core.service.IoAcceptor;
