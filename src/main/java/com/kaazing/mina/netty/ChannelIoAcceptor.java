@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
@@ -121,7 +122,14 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
                 continue;
             }
 
-            channel.unbind();
+            ChannelFuture unbound = channel.unbind();
+
+            // the signature of this method (and of the public bind method that calls it) implies it is a
+            // synchronous operation, which must therefore complete or fail before we return.
+            unbound.awaitUninterruptibly();
+            if (!unbound.isSuccess()) {
+                throw new IOException(unbound.getCause());
+            }
         }
 
     }
