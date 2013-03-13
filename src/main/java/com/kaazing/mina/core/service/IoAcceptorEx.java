@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 import org.apache.mina.core.service.IoAcceptor;
 
 import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 
 public interface IoAcceptorEx extends IoAcceptor, IoServiceEx  {
 
@@ -19,5 +20,8 @@ public interface IoAcceptorEx extends IoAcceptor, IoServiceEx  {
      * @return A BindFuture if failed to bind
      */
     BindFuture bindAsync(SocketAddress localAddress);
+
+    UnbindFuture unbindAsync(SocketAddress localAddress);
+
 
 }

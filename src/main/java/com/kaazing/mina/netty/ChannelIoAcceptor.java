@@ -28,6 +28,8 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.DefaultBindFuture;
+import com.kaazing.mina.core.future.DefaultUnbindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
@@ -122,6 +124,25 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
             channel.unbind();
         }
 
+    }
+
+    @Override
+    protected UnbindFuture unbindAsyncInternal(final SocketAddress localAddress) {
+        final UnbindFuture unbound = new DefaultUnbindFuture();
+        Channel channel = boundChannels.remove(localAddress);
+        ChannelFuture channelUnbound = channel.unbind();
+        channelUnbound.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (future.isSuccess()) {
+                    unbound.setUnbound();
+                }
+                else {
+                    unbound.setException(future.getCause());
+                }
+            }
+        });
+        return unbound;
     }
 
     @Override

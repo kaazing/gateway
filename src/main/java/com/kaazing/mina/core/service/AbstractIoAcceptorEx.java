@@ -5,11 +5,15 @@
 package com.kaazing.mina.core.service;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.future.IoFutureListener;
 
 import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements IoAcceptorEx  {
@@ -25,7 +29,7 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
     }
 
     @Override
-    // This is basically just an asynchronous version of AbstractNioAcceptor.bind(Iterable... localAddresses)
+    // This is basically just an asynchronous version of AbstractIoAcceptor.bind(Iterable... localAddresses)
     public BindFuture bindAsync(final SocketAddress localAddress) {
         if (isDisposing()) {
             throw new IllegalStateException("Already disposed.");
@@ -59,6 +63,37 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
         return bound;
     }
 
+    @Override
+    // This is basically just an asynchronous version of AbstractNioAcceptor.unbind(Iterable... localAddresses)
+    public UnbindFuture unbindAsync(final SocketAddress localAddress) {
+        UnbindFuture unbound = unbindAsyncInternal(localAddress);
+        unbound.addListener(new IoFutureListener<UnbindFuture>() {
+            @Override
+            public void operationComplete(UnbindFuture future) {
+                if (future.isUnbound()) {
+                    boolean deactivate = false;
+                    synchronized (bindLock) {
+                        if (boundAddresses.isEmpty()) {
+                            return;
+                        }
+                        boundAddresses.remove(localAddress);
+                        if (boundAddresses.isEmpty()) {
+                            deactivate = true;
+                        }
+                    }
+
+                    // TODO: Mina bug? the following should be inside synchronized, else we have race with bind
+                    if (deactivate) {
+                        getListeners().fireServiceDeactivated();
+                    }
+                }
+            }
+        });
+        return unbound;
+    }
+
     protected abstract BindFuture bindAsyncInternal(SocketAddress localAddress);
+
+    protected abstract UnbindFuture unbindAsyncInternal(SocketAddress localAddress);
 
 }

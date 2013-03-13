@@ -26,6 +26,7 @@ import org.apache.mina.core.session.IoSessionDataStructureFactory;
 import org.apache.mina.core.write.WriteRequest;
 
 import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.service.IoAcceptorEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
@@ -120,6 +121,11 @@ public class DummySessionEx extends AbstractIoSessionEx {
 
             @Override
             protected BindFuture bindAsyncInternal(SocketAddress localAddress) {
+                return null;
+            }
+
+            @Override
+            public UnbindFuture unbindAsyncInternal(SocketAddress localAddress) {
                 return null;
             }
         };
