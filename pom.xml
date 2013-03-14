@@ -154,7 +154,7 @@
           <dependency>
             <groupId>com.kaazing</groupId>
             <artifactId>com.kaazing.build</artifactId>
-            <version>21-SNAPSHOT</version>
+            <version>21</version>
           </dependency>
         </dependencies>
       </plugin>

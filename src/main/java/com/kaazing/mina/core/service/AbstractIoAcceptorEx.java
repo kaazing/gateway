@@ -5,11 +5,8 @@
 package com.kaazing.mina.core.service;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executor;
 
-import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.future.IoFutureListener;
 
 import com.kaazing.mina.core.future.BindFuture;
