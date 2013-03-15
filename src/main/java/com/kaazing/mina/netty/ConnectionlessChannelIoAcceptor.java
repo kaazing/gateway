@@ -36,8 +36,8 @@ import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.bootstrap.ConnectionlessBootstrap;
 
-public abstract
-    class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
+public abstract class ConnectionlessChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory,
+                                                      A extends SocketAddress>
     extends AbstractIoAcceptorEx implements ChannelIoService {
 
     private final ConnectionlessBootstrap bootstrap;
@@ -45,7 +45,8 @@ public abstract
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
 
-    public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory factory) {
+    public ConnectionlessChannelIoAcceptor(C sessionConfig, F channelFactory,
+                                           IoAcceptorChannelHandlerFactory factory) {
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {

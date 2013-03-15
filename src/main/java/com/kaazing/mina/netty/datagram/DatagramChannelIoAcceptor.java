@@ -13,13 +13,13 @@ import org.apache.mina.transport.socket.DatagramAcceptor;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
-import com.kaazing.mina.netty.ChannelIoAcceptor;
+import com.kaazing.mina.netty.ConnectionlessChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 
 public class DatagramChannelIoAcceptor
-    extends ChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
+    extends ConnectionlessChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
     implements DatagramAcceptor {
 
     private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(

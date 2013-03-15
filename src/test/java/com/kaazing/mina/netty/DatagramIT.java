@@ -42,7 +42,7 @@ import com.kaazing.mina.netty.nio.NioDatagramChannelIoConnector;
 public class DatagramIT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
-    ChannelIoAcceptor<?, ?, ?> acceptor = null;
+    ConnectionlessChannelIoAcceptor<?, ?, ?> acceptor = null;
     ChannelIoConnector<?, ?, ?> connector = null;
     
     @After
