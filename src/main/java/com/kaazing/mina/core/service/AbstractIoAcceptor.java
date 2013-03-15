@@ -32,7 +32,7 @@ import org.apache.mina.core.session.IoSessionConfig;
  * The following changes were made from the version in Mina 2.0.0-RC1g:
  * 1. Change package name
  * 2. Add imports of needed classes from the original package (org.apache.mina.core.service)
- * 3. Change checkAddressType and boundAddresses from private to protected so they can be used in
+ * 3. Change checkAddressType, bindLock and boundAddresses from private to package-private so they can be used in
  *    AbstractIoAcceptorEx
  * 4. Fix apparent Mina bugs in bind and unbind: fire service listeners to indicate service activated or deactivated
  *    inside the synchronized bindLock block, to avoid possible wrong outcome in case of race between bind and unbind.
@@ -44,7 +44,7 @@ public abstract class AbstractIoAcceptor
         new ArrayList<SocketAddress>();
     private final List<SocketAddress> unmodifiableDefaultLocalAddresses =
         Collections.unmodifiableList(defaultLocalAddresses);
-    protected final Set<SocketAddress> boundAddresses =
+    final Set<SocketAddress> boundAddresses =
         new HashSet<SocketAddress>();
 
     private boolean disconnectOnUnbind = true;
@@ -54,7 +54,7 @@ public abstract class AbstractIoAcceptor
      * Acquire this lock in your property setters which shouldn't be changed while
      * the service is bound.
      */
-    protected final Object bindLock = new Object();
+    final Object bindLock = new Object();
 
     /**
      * Constructor for {@link AbstractIoAcceptor}. You need to provide a default
@@ -415,7 +415,7 @@ public abstract class AbstractIoAcceptor
                            "not bound") + ')';
     }
 
-    protected void checkAddressType(SocketAddress a) {
+    void checkAddressType(SocketAddress a) {
         if (a != null &&
             !getTransportMetadata().getAddressType().isAssignableFrom(
                         a.getClass())) {

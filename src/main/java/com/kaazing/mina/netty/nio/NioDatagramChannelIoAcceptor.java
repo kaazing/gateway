@@ -9,11 +9,9 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
-import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.datagram.DatagramChannelIoAcceptor;

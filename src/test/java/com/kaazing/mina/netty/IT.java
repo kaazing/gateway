@@ -61,7 +61,7 @@ import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
 public class IT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
-    ChannelIoAcceptor<?, ?, ?> acceptor = null;
+    ServerChannelIoAcceptor<?, ?, ?> acceptor = null;
     ChannelIoConnector<?, ?, ?> connector = null;
     
     @After
@@ -144,7 +144,7 @@ public class IT {
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
                        @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor) {
+                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
                            return new IoAcceptorChannelHandler(acceptor) {
                                @Override
                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
@@ -235,7 +235,7 @@ public class IT {
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
                        @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor) {
+                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
                            return new IoAcceptorChannelHandler(acceptor) {
                                @Override
                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
@@ -342,7 +342,7 @@ public class IT {
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
                        @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor) {
+                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
                            return new IoAcceptorChannelHandler(acceptor) {
                                @Override
                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
@@ -429,12 +429,12 @@ public class IT {
         assertTrue("Unbind in IO thread failed with exception " + unboundInIoThread[0].getException(), 
                    unboundInIoThread[0].isUnbound());
         
-        acceptor.unbindAsync(bindTo).await();  
+        acceptor.unbindAsync(bindTo).await(); 
     }
     
     @Test
     public void testIdleTimeout() throws Exception {
-        bindTo = new InetSocketAddress(8123);
+        bindTo = new InetSocketAddress("localhost", 8123);
         
         final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
         

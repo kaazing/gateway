@@ -8,7 +8,7 @@ public class DefaultIoAcceptorChannelHandlerFactory implements
         IoAcceptorChannelHandlerFactory {
 
     @Override
-    public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor) {
+    public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
         return new IoAcceptorChannelHandler(acceptor);
     }
 

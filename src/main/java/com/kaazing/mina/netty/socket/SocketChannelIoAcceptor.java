@@ -13,14 +13,14 @@ import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 
-import com.kaazing.mina.netty.ChannelIoAcceptor;
+import com.kaazing.mina.netty.ServerChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 
 public class SocketChannelIoAcceptor
-    extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
+    extends ServerChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
     implements SocketAcceptor {
 
     private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(

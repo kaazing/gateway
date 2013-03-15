@@ -6,5 +6,5 @@ package com.kaazing.mina.netty;
 
 public interface IoAcceptorChannelHandlerFactory {
 
-    IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor);
+    IoAcceptorChannelHandler createHandler(ChannelIoService acceptor);
 }

@@ -12,6 +12,7 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChildChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 
@@ -56,6 +57,13 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
         childPipeline.addLast("factory", new IoSessionFactoryChannelHandler(acceptor));
 
         super.childChannelOpen(ctx, e);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+            throws Exception {
+        // this will cause the bind channel future to fail, without noisy logging
+        ctx.sendUpstream(e);
     }
 
 }

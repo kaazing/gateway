@@ -14,7 +14,7 @@ import org.jboss.netty.channel.ServerChannelFactory;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 public class DefaultChannelIoAcceptor
-    extends ChannelIoAcceptor<IoSessionConfigEx, ServerChannelFactory, SocketAddress> {
+    extends ServerChannelIoAcceptor<IoSessionConfigEx, ServerChannelFactory, SocketAddress> {
 
     private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "Channel", false, true, SocketAddress.class,

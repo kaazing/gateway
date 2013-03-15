@@ -4,9 +4,10 @@
 
 package com.kaazing.mina.netty;
 
-import static org.jboss.netty.channel.Channels.pipeline;
+import static java.lang.String.format;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
@@ -34,18 +36,17 @@ import com.kaazing.mina.core.future.DefaultUnbindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
-import com.kaazing.mina.netty.bootstrap.ConnectionlessBootstrap;
 
 public abstract
-    class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
+    class ServerChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
     extends AbstractIoAcceptorEx implements ChannelIoService {
 
-    private final ConnectionlessBootstrap bootstrap;
+    private final ServerBootstrap bootstrap;
     private final Map<SocketAddress, Channel> boundChannels;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
 
-    public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory factory) {
+    public ServerChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory factory) {
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -57,8 +58,8 @@ public abstract
         parentHandler = factory.createHandler(this);
         parentHandler.setChannelGroup(channelGroup);
 
-        bootstrap = new ConnectionlessBootstrap(channelFactory);
-        bootstrap.setPipeline(pipeline(parentHandler));
+        bootstrap = new ServerBootstrap(channelFactory);
+        bootstrap.setParentHandler(parentHandler);
 
         boundChannels = Collections.synchronizedMap(new HashMap<SocketAddress, Channel>());
     }
@@ -82,8 +83,15 @@ public abstract
             List<? extends SocketAddress> localAddresses) throws Exception {
 
         for (SocketAddress localAddress : localAddresses) {
-            Channel channel = bootstrap.bind(localAddress);
-            boundChannels.put(localAddress, channel);
+            try {
+                Channel channel = bootstrap.bind(localAddress);
+                boundChannels.put(localAddress, channel);
+            }
+            catch (Exception e) {
+                BindException be = new BindException(format("Unable to bind address: %s", localAddress));
+                be.initCause(e);
+                throw be;
+            }
         }
 
         Set<SocketAddress> newLocalAddresses = new HashSet<SocketAddress>();
