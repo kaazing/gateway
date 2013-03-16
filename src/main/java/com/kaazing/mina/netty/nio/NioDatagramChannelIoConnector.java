@@ -13,8 +13,8 @@ import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoSession;
-import com.kaazing.mina.netty.datagram.DatagramChannelIoConnector;
-import com.kaazing.mina.netty.datagram.DatagramChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.DatagramChannelIoConnector;
+import com.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 
 public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
 

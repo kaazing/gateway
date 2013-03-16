@@ -25,8 +25,8 @@ import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.IoAcceptorChannelHandler;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
-import com.kaazing.mina.netty.datagram.DatagramChannelIoAcceptor;
-import com.kaazing.mina.netty.datagram.DatagramChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.DatagramChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 
 public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
 
