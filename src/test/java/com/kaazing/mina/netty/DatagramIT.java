@@ -32,9 +32,9 @@ import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
 import org.junit.Test;
 
-import com.kaazing.mina.netty.nio.NioDatagramChannelIoAcceptor;
-import com.kaazing.mina.netty.nio.NioDatagramChannelIoConnector;
 import com.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 
 /**
  * Integration test for mina.netty layer. Similar to IT, but for datagram transport.

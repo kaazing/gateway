@@ -47,9 +47,9 @@ import org.junit.Test;
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
-import com.kaazing.mina.netty.nio.NioSocketChannelIoAcceptor;
-import com.kaazing.mina.netty.nio.NioSocketChannelIoConnector;
 import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
+import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
 /**
  * Integration test for mina.netty layer

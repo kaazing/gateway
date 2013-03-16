@@ -2,7 +2,7 @@
  * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
  */
 
-package com.kaazing.mina.netty.nio;
+package com.kaazing.mina.netty.socket.nio;
 
 import java.net.InetSocketAddress;
 
