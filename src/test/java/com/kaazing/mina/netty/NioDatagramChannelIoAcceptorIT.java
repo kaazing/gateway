@@ -46,7 +46,7 @@ public class NioDatagramChannelIoAcceptorIT {
         }
     }
 
-    @Test //(timeout = 1000)
+    @Test (timeout = 1000)
     public void shouldEchoBytes() throws Exception {
         SocketAddress bindAddress = new InetSocketAddress("localhost", 8123);
         final AtomicInteger exceptionsCaught = new AtomicInteger();
