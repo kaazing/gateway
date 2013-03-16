@@ -9,17 +9,15 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketAddress;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
@@ -36,17 +34,19 @@ import com.kaazing.mina.core.future.DefaultUnbindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrap;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
-public abstract
-    class ServerChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
-    extends AbstractIoAcceptorEx implements ChannelIoService {
+public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
+                extends AbstractIoAcceptorEx implements ChannelIoService {
 
     private final ServerBootstrap bootstrap;
     private final Map<SocketAddress, Channel> boundChannels;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
 
-    public ServerChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory factory) {
+    public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory handlerFactory,
+                             ServerBootstrapFactory bootstrapFactory) {
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -55,13 +55,13 @@ public abstract
 
         channelGroup = new DefaultChannelGroup();
 
-        parentHandler = factory.createHandler(this);
-        parentHandler.setChannelGroup(channelGroup);
+        parentHandler = handlerFactory.createHandler(this, channelGroup);
 
-        bootstrap = new ServerBootstrap(channelFactory);
+        bootstrap = bootstrapFactory.createBootstrap();
+        bootstrap.setFactory(channelFactory);
         bootstrap.setParentHandler(parentHandler);
 
-        boundChannels = Collections.synchronizedMap(new HashMap<SocketAddress, Channel>());
+        boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();
     }
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
@@ -90,6 +90,7 @@ public abstract
             catch (Exception e) {
                 BindException be = new BindException(format("Unable to bind address: %s", localAddress));
                 be.initCause(e);
+                be.fillInStackTrace();
                 throw be;
             }
         }
@@ -114,7 +115,10 @@ public abstract
                      bound.setBound();
                 }
                 else {
-                    bound.setException(future.getCause());
+                    BindException be = new BindException(format("Unable to bind address: %s", localAddress));
+                    be.initCause(future.getCause());
+                    be.fillInStackTrace();
+                    bound.setException(be);
                 }
             }
         });

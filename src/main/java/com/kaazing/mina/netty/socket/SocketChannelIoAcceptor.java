@@ -10,32 +10,34 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 
-import com.kaazing.mina.netty.ServerChannelIoAcceptor;
+import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public class SocketChannelIoAcceptor
-    extends ServerChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
+    extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
     implements SocketAcceptor {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+    private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
     public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
             final ServerSocketChannelFactory channelFactory) {
-        super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory),
+        this(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory),
                 new DefaultIoAcceptorChannelHandlerFactory());
     }
 
     public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
             final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-        super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory);
+        super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory,
+              ServerBootstrapFactory.CONNECTED);
     }
 
     @Override
@@ -65,12 +67,12 @@ public class SocketChannelIoAcceptor
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return SOCKET_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new DefaultChannelIoSession(this, context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, channel);
     }
 
 }

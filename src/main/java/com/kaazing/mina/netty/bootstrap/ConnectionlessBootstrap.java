@@ -13,6 +13,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineException;
 
+// TODO: contribute this back to Netty 3.x
 public class ConnectionlessBootstrap extends org.jboss.netty.bootstrap.ConnectionlessBootstrap {
 
     public ConnectionlessBootstrap() {

@@ -9,34 +9,36 @@ import java.net.SocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
-import org.jboss.netty.channel.ChannelHandlerContext;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
-public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfigEx, ChannelFactory, SocketAddress> {
+public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfigEx, ChannelFactory,
+                                                                        SocketAddress> {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+    private static final TransportMetadata CONNECTED_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "Channel", false, true, SocketAddress.class,
             IoSessionConfig.class, Object.class);
 
     public DefaultChannelIoConnector(ChannelFactory channelFactory) {
-        super(new DefaultChannelIoSessionConfig(), channelFactory);
+        this(new DefaultChannelIoSessionConfig(), channelFactory, new DefaultIoConnectorChannelHandlerFactory());
     }
 
     public DefaultChannelIoConnector(IoSessionConfigEx sessionConfig,
-            ChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory);
+            ChannelFactory channelFactory, IoConnectorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ClientBootstrapFactory.CONNECTED);
     }
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return CONNECTED_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new DefaultChannelIoSession(this, context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, channel);
     }
 
 }

@@ -9,7 +9,7 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
@@ -19,7 +19,7 @@ import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
 
 public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+    private static final TransportMetadata NIO_SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
@@ -30,12 +30,12 @@ public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return NIO_SOCKET_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new NioSocketChannelIoSession(this, (NioSocketChannel) context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new NioSocketChannelIoSession(this, (NioSocketChannel) channel);
     }
 
 }

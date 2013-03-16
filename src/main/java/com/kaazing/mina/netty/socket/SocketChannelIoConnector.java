@@ -10,24 +10,33 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
+import com.kaazing.mina.netty.DefaultIoConnectorChannelHandlerFactory;
+import com.kaazing.mina.netty.IoConnectorChannelHandlerFactory;
+import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
 public class SocketChannelIoConnector
     extends ChannelIoConnector<SocketChannelIoSessionConfig, ClientSocketChannelFactory, InetSocketAddress>
     implements SocketConnector {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+    private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
     public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
             ClientSocketChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory);
+        this(sessionConfig, channelFactory, new DefaultIoConnectorChannelHandlerFactory());
+    }
+
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
+                                    ClientSocketChannelFactory channelFactory,
+                                    IoConnectorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ClientBootstrapFactory.CONNECTED);
     }
 
     @Override
@@ -37,11 +46,11 @@ public class SocketChannelIoConnector
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return SOCKET_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new DefaultChannelIoSession(this, context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, channel);
     }
 }

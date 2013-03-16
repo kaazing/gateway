@@ -8,15 +8,16 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ServerChannelFactory;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public class DefaultChannelIoAcceptor
-    extends ServerChannelIoAcceptor<IoSessionConfigEx, ServerChannelFactory, SocketAddress> {
+    extends ChannelIoAcceptor<IoSessionConfigEx, ServerChannelFactory, SocketAddress> {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
+    private static final TransportMetadata CONNECTED_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "Channel", false, true, SocketAddress.class,
             IoSessionConfigEx.class, Object.class);
 
@@ -26,17 +27,17 @@ public class DefaultChannelIoAcceptor
 
     public DefaultChannelIoAcceptor(IoSessionConfigEx sessionConfig,
             ServerChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-        super(sessionConfig, channelFactory, handlerFactory);
+        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTED);
     }
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return CONNECTED_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new DefaultChannelIoSession(this, context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, channel);
     }
 
 }

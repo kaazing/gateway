@@ -18,15 +18,12 @@ import org.jboss.netty.channel.group.ChannelGroup;
 
 public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 
-    private final ChannelIoService acceptor;
+    private final ChannelIoAcceptor<?, ?, ?> acceptor;
     private ChannelPipelineFactory pipelineFactory;
-    private ChannelGroup channelGroup;
+    private final ChannelGroup channelGroup;
 
-    public IoAcceptorChannelHandler(ChannelIoService acceptor) {
+    public IoAcceptorChannelHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
         this.acceptor = acceptor;
-    }
-
-    public void setChannelGroup(ChannelGroup channelGroup) {
         this.channelGroup = channelGroup;
     }
 

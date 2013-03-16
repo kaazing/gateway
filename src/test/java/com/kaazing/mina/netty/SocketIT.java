@@ -30,13 +30,9 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.filter.logging.LoggingFilter;
-import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChildChannelStateEvent;
-import org.jboss.netty.channel.ServerChannelFactory;
-import org.jboss.netty.channel.local.DefaultLocalClientChannelFactory;
-import org.jboss.netty.channel.local.DefaultLocalServerChannelFactory;
+import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.local.LocalAddress;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -58,10 +54,10 @@ import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
 /**
  * Integration test for mina.netty layer
  */
-public class IT {
+public class SocketIT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
-    ServerChannelIoAcceptor<?, ?, ?> acceptor = null;
+    ChannelIoAcceptor<?, ?, ?> acceptor = null;
     ChannelIoConnector<?, ?, ?> connector = null;
     
     @After
@@ -76,58 +72,6 @@ public class IT {
         }
     }
     
-	@Test
-	public void testNettyLocal() throws Exception {
-        ServerChannelFactory serverChannelFactory = new DefaultLocalServerChannelFactory();
-        
-        acceptor = new DefaultChannelIoAcceptor(serverChannelFactory);
-        DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
-        builder.addLast("logger", new LoggingFilter());
-        acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
-        acceptor.setFilterChainBuilder(builder);
-        acceptor.setHandler(new IoHandlerAdapter() {
-            @Override
-            public void messageReceived(IoSession session, Object message)
-                    throws Exception {
-                IoBuffer buf = (IoBuffer)message;
-                session.write(buf.duplicate());
-            }
-        });
-        
-        acceptor.bind(bindTo);
-
-        ChannelFactory clientChannelFactory = new DefaultLocalClientChannelFactory();
-
-        final CountDownLatch echoedMessageReceived = new CountDownLatch(1);
-        connector = new DefaultChannelIoConnector(clientChannelFactory);
-        connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
-        connector.setFilterChainBuilder(builder);
-        connector.setHandler(new IoHandlerAdapter() {
-            public void messageReceived(IoSession session, Object message)
-                    throws Exception {
-                echoedMessageReceived.countDown();
-            }
-        });
-        
-        final AtomicBoolean sessionInitialized = new AtomicBoolean();
-        ConnectFuture connectFuture = connector.connect(bindTo, new IoSessionInitializer<ConnectFuture>() {
-        
-            @Override
-            public void initializeSession(IoSession session, ConnectFuture future) {
-                sessionInitialized.set(true);
-            }
-        });
-        
-        await(connectFuture, "connect");
-        assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
-        
-        await(session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })), "session.write");
-        
-        await(echoedMessageReceived, "echoedMessageReceived");
-        await(session.close(true), "session close(true) future");
-	}
-	
     @Test
     public void testThreadAlignment() throws Exception {
         bindTo = new InetSocketAddress(8123);
@@ -144,8 +88,9 @@ public class IT {
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
                        @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
-                           return new IoAcceptorChannelHandler(acceptor) {
+                       public IoAcceptorChannelHandler createHandler(
+                            ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+                           return new IoAcceptorChannelHandler(acceptor, channelGroup) {
                                @Override
                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
                                    super.childChannelOpen(ctx, e);
@@ -234,15 +179,16 @@ public class IT {
         acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
-                       @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
-                           return new IoAcceptorChannelHandler(acceptor) {
-                               @Override
-                               public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-                                   super.childChannelOpen(ctx, e);
-                               }
-                           };
-                       }
+                        @Override
+                        public IoAcceptorChannelHandler createHandler(
+                             ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+                            return new IoAcceptorChannelHandler(acceptor, channelGroup) {
+                                @Override
+                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+                                    super.childChannelOpen(ctx, e);
+                                }
+                            };
+                        }
                    });
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
@@ -341,15 +287,16 @@ public class IT {
         acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
                    serverChannelFactory, 
                    new IoAcceptorChannelHandlerFactory() {
-                       @Override
-                       public IoAcceptorChannelHandler createHandler(ChannelIoService acceptor) {
-                           return new IoAcceptorChannelHandler(acceptor) {
-                               @Override
-                               public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
-                                   super.childChannelOpen(ctx, e);
-                               }
-                           };
-                       }
+                        @Override
+                        public IoAcceptorChannelHandler createHandler(
+                             ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+                            return new IoAcceptorChannelHandler(acceptor, channelGroup) {
+                                @Override
+                                public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+                                    super.childChannelOpen(ctx, e);
+                                }
+                            };
+                        }
                    });
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();

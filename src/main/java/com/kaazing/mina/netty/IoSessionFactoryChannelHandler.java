@@ -4,8 +4,11 @@
 
 package com.kaazing.mina.netty;
 
-import org.apache.mina.core.future.IoFuture;
+import static java.lang.String.format;
+
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -23,14 +26,14 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(IoSessionFactoryChannelHandler.class);
 
     private final ChannelIoService service;
-    private final IoFuture future;
+    private final ConnectFuture future;
     private final IoSessionInitializer<?> initializer;
 
     public IoSessionFactoryChannelHandler(ChannelIoService service) {
         this(service, null, null);
     }
 
-    public IoSessionFactoryChannelHandler(ChannelIoService service, IoFuture future,
+    public IoSessionFactoryChannelHandler(ChannelIoService service, ConnectFuture future,
             IoSessionInitializer<?> initializer) {
         this.service = service;
         this.future = future;
@@ -39,9 +42,10 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        ChannelIoSession session = service.createSession(ctx);
+        Channel channel = e.getChannel();
+        ChannelIoSession session = service.createSession(channel);
         String baseName = ctx.getName();
-        String name = String.format("%s#session", baseName);
+        String name = format("%s#session", baseName);
         ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer);
         ChannelPipeline pipeline = ctx.getPipeline();
         pipeline.addAfter(baseName, name, handler);
@@ -51,6 +55,12 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-        LOGGER.error("Exception caught in IoSessionFactoryChannelHandler", e.getCause());
+        if (future != null) {
+            future.setException(e.getCause());
+        }
+        else {
+            LOGGER.error("Exception caught in IoSessionFactoryChannelHandler", e.getCause());
+            ctx.sendUpstream(e);
+        }
     }
 }

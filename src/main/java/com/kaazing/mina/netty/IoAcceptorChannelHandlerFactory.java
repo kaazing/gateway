@@ -4,7 +4,10 @@
 
 package com.kaazing.mina.netty;
 
+import org.jboss.netty.channel.group.ChannelGroup;
+
 public interface IoAcceptorChannelHandlerFactory {
 
-    IoAcceptorChannelHandler createHandler(ChannelIoService acceptor);
+    IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup);
+
 }

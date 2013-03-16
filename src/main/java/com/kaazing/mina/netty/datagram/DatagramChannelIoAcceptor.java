@@ -10,27 +10,34 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.DatagramAcceptor;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
-import com.kaazing.mina.netty.ConnectionlessChannelIoAcceptor;
+import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
+import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public class DatagramChannelIoAcceptor
-    extends ConnectionlessChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
+    extends ChannelIoAcceptor<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
     implements DatagramAcceptor {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-            "Kaazing", "DatagramChannel", false, true, InetSocketAddress.class,
+    private static final TransportMetadata CONNECTIONLESS_TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "DatagramChannel", true, true, InetSocketAddress.class,
             DatagramChannelIoSessionConfig.class, Object.class);
 
     private IoSessionRecycler sessionRecycler;  // TODO
 
     public DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
             DatagramChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+        this(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+    }
+
+    protected DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
+            DatagramChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTIONLESS);
     }
 
     @Override
@@ -50,11 +57,11 @@ public class DatagramChannelIoAcceptor
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return CONNECTIONLESS_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new DefaultChannelIoSession(this, context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, channel);
     }
 }

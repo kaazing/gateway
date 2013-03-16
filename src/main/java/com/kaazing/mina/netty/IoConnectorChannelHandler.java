@@ -15,23 +15,22 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 
-    private final ChannelIoService connector;
+    private final ChannelIoConnector<?, ?, ?> connector;
     private final ConnectFuture connectFuture;
     private final IoSessionInitializer<?> sessionInitializer;
 
-    public IoConnectorChannelHandler(ChannelIoService connector,
-            ConnectFuture connectFuture,
-            IoSessionInitializer<?> sessionInitializer) {
+    public IoConnectorChannelHandler(ChannelIoConnector<?, ?, ?> connector, ConnectFuture connectFuture,
+                                     IoSessionInitializer<?> sessionInitializer) {
         this.connector = connector;
         this.connectFuture = connectFuture;
         this.sessionInitializer = sessionInitializer;
     }
 
     @Override
-    public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
+    public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e)
             throws Exception {
 
-        final Channel channel = e.getChannel();
+        Channel channel = e.getChannel();
         ChannelPipeline childPipeline = channel.getPipeline();
 
         IoSessionFactoryChannelHandler newHandler =

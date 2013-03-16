@@ -13,7 +13,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFactory;
@@ -26,6 +25,8 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.service.AbstractIoConnectorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.netty.bootstrap.ClientBootstrap;
+import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
 public abstract
     class ChannelIoConnector<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
@@ -34,8 +35,11 @@ public abstract
     private final F channelFactory;
     private ChannelPipelineFactory pipelineFactory;
     private final ChannelGroup channelGroup;
+    private final ClientBootstrapFactory bootstrapFactory;
+    private final IoConnectorChannelHandlerFactory handlerFactory;
 
-    public ChannelIoConnector(C sessionConfig, F channelFactory) {
+    public ChannelIoConnector(C sessionConfig, F channelFactory, IoConnectorChannelHandlerFactory handlerFactory,
+                              ClientBootstrapFactory bootstrapFactory) {
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -44,6 +48,8 @@ public abstract
 
         this.channelFactory = channelFactory;
         this.channelGroup = new DefaultChannelGroup();
+        this.bootstrapFactory = bootstrapFactory;
+        this.handlerFactory = handlerFactory;
     }
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
@@ -57,7 +63,7 @@ public abstract
 
         final ConnectFuture connectFuture = new DefaultConnectFuture();
 
-        ClientBootstrap bootstrap = new ClientBootstrap(new ChannelFactory() {
+        ChannelFactory bootstrapChannelFactory = new ChannelFactory() {
 
             @Override
             public Channel newChannel(ChannelPipeline pipeline) {
@@ -77,7 +83,10 @@ public abstract
                 channelFactory.shutdown();
             }
 
-        });
+        };
+
+        ClientBootstrap bootstrap = bootstrapFactory.createBootstrap();
+        bootstrap.setFactory(bootstrapChannelFactory);
 
         // support custom channel handlers before bridge
         ChannelPipeline newPipeline;
@@ -93,7 +102,7 @@ public abstract
             newPipeline = pipeline();
         }
 
-        newPipeline.addLast("mina-bridge", new IoConnectorChannelHandler(this, connectFuture, sessionInitializer));
+        newPipeline.addLast("mina-bridge", handlerFactory.createHandler(this, connectFuture, sessionInitializer));
         bootstrap.setPipeline(newPipeline);
         ChannelFuture channelFuture = bootstrap.connect(remoteAddress, localAddress);
         channelFuture.addListener(new ChannelFutureListener() {

@@ -8,8 +8,7 @@ import java.net.InetSocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.SocketSessionConfig;
-import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
@@ -19,9 +18,9 @@ import com.kaazing.mina.netty.datagram.DatagramChannelIoSessionConfig;
 
 public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
 
-    private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-            "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
-            SocketSessionConfig.class, Object.class);
+    private static final TransportMetadata NIO_DATAGRAM_TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
+            DatagramChannelIoSessionConfig.class, Object.class);
 
     public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig,
             NioDatagramChannelFactory channelFactory) {
@@ -30,12 +29,12 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
 
     @Override
     public TransportMetadata getTransportMetadata() {
-        return TRANSPORT_METADATA;
+        return NIO_DATAGRAM_TRANSPORT_METADATA;
     }
 
     @Override
-    public ChannelIoSession createSession(ChannelHandlerContext context) {
-        return new NioDatagramChannelIoSession(this, (NioDatagramChannel) context.getChannel());
+    public ChannelIoSession createSession(Channel channel) {
+        return new NioDatagramChannelIoSession(this, (NioDatagramChannel) channel);
     }
 
 }
