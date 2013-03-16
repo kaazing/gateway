@@ -38,25 +38,25 @@ import org.junit.Test;
 public class LocalIT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
-    ChannelIoAcceptor<?, ?, ?> acceptor = null;
-    ChannelIoConnector<?, ?, ?> connector = null;
-    
+    ChannelIoAcceptor<?, ?, ?> acceptor;
+    ChannelIoConnector<?, ?, ?> connector;
+
     @After
     public void tearDown() throws Exception {
         if (connector != null) {
             connector.dispose();
         }
-        if (acceptor != null) {            
+        if (acceptor != null) {
             acceptor.unbind(bindTo);
-            acceptor.unbind(bindTo2);        
+            acceptor.unbind(bindTo2);
             acceptor.dispose();
         }
     }
-    
-	@Test
-	public void testNettyLocal() throws Exception {
+
+    @Test
+    public void testNettyLocal() throws Exception {
         ServerChannelFactory serverChannelFactory = new DefaultLocalServerChannelFactory();
-        
+
         acceptor = new DefaultChannelIoAcceptor(serverChannelFactory);
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         builder.addLast("logger", new LoggingFilter());
@@ -66,11 +66,11 @@ public class LocalIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer)message;
+                IoBuffer buf = (IoBuffer) message;
                 session.write(buf.duplicate());
             }
         });
-        
+
         acceptor.bind(bindTo);
 
         ChannelFactory clientChannelFactory = new DefaultLocalClientChannelFactory();
@@ -85,38 +85,38 @@ public class LocalIT {
                 echoedMessageReceived.countDown();
             }
         });
-        
+
         final AtomicBoolean sessionInitialized = new AtomicBoolean();
         ConnectFuture connectFuture = connector.connect(bindTo, new IoSessionInitializer<ConnectFuture>() {
-        
+
             @Override
             public void initializeSession(IoSession session, ConnectFuture future) {
                 sessionInitialized.set(true);
             }
         });
-        
+
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
         final IoSession session = connectFuture.getSession();
-        
+
         await(session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })), "session.write");
-        
+
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");
-	}
+    }
 
-	static void await(IoFuture future, String description) throws InterruptedException {
-	    int waitSeconds = 10;
-	    if (!(future.await(waitSeconds, TimeUnit.SECONDS))) {
-	        fail(String.format("%s future not did not complete in %d seconds", description, waitSeconds));
-	    }	    
-	}
-    
+    static void await(IoFuture future, String description) throws InterruptedException {
+        int waitSeconds = 10;
+        if (!(future.await(waitSeconds, TimeUnit.SECONDS))) {
+            fail(String.format("%s future not did not complete in %d seconds", description, waitSeconds));
+        }
+    }
+
     static void await(CountDownLatch latch, String description) throws InterruptedException {
         int waitSeconds = 10;
         if (!(latch.await(waitSeconds, TimeUnit.SECONDS))) {
             fail(String.format("%s latch not did not complete in %d seconds", description, waitSeconds));
-        }       
+        }
     }
 
 }

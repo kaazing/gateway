@@ -26,8 +26,12 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
             "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
+    public NioSocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig) {
+        this(sessionConfig, new NioServerSocketChannelFactory());
+    }
+
     public NioSocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
-            final NioServerSocketChannelFactory channelFactory) {
+            NioServerSocketChannelFactory channelFactory) {
         super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory),
                 new DefaultIoAcceptorChannelHandlerFactory());
     }

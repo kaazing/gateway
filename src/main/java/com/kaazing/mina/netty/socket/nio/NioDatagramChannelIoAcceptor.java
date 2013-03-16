@@ -34,9 +34,8 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
             "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
             DatagramSessionConfig.class, Object.class);
 
-    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
-                                        NioDatagramChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory, new IoAcceptorChannelHandlerFactory() {
+    public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig) {
+        super(sessionConfig, new NioDatagramChannelFactory(), new IoAcceptorChannelHandlerFactory() {
 
             @Override
             public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor,

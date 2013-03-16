@@ -19,71 +19,71 @@ import org.junit.Test;
 
 public class DummySessionExTest {
 
-	private ExecutorService executor = Executors.newFixedThreadPool(1);
-	
-	@Test
-	public void shouldNotBeReadSuspendedAfterThreadRealignment() throws Exception {
+    private ExecutorService executor = Executors.newFixedThreadPool(1);
 
-		DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
-		IoFilterChain filterChain = session.getFilterChain();
-		filterChain.fireMessageReceived(new Object());
-		executor.shutdown();
-		executor.awaitTermination(1, TimeUnit.SECONDS);
-		assertFalse(session.isReadSuspended());
-	}
+    @Test
+    public void shouldNotBeReadSuspendedAfterThreadRealignment() throws Exception {
 
-	@Test
-	public void shouldNotBeReadSuspendedWhenThreadAligned() {
+        DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
+        IoFilterChain filterChain = session.getFilterChain();
+        filterChain.fireMessageReceived(new Object());
+        executor.shutdown();
+        executor.awaitTermination(1, TimeUnit.SECONDS);
+        assertFalse(session.isReadSuspended());
+    }
 
-		DummySessionEx session = new DummySessionEx();
-		IoFilterChain filterChain = session.getFilterChain();
-		filterChain.fireMessageReceived(new Object());
-		assertFalse(session.isReadSuspended());
-	}
+    @Test
+    public void shouldNotBeReadSuspendedWhenThreadAligned() {
 
-	@Test
-	public void shouldBeReadSuspendedAfterThreadRealignment() throws Exception {
+        DummySessionEx session = new DummySessionEx();
+        IoFilterChain filterChain = session.getFilterChain();
+        filterChain.fireMessageReceived(new Object());
+        assertFalse(session.isReadSuspended());
+    }
 
-		DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
-		session.setHandler(new IoHandlerAdapter() {
+    @Test
+    public void shouldBeReadSuspendedAfterThreadRealignment() throws Exception {
 
-			@Override
-			public void messageReceived(IoSession session, Object message)
-					throws Exception {
-				session.suspendRead();
-			}
-			
-		});
-		IoFilterChain filterChain = session.getFilterChain();
-		filterChain.fireMessageReceived(new Object());
-		executor.shutdown();
-		executor.awaitTermination(1, TimeUnit.SECONDS);
-		assertTrue(session.isReadSuspended());
-	}
+        DummySessionEx session = executor.submit(new DummySessionExFactory()).get();
+        session.setHandler(new IoHandlerAdapter() {
 
-	@Test
-	public void shouldBeReadSuspendedWhenThreadAligned() {
+            @Override
+            public void messageReceived(IoSession session, Object message)
+                    throws Exception {
+                session.suspendRead();
+            }
 
-		DummySessionEx session = new DummySessionEx();
-		session.setHandler(new IoHandlerAdapter() {
+        });
+        IoFilterChain filterChain = session.getFilterChain();
+        filterChain.fireMessageReceived(new Object());
+        executor.shutdown();
+        executor.awaitTermination(1, TimeUnit.SECONDS);
+        assertTrue(session.isReadSuspended());
+    }
 
-			@Override
-			public void messageReceived(IoSession session, Object message)
-					throws Exception {
-				session.suspendRead();
-			}
-			
-		});
-		IoFilterChain filterChain = session.getFilterChain();
-		filterChain.fireMessageReceived(new Object());
-		assertTrue(session.isReadSuspended());
-	}
+    @Test
+    public void shouldBeReadSuspendedWhenThreadAligned() {
 
-	private final class DummySessionExFactory implements Callable<DummySessionEx> {
-		@Override
-		public DummySessionEx call() {
-			return new DummySessionEx(executor);
-		}
-	}
+        DummySessionEx session = new DummySessionEx();
+        session.setHandler(new IoHandlerAdapter() {
+
+            @Override
+            public void messageReceived(IoSession session, Object message)
+                    throws Exception {
+                session.suspendRead();
+            }
+
+        });
+        IoFilterChain filterChain = session.getFilterChain();
+        filterChain.fireMessageReceived(new Object());
+        assertTrue(session.isReadSuspended());
+    }
+
+    private final class DummySessionExFactory implements Callable<DummySessionEx> {
+        @Override
+        public DummySessionEx call() {
+            return new DummySessionEx(executor);
+        }
+    }
 
 }

@@ -22,9 +22,8 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
             "Kaazing", "NioDatagramChannel", true, true, InetSocketAddress.class,
             DatagramChannelIoSessionConfig.class, Object.class);
 
-    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig,
-            NioDatagramChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory);
+    public NioDatagramChannelIoConnector(DatagramChannelIoSessionConfig sessionConfig) {
+        super(sessionConfig, new NioDatagramChannelFactory());
     }
 
     @Override

@@ -4,11 +4,17 @@
 
 package com.kaazing.mina.netty.bootstrap;
 
+import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.pipeline;
-import static org.jboss.netty.channel.Channels.pipelineFactory;
 
+import java.net.SocketAddress;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -16,17 +22,42 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.ServerChannelFactory;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements ServerBootstrap {
 
     private ChannelHandler parentHandler;
-    private volatile ChannelPipeline pipeline = pipeline();
-    private volatile ChannelPipelineFactory pipelineFactory = pipelineFactory(pipeline);
 
     ConnectionlessServerBootstrap() {
-        super();
-        super.setPipeline(pipeline(new ConnectionlessParentChannelHandler()));
+    }
+
+    @Override
+    public void setFactory(ChannelFactory factory) {
+        if (factory == null) {
+            throw new NullPointerException("factory");
+        }
+        if (!(factory instanceof ServerChannelFactory)) {
+            final ChannelFactory factory0 = factory;
+            factory = new ChannelFactory() {
+
+                @Override
+                public Channel newChannel(ChannelPipeline pipeline) {
+                    return factory0.newChannel(pipeline(new ConnectionlessParentChannelHandler()));
+                }
+
+                @Override
+                public void shutdown() {
+                    factory0.shutdown();
+                }
+
+                @Override
+                public void releaseExternalResources() {
+                    factory0.releaseExternalResources();
+                }
+            };
+        }
+        super.setFactory(factory);
     }
 
     @Override
@@ -39,55 +70,13 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         return parentHandler;
     }
 
-    @Override
-    public ChannelPipeline getPipeline() {
-        ChannelPipeline pipeline = this.pipeline;
-        if (pipeline == null) {
-            throw new IllegalStateException(
-                    "getPipeline() cannot be called " +
-                    "if setPipelineFactory() was called.");
+    private final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
+
+        private final Map<SocketAddress, Map<SocketAddress, Channel>> childChannelsByLocalAddress;
+
+        public ConnectionlessParentChannelHandler() {
+            childChannelsByLocalAddress = new ConcurrentHashMap<SocketAddress, Map<SocketAddress, Channel>>();
         }
-        return pipeline;
-    }
-
-    @Override
-    public void setPipeline(ChannelPipeline pipeline) {
-        if (pipeline == null) {
-            throw new NullPointerException("pipeline");
-        }
-        this.pipeline = pipeline;
-        pipelineFactory = pipelineFactory(pipeline);
-    }
-
-    @Override
-    public Map<String, ChannelHandler> getPipelineAsMap() {
-        ChannelPipeline pipeline = this.pipeline;
-        if (pipeline == null) {
-            throw new IllegalStateException("pipelineFactory in use");
-        }
-        return pipeline.toMap();
-    }
-
-    @Override
-    public void setPipelineAsMap(Map<String, ChannelHandler> pipelineMap) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ChannelPipelineFactory getPipelineFactory() {
-        return pipelineFactory;
-    }
-
-    @Override
-    public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
-        if (pipelineFactory == null) {
-            throw new NullPointerException("pipelineFactory");
-        }
-        pipeline = null;
-        this.pipelineFactory = pipelineFactory;
-    }
-
-    private static final class ConnectionlessParentChannelHandler extends SimpleChannelUpstreamHandler {
 
         @Override
         public void channelConnected(ChannelHandlerContext ctx,
@@ -99,15 +88,64 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         @Override
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
                 throws Exception {
-            super.messageReceived(ctx, e);
+
+            // lookup child channel based on local and remote addresses
+            Channel channel = e.getChannel();
+            SocketAddress remoteAddress = e.getRemoteAddress();
+            Channel childChannel = getChildChannel(channel, remoteAddress, true);
+
+            // deliver message received to child channel pipeline
+            fireMessageReceived(childChannel, e);
         }
 
         @Override
         public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
                 throws Exception {
-            // this will cause the bind channel future to fail, without noisy logging
             ctx.sendUpstream(e);
         }
 
+        private Channel getChildChannel(Channel channel, SocketAddress remoteAddress,
+                                        boolean createIfNull) throws Exception {
+
+            SocketAddress localAddress = channel.getLocalAddress();
+            Map<SocketAddress, Channel> childChannelsByRemoteAddress = childChannelsByLocalAddress.get(localAddress);
+            if (childChannelsByRemoteAddress == null && createIfNull) {
+                Map<SocketAddress, Channel> newChildChannels = new ConcurrentHashMap<SocketAddress, Channel>();
+                childChannelsByRemoteAddress = childChannelsByLocalAddress.put(localAddress, newChildChannels);
+                if (childChannelsByRemoteAddress == null) {
+                    childChannelsByRemoteAddress = newChildChannels;
+                }
+            }
+            if (childChannelsByRemoteAddress != null) {
+                Channel childChannel = childChannelsByRemoteAddress.get(remoteAddress);
+                if (childChannel == null && createIfNull) {
+                    ChannelPipelineFactory childPipelineFactory = getPipelineFactory();
+                    ChannelPipeline newChildPipeline = childPipelineFactory.getPipeline();
+                    ChannelFactory channelFactory = channel.getFactory();
+                    Channel newChildChannel = channelFactory.newChannel(newChildPipeline);
+                    childChannel = childChannelsByRemoteAddress.put(remoteAddress, newChildChannel);
+                    if (childChannel == null) {
+                        newChildChannel.bind(localAddress);
+                        newChildChannel.connect(remoteAddress);
+                        childChannel = newChildChannel;
+                    }
+                }
+                if (childChannel != null) {
+                    final Map<SocketAddress, Channel> childChannelsByRemoteAddress0 = childChannelsByRemoteAddress;
+                    final SocketAddress remoteAddress0 = remoteAddress;
+                    ChannelFuture closeFuture = childChannel.getCloseFuture();
+                    closeFuture.addListener(new ChannelFutureListener() {
+
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            childChannelsByRemoteAddress0.remove(remoteAddress0);
+                        }
+
+                    });
+                }
+                return childChannel;
+            }
+            return null;
+        }
     }
 }

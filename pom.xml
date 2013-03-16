@@ -84,7 +84,7 @@
         <extensions>false</extensions>
         <inherited>false</inherited>
         <configuration>
-          <source>1.6</source>
+          <source>1.7</source>
           <target>1.7</target>
         </configuration>
       </plugin>
@@ -142,6 +142,7 @@
             </goals>
             <phase>validate</phase>
             <configuration>
+              <includeTestSourceDirectory>true</includeTestSourceDirectory>
               <consoleOutput>true</consoleOutput>
               <logViolationsToConsole>true</logViolationsToConsole>
               <failsOnError>true</failsOnError>

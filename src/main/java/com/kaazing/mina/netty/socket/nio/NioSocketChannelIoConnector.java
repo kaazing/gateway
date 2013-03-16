@@ -23,6 +23,10 @@ public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
             "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
+    public NioSocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig) {
+        this(sessionConfig, new NioClientSocketChannelFactory());
+    }
+
     public NioSocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
             NioClientSocketChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);

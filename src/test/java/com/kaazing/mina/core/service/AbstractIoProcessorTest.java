@@ -17,127 +17,127 @@ public class AbstractIoProcessorTest {
     private static final Thread TEST_THREAD = new Thread();
 
     @Test
-    public void add_shouldExecuteImmediatelyIfInIoThread() throws Exception{
+    public void add_shouldExecuteImmediatelyIfInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.add(session);
         context.assertIsSatisfied();
-        assertEquals("add0", ((TestIoProcessor<?>)processor).called);
+        assertEquals("add0", ((TestIoProcessor<?>) processor).called);
     }
-    
+
     @Test(expected = RuntimeException.class)
-    public void add_shouldThrowExceptionIfNotInIoThread() throws Exception{
+    public void add_shouldThrowExceptionIfNotInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.add(session);
         context.assertIsSatisfied();
-        assertNull(((TestIoProcessor<?>)processor).called);
+        assertNull(((TestIoProcessor<?>) processor).called);
     }
 
     @Test
-    public void flush_shouldExecuteImmediatelyIfInIoThread() throws Exception{
+    public void flush_shouldExecuteImmediatelyIfInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.flush(session);
         context.assertIsSatisfied();
-        assertEquals("flush0", ((TestIoProcessor<?>)processor).called);
+        assertEquals("flush0", ((TestIoProcessor<?>) processor).called);
     }
-    
+
     @Test(expected = RuntimeException.class)
-    public void flush_shouldThrowExceptionIfNotInIoThread() throws Exception{
+    public void flush_shouldThrowExceptionIfNotInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.flush(session);
         context.assertIsSatisfied();
-        assertNull(((TestIoProcessor<?>)processor).called);
+        assertNull(((TestIoProcessor<?>) processor).called);
     }
 
     @Test
-    public void remove_shouldExecuteImmediatelyIfInIoThread() throws Exception{
+    public void remove_shouldExecuteImmediatelyIfInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.remove(session);
         context.assertIsSatisfied();
-        assertEquals("remove0", ((TestIoProcessor<?>)processor).called);
+        assertEquals("remove0", ((TestIoProcessor<?>) processor).called);
     }
-    
+
     @Test(expected = RuntimeException.class)
-    public void remove_shouldThrowExceptionIfNotInIoThread() throws Exception{
+    public void remove_shouldThrowExceptionIfNotInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.remove(session);
         context.assertIsSatisfied();
-        assertNull(((TestIoProcessor<?>)processor).called);
+        assertNull(((TestIoProcessor<?>) processor).called);
     }
 
     @Test
-    public void updateTrafficControl_shouldExecuteImmediatelyIfInIoThread() throws Exception{
+    public void updateTrafficControl_shouldExecuteImmediatelyIfInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.updateTrafficControl(session);
         context.assertIsSatisfied();
-        assertEquals("updateTrafficControl0", ((TestIoProcessor<?>)processor).called);
+        assertEquals("updateTrafficControl0", ((TestIoProcessor<?>) processor).called);
     }
-    
+
     @Test(expected = RuntimeException.class)
-    public void updateTrafficControl_shouldThrowExceptionIfNotInIoThread() throws Exception{
+    public void updateTrafficControl_shouldThrowExceptionIfNotInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        
-        context.checking(new Expectations() {{
+
+        context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-        }});
-        
+        } });
+
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
         processor.updateTrafficControl(session);
         context.assertIsSatisfied();
-        assertNull(((TestIoProcessor<?>)processor).called);
+        assertNull(((TestIoProcessor<?>) processor).called);
     }
 
     private static class TestIoProcessor<T extends IoSessionEx> extends AbstractIoProcessor<IoSessionEx> {
-        String called = null;
+        String called;
 
         @Override
         public boolean isDisposing() {
@@ -154,7 +154,6 @@ public class AbstractIoProcessorTest {
         @Override
         public void dispose() {
             // TODO Auto-generated method stub
-            
         }
 
         @Override
@@ -169,14 +168,14 @@ public class AbstractIoProcessorTest {
 
         @Override
         protected void updateTrafficControl0(IoSessionEx session) {
-            called = "updateTrafficControl0";            
+            called = "updateTrafficControl0";
         }
 
         @Override
         protected void remove0(IoSessionEx session) {
-            called = "remove0";         
+            called = "remove0";
         }
-        
+
     }
 
 }

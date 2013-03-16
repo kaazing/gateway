@@ -26,7 +26,6 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.local.LocalAddress;
-import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
@@ -42,29 +41,27 @@ import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoConnector;
 public class DatagramIT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
-    ChannelIoAcceptor<?, ?, ?> acceptor = null;
-    ChannelIoConnector<?, ?, ?> connector = null;
-    
+    ChannelIoAcceptor<?, ?, ?> acceptor;
+    ChannelIoConnector<?, ?, ?> connector;
+
     @After
     public void tearDown() throws Exception {
         if (connector != null) {
             connector.dispose();
         }
-        if (acceptor != null) {            
+        if (acceptor != null) {
             acceptor.unbind(bindTo);
-            acceptor.unbind(bindTo2);        
+            acceptor.unbind(bindTo2);
             acceptor.dispose();
         }
-    } 
-	
+    }
+
     @Test
     public void testDatagram() throws Exception {
         bindTo = new InetSocketAddress(8123);
         final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
-        
-        NioDatagramChannelFactory serverChannelFactory = new NioDatagramChannelFactory();
-        acceptor = new NioDatagramChannelIoAcceptor(new DefaultDatagramChannelIoSessionConfig(),
-                   serverChannelFactory);
+
+        acceptor = new NioDatagramChannelIoAcceptor(new DefaultDatagramChannelIoSessionConfig());
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         //builder.addLast("logger", new LoggingFilter());
@@ -74,22 +71,21 @@ public class DatagramIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer)message;
+                IoBuffer buf = (IoBuffer) message;
                 session.write(buf.duplicate());
-            }            
+            }
             @Override
             public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
                 acceptExceptionsCaught.incrementAndGet();
             }
         });
-        
+
         acceptor.bind(bindTo);
 
         final CountDownLatch echoedMessageReceived = new CountDownLatch(1);
         final AtomicInteger connectExceptionsCaught = new AtomicInteger(0);
-        
-        NioDatagramChannelFactory clientChannelFactory = new NioDatagramChannelFactory();
-        connector = new NioDatagramChannelIoConnector(new DefaultDatagramChannelIoSessionConfig(), clientChannelFactory);
+
+        connector = new NioDatagramChannelIoConnector(new DefaultDatagramChannelIoSessionConfig());
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
@@ -102,43 +98,43 @@ public class DatagramIT {
                 connectExceptionsCaught.incrementAndGet();
             }
         });
-        
+
         final AtomicBoolean sessionInitialized = new AtomicBoolean();
         ConnectFuture connectFuture = connector.connect(bindTo, new IoSessionInitializer<ConnectFuture>() {
-        
+
             @Override
             public void initializeSession(IoSession session, ConnectFuture future) {
                 sessionInitialized.set(true);
             }
         });
-        
+
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
         final IoSession session = connectFuture.getSession();
-        
+
         WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
-        
+
         await(written, "session.write");
-        
+
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");
-        
+
         assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
         assertEquals("Exceptions caught by except handler", 0, acceptExceptionsCaught.get());
     }
-    
-	private void await(IoFuture future, String description) throws InterruptedException {
-	    int waitSeconds = 10;
-	    if (!(future.await(waitSeconds, TimeUnit.SECONDS))) {
-	        fail(String.format("%s future not did not complete in %d seconds", description, waitSeconds));
-	    }	    
-	}
-    
+
+    private void await(IoFuture future, String description) throws InterruptedException {
+        int waitSeconds = 10;
+        if (!(future.await(waitSeconds, TimeUnit.SECONDS))) {
+            fail(String.format("%s future not did not complete in %d seconds", description, waitSeconds));
+        }
+    }
+
     private void await(CountDownLatch latch, String description) throws InterruptedException {
         int waitSeconds = 10;
         if (!(latch.await(waitSeconds, TimeUnit.SECONDS))) {
             fail(String.format("%s latch not did not complete in %d seconds", description, waitSeconds));
-        }       
+        }
     }
 
 }
