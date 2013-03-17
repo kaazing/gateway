@@ -9,9 +9,8 @@ import java.net.SocketAddress;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.util.ExternalResourceReleasable;
 
-public interface ClientBootstrap extends ExternalResourceReleasable {
+public interface ClientBootstrap extends Bootstrap {
 
     void setFactory(ChannelFactory factory);
     ChannelFactory getFactory();

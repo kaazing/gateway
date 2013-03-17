@@ -122,7 +122,7 @@ public abstract
 
     @Override
     protected IoFuture dispose0() throws Exception {
-        channelGroup.close();
+        channelGroup.close().await();
         channelFactory.releaseExternalResources();
         return null;
     }

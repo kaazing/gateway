@@ -10,9 +10,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.util.ExternalResourceReleasable;
 
-public interface ServerBootstrap extends ExternalResourceReleasable {
+public interface ServerBootstrap extends Bootstrap {
 
     void setFactory(ChannelFactory factory);
     ChannelFactory getFactory();

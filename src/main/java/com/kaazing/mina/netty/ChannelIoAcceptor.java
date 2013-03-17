@@ -24,8 +24,6 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.ChannelGroupFuture;
-import org.jboss.netty.channel.group.ChannelGroupFutureListener;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.future.BindFuture;
@@ -111,8 +109,9 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
-                     boundChannels.put(localAddress, future.getChannel());
-                     bound.setBound();
+                    Channel channel = future.getChannel();
+                    boundChannels.put(localAddress, channel);
+                    bound.setBound();
                 }
                 else {
                     BindException be = new BindException(format("Unable to bind address: %s", localAddress));
@@ -136,7 +135,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
                 continue;
             }
 
-            ChannelFuture unbound = channel.unbind();
+            ChannelFuture unbound = channel.close();
 
             // the signature of this method (and of the public bind method that calls it) implies it is a
             // synchronous operation, which must therefore complete or fail before we return.
@@ -152,7 +151,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     protected UnbindFuture unbindAsyncInternal(final SocketAddress localAddress) {
         final UnbindFuture unbound = new DefaultUnbindFuture();
         Channel channel = boundChannels.remove(localAddress);
-        ChannelFuture channelUnbound = channel.unbind();
+        ChannelFuture channelUnbound = channel.close();
         channelUnbound.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
@@ -175,14 +174,9 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
 
     @Override
     protected IoFuture dispose0() throws Exception {
-        channelGroup.close().addListener(new ChannelGroupFutureListener() {
-            @Override
-            public void operationComplete(ChannelGroupFuture future) throws Exception {
-                // releaseExternalResources may throw errors if everything isn't yet unbound so wait for this
-                // If the future fails presumably we want to try to clean up anyway so we don't check for success
-                bootstrap.releaseExternalResources();
-            }
-        });
+        channelGroup.close().await();
+        unbind();
+        bootstrap.releaseExternalResources();
         return null;
     }
 

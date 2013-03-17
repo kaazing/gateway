@@ -89,13 +89,13 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
                 throws Exception {
 
-            // lookup child channel based on local and remote addresses
-            Channel channel = e.getChannel();
-            SocketAddress remoteAddress = e.getRemoteAddress();
-            Channel childChannel = getChildChannel(channel, remoteAddress, true);
-
-            // deliver message received to child channel pipeline
-            fireMessageReceived(childChannel, e);
+//            // lookup child channel based on local and remote addresses
+//            Channel channel = e.getChannel();
+//            SocketAddress remoteAddress = e.getRemoteAddress();
+//            Channel childChannel = getChildChannel(channel, remoteAddress, true);
+//
+//            // deliver message received to child channel pipeline
+//            fireMessageReceived(childChannel, e);
         }
 
         @Override
@@ -125,7 +125,7 @@ class ConnectionlessServerBootstrap extends ConnectionlessBootstrap implements S
                     Channel newChildChannel = channelFactory.newChannel(newChildPipeline);
                     childChannel = childChannelsByRemoteAddress.put(remoteAddress, newChildChannel);
                     if (childChannel == null) {
-                        newChildChannel.bind(localAddress);
+//                        newChildChannel.bind(localAddress);
                         newChildChannel.connect(remoteAddress);
                         childChannel = newChildChannel;
                     }
