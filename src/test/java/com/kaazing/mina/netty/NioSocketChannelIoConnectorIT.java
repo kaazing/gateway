@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty;
 
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -48,6 +49,7 @@ public class NioSocketChannelIoConnectorIT {
     public void initAcceptor() throws Exception {
         executor = Executors.newFixedThreadPool(1);
         acceptor = new ServerSocket();
+        acceptor.setReuseAddress(true);
         connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig());
         connector.getFilterChain().addLast("logger", new LoggingFilter());
     }
@@ -69,18 +71,17 @@ public class NioSocketChannelIoConnectorIT {
         }
     }
 
-    @Test (timeout = 1000)
+    @Test //(timeout = 1000)
     public void shouldEchoBytes() throws Exception {
         byte[] sendPayload = new byte[] { 0x00, 0x01, 0x02 };
         final byte[] receivePayload = new byte[sendPayload.length];
 
-        final SocketAddress bindAddress = new InetSocketAddress("localhost", 8123);
+        final SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
 
         Callable<Void> echoTask = new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 byte[] payload = new byte[32];
-                acceptor.bind(bindAddress);
                 accepted = acceptor.accept();
                 InputStream input = accepted.getInputStream();
                 OutputStream output = accepted.getOutputStream();
@@ -91,6 +92,7 @@ public class NioSocketChannelIoConnectorIT {
                 return null;
             }
         };
+        acceptor.bind(bindAddress);
         executor.submit(echoTask);
 
         final AtomicInteger exceptionsCaught = new AtomicInteger();

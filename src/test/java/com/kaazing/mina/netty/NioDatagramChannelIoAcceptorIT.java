@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty;
 
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -23,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 
@@ -32,15 +34,23 @@ import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 public class NioDatagramChannelIoAcceptorIT {
 
     private IoAcceptor acceptor;
+    private DatagramSocket socket;
 
     @Before
-    public void initAcceptor() throws Exception {
-        acceptor = new NioDatagramChannelIoAcceptor(new DefaultDatagramChannelIoSessionConfig());
+    public void initResources() throws Exception {
+        DatagramChannelIoSessionConfig sessionConfig = new DefaultDatagramChannelIoSessionConfig();
+        sessionConfig.setReuseAddress(true);
+        acceptor = new NioDatagramChannelIoAcceptor(sessionConfig);
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
+        socket = new DatagramSocket();
+        socket.setReuseAddress(true);
     }
 
     @After
-    public void disposeAcceptor() throws Exception {
+    public void disposeResources() throws Exception {
+        if (socket != null) {
+            socket.close();
+        }
         if (acceptor != null) {
             acceptor.dispose();
         }
@@ -48,9 +58,8 @@ public class NioDatagramChannelIoAcceptorIT {
 
     @Test (timeout = 1000)
     public void shouldEchoBytes() throws Exception {
-        SocketAddress bindAddress = new InetSocketAddress("localhost", 8123);
-        final AtomicInteger exceptionsCaught = new AtomicInteger();
 
+        final AtomicInteger exceptionsCaught = new AtomicInteger();
         acceptor.setHandler(new IoHandlerAdapter() {
             @Override
             public void messageReceived(IoSession session, Object message)
@@ -65,9 +74,9 @@ public class NioDatagramChannelIoAcceptorIT {
             }
         });
 
+        SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
         acceptor.bind(bindAddress);
 
-        DatagramSocket socket = new DatagramSocket();
         byte[] sendPayload = new byte[] { 0x00, 0x01, 0x02 };
         DatagramPacket sendPacket = new DatagramPacket(sendPayload, sendPayload.length);
         socket.connect(bindAddress);
