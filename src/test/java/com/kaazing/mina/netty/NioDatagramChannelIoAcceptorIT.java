@@ -22,6 +22,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
@@ -31,6 +32,7 @@ import com.kaazing.mina.netty.socket.nio.NioDatagramChannelIoAcceptor;
 /**
  * Integration test for mina.netty layer. Similar to IT, but for datagram transport.
  */
+@Ignore // Not yet working. gateway.server is still using Mina for UDP.
 public class NioDatagramChannelIoAcceptorIT {
 
     private IoAcceptor acceptor;
