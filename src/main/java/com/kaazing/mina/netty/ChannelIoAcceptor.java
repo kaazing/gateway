@@ -9,6 +9,8 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,17 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private final Map<SocketAddress, Channel> boundChannels;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
+    private final List<IoSessionIdleTracker> sessionIdleTrackers
+        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+    private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
+        = new ThreadLocal<IoSessionIdleTracker>() {
+        @Override
+        protected IoSessionIdleTracker initialValue() {
+            IoSessionIdleTracker result = new DefaultIoSessionIdleTracker();
+            sessionIdleTrackers.add(result);
+            return result;
+        }
+    };
 
     public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory handlerFactory,
                              ServerBootstrapFactory bootstrapFactory) {
@@ -64,6 +77,10 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
         parentHandler.setPipelineFactory(pipelineFactory);
+    }
+
+    public IoSessionIdleTracker getSessionIdleTracker() {
+        return currentSessionIdleTracker.get();
     }
 
     @Override
@@ -177,6 +194,9 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         channelGroup.close().await();
         unbind();
         bootstrap.releaseExternalResources();
+        for (IoSessionIdleTracker tracker : sessionIdleTrackers) {
+            tracker.dispose();
+        }
         return null;
     }
 

@@ -114,6 +114,32 @@ public class NioSocketChannelIoAcceptorIT {
     }
 
     @Test
+    public void disposeShouldStopAll_IO_Threads() throws Exception {
+        shouldEchoBytes();
+        disposeResources();
+        assertNoWorkerThreads("after disposeResources");
+    }
+
+    private void assertNoWorkerThreads(String when) {
+        Thread[] threads = new Thread[Thread.activeCount()];
+        Thread.enumerate(threads);
+        int workersFound = 0;
+        int bossesFound = 0;
+        System.out.println("List of active threads " + when + ":");
+        for (Thread thread: threads) {
+            System.out.println(thread.getName());
+            if (thread.getName().matches(".*I/O worker.*")) {
+                workersFound++;
+            }
+            if (thread.getName().matches(".*boss")) {
+                workersFound++;
+            }
+        }
+        assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses",
+                when, workersFound, bossesFound), workersFound == 0 && bossesFound == 0);
+    }
+
+    @Test
     public void shouldReceiveBytesThreadAligned() throws Exception {
 
         final AtomicInteger exceptionsCaught = new AtomicInteger();

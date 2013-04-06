@@ -7,6 +7,9 @@ package com.kaazing.mina.netty;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -37,6 +40,18 @@ public abstract
     private final ChannelGroup channelGroup;
     private final ClientBootstrapFactory bootstrapFactory;
     private final IoConnectorChannelHandlerFactory handlerFactory;
+    private final List<IoSessionIdleTracker> sessionIdleTrackers
+        = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+    private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
+        = new ThreadLocal<IoSessionIdleTracker>() {
+        @Override
+        protected IoSessionIdleTracker initialValue() {
+            IoSessionIdleTracker result = new DefaultIoSessionIdleTracker();
+            sessionIdleTrackers.add(result);
+            return result;
+        }
+    };
+
 
     public ChannelIoConnector(C sessionConfig, F channelFactory, IoConnectorChannelHandlerFactory handlerFactory,
                               ClientBootstrapFactory bootstrapFactory) {
@@ -124,7 +139,14 @@ public abstract
     protected IoFuture dispose0() throws Exception {
         channelGroup.close().await();
         channelFactory.releaseExternalResources();
+        for (IoSessionIdleTracker tracker : sessionIdleTrackers) {
+            tracker.dispose();
+        }
         return null;
+    }
+
+    public IoSessionIdleTracker getSessionIdleTracker() {
+        return currentSessionIdleTracker.get();
     }
 
     @Override

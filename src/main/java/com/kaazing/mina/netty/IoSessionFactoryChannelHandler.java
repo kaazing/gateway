@@ -46,7 +46,8 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
         ChannelIoSession session = service.createSession(channel);
         String baseName = ctx.getName();
         String name = format("%s#session", baseName);
-        ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer);
+        ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer,
+                service.getSessionIdleTracker());
         ChannelPipeline pipeline = ctx.getPipeline();
         pipeline.addAfter(baseName, name, handler);
         ctx.sendUpstream(e);
