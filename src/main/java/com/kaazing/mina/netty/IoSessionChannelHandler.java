@@ -45,7 +45,8 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
             throws Exception {
-        session.close(true);
+        // Processor remove takes care of firing sessionClosed on the filter chain.
+        session.getProcessor().remove(session);
         idleTracker.removeSession(session);
     }
 

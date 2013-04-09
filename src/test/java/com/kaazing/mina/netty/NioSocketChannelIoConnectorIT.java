@@ -36,7 +36,7 @@ import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
 /**
- * Integration test for mina.netty layer. Similar to IT, but for datagram transport.
+ * Integration test for mina.netty layer.
  */
 public class NioSocketChannelIoConnectorIT {
 

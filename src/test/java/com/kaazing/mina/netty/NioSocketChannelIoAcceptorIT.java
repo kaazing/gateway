@@ -16,13 +16,20 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.future.DefaultWriteFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.DefaultWriteRequest;
+import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.jboss.netty.channel.socket.nio.BossPool;
 import org.jboss.netty.channel.socket.nio.NioServerBoss;
@@ -82,7 +89,6 @@ public class NioSocketChannelIoAcceptorIT {
 
     @Test //(timeout = 1000)
     public void shouldEchoBytes() throws Exception {
-
         final AtomicInteger exceptionsCaught = new AtomicInteger();
         acceptor.setHandler(new IoHandlerAdapter() {
             @Override
@@ -118,6 +124,53 @@ public class NioSocketChannelIoAcceptorIT {
         shouldEchoBytes();
         disposeResources();
         assertNoWorkerThreads("after disposeResources");
+    }
+
+    @Test
+    public void channelClosedShouldNotFireFilterClose() throws Exception {
+        final AtomicInteger exceptionsCaught = new AtomicInteger();
+        final AtomicInteger filterCloseCalls = new AtomicInteger();
+        final AtomicInteger sessionClosedCalls = new AtomicInteger();
+        final CountDownLatch done = new CountDownLatch(1);
+        acceptor.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void sessionOpened(IoSession session) throws Exception {
+                // Add filter with filterClose method which writes to the session
+                session.getFilterChain().addFirst("writeInFilterClose", new IoFilterAdapter() {
+
+                    @Override
+                    public void filterClose(NextFilter nextFilter, IoSession session) throws Exception {
+                        filterCloseCalls.incrementAndGet();
+                        super.filterClose(nextFilter, session);
+                        done.countDown();
+                    }
+
+                });
+            }
+
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                exceptionsCaught.incrementAndGet();
+            }
+
+            @Override
+            public void sessionClosed(IoSession session) throws Exception {
+                sessionClosedCalls.incrementAndGet();
+                super.sessionClosed(session);
+                done.countDown();
+            }
+        });
+
+        SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
+        acceptor.bind(bindAddress);
+        socket.connect(bindAddress);
+        socket.close();
+        done.await();
+        System.out.println(String.format("Call totals: %d exceptionCaught, %d filterClose, %d sessionClosed",
+                exceptionsCaught.get(), filterCloseCalls.get(), sessionClosedCalls.get()));
+        assertEquals("exceptionsCaught", 0, exceptionsCaught.get());
+        assertEquals("filterCloseCalls", 0, filterCloseCalls.get());
+        assertEquals("sessionClosedCalls", 1, sessionClosedCalls.get());
     }
 
     private void assertNoWorkerThreads(String when) {
