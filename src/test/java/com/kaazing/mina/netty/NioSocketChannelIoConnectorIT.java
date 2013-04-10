@@ -41,23 +41,23 @@ import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 public class NioSocketChannelIoConnectorIT {
 
     private ExecutorService executor;
-    private ServerSocket acceptor;
+    private ServerSocket server;
     private Socket accepted;
     private IoConnector connector;
 
     @Before
-    public void initAcceptor() throws Exception {
+    public void init() throws Exception {
         executor = Executors.newFixedThreadPool(1);
-        acceptor = new ServerSocket();
-        acceptor.setReuseAddress(true);
+        server = new ServerSocket();
+        server.setReuseAddress(true);
         connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig());
         connector.getFilterChain().addLast("logger", new LoggingFilter());
     }
 
     @After
-    public void disposeAcceptor() throws Exception {
-        if (acceptor != null) {
-            acceptor.close();
+    public void dispose() throws Exception {
+        if (server != null) {
+            server.close();
         }
         if (accepted != null) {
             accepted.close();
@@ -82,7 +82,7 @@ public class NioSocketChannelIoConnectorIT {
             @Override
             public Void call() throws Exception {
                 byte[] payload = new byte[32];
-                accepted = acceptor.accept();
+                accepted = server.accept();
                 InputStream input = accepted.getInputStream();
                 OutputStream output = accepted.getOutputStream();
                 int bytesRead = input.read(payload);
@@ -92,7 +92,7 @@ public class NioSocketChannelIoConnectorIT {
                 return null;
             }
         };
-        acceptor.bind(bindAddress);
+        server.bind(bindAddress);
         executor.submit(echoTask);
 
         final AtomicInteger exceptionsCaught = new AtomicInteger();

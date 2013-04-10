@@ -57,7 +57,7 @@ import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 /**
  * Integration test for mina.netty layer
  */
-public class SocketIT {
+public class NioSocketIT {
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
     ChannelIoAcceptor<?, ?, ?> acceptor;
@@ -168,7 +168,7 @@ public class SocketIT {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testBindAsync() throws Exception {
         bindTo = new InetSocketAddress("localhost", nextPort(8100, 100));
         bindTo2 = new InetSocketAddress("localhost", nextPort(8100, 100));
