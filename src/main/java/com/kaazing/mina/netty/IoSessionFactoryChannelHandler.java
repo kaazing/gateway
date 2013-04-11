@@ -29,10 +29,6 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
     private final ConnectFuture future;
     private final IoSessionInitializer<?> initializer;
 
-    public IoSessionFactoryChannelHandler(ChannelIoService service) {
-        this(service, null, null);
-    }
-
     public IoSessionFactoryChannelHandler(ChannelIoService service, ConnectFuture future,
             IoSessionInitializer<?> initializer) {
         this.service = service;

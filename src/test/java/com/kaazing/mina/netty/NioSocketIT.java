@@ -88,20 +88,7 @@ public class NioSocketIT {
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
         acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
-                   serverChannelFactory,
-                   new IoAcceptorChannelHandlerFactory() {
-                       @Override
-                       public IoAcceptorChannelHandler createHandler(
-                            ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
-                           return new IoAcceptorChannelHandler(acceptor, channelGroup) {
-                               @Override
-                               public void childChannelOpen(ChannelHandlerContext ctx,
-                                                            ChildChannelStateEvent e) throws Exception {
-                                   super.childChannelOpen(ctx, e);
-                               }
-                           };
-                       }
-                   });
+                                                  serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         //builder.addLast("logger", new LoggingFilter());
@@ -182,20 +169,7 @@ public class NioSocketIT {
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
         acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
-                   serverChannelFactory,
-                   new IoAcceptorChannelHandlerFactory() {
-                        @Override
-                        public IoAcceptorChannelHandler createHandler(
-                             ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
-                            return new IoAcceptorChannelHandler(acceptor, channelGroup) {
-                                @Override
-                                public void childChannelOpen(ChannelHandlerContext ctx,
-                                                             ChildChannelStateEvent e) throws Exception {
-                                    super.childChannelOpen(ctx, e);
-                                }
-                            };
-                        }
-                   });
+                                                  serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         //builder.addLast("logger", new LoggingFilter());
@@ -292,20 +266,7 @@ public class NioSocketIT {
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
         acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
-                   serverChannelFactory,
-                   new IoAcceptorChannelHandlerFactory() {
-                        @Override
-                        public IoAcceptorChannelHandler createHandler(
-                             ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
-                            return new IoAcceptorChannelHandler(acceptor, channelGroup) {
-                                @Override
-                                public void childChannelOpen(ChannelHandlerContext ctx,
-                                                             ChildChannelStateEvent e) throws Exception {
-                                    super.childChannelOpen(ctx, e);
-                                }
-                            };
-                        }
-                   });
+                                                  serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         //builder.addLast("logger", new LoggingFilter());

@@ -42,6 +42,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
 
     private final ServerBootstrap bootstrap;
     private final Map<SocketAddress, Channel> boundChannels;
+    private IoSessionInitializer<? extends IoFuture> initializer;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
     private final List<IoSessionIdleTracker> sessionIdleTrackers
@@ -57,7 +58,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     };
 
     public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory handlerFactory,
-                             ServerBootstrapFactory bootstrapFactory) {
+                      ServerBootstrapFactory bootstrapFactory) {
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -73,6 +74,14 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         bootstrap.setParentHandler(parentHandler);
 
         boundChannels = new ConcurrentHashMap<SocketAddress, Channel>();
+    }
+
+    public IoSessionInitializer<? extends IoFuture> getIoSessionInitializer() {
+        return initializer;
+    }
+
+    public void setIoSessionInitializer(IoSessionInitializer<? extends IoFuture> initializer) {
+        this.initializer = initializer;
     }
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {

@@ -15,21 +15,20 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
-import org.apache.mina.core.future.DefaultWriteFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.WriteRequest;
+import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.filter.logging.LoggingFilter;
 import org.jboss.netty.channel.socket.nio.BossPool;
 import org.jboss.netty.channel.socket.nio.NioServerBoss;
@@ -51,7 +50,7 @@ import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
  */
 public class NioSocketChannelIoAcceptorIT {
 
-    private IoAcceptor acceptor;
+    private ChannelIoAcceptor<?, ?, ?> acceptor;
     private Socket socket;
 
     @Before
@@ -172,6 +171,44 @@ public class NioSocketChannelIoAcceptorIT {
         assertEquals("filterCloseCalls", 0, filterCloseCalls.get());
         assertEquals("sessionClosedCalls", 1, sessionClosedCalls.get());
     }
+
+    @Test
+    public void channelOpenedShouldInitializeSessionBeforeFiringSessionCreated() throws Exception {
+        final CountDownLatch done = new CountDownLatch(1);
+        final List<String> actions = Collections.synchronizedList(new ArrayList<String>());
+        acceptor.setIoSessionInitializer(new IoSessionInitializer<IoFuture>() {
+            @Override
+            public void initializeSession(IoSession session, IoFuture future) {
+                actions.add("initializer");
+                // Add filter with sessionCreated method. This should get fired.
+                session.getFilterChain().addFirst("sessionCreatedTest", new IoFilterAdapter() {
+
+                    @Override
+                    public void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception {
+                        actions.add("filter.sessionCreated");
+                        super.sessionCreated(nextFilter, session);
+                    }
+
+                });
+            }
+        });
+        acceptor.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void sessionCreated(IoSession session) throws Exception {
+                actions.add("handler.sessionCreated");
+                done.countDown();
+            }
+        });
+        SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
+        acceptor.bind(bindAddress);
+        socket.connect(bindAddress);
+        socket.close();
+        done.await();
+        System.out.println("Actions, in order, were: " + actions);
+        assertEquals("initializer", actions.get(0));
+        assertEquals("filter.sessionCreated", actions.get(1));
+    }
+
 
     private void assertNoWorkerThreads(String when) {
         Thread[] threads = new Thread[Thread.activeCount()];
