@@ -31,8 +31,20 @@ public abstract class AbstractIoProcessor<T extends IoSessionEx> implements IoPr
 
     @Override
     public final void flush(final T session) {
-        verifyInIoThread(session, session.getIoThread());
-        flush0(session);
+        // We do "thread hopping" here rather than throwing an exception since there are legitimate use cases
+        // of calling flush in a thread other than the session's I/O thread, e.g. in WsebSession.attachWriter when
+        // a new downstream connection is established.
+        if (Thread.currentThread() == session.getIoThread()) {
+            flush0(session);
+        }
+        else {
+            session.getIoExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    flush0(session);
+                }
+            });
+        }
     }
     protected abstract void flush0(T session);
 
