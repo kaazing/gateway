@@ -33,6 +33,7 @@ import com.kaazing.mina.core.future.DefaultBindFuture;
 import com.kaazing.mina.core.future.DefaultUnbindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrap;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
@@ -45,6 +46,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private IoSessionInitializer<? extends IoFuture> initializer;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
+    private final ChannelIoProcessor processor = new ChannelIoProcessor();
     private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
@@ -100,6 +102,10 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     @SuppressWarnings("unchecked")
     protected F getChannelFactory() {
         return (F) bootstrap.getFactory();
+    }
+
+    protected IoProcessorEx<ChannelIoSession> getProcessor() {
+        return processor;
     }
 
     @Override
@@ -196,6 +202,11 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     public ChannelIoSession newSession(SocketAddress remoteAddress,
             SocketAddress localAddress) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, processor, channel);
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
 import com.kaazing.mina.netty.ChannelIoSession;
 
@@ -24,8 +25,9 @@ public class NioSocketChannelIoSession extends ChannelIoSession {
 
     private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new ThreadLocal<WorkerExecutor>();
 
-    public NioSocketChannelIoSession(ChannelIoService service, NioSocketChannel channel) {
-        super(service, channel, currentThread(), asExecutor(channel.getWorker()));
+    public NioSocketChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor,
+            NioSocketChannel channel) {
+        super(service, processor, channel, currentThread(), asExecutor(channel.getWorker()));
     }
 
     private static Executor asExecutor(Worker worker) {

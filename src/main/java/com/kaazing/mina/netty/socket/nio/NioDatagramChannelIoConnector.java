@@ -33,7 +33,7 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
 
     @Override
     public ChannelIoSession createSession(Channel channel) {
-        return new NioDatagramChannelIoSession(this, (NioDatagramChannel) channel);
+        return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
     }
 
 }

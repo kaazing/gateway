@@ -10,12 +10,9 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.DatagramAcceptor;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
-import com.kaazing.mina.netty.ChannelIoSession;
-import com.kaazing.mina.netty.DefaultChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
@@ -58,10 +55,5 @@ public class DatagramChannelIoAcceptor
     @Override
     public TransportMetadata getTransportMetadata() {
         return CONNECTIONLESS_TRANSPORT_METADATA;
-    }
-
-    @Override
-    public ChannelIoSession createSession(Channel channel) {
-        return new DefaultChannelIoSession(this, channel);
     }
 }

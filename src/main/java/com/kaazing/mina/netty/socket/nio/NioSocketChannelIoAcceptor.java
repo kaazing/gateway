@@ -48,7 +48,7 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 
     @Override
     public ChannelIoSession createSession(Channel channel) {
-        return new NioSocketChannelIoSession(this, (NioSocketChannel) channel);
+        return new NioSocketChannelIoSession(this, getProcessor(), (NioSocketChannel) channel);
     }
 
 }

@@ -25,16 +25,11 @@ import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
 
 /**
- * Since this class is stateless it is a singleton.
+ * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
  */
 final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
-    private static final ChannelIoProcessor INSTANCE = new ChannelIoProcessor();
 
-    public static ChannelIoProcessor getInstance() {
-        return INSTANCE;
-    }
-
-    private ChannelIoProcessor() {
+    ChannelIoProcessor() {
     };
 
     @Override

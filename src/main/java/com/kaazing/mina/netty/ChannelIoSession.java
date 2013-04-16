@@ -21,17 +21,18 @@ public class ChannelIoSession extends AbstractIoSessionEx {
     private final Channel channel;
     private final DefaultChannelIoSessionConfig config;
     private final IoHandler handler;
-    private final ChannelIoProcessor processor;
+    private final IoProcessorEx<ChannelIoSession> processor;
     private final TransportMetadata transportMetadata;
 
-    public ChannelIoSession(ChannelIoService service, Channel channel, Thread ioThread, Executor ioExecutor) {
+    public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor, Channel channel,
+            Thread ioThread, Executor ioExecutor) {
         super(ioThread, ioExecutor);
         this.service = service;
         this.channel = channel;
         this.config = new DefaultChannelIoSessionConfig(channel.getConfig());
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
-        this.processor = ChannelIoProcessor.getInstance();
+        this.processor = processor;
         this.transportMetadata = service.getTransportMetadata();
     }
 

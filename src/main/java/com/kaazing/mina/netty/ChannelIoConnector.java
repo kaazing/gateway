@@ -27,6 +27,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 
 import com.kaazing.mina.core.service.AbstractIoConnectorEx;
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.bootstrap.ClientBootstrap;
 import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
@@ -38,6 +39,7 @@ public abstract
     private final F channelFactory;
     private ChannelPipelineFactory pipelineFactory;
     private final ChannelGroup channelGroup;
+    private final ChannelIoProcessor processor = new ChannelIoProcessor();
     private final ClientBootstrapFactory bootstrapFactory;
     private final IoConnectorChannelHandlerFactory handlerFactory;
     private final List<IoSessionIdleTracker> sessionIdleTrackers
@@ -69,6 +71,11 @@ public abstract
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
         this.pipelineFactory = pipelineFactory;
+    }
+
+    @Override
+    public ChannelIoSession createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, processor, channel);
     }
 
     @Override
@@ -143,6 +150,10 @@ public abstract
             tracker.dispose();
         }
         return null;
+    }
+
+    protected IoProcessorEx<ChannelIoSession> getProcessor() {
+        return processor;
     }
 
     public IoSessionIdleTracker getSessionIdleTracker() {

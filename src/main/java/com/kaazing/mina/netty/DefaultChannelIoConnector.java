@@ -9,7 +9,6 @@ import java.net.SocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionConfig;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
@@ -34,11 +33,6 @@ public class DefaultChannelIoConnector extends ChannelIoConnector<IoSessionConfi
     @Override
     public TransportMetadata getTransportMetadata() {
         return CONNECTED_TRANSPORT_METADATA;
-    }
-
-    @Override
-    public ChannelIoSession createSession(Channel channel) {
-        return new DefaultChannelIoSession(this, channel);
     }
 
 }

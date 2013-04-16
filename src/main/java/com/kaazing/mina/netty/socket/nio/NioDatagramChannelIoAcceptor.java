@@ -65,7 +65,7 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
 
     @Override
     public ChannelIoSession createSession(Channel channel) {
-        return new NioDatagramChannelIoSession(this, (NioDatagramChannel) channel);
+        return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
     }
 
     private static final class ChildAlignmentChannelHandler extends SimpleChannelUpstreamHandler {

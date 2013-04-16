@@ -11,6 +11,7 @@ import java.util.concurrent.Executor;
 import org.jboss.netty.channel.Channel;
 
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx.CallNextSessionIdleCommand;
+import com.kaazing.mina.core.service.IoProcessorEx;
 
 /**
  * This session will throw runtime exceptions if any operation is attempted on the session in a thread other than the
@@ -27,8 +28,9 @@ public class DefaultChannelIoSession extends ChannelIoSession {
 
     };
 
-    public DefaultChannelIoSession(ChannelIoService service, Channel channel) {
-          super(service, channel, currentThread(), CREATION_ALIGNED_EXECUTOR.get());
+    public DefaultChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor,
+            Channel channel) {
+          super(service, processor, channel, currentThread(), CREATION_ALIGNED_EXECUTOR.get());
     }
 
     private static final class CreationAlignedExecutor implements Executor {
