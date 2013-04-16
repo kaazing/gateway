@@ -200,12 +200,17 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
 
                 if (message instanceof IoBuffer) {
                     IoBuffer buf = (IoBuffer) message;
+                    int written = buf.remaining();
                     ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
                     future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    session.increaseWrittenBytes(written, System.currentTimeMillis());
                 } else if (message instanceof FileRegion) {
                     FileRegion region = (FileRegion) message;
+                    long writtenBefore = region.getWrittenBytes();
                     ChannelFuture future = channel.write(region);  // TODO: FileRegion
                     future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    session.increaseWrittenBytes((int) (region.getWrittenBytes() - writtenBefore),
+                            System.currentTimeMillis());
                 } else {
                     throw new IllegalStateException(
                             "Don't know how to handle message of type '"

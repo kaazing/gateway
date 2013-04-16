@@ -32,9 +32,6 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChildChannelStateEvent;
-import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.local.LocalAddress;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
@@ -44,7 +41,6 @@ import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.kaazing.mina.core.future.BindFuture;
@@ -350,7 +346,22 @@ public class NioSocketIT {
     }
 
     @Test
-    public void testIdleTimeout() throws Exception {
+    public void testBothIdleTimeout() throws Exception {
+        testIdleTimeout(IdleStatus.BOTH_IDLE);
+    }
+
+    @Test
+    public void testReadIdleTimeout() throws Exception {
+        testIdleTimeout(IdleStatus.READER_IDLE);
+    }
+
+    @Test
+    public void testWriteIdleTimeout() throws Exception {
+        testIdleTimeout(IdleStatus.WRITER_IDLE);
+    }
+
+    private void testIdleTimeout(final IdleStatus statusUnderTest) throws Exception {
+
         bindTo = new InetSocketAddress("localhost", nextPort(8100, 100));
 
         final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
@@ -368,16 +379,18 @@ public class NioSocketIT {
         final CountDownLatch idleFired = new CountDownLatch(2);
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
+
             public void sessionIdle(NextFilter nextFilter, IoSession session,
                     IdleStatus status) throws Exception {
+                assert status.equals(statusUnderTest);
                 long idleFiredAfter = System.currentTimeMillis() - idleTimeoutSetAt;
                 System.out.println(
-                    format("idleTimeoutTestFilter: sessionIdle was called %d millis after calling setIdleTimeInMillis",
-                    idleFiredAfter));
+                    format("idleTimeoutTestFilter: sessionIdle(%s) was called %d ms after calling setIdleTimeInMillis",
+                    status, idleFiredAfter));
                 idleFired.countDown();
                 if (idleFired.getCount() > 0) {
                     System.out.println("idleTimeoutTestFilter.sessionIdle: calling setIdleTimeInMillis(200)");
-                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(IdleStatus.READER_IDLE, 200);
+                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(status, 200);
                     idleTimeoutSetAt = System.currentTimeMillis();
                 }
                 nextFilter.sessionIdle(session, status);
@@ -386,8 +399,8 @@ public class NioSocketIT {
             public void messageReceived(NextFilter nextFilter, IoSession session,
                     Object message) throws Exception {
                 nextFilter.messageReceived(session, message);
-                System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis");
-                ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(IdleStatus.READER_IDLE, 50);
+                System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(50)");
+                ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, 50);
                 idleTimeoutSetAt = System.currentTimeMillis();
             }
 
@@ -397,6 +410,7 @@ public class NioSocketIT {
         acceptor.setHandler(new IoHandlerAdapter() {
             @Override
             public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                System.out.println("Acceptor handler: exceptionCaught:" + cause);
                 acceptExceptionsCaught.incrementAndGet();
             }
         });
@@ -437,14 +451,15 @@ public class NioSocketIT {
         await(written, "session.write");
 
         // this is the main point of this test
-        await(idleFired, "sessionIdle fired on idleTimeoutTestFilter");
+        await(idleFired, "sessionIdle fired twice in idleTimeoutTestFilter");
 
         await(session.close(true), "session close(true) future");
 
-        assertEquals("Exceptions caught by connect handler", 0, connectExceptionsCaught.get());
-        assertEquals("Exceptions caught by except handler", 0, acceptExceptionsCaught.get());
-
+        assertEquals("Exceptions caught by connector handler", 0, connectExceptionsCaught.get());
+        assertEquals("Exceptions caught by acceptor handler", 0, acceptExceptionsCaught.get());
     }
+
+
 
     private void await(IoFuture future, String description) throws InterruptedException {
         int waitSeconds = 10;
@@ -456,7 +471,7 @@ public class NioSocketIT {
     private void await(CountDownLatch latch, String description) throws InterruptedException {
         int waitSeconds = 10;
         if (!(latch.await(waitSeconds, TimeUnit.SECONDS))) {
-            fail(String.format("%s latch not did not complete in %d seconds", description, waitSeconds));
+            fail(String.format("\"%s\" latch not did not complete in %d seconds", description, waitSeconds));
         }
     }
 

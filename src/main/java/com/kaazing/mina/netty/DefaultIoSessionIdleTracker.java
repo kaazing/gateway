@@ -11,22 +11,21 @@ import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.mina.core.session.IdleStatus;
-
+import com.kaazing.mina.core.session.AbstractIoSession;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
-    private static final long IDLE_TIMEOUT_PRECISION_MILLIS = 100L;
+    static final long IDLE_TIMEOUT_PRECISION_MILLIS = 100L;
     private static long QUASI_IMMEDIATE_MILLIS = 10;
 
     // auto-reaping scheduler Thread when no more live references to Timer
     private final Timer timer;
-    private final DefaultIoSessionIdleTracker.NotifyReadIdleSessionsTask timerTask;
+    private final DefaultIoSessionIdleTracker.NotifyIdleSessionsTask timerTask;
 
     DefaultIoSessionIdleTracker() {
         timer = new Timer(String.format("%s - idleTimeout", Thread.currentThread().getName(),
                           true)); // use daemon thread so it doesn't prevent application shutdown
-        timerTask = new NotifyReadIdleSessionsTask();
+        timerTask = new NotifyIdleSessionsTask();
         timer.scheduleAtFixedRate(timerTask, IDLE_TIMEOUT_PRECISION_MILLIS, IDLE_TIMEOUT_PRECISION_MILLIS);
     }
 
@@ -72,12 +71,12 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }, QUASI_IMMEDIATE_MILLIS);
     }
 
-    private static final class NotifyReadIdleSessionsTask extends TimerTask {
+    private static final class NotifyIdleSessionsTask extends TimerTask {
 
         // Only accessed from timer thread
         private final Collection<AbstractIoSessionEx> sessions;
 
-        private NotifyReadIdleSessionsTask() {
+        private NotifyIdleSessionsTask() {
             this.sessions = new LinkedList<AbstractIoSessionEx>();
         }
 
@@ -88,15 +87,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             }
             // TailFilter in DefaultIoFilterChain(Ex) maintains last read time for us on each session
             long currentTime = System.currentTimeMillis();
-            for (AbstractIoSessionEx session : sessions) {
-                long readerIdleTimeout = session.getConfig().getReaderIdleTimeInMillis();
-                if (readerIdleTimeout > 0) {
-                    long sinceLastRead = currentTime - session.getLastReadTime();
-                    if (sinceLastRead >  readerIdleTimeout) {
-                        session.getFilterChain().fireSessionIdle(IdleStatus.READER_IDLE);
-                    }
-                }
-            }
+            AbstractIoSession.notifyIdleness(sessions.iterator(), currentTime);
         }
 
         // Must be executed from timer thread
