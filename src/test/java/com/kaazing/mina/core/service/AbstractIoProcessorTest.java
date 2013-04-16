@@ -7,8 +7,6 @@ package com.kaazing.mina.core.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.concurrent.Executor;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -63,16 +61,13 @@ public class AbstractIoProcessorTest {
         assertEquals("flush0", ((TestIoProcessor<?>) processor).called);
     }
 
-    @Test
-    public void flush_shouldExecuteInOtherThreadIfNotInIoThread() throws Exception {
+    @Test(expected = RuntimeException.class)
+    public void flush_shouldThrowExceptionIfNotInIoThread() throws Exception {
         Mockery context = new Mockery();
         final IoSessionEx session = context.mock(IoSessionEx.class);
-        final Executor executor = context.mock(Executor.class);
 
         context.checking(new Expectations() { {
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
-            oneOf(session).getIoExecutor(); will(returnValue(executor));
-            oneOf(executor).execute(with(any(Runnable.class)));
         } });
 
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();

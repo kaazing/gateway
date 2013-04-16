@@ -10,7 +10,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
-
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 
@@ -101,4 +100,22 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
     }
 
+    @Override
+    protected void doCloseOnFlush() {
+        // Ensure getProcessor().flush() is executed in this session's IO thread.
+        if (Thread.currentThread() == getIoThread()) {
+            closeOnFlushTask.run();
+        }
+        else {
+            getIoExecutor().execute(closeOnFlushTask);
+        }
+    }
+
+    private Runnable closeOnFlushTask = new Runnable() {
+        @SuppressWarnings("unchecked")
+        @Override public void run() {
+            getWriteRequestQueue().offer(AbstractIoSessionEx.this, CLOSE_REQUEST);
+            getProcessor().flush(AbstractIoSessionEx.this);
+        }
+    };
 }

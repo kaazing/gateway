@@ -58,6 +58,8 @@ import org.apache.mina.util.ExceptionMonitor;
  * 6. Do not pass suspend/resumeWrite through to the processor, but still support them (for now) because used
  *    by the Gateway codebase
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
+ * 8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
+ *    overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
  */
 public abstract class AbstractIoSession implements IoSession {
 
@@ -84,7 +86,7 @@ public abstract class AbstractIoSession implements IoSession {
      * An internal write request object that triggers session close.
      * @see #writeRequestQueue
      */
-    private static final WriteRequest CLOSE_REQUEST =
+    protected static final WriteRequest CLOSE_REQUEST =
         new DefaultWriteRequest(new Object());
 
     private IoSessionAttributeMap attributes;
@@ -249,12 +251,14 @@ public abstract class AbstractIoSession implements IoSession {
         return closeFuture;
     }
 
-    @SuppressWarnings("unchecked")
     private CloseFuture closeOnFlush() {
-        getWriteRequestQueue().offer(this, CLOSE_REQUEST);
-        getProcessor().flush(this);
+//        getWriteRequestQueue().offer(this, CLOSE_REQUEST);
+//        getProcessor().flush(this);
+        doCloseOnFlush();
         return closeFuture;
     }
+
+    protected abstract void doCloseOnFlush();
 
     /**
      * {@inheritDoc}
