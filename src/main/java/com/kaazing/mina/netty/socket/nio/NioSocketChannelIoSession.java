@@ -9,8 +9,10 @@ import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
 
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
+import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
@@ -21,13 +23,14 @@ import com.kaazing.mina.netty.ChannelIoSession;
  * It forces all operations of the session to be done in the worker thread (using worker.executeIntoThread if a call
  * is made in another thread).
  */
-public class NioSocketChannelIoSession extends ChannelIoSession {
+public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannelConfig> {
 
     private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new ThreadLocal<WorkerExecutor>();
 
-    public NioSocketChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor,
-            NioSocketChannel channel) {
-        super(service, processor, channel, currentThread(), asExecutor(channel.getWorker()));
+    public NioSocketChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>>
+        processor, NioSocketChannel channel) {
+        super(service, processor, channel, new NioSocketChannelIoSessionConfig(channel.getConfig()), currentThread(),
+                asExecutor(channel.getWorker()));
     }
 
     private static Executor asExecutor(Worker worker) {

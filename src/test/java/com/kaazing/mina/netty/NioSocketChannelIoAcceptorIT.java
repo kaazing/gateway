@@ -18,6 +18,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,8 +42,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
-import com.kaazing.mina.netty.socket.SocketChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 
 /**
@@ -58,7 +58,7 @@ public class NioSocketChannelIoAcceptorIT {
         WorkerPool<NioWorker> workerPool = new NioWorkerPool(newCachedThreadPool(), 3);
         BossPool<NioServerBoss> bossPool = new NioServerBossPool(newCachedThreadPool(), 1);
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(bossPool, workerPool);
-        SocketChannelIoSessionConfig sessionConfig = new DefaultSocketChannelIoSessionConfig();
+        DefaultNioSocketChannelIoSessionConfig sessionConfig = new DefaultNioSocketChannelIoSessionConfig();
         sessionConfig.setReuseAddress(true);
         acceptor = new NioSocketChannelIoAcceptor(sessionConfig, serverChannelFactory);
         acceptor.getFilterChain().addLast("logger", new LoggingFilter());
@@ -122,6 +122,7 @@ public class NioSocketChannelIoAcceptorIT {
     public void disposeShouldStopAll_IO_Threads() throws Exception {
         shouldEchoBytes();
         disposeResources();
+        Thread.sleep(1000); // experience shows Timer.cancel() does not immediately stop the timer thread
         assertNoWorkerThreads("after disposeResources");
     }
 
@@ -215,18 +216,20 @@ public class NioSocketChannelIoAcceptorIT {
         Thread.enumerate(threads);
         int workersFound = 0;
         int bossesFound = 0;
-        System.out.println("List of active threads " + when + ":");
+        List<String> badThreads = new LinkedList<String>();
         for (Thread thread: threads) {
             System.out.println(thread.getName());
             if (thread.getName().matches(".*I/O worker.*")) {
+                badThreads.add(thread.getName());
                 workersFound++;
             }
             if (thread.getName().matches(".*boss")) {
-                workersFound++;
+                badThreads.add(thread.getName());
+                bossesFound++;
             }
         }
-        assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses",
-                when, workersFound, bossesFound), workersFound == 0 && bossesFound == 0);
+        assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses: %s",
+                when, workersFound, bossesFound, badThreads), workersFound == 0 && bossesFound == 0);
     }
 
     @Test

@@ -15,21 +15,21 @@ import org.jboss.netty.channel.ChannelConfig;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
-public class ChannelIoSession extends AbstractIoSessionEx {
+public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSessionEx {
 
     private final ChannelIoService service;
     private final Channel channel;
-    private final DefaultChannelIoSessionConfig config;
+    private final ChannelIoSessionConfig<C> config;
     private final IoHandler handler;
-    private final IoProcessorEx<ChannelIoSession> processor;
+    private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor;
     private final TransportMetadata transportMetadata;
 
-    public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor, Channel channel,
-            Thread ioThread, Executor ioExecutor) {
+    public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor,
+            Channel channel, ChannelIoSessionConfig<C> config, Thread ioThread, Executor ioExecutor) {
         super(ioThread, ioExecutor);
         this.service = service;
         this.channel = channel;
-        this.config = new DefaultChannelIoSessionConfig(channel.getConfig());
+        this.config = config;
         this.config.setAll(service.getSessionConfig());
         this.handler = service.getHandler();
         this.processor = processor;
@@ -50,12 +50,12 @@ public class ChannelIoSession extends AbstractIoSessionEx {
     }
 
     @Override
-    public ChannelIoSessionConfig<ChannelConfig> getConfig() {
+    public ChannelIoSessionConfig<C> getConfig() {
         return config;
     }
 
     @Override
-    public IoProcessorEx<ChannelIoSession> getProcessor() {
+    public IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> getProcessor() {
         return processor;
     }
 

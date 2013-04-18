@@ -19,6 +19,7 @@ import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
 
 import com.kaazing.mina.core.service.AbstractIoProcessor;
@@ -27,23 +28,23 @@ import com.kaazing.mina.core.service.AbstractIoService;
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
  */
-final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
+final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? extends ChannelConfig>> {
 
     ChannelIoProcessor() {
     };
 
     @Override
-    protected void add0(ChannelIoSession session) {
+    protected void add0(ChannelIoSession<? extends ChannelConfig> session) {
         addNow(session);
     }
 
     @Override
-    protected void remove0(ChannelIoSession session) {
+    protected void remove0(ChannelIoSession<? extends ChannelConfig> session) {
         removeNow(session);
     }
 
     @Override
-    protected void flush0(ChannelIoSession session) {
+    protected void flush0(ChannelIoSession<? extends ChannelConfig> session) {
         flushNow(session, System.currentTimeMillis());
     }
 
@@ -65,19 +66,19 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
     }
 
     @Override
-    protected void updateTrafficControl0(ChannelIoSession session) {
+    protected void updateTrafficControl0(ChannelIoSession<? extends ChannelConfig> session) {
         // suspend/resumeRead is implemented directly in ChannelIoSession so this should never be called
         throw new UnsupportedOperationException();
     }
 
-    protected void init(ChannelIoSession session) {
+    protected void init(ChannelIoSession<? extends ChannelConfig> session) {
     }
 
-    protected void destroy(ChannelIoSession session) {
+    protected void destroy(ChannelIoSession<? extends ChannelConfig> session) {
         session.getChannel().close();
     }
 
-    private void addNow(ChannelIoSession session) {
+    private void addNow(ChannelIoSession<? extends ChannelConfig> session) {
         try {
             init(session);
 
@@ -101,7 +102,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
         }
     }
 
-    private boolean removeNow(ChannelIoSession session) {
+    private boolean removeNow(ChannelIoSession<? extends ChannelConfig> session) {
         clearWriteRequestQueue(session);
 
         try {
@@ -118,7 +119,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
         return false;
     }
 
-    private void clearWriteRequestQueue(ChannelIoSession session) {
+    private void clearWriteRequestQueue(ChannelIoSession<? extends ChannelConfig> session) {
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         WriteRequest req;
 
@@ -164,7 +165,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession> {
         }
     }
 
-    private boolean flushNow(ChannelIoSession session, long currentTime) {
+    private boolean flushNow(ChannelIoSession<? extends ChannelConfig> session, long currentTime) {
         if (!session.isConnected()) {
             removeNow(session);
             return false;

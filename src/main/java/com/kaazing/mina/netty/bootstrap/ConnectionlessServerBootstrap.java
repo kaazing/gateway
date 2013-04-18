@@ -4,7 +4,6 @@
 
 package com.kaazing.mina.netty.bootstrap;
 
-import static org.jboss.netty.channel.Channels.fireMessageReceived;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 import java.net.SocketAddress;

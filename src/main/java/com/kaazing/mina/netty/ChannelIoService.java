@@ -12,10 +12,10 @@ import com.kaazing.mina.core.service.IoServiceEx;
 
 public interface ChannelIoService extends IoServiceEx {
 
-    ChannelIoSession createSession(Channel channel);
+    ChannelIoSession<?> createSession(Channel channel);
 
     IoSessionIdleTracker getSessionIdleTracker();
 
-    void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
+    void initializeSession(ChannelIoSession<?> session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
 
 }

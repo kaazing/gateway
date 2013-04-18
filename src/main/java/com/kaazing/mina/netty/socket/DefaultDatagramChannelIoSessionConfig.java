@@ -11,8 +11,19 @@ import org.jboss.netty.channel.socket.DefaultDatagramChannelConfig;
 
 public class DefaultDatagramChannelIoSessionConfig extends DatagramChannelIoSessionConfig {
 
-    public DefaultDatagramChannelIoSessionConfig() throws SocketException {
-        super(new DefaultDatagramChannelConfig(new DatagramSocket()));
+    public DefaultDatagramChannelIoSessionConfig() {
+        super(new DefaultDatagramChannelConfig(newDatagramSocket()));
+    }
+
+    private static DatagramSocket newDatagramSocket() {
+        DatagramSocket result;
+        try {
+            result = new DatagramSocket();
+        }
+        catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 
 }

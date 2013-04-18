@@ -32,7 +32,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
 /**
@@ -50,7 +50,7 @@ public class NioSocketChannelIoConnectorIT {
         executor = Executors.newFixedThreadPool(1);
         server = new ServerSocket();
         server.setReuseAddress(true);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig());
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig());
         connector.getFilterChain().addLast("logger", new LoggingFilter());
     }
 

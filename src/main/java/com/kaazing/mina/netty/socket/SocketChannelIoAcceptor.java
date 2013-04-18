@@ -11,6 +11,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketAcceptor;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
@@ -18,20 +19,21 @@ import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public class SocketChannelIoAcceptor
-    extends ChannelIoAcceptor<SocketChannelIoSessionConfig, IoAcceptorSocketChannelFactory, InetSocketAddress>
+    extends ChannelIoAcceptor<SocketChannelIoSessionConfig<? extends SocketChannelConfig>,
+                              IoAcceptorSocketChannelFactory, InetSocketAddress>
     implements SocketAcceptor {
 
     private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
-    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
+    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
             final ServerSocketChannelFactory channelFactory) {
         this(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory),
                 new DefaultIoAcceptorChannelHandlerFactory());
     }
 
-    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig sessionConfig,
+    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
             final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
         super(sessionConfig, new IoAcceptorSocketChannelFactory(channelFactory), handlerFactory,
               ServerBootstrapFactory.CONNECTED);

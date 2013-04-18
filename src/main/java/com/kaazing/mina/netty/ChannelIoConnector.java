@@ -39,7 +39,7 @@ public abstract
     private final F channelFactory;
     private ChannelPipelineFactory pipelineFactory;
     private final ChannelGroup channelGroup;
-    private final ChannelIoProcessor processor = new ChannelIoProcessor();
+    private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor = new ChannelIoProcessor();
     private final ClientBootstrapFactory bootstrapFactory;
     private final IoConnectorChannelHandlerFactory handlerFactory;
     private final List<IoSessionIdleTracker> sessionIdleTrackers
@@ -74,7 +74,7 @@ public abstract
     }
 
     @Override
-    public ChannelIoSession createSession(Channel channel) {
+    public ChannelIoSession<?> createSession(Channel channel) {
         return new DefaultChannelIoSession(this, processor, channel);
     }
 
@@ -152,7 +152,7 @@ public abstract
         return null;
     }
 
-    protected IoProcessorEx<ChannelIoSession> getProcessor() {
+    protected IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> getProcessor() {
         return processor;
     }
 
@@ -161,7 +161,7 @@ public abstract
     }
 
     @Override
-    public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> initializer) {
+    public void initializeSession(ChannelIoSession<?> session, IoFuture future, IoSessionInitializer<?> initializer) {
         initSession(session, future, initializer);
     }
 

@@ -11,6 +11,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
 import com.kaazing.mina.netty.DefaultIoConnectorChannelHandlerFactory;
@@ -18,19 +19,20 @@ import com.kaazing.mina.netty.IoConnectorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
 public class SocketChannelIoConnector
-    extends ChannelIoConnector<SocketChannelIoSessionConfig, ClientSocketChannelFactory, InetSocketAddress>
+    extends ChannelIoConnector<SocketChannelIoSessionConfig<? extends SocketChannelConfig>,
+                               ClientSocketChannelFactory, InetSocketAddress>
     implements SocketConnector {
 
     private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
             SocketSessionConfig.class, Object.class);
 
-    public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
             ClientSocketChannelFactory channelFactory) {
         this(sessionConfig, channelFactory, new DefaultIoConnectorChannelHandlerFactory());
     }
 
-    public SocketChannelIoConnector(SocketChannelIoSessionConfig sessionConfig,
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
                                     ClientSocketChannelFactory channelFactory,
                                     IoConnectorChannelHandlerFactory handlerFactory) {
         super(sessionConfig, channelFactory, handlerFactory, ClientBootstrapFactory.CONNECTED);

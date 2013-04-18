@@ -10,6 +10,7 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -19,14 +20,14 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 
 public class IoSessionChannelHandler extends SimpleChannelHandler {
 
-    private final ChannelIoSession session;
+    private final ChannelIoSession<? extends ChannelConfig> session;
     private final IoFilterChain filterChain;
     private final IoFuture future;
     private final IoSessionInitializer<?> initializer;
     private final IoSessionIdleTracker idleTracker;
 
-    public IoSessionChannelHandler(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> initializer,
-            IoSessionIdleTracker idleTracker) {
+    public IoSessionChannelHandler(ChannelIoSession<? extends ChannelConfig> session, IoFuture future,
+            IoSessionInitializer<?> initializer, IoSessionIdleTracker idleTracker) {
         this.session = session;
         this.filterChain = session.getFilterChain();
         this.future = future;

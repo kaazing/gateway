@@ -64,7 +64,7 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
     }
 
     @Override
-    public ChannelIoSession createSession(Channel channel) {
+    public ChannelIoSession<?> createSession(Channel channel) {
         return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
     }
 

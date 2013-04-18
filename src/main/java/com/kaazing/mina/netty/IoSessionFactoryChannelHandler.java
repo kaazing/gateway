@@ -39,7 +39,7 @@ public class IoSessionFactoryChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         Channel channel = e.getChannel();
-        ChannelIoSession session = service.createSession(channel);
+        ChannelIoSession<?> session = service.createSession(channel);
         String baseName = ctx.getName();
         String name = format("%s#session", baseName);
         ChannelHandler handler = new IoSessionChannelHandler(session, future, initializer,

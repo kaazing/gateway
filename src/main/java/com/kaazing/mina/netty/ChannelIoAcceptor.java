@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -46,7 +47,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private IoSessionInitializer<? extends IoFuture> initializer;
     private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
-    private final ChannelIoProcessor processor = new ChannelIoProcessor();
+    private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor = new ChannelIoProcessor();
     private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
@@ -95,7 +96,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     }
 
     @Override
-    public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> initializer) {
+    public void initializeSession(ChannelIoSession<?> session, IoFuture future, IoSessionInitializer<?> initializer) {
         initSession(session, future, initializer);
     }
 
@@ -104,7 +105,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         return (F) bootstrap.getFactory();
     }
 
-    protected IoProcessorEx<ChannelIoSession> getProcessor() {
+    protected IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> getProcessor() {
         return processor;
     }
 
@@ -199,14 +200,14 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     }
 
     @Override
-    public ChannelIoSession newSession(SocketAddress remoteAddress,
-            SocketAddress localAddress) {
-        throw new UnsupportedOperationException();
+    public ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
+        return new DefaultChannelIoSession(this, processor, channel);
     }
 
     @Override
-    public ChannelIoSession createSession(Channel channel) {
-        return new DefaultChannelIoSession(this, processor, channel);
+    public ChannelIoSession<? extends ChannelConfig> newSession(SocketAddress remoteAddress,
+            SocketAddress localAddress) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

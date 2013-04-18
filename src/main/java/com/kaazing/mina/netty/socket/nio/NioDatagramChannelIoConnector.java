@@ -9,6 +9,7 @@ import java.net.InetSocketAddress;
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
@@ -32,7 +33,7 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
     }
 
     @Override
-    public ChannelIoSession createSession(Channel channel) {
+    public ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
         return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
     }
 

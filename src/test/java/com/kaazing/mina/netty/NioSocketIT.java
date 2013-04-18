@@ -46,7 +46,7 @@ import org.junit.Test;
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
-import com.kaazing.mina.netty.socket.DefaultSocketChannelIoSessionConfig;
+import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
@@ -83,7 +83,7 @@ public class NioSocketIT {
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultNioSocketChannelIoSessionConfig(),
                                                   serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
@@ -112,7 +112,8 @@ public class NioSocketIT {
                 newCachedThreadPool(),
                 1, // boss thread count
                 workerPool);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig(),
+                clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
@@ -164,7 +165,7 @@ public class NioSocketIT {
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultNioSocketChannelIoSessionConfig(),
                                                   serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
@@ -204,7 +205,7 @@ public class NioSocketIT {
                 newCachedThreadPool(),
                 1, // boss thread count
                 workerPool);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig(), clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
@@ -261,7 +262,7 @@ public class NioSocketIT {
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(),
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultNioSocketChannelIoSessionConfig(),
                                                   serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
@@ -301,7 +302,7 @@ public class NioSocketIT {
                 newCachedThreadPool(),
                 1, // boss thread count
                 workerPool);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig(), clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {
@@ -373,7 +374,7 @@ public class NioSocketIT {
         NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(), // boss executor
                 workerPool);
-        acceptor = new NioSocketChannelIoAcceptor(new DefaultSocketChannelIoSessionConfig(), serverChannelFactory);
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultNioSocketChannelIoSessionConfig(), serverChannelFactory);
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch idleFired = new CountDownLatch(2);
@@ -423,7 +424,8 @@ public class NioSocketIT {
                 newCachedThreadPool(),
                 1, // boss thread count
                 workerPool);
-        connector = new NioSocketChannelIoConnector(new DefaultSocketChannelIoSessionConfig(), clientChannelFactory);
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig(),
+                clientChannelFactory);
         connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
         connector.setFilterChainBuilder(builder);
         connector.setHandler(new IoHandlerAdapter() {

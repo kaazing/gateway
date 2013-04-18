@@ -9,25 +9,28 @@ import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
 
+import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.socket.DatagramChannelConfig;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
-
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
 import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
 
 /**
  * This session is always used in conjunction with an NioDatagramChannel, which necessarily has an associated worker.
  * It forces all operations of the session to be done in the worker thread (using worker.executeIntoThread if a call
  * is made in another thread).
  */
-public class NioDatagramChannelIoSession extends ChannelIoSession {
+public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
     private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new ThreadLocal<WorkerExecutor>();
 
-    public NioDatagramChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession> processor,
-            NioDatagramChannel channel) {
-        super(service, processor, channel, currentThread(), asExecutor(channel.getWorker()));
+    public NioDatagramChannelIoSession(ChannelIoService service,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {
+        super(service, processor, channel, new DefaultDatagramChannelIoSessionConfig(),
+                currentThread(), asExecutor(channel.getWorker()));
     }
 
     private static Executor asExecutor(Worker worker) {
