@@ -16,7 +16,6 @@ import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.channel.WriteCompletionEvent;
 
 
 public class IoSessionChannelHandler extends SimpleChannelHandler {
@@ -68,12 +67,6 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
             buf.skipBytes(buf.readableBytes());
         }
         filterChain.fireMessageReceived(message);
-    }
-
-    @Override
-    public void writeComplete(ChannelHandlerContext ctx, WriteCompletionEvent e) throws Exception {
-        int writtenBytes = (int) e.getWrittenAmount();
-        session.increaseScheduledWriteBytes(-writtenBytes);
     }
 
 }
