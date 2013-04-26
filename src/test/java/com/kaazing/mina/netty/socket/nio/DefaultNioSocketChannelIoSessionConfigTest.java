@@ -29,7 +29,6 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
     @Test
     public void shouldUseSameDefaultValuesAsMina() throws Exception {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
-        //NioSocketChannelConfig channelConfig = config.getChannelConfig();
         assertEquals(DEFAULT.getBothIdleTimeInMillis(), config.getBothIdleTimeInMillis());
         assertEquals(DEFAULT.getMaxReadBufferSize(), config.getMaxReadBufferSize());
         assertEquals(DEFAULT.getMinReadBufferSize(), config.getMinReadBufferSize());
