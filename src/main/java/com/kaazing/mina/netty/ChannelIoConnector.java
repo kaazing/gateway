@@ -74,9 +74,12 @@ public abstract
     }
 
     @Override
-    public ChannelIoSession<?> createSession(Channel channel) {
-        return new DefaultChannelIoSession(this, processor, channel);
+    public final ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
+        return createSession(channel, processor);
     }
+
+    protected abstract ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor);
 
     @Override
     protected ConnectFuture connect0(SocketAddress remoteAddress,

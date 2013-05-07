@@ -10,6 +10,7 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelStateEvent;
@@ -21,6 +22,7 @@ import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.IoAcceptorChannelHandler;
@@ -64,8 +66,9 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
     }
 
     @Override
-    public ChannelIoSession<?> createSession(Channel channel) {
-        return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new NioDatagramChannelIoSession(this, processor, (NioDatagramChannel) channel);
     }
 
     private static final class ChildAlignmentChannelHandler extends SimpleChannelUpstreamHandler {

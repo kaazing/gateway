@@ -18,7 +18,7 @@ import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
-public class SocketChannelIoAcceptor
+public abstract class SocketChannelIoAcceptor
     extends ChannelIoAcceptor<SocketChannelIoSessionConfig<? extends SocketChannelConfig>,
                               IoAcceptorSocketChannelFactory, InetSocketAddress>
     implements SocketAcceptor {

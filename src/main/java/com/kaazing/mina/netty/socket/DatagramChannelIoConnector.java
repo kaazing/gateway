@@ -17,7 +17,7 @@ import com.kaazing.mina.netty.DefaultIoConnectorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoConnectorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
-public class DatagramChannelIoConnector
+public abstract class DatagramChannelIoConnector
     extends ChannelIoConnector<DatagramChannelIoSessionConfig, DatagramChannelFactory, InetSocketAddress>
     implements DatagramConnector {
 
