@@ -64,13 +64,13 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         public void idleTimeInMillisChanged(IdleStatus status, long idleTimeMillis) {
 
             if (status == IdleStatus.BOTH_IDLE) {
-                notifyBothIdle.reschedule(timer, idleTimeMillis, MILLISECONDS);
+                notifyBothIdle.reschedule(idleTimeMillis, MILLISECONDS);
             }
             else if (status == IdleStatus.READER_IDLE) {
-                notifyReaderIdle.reschedule(timer, idleTimeMillis, MILLISECONDS);
+                notifyReaderIdle.reschedule(idleTimeMillis, MILLISECONDS);
             }
             else if (status == IdleStatus.WRITER_IDLE) {
-                notifyWriterIdle.reschedule(timer, idleTimeMillis, MILLISECONDS);
+                notifyWriterIdle.reschedule(idleTimeMillis, MILLISECONDS);
             }
             else {
                 throw new IllegalArgumentException("Unrecognized idle status: " + status);
@@ -78,7 +78,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
     }
 
-    private abstract static class NotifyIdleTask implements TimerTask {
+    private abstract class NotifyIdleTask implements TimerTask {
 
         protected final IoSessionEx session;
 
@@ -89,15 +89,19 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             this.session = session;
         }
 
-        public void reschedule(Timer timer, long idleTime, TimeUnit unit)  {
+        public final void reschedule(long idleTime, TimeUnit unit)  {
 
+            idleTimeMillis = unit.toMillis(idleTime);
+
+            reschedule();
+        }
+
+        protected final void reschedule() {
             if (timeout != null) {
                 timeout.cancel();
             }
 
-            idleTimeMillis = unit.toMillis(idleTime);
-
-            if (idleTime != 0) {
+            if (idleTimeMillis != 0) {
                 long delayMillis = getLastIoTimeMillis() + idleTimeMillis - currentTimeMillis();
                 timeout = timer.newTimeout(this, delayMillis, MILLISECONDS);
             }
@@ -109,7 +113,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         protected abstract long getLastIoTimeMillis();
     }
 
-    private static final class NotifyBothIdleTask extends NotifyIdleTask {
+    private final class NotifyBothIdleTask extends NotifyIdleTask {
 
         public NotifyBothIdleTask(IoSessionEx session) {
             super(session);
@@ -121,6 +125,9 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
                 IoFilterChain filterChain = session.getFilterChain();
                 filterChain.fireSessionIdle(IdleStatus.BOTH_IDLE);
             }
+            else {
+                reschedule();
+            }
         }
 
         protected long getLastIoTimeMillis() {
@@ -129,7 +136,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
 
     }
 
-    private static final class NotifyReaderIdleTask extends NotifyIdleTask {
+    private final class NotifyReaderIdleTask extends NotifyIdleTask {
 
         public NotifyReaderIdleTask(IoSessionEx session) {
             super(session);
@@ -141,6 +148,9 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
                 IoFilterChain filterChain = session.getFilterChain();
                 filterChain.fireSessionIdle(IdleStatus.READER_IDLE);
             }
+            else {
+                reschedule();
+            }
         }
 
         protected long getLastIoTimeMillis() {
@@ -149,7 +159,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
 
     }
 
-    private static final class NotifyWriterIdleTask extends NotifyIdleTask {
+    private final class NotifyWriterIdleTask extends NotifyIdleTask {
 
         public NotifyWriterIdleTask(IoSessionEx session) {
             super(session);
@@ -160,6 +170,9 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             if (!timeout.isCancelled()) {
                 IoFilterChain filterChain = session.getFilterChain();
                 filterChain.fireSessionIdle(IdleStatus.WRITER_IDLE);
+            }
+            else {
+                reschedule();
             }
         }
 
