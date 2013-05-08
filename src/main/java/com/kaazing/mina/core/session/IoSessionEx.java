@@ -34,4 +34,5 @@ public interface IoSessionEx extends IoSession {
     @Override
     IoServiceEx getService();
 
+    boolean isThreadSafe();
 }

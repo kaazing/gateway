@@ -4,9 +4,8 @@
 
 package com.kaazing.mina.netty.socket;
 
-import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.transport.socket.DatagramSessionConfig;
-import org.apache.mina.transport.socket.DefaultDatagramSessionConfig;
+import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
@@ -98,16 +97,6 @@ public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<Datag
     @Override
     public void setTrafficClass(int trafficClass) {
         channelConfig.setTrafficClass(trafficClass);
-    }
-
-    private static class DefaultDatagramSessionConfigEx extends DefaultDatagramSessionConfig
-        implements IoSessionConfigEx {
-
-        @Override
-        public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
-            throw new UnsupportedOperationException();
-        }
-
     }
 
 }

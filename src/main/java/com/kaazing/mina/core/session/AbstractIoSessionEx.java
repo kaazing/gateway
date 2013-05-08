@@ -54,6 +54,11 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
+    public boolean isThreadSafe() {
+        return true;
+    }
+
+    @Override
     public final IoFilterChain getFilterChain() {
         return filterChain;
     }
