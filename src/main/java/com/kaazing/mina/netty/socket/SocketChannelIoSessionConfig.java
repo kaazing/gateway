@@ -4,8 +4,7 @@
 
 package com.kaazing.mina.netty.socket;
 
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
+import org.apache.mina.transport.socket.DefaultSocketSessionConfigEx;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
@@ -120,15 +119,5 @@ public class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
     @Override
     public void setTrafficClass(int trafficClass) {
         channelConfig.setTrafficClass(trafficClass);
-    }
-
-    private static class DefaultSocketSessionConfigEx extends DefaultSocketSessionConfig
-        implements IoSessionConfigEx {
-
-        @Override
-        public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
-            throw new UnsupportedOperationException();
-        }
-
     }
 }
