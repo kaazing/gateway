@@ -6,6 +6,7 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -58,10 +59,12 @@ public class NioDatagramConnectorExIT {
             }
         });
 
-        DatagramSocket socket = new DatagramSocket(new InetSocketAddress("127.0.0.1", 2123));
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        DatagramSocket socket = new DatagramSocket(bindAddress);
 
         connector.setHandler(handler);
-        ConnectFuture future = connector.connect(new InetSocketAddress("127.0.0.1", 2123));
+        ConnectFuture future = connector.connect(bindAddress);
         IoSession session = future.await().getSession();
         session.close(false).await();
 

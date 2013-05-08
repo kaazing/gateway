@@ -29,7 +29,7 @@ public final class PortUtil {
     private PortUtil() {
     }
 
-    static int nextPort(int base, int range) {
+    public static int nextPort(int base, int range) {
         return base + (value.incrementAndGet() % range);
     }
 }

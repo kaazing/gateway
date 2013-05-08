@@ -6,6 +6,7 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static org.junit.Assert.assertEquals;
 import static org.jmock.lib.script.ScriptedAction.perform;
 
@@ -58,11 +59,13 @@ public class NioSocketAcceptorExIT {
             }
         });
 
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
         acceptor.setHandler(handler);
-        acceptor.bind(new InetSocketAddress("127.0.0.1", 2122));
+        acceptor.bind(bindAddress);
 
         Socket socket = new Socket();
-        socket.connect(new InetSocketAddress("127.0.0.1", 2122));
+        socket.connect(bindAddress);
 
         int eos = socket.getInputStream().read();
         assertEquals(-1, eos);

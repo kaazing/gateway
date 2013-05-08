@@ -6,6 +6,7 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static org.apache.mina.core.buffer.IoBuffer.wrap;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
 
@@ -59,11 +60,13 @@ public class NioDatagramAcceptorExIT {
             }
         });
 
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
         acceptor.setHandler(handler);
-        acceptor.bind(new InetSocketAddress("127.0.0.1", 2121));
+        acceptor.bind(bindAddress);
 
         DatagramSocket socket = new DatagramSocket();
-        socket.connect(new InetSocketAddress("127.0.0.1", 2121));
+        socket.connect(bindAddress);
         socket.send(new DatagramPacket("text".getBytes(UTF_8), 4));
         socket.close();
 

@@ -6,6 +6,7 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.netty.PortUtil.nextPort;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -59,11 +60,13 @@ public class NioSocketConnectorExIT {
             }
         });
 
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
         ServerSocket server = new ServerSocket();
-        server.bind(new InetSocketAddress("127.0.0.1", 2124));
+        server.bind(bindAddress);
 
         connector.setHandler(handler);
-        ConnectFuture future = connector.connect(new InetSocketAddress("127.0.0.1", 2124));
+        ConnectFuture future = connector.connect(bindAddress);
         IoSession session = future.await().getSession();
 
         Socket accepted = server.accept();
