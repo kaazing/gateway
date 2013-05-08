@@ -17,4 +17,11 @@ public interface IoSessionConfigEx extends IoSessionConfig {
      */
     void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis);
 
+    void setChangeListener(ChangeListener listener);
+
+    public interface ChangeListener {
+
+        void idleTimeInMillisChanged(IdleStatus status, long idleTimeMillis);
+
+    }
 }
