@@ -7,8 +7,9 @@ package org.apache.mina.transport.socket.nio;
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
@@ -23,9 +24,9 @@ import org.junit.Test;
 
 import com.kaazing.mina.core.session.IoSessionEx;
 
-public class NioDatagramConnectorExTest {
+public class NioSocketConnectorExIT {
 
-    private NioDatagramConnectorEx connector;
+    private NioSocketConnectorEx connector;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -37,12 +38,12 @@ public class NioDatagramConnectorExTest {
 
     @Before
     public void before() {
-        connector = new NioDatagramConnectorEx(1);
+        connector = new NioSocketConnectorEx(1);
     }
 
     @After
     public void after() throws Exception {
-        context.assertIsSatisfied();
+        connector.dispose();
     }
 
     @Test
@@ -58,13 +59,18 @@ public class NioDatagramConnectorExTest {
             }
         });
 
-        DatagramSocket socket = new DatagramSocket(new InetSocketAddress("127.0.0.1", 2123));
+        ServerSocket server = new ServerSocket();
+        server.bind(new InetSocketAddress("127.0.0.1", 2124));
 
         connector.setHandler(handler);
-        ConnectFuture future = connector.connect(new InetSocketAddress("127.0.0.1", 2123));
+        ConnectFuture future = connector.connect(new InetSocketAddress("127.0.0.1", 2124));
         IoSession session = future.await().getSession();
-        session.close(false).await();
 
-        socket.close();
+        Socket accepted = server.accept();
+        accepted.close();
+
+        session.getCloseFuture().await();
+
+        server.close();
     }
 }

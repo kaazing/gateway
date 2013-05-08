@@ -6,14 +6,13 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
+import static org.jmock.lib.script.ScriptedAction.perform;
 
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IoSession;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -24,9 +23,9 @@ import org.junit.Test;
 
 import com.kaazing.mina.core.session.IoSessionEx;
 
-public class NioSocketConnectorExTest {
+public class NioSocketAcceptorExIT {
 
-    private NioSocketConnectorEx connector;
+    private NioSocketAcceptorEx acceptor;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -35,15 +34,14 @@ public class NioSocketConnectorExTest {
         }
     };
 
-
     @Before
     public void before() {
-        connector = new NioSocketConnectorEx(1);
+        acceptor = new NioSocketAcceptorEx(1);
     }
 
     @After
     public void after() throws Exception {
-        connector.dispose();
+        acceptor.dispose();
     }
 
     @Test
@@ -55,22 +53,20 @@ public class NioSocketConnectorExTest {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
+                will(perform("$0.close(false); return;"));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
         });
 
-        ServerSocket server = new ServerSocket();
-        server.bind(new InetSocketAddress("127.0.0.1", 2124));
+        acceptor.setHandler(handler);
+        acceptor.bind(new InetSocketAddress("127.0.0.1", 2122));
 
-        connector.setHandler(handler);
-        ConnectFuture future = connector.connect(new InetSocketAddress("127.0.0.1", 2124));
-        IoSession session = future.await().getSession();
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress("127.0.0.1", 2122));
 
-        Socket accepted = server.accept();
-        accepted.close();
+        int eos = socket.getInputStream().read();
+        assertEquals(-1, eos);
 
-        session.getCloseFuture().await();
-
-        server.close();
+        acceptor.unbind();
     }
 }

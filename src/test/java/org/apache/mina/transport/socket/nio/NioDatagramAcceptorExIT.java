@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import com.kaazing.mina.core.session.IoSessionEx;
 
-public class NioDatagramAcceptorExTest {
+public class NioDatagramAcceptorExIT {
 
     private NioDatagramAcceptorEx acceptor;
 
