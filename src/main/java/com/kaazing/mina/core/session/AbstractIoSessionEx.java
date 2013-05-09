@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
+
+import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 
@@ -22,6 +24,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
 
     private final Thread ioThread;
     private final Executor ioExecutor;
+    private final boolean ioAligned;
 
     private final AtomicInteger readSuspendCount;
     private final Runnable readSuspender;
@@ -37,7 +40,12 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
-        this.filterChain = new DefaultIoFilterChainEx(this);
+
+        // note: alignment is optional before 4.0
+        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR;
+        this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
+        this.ioAligned = ioAligned;
+
         this.readSuspendCount = new AtomicInteger();
         this.readSuspender = new Runnable() {
             @Override
@@ -54,8 +62,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
-    public boolean isIoAligned() {
-        return ioExecutor != IMMEDIATE_EXECUTOR;
+    public final boolean isIoAligned() {
+        return ioAligned;
     }
 
     @Override
