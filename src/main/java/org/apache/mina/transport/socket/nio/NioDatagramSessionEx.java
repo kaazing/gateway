@@ -36,7 +36,6 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.transport.socket.DatagramSessionConfig;
 import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 
 import com.kaazing.mina.core.service.IoServiceEx;
@@ -50,7 +49,7 @@ class NioDatagramSessionEx extends NioSessionEx {
             new DefaultTransportMetadata(
                     "nio", "datagram", true, false,
                     InetSocketAddress.class,
-                    DatagramSessionConfig.class, IoBuffer.class);
+                    DatagramSessionConfigEx.class, IoBuffer.class);
 
     private final IoServiceEx service;
     private final DatagramSessionConfigEx config;

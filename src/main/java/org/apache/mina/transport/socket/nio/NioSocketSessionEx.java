@@ -39,7 +39,6 @@ import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.transport.socket.DefaultSocketSessionConfigEx;
-import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfigEx;
 
 import com.kaazing.mina.core.service.IoServiceEx;
@@ -53,7 +52,7 @@ public class NioSocketSessionEx extends NioSessionEx {
             new DefaultTransportMetadata(
                     "nio", "socket", false, true,
                     InetSocketAddress.class,
-                    SocketSessionConfig.class,
+                    SocketSessionConfigEx.class,
                     IoBuffer.class, FileRegion.class);
 
     private final IoServiceEx service;
