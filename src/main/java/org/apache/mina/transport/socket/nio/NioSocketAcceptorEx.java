@@ -72,7 +72,7 @@ public final class NioSocketAcceptorEx
      * Constructor for {@link NioSocketAcceptorEx} using default parameters (multiple thread model).
      */
     public NioSocketAcceptorEx() {
-        super(new DefaultSocketSessionConfig(), NioProcessor.class);
+        super(new DefaultSocketSessionConfigEx(), NioProcessor.class);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
 

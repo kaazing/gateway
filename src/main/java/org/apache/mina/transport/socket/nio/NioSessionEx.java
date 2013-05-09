@@ -38,13 +38,6 @@ import com.kaazing.mina.core.session.IoSessionEx;
  */
 public abstract class NioSessionEx extends NioSession implements IoSessionEx {
 
-    private static final Executor IMMEDIATE_EXECUTOR = new Executor() {
-        @Override
-        public void execute(Runnable command) {
-            command.run();
-        }
-    };
-
     abstract ByteChannel getChannel();
     abstract SelectionKey getSelectionKey();
     abstract void setSelectionKey(SelectionKey key);
@@ -62,7 +55,7 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
     }
 
     @Override
-    public boolean isThreadSafe() {
+    public boolean isIoAligned() {
         return false;
     }
 

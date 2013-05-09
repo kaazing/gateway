@@ -54,8 +54,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
-    public boolean isThreadSafe() {
-        return true;
+    public boolean isIoAligned() {
+        return ioExecutor != IMMEDIATE_EXECUTOR;
     }
 
     @Override

@@ -55,13 +55,13 @@ import org.apache.mina.util.ExceptionMonitor;
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods
  *    that we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
  * 5. Allow suspend/resumeRead to be overridden (remove final)
- * 6. Do not pass suspend/resumeWrite through to the processor, but still support them (for now) because used
+ * 6. Do not always pass suspend/resumeWrite through to the processor, but still support them (for now) because used
  *    by the Gateway codebase
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
  * 8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
  *    overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
  */
-public abstract class AbstractIoSession implements IoSession {
+public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
     private static final AttributeKey READY_READ_FUTURES_KEY =
         new AttributeKey(AbstractIoSession.class, "readyReadFutures");
@@ -599,16 +599,21 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public final void suspendWrite() {
         writeSuspended = true;
-//        if (isClosing() || !isConnected()) {
-//            return;
-//        }
-//        getProcessor().updateTrafficControl(this);
+
+        // note: alignment is optional before 4.0
+        if (!isIoAligned()) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
+            getProcessor().updateTrafficControl(this);
+        }
+
         // would like to do this but method is still used by Gateway code
 //        throw new UnsupportedOperationException();
-
     }
 
     /**
@@ -627,14 +632,19 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
-//    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
     public final void resumeWrite() {
         writeSuspended = false;
-//        if (isClosing() || !isConnected()) {
-//            return;
-//        }
-//        getProcessor().updateTrafficControl(this);
+
+        // note: alignment is optional before 4.0
+        if (!isIoAligned()) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
+            getProcessor().updateTrafficControl(this);
+        }
+
         // would like to do this but method is still used by Gateway code
 //        throw new UnsupportedOperationException();
     }

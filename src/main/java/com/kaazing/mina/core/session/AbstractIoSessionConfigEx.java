@@ -28,6 +28,11 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
 
     @Override
     protected final void doSetAll(IoSessionConfig config) {
+
+        setIdleTimeInMillis(IdleStatus.BOTH_IDLE, config.getBothIdleTimeInMillis());
+        setIdleTimeInMillis(IdleStatus.READER_IDLE, config.getReaderIdleTimeInMillis());
+        setIdleTimeInMillis(IdleStatus.WRITER_IDLE, config.getWriterIdleTimeInMillis());
+
         doSetAll((IoSessionConfigEx) config);
     }
 
@@ -47,8 +52,8 @@ public abstract class AbstractIoSessionConfigEx extends AbstractIoSessionConfig 
         this.listener = newListener;
 
         // activate notifications
+        newListener.idleTimeInMillisChanged(IdleStatus.BOTH_IDLE, idleTimeMillisForBoth);
         newListener.idleTimeInMillisChanged(IdleStatus.READER_IDLE, idleTimeMillisForRead);
-        newListener.idleTimeInMillisChanged(IdleStatus.WRITER_IDLE, idleTimeMillisForWrite);
         newListener.idleTimeInMillisChanged(IdleStatus.WRITER_IDLE, idleTimeMillisForWrite);
     }
 

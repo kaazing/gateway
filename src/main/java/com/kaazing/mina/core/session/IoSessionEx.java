@@ -13,7 +13,14 @@ import com.kaazing.mina.core.service.IoServiceEx;
 /**
  * Extended version of IoSession to add support for thread alignment.
 */
-public interface IoSessionEx extends IoSession {
+public interface IoSessionEx extends IoSession, IoAlignment {
+
+    Executor IMMEDIATE_EXECUTOR = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            command.run();
+        }
+    };
 
     /**
      * Returns the IO worker thread in which all filters on the filter chain for this session will be executed
@@ -34,5 +41,6 @@ public interface IoSessionEx extends IoSession {
     @Override
     IoServiceEx getService();
 
-    boolean isThreadSafe();
+    @Override
+    boolean isIoAligned();
 }
