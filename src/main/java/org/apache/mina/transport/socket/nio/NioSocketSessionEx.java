@@ -21,6 +21,12 @@
  *  under the License.
  *
  */
+/* This class has the following differences from NioSocketSession in Mina 2.0.0-RC1:
+ * 1. Use our XxxEx classes instead of Xxx and extends NioSessionEx instead of NioSession
+ *    in order to create sessions which implement IoSessionEx.
+ * 2. Add method initSessionConfig.
+ * 3. Remove inner class SessionConfigImpl, use DefaultSocketSessionConfigEx instead (for config member variable).
+ */
 package org.apache.mina.transport.socket.nio;
 
 import java.net.InetSocketAddress;

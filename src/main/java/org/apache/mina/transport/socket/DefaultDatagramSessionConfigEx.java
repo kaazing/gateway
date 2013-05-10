@@ -21,6 +21,10 @@
  *  under the License.
  *
  */
+/* This class has the following differences from DefaultDatagramSessionConfig in Mina 2.0.0-RC1:
+ * 1. Extend AbstractDatagramSessionConfigEx instead of AbstractDatagramSessionConfig in order to implement IoSessionConfigEx.
+ * 2. Make private static variables final for efficiency.
+ */
 package org.apache.mina.transport.socket;
 
 import java.net.DatagramSocket;

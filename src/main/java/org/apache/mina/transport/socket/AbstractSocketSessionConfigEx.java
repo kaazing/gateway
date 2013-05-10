@@ -21,6 +21,9 @@
  *  under the License.
  *
  */
+/* This class has the following differences from AbstractSocketSessionConfig in Mina 2.0.0-RC1:
+ * 1. Use our XxxEx classes instead of Xxx in order to create sessions which implement IoSessionEx.
+ */
 package org.apache.mina.transport.socket;
 
 import com.kaazing.mina.core.session.AbstractIoSessionConfigEx;

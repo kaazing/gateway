@@ -21,6 +21,10 @@
  *  under the License.
  *
  */
+/* This class has the following differences from DefaultSocketSessionConfig in Mina 2.0.0-RC1:
+ * 1. Extend AbstractSocketSessionConfigEx instead of AbstractSocketSessionConfig in order to implement IoSessionConfigEx.
+ * 2. Make private static variables final for efficiency.
+ */
 package org.apache.mina.transport.socket;
 
 import org.apache.mina.core.service.IoService;

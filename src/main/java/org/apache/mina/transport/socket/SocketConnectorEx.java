@@ -25,6 +25,9 @@ package org.apache.mina.transport.socket;
 
 import com.kaazing.mina.core.service.IoServiceEx;
 
+/**
+ * This interface extends SocketConnector in order to implement IoServiceEx
+ */
 public interface SocketConnectorEx extends SocketConnector, IoServiceEx {
 
     @Override

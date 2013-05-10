@@ -21,6 +21,11 @@
  *  under the License.
  *
  */
+/* This class has the following differences from NioSocketAcceptor in Mina 2.0.0-RC1:
+ * 1. Use NioSocketSessionEx, DefaultSocketSessionConfigEx, SocketSessionConfigEx and SocketAcceptorEx
+ *    instead of DefaultSocketSessionConfig, etc, in order to create sessions which implement IoSessionEx.
+ * 2. Make DatagramChannelIterator final for efficiency reasons.
+ */
 package org.apache.mina.transport.socket.nio;
 
 import java.net.InetSocketAddress;

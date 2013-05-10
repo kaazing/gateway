@@ -21,6 +21,13 @@
  *  under the License.
  *
  */
+/* This class has the following differences from NioSocketConnector in Mina 2.0.0-RC1:
+ * 1. Use our XxxEx classes instead of Xxx in order to create sessions which implement IoSessionEx.
+ * 2. Make SocketChannelIterator final for efficiency reasons.
+ * 3. Changes made in our Mina patch (2.0.0-RC1g):
+ *    - do not call setReceiveBufferSize in newHandle unless a special property is set
+ *    - call initSessionConfig in newSession
+ */
 package org.apache.mina.transport.socket.nio;
 
 import java.net.InetSocketAddress;

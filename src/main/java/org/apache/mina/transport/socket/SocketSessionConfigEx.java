@@ -25,6 +25,9 @@ package org.apache.mina.transport.socket;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 
+/**
+ * This interface extends SocketSessionConfig in order to implement IoSessionConfigEx
+ */
 public interface SocketSessionConfigEx extends SocketSessionConfig, IoSessionConfigEx {
 
 }

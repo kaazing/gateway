@@ -16,6 +16,8 @@ import static org.junit.Assert.fail;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +43,7 @@ import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.kaazing.mina.core.future.BindFuture;
@@ -58,6 +61,11 @@ public class NioSocketIT {
     SocketAddress bindTo2 = new LocalAddress(8124);
     ChannelIoAcceptor<?, ?, ?> acceptor;
     ChannelIoConnector<?, ?, ?> connector;
+
+    // max expected milliseconds between the call to AbstractIoSession#increaseIdleCount in
+    // DefaultIoFilterChain.fireSessionIdle and its call to our test filter's sessionIdle method
+    static final long IDLE_TOLERANCE_MILLIS = 10;
+
 
     @After
     public void tearDown() throws Exception {
@@ -346,17 +354,17 @@ public class NioSocketIT {
         acceptor.unbindAsync(bindTo).await();
     }
 
-    @Test
+    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
     public void testBothIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.BOTH_IDLE);
     }
 
-    @Test
+    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
     public void testReadIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.READER_IDLE);
     }
 
-    @Test
+    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
     public void testWriteIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.WRITER_IDLE);
     }
@@ -378,6 +386,7 @@ public class NioSocketIT {
 
         DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
         final CountDownLatch idleFired = new CountDownLatch(2);
+        final List<String> fails = new ArrayList<String>();
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
 
@@ -385,24 +394,31 @@ public class NioSocketIT {
                     IdleStatus status) throws Exception {
                 assert status.equals(statusUnderTest);
                 long idleFiredAfter = System.currentTimeMillis() - idleTimeoutSetAt;
+                long configured = session.getConfig().getIdleTimeInMillis(statusUnderTest);
                 System.out.println(
-                    format("idleTimeoutTestFilter: sessionIdle(%s) was called %d ms after calling setIdleTimeInMillis",
-                    status, idleFiredAfter));
+                    format("idleTimeoutTestFilter: sessionIdle(%s) was called %d ms after calling setIdleTimeInMillis(%d)",
+                    status, idleFiredAfter, configured));
+                if (idleFiredAfter + IDLE_TOLERANCE_MILLIS < configured) {
+                    fails.add(
+                       format("idleTimeoutTestFilter TEST FAILED: sessionIdle(%s) was called %d ms after calling "
+                               + "setIdleTimeInMillis(%d), less than configured idle time %d millis",
+                               status, idleFiredAfter, configured, configured));
+                }
                 idleFired.countDown();
                 if (idleFired.getCount() > 0) {
                     System.out.println("idleTimeoutTestFilter.sessionIdle: calling setIdleTimeInMillis(200)");
-                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(status, 200);
                     idleTimeoutSetAt = System.currentTimeMillis();
+                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(status, 200);
                 }
                 nextFilter.sessionIdle(session, status);
             }
 
             public void messageReceived(NextFilter nextFilter, IoSession session,
                     Object message) throws Exception {
-                nextFilter.messageReceived(session, message);
                 System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(50)");
-                ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, 50);
                 idleTimeoutSetAt = System.currentTimeMillis();
+                ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, 50);
+                nextFilter.messageReceived(session, message);
             }
 
         });
@@ -459,9 +475,133 @@ public class NioSocketIT {
 
         assertEquals("Exceptions caught by connector handler", 0, connectExceptionsCaught.get());
         assertEquals("Exceptions caught by acceptor handler", 0, acceptExceptionsCaught.get());
+        if (!fails.isEmpty()) {
+            fail("Failing test due to the following failure messages from the filter: " + fails);
+        }
     }
 
+    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    public void bothIdleShouldNotFireWhenNotIdle() throws Exception {
+        sessionIdleShouldNotFireWhenNotIdle(IdleStatus.BOTH_IDLE);
+    }
 
+    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    public void readIdleShouldNotFireWhenNotIdle() throws Exception {
+        sessionIdleShouldNotFireWhenNotIdle(IdleStatus.READER_IDLE);
+    }
+
+    private void sessionIdleShouldNotFireWhenNotIdle(final IdleStatus statusUnderTest) throws Exception {
+        final long IDLE_TIME = 80;
+
+        bindTo = new InetSocketAddress("localhost", nextPort(8100, 100));
+
+        final AtomicInteger acceptExceptionsCaught = new AtomicInteger(0);
+
+        // Mimic what NioSocketAcceptor does (in initAcceptor)
+        WorkerPool<NioWorker> workerPool = new NioWorkerPool(
+                Executors.newCachedThreadPool(), // worker executor
+                3); // number of workers
+        NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
+                Executors.newCachedThreadPool(), // boss executor
+                workerPool);
+        acceptor = new NioSocketChannelIoAcceptor(new DefaultNioSocketChannelIoSessionConfig(), serverChannelFactory);
+
+        DefaultIoFilterChainBuilder builder = new DefaultIoFilterChainBuilder();
+        final CountDownLatch setIdleTimeCalled = new CountDownLatch(1);
+        final List<String> fails = new ArrayList<String>();
+        builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
+            private long idleTimeoutSetAt;
+            private boolean idleTimeoutSet;
+
+            public void sessionIdle(NextFilter nextFilter, IoSession session,
+                    IdleStatus status) throws Exception {
+                assert status.equals(statusUnderTest);
+                long idleFiredAfter = System.currentTimeMillis() - idleTimeoutSetAt;
+                long configured = session.getConfig().getIdleTimeInMillis(statusUnderTest);
+                String message =
+                    format("TEST FAILED: sessionIdle(%s) was called (%d ms after calling setIdleTimeInMillis(%d))",
+                    status, idleFiredAfter, configured);
+                System.out.println(message);
+                fails.add(message);
+                nextFilter.sessionIdle(session, status);
+            }
+
+            public void messageReceived(NextFilter nextFilter, IoSession session,
+                    Object message) throws Exception {
+                if (!idleTimeoutSet) {
+                    idleTimeoutSet = true;
+                    System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(80)");
+                    idleTimeoutSetAt = System.currentTimeMillis();
+                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, 80);
+                    setIdleTimeCalled.countDown();
+                }
+                nextFilter.messageReceived(session, message);
+            }
+
+        });
+        acceptor.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
+        acceptor.setFilterChainBuilder(builder);
+        acceptor.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                System.out.println("Acceptor handler: exceptionCaught:" + cause);
+                acceptExceptionsCaught.incrementAndGet();
+            }
+        });
+
+        acceptor.bind(bindTo);
+
+        final AtomicInteger connectExceptionsCaught = new AtomicInteger(0);
+
+        NioClientSocketChannelFactory clientChannelFactory = new NioClientSocketChannelFactory(
+                newCachedThreadPool(),
+                1, // boss thread count
+                workerPool);
+        connector = new NioSocketChannelIoConnector(new DefaultNioSocketChannelIoSessionConfig(),
+                clientChannelFactory);
+        connector.setPipelineFactory(pipelineFactory(pipeline(new LoggingHandler(InternalLogLevel.INFO))));
+        connector.setFilterChainBuilder(builder);
+        connector.setHandler(new IoHandlerAdapter() {
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                connectExceptionsCaught.incrementAndGet();
+            }
+        });
+
+        final AtomicBoolean sessionInitialized = new AtomicBoolean();
+        ConnectFuture connectFuture = connector.connect(bindTo, new IoSessionInitializer<ConnectFuture>() {
+
+            @Override
+            public void initializeSession(IoSession session, ConnectFuture future) {
+                sessionInitialized.set(true);
+            }
+        });
+
+        await(connectFuture, "connect");
+        assertTrue(sessionInitialized.get());
+        final IoSession session = connectFuture.getSession();
+
+        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+
+        await(written, "session.write");
+
+        await(setIdleTimeCalled, "setIdleTime called in idleTimeoutTestFilter.messageReceived");
+
+        // If we keep sending messages at interval less than configured idle time then no
+        // session read or both idle events should be fired
+        for (int i = 0; i < 15; i++) {
+            Thread.sleep(IDLE_TIME / 5);
+            session.write(IoBuffer.wrap(new byte[] { 0x03, 0x04, 0x05 }));
+        }
+
+        await(session.close(true), "session close(true) future");
+
+        assertEquals("Exceptions caught by connector handler", 0, connectExceptionsCaught.get());
+        assertEquals("Exceptions caught by acceptor handler", 0, acceptExceptionsCaught.get());
+        if (!fails.isEmpty()) {
+            fail("Failing test due to the following failure messages from the filter: " + fails);
+        }
+    }
 
     private void await(IoFuture future, String description) throws InterruptedException {
         int waitSeconds = 10;
