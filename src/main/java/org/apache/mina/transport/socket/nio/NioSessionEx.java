@@ -4,8 +4,6 @@
 
 package org.apache.mina.transport.socket.nio;
 
-import static java.lang.Thread.currentThread;
-
 import java.util.concurrent.Executor;
 
 import com.kaazing.mina.core.session.IoSessionEx;
@@ -18,7 +16,7 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
     @Override
     public Thread getIoThread() {
         // immediate execution
-        return currentThread();
+        return CURRENT_THREAD;
     }
 
     @Override

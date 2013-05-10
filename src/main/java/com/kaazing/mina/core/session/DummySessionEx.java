@@ -81,7 +81,11 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     public DummySessionEx(Executor executor) {
-        super(currentThread(), executor);
+        this(currentThread(), executor);
+    }
+
+    private DummySessionEx(Thread thread, Executor executor) {
+        super(thread, executor);
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
                 new AbstractIoSessionConfigEx() {

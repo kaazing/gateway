@@ -20,6 +20,7 @@ import com.kaazing.mina.core.service.IoProcessorEx;
  * that all operations on the session's filter chain take place in the same IO worker thread.
 */
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
+
     private final IoFilterChain filterChain;
 
     private final Thread ioThread;
@@ -42,7 +43,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         this.ioExecutor = ioExecutor;
 
         // note: alignment is optional before 4.0
-        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR;
+        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR || ioThread != CURRENT_THREAD;
+        assert ioAligned || (ioExecutor == IMMEDIATE_EXECUTOR && ioThread == CURRENT_THREAD);
         this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
         this.ioAligned = ioAligned;
 

@@ -15,10 +15,27 @@ import com.kaazing.mina.core.service.IoServiceEx;
 */
 public interface IoSessionEx extends IoSession, IoAlignment {
 
+    Thread CURRENT_THREAD = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            throw new IllegalStateException("not runnable");
+        }
+
+        @Override
+        public String toString() {
+            return "CURRENT_THREAD";
+        }
+    });
+
     Executor IMMEDIATE_EXECUTOR = new Executor() {
         @Override
         public void execute(Runnable command) {
             command.run();
+        }
+
+        @Override
+        public String toString() {
+            return "IMMEDIATE_EXECUTOR";
         }
     };
 
