@@ -43,8 +43,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         this.ioExecutor = ioExecutor;
 
         // note: alignment is optional before 4.0
-        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR || ioThread != CURRENT_THREAD;
-        assert ioAligned || (ioExecutor == IMMEDIATE_EXECUTOR && ioThread == CURRENT_THREAD);
+        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR && ioThread != CURRENT_THREAD;
         this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
         this.ioAligned = ioAligned;
 
