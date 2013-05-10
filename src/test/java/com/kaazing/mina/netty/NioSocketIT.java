@@ -43,7 +43,6 @@ import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.kaazing.mina.core.future.BindFuture;
@@ -64,7 +63,7 @@ public class NioSocketIT {
 
     // max expected milliseconds between the call to AbstractIoSession#increaseIdleCount in
     // DefaultIoFilterChain.fireSessionIdle and its call to our test filter's sessionIdle method
-    static final long IDLE_TOLERANCE_MILLIS = 10;
+    static final long IDLE_TOLERANCE_MILLIS = 30;
 
 
     @After
@@ -354,17 +353,17 @@ public class NioSocketIT {
         acceptor.unbindAsync(bindTo).await();
     }
 
-    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    @Test
     public void testBothIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.BOTH_IDLE);
     }
 
-    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    @Test
     public void testReadIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.READER_IDLE);
     }
 
-    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    @Test
     public void testWriteIdleTimeout() throws Exception {
         testIdleTimeout(IdleStatus.WRITER_IDLE);
     }
@@ -480,12 +479,12 @@ public class NioSocketIT {
         }
     }
 
-    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    @Test
     public void bothIdleShouldNotFireWhenNotIdle() throws Exception {
         sessionIdleShouldNotFireWhenNotIdle(IdleStatus.BOTH_IDLE);
     }
 
-    @Test @Ignore // Until fix bug in DefaultIoSessionIdleTracker
+    @Test
     public void readIdleShouldNotFireWhenNotIdle() throws Exception {
         sessionIdleShouldNotFireWhenNotIdle(IdleStatus.READER_IDLE);
     }

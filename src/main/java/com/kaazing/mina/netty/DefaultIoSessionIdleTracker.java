@@ -81,12 +81,14 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private abstract class NotifyIdleTask implements TimerTask {
 
         protected final IoSessionEx session;
+        protected final IdleStatus idleStatus;
 
-        private long idleTimeMillis;
-        private Timeout timeout;
+        private volatile long idleTimeMillis;
+        private volatile Timeout timeout;
 
-        public NotifyIdleTask(IoSessionEx session) {
+        public NotifyIdleTask(IoSessionEx session, IdleStatus idleStatus) {
             this.session = session;
+            this.idleStatus = idleStatus;
         }
 
         public final void reschedule(long idleTime, TimeUnit unit)  {
@@ -102,7 +104,8 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             }
 
             if (idleTimeMillis != 0) {
-                long delayMillis = getLastIoTimeMillis() + idleTimeMillis - currentTimeMillis();
+                long baseline = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
+                long delayMillis = baseline + idleTimeMillis - currentTimeMillis();
                 timeout = timer.newTimeout(this, delayMillis, MILLISECONDS);
             }
             else {
@@ -110,24 +113,35 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             }
         }
 
+        @Override
+        public final void run(Timeout timeout) throws Exception {
+            if (timeout.isCancelled()) {
+                // reschedule has already been done, don't incur the overhead of redoing it
+                return;
+            }
+            else if (idleTimeMillis != 0 && currentTimeMillis() - getLastIoTimeMillis() >= idleTimeMillis) {
+                IoFilterChain filterChain = session.getFilterChain();
+                filterChain.fireSessionIdle(idleStatus);
+            }
+            else {
+                // An intervening event (e.g. messageReceived) meant we should no longer fire session idle.
+                // But we must reschedule to ensure accuracy of when we'll next fire sessionIdle.
+                reschedule();
+            }
+        }
+
         protected abstract long getLastIoTimeMillis();
+
+        private long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(idleStatus);
+        }
+
     }
 
     private final class NotifyBothIdleTask extends NotifyIdleTask {
 
         public NotifyBothIdleTask(IoSessionEx session) {
-            super(session);
-        }
-
-        @Override
-        public void run(Timeout timeout) throws Exception {
-            if (!timeout.isCancelled()) {
-                IoFilterChain filterChain = session.getFilterChain();
-                filterChain.fireSessionIdle(IdleStatus.BOTH_IDLE);
-            }
-            else {
-                reschedule();
-            }
+            super(session, IdleStatus.BOTH_IDLE);
         }
 
         protected long getLastIoTimeMillis() {
@@ -139,18 +153,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private final class NotifyReaderIdleTask extends NotifyIdleTask {
 
         public NotifyReaderIdleTask(IoSessionEx session) {
-            super(session);
-        }
-
-        @Override
-        public void run(Timeout timeout) throws Exception {
-            if (!timeout.isCancelled()) {
-                IoFilterChain filterChain = session.getFilterChain();
-                filterChain.fireSessionIdle(IdleStatus.READER_IDLE);
-            }
-            else {
-                reschedule();
-            }
+            super(session, IdleStatus.READER_IDLE);
         }
 
         protected long getLastIoTimeMillis() {
@@ -162,18 +165,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private final class NotifyWriterIdleTask extends NotifyIdleTask {
 
         public NotifyWriterIdleTask(IoSessionEx session) {
-            super(session);
-        }
-
-        @Override
-        public void run(Timeout timeout) throws Exception {
-            if (!timeout.isCancelled()) {
-                IoFilterChain filterChain = session.getFilterChain();
-                filterChain.fireSessionIdle(IdleStatus.WRITER_IDLE);
-            }
-            else {
-                reschedule();
-            }
+            super(session, IdleStatus.WRITER_IDLE);
         }
 
         protected long getLastIoTimeMillis() {
