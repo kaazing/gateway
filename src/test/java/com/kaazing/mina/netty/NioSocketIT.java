@@ -389,6 +389,7 @@ public class NioSocketIT {
         builder.addLast("idleTimeoutTestFilter", new IoFilterAdapter() {
             private long idleTimeoutSetAt;
 
+            @Override
             public void sessionIdle(NextFilter nextFilter, IoSession session,
                     IdleStatus status) throws Exception {
                 assert status.equals(statusUnderTest);
@@ -412,6 +413,7 @@ public class NioSocketIT {
                 nextFilter.sessionIdle(session, status);
             }
 
+            @Override
             public void messageReceived(NextFilter nextFilter, IoSession session,
                     Object message) throws Exception {
                 System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(50)");
@@ -512,6 +514,7 @@ public class NioSocketIT {
             private long idleTimeoutSetAt;
             private boolean idleTimeoutSet;
 
+            @Override
             public void sessionIdle(NextFilter nextFilter, IoSession session,
                     IdleStatus status) throws Exception {
                 assert status.equals(statusUnderTest);
@@ -525,13 +528,15 @@ public class NioSocketIT {
                 nextFilter.sessionIdle(session, status);
             }
 
+            @Override
             public void messageReceived(NextFilter nextFilter, IoSession session,
                     Object message) throws Exception {
                 if (!idleTimeoutSet) {
                     idleTimeoutSet = true;
-                    System.out.println("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(80)");
+                    System.out.println(String.format("idleTimeoutTestFilter.messageReceived: calling setIdleTimeInMillis(%d)",
+                            IDLE_TIME));
                     idleTimeoutSetAt = System.currentTimeMillis();
-                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, 80);
+                    ((IoSessionConfigEx) session.getConfig()).setIdleTimeInMillis(statusUnderTest, IDLE_TIME);
                     setIdleTimeCalled.countDown();
                 }
                 nextFilter.messageReceived(session, message);

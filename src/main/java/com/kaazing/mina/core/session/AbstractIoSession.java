@@ -60,6 +60,8 @@ import org.apache.mina.util.ExceptionMonitor;
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
  * 8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
  *    overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
+ * 9. Make lastIdleTimeFor..., lastReadTime and lastWriteTime volatile to allow multithreaded access (e.g. in
+ *    DefaultIoSessionIdleTracker).
  */
 public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
@@ -71,6 +73,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
     private static final IoFutureListener<CloseFuture> SCHEDULED_COUNTER_RESETTER =
         new IoFutureListener<CloseFuture>() {
+            @Override
             public void operationComplete(CloseFuture future) {
                 AbstractIoSession session = (AbstractIoSession) future.getSession();
                 session.scheduledWriteBytes.set(0);
@@ -122,8 +125,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     private long writtenBytes;
     private long readMessages;
     private long writtenMessages;
-    private long lastReadTime;
-    private long lastWriteTime;
+    private volatile long lastReadTime;
+    private volatile long lastWriteTime;
 
     private long lastThroughputCalculationTime;
     private long lastReadBytes;
@@ -139,9 +142,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     private AtomicInteger idleCountForRead = new AtomicInteger();
     private AtomicInteger idleCountForWrite = new AtomicInteger();
 
-    private long lastIdleTimeForBoth;
-    private long lastIdleTimeForRead;
-    private long lastIdleTimeForWrite;
+    private volatile long lastIdleTimeForBoth;
+    private volatile long lastIdleTimeForRead;
+    private volatile long lastIdleTimeForWrite;
 
     private boolean deferDecreaseReadBuffer = true;
 
@@ -441,6 +444,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
             // If we opened a FileChannel, it needs to be closed when the write has completed
             final FileChannel finalChannel = openedFileChannel;
             writeFuture.addListener(new IoFutureListener<WriteFuture>() {
+                @Override
                 public void operationComplete(WriteFuture future) {
                     try {
                         finalChannel.close();

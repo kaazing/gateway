@@ -81,31 +81,29 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private abstract class NotifyIdleTask implements TimerTask {
 
         protected final IoSessionEx session;
-        protected final IdleStatus idleStatus;
+        protected final IoFilterChain filterChain;
 
         private volatile long idleTimeMillis;
         private volatile Timeout timeout;
 
-        public NotifyIdleTask(IoSessionEx session, IdleStatus idleStatus) {
+        public NotifyIdleTask(IoSessionEx session) {
             this.session = session;
-            this.idleStatus = idleStatus;
+            this.filterChain = session.getFilterChain();
         }
 
         public final void reschedule(long idleTime, TimeUnit unit)  {
-
             idleTimeMillis = unit.toMillis(idleTime);
-
-            reschedule();
+            long startPoint = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
+            long delayMillis = startPoint + idleTimeMillis - currentTimeMillis();
+            reschedule(delayMillis);
         }
 
-        protected final void reschedule() {
+        private void reschedule(long delayMillis) {
             if (timeout != null) {
                 timeout.cancel();
             }
 
             if (idleTimeMillis != 0) {
-                long baseline = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
-                long delayMillis = baseline + idleTimeMillis - currentTimeMillis();
                 timeout = timer.newTimeout(this, delayMillis, MILLISECONDS);
             }
             else {
@@ -119,31 +117,48 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
                 // reschedule has already been done, don't incur the overhead of redoing it
                 return;
             }
-            else if (idleTimeMillis != 0 && currentTimeMillis() - getLastIoTimeMillis() >= idleTimeMillis) {
-                IoFilterChain filterChain = session.getFilterChain();
-                filterChain.fireSessionIdle(idleStatus);
+
+            long startPoint = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
+            // Doing the calculation here avoids having to call currentTimeMillis twice (here and in reschedule).
+            // Given that the precision of timeout is limited, and that lastIdleTime is only updated if idle is fired, we must
+            // always call currentTimeMillis(). For example, imagine session idle last fired at t0. Timeout will occur at or
+            // after t0 + configured idleTime. Even if an I/O event occurred after t0, we may still need to fire sessionIdle.
+            long timeUntilSessionIdle = startPoint + idleTimeMillis - currentTimeMillis();
+            if (timeUntilSessionIdle <= 0 && idleTimeMillis != 0) {
+                fireSessionIdle(filterChain);
             }
             else {
-                // An intervening event (e.g. messageReceived) meant we should no longer fire session idle.
-                // But we must reschedule to ensure accuracy of when we'll next fire sessionIdle.
-                reschedule();
+                // An intervening I/O means we should not fire session idle, but we must reschedule to ensure accuracy
+                // of when we do fire sessionIdle.
+                reschedule(timeUntilSessionIdle);
             }
         }
+
+        protected abstract void fireSessionIdle(IoFilterChain filterChain);
 
         protected abstract long getLastIoTimeMillis();
 
-        private long getLastIdleTimeMillis() {
-            return session.getLastIdleTime(idleStatus);
-        }
+        protected abstract long getLastIdleTimeMillis();
 
     }
 
     private final class NotifyBothIdleTask extends NotifyIdleTask {
 
         public NotifyBothIdleTask(IoSessionEx session) {
-            super(session, IdleStatus.BOTH_IDLE);
+            super(session);
         }
 
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.BOTH_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.BOTH_IDLE);
+        }
+
+        @Override
         protected long getLastIoTimeMillis() {
             return session.getLastIoTime();
         }
@@ -153,9 +168,20 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private final class NotifyReaderIdleTask extends NotifyIdleTask {
 
         public NotifyReaderIdleTask(IoSessionEx session) {
-            super(session, IdleStatus.READER_IDLE);
+            super(session);
         }
 
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.READER_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.READER_IDLE);
+        }
+
+        @Override
         protected long getLastIoTimeMillis() {
             return session.getLastReadTime();
         }
@@ -165,9 +191,20 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private final class NotifyWriterIdleTask extends NotifyIdleTask {
 
         public NotifyWriterIdleTask(IoSessionEx session) {
-            super(session, IdleStatus.WRITER_IDLE);
+            super(session);
         }
 
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.WRITER_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.WRITER_IDLE);
+        }
+
+        @Override
         protected long getLastIoTimeMillis() {
             return session.getLastWriteTime();
         }
