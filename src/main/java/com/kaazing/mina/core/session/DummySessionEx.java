@@ -4,8 +4,6 @@
 
 package com.kaazing.mina.core.session;
 
-import static java.lang.Thread.currentThread;
-
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.List;
@@ -72,19 +70,10 @@ public class DummySessionEx extends AbstractIoSessionEx {
      * Creates a new instance.
      */
     public DummySessionEx() {
-        this(new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        });
+        this(CURRENT_THREAD, IMMEDIATE_EXECUTOR);
     }
 
-    public DummySessionEx(Executor executor) {
-        this(currentThread(), executor);
-    }
-
-    private DummySessionEx(Thread thread, Executor executor) {
+    public DummySessionEx(Thread thread, Executor executor) {
         super(thread, executor);
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(

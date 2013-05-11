@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.core.session;
 
+import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -82,7 +83,7 @@ public class DummySessionExTest {
     private final class DummySessionExFactory implements Callable<DummySessionEx> {
         @Override
         public DummySessionEx call() {
-            return new DummySessionEx(executor);
+            return new DummySessionEx(currentThread(), executor);
         }
     }
 
