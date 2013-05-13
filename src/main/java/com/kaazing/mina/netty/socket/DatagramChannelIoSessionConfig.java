@@ -5,21 +5,17 @@
 package com.kaazing.mina.netty.socket;
 
 import org.apache.mina.transport.socket.DatagramSessionConfig;
-import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
+import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig>
-    implements DatagramSessionConfig {
+public abstract class DatagramChannelIoSessionConfig extends ChannelIoSessionConfig<DatagramChannelConfig>
+    implements DatagramSessionConfigEx {
 
-    private static final IoSessionConfigEx DEFAULT = new DefaultDatagramSessionConfigEx();
-
-    public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig) {
-        super(channelConfig);
-        // Push Mina default config settings into the channelConfig
-        doSetAll(DEFAULT);
+    public DatagramChannelIoSessionConfig(DatagramChannelConfig channelConfig, DatagramSessionConfigEx defaults) {
+        super(channelConfig, defaults);
     }
 
     @Override

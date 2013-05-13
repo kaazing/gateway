@@ -13,8 +13,10 @@ public class ChannelIoSessionConfig<T extends ChannelConfig> extends AbstractIoS
 
     protected final T channelConfig;
 
-    public ChannelIoSessionConfig(T channelConfig) {
+    public ChannelIoSessionConfig(T channelConfig, IoSessionConfigEx defaults) {
         this.channelConfig = channelConfig;
+
+        doSetAll(defaults);
     }
 
     public void setOption(String name, Object value) {

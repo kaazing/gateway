@@ -4,22 +4,18 @@
 
 package com.kaazing.mina.netty.socket;
 
-import org.apache.mina.transport.socket.DefaultSocketSessionConfigEx;
 import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfigEx;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
-                   extends ChannelIoSessionConfig<T> implements SocketSessionConfig {
+public abstract class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
+                   extends ChannelIoSessionConfig<T> implements SocketSessionConfigEx {
 
-    private static final IoSessionConfigEx DEFAULT = new DefaultSocketSessionConfigEx();
-
-    public SocketChannelIoSessionConfig(T channelConfig) {
-        super(channelConfig);
-        // Push Mina default config settings into the channelConfig
-        doSetAll(DEFAULT);
+    public SocketChannelIoSessionConfig(T channelConfig, SocketSessionConfigEx defaults) {
+        super(channelConfig, defaults);
     }
 
     @Override
