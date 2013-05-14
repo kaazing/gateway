@@ -10,9 +10,11 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
@@ -46,8 +48,9 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
     }
 
     @Override
-    public ChannelIoSession<?> createSession(Channel channel) {
-        return new NioSocketChannelIoSession(this, getProcessor(), (NioSocketChannel) channel);
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new NioSocketChannelIoSession(this, processor, (NioSocketChannel) channel);
     }
 
 }

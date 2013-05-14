@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
+
+import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 
@@ -18,10 +20,12 @@ import com.kaazing.mina.core.service.IoProcessorEx;
  * that all operations on the session's filter chain take place in the same IO worker thread.
 */
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
+
     private final IoFilterChain filterChain;
 
     private final Thread ioThread;
     private final Executor ioExecutor;
+    private final boolean ioAligned;
 
     private final AtomicInteger readSuspendCount;
     private final Runnable readSuspender;
@@ -37,7 +41,12 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
-        this.filterChain = new DefaultIoFilterChainEx(this);
+
+        // note: alignment is optional before 4.0
+        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR && ioThread != CURRENT_THREAD;
+        this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
+        this.ioAligned = ioAligned;
+
         this.readSuspendCount = new AtomicInteger();
         this.readSuspender = new Runnable() {
             @Override
@@ -51,6 +60,11 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
                 AbstractIoSessionEx.super.resumeRead();
             }
         };
+    }
+
+    @Override
+    public final boolean isIoAligned() {
+        return ioAligned;
     }
 
     @Override

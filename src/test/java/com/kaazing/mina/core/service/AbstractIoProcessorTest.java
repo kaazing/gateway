@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.core.service;
 
+import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -22,7 +23,8 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
-            oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
+            oneOf(session).isIoAligned(); will(returnValue(true));
+            oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -37,6 +39,7 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
+            oneOf(session).isIoAligned(); will(returnValue(true));
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
@@ -52,7 +55,8 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
-            oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
+            oneOf(session).isIoAligned(); will(returnValue(true));
+            oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -67,6 +71,7 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
+            oneOf(session).isIoAligned(); will(returnValue(true));
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
@@ -82,7 +87,8 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
-            oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
+            oneOf(session).isIoAligned(); will(returnValue(true));
+            oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -97,6 +103,7 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
+            oneOf(session).isIoAligned(); will(returnValue(true));
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 
@@ -112,7 +119,8 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
-            oneOf(session).getIoThread(); will(returnValue(Thread.currentThread()));
+            oneOf(session).isIoAligned(); will(returnValue(true));
+            oneOf(session).getIoThread(); will(returnValue(currentThread()));
         } });
 
         AbstractIoProcessor<IoSessionEx> processor = new TestIoProcessor<IoSessionEx>();
@@ -127,6 +135,7 @@ public class AbstractIoProcessorTest {
         final IoSessionEx session = context.mock(IoSessionEx.class);
 
         context.checking(new Expectations() { {
+            oneOf(session).isIoAligned(); will(returnValue(true));
             oneOf(session).getIoThread(); will(returnValue(TEST_THREAD));
         } });
 

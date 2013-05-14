@@ -55,13 +55,15 @@ import org.apache.mina.util.ExceptionMonitor;
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods
  *    that we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
  * 5. Allow suspend/resumeRead to be overridden (remove final)
- * 6. Do not pass suspend/resumeWrite through to the processor, but still support them (for now) because used
+ * 6. Do not always pass suspend/resumeWrite through to the processor, but still support them (for now) because used
  *    by the Gateway codebase
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
  * 8. Change closeOnFlush to call new method "protected abstract void doCloseOnFlush" so it can be
  *    overridden in AbstractIoSessionEx. Make CLOSE_REQUEST protected instead of private.
+ * 9. Make lastIdleTimeFor..., lastReadTime and lastWriteTime volatile to allow multithreaded access (e.g. in
+ *    DefaultIoSessionIdleTracker).
  */
-public abstract class AbstractIoSession implements IoSession {
+public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
     private static final AttributeKey READY_READ_FUTURES_KEY =
         new AttributeKey(AbstractIoSession.class, "readyReadFutures");
@@ -71,6 +73,7 @@ public abstract class AbstractIoSession implements IoSession {
 
     private static final IoFutureListener<CloseFuture> SCHEDULED_COUNTER_RESETTER =
         new IoFutureListener<CloseFuture>() {
+            @Override
             public void operationComplete(CloseFuture future) {
                 AbstractIoSession session = (AbstractIoSession) future.getSession();
                 session.scheduledWriteBytes.set(0);
@@ -122,8 +125,8 @@ public abstract class AbstractIoSession implements IoSession {
     private long writtenBytes;
     private long readMessages;
     private long writtenMessages;
-    private long lastReadTime;
-    private long lastWriteTime;
+    private volatile long lastReadTime;
+    private volatile long lastWriteTime;
 
     private long lastThroughputCalculationTime;
     private long lastReadBytes;
@@ -139,9 +142,9 @@ public abstract class AbstractIoSession implements IoSession {
     private AtomicInteger idleCountForRead = new AtomicInteger();
     private AtomicInteger idleCountForWrite = new AtomicInteger();
 
-    private long lastIdleTimeForBoth;
-    private long lastIdleTimeForRead;
-    private long lastIdleTimeForWrite;
+    private volatile long lastIdleTimeForBoth;
+    private volatile long lastIdleTimeForRead;
+    private volatile long lastIdleTimeForWrite;
 
     private boolean deferDecreaseReadBuffer = true;
 
@@ -441,6 +444,7 @@ public abstract class AbstractIoSession implements IoSession {
             // If we opened a FileChannel, it needs to be closed when the write has completed
             final FileChannel finalChannel = openedFileChannel;
             writeFuture.addListener(new IoFutureListener<WriteFuture>() {
+                @Override
                 public void operationComplete(WriteFuture future) {
                     try {
                         finalChannel.close();
@@ -599,16 +603,21 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
     public final void suspendWrite() {
         writeSuspended = true;
-//        if (isClosing() || !isConnected()) {
-//            return;
-//        }
-//        getProcessor().updateTrafficControl(this);
+
+        // note: alignment is optional before 4.0
+        if (!isIoAligned()) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
+            getProcessor().updateTrafficControl(this);
+        }
+
         // would like to do this but method is still used by Gateway code
 //        throw new UnsupportedOperationException();
-
     }
 
     /**
@@ -627,14 +636,19 @@ public abstract class AbstractIoSession implements IoSession {
     /**
      * {@inheritDoc}
      */
-//    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
     public final void resumeWrite() {
         writeSuspended = false;
-//        if (isClosing() || !isConnected()) {
-//            return;
-//        }
-//        getProcessor().updateTrafficControl(this);
+
+        // note: alignment is optional before 4.0
+        if (!isIoAligned()) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
+            getProcessor().updateTrafficControl(this);
+        }
+
         // would like to do this but method is still used by Gateway code
 //        throw new UnsupportedOperationException();
     }

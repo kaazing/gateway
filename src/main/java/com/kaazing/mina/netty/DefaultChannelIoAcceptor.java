@@ -8,8 +8,11 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ServerChannelFactory;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
@@ -27,6 +30,12 @@ public class DefaultChannelIoAcceptor
     public DefaultChannelIoAcceptor(IoSessionConfigEx sessionConfig,
             ServerChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
         super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTED);
+    }
+
+    @Override
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new DefaultChannelIoSession(this, processor, channel);
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.socket.DatagramChannelIoConnector;
 import com.kaazing.mina.netty.socket.DatagramChannelIoSessionConfig;
@@ -33,8 +34,9 @@ public class NioDatagramChannelIoConnector extends DatagramChannelIoConnector {
     }
 
     @Override
-    public ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
-        return new NioDatagramChannelIoSession(this, getProcessor(), (NioDatagramChannel) channel);
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new NioDatagramChannelIoSession(this, processor, (NioDatagramChannel) channel);
     }
 
 }

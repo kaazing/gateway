@@ -4,100 +4,209 @@
 
 package com.kaazing.mina.netty;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CountDownLatch;
+import static java.lang.System.currentTimeMillis;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import java.util.concurrent.TimeUnit;
 
-import com.kaazing.mina.core.session.AbstractIoSession;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.session.IdleStatus;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
+
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
+import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
+import com.kaazing.mina.core.session.IoSessionEx;
 
 final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
-    static final long IDLE_TIMEOUT_PRECISION_MILLIS = 100L;
-    private static long QUASI_IMMEDIATE_MILLIS = 10;
 
-    // auto-reaping scheduler Thread when no more live references to Timer
+    static final long PRECISION = 100L;
+
     private final Timer timer;
-    private final DefaultIoSessionIdleTracker.NotifyIdleSessionsTask timerTask;
 
     DefaultIoSessionIdleTracker() {
-        timer = new Timer(String.format("%s - idleTimeout", Thread.currentThread().getName(),
-                          true)); // use daemon thread so it doesn't prevent application shutdown
-        timerTask = new NotifyIdleSessionsTask();
-        timer.scheduleAtFixedRate(timerTask, IDLE_TIMEOUT_PRECISION_MILLIS, IDLE_TIMEOUT_PRECISION_MILLIS);
+        timer = new HashedWheelTimer(PRECISION, MILLISECONDS);
     }
 
     @Override
     public void addSession(final AbstractIoSessionEx session) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                timerTask.addSession0(session);
-            }
-        }, QUASI_IMMEDIATE_MILLIS);
-    }
-
-    @Override
-    public void dispose() {
-        final CountDownLatch disposed = new CountDownLatch(1);
-        // Cancel the timer from a timer task to guarantee that's the last thing the timer thread does
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                timer.cancel();
-                disposed.countDown();
-            }
-        }, QUASI_IMMEDIATE_MILLIS);
-        try {
-            // allow more than the expected interval in case there's heavy CPU usage
-            if (!disposed.await(10000, TimeUnit.MILLISECONDS)) {
-                    assert false : "DefaultIoSessionIdleTracker.dispose: timer task has not disposed";
-                }
-            }
-        catch (InterruptedException e) {
-            return;
-        }
+        IoSessionConfigEx config = session.getConfig();
+        config.setChangeListener(new NotifyIdleChangeListener(session));
     }
 
     @Override
     public void removeSession(final AbstractIoSessionEx session) {
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                timerTask.removeSession0(session);
-            }
-        }, QUASI_IMMEDIATE_MILLIS);
+        IoSessionConfigEx config = session.getConfig();
+        config.setChangeListener(null);
     }
 
-    private static final class NotifyIdleSessionsTask extends TimerTask {
+    @Override
+    public void dispose() {
+        timer.stop();
+    }
 
-        // Only accessed from timer thread
-        private final Collection<AbstractIoSessionEx> sessions;
+    private final class NotifyIdleChangeListener implements ChangeListener {
 
-        private NotifyIdleSessionsTask() {
-            this.sessions = new LinkedList<AbstractIoSessionEx>();
+        private final NotifyIdleTask notifyBothIdle;
+        private final NotifyIdleTask notifyReaderIdle;
+        private final NotifyIdleTask notifyWriterIdle;
+
+        NotifyIdleChangeListener(IoSessionEx session) {
+            notifyBothIdle = new NotifyBothIdleTask(session);
+            notifyReaderIdle = new NotifyReaderIdleTask(session);
+            notifyWriterIdle = new NotifyWriterIdleTask(session);
         }
 
         @Override
-        public void run() {
-            if (sessions.size() == 0) {
-                return; // no sessions left
+        public void idleTimeInMillisChanged(IdleStatus status, long idleTimeMillis) {
+
+            if (status == IdleStatus.BOTH_IDLE) {
+                notifyBothIdle.reschedule(idleTimeMillis, MILLISECONDS);
             }
-            // TailFilter in DefaultIoFilterChain(Ex) maintains last read time for us on each session
-            long currentTime = System.currentTimeMillis();
-            AbstractIoSession.notifyIdleness(sessions.iterator(), currentTime);
+            else if (status == IdleStatus.READER_IDLE) {
+                notifyReaderIdle.reschedule(idleTimeMillis, MILLISECONDS);
+            }
+            else if (status == IdleStatus.WRITER_IDLE) {
+                notifyWriterIdle.reschedule(idleTimeMillis, MILLISECONDS);
+            }
+            else {
+                throw new IllegalArgumentException("Unrecognized idle status: " + status);
+            }
+        }
+    }
+
+    private abstract class NotifyIdleTask implements TimerTask {
+
+        protected final IoSessionEx session;
+        protected final IoFilterChain filterChain;
+
+        private volatile long idleTimeMillis;
+        private volatile Timeout timeout;
+
+        public NotifyIdleTask(IoSessionEx session) {
+            this.session = session;
+            this.filterChain = session.getFilterChain();
         }
 
-        // Must be executed from timer thread
-        private void addSession0(AbstractIoSessionEx session) {
-            sessions.add(session);
+        public final void reschedule(long idleTime, TimeUnit unit)  {
+            idleTimeMillis = unit.toMillis(idleTime);
+            long startPoint = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
+            long delayMillis = startPoint + idleTimeMillis - currentTimeMillis();
+            reschedule(delayMillis);
         }
 
-        // Must be executed from timer thread
-        private void removeSession0(AbstractIoSessionEx session) {
-            sessions.remove(session);
+        private void reschedule(long delayMillis) {
+            if (timeout != null) {
+                timeout.cancel();
+            }
+
+            if (idleTimeMillis != 0) {
+                timeout = timer.newTimeout(this, delayMillis, MILLISECONDS);
+            }
+            else {
+                timeout = null;
+            }
+        }
+
+        @Override
+        public final void run(Timeout timeout) throws Exception {
+            if (timeout.isCancelled()) {
+                // reschedule has already been done, don't incur the overhead of redoing it
+                return;
+            }
+
+            long startPoint = Math.max(getLastIoTimeMillis(), getLastIdleTimeMillis());
+            // Doing the calculation here avoids having to call currentTimeMillis twice (here and in reschedule).
+            // Given that the precision of timeout is limited, and that lastIdleTime is only updated if idle is fired, we must
+            // always call currentTimeMillis(). For example, imagine session idle last fired at t0. Timeout will occur at or
+            // after t0 + configured idleTime. Even if an I/O event occurred after t0, we may still need to fire sessionIdle.
+            long timeUntilSessionIdle = startPoint + idleTimeMillis - currentTimeMillis();
+            if (timeUntilSessionIdle <= 0 && idleTimeMillis != 0) {
+                fireSessionIdle(filterChain);
+            }
+            else {
+                // An intervening I/O means we should not fire session idle, but we must reschedule to ensure accuracy
+                // of when we do fire sessionIdle.
+                reschedule(timeUntilSessionIdle);
+            }
+        }
+
+        protected abstract void fireSessionIdle(IoFilterChain filterChain);
+
+        protected abstract long getLastIoTimeMillis();
+
+        protected abstract long getLastIdleTimeMillis();
+
+    }
+
+    private final class NotifyBothIdleTask extends NotifyIdleTask {
+
+        public NotifyBothIdleTask(IoSessionEx session) {
+            super(session);
+        }
+
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.BOTH_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.BOTH_IDLE);
+        }
+
+        @Override
+        protected long getLastIoTimeMillis() {
+            return session.getLastIoTime();
+        }
+
+    }
+
+    private final class NotifyReaderIdleTask extends NotifyIdleTask {
+
+        public NotifyReaderIdleTask(IoSessionEx session) {
+            super(session);
+        }
+
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.READER_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.READER_IDLE);
+        }
+
+        @Override
+        protected long getLastIoTimeMillis() {
+            return session.getLastReadTime();
+        }
+
+    }
+
+    private final class NotifyWriterIdleTask extends NotifyIdleTask {
+
+        public NotifyWriterIdleTask(IoSessionEx session) {
+            super(session);
+        }
+
+        @Override
+        protected void fireSessionIdle(IoFilterChain filterChain) {
+            filterChain.fireSessionIdle(IdleStatus.WRITER_IDLE);
+        }
+
+        @Override
+        protected long getLastIdleTimeMillis() {
+            return session.getLastIdleTime(IdleStatus.WRITER_IDLE);
+        }
+
+        @Override
+        protected long getLastIoTimeMillis() {
+            return session.getLastWriteTime();
         }
 
     }

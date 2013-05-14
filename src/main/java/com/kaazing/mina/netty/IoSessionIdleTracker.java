@@ -10,8 +10,8 @@ public interface IoSessionIdleTracker {
 
     void addSession(final AbstractIoSessionEx session);
 
-    void dispose();
-
     void removeSession(final AbstractIoSessionEx session);
+
+    void dispose();
 
 }

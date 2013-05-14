@@ -4,23 +4,18 @@
 
 package com.kaazing.mina.netty.socket;
 
-import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
 import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.SocketSessionConfigEx;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.ChannelIoSessionConfig;
 
-public class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
-                   extends ChannelIoSessionConfig<T> implements SocketSessionConfig {
+public abstract class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
+                   extends ChannelIoSessionConfig<T> implements SocketSessionConfigEx {
 
-    private static final IoSessionConfigEx DEFAULT = new DefaultSocketSessionConfigEx();
-
-    public SocketChannelIoSessionConfig(T channelConfig) {
-        super(channelConfig);
-        // Push Mina default config settings into the channelConfig
-        doSetAll(DEFAULT);
+    public SocketChannelIoSessionConfig(T channelConfig, SocketSessionConfigEx defaults) {
+        super(channelConfig, defaults);
     }
 
     @Override
@@ -120,15 +115,5 @@ public class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
     @Override
     public void setTrafficClass(int trafficClass) {
         channelConfig.setTrafficClass(trafficClass);
-    }
-
-    private static class DefaultSocketSessionConfigEx extends DefaultSocketSessionConfig
-        implements IoSessionConfigEx {
-
-        @Override
-        public void setIdleTimeInMillis(IdleStatus status, long idleTimeMillis) {
-            throw new UnsupportedOperationException();
-        }
-
     }
 }

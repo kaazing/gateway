@@ -24,28 +24,40 @@ public abstract class AbstractIoProcessor<T extends IoSessionEx> implements IoPr
 
     @Override
     public final void add(final T session) {
-        verifyInIoThread(session, session.getIoThread());
+        // note: alignment is optional before 4.0
+        if (session.isIoAligned()) {
+            verifyInIoThread(session, session.getIoThread());
+        }
         add0(session);
     }
     protected abstract void add0(T session);
 
     @Override
     public final void flush(final T session) {
-        verifyInIoThread(session, session.getIoThread());
+        // note: alignment is optional before 4.0
+        if (session.isIoAligned()) {
+            verifyInIoThread(session, session.getIoThread());
+        }
         flush0(session);
     }
     protected abstract void flush0(T session);
 
     @Override
     public final void remove(final T session) {
-        verifyInIoThread(session, session.getIoThread());
+        // note: alignment is optional before 4.0
+        if (session.isIoAligned()) {
+            verifyInIoThread(session, session.getIoThread());
+        }
         remove0(session);
     }
     protected abstract void remove0(T session);
 
     @Override
     public final void updateTrafficControl(final T session) {
-        verifyInIoThread(session, session.getIoThread());
+        // note: alignment is optional before 4.0
+        if (session.isIoAligned()) {
+            verifyInIoThread(session, session.getIoThread());
+        }
         updateTrafficControl0(session);
     }
     protected abstract void updateTrafficControl0(T session);

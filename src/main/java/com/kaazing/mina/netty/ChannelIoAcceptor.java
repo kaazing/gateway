@@ -200,8 +200,8 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     }
 
     @Override
-    public ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
-        return new DefaultChannelIoSession(this, processor, channel);
+    public final ChannelIoSession<? extends ChannelConfig> createSession(Channel channel) {
+        return createSession(channel, processor);
     }
 
     @Override
@@ -209,6 +209,9 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
             SocketAddress localAddress) {
         throw new UnsupportedOperationException();
     }
+
+    protected abstract ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor);
 
     @Override
     protected IoFuture dispose0() throws Exception {
