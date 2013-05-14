@@ -8,27 +8,39 @@ import java.net.SocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.core.session.IoSessionConfig;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ServerChannelFactory;
 
-public class DefaultChannelIoAcceptor extends ChannelIoAcceptor<IoSessionConfig, ServerChannelFactory, SocketAddress> {
+import com.kaazing.mina.core.service.IoProcessorEx;
+import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "Channel", false, true, SocketAddress.class,
-			IoSessionConfig.class, Object.class);
-	
-	public DefaultChannelIoAcceptor(ServerChannelFactory channelFactory) {
-		this(new DefaultChannelIoSessionConfig(), channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
-	}
+public class DefaultChannelIoAcceptor
+    extends ChannelIoAcceptor<IoSessionConfigEx, ServerChannelFactory, SocketAddress> {
 
-	public DefaultChannelIoAcceptor(IoSessionConfig sessionConfig,
-			ServerChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-		super(sessionConfig, channelFactory, handlerFactory);
-	}
+    private static final TransportMetadata CONNECTED_TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "Channel", false, true, SocketAddress.class,
+            IoSessionConfigEx.class, Object.class);
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    public DefaultChannelIoAcceptor(ServerChannelFactory channelFactory) {
+        this(new DefaultChannelIoSessionConfig(), channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+    }
+
+    public DefaultChannelIoAcceptor(IoSessionConfigEx sessionConfig,
+            ServerChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTED);
+    }
+
+    @Override
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new DefaultChannelIoSession(this, processor, channel);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return CONNECTED_TRANSPORT_METADATA;
+    }
 
 }

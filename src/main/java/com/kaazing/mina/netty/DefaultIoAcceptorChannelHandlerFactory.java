@@ -4,12 +4,14 @@
 
 package com.kaazing.mina.netty;
 
-public class DefaultIoAcceptorChannelHandlerFactory implements
-		IoAcceptorChannelHandlerFactory {
+import org.jboss.netty.channel.group.ChannelGroup;
 
-	@Override
-	public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?,?,?> acceptor) {
-		return new IoAcceptorChannelHandler(acceptor);
-	}
+public class DefaultIoAcceptorChannelHandlerFactory
+       implements IoAcceptorChannelHandlerFactory {
+
+    @Override
+    public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+        return new IoAcceptorChannelHandler(acceptor, channelGroup);
+    }
 
 }

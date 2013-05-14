@@ -15,37 +15,36 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 
-	private final ChannelIoService connector;
-	private final ConnectFuture connectFuture;
-	private final IoSessionInitializer<?> sessionInitializer;
+    private final ChannelIoConnector<?, ?, ?> connector;
+    private final ConnectFuture connectFuture;
+    private final IoSessionInitializer<?> sessionInitializer;
 
-	public IoConnectorChannelHandler(ChannelIoService connector,
-			ConnectFuture connectFuture,
-			IoSessionInitializer<?> sessionInitializer) {
-		this.connector = connector;
-		this.connectFuture = connectFuture;
-		this.sessionInitializer = sessionInitializer;
-	}
+    public IoConnectorChannelHandler(ChannelIoConnector<?, ?, ?> connector, ConnectFuture connectFuture,
+                                     IoSessionInitializer<?> sessionInitializer) {
+        this.connector = connector;
+        this.connectFuture = connectFuture;
+        this.sessionInitializer = sessionInitializer;
+    }
 
-	@Override
-	public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
-			throws Exception {
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e)
+            throws Exception {
 
-		Channel channel = e.getChannel();
-		ChannelPipeline childPipeline = channel.getPipeline();
+        Channel channel = e.getChannel();
+        ChannelPipeline childPipeline = channel.getPipeline();
 
-		ChannelIoSession session = new ChannelIoSession(connector, channel);
-		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(session,
-				connectFuture, sessionInitializer);
-		childPipeline.replace(this, "session", newHandler);
+        IoSessionFactoryChannelHandler newHandler =
+                new IoSessionFactoryChannelHandler(connector, connectFuture, sessionInitializer);
+        childPipeline.replace(this, "factory", newHandler);
 
-		newHandler.channelConnected(ctx, e);
-	}
+        ChannelHandlerContext childCtx = childPipeline.getContext(newHandler);
+        newHandler.channelConnected(childCtx, e);
+    }
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-			throws Exception {
-		connectFuture.setException(e.getCause());
-	}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+            throws Exception {
+        connectFuture.setException(e.getCause());
+    }
 
 }

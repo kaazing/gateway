@@ -11,27 +11,40 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketConnector;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoConnector;
+import com.kaazing.mina.netty.DefaultIoConnectorChannelHandlerFactory;
+import com.kaazing.mina.netty.IoConnectorChannelHandlerFactory;
+import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 
-public class SocketChannelIoConnector extends ChannelIoConnector<SocketSessionConfig, ClientSocketChannelFactory, InetSocketAddress> implements SocketConnector {
+public abstract class SocketChannelIoConnector
+    extends ChannelIoConnector<SocketChannelIoSessionConfig<? extends SocketChannelConfig>,
+                               ClientSocketChannelFactory, InetSocketAddress>
+    implements SocketConnector {
 
-	private static final TransportMetadata TRANSPORT_METADATA = new DefaultTransportMetadata(
-			"Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
-			SocketSessionConfig.class, Object.class);
-	
-	public SocketChannelIoConnector(SocketSessionConfig sessionConfig,
-			ClientSocketChannelFactory channelFactory) {
-		super(sessionConfig, channelFactory);
-	}
+    private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
+            SocketSessionConfig.class, Object.class);
 
-	@Override
-	public void setDefaultRemoteAddress(InetSocketAddress remoteAddress) {
-		super.setDefaultRemoteAddress(remoteAddress);
-	}
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
+            ClientSocketChannelFactory channelFactory) {
+        this(sessionConfig, channelFactory, new DefaultIoConnectorChannelHandlerFactory());
+    }
 
-	@Override
-	public TransportMetadata getTransportMetadata() {
-		return TRANSPORT_METADATA;
-	}
+    public SocketChannelIoConnector(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
+                                    ClientSocketChannelFactory channelFactory,
+                                    IoConnectorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ClientBootstrapFactory.CONNECTED);
+    }
+
+    @Override
+    public void setDefaultRemoteAddress(InetSocketAddress remoteAddress) {
+        super.setDefaultRemoteAddress(remoteAddress);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return SOCKET_TRANSPORT_METADATA;
+    }
 }
