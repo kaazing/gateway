@@ -6,12 +6,25 @@ package org.apache.mina.transport.socket.nio;
 
 import java.util.concurrent.Executor;
 
+
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.session.IoSessionEx;
 
 /**
  * An extended version of NioSession which implements IoSessionEx.
  */
 public abstract class NioSessionEx extends NioSession implements IoSessionEx {
+
+    private IoBufferEx unsharedWriteBuffer;
+
+    public final void setUnsharedWriteBuffer(IoBufferEx writeBuffer) {
+        unsharedWriteBuffer = writeBuffer;
+    }
+
+    public final IoBufferEx getUnsharedWriteBuffer() {
+        return unsharedWriteBuffer;
+    }
 
     @Override
     public Thread getIoThread() {
@@ -30,4 +43,8 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
         return false;
     }
 
+    @Override
+    public IoBufferAllocatorEx<?> getBufferAllocator() {
+        return BUFFER_ALLOCATOR;
+    }
 }

@@ -54,7 +54,7 @@ import org.apache.mina.transport.socket.SocketSessionConfigEx;
  * {@link IoConnector} for socket transport (TCP/IP).
  */
 public final class NioSocketConnectorEx
-        extends AbstractPollingIoConnector<NioSession, SocketChannel>
+        extends AbstractPollingIoConnector<NioSessionEx, SocketChannel>
         implements SocketConnectorEx {
 
     private volatile Selector selector;
@@ -63,7 +63,7 @@ public final class NioSocketConnectorEx
      * Constructor for {@link NioSocketConnectorEx} with default configuration (multiple thread model).
      */
     public NioSocketConnectorEx() {
-        super(new DefaultSocketSessionConfigEx(), NioProcessor.class);
+        super(new DefaultSocketSessionConfigEx(), NioProcessorEx.class);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
 
@@ -74,7 +74,7 @@ public final class NioSocketConnectorEx
      * {@link SimpleIoProcessorPool}
      */
     public NioSocketConnectorEx(int processorCount) {
-        super(new DefaultSocketSessionConfigEx(), NioProcessor.class, processorCount);
+        super(new DefaultSocketSessionConfigEx(), NioProcessorEx.class, processorCount);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
 
@@ -84,7 +84,7 @@ public final class NioSocketConnectorEx
      *  {@link IoService} of the same type.
      * @param processor the processor to use for managing I/O events
      */
-    public NioSocketConnectorEx(IoProcessor<NioSession> processor) {
+    public NioSocketConnectorEx(IoProcessor<NioSessionEx> processor) {
         super(new DefaultSocketSessionConfigEx(), processor);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
@@ -96,7 +96,7 @@ public final class NioSocketConnectorEx
      * @param executor the executor for connection
      * @param processor the processor for I/O operations
      */
-    public NioSocketConnectorEx(Executor executor, IoProcessor<NioSession> processor) {
+    public NioSocketConnectorEx(Executor executor, IoProcessor<NioSessionEx> processor) {
         super(new DefaultSocketSessionConfigEx(), executor, processor);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
@@ -112,7 +112,7 @@ public final class NioSocketConnectorEx
      * @see org.apache.mina.core.service.SimpleIoProcessorPool#SimpleIoProcessorPool(Class, Executor, int)
      * @since 2.0.0-M4
      */
-    public NioSocketConnectorEx(Class<? extends IoProcessor<NioSession>> processorClass,
+    public NioSocketConnectorEx(Class<? extends IoProcessor<NioSessionEx>> processorClass,
             int processorCount) {
         super(new DefaultSocketSessionConfigEx(), processorClass, processorCount);
     }
@@ -130,7 +130,7 @@ public final class NioSocketConnectorEx
      * @see org.apache.mina.core.service.SimpleIoProcessorPool#DEFAULT_SIZE
      * @since 2.0.0-M4
      */
-    public NioSocketConnectorEx(Class<? extends IoProcessor<NioSession>> processorClass) {
+    public NioSocketConnectorEx(Class<? extends IoProcessor<NioSessionEx>> processorClass) {
         super(new DefaultSocketSessionConfigEx(), processorClass);
     }
 
@@ -276,7 +276,7 @@ public final class NioSocketConnectorEx
      * {@inheritDoc}
      */
     @Override
-    protected NioSession newSession(IoProcessor<NioSession> processor, SocketChannel handle) {
+    protected NioSessionEx newSession(IoProcessor<NioSessionEx> processor, SocketChannel handle) {
 
         final NioSocketSessionEx nioSocketSession = new NioSocketSessionEx(this, processor, handle);
         // NB: We do not catch the RuntimeIoException for this

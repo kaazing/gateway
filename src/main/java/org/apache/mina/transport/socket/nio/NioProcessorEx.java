@@ -1,0 +1,300 @@
+/**
+ * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ */
+
+package org.apache.mina.transport.socket.nio;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.concurrent.Executor;
+
+import org.apache.mina.core.RuntimeIoException;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.file.FileRegion;
+import org.apache.mina.core.polling.AbstractPollingIoProcessor;
+import org.apache.mina.core.session.SessionState;
+import org.apache.mina.core.write.WriteRequest;
+
+import com.kaazing.mina.core.buffer.IoBufferEx;
+
+/**
+ * An extended version of NioSession which implements IoSessionEx.
+ */
+public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionEx> {
+    /** The selector associated with this processor */
+    private final Selector selector;
+
+    /**
+     *
+     * Creates a new instance of NioProcessor.
+     *
+     * @param executor
+     */
+    public NioProcessorEx(Executor executor) {
+        super(executor);
+        try {
+            // Open a new selector
+            selector = Selector.open();
+        } catch (IOException e) {
+            throw new RuntimeIoException("Failed to open a selector.", e);
+        }
+    }
+
+    @Override
+    protected Object getWriteRequestMessage(NioSessionEx session, WriteRequest writeRequest) {
+        IoBufferEx writeBuffer = session.getUnsharedWriteBuffer();
+        if (writeBuffer != null) {
+            return writeBuffer;
+        }
+        return writeRequest.getMessage();
+    }
+
+    @Override
+    protected int writeBuffer(NioSessionEx session, WriteRequest req,
+            IoBuffer buf, boolean hasFragmentation, int maxLength,
+            long currentTime) throws Exception {
+
+        IoBufferEx bufEx = (IoBufferEx) buf;
+        if (!bufEx.isShared()) {
+            return super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
+        }
+
+        // IoBuffer is shared
+        ByteBuffer nioBuf = buf.buf();
+        int position = nioBuf.position();
+
+        int localWrittenBytes = super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
+
+        // write incomplete, so diverge from master IoBuffer and reset master position as if fully written
+        if (nioBuf.hasRemaining()) {
+            IoBufferEx unshared = bufEx.asUnsharedBuffer();
+            session.setUnsharedWriteBuffer(unshared);
+            nioBuf.position(position);
+        }
+
+        return localWrittenBytes;
+    }
+
+    @Override
+    protected void dispose0() throws Exception {
+        selector.close();
+    }
+
+    @Override
+    protected int select(long timeout) throws Exception {
+        return selector.select(timeout);
+    }
+
+    @Override
+    protected int select() throws Exception {
+        return selector.select();
+    }
+
+    @Override
+    protected boolean isSelectorEmpty() {
+        return selector.keys().isEmpty();
+    }
+
+    @Override
+    protected void wakeup() {
+        selector.wakeup();
+    }
+
+    @Override
+    protected Iterator<NioSessionEx> allSessions() {
+        return new IoSessionIterator(selector.keys());
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    protected Iterator<NioSessionEx> selectedSessions() {
+        return new IoSessionIterator(selector.selectedKeys());
+    }
+
+    @Override
+    protected void init(NioSessionEx session) throws Exception {
+        SelectableChannel ch = (SelectableChannel) session.getChannel();
+        ch.configureBlocking(false);
+        session.setSelectionKey(ch.register(selector, SelectionKey.OP_READ, session));
+    }
+
+    @Override
+    protected void destroy(NioSessionEx session) throws Exception {
+        ByteChannel ch = session.getChannel();
+        SelectionKey key = session.getSelectionKey();
+        if (key != null) {
+            key.cancel();
+        }
+        ch.close();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected SessionState getState(NioSessionEx session) {
+        SelectionKey key = session.getSelectionKey();
+
+        if (key == null) {
+            // The channel is not yet registered to a selector
+            return SessionState.OPENING;
+        }
+
+        if (key.isValid()) {
+            // The session is opened
+            return SessionState.OPENED;
+        } else {
+            // The session still as to be closed
+            return SessionState.CLOSING;
+        }
+    }
+
+    @Override
+    protected boolean isReadable(NioSessionEx session) {
+        SelectionKey key = session.getSelectionKey();
+        return key.isValid() && key.isReadable();
+    }
+
+    @Override
+    protected boolean isWritable(NioSessionEx session) {
+        SelectionKey key = session.getSelectionKey();
+        return key.isValid() && key.isWritable();
+    }
+
+    @Override
+    protected boolean isInterestedInRead(NioSessionEx session) {
+        SelectionKey key = session.getSelectionKey();
+        return key.isValid() && (key.interestOps() & SelectionKey.OP_READ) != 0;
+    }
+
+    @Override
+    protected boolean isInterestedInWrite(NioSessionEx session) {
+        SelectionKey key = session.getSelectionKey();
+        return key.isValid() && (key.interestOps() & SelectionKey.OP_WRITE) != 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void setInterestedInRead(NioSessionEx session, boolean isInterested) throws Exception {
+        SelectionKey key = session.getSelectionKey();
+        int oldInterestOps = key.interestOps();
+        int newInterestOps = oldInterestOps;
+
+        if (isInterested) {
+            newInterestOps |= SelectionKey.OP_READ;
+        } else {
+            newInterestOps &= ~SelectionKey.OP_READ;
+        }
+
+        if (oldInterestOps != newInterestOps) {
+            key.interestOps(newInterestOps);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void setInterestedInWrite(NioSessionEx session, boolean isInterested) throws Exception {
+        SelectionKey key = session.getSelectionKey();
+        int oldInterestOps = key.interestOps();
+        int newInterestOps = oldInterestOps;
+
+        if (isInterested) {
+            newInterestOps |= SelectionKey.OP_WRITE;
+        } else {
+            newInterestOps &= ~SelectionKey.OP_WRITE;
+        }
+
+        if (oldInterestOps != newInterestOps) {
+            key.interestOps(newInterestOps);
+        }
+    }
+
+    @Override
+    protected int read(NioSessionEx session, IoBuffer buf) throws Exception {
+        return session.getChannel().read(buf.buf());
+    }
+
+    @Override
+    protected int write(NioSessionEx session, IoBuffer buf, int length) throws Exception {
+        if (buf.remaining() <= length) {
+            return session.getChannel().write(buf.buf());
+        }
+
+        int oldLimit = buf.limit();
+        buf.limit(buf.position() + length);
+        try {
+            return session.getChannel().write(buf.buf());
+        } finally {
+            buf.limit(oldLimit);
+        }
+    }
+
+    @Override
+    protected int transferFile(NioSessionEx session, FileRegion region, int length) throws Exception {
+        try {
+            return (int) region.getFileChannel().transferTo(region.getPosition(), length, session.getChannel());
+        } catch (IOException e) {
+            // Check to see if the IOException is being thrown due to
+            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5103988
+            String message = e.getMessage();
+            if (message != null && message.contains("temporarily unavailable")) {
+                return 0;
+            }
+
+            throw e;
+        }
+    }
+
+    /**
+     * An encapsulating iterator around the  {@link Selector#selectedKeys()}
+     * or the {@link Selector#keys()} iterator;
+     */
+    protected static final class IoSessionIterator implements Iterator<NioSessionEx> {
+        private final Iterator<SelectionKey> iterator;
+
+        /**
+         * Create this iterator as a wrapper on top of the selectionKey
+         * Set.
+         * @param keys The set of selected sessions
+         */
+        private IoSessionIterator(Set<SelectionKey> keys) {
+            iterator = keys.iterator();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public NioSessionEx next() {
+            SelectionKey key = iterator.next();
+            NioSessionEx nioSession =  (NioSessionEx) key.attachment();
+            return nioSession;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void remove() {
+            iterator.remove();
+        }
+    }
+}
