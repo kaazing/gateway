@@ -48,10 +48,23 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
 
     @Override
     protected Object getWriteRequestMessage(NioSessionEx session, WriteRequest writeRequest) {
-        IoBufferEx writeBuffer = session.getUnsharedWriteBuffer();
+
+        // 1. lookup current write buffer
+        IoBufferEx writeBuffer = session.getIncompleteSharedWriteBuffer();
+
         if (writeBuffer != null) {
+            assert !writeBuffer.isShared();
+
+            // 1a. buffer obtained from a previously shared, incomplete write
+            if (!writeBuffer.hasRemaining()) {
+                // previously shared, incomplete write is now complete
+                session.setIncompleteSharedWriteBuffer(null);
+            }
+
             return writeBuffer;
         }
+
+        // 1b. current write is either unshared or first attempt
         return writeRequest.getMessage();
     }
 
@@ -60,24 +73,32 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
             IoBuffer buf, boolean hasFragmentation, int maxLength,
             long currentTime) throws Exception {
 
+        // 1. test if buffer is shared across sessions (could be same or different I/O thread)
         IoBufferEx bufEx = (IoBufferEx) buf;
         if (!bufEx.isShared()) {
+            // 1a. buffer is not shared across sessions, typical behavior
             return super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
         }
 
-        // IoBuffer is shared
+        // 2. buffer is shared across sessions
+        //    remember position in case of incomplete write
+        //    access NIO buffer directly to minimize ThreadLocal lookups
         ByteBuffer nioBuf = buf.buf();
         int position = nioBuf.position();
 
         int localWrittenBytes = super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
 
-        // write incomplete, so diverge from master IoBuffer and reset master position as if fully written
+        // 3. detect shared buffer incomplete write
         if (nioBuf.hasRemaining()) {
-            IoBufferEx unshared = bufEx.asUnsharedBuffer();
-            session.setUnsharedWriteBuffer(unshared);
+            // 3a. diverge from master shared buffer and reset master position as if fully written
+            //     master is thread local, so changing position does not affect other threads
+            IoBufferEx incomplete = bufEx.asUnsharedBuffer();
+            session.setIncompleteSharedWriteBuffer(incomplete);
             nioBuf.position(position);
         }
 
+        // 4. either shared write complete (on first attempt),
+        //    or shared write incomplete and diverged to prevent side-effects on other sessions
         return localWrittenBytes;
     }
 

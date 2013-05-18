@@ -16,14 +16,14 @@ import com.kaazing.mina.core.session.IoSessionEx;
  */
 public abstract class NioSessionEx extends NioSession implements IoSessionEx {
 
-    private IoBufferEx unsharedWriteBuffer;
+    private IoBufferEx incompleteSharedWriteBuffer;
 
-    public final void setUnsharedWriteBuffer(IoBufferEx writeBuffer) {
-        unsharedWriteBuffer = writeBuffer;
+    public final void setIncompleteSharedWriteBuffer(IoBufferEx incompleteSharedWriteBuffer) {
+        this.incompleteSharedWriteBuffer = incompleteSharedWriteBuffer;
     }
 
-    public final IoBufferEx getUnsharedWriteBuffer() {
-        return unsharedWriteBuffer;
+    public final IoBufferEx getIncompleteSharedWriteBuffer() {
+        return incompleteSharedWriteBuffer;
     }
 
     @Override
