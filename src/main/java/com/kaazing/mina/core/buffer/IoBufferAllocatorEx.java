@@ -25,7 +25,11 @@ package com.kaazing.mina.core.buffer;
 
 import java.nio.ByteBuffer;
 
+import org.apache.mina.core.buffer.IoBufferAllocator;
+
 public interface IoBufferAllocatorEx<T extends IoBufferEx> {
+
+    IoBufferAllocator asBufferAllocator();
 
     ByteBuffer allocateNioBuffer(int capacity);
 

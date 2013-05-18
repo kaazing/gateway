@@ -7,8 +7,8 @@ package org.apache.mina.transport.socket.nio;
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
-import static org.junit.Assert.assertEquals;
 import static org.jmock.lib.script.ScriptedAction.perform;
+import static org.junit.Assert.assertEquals;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;

@@ -20,6 +20,10 @@ final class ChannelWriteFutureListener implements ChannelFutureListener {
 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
+        operationComplete(future, filterChain, request);
+    }
+
+    public static void operationComplete(ChannelFuture future, IoFilterChain filterChain, WriteRequest request) {
         if (future.isSuccess()) {
             filterChain.fireMessageSent(request);
         }

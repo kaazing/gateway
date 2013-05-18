@@ -53,6 +53,8 @@ public interface IoBufferEx {
 
     boolean isShared();
 
+    IoBufferEx asSharedBuffer();
+
     IoBufferEx asUnsharedBuffer();
 
     /**

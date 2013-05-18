@@ -6,6 +6,7 @@ package com.kaazing.mina.netty;
 
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +23,10 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
 
+import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
+import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
@@ -194,15 +197,60 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
 
                 Object message = req.getMessage();
 
-                if (message instanceof IoBuffer) {
-                    IoBuffer buf = (IoBuffer) message;
-                    ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
-                } else if (message instanceof FileRegion) {
+                if (message instanceof ChannelIoBuffer) {
+                    ChannelIoBuffer buf = (ChannelIoBuffer) message;
+                    // 1. detect shared buffer
+                    if (buf.isShared()) {
+                        // 1a. buffer is shared
+                        ByteBuffer sharedBuf = buf.buf();
+                        int position = sharedBuf.position();
+
+                        // write shared buffer to channel
+                        ChannelFuture future = channel.write(wrappedBuffer(sharedBuf));
+                        if (future.isDone()) {
+                            // shared buffer write complete
+                            ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                        }
+                        else {
+                            // shared buffer write incomplete
+                            // update MINA IoBuffer to reference new shared buffer instead
+                            // (leaving old shared buffer on this NETTY channel writeQueue)
+                            ByteBuffer newSharedBuf = sharedBuf.duplicate();
+                            newSharedBuf.position(position);
+                            buf.buf(newSharedBuf);
+
+                            // register listener to detect when write completed
+                            future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                        }
+                    }
+                    else {
+                        // 1b. buffer is unshared
+                        // write unshared buffer to channel
+                        ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                        if (future.isDone()) {
+                            // unshared buffer write complete
+                            ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                        }
+                        else {
+                            // unshared buffer write incomplete
+                            future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                        }
+                    }
+                }
+                else if (message instanceof FileRegion) {
                     FileRegion region = (FileRegion) message;
                     ChannelFuture future = channel.write(region);  // TODO: FileRegion
                     future.addListener(new ChannelWriteFutureListener(filterChain, req));
-                } else {
+                }
+                else if (message instanceof IoBufferEx && ((IoBufferEx) message).isShared()) {
+                    throw new IllegalStateException("Shared buffer MUST be ChannelIoBuffer");
+                }
+                else if (message instanceof IoBuffer) {
+                    IoBuffer buf = (IoBuffer) message;
+                    ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                }
+                else {
                     throw new IllegalStateException(
                             "Don't know how to handle message of type '"
                                     + message.getClass().getName()

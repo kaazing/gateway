@@ -18,6 +18,8 @@ import com.kaazing.mina.core.session.AbstractIoSessionEx;
 
 public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSessionEx {
 
+    private static final IoBufferAllocatorEx<?> BUFFER_ALLOCATOR = new ChannelIoBufferAllocator();
+
     private final ChannelIoService service;
     private final Channel channel;
     private final ChannelIoSessionConfig<C> config;
@@ -39,7 +41,6 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
 
     @Override
     public IoBufferAllocatorEx<?> getBufferAllocator() {
-        // TODO: switch this to different allocator
         return BUFFER_ALLOCATOR;
     }
 

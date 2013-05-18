@@ -32,7 +32,17 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
  */
-public class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer> {
+public final class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer>, IoBufferAllocator {
+
+    @Override
+    public IoBufferAllocator asBufferAllocator() {
+        return this;
+    }
+
+    @Override
+    public SimpleBuffer wrap(ByteBuffer nioBuffer) {
+        return new SimpleUnsharedBuffer(nioBuffer);
+    }
 
     @Override
     public ByteBuffer allocateNioBuffer(int capacity) {
@@ -93,6 +103,11 @@ public class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBufferAl
         @Override
         public boolean isShared() {
             return false;
+        }
+
+        @Override
+        public SimpleSharedBuffer asSharedBuffer() {
+            return new SimpleSharedBuffer(buf);
         }
 
         @Override
@@ -178,6 +193,11 @@ public class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBufferAl
         @Override
         public boolean isShared() {
             return true;
+        }
+
+        @Override
+        public SimpleSharedBuffer asSharedBuffer() {
+            return this;
         }
 
         @Override
