@@ -100,7 +100,7 @@ public interface IoBufferEx {
      * {@link #shrink()} operation.  The default value is the initial capacity
      * of the buffer.
      */
-    IoBuffer minimumCapacity(int minimumCapacity);
+    IoBufferEx minimumCapacity(int minimumCapacity);
 
     /**
      * @see ByteBuffer#capacity()
@@ -280,7 +280,7 @@ public interface IoBufferEx {
     /**
      * @see ByteBuffer#put(byte)
      */
-    IoBuffer put(byte b);
+    IoBufferEx put(byte b);
 
     /**
      * @see ByteBuffer#get(int)
@@ -325,7 +325,7 @@ public interface IoBufferEx {
     /**
      * Writes the content of the specified <tt>src</tt> into this buffer.
      */
-    IoBufferEx put(IoBuffer src);
+    IoBufferEx put(IoBufferEx src);
 
     /**
      * @see ByteBuffer#put(byte[], int, int)
@@ -350,7 +350,7 @@ public interface IoBufferEx {
     /**
      * @see ByteBuffer#order(ByteOrder)
      */
-    IoBuffer order(ByteOrder bo);
+    IoBufferEx order(ByteOrder bo);
 
     /**
      * @see ByteBuffer#getChar()
@@ -614,7 +614,7 @@ public interface IoBufferEx {
     /**
      * @see ByteBuffer#putDouble(int, double)
      */
-    IoBuffer putDouble(int index, double value);
+    IoBufferEx putDouble(int index, double value);
 
     /**
      * @see ByteBuffer#asDoubleBuffer()

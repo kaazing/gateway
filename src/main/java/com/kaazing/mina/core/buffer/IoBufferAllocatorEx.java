@@ -33,22 +33,11 @@ public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
     ByteBuffer allocateNioBuffer(int capacity);
 
-    /**
-     * Returns the buffer which is capable of the specified size.
-     *
-     * @param capacity the capacity of the buffer
-     * @param direct <tt>true</tt> to get a direct buffer,
-     *               <tt>false</tt> to get a heap buffer.
-     * @param shared TODO
-     */
-    T allocate(int capacity, boolean direct, boolean shared);
-
     T allocate(int capacity, boolean shared);
 
-    /**
-     * Wraps the specified NIO {@link ByteBuffer} into MINA buffer.
-     * @param shared TODO
-     */
     T wrap(ByteBuffer nioBuffer, boolean shared);
+
+    @Deprecated // this should no longer be necessary
+    T duplicate(IoBufferEx buf);
 
 }

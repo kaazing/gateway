@@ -26,28 +26,17 @@ package com.kaazing.mina.netty;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.buffer.IoBufferAllocator;
 
+import com.kaazing.mina.core.buffer.AbstractIoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.AbstractIoBufferEx;
-import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 /**
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
  */
-public final class ChannelIoBufferAllocator implements IoBufferAllocatorEx<ChannelIoBuffer>, IoBufferAllocator {
-
-    @Override
-    public IoBufferAllocator asBufferAllocator() {
-        return this;
-    }
-
-    @Override
-    public IoBuffer wrap(ByteBuffer nioBuffer) {
-        return wrap(nioBuffer, false);
-    }
+public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<ChannelIoBuffer> {
 
     @Override
     public ByteBuffer allocateNioBuffer(int capacity) {
@@ -55,30 +44,8 @@ public final class ChannelIoBufferAllocator implements IoBufferAllocatorEx<Chann
     }
 
     @Override
-    public ChannelIoBuffer allocate(int capacity, boolean shared) {
-        return wrap(allocateNioBuffer(capacity), shared);
-    }
-
-    public ChannelIoBuffer allocate(int capacity, boolean direct, boolean shared) {
-        return wrap(allocateNioBuffer(capacity, direct), shared);
-    }
-
-    public ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
-        ByteBuffer nioBuffer;
-        if (direct) {
-            nioBuffer = ByteBuffer.allocateDirect(capacity);
-        } else {
-            nioBuffer = ByteBuffer.allocate(capacity);
-        }
-        return nioBuffer;
-    }
-
     public ChannelIoBuffer wrap(ByteBuffer nioBuffer, boolean shared) {
         return shared ? new ChannelIoSharedBuffer(nioBuffer) : new ChannelIoUnsharedBuffer(nioBuffer);
-    }
-
-    public void dispose() {
-        // Do nothing
     }
 
     abstract static class ChannelIoBuffer extends AbstractIoBufferEx {

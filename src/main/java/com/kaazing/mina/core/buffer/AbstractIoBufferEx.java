@@ -268,7 +268,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         return expand(position(), expectedRemaining, false);
     }
 
-    private IoBuffer expand(int expectedRemaining, boolean autoExpand) {
+    private AbstractIoBufferEx expand(int expectedRemaining, boolean autoExpand) {
         return expand(position(), expectedRemaining, autoExpand);
     }
 
@@ -1029,11 +1029,14 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof IoBuffer)) {
+        if (!(o instanceof AbstractIoBufferEx)) {
             return false;
         }
 
-        IoBuffer that = (IoBuffer) o;
+        AbstractIoBufferEx that = (AbstractIoBufferEx) o;
+        if (this.isShared() != that.isShared()) {
+            return false;
+        }
         if (this.remaining() != that.remaining()) {
             return false;
         }
@@ -1099,6 +1102,14 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
     @Override
     public AbstractIoBufferEx get(byte[] dst) {
         return get(dst, 0, dst.length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractIoBufferEx put(IoBufferEx src) {
+        return put(src.buf());
     }
 
     /**
@@ -2533,7 +2544,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      * This method forwards the call to {@link #expand(int)} only when
      * <tt>autoExpand</tt> property is <tt>true</tt>.
      */
-    private IoBuffer autoExpand(int expectedRemaining) {
+    private AbstractIoBufferEx autoExpand(int expectedRemaining) {
         if (isAutoExpand()) {
             expand(expectedRemaining, true);
         }
@@ -2544,7 +2555,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      * This method forwards the call to {@link #expand(int)} only when
      * <tt>autoExpand</tt> property is <tt>true</tt>.
      */
-    private IoBuffer autoExpand(int pos, int expectedRemaining) {
+    private AbstractIoBufferEx autoExpand(int pos, int expectedRemaining) {
         if (isAutoExpand()) {
             expand(pos, expectedRemaining, true);
         }

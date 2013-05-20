@@ -32,48 +32,30 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
  */
-public final class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer>, IoBufferAllocator {
+public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer> {
 
-    @Override
-    public IoBufferAllocator asBufferAllocator() {
-        return this;
-    }
+    public static final SimpleBuffer EMPTY_UNSHARED_BUFFER = new SimpleUnsharedBuffer(ByteBuffer.allocate(0));
 
-    @Override
-    public SimpleBuffer wrap(ByteBuffer nioBuffer) {
-        return new SimpleUnsharedBuffer(nioBuffer);
-    }
-
-    @Override
-    public ByteBuffer allocateNioBuffer(int capacity) {
-        return allocateNioBuffer(capacity, /* direct */ false);
-    }
-
-    @Override
-    public SimpleBuffer allocate(int capacity, boolean shared) {
-        return wrap(allocateNioBuffer(capacity), shared);
-    }
-
-    public SimpleBuffer allocate(int capacity, boolean direct, boolean shared) {
-        return wrap(allocateNioBuffer(capacity, direct), shared);
-    }
-
-    public ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
-        ByteBuffer nioBuffer;
-        if (direct) {
-            nioBuffer = ByteBuffer.allocateDirect(capacity);
-        } else {
-            nioBuffer = ByteBuffer.allocate(capacity);
+    public static final SimpleBufferAllocator HEAP_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
+        @Override
+        public ByteBuffer allocateNioBuffer(int capacity) {
+            return allocateNioBuffer(capacity, /* direct */ false);
         }
-        return nioBuffer;
+    };
+
+    public static final SimpleBufferAllocator DIRECT_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
+        @Override
+        public ByteBuffer allocateNioBuffer(int capacity) {
+            return allocateNioBuffer(capacity, /* direct */ true);
+        }
+    };
+
+    private SimpleBufferAllocator() {
     }
 
+    @Override
     public SimpleBuffer wrap(ByteBuffer nioBuffer, boolean shared) {
         return shared ? new SimpleSharedBuffer(nioBuffer) : new SimpleUnsharedBuffer(nioBuffer);
-    }
-
-    public void dispose() {
-        // Do nothing
     }
 
     abstract static class SimpleBuffer extends AbstractIoBufferEx {
@@ -157,7 +139,7 @@ public final class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBu
 
         @Override
         public void free() {
-            // Do nothing
+            // do nothing
         }
     }
 
@@ -247,7 +229,7 @@ public final class SimpleBufferAllocator implements IoBufferAllocatorEx<SimpleBu
 
         @Override
         public void free() {
-            // Do nothing
+            // do nothing
         }
 
     }

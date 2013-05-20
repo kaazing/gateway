@@ -15,10 +15,11 @@ import org.jboss.netty.channel.ChannelConfig;
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
+import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSessionEx {
 
-    private static final IoBufferAllocatorEx<?> BUFFER_ALLOCATOR = new ChannelIoBufferAllocator();
+    private static final IoBufferAllocatorEx<ChannelIoBuffer> BUFFER_ALLOCATOR = new ChannelIoBufferAllocator();
 
     private final ChannelIoService service;
     private final Channel channel;
@@ -40,7 +41,7 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
     }
 
     @Override
-    public IoBufferAllocatorEx<?> getBufferAllocator() {
+    public IoBufferAllocatorEx<ChannelIoBuffer> getBufferAllocator() {
         return BUFFER_ALLOCATOR;
     }
 

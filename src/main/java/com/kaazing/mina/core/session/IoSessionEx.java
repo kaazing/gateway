@@ -41,7 +41,7 @@ public interface IoSessionEx extends IoSession, IoAlignment {
         }
     };
 
-    IoBufferAllocatorEx<?> BUFFER_ALLOCATOR = new SimpleBufferAllocator();
+    IoBufferAllocatorEx<?> BUFFER_ALLOCATOR = SimpleBufferAllocator.HEAP_BUFFER_ALLOCATOR;
 
     /**
      * Returns the IO worker thread in which all filters on the filter chain for this session will be executed
