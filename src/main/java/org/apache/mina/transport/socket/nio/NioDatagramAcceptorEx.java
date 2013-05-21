@@ -28,6 +28,8 @@
  */
 package org.apache.mina.transport.socket.nio;
 
+import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
@@ -228,6 +230,12 @@ public final class NioDatagramAcceptorEx
     @Override
     protected void wakeup() {
         selector.wakeup();
+    }
+
+    @Override
+    protected IoBuffer newReadBuffer(int readBufferSize) {
+        // note: this assumes NioSessionEx.getBufferAllocator() returns IoSessionEx.BUFFER_ALLOCATOR
+        return BUFFER_ALLOCATOR.allocate(readBufferSize, /* shared */ false);
     }
 
     private static final class DatagramChannelIterator implements Iterator<DatagramChannel> {

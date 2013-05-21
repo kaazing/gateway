@@ -6,6 +6,7 @@ package com.kaazing.mina.netty;
 
 import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static java.lang.String.format;
+import static java.nio.ByteBuffer.wrap;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.jboss.netty.channel.Channels.pipeline;
 import static org.jboss.netty.channel.Channels.pipelineFactory;
@@ -24,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.ConnectFuture;
@@ -45,9 +45,12 @@ import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
 import org.junit.Test;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.core.session.IoSessionEx;
 import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
@@ -101,7 +104,7 @@ public class NioSocketIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer) message;
+                IoBufferEx buf = (IoBufferEx) message;
                 session.write(buf.duplicate());
             }
             @Override
@@ -145,9 +148,9 @@ public class NioSocketIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
-
-        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
 
         await(written, "session.write");
 
@@ -185,7 +188,7 @@ public class NioSocketIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer) message;
+                IoBufferEx buf = (IoBufferEx) message;
                 // Synchronous acceptor.bind call fails from an IO worker thread. But we should be able to do
                 // an asynchronous bind (see KG-7179)
                 try {
@@ -237,9 +240,10 @@ public class NioSocketIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
 
         await(written, "session.write");
 
@@ -282,7 +286,7 @@ public class NioSocketIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer) message;
+                IoBufferEx buf = (IoBufferEx) message;
                 // Test asynchronous acceptor.unbind call from an IO worker thread.
                 try {
                     unboundInIoThread[0] = acceptor.unbindAsync(bindTo2);
@@ -334,9 +338,10 @@ public class NioSocketIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
 
         await(written, "session.write");
 
@@ -463,9 +468,10 @@ public class NioSocketIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
 
         await(written, "session.write");
 
@@ -583,9 +589,10 @@ public class NioSocketIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 }));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
 
         await(written, "session.write");
 
@@ -595,7 +602,7 @@ public class NioSocketIT {
         // session read or both idle events should be fired
         for (int i = 0; i < 15; i++) {
             Thread.sleep(IDLE_TIME / 5);
-            session.write(IoBuffer.wrap(new byte[] { 0x03, 0x04, 0x05 }));
+            session.write(allocator.wrap(wrap(new byte[] { 0x03, 0x04, 0x05 }), /* shared */ false));
         }
 
         await(session.close(true), "session close(true) future");

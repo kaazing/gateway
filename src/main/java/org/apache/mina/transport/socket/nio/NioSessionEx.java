@@ -4,8 +4,6 @@
 
 package org.apache.mina.transport.socket.nio;
 
-import static org.apache.mina.core.buffer.IoBuffer.setAllocator;
-
 import java.util.concurrent.Executor;
 
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -16,12 +14,6 @@ import com.kaazing.mina.core.session.IoSessionEx;
  * An extended version of NioSession which implements IoSessionEx.
  */
 public abstract class NioSessionEx extends NioSession implements IoSessionEx {
-
-    static {
-        // MINA has static scope buffer allocator used for socket reads
-        // so we need to override default allocator when NioSessionEx is used
-        setAllocator(BUFFER_ALLOCATOR.asBufferAllocator());
-    }
 
     private IoBufferEx incompleteSharedWriteBuffer;
 

@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty;
 
+import static java.nio.ByteBuffer.wrap;
 import static org.jboss.netty.channel.Channels.pipeline;
 import static org.jboss.netty.channel.Channels.pipelineFactory;
 import static org.junit.Assert.assertTrue;
@@ -14,7 +15,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -31,6 +31,10 @@ import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLogLevel;
 import org.junit.After;
 import org.junit.Test;
+
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.session.IoSessionEx;
 
 /**
  * Integration test for mina.netty layer
@@ -66,7 +70,7 @@ public class LocalIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer) message;
+                IoBufferEx buf = (IoBufferEx) message;
                 session.write(buf.duplicate());
             }
         });
@@ -97,9 +101,9 @@ public class LocalIT {
 
         await(connectFuture, "connect");
         assertTrue(sessionInitialized.get());
-        final IoSession session = connectFuture.getSession();
-
-        await(session.write(IoBuffer.wrap(new byte[] { 0x00, 0x01, 0x02 })), "session.write");
+        final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        await(session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared*/ false)), "session.write");
 
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");

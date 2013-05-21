@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.kaazing.mina.core.buffer.AbstractIoBufferEx;
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import com.kaazing.mina.core.service.IoServiceEx;
@@ -41,7 +42,7 @@ public interface IoSessionEx extends IoSession, IoAlignment {
         }
     };
 
-    IoBufferAllocatorEx<?> BUFFER_ALLOCATOR = SimpleBufferAllocator.HEAP_BUFFER_ALLOCATOR;
+    IoBufferAllocatorEx<? extends AbstractIoBufferEx> BUFFER_ALLOCATOR = SimpleBufferAllocator.HEAP_BUFFER_ALLOCATOR;
 
     /**
      * Returns the IO worker thread in which all filters on the filter chain for this session will be executed

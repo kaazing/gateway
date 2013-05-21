@@ -6,7 +6,10 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
+import static java.nio.ByteBuffer.wrap;
+import static org.jboss.netty.util.CharsetUtil.UTF_8;
 import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.junit.Assert.assertEquals;
 
@@ -54,6 +57,8 @@ public class NioSocketAcceptorExIT {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
+                oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)),
+                        with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8)), /* shared */ false))));
                 will(perform("$0.close(false); return;"));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
@@ -66,6 +71,7 @@ public class NioSocketAcceptorExIT {
 
         Socket socket = new Socket();
         socket.connect(bindAddress);
+        socket.getOutputStream().write("text".getBytes(UTF_8));
 
         int eos = socket.getInputStream().read();
         assertEquals(-1, eos);

@@ -4,6 +4,8 @@
 
 package org.apache.mina.transport.socket.nio;
 
+import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -72,6 +74,11 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
     protected int writeBuffer(NioSessionEx session, WriteRequest req,
             IoBuffer buf, boolean hasFragmentation, int maxLength,
             long currentTime) throws Exception {
+
+        // empty buffers may not be IoBufferEx, see IoBuffer.allocate()
+        if (!buf.hasRemaining()) {
+            return super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
+        }
 
         // 1. test if buffer is shared across sessions (could be same or different I/O thread)
         IoBufferEx bufEx = (IoBufferEx) buf;
@@ -238,6 +245,12 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
         if (oldInterestOps != newInterestOps) {
             key.interestOps(newInterestOps);
         }
+    }
+
+    @Override
+    protected IoBuffer newReadBuffer(int readBufferSize) {
+        // note: this assumes NioSessionEx.getBufferAllocator() returns IoSessionEx.BUFFER_ALLOCATOR
+        return BUFFER_ALLOCATOR.allocate(readBufferSize, /* shared */ false);
     }
 
     @Override
