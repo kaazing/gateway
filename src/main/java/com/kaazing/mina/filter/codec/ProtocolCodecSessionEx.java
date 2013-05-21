@@ -12,7 +12,6 @@ import org.apache.mina.core.future.DefaultWriteFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.AbstractProtocolDecoderOutput;
-import org.apache.mina.filter.codec.AbstractProtocolEncoderOutput;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.ProtocolEncoder;
@@ -52,8 +51,8 @@ public class ProtocolCodecSessionEx extends DummySessionEx {
     private final WriteFuture notWrittenFuture =
         DefaultWriteFuture.newNotWrittenFuture(this, new UnsupportedOperationException());
 
-    private final AbstractProtocolEncoderOutput encoderOutput =
-        new AbstractProtocolEncoderOutput() {
+    private final AbstractProtocolEncoderOutputEx encoderOutput =
+        new AbstractProtocolEncoderOutputEx() {
             public WriteFuture flush() {
                 return notWrittenFuture;
             }

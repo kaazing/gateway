@@ -199,41 +199,46 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
 
                 if (message instanceof ChannelIoBuffer) {
                     ChannelIoBuffer buf = (ChannelIoBuffer) message;
-                    // 1. detect shared buffer
-                    if (buf.isShared()) {
-                        // 1a. buffer is shared
-                        ByteBuffer sharedBuf = buf.buf();
-                        int position = sharedBuf.position();
-
-                        // write shared buffer to channel
-                        ChannelFuture future = channel.write(wrappedBuffer(sharedBuf));
-                        if (future.isDone()) {
-                            // shared buffer write complete
-                            ChannelWriteFutureListener.operationComplete(future, filterChain, req);
-                        }
-                        else {
-                            // shared buffer write incomplete
-                            // update MINA IoBuffer to reference new shared buffer instead
-                            // (leaving old shared buffer on this NETTY channel writeQueue)
-                            ByteBuffer newSharedBuf = sharedBuf.duplicate();
-                            newSharedBuf.position(position);
-                            buf.buf(newSharedBuf);
-
-                            // register listener to detect when write completed
-                            future.addListener(new ChannelWriteFutureListener(filterChain, req));
-                        }
+                    if (buf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
                     }
                     else {
-                        // 1b. buffer is unshared
-                        // write unshared buffer to channel
-                        ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-                        if (future.isDone()) {
-                            // unshared buffer write complete
-                            ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                        // 1. detect shared buffer
+                        if (buf.isShared()) {
+                            // 1a. buffer is shared
+                            ByteBuffer sharedBuf = buf.buf();
+                            int position = sharedBuf.position();
+
+                            // write shared buffer to channel
+                            ChannelFuture future = channel.write(wrappedBuffer(sharedBuf));
+                            if (future.isDone()) {
+                                // shared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // shared buffer write incomplete
+                                // update MINA IoBuffer to reference new shared buffer instead
+                                // (leaving old shared buffer on this NETTY channel writeQueue)
+                                ByteBuffer newSharedBuf = sharedBuf.duplicate();
+                                newSharedBuf.position(position);
+                                buf.buf(newSharedBuf);
+
+                                // register listener to detect when write completed
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
                         }
                         else {
-                            // unshared buffer write incomplete
-                            future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            // 1b. buffer is unshared
+                            // write unshared buffer to channel
+                            ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                            if (future.isDone()) {
+                                // unshared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // unshared buffer write incomplete
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
                         }
                     }
                 }
@@ -247,8 +252,13 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                 }
                 else if (message instanceof IoBuffer) {
                     IoBuffer buf = (IoBuffer) message;
-                    ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    if (buf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
+                    }
+                    else {
+                        ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                        future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    }
                 }
                 else {
                     throw new IllegalStateException(
