@@ -34,7 +34,7 @@ public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> 
 
     @Override
     public final T duplicate(IoBufferEx buf) {
-        return wrap(buf.buf(), buf.isShared() ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
+        return wrap(buf.buf(), buf.flags());
     }
 
     @Override
