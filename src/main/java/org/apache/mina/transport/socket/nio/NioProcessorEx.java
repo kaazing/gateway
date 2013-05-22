@@ -92,11 +92,12 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
         //    access NIO buffer directly to minimize ThreadLocal lookups
         ByteBuffer nioBuf = buf.buf();
         int position = nioBuf.position();
+        int remaining = nioBuf.remaining();
 
         int localWrittenBytes = super.writeBuffer(session, req, buf, hasFragmentation, maxLength, currentTime);
 
         // 3. detect shared buffer incomplete write
-        if (nioBuf.hasRemaining()) {
+        if (localWrittenBytes < remaining) {
             // 3a. diverge from master shared buffer and reset master position as if fully written
             //     master is thread local, so changing position does not affect other threads
             IoBufferEx incomplete = bufEx.asUnsharedBuffer();
