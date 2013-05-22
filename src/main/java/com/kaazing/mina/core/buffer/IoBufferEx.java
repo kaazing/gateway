@@ -49,7 +49,15 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
 
 public interface IoBufferEx {
 
+    int FLAG_NONE     = 0x00;
+    int FLAG_READONLY = 0x01 << 0;
+    int FLAG_SHARED   = 0x01 << 1;
+    int FLAG_DIRECT   = 0x01 << 2;
+    int FLAG_OFFSET   = 0x01 << 3;
+
     IoBuffer asIoBuffer();
+
+    int flags();
 
     boolean isShared();
 

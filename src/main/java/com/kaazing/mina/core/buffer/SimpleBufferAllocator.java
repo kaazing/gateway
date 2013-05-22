@@ -38,15 +38,15 @@ public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<
 
     public static final SimpleBufferAllocator HEAP_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
         @Override
-        public ByteBuffer allocateNioBuffer(int capacity) {
-            return allocateNioBuffer(capacity, /* direct */ false);
+        public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+            return allocateNioBuffer0(capacity, flags);
         }
     };
 
     public static final SimpleBufferAllocator DIRECT_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
         @Override
-        public ByteBuffer allocateNioBuffer(int capacity) {
-            return allocateNioBuffer(capacity, /* direct */ true);
+        public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+            return allocateNioBuffer0(capacity, flags);
         }
     };
 
@@ -54,7 +54,8 @@ public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<
     }
 
     @Override
-    public SimpleBuffer wrap(ByteBuffer nioBuffer, boolean shared) {
+    public SimpleBuffer wrap(ByteBuffer nioBuffer, int flags) {
+        boolean shared = (flags & IoBufferEx.FLAG_SHARED) != IoBufferEx.FLAG_NONE;
         return shared ? new SimpleSharedBuffer(nioBuffer) : new SimpleUnsharedBuffer(nioBuffer);
     }
 
@@ -83,8 +84,8 @@ public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public boolean isShared() {
-            return false;
+        public int flags() {
+            return IoBufferEx.FLAG_NONE;
         }
 
         @Override
@@ -173,8 +174,8 @@ public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public boolean isShared() {
-            return true;
+        public int flags() {
+            return IoBufferEx.FLAG_SHARED;
         }
 
         @Override

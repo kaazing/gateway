@@ -11,8 +11,9 @@ import java.util.concurrent.Executor;
 
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.socket.DatagramChannelConfig;
-import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannel;
+import org.jboss.netty.channel.socket.nio.NioDatagramWorker;
+
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
 import com.kaazing.mina.netty.ChannelIoSession;
@@ -33,7 +34,7 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
                 currentThread(), asExecutor(channel.getWorker()));
     }
 
-    private static Executor asExecutor(Worker worker) {
+    private static Executor asExecutor(NioDatagramWorker worker) {
         assert isInIoThread(worker) : "Session created from non-I/O thread";
         WorkerExecutor executor = WORKER_EXECUTOR.get();
         if (executor == null) {
@@ -44,7 +45,7 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
         return executor;
     }
 
-    private static boolean isInIoThread(Worker worker) {
+    private static boolean isInIoThread(NioDatagramWorker worker) {
         final Thread[] ioThread = new Thread[]{null};
         worker.executeInIoThread(new Runnable() {
             @Override
@@ -58,15 +59,15 @@ public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChanne
     }
 
     private static final class WorkerExecutor implements Executor {
-        private final Worker worker;
+        private final NioDatagramWorker worker;
 
-        WorkerExecutor(Worker worker) {
+        WorkerExecutor(NioDatagramWorker worker) {
             this.worker = worker;
         }
 
         @Override
         public void execute(Runnable command) {
-            worker.executeInIoThread(command);
+            worker.executeInIoThread(command, /* alwaysAsync */ true);
         }
     }
 

@@ -25,56 +25,42 @@ package com.kaazing.mina.core.buffer;
 
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBufferAllocator;
-
 public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> implements IoBufferAllocatorEx<T> {
-
-    private IoBufferAllocator allocator;
-
-    public final IoBufferAllocator asBufferAllocator() {
-        if (allocator == null) {
-            allocator = new IoBufferAllocator() {
-
-                @Override
-                public T wrap(ByteBuffer nioBuffer) {
-                    return AbstractIoBufferAllocatorEx.this.wrap(nioBuffer, false);
-                }
-
-                @Override
-                public ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
-                    return AbstractIoBufferAllocatorEx.this.allocateNioBuffer(capacity, direct);
-                }
-
-                @Override
-                public T allocate(int capacity, boolean direct) {
-                    ByteBuffer nioBuffer = AbstractIoBufferAllocatorEx.this.allocateNioBuffer(capacity, direct);
-                    return AbstractIoBufferAllocatorEx.this.wrap(nioBuffer, /* shared */ false);
-                }
-
-                @Override
-                public void dispose() {
-                }
-            };
-        }
-        return allocator;
-    }
 
     @Override
     public final T allocate(int capacity, boolean shared) {
-        ByteBuffer nioBuffer = allocateNioBuffer(capacity);
-        return wrap(nioBuffer, shared);
+        return allocate(capacity, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
     }
 
     @Override
     public final T duplicate(IoBufferEx buf) {
-        return wrap(buf.buf(), buf.isShared());
+        return wrap(buf.buf(), buf.isShared() ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
     }
 
-    public abstract ByteBuffer allocateNioBuffer(int capacity);
+    @Override
+    public final T wrap(ByteBuffer nioBuffer, boolean shared) {
+        return wrap(nioBuffer, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
+    }
 
-    public abstract T wrap(ByteBuffer nioBuffer, boolean shared);
+    @Override
+    public final ByteBuffer allocateNioBuffer(int capacity) {
+        return allocateNioBuffer(capacity, IoBufferEx.FLAG_NONE);
+    }
 
-    protected final ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
+    @Override
+    public T allocate(int capacity, int flags) {
+        ByteBuffer nioBuffer = allocateNioBuffer(capacity, flags);
+        return wrap(nioBuffer, flags);
+    }
+
+    @Override
+    public abstract ByteBuffer allocateNioBuffer(int capacity, int flags);
+
+    @Override
+    public abstract T wrap(ByteBuffer nioBuffer, int flags);
+
+    protected final ByteBuffer allocateNioBuffer0(int capacity, int flags) {
+        boolean direct = (flags & IoBufferEx.FLAG_DIRECT) != IoBufferEx.FLAG_NONE;
         ByteBuffer nioBuffer;
         if (direct) {
             nioBuffer = ByteBuffer.allocateDirect(capacity);

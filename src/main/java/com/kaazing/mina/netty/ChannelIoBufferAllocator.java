@@ -30,6 +30,7 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
 
 import com.kaazing.mina.core.buffer.AbstractIoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.AbstractIoBufferEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 /**
@@ -39,12 +40,13 @@ import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<ChannelIoBuffer> {
 
     @Override
-    public ByteBuffer allocateNioBuffer(int capacity) {
-        return allocateNioBuffer(capacity, /* direct */ false);
+    public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+        return allocateNioBuffer0(capacity, flags);
     }
 
     @Override
-    public ChannelIoBuffer wrap(ByteBuffer nioBuffer, boolean shared) {
+    public ChannelIoBuffer wrap(ByteBuffer nioBuffer, int flags) {
+        boolean shared = (flags & IoBufferEx.FLAG_SHARED) != IoBufferEx.FLAG_NONE;
         return shared ? new ChannelIoSharedBuffer(nioBuffer) : new ChannelIoUnsharedBuffer(nioBuffer);
     }
 
@@ -104,8 +106,8 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public boolean isShared() {
-            return true;
+        public int flags() {
+            return IoBufferEx.FLAG_SHARED;
         }
 
         @Override
@@ -145,8 +147,8 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public boolean isShared() {
-            return false;
+        public int flags() {
+            return IoBufferEx.FLAG_NONE;
         }
 
         @Override

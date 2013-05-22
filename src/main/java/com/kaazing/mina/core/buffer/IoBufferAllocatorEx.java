@@ -25,17 +25,22 @@ package com.kaazing.mina.core.buffer;
 
 import java.nio.ByteBuffer;
 
-import org.apache.mina.core.buffer.IoBufferAllocator;
-
 public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
-    IoBufferAllocator asBufferAllocator();
+    T allocate(int capacity, int flags);
 
-    ByteBuffer allocateNioBuffer(int capacity);
+    T wrap(ByteBuffer nioBuffer, int flags);
 
+    ByteBuffer allocateNioBuffer(int capacity, int flags);
+
+    @Deprecated
     T allocate(int capacity, boolean shared);
 
+    @Deprecated
     T wrap(ByteBuffer nioBuffer, boolean shared);
+
+    @Deprecated
+    ByteBuffer allocateNioBuffer(int capacity);
 
     @Deprecated // this should no longer be necessary
     T duplicate(IoBufferEx buf);

@@ -683,6 +683,11 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         return this;
     }
 
+    @Override
+    public boolean isShared() {
+        return (flags() & FLAG_SHARED) != FLAG_NONE;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1034,7 +1039,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         }
 
         AbstractIoBufferEx that = (AbstractIoBufferEx) o;
-        if (this.isShared() != that.isShared()) {
+        if (this.flags() != that.flags()) {
             return false;
         }
         if (this.remaining() != that.remaining()) {
