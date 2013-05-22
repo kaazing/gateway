@@ -79,7 +79,10 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
                 if (buffer == null) {
                     product = (IoBuffer) allocator.allocate(0, /* shared */ false);
                 } else {
-                    product = buffer.flip();
+                    int allocatedPos = buffer.markValue();
+                    buffer.flip();
+                    buffer.position(allocatedPos);
+                    product = buffer;
                     buffer = null;
                 }
             }
@@ -89,6 +92,7 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
 
         if (buffer == null) {
             buffer = (IoBuffer) allocator.allocate(in.remaining(), /* shared */ false);
+            buffer.mark();
             buffer.setAutoExpand(true);
         }
 

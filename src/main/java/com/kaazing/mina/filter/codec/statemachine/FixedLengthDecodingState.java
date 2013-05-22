@@ -76,12 +76,13 @@ public abstract class FixedLengthDecodingState implements DecodingState {
             return this;
         }
 
-        if (in.remaining() >= length - buffer.position()) {
+        // TODO: use flags = flip-to-zero
+        int allocatedPos = buffer.markValue();
+        if (in.remaining() >= length - buffer.position() - allocatedPos) {
             int limit = in.limit();
-            in.limit(in.position() + length - buffer.position());
+            in.limit(in.position() + length - buffer.position() - allocatedPos);
             buffer.put(inEx);
             in.limit(limit);
-            int allocatedPos = buffer.markValue();
             buffer.flip();
             buffer.position(allocatedPos);
             IoBufferEx product = buffer;
