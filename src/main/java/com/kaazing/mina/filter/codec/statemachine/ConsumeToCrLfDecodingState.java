@@ -23,85 +23,103 @@
  */
 package com.kaazing.mina.filter.codec.statemachine;
 
-import static java.lang.String.format;
-
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
 
 /**
- * {@link DecodingState} which consumes all bytes until a fixed (ASCII)
- * character is reached. The terminator is skipped.
+ * {@link DecodingState} which consumes all bytes until a <code>CRLF</code>
+ * has been encountered.
  */
-public abstract class ConsumeToTerminatorDecodingState implements DecodingState {
+public abstract class ConsumeToCrLfDecodingState implements DecodingState {
+
+    /**
+     * Carriage return character
+     */
+    private static final byte CR = 13;
+
+    /**
+     * Line feed character
+     */
+    private static final byte LF = 10;
 
     private final IoBufferAllocatorEx<?> allocator;
-    private final int maximumSize;
-    private final byte terminator;
+    private boolean lastIsCR;
 
-    private IoBuffer buffer;
+    private IoBufferEx buffer;
 
     /**
-     * Creates a new instance using the specified terminator character.
-     *
-     * @param terminator the terminator character.
+     * Creates a new instance.
      */
-    public ConsumeToTerminatorDecodingState(IoBufferAllocatorEx<?> allocator, int maximumSize, byte terminator) {
+    public ConsumeToCrLfDecodingState(IoBufferAllocatorEx<?> allocator) {
         this.allocator = allocator;
-        this.maximumSize = maximumSize;
-        this.terminator = terminator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
             throws Exception {
-        int terminatorPos = in.indexOf(terminator);
+        int beginPos = in.position();
+        int limit = in.limit();
+        int terminatorPos = -1;
+
+        for (int i = beginPos; i < limit; i++) {
+            byte b = in.get(i);
+            if (b == CR) {
+                lastIsCR = true;
+            } else {
+                if (b == LF && lastIsCR) {
+                    terminatorPos = i;
+                    break;
+                }
+                lastIsCR = false;
+            }
+        }
 
         if (terminatorPos >= 0) {
-            int limit = in.limit();
-            IoBuffer product;
+            IoBufferEx product;
 
-            if (in.position() < terminatorPos) {
-                in.limit(terminatorPos);
+            int endPos = terminatorPos - 1;
 
-                if (in.remaining() > maximumSize) {
-                    throw new ProtocolDecoderException(format("Maximum size of %d bytes exceeded", maximumSize));
-                }
+            if (beginPos < endPos) {
+                in.limit(endPos);
 
                 if (buffer == null) {
-                    product = in.slice();
+                    product = ((IoBufferEx) in).slice();
                 } else {
-                    buffer.put(in);
+                    buffer.put((IoBufferEx) in);
                     product = buffer.flip();
                     buffer = null;
                 }
 
                 in.limit(limit);
             } else {
-                // When input contained only terminator rather than actual data...
+                // When input contained only CR or LF rather than actual data...
                 if (buffer == null) {
-                    product = (IoBuffer) allocator.allocate(0);
+                    product = allocator.allocate(0);
                 } else {
-                    buffer.flip();
-                    product = buffer;
+                    product = buffer.flip();
                     buffer = null;
                 }
             }
             in.position(terminatorPos + 1);
-            return finishDecode(product, out);
+            return finishDecode((IoBuffer) product, out);
         }
+
+        in.position(beginPos);
 
         if (buffer == null) {
-            buffer = (IoBuffer) allocator.allocate(maximumSize);
+            buffer = allocator.allocate(in.remaining());
+            buffer.setAutoExpander(allocator);
         }
 
-        buffer.put(in);
+        buffer.put((IoBufferEx) in);
+
+        if (lastIsCR) {
+            buffer.position(buffer.position() - 1);
+        }
+
         return this;
     }
 
@@ -109,23 +127,22 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
      * {@inheritDoc}
      */
     @Override
-    public DecodingState finishDecode(ProtocolDecoderOutput out)
-            throws Exception {
-        IoBuffer product;
-        // When input contained only terminator rather than actual data...
+    public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
+        IoBufferEx product;
+        // When input contained only CR or LF rather than actual data...
         if (buffer == null) {
-            product = (IoBuffer) allocator.allocate(0);
+            product = allocator.allocate(0);
         } else {
             product = buffer.flip();
             buffer = null;
         }
-        return finishDecode(product, out);
+        return finishDecode((IoBuffer) product, out);
     }
 
     /**
-     * Invoked when this state has reached the terminator byte.
+     * Invoked when this state has reached a <code>CRLF</code>.
      *
-     * @param product the read bytes not including the terminator.
+     * @param product the read bytes including the <code>CRLF</code>.
      * @param out the current {@link ProtocolDecoderOutput} used to write
      *        decoded messages.
      * @return the next state if a state transition was triggered (use

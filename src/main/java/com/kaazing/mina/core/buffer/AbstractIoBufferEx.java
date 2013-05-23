@@ -60,14 +60,44 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
  * @see IoBufferAllocator
  */
 public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx {
+
+    static {
+        // ensure we have only IoBufferEx classes, not raw IoBuffers
+        if (IoBufferAllocatorEx.class.desiredAssertionStatus()) {
+            IoBufferAllocator newAllocator = new IoBufferAllocator() {
+
+                @Override
+                public IoBuffer wrap(ByteBuffer nioBuffer) {
+                    throw new UnsupportedOperationException("use IoBufferAllocatorEx<?>.wrap(...) instead");
+                }
+
+                @Override
+                public ByteBuffer allocateNioBuffer(int capacity, boolean direct) {
+                    throw new UnsupportedOperationException("use IoBufferAllocatorEx<?>.allocateNioBuffer(...) instead");
+                }
+
+                @Override
+                public IoBuffer allocate(int capacity, boolean direct) {
+                    throw new UnsupportedOperationException("use IoBufferAllocatorEx<?>.allocate(...) instead");
+                }
+
+                @Override
+                public void dispose() {
+                    // nothing
+                }
+            };
+            IoBuffer.setAllocator(newAllocator);
+        }
+    }
+
     /** Tells if a buffer has been created from an existing buffer */
     private final boolean derived;
 
-    /** A flag set to true if the buffer can extend automatically */
-    private boolean autoExpand;
+    /** An allocator set to non-null if the buffer can extend automatically */
+    private IoBufferAllocatorEx<?> autoExpander;
 
-    /** A flag set to true if the buffer can shrink automatically */
-    private boolean autoShrink;
+    /** An allocator set to non-null if the buffer can shrink automatically */
+    private IoBufferAllocatorEx<?> autoShrinker;
 
     /** Tells if a buffer can be expanded */
     private boolean recapacityAllowed = true;
@@ -108,7 +138,6 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      * @param parent The buffer we get the properties from
      */
     protected AbstractIoBufferEx(AbstractIoBufferEx parent) {
-//        setAllocator(parent.getAllocator());
         this.recapacityAllowed = false;
         this.derived = true;
         this.minimumCapacity = parent.minimumCapacity;
@@ -176,6 +205,14 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public AbstractIoBufferEx capacity(int newCapacity) {
+        throw new IllegalStateException("Use IoBufferEx.compact(...) instead");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractIoBufferEx capacity(int newCapacity, IoBufferAllocatorEx<?> reallocator) {
         if (!recapacityAllowed) {
             throw new IllegalStateException(
                     "Derived buffers and their parent can't be expanded.");
@@ -191,8 +228,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
             //// Reallocate.
             ByteBuffer oldBuf = buf();
-            ByteBuffer newBuf = getAllocator().allocateNioBuffer(newCapacity,
-                    isDirect());
+            ByteBuffer newBuf = reallocator.allocateNioBuffer(newCapacity, flags());
             oldBuf.clear();
             newBuf.put(oldBuf);
             buf(newBuf);
@@ -215,7 +251,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public final boolean isAutoExpand() {
-        return autoExpand && recapacityAllowed;
+        return (autoExpander != null) && recapacityAllowed;
     }
 
     /**
@@ -223,7 +259,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public final boolean isAutoShrink() {
-        return autoShrink && recapacityAllowed;
+        return (autoShrinker != null) && recapacityAllowed;
     }
 
     /**
@@ -243,7 +279,20 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
             throw new IllegalStateException(
                     "Derived buffers and their parent can't be expanded.");
         }
-        this.autoExpand = autoExpand;
+
+        if (!autoExpand) {
+            this.autoExpander = null;
+        }
+        else {
+            throw new IllegalStateException("Use IoBufferEx.setAutoExpander(...) instead");
+        }
+
+        return this;
+    }
+
+    @Override
+    public AbstractIoBufferEx setAutoExpander(IoBufferAllocatorEx<?> autoExpander) {
+        this.autoExpander = autoExpander;
         return this;
     }
 
@@ -256,7 +305,20 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
             throw new IllegalStateException(
                     "Derived buffers and their parent can't be shrinked.");
         }
-        this.autoShrink = autoShrink;
+
+        if (!autoShrink) {
+            this.autoShrinker = null;
+        }
+        else {
+            throw new IllegalStateException("Use IoBufferEx.setAutoShrinker(...) instead");
+        }
+
+        return this;
+    }
+
+    @Override
+    public AbstractIoBufferEx setAutoShrinker(IoBufferAllocatorEx<?> autoShrinker) {
+        this.autoShrinker = autoShrinker;
         return this;
     }
 
@@ -265,11 +327,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public AbstractIoBufferEx expand(int expectedRemaining) {
-        return expand(position(), expectedRemaining, false);
-    }
-
-    private AbstractIoBufferEx expand(int expectedRemaining, boolean autoExpand) {
-        return expand(position(), expectedRemaining, autoExpand);
+        throw new IllegalStateException("Use IoBufferEx.expand(...) instead");
     }
 
     /**
@@ -277,10 +335,30 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public AbstractIoBufferEx expand(int pos, int expectedRemaining) {
-        return expand(pos, expectedRemaining, false);
+        throw new IllegalStateException("Use IoBufferEx.expand(...) instead");
     }
 
-    private AbstractIoBufferEx expand(int pos, int expectedRemaining, boolean autoExpand) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractIoBufferEx expand(int expectedRemaining, IoBufferAllocatorEx<?> expander) {
+        return expand(position(), expectedRemaining, false, expander);
+    }
+
+    private AbstractIoBufferEx expand(int expectedRemaining, boolean autoExpand, IoBufferAllocatorEx<?> expander) {
+        return expand(position(), expectedRemaining, autoExpand, expander);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractIoBufferEx expand(int pos, int expectedRemaining, IoBufferAllocatorEx<?> expander) {
+        return expand(pos, expectedRemaining, false, expander);
+    }
+
+    private AbstractIoBufferEx expand(int pos, int expectedRemaining, boolean autoExpand, IoBufferAllocatorEx<?> expander) {
         if (!recapacityAllowed) {
             throw new IllegalStateException(
                     "Derived buffers and their parent can't be expanded.");
@@ -295,7 +373,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         }
         if (newCapacity > capacity()) {
             // The buffer needs expansion.
-            capacity(newCapacity);
+            capacity(newCapacity, expander);
         }
 
         if (end > limit()) {
@@ -310,7 +388,11 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public AbstractIoBufferEx shrink() {
+        throw new IllegalStateException("Use IoBufferEx.shrink(...) instead");
+    }
 
+    @Override
+    public AbstractIoBufferEx shrink(IoBufferAllocatorEx<?> shrinker) {
         if (!recapacityAllowed) {
             throw new IllegalStateException(
                     "Derived buffers and their parent can't be expanded.");
@@ -344,8 +426,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
         //// Reallocate.
         ByteBuffer oldBuf = buf();
-        ByteBuffer newBuf = getAllocator()
-                .allocateNioBuffer(newCapacity, isDirect());
+        ByteBuffer newBuf = shrinker.allocateNioBuffer(newCapacity, flags());
         oldBuf.position(0);
         oldBuf.limit(limit);
         newBuf.put(oldBuf);
@@ -616,8 +697,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
             //// Reallocate.
             ByteBuffer oldBuf = buf();
-            ByteBuffer newBuf = getAllocator().allocateNioBuffer(newCapacity,
-                    isDirect());
+            ByteBuffer newBuf = autoShrinker.allocateNioBuffer(newCapacity, flags());
             newBuf.put(oldBuf);
             buf(newBuf);
 
@@ -2551,7 +2631,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     private AbstractIoBufferEx autoExpand(int expectedRemaining) {
         if (isAutoExpand()) {
-            expand(expectedRemaining, true);
+            expand(expectedRemaining, true, autoExpander);
         }
         return this;
     }
@@ -2562,7 +2642,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     private AbstractIoBufferEx autoExpand(int pos, int expectedRemaining) {
         if (isAutoExpand()) {
-            expand(pos, expectedRemaining, true);
+            expand(pos, expectedRemaining, true, autoExpander);
         }
         return this;
     }

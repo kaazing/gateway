@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import com.kaazing.mina.core.session.IoSessionEx;
 
 /**
@@ -44,6 +45,6 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
 
     @Override
     public IoBufferAllocatorEx<?> getBufferAllocator() {
-        return BUFFER_ALLOCATOR;
+        return SimpleBufferAllocator.BUFFER_ALLOCATOR;
     }
 }

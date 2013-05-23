@@ -49,11 +49,11 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
 
 public interface IoBufferEx {
 
-    int FLAG_NONE     = 0x00;
-    int FLAG_READONLY = 0x01 << 0;
-    int FLAG_SHARED   = 0x01 << 1;
-    int FLAG_DIRECT   = 0x01 << 2;
-    int FLAG_OFFSET   = 0x01 << 3;
+    int FLAG_NONE      = 0x00;
+    int FLAG_READONLY  = 0x01 << 0;
+    int FLAG_SHARED    = 0x01 << 1;
+    int FLAG_DIRECT    = 0x01 << 2;
+    int FLAG_ZERO_COPY = 0x01 << 3;
 
     IoBuffer asIoBuffer();
 
@@ -122,7 +122,7 @@ public interface IoBufferEx {
      * reallocated while retaining the position, limit, mark and the content
      * of the buffer.
      */
-    IoBufferEx capacity(int newCapacity);
+    IoBufferEx capacity(int newCapacity, IoBufferAllocatorEx<?> reallocator);
 
     /**
      * Returns <tt>true</tt> if and only if <tt>autoExpand</tt> is turned on.
@@ -132,7 +132,9 @@ public interface IoBufferEx {
     /**
      * Turns on or off <tt>autoExpand</tt>.
      */
-    IoBufferEx setAutoExpand(boolean autoExpand);
+//    IoBufferEx setAutoExpand(boolean autoExpand);
+
+    IoBufferEx setAutoExpander(IoBufferAllocatorEx<?> autoExpander);
 
     /**
      * Returns <tt>true</tt> if and only if <tt>autoShrink</tt> is turned on.
@@ -142,7 +144,7 @@ public interface IoBufferEx {
     /**
      * Turns on or off <tt>autoShrink</tt>.
      */
-    IoBufferEx setAutoShrink(boolean autoShrink);
+    IoBufferEx setAutoShrinker(IoBufferAllocatorEx<?> autoShrinker);
 
     /**
      * Changes the capacity and limit of this buffer so this buffer get
@@ -150,7 +152,7 @@ public interface IoBufferEx {
      * This method works even if you didn't set <tt>autoExpand</tt> to
      * <tt>true</tt>.
      */
-    IoBufferEx expand(int expectedRemaining);
+    IoBufferEx expand(int expectedRemaining, IoBufferAllocatorEx<?> expander);
 
     /**
      * Changes the capacity and limit of this buffer so this buffer get
@@ -159,7 +161,7 @@ public interface IoBufferEx {
      * This method works even if you didn't set <tt>autoExpand</tt> to
      * <tt>true</tt>.
      */
-    IoBufferEx expand(int position, int expectedRemaining);
+    IoBufferEx expand(int position, int expectedRemaining, IoBufferAllocatorEx<?> expander);
 
     /**
      * Changes the capacity of this buffer so this buffer occupies as less
@@ -168,7 +170,7 @@ public interface IoBufferEx {
      * buffer never becomes less than {@link #minimumCapacity()}.
      * The mark is discarded once the capacity changes.
      */
-    IoBufferEx shrink();
+    IoBufferEx shrink(IoBufferAllocatorEx<?> shrinker);
 
     /**
      * @see java.nio.Buffer#position()

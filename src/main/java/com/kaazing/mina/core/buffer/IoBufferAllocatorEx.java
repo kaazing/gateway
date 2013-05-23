@@ -27,9 +27,16 @@ import java.nio.ByteBuffer;
 
 public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
+    T allocate(int capacity);
+
     T allocate(int capacity, int flags);
 
+    T wrap(ByteBuffer nioBuffer);
+
     T wrap(ByteBuffer nioBuffer, int flags);
+
+    @Deprecated
+    ByteBuffer allocateNioBuffer(int capacity);
 
     ByteBuffer allocateNioBuffer(int capacity, int flags);
 
@@ -38,9 +45,6 @@ public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
     @Deprecated
     T wrap(ByteBuffer nioBuffer, boolean shared);
-
-    @Deprecated
-    ByteBuffer allocateNioBuffer(int capacity);
 
     @Deprecated // this should no longer be necessary
     T duplicate(IoBufferEx buf);

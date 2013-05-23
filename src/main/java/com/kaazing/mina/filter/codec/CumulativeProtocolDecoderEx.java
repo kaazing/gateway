@@ -175,8 +175,7 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
                 buf.flip();
                 buf.position(allocatedPos);
 
-                IoBufferEx newBuf = allocator.allocate(
-                        buf.remaining() + in.remaining(), /* shared */ false).setAutoExpand(true);
+                IoBufferEx newBuf = allocator.allocate(buf.remaining() + in.remaining()).setAutoExpander(allocator);
                 int allocatedNewPos = newBuf.position();
                 newBuf.order(buf.order());
                 newBuf.put(buf);
@@ -255,7 +254,7 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
     }
 
     private void storeRemainingInSession(IoBufferEx buf, IoSession session) {
-        final IoBufferEx remainingBuf = allocator.allocate(buf.capacity(), buf.isShared()).setAutoExpand(true);
+        final IoBufferEx remainingBuf = allocator.allocate(buf.capacity(), buf.flags()).setAutoExpander(allocator);
         remainingBuf.mark();
         remainingBuf.order(buf.order());
         remainingBuf.put(buf);

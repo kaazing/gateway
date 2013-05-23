@@ -23,37 +23,18 @@
  */
 package com.kaazing.mina.filter.codec.statemachine;
 
-import static java.lang.String.format;
-
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
-
-import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
 /**
  * {@link DecodingState} which consumes all bytes until a fixed (ASCII)
  * character is reached. The terminator is skipped.
  */
-public abstract class ConsumeToTerminatorDecodingState implements DecodingState {
-
-    private final IoBufferAllocatorEx<?> allocator;
-    private final int maximumSize;
-    private final byte terminator;
+public abstract class ConsumeToDynamicTerminatorDecodingState implements
+        DecodingState {
 
     private IoBuffer buffer;
-
-    /**
-     * Creates a new instance using the specified terminator character.
-     *
-     * @param terminator the terminator character.
-     */
-    public ConsumeToTerminatorDecodingState(IoBufferAllocatorEx<?> allocator, int maximumSize, byte terminator) {
-        this.allocator = allocator;
-        this.maximumSize = maximumSize;
-        this.terminator = terminator;
-    }
 
     /**
      * {@inheritDoc}
@@ -61,18 +42,23 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
     @Override
     public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out)
             throws Exception {
-        int terminatorPos = in.indexOf(terminator);
+        int beginPos = in.position();
+        int terminatorPos = -1;
+        int limit = in.limit();
+
+        for (int i = beginPos; i < limit; i++) {
+            byte b = in.get(i);
+            if (isTerminator(b)) {
+                terminatorPos = i;
+                break;
+            }
+        }
 
         if (terminatorPos >= 0) {
-            int limit = in.limit();
             IoBuffer product;
 
-            if (in.position() < terminatorPos) {
+            if (beginPos < terminatorPos) {
                 in.limit(terminatorPos);
-
-                if (in.remaining() > maximumSize) {
-                    throw new ProtocolDecoderException(format("Maximum size of %d bytes exceeded", maximumSize));
-                }
 
                 if (buffer == null) {
                     product = in.slice();
@@ -86,10 +72,9 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
             } else {
                 // When input contained only terminator rather than actual data...
                 if (buffer == null) {
-                    product = (IoBuffer) allocator.allocate(0);
+                    product = IoBuffer.allocate(0);
                 } else {
-                    buffer.flip();
-                    product = buffer;
+                    product = buffer.flip();
                     buffer = null;
                 }
             }
@@ -98,9 +83,9 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
         }
 
         if (buffer == null) {
-            buffer = (IoBuffer) allocator.allocate(maximumSize);
+            buffer = IoBuffer.allocate(in.remaining());
+            buffer.setAutoExpand(true);
         }
-
         buffer.put(in);
         return this;
     }
@@ -114,13 +99,22 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
         IoBuffer product;
         // When input contained only terminator rather than actual data...
         if (buffer == null) {
-            product = (IoBuffer) allocator.allocate(0);
+            product = IoBuffer.allocate(0);
         } else {
             product = buffer.flip();
             buffer = null;
         }
         return finishDecode(product, out);
     }
+
+    /**
+     * Determines whether the specified <code>byte</code> is a terminator.
+     *
+     * @param b the <code>byte</code> to check.
+     * @return <code>true</code> if <code>b</code> is a terminator,
+     *         <code>false</code> otherwise.
+     */
+    protected abstract boolean isTerminator(byte b);
 
     /**
      * Invoked when this state has reached the terminator byte.

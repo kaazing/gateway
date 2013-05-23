@@ -4,8 +4,6 @@
 
 package org.apache.mina.transport.socket.nio;
 
-import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -24,6 +22,7 @@ import org.apache.mina.core.session.SessionState;
 import org.apache.mina.core.write.WriteRequest;
 
 import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 
 /**
  * An extended version of NioSession which implements IoSessionEx.
@@ -250,8 +249,8 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
 
     @Override
     protected IoBuffer newReadBuffer(int readBufferSize) {
-        // note: this assumes NioSessionEx.getBufferAllocator() returns IoSessionEx.BUFFER_ALLOCATOR
-        return BUFFER_ALLOCATOR.allocate(readBufferSize, /* shared */ false);
+        // note: this assumes NioSessionEx.getBufferAllocator() returns SimpleBufferAllocator.BUFFER_ALLOCATOR
+        return SimpleBufferAllocator.BUFFER_ALLOCATOR.allocate(readBufferSize);
     }
 
     @Override

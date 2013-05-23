@@ -28,16 +28,19 @@ import java.nio.ByteBuffer;
 public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> implements IoBufferAllocatorEx<T> {
 
     @Override
+    @Deprecated
     public final T allocate(int capacity, boolean shared) {
         return allocate(capacity, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
     }
 
     @Override
+    @Deprecated
     public final T duplicate(IoBufferEx buf) {
         return wrap(buf.buf(), buf.flags());
     }
 
     @Override
+    @Deprecated
     public final T wrap(ByteBuffer nioBuffer, boolean shared) {
         return wrap(nioBuffer, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
     }
@@ -48,13 +51,23 @@ public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> 
     }
 
     @Override
+    public abstract ByteBuffer allocateNioBuffer(int capacity, int flags);
+
+    @Override
+    public T allocate(int capacity) {
+        return allocate(capacity, IoBufferEx.FLAG_NONE);
+    }
+
+    @Override
     public T allocate(int capacity, int flags) {
         ByteBuffer nioBuffer = allocateNioBuffer(capacity, flags);
         return wrap(nioBuffer, flags);
     }
 
     @Override
-    public abstract ByteBuffer allocateNioBuffer(int capacity, int flags);
+    public T wrap(ByteBuffer nioBuffer) {
+        return wrap(nioBuffer, IoBufferEx.FLAG_NONE);
+    }
 
     @Override
     public abstract T wrap(ByteBuffer nioBuffer, int flags);

@@ -32,25 +32,18 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
  */
-public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer> {
+public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer> {
 
     public static final SimpleBuffer EMPTY_UNSHARED_BUFFER = new SimpleUnsharedBuffer(ByteBuffer.allocate(0));
 
-    public static final SimpleBufferAllocator HEAP_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
-        @Override
-        public ByteBuffer allocateNioBuffer(int capacity, int flags) {
-            return allocateNioBuffer0(capacity, flags);
-        }
-    };
-
-    public static final SimpleBufferAllocator DIRECT_BUFFER_ALLOCATOR = new SimpleBufferAllocator() {
-        @Override
-        public ByteBuffer allocateNioBuffer(int capacity, int flags) {
-            return allocateNioBuffer0(capacity, flags);
-        }
-    };
+    public static final SimpleBufferAllocator BUFFER_ALLOCATOR = new SimpleBufferAllocator();
 
     private SimpleBufferAllocator() {
+    }
+
+    @Override
+    public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+        return allocateNioBuffer0(capacity, flags);
     }
 
     @Override
@@ -59,7 +52,7 @@ public abstract class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<
         return shared ? new SimpleSharedBuffer(nioBuffer) : new SimpleUnsharedBuffer(nioBuffer);
     }
 
-    abstract static class SimpleBuffer extends AbstractIoBufferEx {
+    public abstract static class SimpleBuffer extends AbstractIoBufferEx {
         protected SimpleBuffer(int capacity) {
             super(capacity);
         }
