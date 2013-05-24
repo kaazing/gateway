@@ -58,7 +58,7 @@ public class NioSocketAcceptorExIT {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)),
-                        with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8)), /* shared */ false))));
+                        with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8))))));
                 will(perform("$0.close(false); return;"));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }

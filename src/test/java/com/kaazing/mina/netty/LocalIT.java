@@ -103,7 +103,7 @@ public class LocalIT {
         assertTrue(sessionInitialized.get());
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        await(session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared*/ false)), "session.write");
+        await(session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }))), "session.write");
 
         await(echoedMessageReceived, "echoedMessageReceived");
         await(session.close(true), "session close(true) future");

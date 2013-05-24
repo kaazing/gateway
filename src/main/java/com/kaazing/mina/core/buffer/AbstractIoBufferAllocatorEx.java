@@ -29,20 +29,8 @@ public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> 
 
     @Override
     @Deprecated
-    public final T allocate(int capacity, boolean shared) {
-        return allocate(capacity, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
-    }
-
-    @Override
-    @Deprecated
     public final T duplicate(IoBufferEx buf) {
         return wrap(buf.buf(), buf.flags());
-    }
-
-    @Override
-    @Deprecated
-    public final T wrap(ByteBuffer nioBuffer, boolean shared) {
-        return wrap(nioBuffer, shared ? IoBufferEx.FLAG_SHARED : IoBufferEx.FLAG_NONE);
     }
 
     @Override

@@ -67,9 +67,9 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
         Object message = e.getMessage();
         if (message instanceof ChannelBuffer) {
             ChannelBuffer buf = (ChannelBuffer) message;
-            // note: read as shared buffer
+            // note: read as unshared buffer
             //       can convert via IoBufferEx.asSharedBuffer() if necessary later
-            message = allocator.wrap(buf.toByteBuffer(), /* shared */ false);
+            message = allocator.wrap(buf.toByteBuffer());
             buf.skipBytes(buf.readableBytes());
         }
         filterChain.fireMessageReceived(message);

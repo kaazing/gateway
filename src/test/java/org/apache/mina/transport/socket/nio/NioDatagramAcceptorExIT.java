@@ -57,7 +57,7 @@ public class NioDatagramAcceptorExIT {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)),
-                                           with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8)), /* shared */ false))));
+                                           with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8))))));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
         });

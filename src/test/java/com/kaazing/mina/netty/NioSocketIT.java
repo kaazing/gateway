@@ -150,7 +150,7 @@ public class NioSocketIT {
         assertTrue(sessionInitialized.get());
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
         await(written, "session.write");
 
@@ -243,7 +243,7 @@ public class NioSocketIT {
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
         await(written, "session.write");
 
@@ -341,7 +341,7 @@ public class NioSocketIT {
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
         await(written, "session.write");
 
@@ -471,7 +471,7 @@ public class NioSocketIT {
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
         await(written, "session.write");
 
@@ -592,7 +592,7 @@ public class NioSocketIT {
         final IoSessionEx session = (IoSessionEx) connectFuture.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 }), /* shared */ false));
+        WriteFuture written = session.write(allocator.wrap(wrap(new byte[] { 0x00, 0x01, 0x02 })));
 
         await(written, "session.write");
 
@@ -602,7 +602,7 @@ public class NioSocketIT {
         // session read or both idle events should be fired
         for (int i = 0; i < 15; i++) {
             Thread.sleep(IDLE_TIME / 5);
-            session.write(allocator.wrap(wrap(new byte[] { 0x03, 0x04, 0x05 }), /* shared */ false));
+            session.write(allocator.wrap(wrap(new byte[] { 0x03, 0x04, 0x05 })));
         }
 
         await(session.close(true), "session close(true) future");

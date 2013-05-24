@@ -123,7 +123,7 @@ public class NioSocketChannelIoConnectorIT {
         connect.await();
         IoSessionEx session = (IoSessionEx) connect.getSession();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-        session.write(allocator.wrap(ByteBuffer.wrap(sendPayload), /* shared */ false));
+        session.write(allocator.wrap(ByteBuffer.wrap(sendPayload)));
         session.getCloseFuture().await();
 
         assertTrue("payload echoed", Arrays.equals(sendPayload, receivePayload));

@@ -35,16 +35,9 @@ public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
     T wrap(ByteBuffer nioBuffer, int flags);
 
-    @Deprecated
     ByteBuffer allocateNioBuffer(int capacity);
 
     ByteBuffer allocateNioBuffer(int capacity, int flags);
-
-    @Deprecated
-    T allocate(int capacity, boolean shared);
-
-    @Deprecated
-    T wrap(ByteBuffer nioBuffer, boolean shared);
 
     @Deprecated // this should no longer be necessary
     T duplicate(IoBufferEx buf);

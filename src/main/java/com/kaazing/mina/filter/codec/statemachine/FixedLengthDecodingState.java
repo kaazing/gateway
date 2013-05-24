@@ -70,21 +70,17 @@ public abstract class FixedLengthDecodingState implements DecodingState {
                 return finishDecode((IoBuffer) product, out);
             }
 
-            buffer = allocator.allocate(length, /* shared */ false);
-            buffer.mark();
+            buffer = allocator.allocate(length);
             buffer.put(inEx);
             return this;
         }
 
-        // TODO: use flags = flip-to-zero
-        int allocatedPos = buffer.markValue();
-        if (in.remaining() >= length - buffer.position() - allocatedPos) {
+        if (in.remaining() >= length - buffer.position()) {
             int limit = in.limit();
-            in.limit(in.position() + length - buffer.position() - allocatedPos);
+            in.limit(in.position() + length - buffer.position());
             buffer.put(inEx);
             in.limit(limit);
             buffer.flip();
-            buffer.position(allocatedPos);
             IoBufferEx product = buffer;
             buffer = null;
             return finishDecode((IoBuffer) product, out);
@@ -102,11 +98,9 @@ public abstract class FixedLengthDecodingState implements DecodingState {
             throws Exception {
         IoBufferEx readData;
         if (buffer == null) {
-            readData = allocator.allocate(0, /* shared */ false);
+            readData = allocator.allocate(0);
         } else {
-            int allocatedPos = buffer.markValue();
             buffer.flip();
-            buffer.position(allocatedPos);
             readData = buffer;
             buffer = null;
         }

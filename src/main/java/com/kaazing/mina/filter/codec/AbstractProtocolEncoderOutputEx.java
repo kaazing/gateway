@@ -84,8 +84,7 @@ public abstract class AbstractProtocolEncoderOutputEx implements
         }
 
         // Allocate a new BB that will contain all fragments
-        IoBufferEx newBuf = BUFFER_ALLOCATOR.allocate(sum, /* shared */ false);
-        int allocatedPos = newBuf.position();
+        IoBufferEx newBuf = BUFFER_ALLOCATOR.allocate(sum);
 
         // and merge all.
         for (; ;) {
@@ -99,7 +98,6 @@ public abstract class AbstractProtocolEncoderOutputEx implements
 
         // Push the new buffer finally.
         newBuf.flip();
-        newBuf.position(allocatedPos);
 
         messageQueue.add(newBuf);
     }
