@@ -27,6 +27,9 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
+
 /**
  * {@link DecodingState} which consumes all bytes until a fixed (ASCII)
  * character is reached. The terminator is skipped.
@@ -34,7 +37,12 @@ import org.apache.mina.filter.codec.statemachine.DecodingState;
 public abstract class ConsumeToDynamicTerminatorDecodingState implements
         DecodingState {
 
-    private IoBuffer buffer;
+    private final IoBufferAllocatorEx<?> allocator;
+    private IoBufferEx buffer;
+
+    public ConsumeToDynamicTerminatorDecodingState(IoBufferAllocatorEx<?> allocator) {
+        this.allocator = allocator;
+    }
 
     /**
      * {@inheritDoc}
@@ -55,15 +63,15 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
         }
 
         if (terminatorPos >= 0) {
-            IoBuffer product;
+            IoBufferEx product;
 
             if (beginPos < terminatorPos) {
                 in.limit(terminatorPos);
 
                 if (buffer == null) {
-                    product = in.slice();
+                    product = ((IoBufferEx) in).slice();
                 } else {
-                    buffer.put(in);
+                    buffer.put((IoBufferEx) in);
                     product = buffer.flip();
                     buffer = null;
                 }
@@ -72,21 +80,21 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
             } else {
                 // When input contained only terminator rather than actual data...
                 if (buffer == null) {
-                    product = IoBuffer.allocate(0);
+                    product = allocator.allocate(0);
                 } else {
                     product = buffer.flip();
                     buffer = null;
                 }
             }
             in.position(terminatorPos + 1);
-            return finishDecode(product, out);
+            return finishDecode(product.asIoBuffer(), out);
         }
 
         if (buffer == null) {
-            buffer = IoBuffer.allocate(in.remaining());
-            buffer.setAutoExpand(true);
+            buffer = allocator.allocate(in.remaining());
+            buffer.setAutoExpander(allocator);
         }
-        buffer.put(in);
+        buffer.put((IoBufferEx) in);
         return this;
     }
 
@@ -96,15 +104,15 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
     @Override
     public DecodingState finishDecode(ProtocolDecoderOutput out)
             throws Exception {
-        IoBuffer product;
+        IoBufferEx product;
         // When input contained only terminator rather than actual data...
         if (buffer == null) {
-            product = IoBuffer.allocate(0);
+            product = allocator.allocate(0);
         } else {
             product = buffer.flip();
             buffer = null;
         }
-        return finishDecode(product, out);
+        return finishDecode(product.asIoBuffer(), out);
     }
 
     /**
