@@ -28,12 +28,6 @@ import java.nio.ByteBuffer;
 public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> implements IoBufferAllocatorEx<T> {
 
     @Override
-    @Deprecated
-    public final T duplicate(IoBufferEx buf) {
-        return wrap(buf.buf(), buf.flags());
-    }
-
-    @Override
     public final ByteBuffer allocateNioBuffer(int capacity) {
         return allocateNioBuffer(capacity, IoBufferEx.FLAG_NONE);
     }

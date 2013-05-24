@@ -39,7 +39,4 @@ public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
     ByteBuffer allocateNioBuffer(int capacity, int flags);
 
-    @Deprecated // this should no longer be necessary
-    T duplicate(IoBufferEx buf);
-
 }
