@@ -23,14 +23,13 @@
  */
 package com.kaazing.mina.filter.codec;
 
-import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
-
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 
 /**
  * A {@link ProtocolEncoderOutput} based on queue.
@@ -84,7 +83,7 @@ public abstract class AbstractProtocolEncoderOutputEx implements
         }
 
         // Allocate a new BB that will contain all fragments
-        IoBufferEx newBuf = BUFFER_ALLOCATOR.allocate(sum);
+        IoBufferEx newBuf = SimpleBufferAllocator.BUFFER_ALLOCATOR.allocate(sum);
 
         // and merge all.
         for (; ;) {

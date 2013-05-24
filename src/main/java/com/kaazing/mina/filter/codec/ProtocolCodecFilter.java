@@ -23,8 +23,6 @@
  */
 package com.kaazing.mina.filter.codec;
 
-import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
-
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Queue;
@@ -56,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 
 /**
  * An {@link IoFilter} which translates binary or protocol specific data into
@@ -68,7 +67,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtocolCodecFilter.class);
 
     private static final Class<?>[] EMPTY_PARAMS = new Class[0];
-    private static final IoBufferEx EMPTY_BUFFER = BUFFER_ALLOCATOR.wrap(ByteBuffer.wrap(new byte[0]));
+    private static final IoBufferEx EMPTY_BUFFER = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.wrap(new byte[0]));
 
     // Note: requires non-static attribute keys to support multiple codec filters on the same filter chain
     private final AttributeKey ENCODER = new AttributeKey(ProtocolCodecFilter.class, "encoder");

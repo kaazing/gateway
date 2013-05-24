@@ -34,8 +34,6 @@ import org.apache.mina.core.buffer.IoBufferAllocator;
  */
 public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<SimpleBufferAllocator.SimpleBuffer> {
 
-    public static final SimpleBuffer EMPTY_UNSHARED_BUFFER = new SimpleUnsharedBuffer(ByteBuffer.allocate(0));
-
     public static final SimpleBufferAllocator BUFFER_ALLOCATOR = new SimpleBufferAllocator();
 
     private SimpleBufferAllocator() {

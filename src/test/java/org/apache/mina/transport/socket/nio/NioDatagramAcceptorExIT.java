@@ -6,7 +6,7 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
-import static com.kaazing.mina.core.session.IoSessionEx.BUFFER_ALLOCATOR;
+import static com.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static java.nio.ByteBuffer.wrap;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
