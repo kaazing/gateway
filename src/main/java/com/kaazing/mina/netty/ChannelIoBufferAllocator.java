@@ -7,8 +7,6 @@ package com.kaazing.mina.netty;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.apache.mina.core.buffer.IoBufferAllocator;
-
 import com.kaazing.mina.core.buffer.AbstractIoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.AbstractIoBufferEx;
 import com.kaazing.mina.core.buffer.IoBufferEx;
