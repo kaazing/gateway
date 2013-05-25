@@ -21,6 +21,7 @@
  *  under the License.
  *
  */
+
 package com.kaazing.mina.filter.codec.statemachine;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -35,6 +36,10 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
  * number of read bytes has been reached. Please note that this state can
  * produce a buffer with less data than the configured length if the associated
  * session has been closed unexpectedly.
+ */
+/* Differences from class of same name in Mina 2.0.0-RC1 include:
+ * 1. Constructor takes  mandatory allocator parameter
+ * 2. That allocator is used instead of calling IoBuffer.allocate
  */
 public abstract class FixedLengthDecodingState implements DecodingState {
 

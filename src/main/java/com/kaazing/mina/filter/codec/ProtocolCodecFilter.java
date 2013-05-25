@@ -21,6 +21,10 @@
  *  under the License.
  *
  */
+/* Differences from class of same name in Mina 2.0.0-RC1 include:
+ * 1. Use IoSessionEx.BUFFER_ALLOCATOR instead of calling IoBuffer.allocate
+ * 2. Use non-static attribute keys
+ */
 package com.kaazing.mina.filter.codec;
 
 import java.net.SocketAddress;

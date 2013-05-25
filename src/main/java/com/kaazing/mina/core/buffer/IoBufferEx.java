@@ -21,6 +21,12 @@
  *  under the License.
  *
  */
+/* Differences from IoBuffer class in Mina 2.0.0-RC1 include:
+ * 1. Use instance level flags instead of static boolean useDirectBuffer.
+ * 2. Extra methods asIoBuffer, asShared, asUnshared, isShared.
+ * 3. Remove static methods (mostly involving allocation, e.g. set/getAllocator, allocate, wrap)
+ * 5. capacity, expand and shrink methods take an allocator parameter
+ */
 
 package com.kaazing.mina.core.buffer;
 

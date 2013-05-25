@@ -21,6 +21,13 @@
  *  under the License.
  *
  */
+/* Differences from AbstractIoBuffer in Mina 2.0.0-RC1 include the following:
+ * 1. If assertions are enabled, fail any calls to allocate and wrap.
+ * 2. Add method asIoBuffer
+ * 3. minimumCapacity no longer final
+ * 4. capacity, expand, shrink methods must be called with an allocator
+ * 5. Add methods setAutoExpander, etc
+ */
 package com.kaazing.mina.core.buffer;
 
 import java.io.EOFException;

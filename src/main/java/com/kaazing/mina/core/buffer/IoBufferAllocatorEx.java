@@ -25,6 +25,9 @@ package com.kaazing.mina.core.buffer;
 
 import java.nio.ByteBuffer;
 
+/* Differences from IoBufferAllocator class in Mina 2.0.0-RC1 include:
+ * 1. Parameterized type (allocates buffers of specific type).
+ */
 public interface IoBufferAllocatorEx<T extends IoBufferEx> {
 
     T allocate(int capacity);

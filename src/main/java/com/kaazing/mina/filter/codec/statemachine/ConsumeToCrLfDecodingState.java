@@ -34,6 +34,10 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
  * {@link DecodingState} which consumes all bytes until a <code>CRLF</code>
  * has been encountered.
  */
+/* Differences from class of same name in Mina 2.0.0-RC1 include:
+ * 1. Constructor takes mandatory allocator parameter
+ * 2. That allocator is used instead of calling IoBuffer.allocate
+ */
 public abstract class ConsumeToCrLfDecodingState implements DecodingState {
 
     /**

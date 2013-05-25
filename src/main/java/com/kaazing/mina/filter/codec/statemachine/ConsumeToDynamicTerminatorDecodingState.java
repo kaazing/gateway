@@ -34,6 +34,10 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
  * {@link DecodingState} which consumes all bytes until a fixed (ASCII)
  * character is reached. The terminator is skipped.
  */
+/* Differences from class of same name in Mina 2.0.0-RC1 include:
+ * 1. Constructor takes mandatory allocator parameter
+ * 2. That allocator is used instead of calling IoBuffer.allocate
+ */
 public abstract class ConsumeToDynamicTerminatorDecodingState implements
         DecodingState {
 

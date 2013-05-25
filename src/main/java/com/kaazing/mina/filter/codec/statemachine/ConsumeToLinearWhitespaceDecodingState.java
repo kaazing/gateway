@@ -29,6 +29,10 @@ import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
  * {@link DecodingState} which consumes all bytes until a space (0x20) or tab
  * (0x09) character is reached. The terminator is skipped.
  */
+/* Differences from class of same name in Mina 2.0.0-RC1 include:
+ * 1. Extends our version of ConsumeToDynamicTerminatorDecodingState
+ */
+
 public abstract class ConsumeToLinearWhitespaceDecodingState extends
         ConsumeToDynamicTerminatorDecodingState {
 

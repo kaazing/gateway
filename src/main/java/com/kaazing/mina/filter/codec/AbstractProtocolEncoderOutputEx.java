@@ -34,6 +34,10 @@ import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 /**
  * A {@link ProtocolEncoderOutput} based on queue.
  */
+/* Differences from AbstractProtocolEncoderOutput in Mina 2.0.0-RC1 include:
+ * 1. Use IoBufferEx instead of IoBuffer
+ * 2. Use IoBufferEx.BUFFER_ALLOCATOR.allocate instead of IoBuffer.allocate
+ */
 public abstract class AbstractProtocolEncoderOutputEx implements
         ProtocolEncoderOutput {
     private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();

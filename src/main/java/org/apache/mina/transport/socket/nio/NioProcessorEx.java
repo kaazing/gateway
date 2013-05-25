@@ -25,7 +25,8 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 
 /**
- * An extended version of NioSession which implements IoSessionEx.
+ * Used instead of Mina's NioProcessor to (a) support sessions implementing IoSessionEx and
+ * (b) avoid unnecessary ByteBuffer duplication.
  */
 public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionEx> {
     /** The selector associated with this processor */
