@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty;
 
+import static java.lang.String.format;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 import java.nio.ByteBuffer;
@@ -248,7 +249,8 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                     future.addListener(new ChannelWriteFutureListener(filterChain, req));
                 }
                 else if (message instanceof IoBufferEx && ((IoBufferEx) message).isShared()) {
-                    throw new IllegalStateException("Shared buffer MUST be ChannelIoBuffer");
+                    String messageClassName = message.getClass().getName();
+                    throw new IllegalStateException(format("Shared buffer MUST be ChannelIoBuffer, not %s", messageClassName));
                 }
                 else if (message instanceof IoBuffer) {
                     IoBuffer buf = (IoBuffer) message;
