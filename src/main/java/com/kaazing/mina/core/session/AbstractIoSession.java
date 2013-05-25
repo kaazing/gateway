@@ -245,6 +245,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     @Override
     public final CloseFuture close() {
         if (closing.compareAndSet(false, true)) {
