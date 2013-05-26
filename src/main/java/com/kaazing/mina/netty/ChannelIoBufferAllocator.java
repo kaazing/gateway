@@ -15,7 +15,7 @@ import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<ChannelIoBuffer> {
 
     @Override
-    public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+    public ByteBuffer allocate(int capacity, int flags) {
         return allocateNioBuffer0(capacity, flags);
     }
 

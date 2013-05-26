@@ -23,6 +23,8 @@
  */
 package com.kaazing.mina.filter.codec;
 
+import java.nio.ByteBuffer;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AttributeKey;
@@ -171,7 +173,8 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
                 // derivation or disabled auto-expansion.
                 buf.flip();
 
-                IoBufferEx newBuf = allocator.allocate(buf.remaining() + in.remaining()).setAutoExpander(allocator);
+                ByteBuffer newNioBuf = allocator.allocate(buf.remaining() + in.remaining());
+                IoBufferEx newBuf = allocator.wrap(newNioBuf).setAutoExpander(allocator);
                 newBuf.order(buf.order());
                 newBuf.put(buf);
                 newBuf.put(inEx);
@@ -248,7 +251,8 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
     }
 
     private void storeRemainingInSession(IoBufferEx buf, IoSession session) {
-        final IoBufferEx remainingBuf = allocator.allocate(buf.capacity(), buf.flags()).setAutoExpander(allocator);
+        ByteBuffer remainingNioBuf = allocator.allocate(buf.capacity(), buf.flags());
+        final IoBufferEx remainingBuf = allocator.wrap(remainingNioBuf).setAutoExpander(allocator);
         remainingBuf.mark();
         remainingBuf.order(buf.order());
         remainingBuf.put(buf);

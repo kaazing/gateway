@@ -75,7 +75,7 @@ public abstract class FixedLengthDecodingState implements DecodingState {
                 return finishDecode((IoBuffer) product, out);
             }
 
-            buffer = allocator.allocate(length);
+            buffer = allocator.wrap(allocator.allocate(length));
             buffer.put(inEx);
             return this;
         }
@@ -103,7 +103,7 @@ public abstract class FixedLengthDecodingState implements DecodingState {
             throws Exception {
         IoBufferEx readData;
         if (buffer == null) {
-            readData = allocator.allocate(0);
+            readData = allocator.wrap(allocator.allocate(0));
         } else {
             buffer.flip();
             readData = buffer;

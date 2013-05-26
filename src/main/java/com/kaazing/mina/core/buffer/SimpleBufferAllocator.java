@@ -40,7 +40,7 @@ public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<Sim
     }
 
     @Override
-    public ByteBuffer allocateNioBuffer(int capacity, int flags) {
+    public ByteBuffer allocate(int capacity, int flags) {
         return allocateNioBuffer0(capacity, flags);
     }
 

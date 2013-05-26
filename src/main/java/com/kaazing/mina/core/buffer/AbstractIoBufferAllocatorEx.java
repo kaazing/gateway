@@ -28,23 +28,13 @@ import java.nio.ByteBuffer;
 public abstract class AbstractIoBufferAllocatorEx<T extends AbstractIoBufferEx> implements IoBufferAllocatorEx<T> {
 
     @Override
-    public final ByteBuffer allocateNioBuffer(int capacity) {
-        return allocateNioBuffer(capacity, IoBufferEx.FLAG_NONE);
-    }
-
-    @Override
-    public abstract ByteBuffer allocateNioBuffer(int capacity, int flags);
-
-    @Override
-    public T allocate(int capacity) {
+    public final ByteBuffer allocate(int capacity) {
         return allocate(capacity, IoBufferEx.FLAG_NONE);
     }
 
     @Override
-    public T allocate(int capacity, int flags) {
-        ByteBuffer nioBuffer = allocateNioBuffer(capacity, flags);
-        return wrap(nioBuffer, flags);
-    }
+    public abstract ByteBuffer allocate(int capacity, int flags);
+
 
     @Override
     public T wrap(ByteBuffer nioBuffer) {

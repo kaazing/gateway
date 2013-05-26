@@ -90,7 +90,7 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
             } else {
                 // When input contained only terminator rather than actual data...
                 if (buffer == null) {
-                    product = (IoBuffer) allocator.allocate(0);
+                    product = (IoBuffer) allocator.wrap(allocator.allocate(0));
                 } else {
                     buffer.flip();
                     product = buffer;
@@ -102,7 +102,7 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
         }
 
         if (buffer == null) {
-            buffer = (IoBuffer) allocator.allocate(maximumSize);
+            buffer = (IoBuffer) allocator.wrap(allocator.allocate(maximumSize));
         }
 
         buffer.put(in);
@@ -118,7 +118,7 @@ public abstract class ConsumeToTerminatorDecodingState implements DecodingState 
         IoBuffer product;
         // When input contained only terminator rather than actual data...
         if (buffer == null) {
-            product = (IoBuffer) allocator.allocate(0);
+            product = (IoBuffer) allocator.wrap(allocator.allocate(0));
         } else {
             product = buffer.flip();
             buffer = null;

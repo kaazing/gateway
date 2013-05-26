@@ -30,6 +30,7 @@ package org.apache.mina.transport.socket.nio;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -235,7 +236,7 @@ public final class NioDatagramAcceptorEx
     @Override
     protected IoBuffer newReadBuffer(int readBufferSize) {
         // note: this assumes NioSessionEx.getBufferAllocator() returns SimpleBufferAllocator.BUFFER_ALLOCATOR
-        return SimpleBufferAllocator.BUFFER_ALLOCATOR.allocate(readBufferSize);
+        return SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(readBufferSize));
     }
 
     private static final class DatagramChannelIterator implements Iterator<DatagramChannel> {

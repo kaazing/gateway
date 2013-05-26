@@ -251,7 +251,7 @@ public final class NioProcessorEx extends AbstractPollingIoProcessor<NioSessionE
     @Override
     protected IoBuffer newReadBuffer(int readBufferSize) {
         // note: this assumes NioSessionEx.getBufferAllocator() returns SimpleBufferAllocator.BUFFER_ALLOCATOR
-        return SimpleBufferAllocator.BUFFER_ALLOCATOR.allocate(readBufferSize);
+        return SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(readBufferSize));
     }
 
     @Override

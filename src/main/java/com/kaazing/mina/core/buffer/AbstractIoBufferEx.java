@@ -235,7 +235,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
             //// Reallocate.
             ByteBuffer oldBuf = buf();
-            ByteBuffer newBuf = reallocator.allocateNioBuffer(newCapacity, flags());
+            ByteBuffer newBuf = reallocator.allocate(newCapacity, flags());
             oldBuf.clear();
             newBuf.put(oldBuf);
             buf(newBuf);
@@ -433,7 +433,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
         //// Reallocate.
         ByteBuffer oldBuf = buf();
-        ByteBuffer newBuf = shrinker.allocateNioBuffer(newCapacity, flags());
+        ByteBuffer newBuf = shrinker.allocate(newCapacity, flags());
         oldBuf.position(0);
         oldBuf.limit(limit);
         newBuf.put(oldBuf);
@@ -704,7 +704,7 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
 
             //// Reallocate.
             ByteBuffer oldBuf = buf();
-            ByteBuffer newBuf = autoShrinker.allocateNioBuffer(newCapacity, flags());
+            ByteBuffer newBuf = autoShrinker.allocate(newCapacity, flags());
             newBuf.put(oldBuf);
             buf(newBuf);
 

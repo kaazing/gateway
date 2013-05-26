@@ -23,6 +23,7 @@
  */
 package com.kaazing.mina.filter.codec;
 
+import java.nio.ByteBuffer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -87,7 +88,7 @@ public abstract class AbstractProtocolEncoderOutputEx implements
         }
 
         // Allocate a new BB that will contain all fragments
-        IoBufferEx newBuf = SimpleBufferAllocator.BUFFER_ALLOCATOR.allocate(sum);
+        IoBufferEx newBuf = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(sum));
 
         // and merge all.
         for (; ;) {

@@ -101,7 +101,7 @@ public abstract class ConsumeToCrLfDecodingState implements DecodingState {
             } else {
                 // When input contained only CR or LF rather than actual data...
                 if (buffer == null) {
-                    product = allocator.allocate(0);
+                    product = allocator.wrap(allocator.allocate(0));
                 } else {
                     product = buffer.flip();
                     buffer = null;
@@ -114,7 +114,7 @@ public abstract class ConsumeToCrLfDecodingState implements DecodingState {
         in.position(beginPos);
 
         if (buffer == null) {
-            buffer = allocator.allocate(in.remaining());
+            buffer = allocator.wrap(allocator.allocate(in.remaining()));
             buffer.setAutoExpander(allocator);
         }
 
@@ -135,7 +135,7 @@ public abstract class ConsumeToCrLfDecodingState implements DecodingState {
         IoBufferEx product;
         // When input contained only CR or LF rather than actual data...
         if (buffer == null) {
-            product = allocator.allocate(0);
+            product = allocator.wrap(allocator.allocate(0));
         } else {
             product = buffer.flip();
             buffer = null;

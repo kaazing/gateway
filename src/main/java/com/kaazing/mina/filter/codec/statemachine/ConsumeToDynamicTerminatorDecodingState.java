@@ -84,7 +84,7 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
             } else {
                 // When input contained only terminator rather than actual data...
                 if (buffer == null) {
-                    product = allocator.allocate(0);
+                    product = allocator.wrap(allocator.allocate(0));
                 } else {
                     product = buffer.flip();
                     buffer = null;
@@ -95,7 +95,7 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
         }
 
         if (buffer == null) {
-            buffer = allocator.allocate(in.remaining());
+            buffer = allocator.wrap(allocator.allocate(in.remaining()));
             buffer.setAutoExpander(allocator);
         }
         buffer.put((IoBufferEx) in);
@@ -111,7 +111,7 @@ public abstract class ConsumeToDynamicTerminatorDecodingState implements
         IoBufferEx product;
         // When input contained only terminator rather than actual data...
         if (buffer == null) {
-            product = allocator.allocate(0);
+            product = allocator.wrap(allocator.allocate(0));
         } else {
             product = buffer.flip();
             buffer = null;
