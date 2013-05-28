@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * handles incoming TCP/IP based socket connections.
  */
 public final class NioSocketAcceptorEx
-        extends AbstractPollingIoAcceptor<NioSession, ServerSocketChannel>
+        extends AbstractPollingIoAcceptor<NioSessionEx, ServerSocketChannel>
         implements SocketAcceptorEx {
 
     private static final Logger LOGGER = LoggerFactory
@@ -79,7 +79,7 @@ public final class NioSocketAcceptorEx
      * Constructor for {@link NioSocketAcceptorEx} using default parameters (multiple thread model).
      */
     public NioSocketAcceptorEx() {
-        super(new DefaultSocketSessionConfigEx(), NioProcessor.class);
+        super(new DefaultSocketSessionConfigEx(), NioProcessorEx.class);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
 
@@ -91,7 +91,7 @@ public final class NioSocketAcceptorEx
      * {@link SimpleIoProcessorPool}
      */
     public NioSocketAcceptorEx(int processorCount) {
-        super(new DefaultSocketSessionConfigEx(), NioProcessor.class, processorCount);
+        super(new DefaultSocketSessionConfigEx(), NioProcessorEx.class, processorCount);
         ((DefaultSocketSessionConfigEx) getSessionConfig()).init(this);
     }
 
@@ -101,7 +101,7 @@ public final class NioSocketAcceptorEx
      *  {@link org.apache.mina.core.service.IoService} of the same type.
      * @param processor the processor to use for managing I/O events
      */
-    public NioSocketAcceptorEx(IoProcessor<NioSession> processor) {
+    public NioSocketAcceptorEx(IoProcessor<NioSessionEx> processor) {
         super(new DefaultSocketSessionConfigEx(), processor);
         ((DefaultSocketSessionConfig) getSessionConfig()).init(this);
     }
@@ -113,7 +113,7 @@ public final class NioSocketAcceptorEx
      * @param executor the executor for connection
      * @param processor the processor for I/O operations
      */
-    public NioSocketAcceptorEx(Executor executor, IoProcessor<NioSession> processor) {
+    public NioSocketAcceptorEx(Executor executor, IoProcessor<NioSessionEx> processor) {
         super(new DefaultSocketSessionConfigEx(), executor, processor);
         ((DefaultSocketSessionConfig) getSessionConfig()).init(this);
     }
@@ -226,7 +226,7 @@ public final class NioSocketAcceptorEx
      * {@inheritDoc}
      */
     @Override
-    protected NioSessionEx accept(IoProcessor<NioSession> processor,
+    protected NioSessionEx accept(IoProcessor<NioSessionEx> processor,
             ServerSocketChannel handle) throws Exception {
 
         SelectionKey key = handle.keyFor(selector);

@@ -4,8 +4,10 @@
 
 package com.kaazing.mina.netty;
 
+import static java.lang.String.format;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +20,15 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
 
+import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
+import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
@@ -194,15 +199,82 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
 
                 Object message = req.getMessage();
 
-                if (message instanceof IoBuffer) {
-                    IoBuffer buf = (IoBuffer) message;
-                    ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
-                } else if (message instanceof FileRegion) {
+                if (message instanceof ChannelIoBuffer) {
+                    ChannelIoBuffer channelIoBuf = (ChannelIoBuffer) message;
+                    if (channelIoBuf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
+                    }
+                    else {
+                        // 1. detect shared buffer
+                        if (channelIoBuf.isShared()) {
+                            // 1a. buffer is shared
+                            ByteBuffer sharedBuf = channelIoBuf.buf();
+                            int position = sharedBuf.position();
+
+                            // note: NETTY duplicates original ByteBuffer when converting ChannelBuffer to ByteBuffer
+                            //       so special treatment below is strictly not necessary
+                            //       However, we *could* wrap sharedBuf with a non-duplicating ChannelBuffer
+                            ChannelBuffer channelBuf = wrappedBuffer(sharedBuf);
+
+                            // write shared buffer to channel
+                            ChannelFuture future = channel.write(channelBuf);
+                            if (future.isDone()) {
+                                // reset shared buffer before messageSent
+                                sharedBuf.position(position);
+
+                                // shared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // shared buffer write incomplete
+                                // update MINA IoBuffer to reference new shared buffer instead
+                                // (leaving old shared buffer on this NETTY channel writeQueue)
+                                ByteBuffer newSharedBuf = sharedBuf.duplicate();
+
+                                // "reset" shared before messageSent
+                                newSharedBuf.position(position);
+                                channelIoBuf.buf(newSharedBuf);
+
+                                // register listener to detect when write completed
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
+                        }
+                        else {
+                            // 1b. buffer is unshared
+                            // write unshared buffer to channel
+                            ByteBuffer unsharedBuf = channelIoBuf.buf();
+                            ChannelFuture future = channel.write(wrappedBuffer(unsharedBuf));
+                            if (future.isDone()) {
+                                // unshared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // unshared buffer write incomplete
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
+                        }
+                    }
+                }
+                else if (message instanceof FileRegion) {
                     FileRegion region = (FileRegion) message;
                     ChannelFuture future = channel.write(region);  // TODO: FileRegion
                     future.addListener(new ChannelWriteFutureListener(filterChain, req));
-                } else {
+                }
+                else if (message instanceof IoBufferEx && ((IoBufferEx) message).isShared()) {
+                    String messageClassName = message.getClass().getName();
+                    throw new IllegalStateException(format("Shared buffer MUST be ChannelIoBuffer, not %s", messageClassName));
+                }
+                else if (message instanceof IoBuffer) {
+                    IoBuffer buf = (IoBuffer) message;
+                    if (buf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
+                    }
+                    else {
+                        ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                        future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    }
+                }
+                else {
                     throw new IllegalStateException(
                             "Don't know how to handle message of type '"
                                     + message.getClass().getName()

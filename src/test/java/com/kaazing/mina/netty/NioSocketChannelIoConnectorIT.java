@@ -15,6 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -22,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -32,6 +32,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.session.IoSessionEx;
 import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
 
@@ -100,7 +103,7 @@ public class NioSocketChannelIoConnectorIT {
             @Override
             public void messageReceived(IoSession session, Object message)
                     throws Exception {
-                IoBuffer buf = (IoBuffer) message;
+                IoBufferEx buf = (IoBufferEx) message;
                 buf.get(receivePayload);
 
                 if (buf.hasRemaining()) {
@@ -118,8 +121,9 @@ public class NioSocketChannelIoConnectorIT {
 
         ConnectFuture connect = connector.connect(bindAddress);
         connect.await();
-        IoSession session = connect.getSession();
-        session.write(IoBuffer.wrap(sendPayload));
+        IoSessionEx session = (IoSessionEx) connect.getSession();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        session.write(allocator.wrap(ByteBuffer.wrap(sendPayload)));
         session.getCloseFuture().await();
 
         assertTrue("payload echoed", Arrays.equals(sendPayload, receivePayload));

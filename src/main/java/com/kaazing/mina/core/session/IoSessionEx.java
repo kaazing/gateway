@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.mina.core.session.IoSession;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.service.IoServiceEx;
 
 /**
@@ -51,6 +52,8 @@ public interface IoSessionEx extends IoSession, IoAlignment {
      * the task will be queued for asynchronous (but quasi-immediate) execution in the worker thread.
      */
     Executor getIoExecutor();
+
+    IoBufferAllocatorEx<?> getBufferAllocator();
 
     @Override
     IoSessionConfigEx getConfig();

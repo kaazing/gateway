@@ -12,10 +12,14 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.AbstractIoSessionEx;
+import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 
 public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSessionEx {
+
+    private static final IoBufferAllocatorEx<ChannelIoBuffer> BUFFER_ALLOCATOR = new ChannelIoBufferAllocator();
 
     private final ChannelIoService service;
     private final Channel channel;
@@ -34,6 +38,11 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
         this.handler = service.getHandler();
         this.processor = processor;
         this.transportMetadata = service.getTransportMetadata();
+    }
+
+    @Override
+    public IoBufferAllocatorEx<ChannelIoBuffer> getBufferAllocator() {
+        return BUFFER_ALLOCATOR;
     }
 
     public ChannelIoService getService() {

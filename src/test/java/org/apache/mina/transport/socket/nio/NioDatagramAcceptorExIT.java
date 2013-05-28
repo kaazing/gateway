@@ -6,8 +6,9 @@ package org.apache.mina.transport.socket.nio;
 
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
+import static com.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
-import static org.apache.mina.core.buffer.IoBuffer.wrap;
+import static java.nio.ByteBuffer.wrap;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
 
 import java.net.DatagramPacket;
@@ -55,7 +56,8 @@ public class NioDatagramAcceptorExIT {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)), with(equal(wrap("text".getBytes(UTF_8)))));
+                oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)),
+                                           with(equal(BUFFER_ALLOCATOR.wrap(wrap("text".getBytes(UTF_8))))));
                 oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
         });

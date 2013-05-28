@@ -23,6 +23,8 @@ import org.apache.mina.core.session.IoSessionConfig;
 import org.apache.mina.core.session.IoSessionDataStructureFactory;
 import org.apache.mina.core.write.WriteRequest;
 
+import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
@@ -185,6 +187,11 @@ public class DummySessionEx extends AbstractIoSessionEx {
         } catch (Exception e) {
             throw new InternalError();
         }
+    }
+
+    @Override
+    public IoBufferAllocatorEx<?> getBufferAllocator() {
+        return SimpleBufferAllocator.BUFFER_ALLOCATOR;
     }
 
     @Override
