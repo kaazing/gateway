@@ -237,6 +237,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <createSourcesJar>${create.shaded.sources}</createSourcesJar>
+        </configuration>
         <executions>
           <execution>
             <phase>package</phase>
@@ -248,6 +251,15 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>release-profile</id>
+      <properties>
+        <create.shaded.sources>true</create.shaded.sources>
+      </properties>
+    </profile>
+  </profiles>
 
   <properties>
     <apache.mina.version>2.0.0-RC1</apache.mina.version>
