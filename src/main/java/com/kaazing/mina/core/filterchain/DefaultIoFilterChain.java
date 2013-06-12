@@ -590,10 +590,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
             // Maintain counters.
             if (writeRequest.getMessage() instanceof IoBuffer) {
                 IoBuffer buffer = (IoBuffer) writeRequest.getMessage();
-                // I/O processor implementation will call buffer.reset()
-                // it after the write operation is finished, because
-                // the buffer will be specified with messageSent event.
-                buffer.mark();
+                // buffer.mark() call is now done in Mina's DefaultIoSessionDataStructureFactory$DefaultWriteRequestQueue.poll().
                 int remaining = buffer.remaining();
                 if (remaining == 0) {
                     // Zero-sized buffer means the internal message
