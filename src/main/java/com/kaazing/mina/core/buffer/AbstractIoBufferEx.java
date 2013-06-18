@@ -46,6 +46,7 @@ import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.InvalidMarkException;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -132,7 +133,6 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      * @param initialCapacity The initial buffer capacity when created
      */
     protected AbstractIoBufferEx(int initialCapacity) {
-//        setAllocator(allocator);
         this.recapacityAllowed = true;
         this.derived = false;
         this.minimumCapacity = initialCapacity;
@@ -495,7 +495,6 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public AbstractIoBufferEx mark() {
-        buf().mark();
         mark = position();
         return this;
     }
@@ -513,7 +512,10 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     @Override
     public final AbstractIoBufferEx reset() {
-        buf().reset();
+        if (mark < 0) {
+            throw new InvalidMarkException();
+        }
+        buf().position(mark);
         return this;
     }
 
@@ -977,17 +979,11 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final double getDouble(int index) {
         return buf().getDouble(index);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public AbstractIoBufferEx putDouble(int index, double value) {
         autoExpand(index, 8);
@@ -995,21 +991,17 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final DoubleBuffer asDoubleBuffer() {
         return buf().asDoubleBuffer();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public AbstractIoBufferEx asReadOnlyBuffer() {
+    public final AbstractIoBufferEx asReadOnlyBuffer() {
         recapacityAllowed = false;
-        return asReadOnlyBuffer0();
+        AbstractIoBufferEx result = asReadOnlyBuffer0();
+        result.mark = this.mark;
+        return result;
     }
 
     /**
@@ -1018,13 +1010,35 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      */
     protected abstract AbstractIoBufferEx asReadOnlyBuffer0();
 
-    /**
-     * {@inheritDoc}
-     */
+    public final AbstractIoBufferEx asSharedBuffer() {
+        AbstractIoBufferEx shared = asSharedBuffer0();
+        assert (shared.flags() & FLAG_SHARED) == FLAG_SHARED;
+        if (shared != this) {
+            shared.mark = this.mark;
+        }
+        return shared;
+    }
+
+    protected abstract AbstractIoBufferEx asSharedBuffer0();
+
+    public final AbstractIoBufferEx asUnsharedBuffer() {
+        AbstractIoBufferEx unshared = asUnsharedBuffer0();
+        assert (unshared.flags() & FLAG_SHARED) != FLAG_SHARED;
+        if (unshared != this) {
+            unshared.mark = this.mark;
+        }
+        return unshared;
+    }
+
+    protected abstract AbstractIoBufferEx asUnsharedBuffer0();
+
     @Override
-    public AbstractIoBufferEx duplicate() {
+    public final AbstractIoBufferEx duplicate() {
         recapacityAllowed = false;
-        return duplicate0();
+        AbstractIoBufferEx result = duplicate0();
+        assert result != this;
+        result.mark = this.mark;
+        return result;
     }
 
     /**
@@ -1037,9 +1051,12 @@ public abstract class AbstractIoBufferEx extends IoBuffer implements IoBufferEx 
      * {@inheritDoc}
      */
     @Override
-    public AbstractIoBufferEx slice() {
+    public final AbstractIoBufferEx slice() {
         recapacityAllowed = false;
-        return slice0();
+        AbstractIoBufferEx result = slice0();
+        assert result != this;
+        result.mark = -1;
+        return result;
     }
 
     /**

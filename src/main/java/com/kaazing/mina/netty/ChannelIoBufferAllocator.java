@@ -86,12 +86,12 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public ChannelIoSharedBuffer asSharedBuffer() {
+        protected ChannelIoSharedBuffer asSharedBuffer0() {
             return this;
         }
 
         @Override
-        public ChannelIoBuffer asUnsharedBuffer() {
+        protected ChannelIoBuffer asUnsharedBuffer0() {
             return new ChannelIoUnsharedBuffer(buf());
         }
 
@@ -127,12 +127,12 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         @Override
-        public ChannelIoSharedBuffer asSharedBuffer() {
+        protected ChannelIoSharedBuffer asSharedBuffer0() {
             return new ChannelIoSharedBuffer(buf());
         }
 
         @Override
-        public ChannelIoBuffer asUnsharedBuffer() {
+        protected ChannelIoBuffer asUnsharedBuffer0() {
             return this;
         }
 

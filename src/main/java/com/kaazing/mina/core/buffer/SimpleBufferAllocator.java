@@ -80,12 +80,12 @@ public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<Sim
         }
 
         @Override
-        public SimpleSharedBuffer asSharedBuffer() {
+        protected SimpleSharedBuffer asSharedBuffer0() {
             return new SimpleSharedBuffer(buf);
         }
 
         @Override
-        public SimpleUnsharedBuffer asUnsharedBuffer() {
+        protected SimpleUnsharedBuffer asUnsharedBuffer0() {
             return this;
         }
 
@@ -170,12 +170,12 @@ public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<Sim
         }
 
         @Override
-        public SimpleSharedBuffer asSharedBuffer() {
+        protected SimpleSharedBuffer asSharedBuffer0() {
             return this;
         }
 
         @Override
-        public SimpleUnsharedBuffer asUnsharedBuffer() {
+        protected SimpleUnsharedBuffer asUnsharedBuffer0() {
             return new SimpleUnsharedBuffer(buf().duplicate());
         }
 
