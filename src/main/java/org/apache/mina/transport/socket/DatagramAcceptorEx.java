@@ -4,12 +4,12 @@
 
 package org.apache.mina.transport.socket;
 
-import com.kaazing.mina.core.service.IoServiceEx;
+import com.kaazing.mina.core.service.IoAcceptorEx;
 
 /**
- * This interface extends DatagramAcceptor in order to implement IoServiceEx
+ * This interface extends DatagramAcceptor in order to implement IoAcceptorEx
  */
-public interface DatagramAcceptorEx extends DatagramAcceptor, IoServiceEx {
+public interface DatagramAcceptorEx extends DatagramAcceptor, IoAcceptorEx {
 
     @Override
     DatagramSessionConfigEx getSessionConfig();

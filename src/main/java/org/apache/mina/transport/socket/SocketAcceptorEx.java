@@ -4,12 +4,12 @@
 
 package org.apache.mina.transport.socket;
 
-import com.kaazing.mina.core.service.IoServiceEx;
+import com.kaazing.mina.core.service.IoAcceptorEx;
 
 /**
- * This interface extends SocketAcceptor in order to implement IoServiceEx
+ * This interface extends SocketAcceptor in order to implement IoAcceptorEx
  */
-public interface SocketAcceptorEx extends SocketAcceptor, IoServiceEx {
+public interface SocketAcceptorEx extends SocketAcceptor, IoAcceptorEx {
 
     @Override
     SocketSessionConfigEx getSessionConfig();

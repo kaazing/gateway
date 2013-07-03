@@ -30,6 +30,7 @@
  */
 package org.apache.mina.transport.socket.nio;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
@@ -54,6 +55,11 @@ import org.apache.mina.transport.socket.SocketAcceptorEx;
 import org.apache.mina.transport.socket.SocketSessionConfigEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.DefaultBindFuture;
+import com.kaazing.mina.core.future.DefaultUnbindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 
 /**
  * {@link IoAcceptor} for socket transport (TCP/IP).  This class
@@ -219,6 +225,34 @@ public final class NioSocketAcceptorEx
             }
 
             this.backlog = backlog;
+        }
+    }
+
+    @Override
+    public BindFuture bindAsync(SocketAddress localAddress) {
+        try {
+            // TODO: bind asynchronously
+            bind(localAddress);
+            return DefaultBindFuture.succeededFuture();
+        }
+        catch (IOException e) {
+            DefaultBindFuture future = new DefaultBindFuture();
+            future.setException(e);
+            return future;
+        }
+    }
+
+    @Override
+    public UnbindFuture unbindAsync(SocketAddress localAddress) {
+        try {
+            // TODO: unbind asynchronously
+            unbind(localAddress);
+            return DefaultUnbindFuture.succeededFuture();
+        }
+        catch (Exception e) {
+            DefaultUnbindFuture future = new DefaultUnbindFuture();
+            future.setException(e);
+            return future;
         }
     }
 

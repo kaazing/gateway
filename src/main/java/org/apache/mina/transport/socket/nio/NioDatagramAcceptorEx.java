@@ -28,6 +28,7 @@
  */
 package org.apache.mina.transport.socket.nio;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -48,6 +49,10 @@ import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
 
 import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
+import com.kaazing.mina.core.future.BindFuture;
+import com.kaazing.mina.core.future.DefaultBindFuture;
+import com.kaazing.mina.core.future.DefaultUnbindFuture;
+import com.kaazing.mina.core.future.UnbindFuture;
 
 /**
  * {@link IoAcceptor} for datagram transport (UDP/IP).
@@ -107,6 +112,34 @@ public final class NioDatagramAcceptorEx
 
     public void setDefaultLocalAddress(InetSocketAddress localAddress) {
         setDefaultLocalAddress((SocketAddress) localAddress);
+    }
+
+    @Override
+    public BindFuture bindAsync(SocketAddress localAddress) {
+        try {
+            // TODO: bind asynchronously
+            bind(localAddress);
+            return DefaultBindFuture.succeededFuture();
+        }
+        catch (IOException e) {
+            DefaultBindFuture future = new DefaultBindFuture();
+            future.setException(e);
+            return future;
+        }
+    }
+
+    @Override
+    public UnbindFuture unbindAsync(SocketAddress localAddress) {
+        try {
+            // TODO: unbind asynchronously
+            unbind(localAddress);
+            return DefaultUnbindFuture.succeededFuture();
+        }
+        catch (Exception e) {
+            DefaultUnbindFuture future = new DefaultUnbindFuture();
+            future.setException(e);
+            return future;
+        }
     }
 
     @Override
