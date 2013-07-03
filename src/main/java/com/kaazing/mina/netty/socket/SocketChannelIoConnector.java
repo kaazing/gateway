@@ -8,7 +8,7 @@ import java.net.InetSocketAddress;
 
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
-import org.apache.mina.transport.socket.SocketConnector;
+import org.apache.mina.transport.socket.SocketConnectorEx;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
@@ -21,7 +21,7 @@ import com.kaazing.mina.netty.bootstrap.ClientBootstrapFactory;
 public abstract class SocketChannelIoConnector
     extends ChannelIoConnector<SocketChannelIoSessionConfig<? extends SocketChannelConfig>,
                                ClientSocketChannelFactory, InetSocketAddress>
-    implements SocketConnector {
+    implements SocketConnectorEx {
 
     private static final TransportMetadata SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
             "Kaazing", "SocketChannel", false, true, InetSocketAddress.class,
