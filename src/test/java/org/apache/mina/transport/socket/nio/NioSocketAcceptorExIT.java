@@ -9,14 +9,15 @@ import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 import static com.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static java.nio.ByteBuffer.wrap;
+import static org.apache.mina.core.session.IdleStatus.*;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
 import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.junit.Assert.assertEquals;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
-
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -28,6 +29,9 @@ import org.junit.Test;
 import com.kaazing.mina.core.session.IoSessionEx;
 
 public class NioSocketAcceptorExIT {
+    // max expected milliseconds between the call to AbstractIoSession#increaseIdleCount in
+    // DefaultIoFilterChain.fireSessionIdle and its call to our test filter's sessionIdle method
+    static final long IDLE_TOLERANCE_MILLIS = 30;
 
     private NioSocketAcceptorEx acceptor;
 
@@ -72,6 +76,50 @@ public class NioSocketAcceptorExIT {
         Socket socket = new Socket();
         socket.connect(bindAddress);
         socket.getOutputStream().write("text".getBytes(UTF_8));
+
+        int eos = socket.getInputStream().read();
+        assertEquals(-1, eos);
+
+        acceptor.unbind();
+    }
+
+    @Test (timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenBothIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(BOTH_IDLE);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenReaderIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(READER_IDLE);
+    }
+
+    @Test //(timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenWriterIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(WRITER_IDLE);
+    }
+
+    private void shouldRepeatedlyIdleTimeoutWhenIdle(final IdleStatus statusUnderTest) throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
+                will(perform("$0.getConfig().setIdleTimeInMillis(status, 50L); return;").where("status", statusUnderTest));
+                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                will(perform("$0.close(false); return;"));
+                oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
+            }
+        });
+
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        acceptor.setHandler(handler);
+        acceptor.bind(bindAddress);
+
+        Socket socket = new Socket();
+        socket.connect(bindAddress);
 
         int eos = socket.getInputStream().read();
         assertEquals(-1, eos);

@@ -126,6 +126,7 @@ final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             long timeUntilSessionIdle = startPoint + idleTimeMillis - currentTimeMillis();
             if (timeUntilSessionIdle <= 0 && idleTimeMillis != 0) {
                 fireSessionIdle(filterChain);
+                reschedule(idleTimeMillis);
             }
             else {
                 // An intervening I/O means we should not fire session idle, but we must reschedule to ensure accuracy

@@ -4,9 +4,14 @@
 
 package com.kaazing.mina.netty;
 
+import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.Executors.newCachedThreadPool;
+import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
+import static org.apache.mina.core.session.IdleStatus.READER_IDLE;
+import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
+import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -38,10 +44,15 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
+import org.jmock.Expectations;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
+import com.kaazing.mina.core.session.IoSessionEx;
 import com.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import com.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 
@@ -52,6 +63,13 @@ public class NioSocketChannelIoAcceptorIT {
 
     private ChannelIoAcceptor<?, ?, ?> acceptor;
     private Socket socket;
+
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setThreadingPolicy(new Synchroniser());
+        }
+    };
 
     @Before
     public void initResources() throws Exception {
@@ -230,6 +248,50 @@ public class NioSocketChannelIoAcceptorIT {
         }
         assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses: %s",
                 when, workersFound, bossesFound, badThreads), workersFound == 0 && bossesFound == 0);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenBothIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(BOTH_IDLE);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenReaderIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(READER_IDLE);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldRepeatedlyIdleTimeoutWhenWriterIdle() throws Exception {
+        shouldRepeatedlyIdleTimeoutWhenIdle(WRITER_IDLE);
+    }
+
+    private void shouldRepeatedlyIdleTimeoutWhenIdle(final IdleStatus statusUnderTest) throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
+                will(perform("$0.getConfig().setIdleTimeInMillis(status, 50L); return;").where("status", statusUnderTest));
+                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                will(perform("$0.close(false); return;"));
+                oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
+            }
+        });
+
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        acceptor.setHandler(handler);
+        acceptor.bind(bindAddress);
+
+        Socket socket = new Socket();
+        socket.connect(bindAddress);
+
+        int eos = socket.getInputStream().read();
+        assertEquals(-1, eos);
+
+        acceptor.unbind();
     }
 
     @Test
