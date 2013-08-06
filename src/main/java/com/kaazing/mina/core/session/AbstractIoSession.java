@@ -54,7 +54,7 @@ import org.apache.mina.util.ExceptionMonitor;
  * 3. Remove synchronization from poll method
  * 4. Note that this version does NOT have the guards in the increaseReadBufferSize and decreaseReadBufferSize methods
  *    that we added in our patched Mina version ("2.0.0-RC1g"): if (AbstractIoSessionConfig.ENABLE_BUFFER_SIZE)
- * 5. Allow suspend/resumeRead to be overridden (remove final)
+ * 5. Change suspendRead/resumeRead and suspendWrite/resumeWrite to be atomic integer based (requires balanced calls)
  * 6. Do not always pass suspend/resumeWrite through to the processor, but still support them (for now) because used
  *    by the Gateway codebase
  * 7. Eliminate warnings by adding SuppressWarnings annotations where necessary
@@ -113,8 +113,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     private final AtomicBoolean closing = new AtomicBoolean();
 
     // traffic control
-    private volatile boolean readSuspended;
-    private volatile boolean writeSuspended;
+    private final AtomicInteger readSuspendCount = new AtomicInteger();
+    private final AtomicInteger writeSuspendCount = new AtomicInteger();
 
     // Status variables
     private final AtomicBoolean scheduledForFlush = new AtomicBoolean();
@@ -591,10 +591,15 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void suspendRead() {
-        readSuspended = true;
+        if (readSuspendCount.getAndIncrement() == 0) {
+            suspendRead0();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void suspendRead0() {
         if (isClosing() || !isConnected()) {
             return;
         }
@@ -604,11 +609,15 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public final void suspendWrite() {
-        writeSuspended = true;
+        if (writeSuspendCount.getAndIncrement() == 0) {
+            suspendWrite0();
+        }
+    }
 
+    @SuppressWarnings("unchecked")
+    protected void suspendWrite0() {
         // note: alignment is optional before 4.0
         if (!isIoAligned()) {
             if (isClosing() || !isConnected()) {
@@ -618,16 +627,25 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         }
 
         // would like to do this but method is still used by Gateway code
-//        throw new UnsupportedOperationException();
+//          throw new UnsupportedOperationException();
     }
 
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void resumeRead() {
-        readSuspended = false;
+        switch (readSuspendCount.decrementAndGet()) {
+        case -1:
+            throw new IllegalStateException("resumeRead not balanced by previous suspendRead");
+        case 0:
+            resumeRead0();
+            break;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void resumeRead0() {
         if (isClosing() || !isConnected()) {
             return;
         }
@@ -637,11 +655,19 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public final void resumeWrite() {
-        writeSuspended = false;
+        switch (writeSuspendCount.decrementAndGet()) {
+        case -1:
+            throw new IllegalStateException("resumeWrite not balanced by previous suspendWrite");
+        case 0:
+            resumeWrite0();
+            break;
+        }
+    }
 
+    @SuppressWarnings("unchecked")
+    protected void resumeWrite0() {
         // note: alignment is optional before 4.0
         if (!isIoAligned()) {
             if (isClosing() || !isConnected()) {
@@ -659,15 +685,15 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      */
     @Override
     public boolean isReadSuspended() {
-        return readSuspended;
+        return readSuspendCount.get() != 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isWriteSuspended() {
-        return writeSuspended;
+    public final boolean isWriteSuspended() {
+        return writeSuspendCount.get() != 0;
     }
 
     /**

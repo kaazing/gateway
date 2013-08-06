@@ -7,7 +7,6 @@ package com.kaazing.mina.core.session;
 import static java.lang.Thread.currentThread;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 
@@ -27,7 +26,6 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     private final Executor ioExecutor;
     private final boolean ioAligned;
 
-    private final AtomicInteger readSuspendCount;
     private final Runnable readSuspender;
     private final Runnable readResumer;
 
@@ -47,17 +45,16 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
         this.ioAligned = ioAligned;
 
-        this.readSuspendCount = new AtomicInteger();
         this.readSuspender = new Runnable() {
             @Override
             public void run() {
-                AbstractIoSessionEx.super.suspendRead();
+                suspendRead1();
             }
         };
         this.readResumer = new Runnable() {
             @Override
             public void run() {
-                AbstractIoSessionEx.super.resumeRead();
+                resumeRead1();
             }
         };
     }
@@ -73,12 +70,12 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
-    public Thread getIoThread() {
+    public final Thread getIoThread() {
         return ioThread;
     }
 
     @Override
-    public Executor getIoExecutor() {
+    public final Executor getIoExecutor() {
         return ioExecutor;
     }
 
@@ -86,38 +83,37 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     public abstract IoProcessorEx getProcessor();
 
     @Override
-    public void suspendRead() {
-        // manage the readSuspendCount here atomically instead of superclass to minimize scheduling overhead
-        if (readSuspendCount.getAndIncrement() == 0) {
-            if (currentThread() == ioThread) {
-                super.suspendRead();
-            }
-            else {
-                ioExecutor.execute(readSuspender);
-            }
+    protected final void suspendRead0() {
+        if (currentThread() == ioThread) {
+            readSuspender.run();
+        }
+        else {
+            ioExecutor.execute(readSuspender);
         }
     }
 
+    protected void suspendRead1() {
+        super.suspendRead0();
+    }
+
     @Override
-    public void resumeRead() {
-        switch (readSuspendCount.decrementAndGet()) {
-        case -1:
-            throw new IllegalStateException("resumeRead not balanced by previous suspendRead");
-        case 0:
-            if (currentThread() == ioThread) {
-                super.resumeRead();
-            }
-            else {
-                ioExecutor.execute(readResumer);
-            }
-            break;
+    protected final void resumeRead0() {
+        if (currentThread() == ioThread) {
+            readResumer.run();
         }
+        else {
+            ioExecutor.execute(readResumer);
+        }
+    }
+
+    protected void resumeRead1() {
+        super.resumeRead0();
     }
 
     @Override
     protected void doCloseOnFlush() {
         // Ensure getProcessor().flush() is executed in this session's IO thread.
-        if (Thread.currentThread() == getIoThread()) {
+        if (currentThread() == ioThread) {
             closeOnFlushTask.run();
         }
         else {

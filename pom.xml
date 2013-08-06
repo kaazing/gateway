@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.kaazing.mina</groupId>
       <artifactId>mina-core</artifactId>
-      <version>2.0.0-RC1j</version>
+      <version>2.0.0-RC1k</version>
     </dependency>
     <dependency>
       <groupId>org.apache.mina</groupId>
