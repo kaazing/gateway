@@ -639,6 +639,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         case -1:
             throw new IllegalStateException("resumeRead not balanced by previous suspendRead");
         case 0:
+            if (isClosing() || !isConnected()) {
+                return;
+            }
             resumeRead0();
             break;
         }
@@ -646,9 +649,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
     @SuppressWarnings("unchecked")
     protected void resumeRead0() {
-        if (isClosing() || !isConnected()) {
-            return;
-        }
         getProcessor().updateTrafficControl(this);
     }
 
@@ -661,6 +661,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         case -1:
             throw new IllegalStateException("resumeWrite not balanced by previous suspendWrite");
         case 0:
+            if (isClosing() || !isConnected()) {
+                return;
+            }
             resumeWrite0();
             break;
         }
@@ -670,9 +673,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     protected void resumeWrite0() {
         // note: alignment is optional before 4.0
         if (!isIoAligned()) {
-            if (isClosing() || !isConnected()) {
-                return;
-            }
             getProcessor().updateTrafficControl(this);
         }
 
