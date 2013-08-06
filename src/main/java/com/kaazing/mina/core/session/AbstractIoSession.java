@@ -594,15 +594,15 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     @Override
     public void suspendRead() {
         if (readSuspendCount.getAndIncrement() == 0) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
             suspendRead0();
         }
     }
 
     @SuppressWarnings("unchecked")
     protected void suspendRead0() {
-        if (isClosing() || !isConnected()) {
-            return;
-        }
         getProcessor().updateTrafficControl(this);
     }
 
@@ -612,6 +612,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     @Override
     public final void suspendWrite() {
         if (writeSuspendCount.getAndIncrement() == 0) {
+            if (isClosing() || !isConnected()) {
+                return;
+            }
             suspendWrite0();
         }
     }
@@ -620,9 +623,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     protected void suspendWrite0() {
         // note: alignment is optional before 4.0
         if (!isIoAligned()) {
-            if (isClosing() || !isConnected()) {
-                return;
-            }
             getProcessor().updateTrafficControl(this);
         }
 
