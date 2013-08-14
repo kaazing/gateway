@@ -17,7 +17,7 @@ import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
-import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
+import com.kaazing.mina.netty.socket.SocketAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
 
 public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
@@ -36,7 +36,7 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
     }
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig,
-            final NioServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
+            final NioServerSocketChannelFactory channelFactory, SocketAcceptorChannelHandlerFactory handlerFactory) {
         super(sessionConfig, channelFactory, handlerFactory);
     }
 

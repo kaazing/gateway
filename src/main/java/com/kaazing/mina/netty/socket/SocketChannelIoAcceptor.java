@@ -6,7 +6,10 @@ package com.kaazing.mina.netty.socket;
 
 import java.net.InetSocketAddress;
 
+<<<<<<< .mine
+=======
 import org.apache.mina.transport.socket.SocketAcceptor;
+>>>>>>> .r67355
 import org.apache.mina.transport.socket.SocketAcceptorEx;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelEvent;
@@ -23,7 +26,6 @@ import org.jboss.netty.channel.socket.SocketChannelConfig;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.IoAcceptorChannelHandler;
-import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public abstract class SocketChannelIoAcceptor extends
@@ -35,13 +37,19 @@ public abstract class SocketChannelIoAcceptor extends
     // Default true, consistant with mina for socket sessions.
     private boolean reuseAddress = true;
 
-    public SocketChannelIoAcceptor(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
-            final ServerSocketChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
+    protected SocketChannelIoAcceptor(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
+            final ServerSocketChannelFactory channelFactory, SocketAcceptorChannelHandlerFactory handlerFactory) {
         super(
                 sessionConfig,
                 channelFactory,
-                new IoAcceptorChannelHandlerFactoryAdapter(handlerFactory),
+                new SocketAcceptorChannelHandlerFactoryDecorator(handlerFactory),
                 ServerBootstrapFactory.CONNECTED);
+        // IoAcceptorChannelHandlerFactory<ChannelIoAcceptor<C, F, A>>
+    }
+
+    protected SocketChannelIoAcceptor(SocketChannelIoSessionConfig<? extends SocketChannelConfig> sessionConfig,
+            final ServerSocketChannelFactory channelFactory, DefaultIoAcceptorChannelHandlerFactory handlerFactory) {
+        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTED);
     }
 
     @Override
@@ -69,6 +77,25 @@ public abstract class SocketChannelIoAcceptor extends
         super.setDefaultLocalAddress(localAddress);
     }
 
+<<<<<<< .mine
+    // Decorate the factory so we can decorate the handler so we can add needed options on Open
+    private static class SocketAcceptorChannelHandlerFactoryDecorator
+            implements SocketAcceptorChannelHandlerFactory {
+
+        private final SocketAcceptorChannelHandlerFactory delegate;
+
+        public SocketAcceptorChannelHandlerFactoryDecorator(SocketAcceptorChannelHandlerFactory factory) {
+            delegate = factory;
+        }
+
+        @Override
+        public DefaultSocketAcceptorChannelHandler createHandler(SocketChannelIoAcceptor acceptor, ChannelGroup channelGroup) {
+            DefaultSocketAcceptorChannelHandler handler = delegate.createHandler(acceptor, channelGroup);
+            return new SocketAcceptorChannelHandlerDecorator(acceptor, channelGroup, handler);
+
+        }
+
+=======
     // Decorate the factory so we can decorate the handler so we can add needed options on Open
     private static class IoAcceptorChannelHandlerFactoryAdapter implements IoAcceptorChannelHandlerFactory {
 
@@ -86,8 +113,134 @@ public abstract class SocketChannelIoAcceptor extends
 
         }
 
+>>>>>>> .r67355
     }
 
+<<<<<<< .mine
+    private static final class SocketAcceptorChannelHandlerDecorator extends SocketAcceptorChannelHandlerProxy {
+
+        private final DefaultSocketAcceptorChannelHandler delegate;
+
+        private SocketAcceptorChannelHandlerDecorator(SocketChannelIoAcceptor acceptor, ChannelGroup channelGroup,
+                DefaultSocketAcceptorChannelHandler delegate) {
+            super(acceptor, channelGroup);
+            this.delegate = delegate;
+        }
+
+        // Send ChannelOpen up and apply settings on the way back, set reuseaddress and backlog after the channel is
+        // opened, but before the bind.
+        @Override
+        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            super.channelOpen(ctx, e);
+            ChannelConfig config = ctx.getChannel().getConfig();
+            // Favoring setOption over type safe setters avoiding need for instanceof
+            config.setOption("reuseAddress", isReuseAddress());
+            config.setOption("backlog", getBacklog());
+        }
+
+        @Override
+        protected DefaultSocketAcceptorChannelHandler getChannelHandler() {
+            return delegate;
+        }
+    }
+
+    // private static abstract class SocketSimpleChannelHandler extends
+    // DefaultIoAcceptorChannelHandler<SocketChannelIoAcceptor>
+    // implements SocketAcceptorChannelHandler {
+    // protected SocketSimpleChannelHandler(SocketChannelIoAcceptor acceptor, ChannelGroup channelGroup) {
+    // super(acceptor, channelGroup);
+    // }
+    // }
+
+    private static abstract class SocketAcceptorChannelHandlerProxy extends DefaultSocketAcceptorChannelHandler {
+
+        protected abstract DefaultSocketAcceptorChannelHandler getChannelHandler();
+
+        protected SocketAcceptorChannelHandlerProxy(SocketChannelIoAcceptor acceptor, ChannelGroup channelGroup) {
+            super(acceptor, channelGroup);
+        }
+
+        @Override
+        public int getBacklog() {
+            return getAcceptor().getBacklog();
+        }
+
+        @Override
+        public boolean isReuseAddress() {
+            return getAcceptor().isReuseAddress();
+        }
+
+        @Override
+        public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
+            getChannelHandler().setPipelineFactory(pipelineFactory);
+        }
+
+        @Override
+        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelOpen(ctx, e);
+        }
+
+        @Override
+        public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
+            getChannelHandler().handleUpstream(ctx, e);
+        }
+
+        @Override
+        public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+            getChannelHandler().messageReceived(ctx, e);
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+            getChannelHandler().exceptionCaught(ctx, e);
+        }
+
+        @Override
+        public void channelBound(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelBound(ctx, e);
+        }
+
+        @Override
+        public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelConnected(ctx, e);
+        }
+
+        @Override
+        public void channelInterestChanged(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelInterestChanged(ctx, e);
+        }
+
+        @Override
+        public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelDisconnected(ctx, e);
+        }
+
+        @Override
+        public void channelUnbound(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelUnbound(ctx, e);
+        }
+
+        @Override
+        public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            getChannelHandler().channelClosed(ctx, e);
+        }
+
+        @Override
+        public void writeComplete(ChannelHandlerContext ctx, WriteCompletionEvent e) throws Exception {
+            getChannelHandler().writeComplete(ctx, e);
+        }
+
+        @Override
+        public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            getChannelHandler().childChannelOpen(ctx, e);
+        }
+
+        @Override
+        public void childChannelClosed(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
+            getChannelHandler().childChannelClosed(ctx, e);
+        }
+    }
+=======
     private static final class IoAcceptorChannelHandlerAdapter extends IoAcceptorChannelHandler {
 
         private final IoAcceptorChannelHandler handler;
@@ -174,4 +327,5 @@ public abstract class SocketChannelIoAcceptor extends
             handler.childChannelClosed(ctx, e);
         }
     }
+>>>>>>> .r67355
 }

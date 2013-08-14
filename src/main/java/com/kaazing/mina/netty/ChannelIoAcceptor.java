@@ -45,7 +45,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private final ServerBootstrap bootstrap;
     private final Map<SocketAddress, Channel> boundChannels;
     private IoSessionInitializer<? extends IoFuture> initializer;
-    private final IoAcceptorChannelHandler parentHandler;
+    private final IoAcceptorChannelHandler<ChannelIoAcceptor<C, F, A>> parentHandler;
     private final ChannelGroup channelGroup;
     private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor = new ChannelIoProcessor();
     private final List<IoSessionIdleTracker> sessionIdleTrackers
@@ -60,8 +60,9 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         }
     };
 
-    public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory handlerFactory,
-                      ServerBootstrapFactory bootstrapFactory) {
+    public ChannelIoAcceptor(C sessionConfig, F channelFactory,
+            IoAcceptorChannelHandlerFactory<ChannelIoAcceptor<C, F, A>> handlerFactory, ServerBootstrapFactory bootstrapFactory) {
+
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
@@ -91,6 +92,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         parentHandler.setPipelineFactory(pipelineFactory);
     }
 
+    @Override
     public IoSessionIdleTracker getSessionIdleTracker() {
         return currentSessionIdleTracker.get();
     }

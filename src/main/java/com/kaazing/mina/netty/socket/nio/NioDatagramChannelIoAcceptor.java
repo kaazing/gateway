@@ -25,6 +25,7 @@ import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoAcceptor;
 import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandler;
 import com.kaazing.mina.netty.IoAcceptorChannelHandler;
 import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.socket.DatagramChannelIoAcceptor;
@@ -37,16 +38,22 @@ public class NioDatagramChannelIoAcceptor extends DatagramChannelIoAcceptor {
             DatagramSessionConfig.class, Object.class);
 
     public NioDatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig) {
-        super(sessionConfig, new NioDatagramChannelFactory(), new IoAcceptorChannelHandlerFactory() {
+        super(sessionConfig, new NioDatagramChannelFactory(), new IoAcceptorChannelHandlerFactory<ChannelIoAcceptor<?,?,?>>() {
+
+            // @Override
+            // public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup
+            // channelGroup) {
+            // // TODO Auto-generated method stub
+            // return null;
+            // }
+
 
             @Override
-            public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor,
-                    ChannelGroup channelGroup) {
-                return new IoAcceptorChannelHandler(acceptor, channelGroup) {
+            public IoAcceptorChannelHandler createHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+                return new DefaultIoAcceptorChannelHandler(acceptor, channelGroup) {
 
                     @Override
-                    public void childChannelOpen(ChannelHandlerContext ctx,
-                            ChildChannelStateEvent e) throws Exception {
+                    public void childChannelOpen(ChannelHandlerContext ctx, ChildChannelStateEvent e) throws Exception {
                         super.childChannelOpen(ctx, e);
 
                         NioDatagramChannel childChannel = (NioDatagramChannel) e.getChildChannel();
