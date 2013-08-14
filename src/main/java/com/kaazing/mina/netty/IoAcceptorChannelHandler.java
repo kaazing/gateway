@@ -18,7 +18,7 @@ import org.jboss.netty.channel.group.ChannelGroup;
 
 public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 
-    private final ChannelIoAcceptor<?, ?, ?> acceptor;
+    protected final ChannelIoAcceptor<?, ?, ?> acceptor;
     private ChannelPipelineFactory pipelineFactory;
     private final ChannelGroup channelGroup;
 
@@ -63,5 +63,4 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
         // this will cause the bind channel future to fail, without noisy logging
         ctx.sendUpstream(e);
     }
-
 }
