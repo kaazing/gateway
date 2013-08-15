@@ -76,7 +76,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
 
         channelGroup = new DefaultChannelGroup();
 
-        parentHandler = new DefaultIoAcceptorChannelHandler(this, channelGroup, bindHandler);
+        parentHandler = new IoAcceptorChannelHandler(this, channelGroup, bindHandler);
 
         bootstrap = bootstrapFactory.createBootstrap();
         bootstrap.setFactory(channelFactory);
