@@ -25,6 +25,7 @@ import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
@@ -45,7 +46,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private final ServerBootstrap bootstrap;
     private final Map<SocketAddress, Channel> boundChannels;
     private IoSessionInitializer<? extends IoFuture> initializer;
-    private final IoAcceptorChannelHandler<ChannelIoAcceptor<C, F, A>> parentHandler;
+    private final IoAcceptorChannelHandler parentHandler;
     private final ChannelGroup channelGroup;
     private final IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor = new ChannelIoProcessor();
     private final List<IoSessionIdleTracker> sessionIdleTrackers
@@ -60,8 +61,8 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         }
     };
 
-    public ChannelIoAcceptor(C sessionConfig, F channelFactory,
-            IoAcceptorChannelHandlerFactory<ChannelIoAcceptor<C, F, A>> handlerFactory, ServerBootstrapFactory bootstrapFactory) {
+    protected ChannelIoAcceptor(C sessionConfig, F channelFactory, final ChannelHandler bindHandler,
+            ServerBootstrapFactory bootstrapFactory) {
 
         super(sessionConfig, new Executor() {
             @Override
@@ -69,9 +70,13 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
             }
         });
 
+        if (bindHandler == null) {
+            throw new NullPointerException("bindHandler");
+        }
+
         channelGroup = new DefaultChannelGroup();
 
-        parentHandler = handlerFactory.createHandler(this, channelGroup);
+        parentHandler = new DefaultIoAcceptorChannelHandler(this, channelGroup, bindHandler);
 
         bootstrap = bootstrapFactory.createBootstrap();
         bootstrap.setFactory(channelFactory);

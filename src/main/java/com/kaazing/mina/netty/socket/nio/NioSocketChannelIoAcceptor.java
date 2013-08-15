@@ -11,13 +11,13 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketSessionConfig;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.ChannelHandler;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoSession;
-import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
-import com.kaazing.mina.netty.socket.SocketAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.socket.SocketChannelIoAcceptor;
 
 public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
@@ -32,12 +32,12 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig,
             NioServerSocketChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+        super(sessionConfig, channelFactory, new SimpleChannelHandler());
     }
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig,
-            final NioServerSocketChannelFactory channelFactory, SocketAcceptorChannelHandlerFactory handlerFactory) {
-        super(sessionConfig, channelFactory, handlerFactory);
+            final NioServerSocketChannelFactory channelFactory, ChannelHandler bindHandler) {
+        super(sessionConfig, channelFactory, bindHandler);
     }
 
     @Override

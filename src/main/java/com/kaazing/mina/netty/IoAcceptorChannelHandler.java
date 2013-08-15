@@ -7,8 +7,7 @@ package com.kaazing.mina.netty;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
 
-public interface IoAcceptorChannelHandler<T extends ChannelIoAcceptor<?, ?, ?>>
-        extends ChannelUpstreamHandler {
+public interface IoAcceptorChannelHandler extends ChannelUpstreamHandler {
 
-    public void setPipelineFactory(ChannelPipelineFactory pipelineFactory);
+    void setPipelineFactory(ChannelPipelineFactory pipelineFactory);
 }
