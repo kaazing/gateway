@@ -5,18 +5,18 @@
   <parent>
     <groupId>com.kaazing.gateway.core</groupId>
     <artifactId>com.kaazing.gateway.core.common</artifactId>
-    <version>1.0.0.20</version>
+    <version>1.0.0.35</version>
   </parent>
 
   <groupId>com.kaazing.mina.netty</groupId>
   <artifactId>com.kaazing.mina.netty</artifactId>
-  <version>1.2.0.16-SNAPSHOT</version>
+  <version>1.3.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Mina Netty Adapter</name>
 
   <scm>
-      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/branches/1.2.x.y</connection>
-      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.2.x.y</url>
+      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/branches/1.3.x.y</connection>
+      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.3.x.y</url>
   </scm>
 
   <dependencies>
@@ -263,7 +263,6 @@
 
   <properties>
     <apache.mina.version>2.0.0-RC1</apache.mina.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
 </project>
