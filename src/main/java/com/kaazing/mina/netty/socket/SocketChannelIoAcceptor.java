@@ -91,11 +91,6 @@ public abstract class SocketChannelIoAcceptor extends
 
         @Override
         public void bindRequested(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-            // add bind handler to pipeline
-            String baseName = ctx.getName();
-            String name = format("%s:socket", baseName);
-            ctx.getPipeline().addAfter(baseName, name, bindHandler);
-
             // apply bind settings before we try to bind the channel
             ChannelConfig channelConfig = ctx.getChannel().getConfig();
             channelConfig.setOption("reuseAddress", config.reuseAddress);
@@ -116,11 +111,6 @@ public abstract class SocketChannelIoAcceptor extends
 
             // propagate channel open event
             super.channelOpen(ctx, e);
-
-            // apply bind settings after channel opened, but before bind
-            ChannelConfig channelConfig = ctx.getChannel().getConfig();
-            channelConfig.setOption("reuseAddress", config.reuseAddress);
-            channelConfig.setOption("backlog", config.backlog);
         }
     }
 }
