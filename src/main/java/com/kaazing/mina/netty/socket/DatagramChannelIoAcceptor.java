@@ -10,11 +10,10 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSessionRecycler;
 import org.apache.mina.transport.socket.DatagramAcceptor;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.socket.DatagramChannelFactory;
 
 import com.kaazing.mina.netty.ChannelIoAcceptor;
-import com.kaazing.mina.netty.DefaultIoAcceptorChannelHandlerFactory;
-import com.kaazing.mina.netty.IoAcceptorChannelHandlerFactory;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
 
 public abstract class DatagramChannelIoAcceptor
@@ -27,14 +26,9 @@ public abstract class DatagramChannelIoAcceptor
 
     private IoSessionRecycler sessionRecycler;  // TODO
 
-    public DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
-            DatagramChannelFactory channelFactory) {
-        this(sessionConfig, channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
-    }
-
     protected DatagramChannelIoAcceptor(DatagramChannelIoSessionConfig sessionConfig,
-            DatagramChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTIONLESS);
+            DatagramChannelFactory channelFactory, ChannelHandler bindHandler) {
+        super(sessionConfig, channelFactory, bindHandler, ServerBootstrapFactory.CONNECTIONLESS);
     }
 
     @Override

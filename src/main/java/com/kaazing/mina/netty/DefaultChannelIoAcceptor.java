@@ -10,7 +10,9 @@ import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.TransportMetadata;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ServerChannelFactory;
+import org.jboss.netty.channel.SimpleChannelHandler;
 
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
@@ -24,12 +26,12 @@ public class DefaultChannelIoAcceptor
             IoSessionConfigEx.class, Object.class);
 
     public DefaultChannelIoAcceptor(ServerChannelFactory channelFactory) {
-        this(new DefaultChannelIoSessionConfig(), channelFactory, new DefaultIoAcceptorChannelHandlerFactory());
+        this(new DefaultChannelIoSessionConfig(), channelFactory, new SimpleChannelHandler());
     }
 
     public DefaultChannelIoAcceptor(IoSessionConfigEx sessionConfig,
-            ServerChannelFactory channelFactory, IoAcceptorChannelHandlerFactory handlerFactory) {
-        super(sessionConfig, channelFactory, handlerFactory, ServerBootstrapFactory.CONNECTED);
+            ServerChannelFactory channelFactory, ChannelHandler bindHandler) {
+        super(sessionConfig, channelFactory, bindHandler, ServerBootstrapFactory.CONNECTED);
     }
 
     @Override

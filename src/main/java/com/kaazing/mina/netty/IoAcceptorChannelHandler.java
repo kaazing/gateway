@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.netty;
 
+import static java.lang.String.format;
+
 import java.util.Map;
 
 import org.jboss.netty.channel.Channel;
@@ -11,6 +13,7 @@ import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ChildChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
@@ -19,16 +22,32 @@ import org.jboss.netty.channel.group.ChannelGroup;
 public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
 
     private final ChannelIoAcceptor<?, ?, ?> acceptor;
-    private ChannelPipelineFactory pipelineFactory;
     private final ChannelGroup channelGroup;
+    private final ChannelHandler bindHandler;
+    private ChannelPipelineFactory pipelineFactory;
 
-    public IoAcceptorChannelHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup) {
+    public IoAcceptorChannelHandler(ChannelIoAcceptor<?, ?, ?> acceptor, ChannelGroup channelGroup,
+            ChannelHandler bindHandler) {
         this.acceptor = acceptor;
         this.channelGroup = channelGroup;
+        this.bindHandler = bindHandler;
     }
 
     public void setPipelineFactory(ChannelPipelineFactory pipelineFactory) {
         this.pipelineFactory = pipelineFactory;
+    }
+
+    @Override
+    public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e)
+        throws Exception {
+
+        // add the bind handler to the pipeline
+        String baseName = ctx.getName();
+        String name = format("%s:bind", baseName);
+        ctx.getPipeline().addAfter(baseName, name, bindHandler);
+
+        // propagate the open event to bind handler
+        super.channelOpen(ctx, e);
     }
 
     @Override
@@ -63,5 +82,4 @@ public class IoAcceptorChannelHandler extends SimpleChannelUpstreamHandler {
         // this will cause the bind channel future to fail, without noisy logging
         ctx.sendUpstream(e);
     }
-
 }

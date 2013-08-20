@@ -25,6 +25,7 @@ import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
@@ -60,17 +61,22 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         }
     };
 
-    public ChannelIoAcceptor(C sessionConfig, F channelFactory, IoAcceptorChannelHandlerFactory handlerFactory,
-                      ServerBootstrapFactory bootstrapFactory) {
+    protected ChannelIoAcceptor(C sessionConfig, F channelFactory, final ChannelHandler bindHandler,
+            ServerBootstrapFactory bootstrapFactory) {
+
         super(sessionConfig, new Executor() {
             @Override
             public void execute(Runnable command) {
             }
         });
 
+        if (bindHandler == null) {
+            throw new NullPointerException("bindHandler");
+        }
+
         channelGroup = new DefaultChannelGroup();
 
-        parentHandler = handlerFactory.createHandler(this, channelGroup);
+        parentHandler = new IoAcceptorChannelHandler(this, channelGroup, bindHandler);
 
         bootstrap = bootstrapFactory.createBootstrap();
         bootstrap.setFactory(channelFactory);
@@ -91,6 +97,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
         parentHandler.setPipelineFactory(pipelineFactory);
     }
 
+    @Override
     public IoSessionIdleTracker getSessionIdleTracker() {
         return currentSessionIdleTracker.get();
     }
