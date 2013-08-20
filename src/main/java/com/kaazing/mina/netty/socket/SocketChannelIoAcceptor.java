@@ -13,7 +13,7 @@ import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.socket.ServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.SocketChannelConfig;
 
@@ -79,7 +79,7 @@ public abstract class SocketChannelIoAcceptor extends
 
     }
 
-    private static final class SocketBindHandler extends SimpleChannelUpstreamHandler {
+    private static final class SocketBindHandler extends SimpleChannelHandler {
 
         private final ChannelHandler bindHandler;
         private final SocketAcceptorConfig config;
@@ -90,8 +90,24 @@ public abstract class SocketChannelIoAcceptor extends
         }
 
         @Override
-        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e)
-                throws Exception {
+        public void bindRequested(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+            // add bind handler to pipeline
+            String baseName = ctx.getName();
+            String name = format("%s:socket", baseName);
+            ctx.getPipeline().addAfter(baseName, name, bindHandler);
+
+            // apply bind settings before we try to bind the channel
+            ChannelConfig channelConfig = ctx.getChannel().getConfig();
+            channelConfig.setOption("reuseAddress", config.reuseAddress);
+            channelConfig.setOption("backlog", config.backlog);
+
+            // propagate channel open event
+            super.bindRequested(ctx, e);
+
+        }
+
+        @Override
+        public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
 
             // add bind handler to pipeline
             String baseName = ctx.getName();
