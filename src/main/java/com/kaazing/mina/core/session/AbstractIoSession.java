@@ -1262,16 +1262,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * TODO Add method documentation
      */
     private String getIdAsString() {
-        String id = Long.toHexString(getId()).toUpperCase();
-
-        // Somewhat inefficient, but it won't happen that often
-        // because an ID is often a big integer.
-        while (id.length() < 8) {
-            id = '0' + id; // padding
-        }
-        id = "0x" + id;
-
-        return id;
+        return String.format("#%08d", getId());
     }
 
     /**
