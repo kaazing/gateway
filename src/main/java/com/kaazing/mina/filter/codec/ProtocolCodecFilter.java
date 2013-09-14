@@ -381,7 +381,9 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         }
 
         public void flushWithFuture(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) {
+            Object encodedMessage = this.encodedMessage;
             if (encodedMessage != null) {
+                this.encodedMessage = null;
                 WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
                 writeRequestEx.setMessage(encodedMessage);
                 nextFilter.filterWrite(session, writeRequestEx);
