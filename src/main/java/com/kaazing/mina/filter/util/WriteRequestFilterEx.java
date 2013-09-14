@@ -28,19 +28,37 @@
 package com.kaazing.mina.filter.util;
 
 import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
-import org.apache.mina.filter.util.WriteRequestFilter;
+
+import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
  * An abstract {@link IoFilter} that simplifies the implementation of
  * an {@link IoFilter} that filters an {@link IoEventType#WRITE} event
  * even if the write request is mutable.
  */
-public abstract class WriteRequestFilterEx extends WriteRequestFilter {
+public abstract class WriteRequestFilterEx extends IoFilterAdapter {
 
     @Override
+    public void filterWrite(NextFilter nextFilter, IoSession session,
+            WriteRequest writeRequest) throws Exception {
+        Object filteredMessage = doFilterWrite(nextFilter, session, writeRequest);
+        if (filteredMessage != null && filteredMessage != writeRequest.getMessage()) {
+            WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
+            writeRequestEx.setMessage(filteredMessage);
+        }
+        nextFilter.filterWrite(session, writeRequest);
+    }
+
+    @Override
+    public void messageSent(NextFilter nextFilter, IoSession session,
+            WriteRequest writeRequest) throws Exception {
+        nextFilter.messageSent(session, writeRequest);
+    }
+
     protected final Object doFilterWrite(NextFilter nextFilter, IoSession session,
             WriteRequest writeRequest) throws Exception {
         Object message = writeRequest.getMessage();
@@ -49,5 +67,4 @@ public abstract class WriteRequestFilterEx extends WriteRequestFilter {
 
     protected abstract Object doFilterWrite(
             NextFilter nextFilter, IoSession session, WriteRequest writeRequest, Object message) throws Exception;
-
 }
