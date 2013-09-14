@@ -304,11 +304,13 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
             // Send it directly (assumes single encoded message)
             Object encodedMessage = ((ProtocolEncoderOutputImpl) encoderOut).pollMessage();
-            WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
-            writeRequestEx.setMessage(encodedMessage);
+            if (encodedMessage != null) {
+                WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
+                writeRequestEx.setMessage(encodedMessage);
+            }
 
             // Call the next filter
-            nextFilter.filterWrite(session, writeRequestEx);
+            nextFilter.filterWrite(session, writeRequest);
         } catch (Throwable t) {
             ProtocolEncoderException pee;
 
