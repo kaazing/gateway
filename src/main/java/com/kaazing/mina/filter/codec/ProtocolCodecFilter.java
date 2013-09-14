@@ -302,15 +302,14 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             // Now we can try to encode the response
             encoder.encode(session, message, encoderOut);
 
-            // Send it directly (assumes single encoded message)
+            // Flush the encoded message (assumes single encoded message)
             Object encodedMessage = ((ProtocolEncoderOutputImpl) encoderOut).pollMessage();
             if (encodedMessage != null) {
                 WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
                 writeRequestEx.setMessage(encodedMessage);
+                nextFilter.filterWrite(session, writeRequestEx);
             }
 
-            // Call the next filter
-            nextFilter.filterWrite(session, writeRequest);
         } catch (Throwable t) {
             ProtocolEncoderException pee;
 
