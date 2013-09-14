@@ -366,7 +366,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
         @Override
         public void write(Object encodedMessage) {
-            if (this.encodedMessage == null) {
+            if (this.encodedMessage != null) {
                 throw new IllegalStateException("called write() multiple times from ProtocolEncoder.encode()");
             }
             this.encodedMessage = encodedMessage;
