@@ -303,12 +303,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             encoder.encode(session, message, encoderOut);
 
             // Flush the encoded message (assumes single encoded message)
-            Object encodedMessage = ((ProtocolEncoderOutputImpl) encoderOut).pollMessage();
-            if (encodedMessage != null) {
-                WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
-                writeRequestEx.setMessage(encodedMessage);
-                nextFilter.filterWrite(session, writeRequestEx);
-            }
+            ((ProtocolEncoderOutputImpl) encoderOut).flushWithFuture(nextFilter, session, writeRequest);
 
         } catch (Throwable t) {
             ProtocolEncoderException pee;
@@ -385,12 +380,17 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             throw new UnsupportedOperationException();
         }
 
-        public Object pollMessage() {
-            Object encodedMessage = this.encodedMessage;
-            this.encodedMessage = null;
-            return encodedMessage;
+        public void flushWithFuture(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) {
+            if (encodedMessage != null) {
+                WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
+                writeRequestEx.setMessage(encodedMessage);
+                nextFilter.filterWrite(session, writeRequestEx);
+            }
+            else {
+                WriteFuture future = writeRequest.getFuture();
+                future.setWritten();
+            }
         }
-
     }
 
     //----------- Helper methods ---------------------------------------------
