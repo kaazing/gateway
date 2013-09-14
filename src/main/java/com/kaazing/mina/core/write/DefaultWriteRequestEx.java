@@ -12,13 +12,16 @@ import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
+import com.kaazing.mina.core.future.DefaultWriteFutureEx;
+import com.kaazing.mina.core.future.WriteFutureEx;
+
 /**
  * Extended version of WriteRequest to add support for mutating the
  * message during encoding to avoid undesirable allocation.
  */
 public class DefaultWriteRequestEx implements WriteRequestEx {
 
-    private static final WriteFuture UNUSED_FUTURE = new WriteFuture() {
+    private static final WriteFutureEx UNUSED_FUTURE = new WriteFutureEx() {
         public boolean isWritten() {
             return false;
         }
@@ -41,6 +44,17 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
 
         public boolean isDone() {
             return true;
+        }
+
+        @Override
+        public boolean isResetable() {
+            return false;
+        }
+
+        @Override
+        public void reset(IoSession session) {
+            throw new IllegalStateException(
+                    "You can't reset a dummy future.");
         }
 
         public WriteFuture addListener(IoFutureListener<?> listener) {
@@ -88,8 +102,8 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
     };
 
     private Object message;
-    private final WriteFuture future;
-    private final SocketAddress destination;
+    private SocketAddress destination;
+    private final WriteFutureEx future;
 
     /**
      * Creates a new instance without {@link WriteFuture}.  You'll get
@@ -103,7 +117,7 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
     /**
      * Creates a new instance with {@link WriteFuture}.
      */
-    public DefaultWriteRequestEx(Object message, WriteFuture future) {
+    public DefaultWriteRequestEx(Object message, WriteFutureEx future) {
         this(message, future, null);
     }
 
@@ -115,7 +129,7 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
      * @param destination the destination of the message.  This property will be
      *                    ignored unless the transport supports it.
      */
-    public DefaultWriteRequestEx(Object message, WriteFuture future,
+    public DefaultWriteRequestEx(Object message, WriteFutureEx future,
             SocketAddress destination) {
         if (message == null) {
             throw new NullPointerException("message");
@@ -130,7 +144,33 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
         this.destination = destination;
     }
 
-    public WriteFuture getFuture() {
+    private DefaultWriteRequestEx(WriteFutureEx future) {
+        this.future = future;
+    }
+
+    @Override
+    public boolean isResetable() {
+        return future.isResetable();
+    }
+
+    @Override
+    public void reset(IoSession session, Object message) {
+        reset(session, message, null);
+    }
+
+
+    @Override
+    public void reset(IoSession session, Object message, SocketAddress destination) {
+        if (message == null) {
+            throw new NullPointerException("message");
+        }
+
+        this.future.reset(session);
+        this.message = message;
+        this.destination = destination;
+    }
+
+    public WriteFutureEx getFuture() {
         return future;
     }
 
@@ -158,4 +198,28 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
 
         return message.toString() + " => " + getDestination();
     }
+
+    public static final class ShareableWriteRequest extends ThreadLocal<WriteRequestEx> {
+        @Override
+        public WriteRequestEx get() {
+            WriteRequestEx writeRequest = super.get();
+
+            if (!writeRequest.isResetable()) {
+                WriteRequestEx newValue = initialValue();
+                set(newValue);
+                writeRequest = newValue;
+            }
+
+            assert writeRequest.isResetable();
+            return writeRequest;
+        }
+
+        @Override
+        protected WriteRequestEx initialValue() {
+            DefaultWriteRequestEx writeRequest = new DefaultWriteRequestEx(new DefaultWriteFutureEx() {
+            });
+            return writeRequest;
+        }
+    }
+
 }

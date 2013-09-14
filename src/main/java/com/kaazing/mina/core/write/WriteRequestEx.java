@@ -4,7 +4,12 @@
 
 package com.kaazing.mina.core.write;
 
+import java.net.SocketAddress;
+
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
+
+import com.kaazing.mina.core.future.WriteFutureEx;
 
 /**
  * Extended version of WriteRequest to add support for mutating the
@@ -13,4 +18,10 @@ import org.apache.mina.core.write.WriteRequest;
 public interface WriteRequestEx extends WriteRequest {
 
     void setMessage(Object message);
+
+    WriteFutureEx getFuture();
+
+    boolean isResetable();
+    void reset(IoSession session, Object message);
+    void reset(IoSession session, Object message, SocketAddress destination);
 }

@@ -4,7 +4,7 @@
 
 package com.kaazing.mina.core.session;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +24,6 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.DefaultCloseFuture;
 import org.apache.mina.core.future.DefaultReadFuture;
-import org.apache.mina.core.future.DefaultWriteFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.ReadFuture;
 import org.apache.mina.core.future.WriteFuture;
@@ -45,7 +44,10 @@ import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.CircularQueue;
 import org.apache.mina.util.ExceptionMonitor;
 
+import com.kaazing.mina.core.future.DefaultWriteFutureEx;
+import com.kaazing.mina.core.future.WriteFutureEx;
 import com.kaazing.mina.core.write.DefaultWriteRequestEx;
+import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
  * Base implementation of {@link IoSession}.
@@ -399,8 +401,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         // send a message to the remote side. We generate a future
         // containing an exception.
         if (isClosing() || !isConnected()) {
-            WriteFuture future = new DefaultWriteFuture(this);
-            WriteRequest request = new DefaultWriteRequestEx(message, future, remoteAddress);
+            WriteFutureEx future = new DefaultWriteFutureEx(this);
+            WriteRequestEx request = new DefaultWriteRequestEx(message, future, remoteAddress);
             WriteException writeException = new WriteToClosedSessionException(request);
             future.setException(writeException);
             return future;
@@ -426,12 +428,12 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
             }
         } catch (IOException e) {
             ExceptionMonitor.getInstance().exceptionCaught(e);
-            return DefaultWriteFuture.newNotWrittenFuture(this, e);
+            return DefaultWriteFutureEx.newNotWrittenFuture(this, e);
         }
 
         // Now, we can write the message. First, create a future
-        WriteFuture writeFuture = new DefaultWriteFuture(this);
-        WriteRequest writeRequest = new DefaultWriteRequestEx(message, writeFuture, remoteAddress);
+        WriteFutureEx writeFuture = new DefaultWriteFutureEx(this);
+        WriteRequestEx writeRequest = new DefaultWriteRequestEx(message, writeFuture, remoteAddress);
 
         // Then, get the chain and inject the WriteRequest into it
         IoFilterChain filterChain = getFilterChain();
