@@ -50,7 +50,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
 
     @Override
     protected void flush0(ChannelIoSession<? extends ChannelConfig> session) {
-        flushNow(session, System.currentTimeMillis());
+        flushNow(session);
     }
 
     @Override
@@ -170,7 +170,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
         }
     }
 
-    private boolean flushNow(ChannelIoSession<? extends ChannelConfig> session, long currentTime) {
+    private boolean flushNow(ChannelIoSession<? extends ChannelConfig> session) {
         if (!session.isConnected()) {
             removeNow(session);
             return false;
