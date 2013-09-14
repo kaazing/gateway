@@ -1,57 +1,50 @@
 /**
- * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
  */
 
 package com.kaazing.mina.netty;
 
-import io.netty.buffer.ChannelBufType;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
-public class IoConnectorChannelHandler extends ChannelHandlerAdapter {
+public class IoConnectorChannelHandler extends SimpleChannelUpstreamHandler {
 
-	private final ChannelIoService connector;
-	private final ChannelBufType bufType;
-	private final ConnectFuture connectFuture;
-	private final IoSessionInitializer<?> sessionInitializer;
+    private final ChannelIoConnector<?, ?, ?> connector;
+    private final ConnectFuture connectFuture;
+    private final IoSessionInitializer<?> sessionInitializer;
 
-	public IoConnectorChannelHandler(ChannelIoService connector,
-			ChannelBufType bufType,
-			ConnectFuture connectFuture,
-			IoSessionInitializer<?> sessionInitializer) {
-		this.connector = connector;
-		this.bufType = bufType;
-		this.connectFuture = connectFuture;
-		this.sessionInitializer = sessionInitializer;
-	}
+    public IoConnectorChannelHandler(ChannelIoConnector<?, ?, ?> connector, ConnectFuture connectFuture,
+                                     IoSessionInitializer<?> sessionInitializer) {
+        this.connector = connector;
+        this.connectFuture = connectFuture;
+        this.sessionInitializer = sessionInitializer;
+    }
 
-	@Override
-	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    @Override
+    public void channelConnected(ChannelHandlerContext ctx, final ChannelStateEvent e)
+            throws Exception {
 
-		Channel channel = ctx.channel();
-		ChannelPipeline childPipeline = channel.pipeline();
+        Channel channel = e.getChannel();
+        ChannelPipeline childPipeline = channel.getPipeline();
 
-		IoSessionChannelHandler newHandler = new IoSessionChannelHandler(connector,
-				bufType, connectFuture, sessionInitializer);
-		childPipeline.addLast("session", newHandler);
+        IoSessionFactoryChannelHandler newHandler =
+                new IoSessionFactoryChannelHandler(connector, connectFuture, sessionInitializer);
+        childPipeline.replace(this, "factory", newHandler);
 
-		super.channelRegistered(ctx);
-		
-		childPipeline.remove(this);
-	}
+        ChannelHandlerContext childCtx = childPipeline.getContext(newHandler);
+        newHandler.channelConnected(childCtx, e);
+    }
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
-			throws Exception {
-	    // in case an exception occurs before or during registration
-	    if (!connectFuture.isDone()) {
-    		connectFuture.setException(cause);
-	    }
-	}
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+            throws Exception {
+        connectFuture.setException(e.getCause());
+    }
 
 }

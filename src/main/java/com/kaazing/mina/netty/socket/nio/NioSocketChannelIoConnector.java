@@ -1,36 +1,47 @@
 /**
- * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
  */
 
 package com.kaazing.mina.netty.socket.nio;
 
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import java.net.InetSocketAddress;
 
-import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
+import org.apache.mina.core.service.DefaultTransportMetadata;
+import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioSocketChannel;
 
+import com.kaazing.mina.core.service.IoProcessorEx;
+import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.socket.SocketChannelIoConnector;
 
-public class NioSocketChannelIoConnector extends SocketChannelIoConnector<NioEventLoopGroup> {
+public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
 
-	public NioSocketChannelIoConnector() {
-		this(new NioEventLoopGroup());
-	}
-	
-	public NioSocketChannelIoConnector(NioEventLoopGroup group) {
-		this(new DefaultSocketSessionConfig(), group);
-	}
+    private static final TransportMetadata NIO_SOCKET_TRANSPORT_METADATA = new DefaultTransportMetadata(
+            "Kaazing", "NioSocketChannel", false, true, InetSocketAddress.class,
+            SocketSessionConfig.class, Object.class);
 
-	public NioSocketChannelIoConnector(SocketSessionConfig sessionConfig,
-			NioEventLoopGroup group) {
-		super(sessionConfig, group);
-	}
+    public NioSocketChannelIoConnector(NioSocketChannelIoSessionConfig sessionConfig) {
+        this(sessionConfig, new NioClientSocketChannelFactory());
+    }
 
-	@Override
-	protected SocketChannel newChannel(NioEventLoopGroup group) {
-		return new NioSocketChannel();
-	}
+    public NioSocketChannelIoConnector(NioSocketChannelIoSessionConfig sessionConfig,
+            NioClientSocketChannelFactory channelFactory) {
+        super(sessionConfig, channelFactory);
+    }
+
+    @Override
+    public TransportMetadata getTransportMetadata() {
+        return NIO_SOCKET_TRANSPORT_METADATA;
+    }
+
+    @Override
+    protected ChannelIoSession<? extends ChannelConfig> createSession(Channel channel,
+            IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor) {
+        return new NioSocketChannelIoSession(this, processor, (NioSocketChannel) channel);
+    }
 
 }

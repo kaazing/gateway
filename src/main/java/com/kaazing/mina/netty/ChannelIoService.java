@@ -1,15 +1,21 @@
 /**
- * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
  */
 
 package com.kaazing.mina.netty;
 
 import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.jboss.netty.channel.Channel;
 
-public interface ChannelIoService extends IoService {
+import com.kaazing.mina.core.service.IoServiceEx;
 
-	public void initializeSession(ChannelIoSession session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
-	
+public interface ChannelIoService extends IoServiceEx {
+
+    ChannelIoSession<?> createSession(Channel channel);
+
+    IoSessionIdleTracker getSessionIdleTracker();
+
+    void initializeSession(ChannelIoSession<?> session, IoFuture future, IoSessionInitializer<?> sessionInitializer);
+
 }
