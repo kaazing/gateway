@@ -4,7 +4,11 @@
 
 package com.kaazing.mina.core.write;
 
+import static java.util.Collections.unmodifiableList;
+
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.future.IoFutureListener;
@@ -219,6 +223,14 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
             DefaultWriteRequestEx writeRequest = new DefaultWriteRequestEx(new DefaultWriteFutureEx() {
             });
             return writeRequest;
+        }
+
+        public static List<ThreadLocal<WriteRequestEx>> initWithLayers(int ioLayers) {
+            List<ThreadLocal<WriteRequestEx>> threadLocals = new ArrayList<ThreadLocal<WriteRequestEx>>(ioLayers);
+            while (threadLocals.size() < ioLayers) {
+                threadLocals.add(new ShareableWriteRequest());
+            }
+            return unmodifiableList(threadLocals);
         }
     }
 

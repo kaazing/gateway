@@ -6,6 +6,7 @@ package com.kaazing.mina.core.session;
 
 import static java.lang.Thread.currentThread;
 
+import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -13,6 +14,8 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
+import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
  * This class extends the functionality of AbstractIoSession to add support for thread alignment: the guarantee
@@ -25,11 +28,14 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     private final Thread ioThread;
     private final Executor ioExecutor;
     private final boolean ioAligned;
+    private final int ioLayer;
+    private final ThreadLocal<WriteRequestEx> ioWriteRequest;
 
     private final Runnable readSuspender;
     private final Runnable readResumer;
 
-    protected AbstractIoSessionEx(Thread ioThread, Executor ioExecutor) {
+    protected AbstractIoSessionEx(int ioLayer, Thread ioThread, Executor ioExecutor,
+                                  ThreadLocal<WriteRequestEx> ioWriteRequest) {
         super();
         if (ioThread == null) {
             throw new NullPointerException("ioThread");
@@ -39,6 +45,8 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
         this.ioThread = ioThread;
         this.ioExecutor = ioExecutor;
+        this.ioLayer = ioLayer;
+        this.ioWriteRequest = ioWriteRequest;
 
         // note: alignment is optional before 4.0
         boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR && ioThread != CURRENT_THREAD;
@@ -60,6 +68,11 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
+    public final int getIoLayer() {
+        return ioLayer;
+    }
+
+    @Override
     public final boolean isIoAligned() {
         return ioAligned;
     }
@@ -77,6 +90,17 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     @Override
     public final Executor getIoExecutor() {
         return ioExecutor;
+    }
+
+    @Override
+    protected WriteRequestEx nextWriteRequest(Object message, SocketAddress remoteAddress) {
+        if (ioAligned) {
+            WriteRequestEx writeRequest = ioWriteRequest.get();
+            writeRequest.reset(this, message, remoteAddress);
+            return writeRequest;
+        }
+
+        return super.nextWriteRequest(message, remoteAddress);
     }
 
     @SuppressWarnings("rawtypes")

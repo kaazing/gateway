@@ -40,6 +40,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.RuntimeIoException;
@@ -60,6 +61,8 @@ import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.DefaultBindFuture;
 import com.kaazing.mina.core.future.DefaultUnbindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
+import com.kaazing.mina.core.write.WriteRequestEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
 
 /**
  * {@link IoAcceptor} for socket transport (TCP/IP).  This class
@@ -71,6 +74,9 @@ public final class NioSocketAcceptorEx
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(NioSocketAcceptorEx.class);
+
+    private final List<ThreadLocal<WriteRequestEx>> sharedWriteRequests = ShareableWriteRequest.initWithLayers(16);
+
     /**
      * Define the number of socket that can wait to be accepted. Default
      * to 50 (as in the SocketServer default).
@@ -122,6 +128,11 @@ public final class NioSocketAcceptorEx
     public NioSocketAcceptorEx(Executor executor, IoProcessor<NioSessionEx> processor) {
         super(new DefaultSocketSessionConfigEx(), executor, processor);
         ((DefaultSocketSessionConfig) getSessionConfig()).init(this);
+    }
+
+    @Override
+    public ThreadLocal<WriteRequestEx> getThreadLocalWriteRequest(int ioLayer) {
+        return sharedWriteRequests.get(ioLayer);
     }
 
     /**

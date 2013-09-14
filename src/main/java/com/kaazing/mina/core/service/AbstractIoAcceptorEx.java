@@ -5,6 +5,7 @@
 package com.kaazing.mina.core.service;
 
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.future.IoFutureListener;
@@ -12,8 +13,12 @@ import org.apache.mina.core.future.IoFutureListener;
 import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
+import com.kaazing.mina.core.write.WriteRequestEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
 
 public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements IoAcceptorEx  {
+
+    private final List<ThreadLocal<WriteRequestEx>> sharedWriteRequests = ShareableWriteRequest.initWithLayers(16);
 
     protected AbstractIoAcceptorEx(IoSessionConfigEx sessionConfig,
             Executor executor) {
@@ -23,6 +28,11 @@ public abstract class AbstractIoAcceptorEx extends AbstractIoAcceptor implements
     @Override
     public IoSessionConfigEx getSessionConfig() {
         return (IoSessionConfigEx) super.getSessionConfig();
+    }
+
+    @Override
+    public final ThreadLocal<WriteRequestEx> getThreadLocalWriteRequest(int ioLayer) {
+        return sharedWriteRequests.get(ioLayer);
     }
 
     @Override

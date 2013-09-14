@@ -401,8 +401,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         // send a message to the remote side. We generate a future
         // containing an exception.
         if (isClosing() || !isConnected()) {
-            WriteFutureEx future = new DefaultWriteFutureEx(this);
-            WriteRequestEx request = new DefaultWriteRequestEx(message, future, remoteAddress);
+            WriteRequestEx request = nextWriteRequest(message, remoteAddress);
+            WriteFutureEx future = request.getFuture();
             WriteException writeException = new WriteToClosedSessionException(request);
             future.setException(writeException);
             return future;
@@ -432,8 +432,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         }
 
         // Now, we can write the message. First, create a future
-        WriteFutureEx writeFuture = new DefaultWriteFutureEx(this);
-        WriteRequestEx writeRequest = new DefaultWriteRequestEx(message, writeFuture, remoteAddress);
+        WriteRequestEx writeRequest = nextWriteRequest(message, remoteAddress);
+        WriteFutureEx writeFuture = writeRequest.getFuture();
 
         // Then, get the chain and inject the WriteRequest into it
         IoFilterChain filterChain = getFilterChain();
@@ -458,6 +458,10 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
         // Return the WriteFuture.
         return writeFuture;
+    }
+
+    protected WriteRequestEx nextWriteRequest(Object message, SocketAddress remoteAddress) {
+        return new DefaultWriteRequestEx(message, new DefaultWriteFutureEx(this), remoteAddress);
     }
 
     /**

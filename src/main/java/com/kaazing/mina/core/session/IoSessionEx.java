@@ -41,6 +41,11 @@ public interface IoSessionEx extends IoSession, IoAlignment {
     };
 
     /**
+     * Returns the I/O layer this session represents, with 0 at the base (eg. TCP) and incrementing up through higher layers.
+     */
+    int getIoLayer();
+
+    /**
      * Returns the IO worker thread in which all filters on the filter chain for this session will be executed
      */
     Thread getIoThread();

@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import java.nio.channels.DatagramChannel;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.polling.AbstractPollingIoConnector;
@@ -41,12 +42,17 @@ import org.apache.mina.transport.socket.DatagramConnectorEx;
 import org.apache.mina.transport.socket.DatagramSessionConfigEx;
 import org.apache.mina.transport.socket.DefaultDatagramSessionConfigEx;
 
+import com.kaazing.mina.core.write.WriteRequestEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
+
 /**
  * {@link IoConnector} for datagram transport (UDP/IP).
  */
 public final class NioDatagramConnectorEx
         extends AbstractPollingIoConnector<NioSession, DatagramChannel>
         implements DatagramConnectorEx {
+
+    private final List<ThreadLocal<WriteRequestEx>> sharedWriteRequests = ShareableWriteRequest.initWithLayers(16);
 
     /**
      * Creates a new instance.
@@ -100,6 +106,11 @@ public final class NioDatagramConnectorEx
      */
     public NioDatagramConnectorEx(Class<? extends IoProcessor<NioSession>> processorClass) {
         super(new DefaultDatagramSessionConfigEx(), processorClass);
+    }
+
+    @Override
+    public ThreadLocal<WriteRequestEx> getThreadLocalWriteRequest(int ioLayer) {
+        return sharedWriteRequests.get(ioLayer);
     }
 
     public TransportMetadata getTransportMetadata() {

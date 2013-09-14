@@ -37,6 +37,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -53,6 +54,8 @@ import com.kaazing.mina.core.future.BindFuture;
 import com.kaazing.mina.core.future.DefaultBindFuture;
 import com.kaazing.mina.core.future.DefaultUnbindFuture;
 import com.kaazing.mina.core.future.UnbindFuture;
+import com.kaazing.mina.core.write.WriteRequestEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
 
 /**
  * {@link IoAcceptor} for datagram transport (UDP/IP).
@@ -62,6 +65,8 @@ import com.kaazing.mina.core.future.UnbindFuture;
 public final class NioDatagramAcceptorEx
         extends AbstractPollingConnectionlessIoAcceptor<NioSession, DatagramChannel>
         implements DatagramAcceptorEx {
+
+    private final List<ThreadLocal<WriteRequestEx>> sharedWriteRequests = ShareableWriteRequest.initWithLayers(16);
 
     private volatile Selector selector;
 
@@ -77,6 +82,11 @@ public final class NioDatagramAcceptorEx
      */
     public NioDatagramAcceptorEx(Executor executor) {
         super(new DefaultDatagramSessionConfigEx(), executor);
+    }
+
+    @Override
+    public ThreadLocal<WriteRequestEx> getThreadLocalWriteRequest(int ioLayer) {
+        return sharedWriteRequests.get(ioLayer);
     }
 
     @Override

@@ -95,6 +95,11 @@ public class NioSocketSessionEx extends NioSessionEx {
         this.config.setAll(service.getSessionConfig());
     }
 
+    @Override
+    public int getIoLayer() {
+        return 0;
+    }
+
     public IoServiceEx getService() {
         return service;
     }
