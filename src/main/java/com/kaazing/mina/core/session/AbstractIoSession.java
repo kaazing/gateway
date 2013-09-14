@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.core.session;
 
+import static java.lang.String.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -77,11 +79,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
             public void operationComplete(CloseFuture future) {
                 AbstractIoSession session = (AbstractIoSession) future.getSession();
                 session.scheduledWriteBytes.set(0);
-                session.scheduledWriteMessages.set(0);
                 session.readBytesThroughput = 0;
                 session.readMessagesThroughput = 0;
                 session.writtenBytesThroughput = 0;
-                session.writtenMessagesThroughput = 0;
             }
     };
 
@@ -91,6 +91,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      */
     protected static final WriteRequest CLOSE_REQUEST =
         new DefaultWriteRequest(new Object());
+    private static final String UNSUPPORTED_WRITEMESSAGES_FORMAT = "Invalid usage of io session %s call.";
 
     private IoSessionAttributeMap attributes;
     private WriteRequestQueue writeRequestQueue;
@@ -119,12 +120,10 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     // Status variables
     private final AtomicBoolean scheduledForFlush = new AtomicBoolean();
     private final AtomicInteger scheduledWriteBytes = new AtomicInteger();
-    private final AtomicInteger scheduledWriteMessages = new AtomicInteger();
 
     private long readBytes;
     private long writtenBytes;
     private long readMessages;
-    private long writtenMessages;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
 
@@ -132,11 +131,9 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     private long lastReadBytes;
     private long lastWrittenBytes;
     private long lastReadMessages;
-    private long lastWrittenMessages;
     private double readBytesThroughput;
     private double writtenBytesThroughput;
     private double readMessagesThroughput;
-    private double writtenMessagesThroughput;
 
     private AtomicInteger idleCountForBoth = new AtomicInteger();
     private AtomicInteger idleCountForRead = new AtomicInteger();
@@ -725,7 +722,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      */
     @Override
     public final long getWrittenMessages() {
-        return writtenMessages;
+        throw new UnsupportedOperationException(format(UNSUPPORTED_WRITEMESSAGES_FORMAT, "getWrittenMessages()"));
     }
 
     /**
@@ -757,7 +754,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      */
     @Override
     public final double getWrittenMessagesThroughput() {
-        return writtenMessagesThroughput;
+        throw new UnsupportedOperationException(format(UNSUPPORTED_WRITEMESSAGES_FORMAT,
+                                                       "getWrittenMessagesThroughput()"));
     }
 
     /**
@@ -777,12 +775,10 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         readBytesThroughput = (readBytes - lastReadBytes) * 1000.0 / interval;
         writtenBytesThroughput = (writtenBytes - lastWrittenBytes) * 1000.0 / interval;
         readMessagesThroughput = (readMessages - lastReadMessages) * 1000.0 / interval;
-        writtenMessagesThroughput = (writtenMessages - lastWrittenMessages) * 1000.0 / interval;
 
         lastReadBytes = readBytes;
         lastWrittenBytes = writtenBytes;
         lastReadMessages = readMessages;
-        lastWrittenMessages = writtenMessages;
 
         lastThroughputCalculationTime = currentTime;
     }
@@ -800,7 +796,8 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      */
     @Override
     public int getScheduledWriteMessages() {
-        return scheduledWriteMessages.get();
+        throw new UnsupportedOperationException(format(UNSUPPORTED_WRITEMESSAGES_FORMAT,
+                                                       "getScheduledWriteMessages()"));
     }
 
     /**
@@ -810,12 +807,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         scheduledWriteBytes.set(byteCount);
     }
 
-    /**
-     * TODO Add method documentation
-     */
-    protected void setScheduledWriteMessages(int messages) {
-        scheduledWriteMessages.set(messages);
-    }
 
     /**
      * TODO Add method documentation
@@ -869,27 +860,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         increaseScheduledWriteBytes(-increment);
     }
 
-    /**
-     * TODO Add method documentation
-     */
-    public final void increaseWrittenMessages(
-            WriteRequest request, long currentTime) {
-        Object message = request.getMessage();
-        if (message instanceof IoBuffer) {
-            IoBuffer b = (IoBuffer) message;
-            if (b.hasRemaining()) {
-                return;
-            }
-        }
 
-        writtenMessages++;
-        lastWriteTime = currentTime;
-//        if (getService() instanceof AbstractIoService) {
-//            ((AbstractIoService) getService()).getStatistics().increaseWrittenMessages(currentTime);
-//        }
-
-        decreaseScheduledWriteMessages();
-    }
 
     /**
      * TODO Add method documentation
@@ -901,25 +872,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
 //        }
     }
 
-    /**
-     * TODO Add method documentation
-     */
-    public final void increaseScheduledWriteMessages() {
-        scheduledWriteMessages.incrementAndGet();
-//        if (getService() instanceof AbstractIoService) {
-//            ((AbstractIoService) getService()).getStatistics().increaseScheduledWriteMessages();
-//        }
-    }
-
-    /**
-     * TODO Add method documentation
-     */
-    private void decreaseScheduledWriteMessages() {
-        scheduledWriteMessages.decrementAndGet();
-//        if (getService() instanceof AbstractIoService) {
-//            ((AbstractIoService) getService()).getStatistics().decreaseScheduledWriteMessages();
-//        }
-    }
 
     /**
      * TODO Add method documentation
@@ -930,11 +882,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
             IoBuffer b = (IoBuffer) message;
             if (b.hasRemaining()) {
                 increaseScheduledWriteBytes(-((IoBuffer) message).remaining());
-            } else {
-                decreaseScheduledWriteMessages();
             }
-        } else {
-            decreaseScheduledWriteMessages();
         }
     }
 
@@ -1262,7 +1210,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * TODO Add method documentation
      */
     private String getIdAsString() {
-        return String.format("#%08d", getId());
+        return format("#%08d", getId());
     }
 
     /**

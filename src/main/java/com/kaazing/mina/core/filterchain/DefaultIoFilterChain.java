@@ -427,8 +427,6 @@ public class DefaultIoFilterChain implements IoFilterChain {
     }
 
     public void fireMessageSent(WriteRequest request) {
-        session.increaseWrittenMessages(request, System.currentTimeMillis());
-
         try {
             request.getFuture().setWritten();
         } catch (Throwable t) {
@@ -592,15 +590,15 @@ public class DefaultIoFilterChain implements IoFilterChain {
                 IoBuffer buffer = (IoBuffer) writeRequest.getMessage();
                 // buffer.mark() call is now done in Mina's DefaultIoSessionDataStructureFactory$DefaultWriteRequestQueue.poll().
                 int remaining = buffer.remaining();
-                if (remaining == 0) {
-                    // Zero-sized buffer means the internal message
-                    // delimiter.
-                    s.increaseScheduledWriteMessages();
-                } else {
-                    s.increaseScheduledWriteBytes(remaining);
+                switch (remaining) {
+                    case 0:
+                        // Zero-sized buffer means the internal message
+                        // delimiter.
+                        break;
+                    default:
+                        s.increaseScheduledWriteBytes(remaining);
+                        break;
                 }
-            } else {
-                s.increaseScheduledWriteMessages();
             }
 
             s.getWriteRequestQueue().offer(s, writeRequest);
