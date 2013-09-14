@@ -37,7 +37,6 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionAttributeMap;
-import org.apache.mina.core.write.DefaultWriteRequest;
 import org.apache.mina.core.write.WriteException;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
@@ -45,6 +44,8 @@ import org.apache.mina.core.write.WriteTimeoutException;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.CircularQueue;
 import org.apache.mina.util.ExceptionMonitor;
+
+import com.kaazing.mina.core.write.DefaultWriteRequestEx;
 
 /**
  * Base implementation of {@link IoSession}.
@@ -90,7 +91,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * @see #writeRequestQueue
      */
     protected static final WriteRequest CLOSE_REQUEST =
-        new DefaultWriteRequest(new Object());
+        new DefaultWriteRequestEx(new Object());
     private static final String UNSUPPORTED_WRITEMESSAGES_FORMAT = "Invalid usage of io session %s call.";
 
     private IoSessionAttributeMap attributes;
@@ -399,7 +400,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         // containing an exception.
         if (isClosing() || !isConnected()) {
             WriteFuture future = new DefaultWriteFuture(this);
-            WriteRequest request = new DefaultWriteRequest(message, future, remoteAddress);
+            WriteRequest request = new DefaultWriteRequestEx(message, future, remoteAddress);
             WriteException writeException = new WriteToClosedSessionException(request);
             future.setException(writeException);
             return future;
@@ -430,7 +431,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
 
         // Now, we can write the message. First, create a future
         WriteFuture writeFuture = new DefaultWriteFuture(this);
-        WriteRequest writeRequest = new DefaultWriteRequest(message, writeFuture, remoteAddress);
+        WriteRequest writeRequest = new DefaultWriteRequestEx(message, writeFuture, remoteAddress);
 
         // Then, get the chain and inject the WriteRequest into it
         IoFilterChain filterChain = getFilterChain();
