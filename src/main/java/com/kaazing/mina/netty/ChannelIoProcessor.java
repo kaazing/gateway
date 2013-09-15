@@ -5,6 +5,8 @@
 package com.kaazing.mina.netty;
 
 import static java.lang.String.format;
+import static java.lang.System.out;
+import static java.lang.Thread.currentThread;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 import java.nio.ByteBuffer;
@@ -29,13 +31,23 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
+import com.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBuffer;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
  */
 final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? extends ChannelConfig>> {
 
+    private final ThreadLocal<ByteBufferWrappingChannelBuffer> wrappingBuf;
+
     ChannelIoProcessor() {
+        this.wrappingBuf = new ThreadLocal<ByteBufferWrappingChannelBuffer>() {
+            @Override
+            protected ByteBufferWrappingChannelBuffer initialValue() {
+                return new ByteBufferWrappingChannelBuffer();
+            }
+
+        };
     };
 
     @Override
@@ -212,13 +224,16 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             int position = sharedBuf.position();
 
                             // note: NETTY duplicates original ByteBuffer when converting ChannelBuffer to ByteBuffer
-                            //       so special treatment below is strictly not necessary
-                            //       However, we *could* wrap sharedBuf with a non-duplicating ChannelBuffer
-                            ChannelBuffer channelBuf = wrappedBuffer(sharedBuf);
+                            //       instead, wrap sharedBuf with a non-duplicating ChannelBuffer
+                            ByteBufferWrappingChannelBuffer wrappingBuf = this.wrappingBuf.get();
+                            ChannelBuffer channelBuf = wrappingBuf.wrap(sharedBuf);
 
                             // write shared buffer to channel
                             ChannelFuture future = channel.write(channelBuf);
                             if (future.isDone()) {
+                                // unwrap wrapping buffer
+                                wrappingBuf.unwrap();
+
                                 // reset shared buffer before messageSent
                                 sharedBuf.position(position);
 
@@ -235,6 +250,10 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                                 newSharedBuf.position(position);
                                 channelIoBuf.buf(newSharedBuf);
 
+                                // leave wrapping buffer wrapped, but create new wrapping buffer for next flush
+                                out.println(format("replacing wrappingBuf in thread %s", currentThread().getName()));
+                                this.wrappingBuf.set(new ByteBufferWrappingChannelBuffer());
+
                                 // register listener to detect when write completed
                                 future.addListener(new ChannelWriteFutureListener(filterChain, req));
                             }
@@ -243,7 +262,8 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             // 1b. buffer is unshared
                             // write unshared buffer to channel
                             ByteBuffer unsharedBuf = channelIoBuf.buf();
-                            ChannelFuture future = channel.write(wrappedBuffer(unsharedBuf));
+                            ChannelBuffer channelBuf = wrappedBuffer(unsharedBuf);
+                            ChannelFuture future = channel.write(channelBuf);
                             if (future.isDone()) {
                                 // unshared buffer write complete
                                 ChannelWriteFutureListener.operationComplete(future, filterChain, req);
