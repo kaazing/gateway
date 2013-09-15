@@ -120,10 +120,18 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
     public void getBytes(int index, ChannelBuffer dst, int dstIndex, int length) {
         if (dst instanceof ByteBufferWrappingChannelBuffer) {
             ByteBufferWrappingChannelBuffer bbdst = (ByteBufferWrappingChannelBuffer) dst;
-            ByteBuffer data = bbdst.buffer.duplicate();
+            // note: single-threaded, no need to duplicate
+            ByteBuffer data = bbdst.buffer;
+
+            // but *do* need to reset position and limit afterwards
+            int position = data.position();
+            int limit = data.limit();
 
             data.limit(dstIndex + length).position(dstIndex);
             getBytes(index, data);
+
+            // reset position and limit
+            data.limit(limit).position(position);
         } else if (buffer.hasArray()) {
             dst.setBytes(dstIndex, buffer.array(), index + buffer.arrayOffset(), length);
         } else {
@@ -132,7 +140,13 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
     }
 
     public void getBytes(int index, byte[] dst, int dstIndex, int length) {
-        ByteBuffer data = buffer.duplicate();
+        // note: single-threaded, no need to duplicate
+        ByteBuffer data = buffer;
+
+        // but *do* need to reset position and limit afterwards
+        int position = data.position();
+        int limit = data.limit();
+
         try {
             data.limit(index + length).position(index);
         } catch (IllegalArgumentException e) {
@@ -140,11 +154,20 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
                     + (index + length) + ", maximum is " + data.limit());
         }
         data.get(dst, dstIndex, length);
+
+        // reset position and limit
+        data.limit(limit).position(position);
     }
 
     public void getBytes(int index, ByteBuffer dst) {
-        ByteBuffer data = buffer.duplicate();
+        // note: single-threaded, no need to duplicate
+        ByteBuffer data = buffer;
         int bytesToCopy = Math.min(capacity() - index, dst.remaining());
+
+        // but *do* need to reset position and limit afterwards
+        int position = data.position();
+        int limit = data.limit();
+
         try {
             data.limit(index + bytesToCopy).position(index);
         } catch (IllegalArgumentException e) {
@@ -152,6 +175,9 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
                     + (index + bytesToCopy) + ", maximum is " + data.limit());
         }
         dst.put(data);
+
+        // reset position and limit
+        data.limit(limit).position(position);
     }
 
     public void setByte(int index, int value) {

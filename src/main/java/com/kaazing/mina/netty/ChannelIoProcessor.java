@@ -25,7 +25,6 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.DefaultChannelFuture;
 
 import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.service.AbstractIoProcessor;
