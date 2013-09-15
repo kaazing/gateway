@@ -27,8 +27,6 @@
  */
 package com.kaazing.mina.filter.codec;
 
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Queue;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -36,16 +34,11 @@ import org.apache.mina.core.file.FileRegion;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.DefaultWriteFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.DefaultWriteRequest;
-import org.apache.mina.core.write.NothingWrittenException;
 import org.apache.mina.core.write.WriteRequest;
-import org.apache.mina.core.write.WriteRequestWrapper;
 import org.apache.mina.filter.codec.AbstractProtocolDecoderOutput;
-import org.apache.mina.filter.codec.AbstractProtocolEncoderOutput;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
@@ -57,8 +50,7 @@ import org.apache.mina.filter.codec.RecoverableProtocolDecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kaazing.mina.core.buffer.IoBufferEx;
-import com.kaazing.mina.core.buffer.SimpleBufferAllocator;
+import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
  * An {@link IoFilter} which translates binary or protocol specific data into
@@ -71,7 +63,6 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProtocolCodecFilter.class);
 
     private static final Class<?>[] EMPTY_PARAMS = new Class[0];
-    private static final IoBufferEx EMPTY_BUFFER = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.wrap(new byte[0]));
 
     // Note: requires non-static attribute keys to support multiple codec filters on the same filter chain
     private final AttributeKey ENCODER = new AttributeKey(ProtocolCodecFilter.class, "encoder");
@@ -286,17 +277,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             LOGGER.debug("Processing a MESSAGE_SENT for session {}", session);
         }
 
-        if (writeRequest instanceof EncodedWriteRequest) {
-            return;
-        }
-
-        if (writeRequest instanceof MessageWriteRequest) {
-            MessageWriteRequest wrappedRequest = (MessageWriteRequest) writeRequest;
-            nextFilter.messageSent(session, wrappedRequest.getParentRequest());
-        }
-        else {
-            nextFilter.messageSent(session, writeRequest);
-        }
+        nextFilter.messageSent(session, writeRequest);
     }
 
     @Override
@@ -321,12 +302,9 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
             // Now we can try to encode the response
             encoder.encode(session, message, encoderOut);
 
-            // Send it directly
-            ((ProtocolEncoderOutputImpl) encoderOut).flushWithoutFuture();
+            // Flush the encoded message (assumes single encoded message)
+            ((ProtocolEncoderOutputImpl) encoderOut).flushWithFuture(nextFilter, session, writeRequest);
 
-            // Call the next filter
-            nextFilter.filterWrite(session, new MessageWriteRequest(
-                    writeRequest));
         } catch (Throwable t) {
             ProtocolEncoderException pee;
 
@@ -368,24 +346,6 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         nextFilter.sessionClosed(session);
     }
 
-    private static class EncodedWriteRequest extends DefaultWriteRequest {
-        public EncodedWriteRequest(Object encodedMessage,
-                WriteFuture future, SocketAddress destination) {
-            super(encodedMessage, future, destination);
-        }
-    }
-
-    private static class MessageWriteRequest extends WriteRequestWrapper {
-        public MessageWriteRequest(WriteRequest writeRequest) {
-            super(writeRequest);
-        }
-
-        @Override
-        public Object getMessage() {
-            return EMPTY_BUFFER;
-        }
-    }
-
     private static class ProtocolDecoderOutputImpl extends
             AbstractProtocolDecoderOutput {
         public ProtocolDecoderOutputImpl() {
@@ -400,63 +360,39 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         }
     }
 
-    private static class ProtocolEncoderOutputImpl extends
-            AbstractProtocolEncoderOutput {
-        private final IoSession session;
+    private static class ProtocolEncoderOutputImpl implements ProtocolEncoderOutput {
 
-        private final NextFilter nextFilter;
+        private Object encodedMessage;
 
-        private final WriteRequest writeRequest;
-
-        public ProtocolEncoderOutputImpl(IoSession session,
-                NextFilter nextFilter, WriteRequest writeRequest) {
-            this.session = session;
-            this.nextFilter = nextFilter;
-            this.writeRequest = writeRequest;
+        @Override
+        public void write(Object encodedMessage) {
+            if (this.encodedMessage != null) {
+                throw new IllegalStateException("called write() multiple times from ProtocolEncoder.encode()");
+            }
+            this.encodedMessage = encodedMessage;
         }
 
+        @Override
+        public void mergeAll() {
+            // no-op
+        }
+
+        @Override
         public WriteFuture flush() {
-            Queue<Object> bufferQueue = getMessageQueue();
-            WriteFuture future = null;
-            for (;;) {
-                Object encodedMessage = bufferQueue.poll();
-                if (encodedMessage == null) {
-                    break;
-                }
-
-                // Flush only when the buffer has remaining.
-                if (!(encodedMessage instanceof IoBuffer) ||
-                        ((IoBuffer) encodedMessage).hasRemaining()) {
-                    future = new DefaultWriteFuture(session);
-                    nextFilter.filterWrite(session, new EncodedWriteRequest(encodedMessage,
-                            future, writeRequest.getDestination()));
-                }
-            }
-
-            if (future == null) {
-                future = DefaultWriteFuture.newNotWrittenFuture(
-                        session, new NothingWrittenException(writeRequest));
-            }
-
-            return future;
+            throw new UnsupportedOperationException();
         }
 
-        public void flushWithoutFuture() {
-            Queue<Object> bufferQueue = getMessageQueue();
-            for (;;) {
-                Object encodedMessage = bufferQueue.poll();
-                if (encodedMessage == null) {
-                    break;
-                }
-
-                // Flush only when the buffer has remaining.
-                if (!(encodedMessage instanceof IoBuffer) ||
-                        ((IoBuffer) encodedMessage).hasRemaining()) {
-                    SocketAddress destination = writeRequest.getDestination();
-                    WriteRequest writeRequest = new EncodedWriteRequest(
-                        encodedMessage, null, destination);
-                    nextFilter.filterWrite(session, writeRequest);
-                }
+        public void flushWithFuture(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) {
+            Object encodedMessage = this.encodedMessage;
+            if (encodedMessage != null) {
+                this.encodedMessage = null;
+                WriteRequestEx writeRequestEx = (WriteRequestEx) writeRequest;
+                writeRequestEx.setMessage(encodedMessage);
+                nextFilter.filterWrite(session, writeRequestEx);
+            }
+            else {
+                WriteFuture future = writeRequest.getFuture();
+                future.setWritten();
             }
         }
     }
@@ -563,7 +499,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
 
         if (out == null) {
             // Create a new instance, and stores it into the session
-            out = new ProtocolEncoderOutputImpl(session, nextFilter, writeRequest);
+            out = new ProtocolEncoderOutputImpl();
             session.setAttribute(ENCODER_OUT, out);
         }
 

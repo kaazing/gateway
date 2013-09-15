@@ -88,6 +88,11 @@ class NioDatagramSessionEx extends NioSessionEx {
         this(service, ch, processor, ch.socket().getRemoteSocketAddress());
     }
 
+    @Override
+    public int getIoLayer() {
+        return 0;
+    }
+
     public IoServiceEx getService() {
         return service;
     }

@@ -31,6 +31,7 @@ import com.kaazing.mina.core.service.AbstractIoAcceptorEx;
 import com.kaazing.mina.core.service.IoAcceptorEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.service.IoServiceEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
 
 /**
  * This is based on Mina's DummySession. It is a dummy IoSessionEx for unit-testing or non-network-use of
@@ -76,7 +77,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     public DummySessionEx(Thread thread, Executor executor) {
-        super(thread, executor);
+        super(0, thread, executor, new ShareableWriteRequest());
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
                 new AbstractIoSessionConfigEx() {
@@ -296,10 +297,6 @@ public class DummySessionEx extends AbstractIoSessionEx {
         super.setScheduledWriteBytes(byteCount);
     }
 
-    @Override
-    public void setScheduledWriteMessages(int messages) {
-        super.setScheduledWriteMessages(messages);
-    }
 
     /**
      * Update all statistical properties related with throughput.  By default

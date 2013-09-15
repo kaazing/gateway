@@ -37,6 +37,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.apache.mina.core.polling.AbstractPollingIoConnector;
@@ -50,12 +51,17 @@ import org.apache.mina.transport.socket.DefaultSocketSessionConfigEx;
 import org.apache.mina.transport.socket.SocketConnectorEx;
 import org.apache.mina.transport.socket.SocketSessionConfigEx;
 
+import com.kaazing.mina.core.write.WriteRequestEx;
+import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
+
 /**
  * {@link IoConnector} for socket transport (TCP/IP).
  */
 public final class NioSocketConnectorEx
         extends AbstractPollingIoConnector<NioSessionEx, SocketChannel>
         implements SocketConnectorEx {
+
+    private final List<ThreadLocal<WriteRequestEx>> sharedWriteRequests = ShareableWriteRequest.initWithLayers(16);
 
     private volatile Selector selector;
 
@@ -132,6 +138,11 @@ public final class NioSocketConnectorEx
      */
     public NioSocketConnectorEx(Class<? extends IoProcessor<NioSessionEx>> processorClass) {
         super(new DefaultSocketSessionConfigEx(), processorClass);
+    }
+
+    @Override
+    public ThreadLocal<WriteRequestEx> getThreadLocalWriteRequest(int ioLayer) {
+        return sharedWriteRequests.get(ioLayer);
     }
 
     /**

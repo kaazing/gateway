@@ -30,7 +30,7 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
 
     public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor,
             Channel channel, ChannelIoSessionConfig<C> config, Thread ioThread, Executor ioExecutor) {
-        super(ioThread, ioExecutor);
+        super(0, ioThread, ioExecutor, service.getThreadLocalWriteRequest(0));
         this.service = service;
         this.channel = channel;
         this.config = config;
