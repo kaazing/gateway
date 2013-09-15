@@ -5,8 +5,6 @@
 package com.kaazing.mina.netty;
 
 import static java.lang.String.format;
-import static java.lang.System.out;
-import static java.lang.Thread.currentThread;
 import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
 import java.nio.ByteBuffer;
@@ -38,15 +36,24 @@ import com.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBuffer;
  */
 final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? extends ChannelConfig>> {
 
-    private final ThreadLocal<ByteBufferWrappingChannelBuffer> wrappingBuf;
+    private static class ResetableThreadLocal<T> extends ThreadLocal<T> {
+
+        public void reset() {
+            set(initialValue());
+        }
+
+    }
+
+    // note: ChannelIoProcessor instance is shared across worker threads (!)
+    private final ResetableThreadLocal<ByteBufferWrappingChannelBuffer> wrappingBuf;
 
     ChannelIoProcessor() {
-        this.wrappingBuf = new ThreadLocal<ByteBufferWrappingChannelBuffer>() {
+        this.wrappingBuf = new ResetableThreadLocal<ByteBufferWrappingChannelBuffer>() {
+
             @Override
             protected ByteBufferWrappingChannelBuffer initialValue() {
                 return new ByteBufferWrappingChannelBuffer();
             }
-
         };
     };
 
@@ -231,7 +238,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             // write shared buffer to channel
                             ChannelFuture future = channel.write(channelBuf);
                             if (future.isDone()) {
-                                // unwrap wrapping buffer
+                                // unwrap wrapping buffer to release ByteBuffer reference
                                 wrappingBuf.unwrap();
 
                                 // reset shared buffer before messageSent
@@ -251,8 +258,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                                 channelIoBuf.buf(newSharedBuf);
 
                                 // leave wrapping buffer wrapped, but create new wrapping buffer for next flush
-                                out.println(format("replacing wrappingBuf in thread %s", currentThread().getName()));
-                                this.wrappingBuf.set(new ByteBufferWrappingChannelBuffer());
+                                this.wrappingBuf.reset();
 
                                 // register listener to detect when write completed
                                 future.addListener(new ChannelWriteFutureListener(filterChain, req));
@@ -262,13 +268,22 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             // 1b. buffer is unshared
                             // write unshared buffer to channel
                             ByteBuffer unsharedBuf = channelIoBuf.buf();
-                            ChannelBuffer channelBuf = wrappedBuffer(unsharedBuf);
+                            // note: NETTY duplicates original ByteBuffer when converting ChannelBuffer to ByteBuffer
+                            //       instead, wrap sharedBuf with a non-duplicating ChannelBuffer
+                            ByteBufferWrappingChannelBuffer wrappingBuf = this.wrappingBuf.get();
+                            ChannelBuffer channelBuf = wrappingBuf.wrap(unsharedBuf);
                             ChannelFuture future = channel.write(channelBuf);
                             if (future.isDone()) {
+                                // unwrap wrapping buffer to release ByteBuffer reference
+                                wrappingBuf.unwrap();
+
                                 // unshared buffer write complete
                                 ChannelWriteFutureListener.operationComplete(future, filterChain, req);
                             }
                             else {
+                                // leave wrapping buffer wrapped, but create new wrapping buffer for next flush
+                                this.wrappingBuf.reset();
+
                                 // unshared buffer write incomplete
                                 future.addListener(new ChannelWriteFutureListener(filterChain, req));
                             }

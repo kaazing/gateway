@@ -19,7 +19,6 @@ import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.buffer.DirectChannelBufferFactory;
 import org.jboss.netty.buffer.HeapChannelBufferFactory;
-import org.jboss.netty.buffer.SlicedChannelBuffer;
 
 /**
  * A NIO {@link ByteBuffer} based buffer.
@@ -43,11 +42,8 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
 
         this.order = buffer.order();
         this.buffer = buffer;
-        this.capacity = limit;
-        writerIndex(limit);
-        if (position > 0) {
-            return new SlicedChannelBuffer(this, position, limit - position);
-        }
+        this.capacity = buffer.capacity();
+        setIndex(position, limit);
         return this;
     }
 
