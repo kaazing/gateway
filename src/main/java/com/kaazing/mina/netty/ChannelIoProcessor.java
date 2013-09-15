@@ -24,12 +24,15 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.DefaultChannelFuture;
 
 import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 import com.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBuffer;
+import com.kaazing.mina.netty.channel.DownstreamMessageEventEx;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
@@ -38,14 +41,17 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
 
     private static class ResetableThreadLocal<T> extends ThreadLocal<T> {
 
-        public void reset() {
-            set(initialValue());
+        public T reset() {
+            T newValue = initialValue();
+            set(newValue);
+            return newValue;
         }
 
     }
 
     // note: ChannelIoProcessor instance is shared across worker threads (!)
     private final ResetableThreadLocal<ByteBufferWrappingChannelBuffer> wrappingBuf;
+    private final ResetableThreadLocal<DownstreamMessageEventEx> writeRequestEx;
 
     ChannelIoProcessor() {
         this.wrappingBuf = new ResetableThreadLocal<ByteBufferWrappingChannelBuffer>() {
@@ -53,6 +59,14 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
             @Override
             protected ByteBufferWrappingChannelBuffer initialValue() {
                 return new ByteBufferWrappingChannelBuffer();
+            }
+        };
+
+        this.writeRequestEx = new ResetableThreadLocal<DownstreamMessageEventEx>() {
+
+            @Override
+            protected DownstreamMessageEventEx initialValue() {
+                return new DownstreamMessageEventEx();
             }
         };
     };
@@ -236,7 +250,17 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             ChannelBuffer channelBuf = wrappingBuf.wrap(sharedBuf);
 
                             // write shared buffer to channel
-                            ChannelFuture future = channel.write(channelBuf);
+                            ChannelFuture future = new DefaultChannelFuture(channel, false);
+                            DownstreamMessageEventEx writeRequest = writeRequestEx.get();
+                            if (!writeRequest.isResetable()) {
+                                writeRequest = writeRequestEx.reset();
+                            }
+                            assert writeRequest.isResetable();
+                            writeRequest.reset(channel, future, channelBuf, null);
+
+                            ChannelPipeline pipeline = channel.getPipeline();
+                            pipeline.sendDownstream(writeRequest);
+
                             if (future.isDone()) {
                                 // unwrap wrapping buffer to release ByteBuffer reference
                                 wrappingBuf.unwrap();
