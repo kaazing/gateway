@@ -12,37 +12,36 @@ import org.jboss.netty.util.internal.StringUtil;
 
 public class DownstreamMessageEventEx implements MessageEvent {
 
+    private final DefaultChannelFutureEx future;
     private Channel channel;
-    private ChannelFuture future;
     private Object message;
     private SocketAddress remoteAddress;
 
+    public DownstreamMessageEventEx() {
+        future = new DefaultChannelFutureEx();
+    }
+
     public boolean isResetable() {
-        return future == null || future.isDone();
+        return future.isResetable();
     }
 
     /**
-     * Creates a new instance.
+     * Initializes the instance.
      */
-    public void reset(
-            Channel channel, ChannelFuture future,
-            Object message, SocketAddress remoteAddress) {
+    public void reset(Channel channel, Object message, SocketAddress remoteAddress, boolean cancellable) {
 
-        if (this.future != null && !this.future.isDone()) {
+        if (!future.isResetable()) {
             throw new IllegalStateException("Cannot reset message event before future has completed");
         }
 
         if (channel == null) {
             throw new NullPointerException("channel");
         }
-        if (future == null) {
-            throw new NullPointerException("future");
-        }
         if (message == null) {
             throw new NullPointerException("message");
         }
         this.channel = channel;
-        this.future = future;
+        this.future.reset(channel, cancellable);
         this.message = message;
         if (remoteAddress != null) {
             this.remoteAddress = remoteAddress;

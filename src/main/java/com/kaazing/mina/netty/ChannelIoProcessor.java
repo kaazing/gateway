@@ -250,17 +250,17 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             ChannelBuffer channelBuf = wrappingBuf.wrap(sharedBuf);
 
                             // write shared buffer to channel
-                            ChannelFuture future = new DefaultChannelFuture(channel, false);
                             DownstreamMessageEventEx writeRequest = writeRequestEx.get();
                             if (!writeRequest.isResetable()) {
                                 writeRequest = writeRequestEx.reset();
                             }
                             assert writeRequest.isResetable();
-                            writeRequest.reset(channel, future, channelBuf, null);
+                            writeRequest.reset(channel, channelBuf, null, false);
 
                             ChannelPipeline pipeline = channel.getPipeline();
                             pipeline.sendDownstream(writeRequest);
 
+                            ChannelFuture future = writeRequest.getFuture();
                             if (future.isDone()) {
                                 // unwrap wrapping buffer to release ByteBuffer reference
                                 wrappingBuf.unwrap();
