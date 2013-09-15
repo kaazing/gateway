@@ -325,7 +325,8 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
 
     public ByteBuffer toByteBuffer(int index, int length) {
         if (index == 0 && length == capacity()) {
-            return buffer.duplicate().order(order());
+            // no need to duplicate
+            return buffer.order(order());
         } else {
             return ((ByteBuffer) buffer.duplicate().position(
                     index).limit(index + length)).slice().order(order());
