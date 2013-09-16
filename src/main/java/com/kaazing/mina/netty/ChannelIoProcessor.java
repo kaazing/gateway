@@ -206,16 +206,10 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
         try {
             for (;;) {
                 // Check for pending writes.
-                req = session.getCurrentWriteRequest();
+                req = writeRequestQueue.poll(session);
 
                 if (req == null) {
-                    req = writeRequestQueue.poll(session);
-
-                    if (req == null) {
-                        break;
-                    }
-
-                    session.setCurrentWriteRequest(req);
+                    break;
                 }
 
                 Object message = req.getMessage();
@@ -317,8 +311,6 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                                     + message.getClass().getName()
                                     + "'.  Are you missing a protocol encoder?");
                 }
-
-                session.setCurrentWriteRequest(null);
             }
         } catch (Exception e) {
             if (req != null) {
