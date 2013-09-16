@@ -229,7 +229,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                         // 1. detect shared buffer
                         if (channelIoBuf.isShared()) {
                             // 1a. buffer is shared
-                            ByteBuffer sharedBuf = channelIoBuf.buf();
+                            ByteBuffer sharedBuf = channelIoBuf.writeBuf();
                             int position = sharedBuf.position();
 
                             // write shared buffer to channel

@@ -64,6 +64,10 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
             return buf.hasArray();
         }
 
+        public ByteBuffer writeBuf() {
+            return buf;
+        }
+
         @Override
         public void free() {
             // Do nothing
@@ -72,12 +76,33 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
 
     // note: thread-aligned so no need for thread local ByteBuffer storage
     static final class ChannelIoSharedBuffer extends ChannelIoBuffer {
-        private ChannelIoSharedBuffer(ByteBuffer buf) {
+        private final ThreadLocal<ByteBuffer> bufRef;
+
+        private ChannelIoSharedBuffer(final ByteBuffer buf) {
             super(buf);
+
+            this.bufRef = new ThreadLocal<ByteBuffer>() {
+                @Override
+                protected ByteBuffer initialValue() {
+                    return buf.duplicate();
+                }
+            };
         }
 
-        private ChannelIoSharedBuffer(ChannelIoBuffer parent, ByteBuffer buf) {
+        private ChannelIoSharedBuffer(ChannelIoBuffer parent, final ByteBuffer buf) {
             super(parent, buf);
+
+            this.bufRef = new ThreadLocal<ByteBuffer>() {
+                @Override
+                protected ByteBuffer initialValue() {
+                    return buf.duplicate();
+                }
+            };
+        }
+
+        // ensure thread-local for final write since we no longer duplicate every write inside NETTY
+        public ByteBuffer writeBuf() {
+            return bufRef.get();
         }
 
         @Override
