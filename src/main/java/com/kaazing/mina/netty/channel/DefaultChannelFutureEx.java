@@ -46,7 +46,7 @@ public class DefaultChannelFutureEx implements ChannelFuture {
     private int waiters;
 
     public synchronized boolean isResetable() {
-        return done || channel == null;
+        return (done && waiters == 0) || channel == null;
     }
 
     /**
@@ -60,6 +60,13 @@ public class DefaultChannelFutureEx implements ChannelFuture {
     public synchronized void reset(Channel channel, boolean cancellable) {
         this.channel = channel;
         this.cancellable = cancellable;
+
+        assert this.firstListener == null;
+        assert this.otherListeners == null || this.otherListeners.isEmpty();
+        assert this.progressListeners == null || this.progressListeners.isEmpty();
+        this.done = false;
+        this.cause = null;
+        assert this.waiters == 0;
     }
 
     public Channel getChannel() {

@@ -26,47 +26,15 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
     }
 
     abstract static class ChannelIoBuffer extends AbstractIoBufferEx {
-        private ByteBuffer buf;
-
-        protected ChannelIoBuffer(ByteBuffer buf) {
-            super(buf.capacity());
-            this.buf = buf;
-            buf.order(ByteOrder.BIG_ENDIAN);
+        protected ChannelIoBuffer(int capacity) {
+            super(capacity);
         }
 
-        protected ChannelIoBuffer(ChannelIoBuffer parent, ByteBuffer buf) {
+        protected ChannelIoBuffer(ChannelIoBuffer parent) {
             super(parent);
-            this.buf = buf;
         }
 
-        @Override
-        public ByteBuffer buf() {
-            return buf;
-        }
-
-        @Override
-        protected void buf(ByteBuffer buf) {
-            this.buf = buf;
-        }
-
-        @Override
-        public byte[] array() {
-            return buf.array();
-        }
-
-        @Override
-        public int arrayOffset() {
-            return buf.arrayOffset();
-        }
-
-        @Override
-        public boolean hasArray() {
-            return buf.hasArray();
-        }
-
-        public ByteBuffer writeBuf() {
-            return buf;
-        }
+        public abstract void buf(ByteBuffer newBuf);
 
         @Override
         public void free() {
@@ -79,7 +47,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         private final ThreadLocal<ByteBuffer> bufRef;
 
         private ChannelIoSharedBuffer(final ByteBuffer buf) {
-            super(buf);
+            super(buf.capacity());
 
             this.bufRef = new ThreadLocal<ByteBuffer>() {
                 @Override
@@ -90,7 +58,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         private ChannelIoSharedBuffer(ChannelIoBuffer parent, final ByteBuffer buf) {
-            super(parent, buf);
+            super(parent);
 
             this.bufRef = new ThreadLocal<ByteBuffer>() {
                 @Override
@@ -101,13 +69,33 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         }
 
         // ensure thread-local for final write since we no longer duplicate every write inside NETTY
-        public ByteBuffer writeBuf() {
+        public ByteBuffer buf() {
             return bufRef.get();
+        }
+
+        @Override
+        public void buf(ByteBuffer buf) {
+            bufRef.set(buf);
         }
 
         @Override
         public int flags() {
             return IoBufferEx.FLAG_SHARED;
+        }
+
+        @Override
+        public byte[] array() {
+            return buf().array();
+        }
+
+        @Override
+        public int arrayOffset() {
+            return buf().arrayOffset();
+        }
+
+        @Override
+        public boolean hasArray() {
+            return buf().hasArray();
         }
 
         @Override
@@ -138,17 +126,49 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
     }
 
     static final class ChannelIoUnsharedBuffer extends ChannelIoBuffer {
+        private ByteBuffer buf;
+
         private ChannelIoUnsharedBuffer(ByteBuffer buf) {
-            super(buf);
+            super(buf.capacity());
+            this.buf = buf;
+            buf.order(ByteOrder.BIG_ENDIAN);
         }
 
         private ChannelIoUnsharedBuffer(ChannelIoBuffer parent, ByteBuffer buf) {
-            super(parent, buf);
+            super(parent);
+            this.buf = buf;
+            buf.order(ByteOrder.BIG_ENDIAN);
         }
 
         @Override
         public int flags() {
             return IoBufferEx.FLAG_NONE;
+        }
+
+
+        @Override
+        public ByteBuffer buf() {
+            return buf;
+        }
+
+        @Override
+        public void buf(ByteBuffer buf) {
+            this.buf = buf;
+        }
+
+        @Override
+        public byte[] array() {
+            return buf.array();
+        }
+
+        @Override
+        public int arrayOffset() {
+            return buf.arrayOffset();
+        }
+
+        @Override
+        public boolean hasArray() {
+            return buf.hasArray();
         }
 
         @Override
@@ -163,17 +183,17 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
 
         @Override
         protected ChannelIoUnsharedBuffer duplicate0() {
-            return new ChannelIoUnsharedBuffer(this, buf().duplicate());
+            return new ChannelIoUnsharedBuffer(this, buf.duplicate());
         }
 
         @Override
         protected ChannelIoUnsharedBuffer slice0() {
-            return new ChannelIoUnsharedBuffer(this, buf().slice());
+            return new ChannelIoUnsharedBuffer(this, buf.slice());
         }
 
         @Override
         protected ChannelIoUnsharedBuffer asReadOnlyBuffer0() {
-            return new ChannelIoUnsharedBuffer(this, buf().asReadOnlyBuffer());
+            return new ChannelIoUnsharedBuffer(this, buf.asReadOnlyBuffer());
         }
 
     }

@@ -47,20 +47,17 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
         return this;
     }
 
-    public ByteBuffer unwrap() {
-        ByteBuffer buffer = this.buffer;
-        this.buffer = null;
-        this.order = null;
-        this.capacity = 0;
-        return buffer;
-    }
-
     private ChannelBuffer wrap(ByteBufferWrappingChannelBuffer buffer) {
         this.buffer = buffer.buffer;
         order = buffer.order;
         capacity = buffer.capacity;
         setIndex(buffer.readerIndex(), buffer.writerIndex());
         return this;
+    }
+
+    @Override
+    public int readableBytes() {
+        return buffer.remaining();
     }
 
     public ChannelBufferFactory factory() {
