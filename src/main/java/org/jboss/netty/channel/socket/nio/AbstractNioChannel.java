@@ -85,6 +85,9 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     MessageEvent currentWriteEvent;
     SendBuffer currentWriteBuffer;
 
+    SendBuffer sharedUnpooled;
+    SendBuffer sharedPooled;
+
     /**
      * Boolean that indicates that write operation is in progress.
      */

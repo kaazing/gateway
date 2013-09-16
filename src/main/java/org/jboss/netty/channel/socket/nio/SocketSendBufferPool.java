@@ -19,13 +19,6 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.CompositeChannelBuffer;
-import org.jboss.netty.channel.DefaultFileRegion;
-import org.jboss.netty.channel.FileRegion;
-import org.jboss.netty.util.ExternalResourceReleasable;
-import org.jboss.netty.util.internal.ByteBufferUtil;
-
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.SocketAddress;
@@ -33,6 +26,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.WritableByteChannel;
+
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.CompositeChannelBuffer;
+import org.jboss.netty.channel.DefaultFileRegion;
+import org.jboss.netty.channel.FileRegion;
+import org.jboss.netty.util.ExternalResourceReleasable;
+import org.jboss.netty.util.internal.ByteBufferUtil;
 
 final class SocketSendBufferPool implements ExternalResourceReleasable {
 
@@ -45,30 +45,26 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
     private PreallocationRef poolHead;
     private Preallocation current = new Preallocation(DEFAULT_PREALLOCATION_SIZE);
 
-    // sharing works because this is single-threaded from NIO Worker thread
-    private SharedUnpooledSendBuffer sharedUnpooled = new SharedUnpooledSendBuffer();
-    private SharedPooledSendBuffer sharedPooled = new SharedPooledSendBuffer();
-
-    SendBuffer acquire(Object message) {
+    SendBuffer acquire(AbstractNioChannel<?> channel, Object message) {
         if (message instanceof ChannelBuffer) {
-            return acquire((ChannelBuffer) message);
+            return acquire(channel, (ChannelBuffer) message);
         }
         if (message instanceof FileRegion) {
-            return acquire((FileRegion) message);
+            return acquire(channel, (FileRegion) message);
         }
 
         throw new IllegalArgumentException(
                 "unsupported message type: " + message.getClass());
     }
 
-    private SendBuffer acquire(FileRegion src) {
+    private SendBuffer acquire(AbstractNioChannel<?> channel, FileRegion src) {
         if (src.getCount() == 0) {
             return EMPTY_BUFFER;
         }
         return new FileSendBuffer(src);
     }
 
-    private SendBuffer acquire(ChannelBuffer src) {
+    private SendBuffer acquire(AbstractNioChannel<?> channel, ChannelBuffer src) {
         final int size = src.readableBytes();
         if (size == 0) {
             return EMPTY_BUFFER;
@@ -79,11 +75,11 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         }
 
         if (src.isDirect()) {
-            SharedUnpooledSendBuffer sharedUnpooled = getSharedUnpooled();
+            SharedUnpooledSendBuffer sharedUnpooled = getSharedUnpooled(channel);
             return sharedUnpooled.init(src.toByteBuffer());
         }
         if (src.readableBytes() > DEFAULT_PREALLOCATION_SIZE) {
-            SharedUnpooledSendBuffer sharedUnpooled = getSharedUnpooled();
+            SharedUnpooledSendBuffer sharedUnpooled = getSharedUnpooled(channel);
             return sharedUnpooled.init(src.toByteBuffer());
         }
 
@@ -98,7 +94,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             buffer.position(align(nextPos));
             slice.limit(nextPos);
             current.refCnt ++;
-            SharedPooledSendBuffer sharedPooled = getSharedPooled();
+            SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, slice);
         } else if (size > remaining) {
             this.current = current = getPreallocation();
@@ -107,12 +103,12 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             buffer.position(align(size));
             slice.limit(size);
             current.refCnt ++;
-            SharedPooledSendBuffer sharedPooled = getSharedPooled();
+            SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, slice);
         } else { // size == remaining
             current.refCnt ++;
             this.current = getPreallocation0();
-            SharedPooledSendBuffer sharedPooled = getSharedPooled();
+            SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, current.buffer);
         }
 
@@ -123,17 +119,19 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         return dst;
     }
 
-    private SharedUnpooledSendBuffer getSharedUnpooled() {
-        if (!sharedUnpooled.canInitialize()) {
-            sharedUnpooled = new SharedUnpooledSendBuffer();
+    private SharedUnpooledSendBuffer getSharedUnpooled(AbstractNioChannel<?> channel) {
+        SharedUnpooledSendBuffer sharedUnpooled = (SharedUnpooledSendBuffer) channel.sharedUnpooled;
+        if (sharedUnpooled == null || !sharedUnpooled.canInitialize()) {
+            channel.sharedUnpooled = sharedUnpooled = new SharedUnpooledSendBuffer();
         }
         assert sharedUnpooled.canInitialize();
         return sharedUnpooled;
     }
 
-    private SharedPooledSendBuffer getSharedPooled() {
-        if (!sharedPooled.canInitialize()) {
-            sharedPooled = new SharedPooledSendBuffer();
+    private SharedPooledSendBuffer getSharedPooled(AbstractNioChannel<?> channel) {
+        SharedPooledSendBuffer sharedPooled = (SharedPooledSendBuffer) channel.sharedPooled;
+        if (sharedPooled == null || !sharedPooled.canInitialize()) {
+            channel.sharedPooled = sharedPooled = new SharedPooledSendBuffer();
         }
         assert sharedPooled.canInitialize();
         return sharedPooled;
@@ -277,7 +275,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         }
 
         public void release() {
-            // Unpooled.
+            buffer = null;
         }
     }
 
@@ -471,4 +469,5 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             ByteBufferUtil.destroy(current.buffer);
         }
     }
+
 }

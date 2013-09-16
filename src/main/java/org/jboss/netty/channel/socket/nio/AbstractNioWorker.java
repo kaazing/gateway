@@ -50,6 +50,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
+import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SharedUnpooledSendBuffer;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 
@@ -204,7 +205,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         }
                         future = evt.getFuture();
 
-                        channel.currentWriteBuffer = buf = sendBufferPool.acquire(evt.getMessage());
+                        channel.currentWriteBuffer = buf = sendBufferPool.acquire(channel, evt.getMessage());
                     } else {
                         future = evt.getFuture();
                         buf = channel.currentWriteBuffer;
@@ -516,5 +517,4 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
      * @param k The selection key which contains the Selector registration information.
      */
     protected abstract boolean read(SelectionKey k);
-
 }
