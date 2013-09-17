@@ -4,6 +4,8 @@
 
 package com.kaazing.mina.netty.buffer;
 
+import static com.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBufferFactory.OPTIMIZE_PERFORMANCE_CLIENT;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -220,9 +222,19 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
     }
 
     public void setBytes(int index, ByteBuffer src) {
-        ByteBuffer data = buffer.duplicate();
-        data.limit(index + src.remaining()).position(index);
-        data.put(src);
+        if (index == 0) {
+            wrap(src);
+        }
+        else if (buffer == null) {
+            ByteBuffer data = src.duplicate();
+            data.limit(index + src.remaining()).position(index);
+            data.put(src);
+        }
+        else {
+            ByteBuffer data = buffer.duplicate();
+            data.limit(index + src.remaining()).position(index);
+            data.put(src);
+        }
     }
 
     public void getBytes(int index, OutputStream out, int length) throws IOException {
@@ -325,8 +337,15 @@ public final class ByteBufferWrappingChannelBuffer extends AbstractChannelBuffer
             // no need to duplicate
             return buffer.order(order());
         } else {
-            return ((ByteBuffer) buffer.duplicate().position(
-                    index).limit(index + length)).slice().order(order());
+            if (OPTIMIZE_PERFORMANCE_CLIENT) {
+                // no need to duplicate or slice
+                return ((ByteBuffer) buffer.position(
+                        index).limit(index + length)).order(order());
+            }
+            else {
+                return ((ByteBuffer) buffer.duplicate().position(
+                        index).limit(index + length)).slice().order(order());
+            }
         }
     }
 
