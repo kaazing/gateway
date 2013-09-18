@@ -35,7 +35,9 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
         assertEquals(DEFAULT.getReadBufferSize(), config.getReadBufferSize());
         assertEquals(DEFAULT.getReaderIdleTimeInMillis(), config.getReaderIdleTimeInMillis());
         assertEquals(DEFAULT.getReceiveBufferSize(), config.getReceiveBufferSize());
-        assertEquals(DEFAULT.getSendBufferSize(), config.getSendBufferSize());
+        //assertEquals(DEFAULT.getSendBufferSize(), config.getSendBufferSize());
+        // IE (Windows) stalls on smaller buffers limited to a single packet, so 1460 is bad, but 1461 is good (using 2K here)
+        assertEquals(DEFAULT.getSendBufferSize() * 2, config.getSendBufferSize());
         assertEquals(DEFAULT.getSoLinger(), config.getSoLinger());
         assertEquals(DEFAULT.getThroughputCalculationIntervalInMillis(), config.getThroughputCalculationIntervalInMillis());
         assertEquals(DEFAULT.getTrafficClass(), config.getTrafficClass());

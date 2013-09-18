@@ -35,7 +35,7 @@ import org.apache.mina.core.service.IoService;
 public class DefaultSocketSessionConfigEx extends AbstractSocketSessionConfigEx {
     private static final boolean DEFAULT_REUSE_ADDRESS = false;
     private static final int DEFAULT_RECEIVE_BUFFER_SIZE = 1024;
-    private static final int DEFAULT_SEND_BUFFER_SIZE = 1024;
+    private static final int DEFAULT_SEND_BUFFER_SIZE = 2048;
     private static final int DEFAULT_TRAFFIC_CLASS = 0;
     private static final boolean DEFAULT_KEEP_ALIVE = false;
     private static final boolean DEFAULT_OOB_INLINE = false;
