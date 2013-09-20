@@ -598,9 +598,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
     @Override
     public void suspendRead() {
         if (readSuspendCount.getAndIncrement() == 0) {
-            if (isClosing() || !isConnected()) {
-                return;
-            }
             suspendRead0();
         }
     }
@@ -643,9 +640,6 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
         case -1:
             throw new IllegalStateException("resumeRead not balanced by previous suspendRead");
         case 0:
-            if (isClosing() || !isConnected()) {
-                return;
-            }
             resumeRead0();
             break;
         }
