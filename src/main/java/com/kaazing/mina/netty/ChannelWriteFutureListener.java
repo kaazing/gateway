@@ -5,6 +5,7 @@
 package com.kaazing.mina.netty;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.write.WriteRequest;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -25,10 +26,19 @@ final class ChannelWriteFutureListener implements ChannelFutureListener {
 
     public static void operationComplete(ChannelFuture future, IoFilterChain filterChain, WriteRequest request) {
         if (future.isSuccess()) {
-            filterChain.fireMessageSent(request);
+//            filterChain.fireMessageSent(request);
+            setFutureWritten(filterChain, request.getFuture());
         }
         else {
             filterChain.fireExceptionCaught(future.getCause());
+        }
+    }
+
+    private static void setFutureWritten(IoFilterChain filterChain, WriteFuture future) {
+        try {
+            future.setWritten();
+        } catch (Throwable t) {
+            filterChain.fireExceptionCaught(t);
         }
     }
 }
