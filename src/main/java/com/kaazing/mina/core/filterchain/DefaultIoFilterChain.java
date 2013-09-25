@@ -55,6 +55,22 @@ public class DefaultIoFilterChain implements IoFilterChain {
     /** The logger for this class */
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultIoFilterChain.class);
 
+    public DefaultIoFilterChain(DefaultIoFilterChain filterChain) {
+        this(filterChain.session);
+
+        // EntryImpl is a non-static inner class that carries an implicit
+        // reference to the original filter chain instance
+        EntryImpl oldHead = filterChain.head;
+        EntryImpl oldTail = filterChain.tail;
+        EntryImpl prevEntry = head;
+        for (EntryImpl entry = oldHead.nextEntry; entry != oldTail; entry = entry.nextEntry) {
+            EntryImpl newEntry = new EntryImpl(prevEntry, tail, entry.name, entry.filter);
+            name2entry.put(entry.name, newEntry);
+            prevEntry.nextEntry = newEntry;
+            prevEntry = newEntry;
+        }
+        tail.prevEntry = prevEntry;
+    }
 
     /**
      * Create a new default chain, associated with a session. It will only contain a

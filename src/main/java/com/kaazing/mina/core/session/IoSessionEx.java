@@ -4,9 +4,15 @@
 
 package com.kaazing.mina.core.session;
 
+import static org.apache.mina.core.future.DefaultWriteFuture.newWrittenFuture;
+
+import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
+import org.apache.mina.core.future.DefaultWriteFuture;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteRequest;
 
 import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import com.kaazing.mina.core.service.IoServiceEx;
@@ -40,6 +46,55 @@ public interface IoSessionEx extends IoSession, IoAlignment {
         }
     };
 
+    Thread NO_THREAD = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            throw new IllegalStateException("not runnable");
+        }
+
+        @Override
+        public String toString() {
+            return "NO_THREAD";
+        }
+    });
+
+    Executor NO_EXECUTOR = new Executor() {
+        @Override
+        public void execute(Runnable command) {
+            throw new IllegalStateException("not executable");
+        }
+
+        @Override
+        public String toString() {
+            return "NO_EXECUTOR";
+        }
+    };
+
+    WriteRequest REGISTERED_EVENT = new WriteRequest() {
+
+        private final WriteFuture future = newWrittenFuture(null);
+
+        @Override
+        public WriteRequest getOriginalRequest() {
+            return null;
+        }
+
+        @Override
+        public Object getMessage() {
+            return null;
+        }
+
+        @Override
+        public WriteFuture getFuture() {
+            return future;
+        }
+
+        @Override
+        public SocketAddress getDestination() {
+            return null;
+        }
+    };
+
     /**
      * Returns the I/O layer this session represents, with 0 at the base (eg. TCP) and incrementing up through higher layers.
      */
@@ -68,4 +123,8 @@ public interface IoSessionEx extends IoSession, IoAlignment {
 
     @Override
     boolean isIoAligned();
+
+    void setIoAlignment(Thread ioThread, Executor ioExecutor);
+
+    boolean isIoRegistered();
 }

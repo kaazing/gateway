@@ -47,4 +47,15 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
     public IoBufferAllocatorEx<?> getBufferAllocator() {
         return SimpleBufferAllocator.BUFFER_ALLOCATOR;
     }
+
+    @Override
+    public void setIoAlignment(Thread ioThread, Executor ioExecutor) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isIoRegistered() {
+        return true;
+    }
+
 }

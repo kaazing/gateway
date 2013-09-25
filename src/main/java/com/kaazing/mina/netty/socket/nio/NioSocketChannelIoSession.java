@@ -34,6 +34,18 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
                 asExecutor(channel.getWorker()));
     }
 
+    @Override
+    protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
+        NioSocketChannel channel = (NioSocketChannel) getChannel();
+        if (ioExecutor == NO_EXECUTOR) {
+            channel.setWorker(null);
+        }
+        else {
+            NioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
+            channel.setWorker(newWorker);
+        }
+    }
+
     private static Executor asExecutor(NioWorker worker) {
         WorkerExecutor executor = WORKER_EXECUTOR.get();
         if (executor == null) {

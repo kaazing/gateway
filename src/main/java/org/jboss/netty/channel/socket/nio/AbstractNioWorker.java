@@ -50,7 +50,6 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SendBuffer;
-import org.jboss.netty.channel.socket.nio.SocketSendBufferPool.SharedUnpooledSendBuffer;
 import org.jboss.netty.util.ThreadNameDeterminer;
 import org.jboss.netty.util.ThreadRenamingRunnable;
 
@@ -301,7 +300,8 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
     }
 
     static boolean isIoThread(AbstractNioChannel<?> channel) {
-        return Thread.currentThread() == channel.worker.thread;
+        AbstractNioSelector worker = channel.worker;
+        return worker != null && Thread.currentThread() == worker.thread;
     }
 
     protected void setOpWrite(AbstractNioChannel<?> channel) {
@@ -517,4 +517,29 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
      * @param k The selection key which contains the Selector registration information.
      */
     protected abstract boolean read(SelectionKey k);
+
+    void deregister(AbstractNioChannel<?> channel) {
+        SelectionKey key = channel.channel.keyFor(selector);
+        key.cancel();
+        increaseCancelledKeys();
+        try {
+            selector.selectNow();
+        } catch (IOException e) {
+            // Ignore
+        }
+
+        // wake up selector if necessary, to avoid selector timeout stall
+        if (wakenUp.compareAndSet(false, true)) {
+            selector.wakeup();
+        }
+    }
+
+    void register(AbstractNioChannel<?> channel) {
+        try {
+            channel.channel.register(selector, channel.getRawInterestOps(), channel);
+        }
+        catch (ClosedChannelException e) {
+            close(channel, succeededFuture(channel));
+        }
+    }
 }

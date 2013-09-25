@@ -21,6 +21,12 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
     private final Thread ioThread;
     private final Executor ioExecutor;
 
+    public DefaultIoFilterChainEx(DefaultIoFilterChainEx filterChain, Thread ioThread, Executor ioExecutor) {
+        super(filterChain);
+        this.ioThread = ioThread;
+        this.ioExecutor = ioExecutor;
+    }
+
     public DefaultIoFilterChainEx(AbstractIoSessionEx session) {
         super(session);
         ioThread = session.getIoThread();

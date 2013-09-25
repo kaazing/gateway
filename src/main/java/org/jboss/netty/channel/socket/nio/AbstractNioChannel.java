@@ -46,7 +46,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     /**
      * The {@link AbstractNioWorker}.
      */
-    final AbstractNioWorker worker;
+    volatile AbstractNioWorker worker;
 
     /**
      * Monitor object for synchronizing access to the {@link WriteRequestQueue}.
@@ -159,6 +159,19 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
     }
 
     public abstract NioChannelConfig getConfig();
+
+    public void setWorker(NioWorker newWorker) {
+        if (newWorker == null) {
+            if (worker == null) {
+                throw new IllegalStateException("Cannot deregister more than once without re-register");
+            }
+            worker.deregister(this);
+        }
+        else {
+            worker = newWorker;
+            worker.register(this);
+        }
+    }
 
     int getRawInterestOps() {
         return super.getInterestOps();
