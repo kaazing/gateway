@@ -518,28 +518,45 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
      */
     protected abstract boolean read(SelectionKey k);
 
-    void deregister(AbstractNioChannel<?> channel) {
-        SelectionKey key = channel.channel.keyFor(selector);
-        key.cancel();
-        increaseCancelledKeys();
-        try {
-            selector.selectNow();
-        } catch (IOException e) {
-            // Ignore
-        }
+    void deregister(final AbstractNioChannel<?> channel) {
+        // avoid modifying selected keys from process(select)
+        // use processTasks instead
+        registerTask(new Runnable() {
+            @Override
+            public void run() {
+                SelectionKey key = channel.channel.keyFor(selector);
+                if (key != null) {
+                    key.cancel();
+                    increaseCancelledKeys();
+                    try {
+                        selector.selectNow();
+                    } catch (IOException e) {
+                        // Ignore
+                    }
 
-        // wake up selector if necessary, to avoid selector timeout stall
-        if (wakenUp.compareAndSet(false, true)) {
-            selector.wakeup();
-        }
+                    // wake up selector if necessary, to avoid selector timeout stall
+                    if (wakenUp.compareAndSet(false, true)) {
+                        selector.wakeup();
+                    }
+                }
+            }
+        });
     }
 
-    void register(AbstractNioChannel<?> channel) {
-        try {
-            channel.channel.register(selector, channel.getRawInterestOps(), channel);
-        }
-        catch (ClosedChannelException e) {
-            close(channel, succeededFuture(channel));
-        }
+    void register(final AbstractNioChannel<?> channel) {
+        // avoid modifying selected keys from process(select)
+        // use processTasks instead
+        registerTask(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    channel.channel.register(selector, channel.getRawInterestOps(), channel);
+                }
+                catch (ClosedChannelException e) {
+                    close(channel, succeededFuture(channel));
+                }
+            }
+        });
     }
 }
