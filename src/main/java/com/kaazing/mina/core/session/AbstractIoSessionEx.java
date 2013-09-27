@@ -14,7 +14,6 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import com.kaazing.mina.core.service.IoProcessorEx;
-import com.kaazing.mina.core.write.DefaultWriteRequestEx.ShareableWriteRequest;
 import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
@@ -23,16 +22,18 @@ import com.kaazing.mina.core.write.WriteRequestEx;
 */
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
 
-    private final IoFilterChain filterChain;
-
-    private final Thread ioThread;
-    private final Executor ioExecutor;
     private final boolean ioAligned;
     private final int ioLayer;
     private final ThreadLocal<WriteRequestEx> ioWriteRequest;
 
     private final Runnable readSuspender;
     private final Runnable readResumer;
+
+    // volatile to support thread alignment migration
+    private volatile IoFilterChain filterChain;
+    private volatile Thread ioThread;
+    private volatile Executor ioExecutor;
+    private volatile boolean ioRegistered;
 
     protected AbstractIoSessionEx(int ioLayer, Thread ioThread, Executor ioExecutor,
                                   ThreadLocal<WriteRequestEx> ioWriteRequest) {
@@ -43,15 +44,19 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         if (ioExecutor == null) {
             throw new NullPointerException("ioExecutor");
         }
-        this.ioThread = ioThread;
-        this.ioExecutor = ioExecutor;
+
         this.ioLayer = ioLayer;
         this.ioWriteRequest = ioWriteRequest;
+        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR && ioThread != CURRENT_THREAD;
+        this.ioAligned = ioAligned;
 
         // note: alignment is optional before 4.0
-        boolean ioAligned = ioExecutor != IMMEDIATE_EXECUTOR && ioThread != CURRENT_THREAD;
+        this.ioThread = ioThread;
+        this.ioExecutor = ioExecutor;
+        boolean ioRegistered = ioExecutor != NO_EXECUTOR && ioThread != NO_THREAD;
+        this.ioRegistered = ioRegistered;
+
         this.filterChain = ioAligned ? new DefaultIoFilterChainEx(this) : new DefaultIoFilterChain(this);
-        this.ioAligned = ioAligned;
 
         this.readSuspender = new Runnable() {
             @Override
@@ -78,6 +83,45 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     }
 
     @Override
+    public final boolean isIoRegistered() {
+        return ioRegistered;
+    }
+
+    @Override
+    public final void setIoAlignment(Thread ioThread, Executor ioExecutor) {
+        if (!ioAligned) {
+            throw new IllegalStateException("ioAligned = false");
+        }
+        if (ioThread == null) {
+            throw new NullPointerException("ioThread");
+        }
+        if (ioExecutor == null) {
+            throw new NullPointerException("ioExecutor");
+        }
+
+        boolean ioRegistered = ioExecutor != NO_EXECUTOR && ioThread != NO_THREAD;
+        if (ioRegistered && currentThread() != ioThread) {
+            throw new RuntimeException("Not called from I/O thread");
+        }
+
+        this.ioThread = ioThread;
+        this.ioExecutor = ioExecutor;
+        this.ioRegistered = ioRegistered;
+
+        // migrate the filter chain to new thread alignment
+        DefaultIoFilterChainEx filterChain = (DefaultIoFilterChainEx) this.filterChain;
+        DefaultIoFilterChainEx newFilterChain = new DefaultIoFilterChainEx(filterChain, ioThread, ioExecutor);
+        this.filterChain = newFilterChain;
+
+        setIoAlignment0(ioThread, ioExecutor);
+
+        // signal to codec filter that decoder output can flush
+        if (ioRegistered) {
+            newFilterChain.fireMessageSent(REGISTERED_EVENT);
+        }
+    }
+
+    @Override
     public final IoFilterChain getFilterChain() {
         return filterChain;
     }
@@ -90,6 +134,10 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     @Override
     public final Executor getIoExecutor() {
         return ioExecutor;
+    }
+
+    protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
+        // override
     }
 
     @Override

@@ -50,6 +50,7 @@ import org.apache.mina.filter.codec.RecoverableProtocolDecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.kaazing.mina.core.session.IoSessionEx;
 import com.kaazing.mina.core.write.WriteRequestEx;
 
 /**
@@ -227,6 +228,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         // or until the decoder throws an unrecoverable exception or
         // can't decoder a message, because there are not enough
         // data in the buffer
+        // Note: break out to let old I/O thread unwind after deregistering
         while (in.hasRemaining()) {
             int oldPos = in.position();
             try {
@@ -273,8 +275,9 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
     public void messageSent(NextFilter nextFilter, IoSession session,
             WriteRequest writeRequest) throws Exception {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Processing a MESSAGE_SENT for session {}", session);
+        if (writeRequest == IoSessionEx.REGISTERED_EVENT) {
+            ProtocolDecoderOutput decoderOut = getDecoderOut(session, nextFilter);
+            decoderOut.flush(nextFilter, session);
         }
 
         nextFilter.messageSent(session, writeRequest);
@@ -353,6 +356,11 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
         }
 
         public void flush(NextFilter nextFilter, IoSession session) {
+            IoSessionEx sessionEx = (IoSessionEx) session;
+            if (!sessionEx.isIoRegistered()) {
+                return;
+            }
+
             Queue<Object> messageQueue = getMessageQueue();
             while (!messageQueue.isEmpty()) {
                 nextFilter.messageReceived(session, messageQueue.poll());
