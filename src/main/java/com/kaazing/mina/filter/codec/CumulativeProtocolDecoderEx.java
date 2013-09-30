@@ -110,6 +110,10 @@ import com.kaazing.mina.core.buffer.IoBufferEx;
  * transport has fragmentation or not is determined by querying
  * {@link TransportMetadata}.
  */
+/* This has the following differences from CumulativeProtocolDecoder in Mina 2.0.0-RC1:
+ * 1. Uses IoBufferAllocatorEx as the allocator
+ * 2. Fixes a Mina bug by removing the logic which compacted the buffer when data is remaining (see KG-9213)
+*/
 public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter {
 
     private final AttributeKey BUFFER = new AttributeKey(getClass(), "buffer");
@@ -210,11 +214,7 @@ public abstract class CumulativeProtocolDecoderEx extends ProtocolDecoderAdapter
         // it in a buffer in the session and next time this decoder is
         // invoked the session buffer gets appended to
         if (buf.hasRemaining()) {
-            if (usingSessionBuffer && buf.isAutoExpand()) {
-                buf.compact();
-            } else {
                 storeRemainingInSession(buf, session);
-            }
         } else {
             if (usingSessionBuffer) {
                 removeSessionBuffer(session);
