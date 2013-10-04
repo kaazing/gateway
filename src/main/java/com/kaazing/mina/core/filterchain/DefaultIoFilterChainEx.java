@@ -47,7 +47,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextSessionCreated(entry, session);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextSessionCreated(entry, session);
                 }
             });
         }
@@ -62,7 +63,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextSessionOpened(entry, session);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextSessionOpened(entry, session);
                 }
             });
         }
@@ -77,7 +79,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextSessionClosed(entry, session);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextSessionClosed(entry, session);
                 }
             });
         }
@@ -106,7 +109,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextMessageReceived(entry, session, message);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextMessageReceived(entry, session, message);
 
                     // Note: reads were suspended before scheduling callNextMessageReceived
                     //       if suspendRead was called during callNextNessageReceived
@@ -128,7 +132,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextMessageSent(entry, session, writeRequest);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextMessageSent(entry, session, writeRequest);
                 }
             });
         }
@@ -143,7 +148,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callNextExceptionCaught(entry, session, cause);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callNextExceptionCaught(entry, session, cause);
                 }
             });
         }
@@ -160,7 +166,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callPreviousFilterWrite(entry0, session, writeRequest);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callPreviousFilterWrite(entry0, session, writeRequest);
                 }
             });
         }
@@ -175,7 +182,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
             execute(new Runnable() {
                 @Override
                 public void run() {
-                    DefaultIoFilterChainEx.super.callPreviousFilterClose(entry, session);
+                    // handle re-alignment race using this instead of super
+                    DefaultIoFilterChainEx.this.callPreviousFilterClose(entry, session);
                 }
             });
         }
@@ -204,7 +212,8 @@ public class DefaultIoFilterChainEx extends DefaultIoFilterChain {
 
         @Override
         public void run() {
-            DefaultIoFilterChainEx.super.callNextSessionIdle(entry, session, status);
+            // handle re-alignment race using this instead of super
+            DefaultIoFilterChainEx.this.callNextSessionIdle(entry, session, status);
         }
     }
 

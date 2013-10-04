@@ -23,7 +23,6 @@ import com.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 public class IoSessionChannelHandler extends SimpleChannelHandler {
 
     private final ChannelIoSession<? extends ChannelConfig> session;
-    private final IoFilterChain filterChain;
     private final IoBufferAllocatorEx<?> allocator;
     private final IoFuture future;
     private final IoSessionInitializer<?> initializer;
@@ -32,7 +31,6 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     public IoSessionChannelHandler(ChannelIoSession<? extends ChannelConfig> session, IoFuture future,
             IoSessionInitializer<?> initializer, IoSessionIdleTracker idleTracker) {
         this.session = session;
-        this.filterChain = session.getFilterChain();
         this.allocator = session.getBufferAllocator();
         this.future = future;
         this.initializer = initializer;
@@ -58,6 +56,8 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
             throws Exception {
+        // filter chain can change if session is re-aligned
+        IoFilterChain filterChain = session.getFilterChain();
         filterChain.fireExceptionCaught(e.getCause());
     }
 
@@ -72,6 +72,9 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
             message = allocator.wrap(buf.toByteBuffer());
             buf.skipBytes(buf.readableBytes());
         }
+
+        // filter chain can change if session is re-aligned
+        IoFilterChain filterChain = session.getFilterChain();
         filterChain.fireMessageReceived(message);
     }
 

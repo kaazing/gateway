@@ -80,7 +80,8 @@ public interface IoSessionEx extends IoSession, IoAlignment {
 
         @Override
         public Object getMessage() {
-            return null;
+            // note: used by strongly typed filters and handlers
+            return this;
         }
 
         @Override
