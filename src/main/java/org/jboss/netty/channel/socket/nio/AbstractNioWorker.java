@@ -551,7 +551,10 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
             @Override
             public void run() {
                 try {
-                    channel.channel.register(selector, channel.getRawInterestOps(), channel);
+                    int interestOps = channel.getRawInterestOps();
+                    // ensure channel.writeSuspended cannot remain false due to race
+                    interestOps |= SelectionKey.OP_WRITE;
+                    channel.channel.register(selector, interestOps, channel);
                 }
                 catch (ClosedChannelException e) {
                     close(channel, succeededFuture(channel));
