@@ -21,13 +21,13 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
 import com.kaazing.mina.core.session.IoSessionEx;
 
-final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
+public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
 
     static final long PRECISION = 100L;
 
     private final Timer timer;
 
-    DefaultIoSessionIdleTracker() {
+    public DefaultIoSessionIdleTracker() {
         timer = new HashedWheelTimer(PRECISION, MILLISECONDS);
     }
 
