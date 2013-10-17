@@ -4,13 +4,13 @@
 
 package com.kaazing.mina.netty;
 
-import com.kaazing.mina.core.session.AbstractIoSessionEx;
+import com.kaazing.mina.core.session.IoSessionEx;
 
 public interface IoSessionIdleTracker {
 
-    void addSession(final AbstractIoSessionEx session);
+    void addSession(final IoSessionEx session);
 
-    void removeSession(final AbstractIoSessionEx session);
+    void removeSession(final IoSessionEx session);
 
     void dispose();
 

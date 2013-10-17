@@ -16,29 +16,28 @@ import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 
-import com.kaazing.mina.core.session.AbstractIoSessionEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx.ChangeListener;
 import com.kaazing.mina.core.session.IoSessionEx;
 
-final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
+public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
 
     static final long PRECISION = 100L;
 
     private final Timer timer;
 
-    DefaultIoSessionIdleTracker() {
+    public DefaultIoSessionIdleTracker() {
         timer = new HashedWheelTimer(PRECISION, MILLISECONDS);
     }
 
     @Override
-    public void addSession(final AbstractIoSessionEx session) {
+    public void addSession(final IoSessionEx session) {
         IoSessionConfigEx config = session.getConfig();
         config.setChangeListener(new NotifyIdleChangeListener(session));
     }
 
     @Override
-    public void removeSession(final AbstractIoSessionEx session) {
+    public void removeSession(final IoSessionEx session) {
         IoSessionConfigEx config = session.getConfig();
         config.setChangeListener(null);
     }
