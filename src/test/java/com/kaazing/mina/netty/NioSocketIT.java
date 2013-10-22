@@ -355,6 +355,8 @@ public class NioSocketIT {
         assertTrue("Unbind in IO thread failed with exception " + unboundInIoThread[0].getException(),
                    unboundInIoThread[0].isUnbound());
 
+        await(session.close(true), "session close(true) future");
+
         acceptor.unbindAsync(bindTo).await();
     }
 
