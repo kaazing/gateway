@@ -8,14 +8,19 @@ package org.apache.mina.transport.socket.nio;
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 import static com.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
+import static java.lang.String.format;
+import static java.lang.System.out;
 import static java.nio.ByteBuffer.wrap;
-import static org.apache.mina.core.session.IdleStatus.*;
+import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
+import static org.apache.mina.core.session.IdleStatus.READER_IDLE;
+import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
 import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.junit.Assert.assertEquals;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
+
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IdleStatus;
 import org.jmock.Expectations;
@@ -45,6 +50,7 @@ public class NioSocketAcceptorExIT {
     @Before
     public void before() {
         acceptor = new NioSocketAcceptorEx(1);
+        acceptor.setReuseAddress(true);
     }
 
     @After
@@ -69,6 +75,8 @@ public class NioSocketAcceptorExIT {
         });
 
         InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        out.println(format("BindAddress %s", bindAddress));
 
         acceptor.setHandler(handler);
         acceptor.bind(bindAddress);
@@ -114,6 +122,8 @@ public class NioSocketAcceptorExIT {
         });
 
         InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        out.println(format("BindAddress %s", bindAddress));
 
         acceptor.setHandler(handler);
         acceptor.bind(bindAddress);
