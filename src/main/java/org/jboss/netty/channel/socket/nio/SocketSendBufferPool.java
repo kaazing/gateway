@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copied From: Netty-3.6.3-Final
  */
 
 /*
@@ -214,26 +215,32 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             initialPos = buffer.position();
         }
 
+        @Override
         public final boolean finished() {
             return !buffer.hasRemaining();
         }
 
+        @Override
         public final long writtenBytes() {
             return buffer.position() - initialPos;
         }
 
+        @Override
         public final long totalBytes() {
             return buffer.limit() - initialPos;
         }
 
+        @Override
         public final long transferTo(WritableByteChannel ch) throws IOException {
             return ch.write(buffer);
         }
 
+        @Override
         public final long transferTo(DatagramChannel ch, SocketAddress raddr) throws IOException {
             return ch.send(buffer, raddr);
         }
 
+        @Override
         public void release() {
             // Unpooled.
         }
@@ -254,26 +261,32 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             return buffer == null || finished();
         }
 
+        @Override
         public final boolean finished() {
             return !buffer.hasRemaining();
         }
 
+        @Override
         public final long writtenBytes() {
             return buffer.position() - initialPos;
         }
 
+        @Override
         public final long totalBytes() {
             return buffer.limit() - initialPos;
         }
 
+        @Override
         public final long transferTo(WritableByteChannel ch) throws IOException {
             return ch.write(buffer);
         }
 
+        @Override
         public final long transferTo(DatagramChannel ch, SocketAddress raddr) throws IOException {
             return ch.send(buffer, raddr);
         }
 
+        @Override
         public void release() {
             buffer = null;
         }
@@ -339,18 +352,22 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             this.total = total;
         }
 
+        @Override
         public boolean finished() {
             return !buffers[last].hasRemaining();
         }
 
+        @Override
         public long writtenBytes() {
             return written;
         }
 
+        @Override
         public long totalBytes() {
             return total;
         }
 
+        @Override
         public long transferTo(WritableByteChannel ch) throws IOException {
             if (ch instanceof GatheringByteChannel) {
                  long w = ((GatheringByteChannel) ch).write(buffers);
@@ -373,6 +390,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             }
         }
 
+        @Override
         public long transferTo(DatagramChannel ch, SocketAddress raddr) throws IOException {
             int send = 0;
             for (ByteBuffer buf: buffers) {
@@ -390,6 +408,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             return send;
         }
 
+        @Override
         public void release() {
             // nothing todo
         }
@@ -404,28 +423,34 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             this.file = file;
         }
 
+        @Override
         public boolean finished() {
             return writtenBytes >= file.getCount();
         }
 
+        @Override
         public long writtenBytes() {
             return writtenBytes;
         }
 
+        @Override
         public long totalBytes() {
             return file.getCount();
         }
 
+        @Override
         public long transferTo(WritableByteChannel ch) throws IOException {
             long localWrittenBytes = file.transferTo(ch, writtenBytes);
             writtenBytes += localWrittenBytes;
             return localWrittenBytes;
         }
 
+        @Override
         public long transferTo(DatagramChannel ch, SocketAddress raddr) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void release() {
             if (file instanceof DefaultFileRegion) {
                 if (((DefaultFileRegion) file).releaseAfterTransfer()) {
@@ -439,31 +464,38 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
 
     static final class EmptySendBuffer implements SendBuffer {
 
+        @Override
         public boolean finished() {
             return true;
         }
 
+        @Override
         public long writtenBytes() {
             return 0;
         }
 
+        @Override
         public long totalBytes() {
             return 0;
         }
 
+        @Override
         public long transferTo(WritableByteChannel ch) {
             return 0;
         }
 
+        @Override
         public long transferTo(DatagramChannel ch, SocketAddress raddr) {
             return 0;
         }
 
+        @Override
         public void release() {
             // Unpooled.
         }
     }
 
+    @Override
     public void releaseExternalResources() {
         if (current.buffer != null) {
             ByteBufferUtil.destroy(current.buffer);

@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copied From: Netty-3.6.3-Final
  */
 
 /*
@@ -68,6 +69,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
         super(executor, determiner);
     }
 
+    @Override
     public void executeInIoThread(Runnable task) {
         executeInIoThread(task, false);
     }
@@ -449,6 +451,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
         boolean iothread = isIoThread(channel);
         if (!iothread) {
             channel.getPipeline().execute(new Runnable() {
+                @Override
                 public void run() {
                     setInterestOps(channel, future, interestOps);
                 }

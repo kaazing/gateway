@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copied From: Netty-3.6.3-Final
  */
 
 /*
@@ -125,6 +126,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         return worker;
     }
 
+    @Override
     public InetSocketAddress getLocalAddress() {
         InetSocketAddress localAddress = this.localAddress;
         if (localAddress == null) {
@@ -144,6 +146,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         return localAddress;
     }
 
+    @Override
     public InetSocketAddress getRemoteAddress() {
         InetSocketAddress remoteAddress = this.remoteAddress;
         if (remoteAddress == null) {
@@ -158,6 +161,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         return remoteAddress;
     }
 
+    @Override
     public abstract NioChannelConfig getConfig();
 
     public void setWorker(NioWorker newWorker) {
@@ -231,70 +235,87 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
             queue = new ArrayDeque<MessageEvent>(16);
         }
 
+        @Override
         public MessageEvent remove() {
             return queue.remove();
         }
 
+        @Override
         public MessageEvent element() {
             return queue.element();
         }
 
+        @Override
         public MessageEvent peek() {
             return queue.peek();
         }
 
+        @Override
         public int size() {
             return queue.size();
         }
 
+        @Override
         public boolean isEmpty() {
             return queue.isEmpty();
         }
 
+        @Override
         public Iterator<MessageEvent> iterator() {
             return queue.iterator();
         }
 
+        @Override
         public Object[] toArray() {
             return queue.toArray();
         }
 
+        @Override
         public <T> T[] toArray(T[] a) {
             return queue.toArray(a);
         }
 
+        @Override
         public boolean containsAll(Collection<?> c) {
             return queue.containsAll(c);
         }
 
+        @Override
         public boolean addAll(Collection<? extends MessageEvent> c) {
             return queue.addAll(c);
         }
 
+        @Override
         public boolean removeAll(Collection<?> c) {
             return queue.removeAll(c);
         }
 
+        @Override
         public boolean retainAll(Collection<?> c) {
             return queue.retainAll(c);
         }
 
+        @Override
         public void clear() {
             queue.clear();
         }
 
+        @Override
         public boolean add(MessageEvent e) {
             return queue.add(e);
         }
 
+        @Override
         public boolean remove(Object o) {
             return queue.remove(o);
         }
 
+        @Override
         public boolean contains(Object o) {
             return queue.contains(o);
         }
 
+        @Override
         public boolean offer(MessageEvent e) {
             boolean success = queue.offer(e);
             assert success;
@@ -316,6 +337,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
             return true;
         }
 
+        @Override
         public MessageEvent poll() {
             MessageEvent e = queue.poll();
             if (e != null) {
@@ -351,6 +373,7 @@ abstract class AbstractNioChannel<C extends SelectableChannel & WritableByteChan
         WriteTask() {
         }
 
+        @Override
         public void run() {
             writeTaskInTaskQueue.set(false);
             worker.writeFromTaskLoop(AbstractNioChannel.this);
