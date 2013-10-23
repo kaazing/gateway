@@ -31,6 +31,7 @@ public class NioSocketChannelIoConnector extends SocketChannelIoConnector {
     public NioSocketChannelIoConnector(NioSocketChannelIoSessionConfig sessionConfig,
             NioClientSocketChannelFactory channelFactory) {
         super(sessionConfig, channelFactory);
+        sessionConfig.init(this);
     }
 
     @Override

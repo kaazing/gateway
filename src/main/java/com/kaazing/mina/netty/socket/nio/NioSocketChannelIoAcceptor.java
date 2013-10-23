@@ -32,12 +32,13 @@ public class NioSocketChannelIoAcceptor extends SocketChannelIoAcceptor {
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig,
             NioServerSocketChannelFactory channelFactory) {
-        super(sessionConfig, channelFactory, new SimpleChannelHandler());
+        this(sessionConfig, channelFactory, new SimpleChannelHandler());
     }
 
     public NioSocketChannelIoAcceptor(NioSocketChannelIoSessionConfig sessionConfig,
             final NioServerSocketChannelFactory channelFactory, ChannelHandler bindHandler) {
         super(sessionConfig, channelFactory, bindHandler);
+        sessionConfig.init(this);
     }
 
     @Override

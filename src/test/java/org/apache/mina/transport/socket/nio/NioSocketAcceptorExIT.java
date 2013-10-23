@@ -50,6 +50,8 @@ public class NioSocketAcceptorExIT {
     @Before
     public void before() {
         acceptor = new NioSocketAcceptorEx(1);
+        // For some reason, NioSocketAcceptorEx does not apply the defaults it has inside its own member for
+        // reuseaddress and that is actually the method used at bind.
         acceptor.setReuseAddress(true);
     }
 

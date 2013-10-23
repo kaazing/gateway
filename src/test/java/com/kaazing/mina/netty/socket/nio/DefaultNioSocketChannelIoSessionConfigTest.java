@@ -10,17 +10,25 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 import org.apache.mina.transport.socket.DefaultSocketSessionConfig;
-import org.apache.mina.transport.socket.SocketSessionConfig;
+import org.apache.mina.transport.socket.nio.NioSocketAcceptorEx;
 import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
 import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DefaultNioSocketChannelIoSessionConfigTest {
-    private static final SocketSessionConfig DEFAULT = new DefaultSocketSessionConfig();
+    private static final DefaultSocketSessionConfig DEFAULT = new DefaultSocketSessionConfig();
+
+    @BeforeClass
+    public static void initDefaultSocketSessionConfig() {
+        DEFAULT.init(new NioSocketAcceptorEx());
+
+    }
 
     @Test
     public void shouldUseFixedSizeReadBufferWithSameDefaultSizeAsMina() throws Exception {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
         NioSocketChannelConfig channelConfig = config.getChannelConfig();
         assertTrue("Should use fixed read buffer size",
                 channelConfig.getReceiveBufferSizePredictorFactory() instanceof FixedReceiveBufferSizePredictorFactory);
@@ -33,12 +41,15 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
         // KG-9366
         assumeTrue(!IS_OS_LINUX);
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
         assertEquals(DEFAULT.getReceiveBufferSize(), config.getReceiveBufferSize());
     }
 
     @Test
     public void shouldUseSameDefaultValuesAsMina() throws Exception {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+
         assertEquals(DEFAULT.getBothIdleTimeInMillis(), config.getBothIdleTimeInMillis());
         assertEquals(DEFAULT.getMaxReadBufferSize(), config.getMaxReadBufferSize());
         assertEquals(DEFAULT.getMinReadBufferSize(), config.getMinReadBufferSize());

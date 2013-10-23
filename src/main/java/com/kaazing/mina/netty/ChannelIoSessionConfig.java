@@ -15,7 +15,14 @@ public class ChannelIoSessionConfig<T extends ChannelConfig> extends AbstractIoS
 
     public ChannelIoSessionConfig(T channelConfig, IoSessionConfigEx defaults) {
         this.channelConfig = channelConfig;
+        doSetAll(defaults);
+    }
 
+    public ChannelIoSessionConfig(T channelConfig) {
+        this.channelConfig = channelConfig;
+    }
+
+    protected void init(IoSessionConfigEx defaults) {
         doSetAll(defaults);
     }
 

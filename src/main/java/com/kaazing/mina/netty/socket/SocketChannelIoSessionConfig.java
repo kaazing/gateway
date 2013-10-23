@@ -14,8 +14,8 @@ import com.kaazing.mina.netty.ChannelIoSessionConfig;
 public abstract class SocketChannelIoSessionConfig<T extends SocketChannelConfig>
                    extends ChannelIoSessionConfig<T> implements SocketSessionConfigEx {
 
-    public SocketChannelIoSessionConfig(T channelConfig, SocketSessionConfigEx defaults) {
-        super(channelConfig, defaults);
+    public SocketChannelIoSessionConfig(T channelConfig) {
+        super(channelConfig);
     }
 
     @Override
