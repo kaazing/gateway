@@ -28,40 +28,200 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
     }
 
     @Test
-    public void testNioSocketSetAll() throws Exception {
+    public void testSetAllBothIdleTimeInMillis() {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
         config.init(new NioSocketChannelIoAcceptor(config));
-        config.setReceiveBufferSize(2048);
-        config.setSendBufferSize(2048);
-        config.setSoLinger(120);
-        config.setTrafficClass(1);
-        config.setKeepAlive(true);
-        config.setReuseAddress(true);
-        config.setTcpNoDelay(true);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
 
+        acceptedConfig.setAll(config);
+        assertEquals(config.getBothIdleTimeInMillis(), acceptedConfig.getBothIdleTimeInMillis());
+    }
+
+    @Test
+    public void testSetAllMaxReadBuferSize() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+        assertEquals(config.getMaxReadBufferSize(), acceptedConfig.getMaxReadBufferSize());
+    }
+
+    @Test
+    public void testSetAllMinReadBufferSize() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
         NioSocketChannelIoSessionConfig acceptedConfig =
                 new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
 
         acceptedConfig.setAll(config);
 
-        assertEquals(config.getBothIdleTimeInMillis(), acceptedConfig.getBothIdleTimeInMillis());
-        assertEquals(config.getMaxReadBufferSize(), acceptedConfig.getMaxReadBufferSize());
         assertEquals(config.getMinReadBufferSize(), acceptedConfig.getMinReadBufferSize());
+    }
+
+    @Test
+    public void testSetAllReadBufferSize() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getReadBufferSize(), acceptedConfig.getReadBufferSize());
+    }
+
+    @Test
+    public void testSetAllReaderIdleTimeInMillis() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getReaderIdleTimeInMillis(), acceptedConfig.getReaderIdleTimeInMillis());
+    }
+
+    @Test
+    public void testSetAllReceiveBufferSize() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setReceiveBufferSize(2048);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getReceiveBufferSize(), acceptedConfig.getReceiveBufferSize());
+    }
+
+    @Test
+    public void testSetAllSendBufferSize() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setSendBufferSize(2048);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getSendBufferSize(), acceptedConfig.getSendBufferSize());
+    }
+
+    @Test
+    public void testSetAllSoLinger() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setSoLinger(120);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getSoLinger(), acceptedConfig.getSoLinger());
+    }
+
+    @Test
+    public void testSetAllThroughputCalculationIntervalInMillis() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
         assertEquals(config.getThroughputCalculationIntervalInMillis(), acceptedConfig
                 .getThroughputCalculationIntervalInMillis());
-        assertEquals(config.getTrafficClass(), acceptedConfig.getTrafficClass());
-        assertEquals(config.getWriterIdleTimeInMillis(), acceptedConfig.getWriterIdleTimeInMillis());
-        assertEquals(config.getWriteTimeoutInMillis(), acceptedConfig.getWriteTimeoutInMillis());
-        assertEquals(config.isKeepAlive(), acceptedConfig.isKeepAlive());
-        assertEquals(config.isReuseAddress(), acceptedConfig.isReuseAddress());
-        assertEquals(config.isTcpNoDelay(), acceptedConfig.isTcpNoDelay());
-        assertEquals(config.isUseReadOperation(), acceptedConfig.isUseReadOperation());
+    }
 
+    @Test
+    public void testSetAllTrafficClass() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setTrafficClass(1);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.getTrafficClass(), acceptedConfig.getTrafficClass());
+    }
+
+    @Test
+    public void testSetAllWriterIdleTimeInMillis() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.getWriterIdleTimeInMillis(), acceptedConfig.getWriterIdleTimeInMillis());
+    }
+
+    @Test
+    public void testSetAllWriteTimeoutInMillis() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.getWriteTimeoutInMillis(), acceptedConfig.getWriteTimeoutInMillis());
+    }
+
+    @Test
+    public void testSetAllKeepAlive() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setKeepAlive(true);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.isKeepAlive(), acceptedConfig.isKeepAlive());
+    }
+
+    @Test
+    public void testSetAllReuseAddress() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setReuseAddress(true);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.isReuseAddress(), acceptedConfig.isReuseAddress());
+    }
+
+    @Test
+    public void testSetAllTcpNoDelay() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        config.setTcpNoDelay(true);
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+
+        assertEquals(config.isTcpNoDelay(), acceptedConfig.isTcpNoDelay());
+    }
+
+    @Test
+    public void testSetAllUseReadOperation() {
+        DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
+        config.init(new NioSocketChannelIoAcceptor(config));
+        NioSocketChannelIoSessionConfig acceptedConfig =
+                new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
+
+        acceptedConfig.setAll(config);
+        assertEquals(config.isUseReadOperation(), acceptedConfig.isUseReadOperation());
     }
 
     @Test
