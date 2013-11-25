@@ -11,6 +11,13 @@ import com.kaazing.mina.core.session.IoSessionConfigEx;
 
 public class ChannelIoSessionConfig<T extends ChannelConfig> extends AbstractIoSessionConfigEx {
 
+    // Push Mina default config settings into the channelConfig
+    private static final IoSessionConfigEx DEFAULT = new AbstractIoSessionConfigEx() {
+        @Override
+        protected void doSetAll(final IoSessionConfigEx config) {
+        }
+    };
+
     protected final T channelConfig;
 
     public ChannelIoSessionConfig(T channelConfig, IoSessionConfigEx defaults) {
@@ -20,6 +27,7 @@ public class ChannelIoSessionConfig<T extends ChannelConfig> extends AbstractIoS
 
     public ChannelIoSessionConfig(T channelConfig) {
         this.channelConfig = channelConfig;
+        doSetAll(DEFAULT);
     }
 
     protected void init(IoSessionConfigEx defaults) {

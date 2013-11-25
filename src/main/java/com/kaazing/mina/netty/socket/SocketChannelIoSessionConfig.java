@@ -23,17 +23,43 @@ public abstract class SocketChannelIoSessionConfig<T extends SocketChannelConfig
 
         super.doSetAll(config);
 
-        if (config instanceof SocketSessionConfig) {
-            SocketSessionConfig socketConfig = (SocketSessionConfig) config;
+        if (config instanceof SocketChannelIoSessionConfig) {
+            SocketChannelIoSessionConfig<?> socketConfig = (SocketChannelIoSessionConfig<?>) config;
 
-            setReceiveBufferSize(socketConfig.getReceiveBufferSize());
-            setSendBufferSize(socketConfig.getSendBufferSize());
-            setSoLinger(socketConfig.getSoLinger());
-            setTrafficClass(socketConfig.getTrafficClass());
-            setKeepAlive(socketConfig.isKeepAlive());
-            setOobInline(socketConfig.isOobInline());
-            setReuseAddress(socketConfig.isReuseAddress());
-            setTcpNoDelay(socketConfig.isTcpNoDelay());
+            if (socketConfig.isReceiveBufferSizeChanged()) {
+                setReceiveBufferSize(socketConfig.getReceiveBufferSize());
+            }
+            if (socketConfig.isSendBufferSizeChanged()) {
+                setSendBufferSize(socketConfig.getSendBufferSize());
+            }
+            if (socketConfig.isSoLingerChanged()) {
+                setSoLinger(socketConfig.getSoLinger());
+            }
+            if (socketConfig.isTrafficClassChanged()) {
+                setTrafficClass(socketConfig.getTrafficClass());
+            }
+            if (socketConfig.isKeepAliveChanged()) {
+                setKeepAlive(socketConfig.isKeepAlive());
+            }
+            if (socketConfig.isOobInlineChanged()) {
+                setOobInline(socketConfig.isOobInline());
+            }
+            if (socketConfig.isReuseAddressChanged()) {
+                setReuseAddress(socketConfig.isReuseAddress());
+            }
+            if (socketConfig.isTcpNoDelayChanged()) {
+                setTcpNoDelay(socketConfig.isTcpNoDelay());
+            }
+        } else if (config instanceof SocketSessionConfig) {
+            SocketSessionConfig cfg = (SocketSessionConfig) config;
+            setKeepAlive(cfg.isKeepAlive());
+            setOobInline(cfg.isOobInline());
+            setReceiveBufferSize(cfg.getReceiveBufferSize());
+            setReuseAddress(cfg.isReuseAddress());
+            setSendBufferSize(cfg.getSendBufferSize());
+            setSoLinger(cfg.getSoLinger());
+            setTcpNoDelay(cfg.isTcpNoDelay());
+            cfg.getTrafficClass();
         }
     }
 
@@ -115,5 +141,85 @@ public abstract class SocketChannelIoSessionConfig<T extends SocketChannelConfig
     @Override
     public void setTrafficClass(int trafficClass) {
         channelConfig.setTrafficClass(trafficClass);
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>keepAlive</tt> property has been changed by its setter method. The
+     * system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isKeepAliveChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>oobInline</tt> property has been changed by its setter method. The
+     * system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isOobInlineChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>receiveBufferSize</tt> property has been changed by its setter
+     * method. The system call related with the property is made only when this method returns <tt>true</tt>. By
+     * default, this method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the
+     * default behavior is always encouraged.
+     */
+    protected boolean isReceiveBufferSizeChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>reuseAddress</tt> property has been changed by its setter method.
+     * The system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isReuseAddressChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>sendBufferSize</tt> property has been changed by its setter method.
+     * The system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isSendBufferSizeChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>soLinger</tt> property has been changed by its setter method. The
+     * system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isSoLingerChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>tcpNoDelay</tt> property has been changed by its setter method. The
+     * system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isTcpNoDelayChanged() {
+        return true;
+    }
+
+    /**
+     * Returns <tt>true</tt> if and only if the <tt>trafficClass</tt> property has been changed by its setter method.
+     * The system call related with the property is made only when this method returns <tt>true</tt>. By default, this
+     * method always returns <tt>true</tt> to simplify implementation of subclasses, but overriding the default behavior
+     * is always encouraged.
+     */
+    protected boolean isTrafficClassChanged() {
+        return true;
     }
 }
