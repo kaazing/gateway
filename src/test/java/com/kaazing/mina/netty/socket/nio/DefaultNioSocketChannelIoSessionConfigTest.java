@@ -141,7 +141,7 @@ public class DefaultNioSocketChannelIoSessionConfigTest {
     public void testSetAllTrafficClass() {
         DefaultNioSocketChannelIoSessionConfig config = new DefaultNioSocketChannelIoSessionConfig();
         config.init(new NioSocketChannelIoAcceptor(config));
-        config.setTrafficClass(1);
+        config.setTrafficClass(2);
         NioSocketChannelIoSessionConfig acceptedConfig =
                 new NioSocketChannelIoSessionConfig(new DefaultNioSocketChannelConfig(new Socket()));
 
