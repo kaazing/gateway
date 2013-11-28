@@ -80,7 +80,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             return sharedUnpooled.init(src.toByteBuffer());
         }
         if (src.readableBytes() > DEFAULT_PREALLOCATION_SIZE) {
-            SharedUnpooledSendBuffer sharedUnpooled = getSharedUnpooled(channel);
+            SharedUnpooledSendBuffer sharedUnpooled = new SharedUnpooledSendBuffer();
             return sharedUnpooled.init(src.toByteBuffer());
         }
 
@@ -88,6 +88,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         ByteBuffer buffer = current.buffer;
         int remaining = buffer.remaining();
         SharedPooledSendBuffer dst;
+//        PooledSendBuffer dst;
 
         if (size < remaining) {
             int nextPos = buffer.position() + size;
@@ -97,6 +98,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             current.refCnt ++;
             SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, slice);
+//            dst = new PooledSendBuffer(current, slice);
         } else if (size > remaining) {
             this.current = current = getPreallocation();
             buffer = current.buffer;
@@ -106,11 +108,13 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
             current.refCnt ++;
             SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, slice);
+//            dst = new PooledSendBuffer(current, slice);
         } else { // size == remaining
             current.refCnt ++;
             this.current = getPreallocation0();
             SharedPooledSendBuffer sharedPooled = getSharedPooled(channel);
             dst = sharedPooled.init(current, current.buffer);
+//            dst = new PooledSendBuffer(current, current.buffer);
         }
 
         ByteBuffer dstbuf = dst.buffer;
@@ -130,12 +134,13 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
     }
 
     private SharedPooledSendBuffer getSharedPooled(AbstractNioChannel<?> channel) {
-        SharedPooledSendBuffer sharedPooled = (SharedPooledSendBuffer) channel.sharedPooled;
-        if (sharedPooled == null || !sharedPooled.canInitialize()) {
-            channel.sharedPooled = sharedPooled = new SharedPooledSendBuffer();
-        }
-        assert sharedPooled.canInitialize();
-        return sharedPooled;
+         return new SharedPooledSendBuffer();
+//        SharedPooledSendBuffer sharedPooled = (SharedPooledSendBuffer) channel.sharedPooled;
+//        if (sharedPooled == null || !sharedPooled.canInitialize()) {
+//            channel.sharedPooled = sharedPooled = new SharedPooledSendBuffer();
+//        }
+//        assert sharedPooled.canInitialize();
+//        return sharedPooled;
     }
 
     private Preallocation getPreallocation() {
@@ -250,15 +255,17 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
 
         ByteBuffer buffer;
         int initialPos;
+        int refCount;
 
         public final SendBuffer init(ByteBuffer buffer) {
+            refCount++;
             this.buffer = buffer;
             initialPos = buffer.position();
             return this;
         }
 
         public final boolean canInitialize() {
-            return buffer == null || finished();
+            return refCount == 0;
         }
 
         @Override
@@ -289,6 +296,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         @Override
         public void release() {
             buffer = null;
+            refCount--;
         }
     }
 
@@ -318,7 +326,7 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
         private Preallocation parent;
 
         public SharedPooledSendBuffer init(Preallocation parent, ByteBuffer buffer) {
-            init(buffer);
+            super.init(buffer);
             this.parent = parent;
             return this;
         }
@@ -332,6 +340,9 @@ final class SocketSendBufferPool implements ExternalResourceReleasable {
                     poolHead = new PreallocationRef(parent, poolHead);
                 }
             }
+
+            this.parent = null;
+            super.release();
         }
     }
 
