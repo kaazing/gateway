@@ -272,6 +272,8 @@
 
   <properties>
     <apache.mina.version>2.0.0-RC1</apache.mina.version>
+
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
 </project>
