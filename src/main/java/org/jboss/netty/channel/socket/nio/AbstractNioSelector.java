@@ -19,7 +19,14 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import static java.lang.String.format;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.logging.InternalLogger;
+import org.jboss.netty.logging.InternalLoggerFactory;
+import org.jboss.netty.util.ThreadNameDeterminer;
+import org.jboss.netty.util.ThreadRenamingRunnable;
+import org.jboss.netty.util.internal.DeadLockProofWorker;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
@@ -34,43 +41,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelException;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.logging.InternalLogger;
-import org.jboss.netty.logging.InternalLoggerFactory;
-import org.jboss.netty.util.ThreadNameDeterminer;
-import org.jboss.netty.util.ThreadRenamingRunnable;
-import org.jboss.netty.util.internal.DeadLockProofWorker;
-import org.jboss.netty.util.internal.SystemPropertyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 abstract class AbstractNioSelector implements NioSelector {
-    protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
-
-    // Time after which we will quit the processTaskQueue method to allow the run loop to select again
-    // (avoids starving pending reads or writes)
-    private static final long MAXIMUM_PROCESS_TASKS_TIME_MILLIS = SystemPropertyUtil.getLong(
-            "com.kaazing.mina.netty.MAXIMUM_PROCESS_TASKS_TIME", 20); // 20 milliseconds by default
-
-    private static final long MAXIMUM_PROCESS_TASKS_TIME_NANOS =
-            TimeUnit.MILLISECONDS.toNanos(MAXIMUM_PROCESS_TASKS_TIME_MILLIS);
-
-    // select timeout used after quitting processTaskQueue due to it taking longer than MAXIMUM_PROCESS_TASKS_TIME
-    // the value used should be large enough to guarantee we do get socket readable/writable notification from
-    // the kernel (selectNow, done if the value is 0, does not always seem to achieve this) but small enough
-    // not to waste too much time if there are no ready ops.
-    private static final long QUICK_SELECT_TIMEOUT = SystemPropertyUtil.getLong(
-            "com.kaazing.mina.netty.QUICK_SELECT_TIMEOUT", 5);  // 5 milliseconds by default (half our regular select timeout)
 
     private static final AtomicInteger nextId = new AtomicInteger();
-    protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = TimeUnit.MILLISECONDS.toNanos(100);
-    private static final long LATENCY_BEFORE_LOG_TASK = TimeUnit.MILLISECONDS.toNanos(100);
 
     private final int id = nextId.incrementAndGet();
 
@@ -114,8 +90,6 @@ abstract class AbstractNioSelector implements NioSelector {
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
     private volatile boolean shutdown;
 
-    private boolean quickSelect;
-
     AbstractNioSelector(Executor executor) {
         this(executor, null);
     }
@@ -125,7 +99,6 @@ abstract class AbstractNioSelector implements NioSelector {
         openSelector(determiner);
     }
 
-    @Override
     public void register(Channel channel, ChannelFuture future) {
         Runnable task = createRegisterTask(channel, future);
         registerTask(task);
@@ -140,7 +113,6 @@ abstract class AbstractNioSelector implements NioSelector {
             if (wakenUp.compareAndSet(false, true)) {
                 selector.wakeup();
             }
-            // log("Task added to queue");
         } else {
             if (taskQueue.remove(task)) {
                 // the selector was null this means the Worker has already been shutdown.
@@ -153,11 +125,9 @@ abstract class AbstractNioSelector implements NioSelector {
         return Thread.currentThread() == thread;
     }
 
-    @Override
     public void rebuildSelector() {
         if (!isIoThread()) {
             taskQueue.add(new Runnable() {
-                @Override
                 public void run() {
                     rebuildSelector();
                 }
@@ -220,13 +190,7 @@ abstract class AbstractNioSelector implements NioSelector {
         logger.info("Migrated " + nChannels + " channel(s) to the new Selector,");
     }
 
-    @Override
     public void run() {
-        if (PERF_LOGGER.isInfoEnabled()) {
-            PERF_LOGGER.info(format(
-                    "AbstractyNioSelector.run: maximum task queue processing time = %d ms. Quick select timeout = %s",
-                    MAXIMUM_PROCESS_TASKS_TIME_MILLIS, QUICK_SELECT_TIMEOUT == 0 ? "selectNow used" : QUICK_SELECT_TIMEOUT));
-        }
         thread = Thread.currentThread();
 
         int selectReturnsImmediately = 0;
@@ -354,8 +318,7 @@ abstract class AbstractNioSelector implements NioSelector {
             } catch (Throwable t) {
                 logger.warn(
                         "Unexpected exception in the selector loop.", t);
-                PERF_LOGGER.warn(format("Unexpected exception in selector loop", t));
-                t.printStackTrace();
+
                 // Prevent possible consecutive immediate failures that lead to
                 // excessive CPU consumption.
                 try {
@@ -399,34 +362,16 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     private void processTaskQueue() {
-        long startTime = System.nanoTime();
-        long numTasks = 0;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
-                quickSelect = false;
                 break;
             }
-            numTasks++;
             task.run();
-
             try {
                 cleanUpCancelledKeys();
             } catch (IOException e) {
                 // Ignore
-            }
-            long timeSoFar = System.nanoTime() - startTime;
-            if (timeSoFar > MAXIMUM_PROCESS_TASKS_TIME_NANOS) {
-                if (PERF_LOGGER.isInfoEnabled()) {
-                    if (PERF_LOGGER.isDebugEnabled() || timeSoFar > LATENCY_BEFORE_LOG_TASK) {
-                       PERF_LOGGER.info(format(
-                               "AbstractyNioSelector.processTaskQueue: exiting after processing %d tasks in %d ms",
-                               numTasks, TimeUnit.NANOSECONDS.toMillis(timeSoFar)));
-                    }
-                }
-                // Make sure select in run() loop is no wait since we still have tasks to do
-                quickSelect = true;
-                break;
             }
         }
     }
@@ -444,7 +389,6 @@ abstract class AbstractNioSelector implements NioSelector {
         return false;
     }
 
-    @Override
     public void shutdown() {
         if (isIoThread()) {
             throw new IllegalStateException("Must not be called from a I/O-Thread to prevent deadlocks!");
@@ -466,37 +410,7 @@ abstract class AbstractNioSelector implements NioSelector {
     protected abstract void process(Selector selector) throws IOException;
 
     protected int select(Selector selector) throws IOException {
-        if (quickSelect) {
-            return QUICK_SELECT_TIMEOUT == 0 ? selectNow(selector) : select(selector, QUICK_SELECT_TIMEOUT);
-        } else {
-            return SelectorUtil.select(selector);
-        }
-    }
-
-    private int selectNow(Selector selector) throws IOException {
-        try {
-            return selector.selectNow();
-        } catch (CancelledKeyException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                        CancelledKeyException.class.getSimpleName() +
-                        " raised by a Selector - JDK bug?", e);
-            }
-            // Harmless exception - log anyway
-        }
-        return -1;
-    }
-
-    private int select(Selector selector, long timeout) throws IOException {
-        try {
-            return selector.select(timeout);
-        } catch (CancelledKeyException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(CancelledKeyException.class.getSimpleName() + " raised by a Selector - JDK bug?", e);
-            }
-            // Harmless exception - log anyway
-        }
-        return -1;
+        return SelectorUtil.select(selector);
     }
 
     protected abstract void close(SelectionKey k);
