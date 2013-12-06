@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -117,18 +118,24 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
         if (selectedKeys.isEmpty()) {
             return;
         }
+        boolean perfLogEnabled = PERF_LOGGER.isInfoEnabled();
+        long startProcess = perfLogEnabled ? System.nanoTime() : 0;
+        long numReads = 0;
+        long numWrites = 0;
         for (Iterator<SelectionKey> i = selectedKeys.iterator(); i.hasNext();) {
             SelectionKey k = i.next();
             i.remove();
             try {
                 int readyOps = k.readyOps();
                 if ((readyOps & SelectionKey.OP_READ) != 0 || readyOps == 0) {
+                    numReads++;
                     if (!read(k)) {
                         // Connection already closed - no need to handle write.
                         continue;
                     }
                 }
                 if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                    numWrites++;
                     writeFromSelectorLoop(k);
                 }
             } catch (CancelledKeyException e) {
@@ -137,6 +144,13 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
 
             if (cleanUpCancelledKeys()) {
                 break; // break the loop to avoid ConcurrentModificationException
+            }
+        }
+        if (perfLogEnabled) {
+            long totalTime = System.nanoTime() - startProcess;
+            if (totalTime >= LATENCY_BEFORE_LOG_PROCESS_SELECT) {
+                PERF_LOGGER.info(String.format("AbstractNioWorker.process(Selector) took %d ms: %d reads, %d writes",
+                        TimeUnit.NANOSECONDS.toMillis(totalTime), numReads, numWrites));
             }
         }
     }
