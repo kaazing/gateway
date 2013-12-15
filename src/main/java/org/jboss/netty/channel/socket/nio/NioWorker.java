@@ -44,11 +44,16 @@ public class NioWorker extends AbstractNioWorker {
 
     private final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
 
-    private static final int READ_BACKOFF_TRIES = 400;
-    //        InternalSystemProperty.READ_BACKOFF_TRIES.getLongProperty(System.getProperties()).intValue();
+    private static final int READ_BACKOFF_TRIES =
+            InternalSystemProperty.READ_BACKOFF_TRIES.getIntProperty(System.getProperties());
 
-    private static final int READ_BACKOFF_DELAY = 50000; // in nanoseconds
-    // InternalSystemProperty.READ_BACKOFF_DELAY.getLongProperty(System.getProperties()).intValue();
+    private static final int READ_BACKOFF_DELAY =
+            InternalSystemProperty.READ_BACKOFF_DELAY.getIntProperty(System.getProperties());
+
+    static {
+        System.out.println("READ_BACKOFF_TRIES = " + READ_BACKOFF_TRIES);
+        System.out.println("READ_BACKOFF_DELAY = " + READ_BACKOFF_DELAY);
+    }
 
     public NioWorker(Executor executor) {
         super(executor);

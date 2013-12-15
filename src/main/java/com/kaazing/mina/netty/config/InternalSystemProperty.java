@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty.config;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 import java.util.Properties;
@@ -38,6 +39,14 @@ public enum InternalSystemProperty {
 
     public String getProperty(Properties configuration) {
         return configuration.getProperty(name, defaultValue);
+    }
+
+    public Integer getIntProperty(Properties configuration) {
+        String value = getProperty(configuration);
+        if (value == null) {
+            return null;
+        }
+        return parseInt(value);
     }
 
     public Long getLongProperty(Properties configuration) {
