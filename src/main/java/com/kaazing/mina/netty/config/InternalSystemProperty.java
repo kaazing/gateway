@@ -19,7 +19,10 @@ public enum InternalSystemProperty {
     // The value used should be large enough to guarantee we do get socket readable/writable notification from
     // the kernel (selectNow, done if the value is 0, does not always seem to achieve this) but small enough
     // not to waste too much time if there are no ready ops.
-    QUICK_SELECT_TIMEOUT("com.kaazing.netty.QUICK_SELECT_TIMEOUT", "0");  // use selectNow by default
+    QUICK_SELECT_TIMEOUT("com.kaazing.netty.QUICK_SELECT_TIMEOUT", "0"),  // use selectNow by default
+
+    READ_BACKOFF_TRIES("com.kaazing.netty.READ_BACKOFF_TRIES", "0"),  // off by default
+    READ_BACKOFF_DELAY("com.kaazing.netty.READ_BACKOFF_DELAY", "50000");  // off by default
 
     private final String name;
     private final String defaultValue;

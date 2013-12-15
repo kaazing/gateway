@@ -38,9 +38,17 @@ import java.util.concurrent.Executor;
 
 import static org.jboss.netty.channel.Channels.*;
 
+import com.kaazing.mina.netty.config.InternalSystemProperty;
+
 public class NioWorker extends AbstractNioWorker {
 
     private final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
+
+    private static final int READ_BACKOFF_TRIES =
+        InternalSystemProperty.READ_BACKOFF_TRIES.getLongProperty(System.getProperties()).intValue();
+
+    private static final int READ_BACKOFF_DELAY = // in nanoseconds
+        InternalSystemProperty.READ_BACKOFF_DELAY.getLongProperty(System.getProperties()).intValue();
 
     public NioWorker(Executor executor) {
         super(executor);
@@ -64,37 +72,58 @@ public class NioWorker extends AbstractNioWorker {
         int readBytes = 0;
         boolean failure = true;
 
-        ByteBuffer bb = recvBufferPool.get(predictedRecvBufSize).order(bufferFactory.getDefaultOrder());
-        try {
-            while ((ret = ch.read(bb)) > 0) {
-                readBytes += ret;
-                if (!bb.hasRemaining()) {
+        int tries = 1;
+        for (;;) {
+            ByteBuffer bb = recvBufferPool.get(predictedRecvBufSize).order(bufferFactory.getDefaultOrder());
+            try {
+                while ((ret = ch.read(bb)) > 0) {
+                    readBytes += ret;
+                    if (!bb.hasRemaining()) {
+                        break;
+                    }
+                }
+                failure = false;
+            } catch (ClosedChannelException e) {
+                // Can happen, and does not need a user attention.
+            } catch (Throwable t) {
+                fireExceptionCaught(channel, t);
+            }
+
+            if (readBytes > 0) {
+                bb.flip();
+
+                final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
+                buffer.setBytes(0, bb);
+                buffer.writerIndex(readBytes);
+
+                // Update the predictor.
+                predictor.previousReceiveBufferSize(readBytes);
+
+                // Fire the event.
+                fireMessageReceived(channel, buffer);
+                break;
+            }
+            else if (ret < 0) {
+                // If reached end of stream - need to break now
+                break;
+            }
+            else if (tries < READ_BACKOFF_TRIES) {
+                // Read should not have returned zero!  Try again!
+                try {
+                    Thread.sleep(0, READ_BACKOFF_DELAY);
+                } catch (InterruptedException ie) {
+                    System.out.println(String.format("[%d] [%d] Interrupted in socket read loop after %d tries",
+                                                     System.currentTimeMillis(), Thread.currentThread().getId(), tries));
                     break;
                 }
+                tries++;
             }
-            failure = false;
-        } catch (ClosedChannelException e) {
-            // Can happen, and does not need a user attention.
-        } catch (Throwable t) {
-            fireExceptionCaught(channel, t);
-        }
-
-        if (readBytes > 0) {
-            bb.flip();
-
-            final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
-            buffer.setBytes(0, bb);
-            buffer.writerIndex(readBytes);
-
-            // Update the predictor.
-            predictor.previousReceiveBufferSize(readBytes);
-
-            // Fire the event.
-            fireMessageReceived(channel, buffer);
-        }
-        else {
-            System.out.println(String.format("[%d] [%d] read zero bytes from socket",
-                    System.currentTimeMillis(), Thread.currentThread().getId()));
+            else {
+                // UGH: Giving up after retrying several times
+                System.out.println(String.format("[%d] [%d] read zero bytes from socket after %d tries",
+                                                 System.currentTimeMillis(), Thread.currentThread().getId(), tries));
+                break;
+            }
         }
 
         if (ret < 0 || failure) {
