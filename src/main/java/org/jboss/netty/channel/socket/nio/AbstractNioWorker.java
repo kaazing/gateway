@@ -129,9 +129,16 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                 int readyOps = k.readyOps();
                 if ((readyOps & SelectionKey.OP_READ) != 0 || readyOps == 0) {
                     numReads++;
+                    final long startReadTime = System.currentTimeMillis();
                     if (!read(k)) {
                         // Connection already closed - no need to handle write.
                         continue;
+                    }
+                    final long endReadTime = System.currentTimeMillis();
+                    final long readTime = endReadTime - startReadTime;
+                    if (readTime > 100L) {
+                        System.out.println(String.format("[%d] [%d] read bytes from socket at [%d] in %dms",
+                                endReadTime, Thread.currentThread().getId(), startReadTime, readTime));
                     }
                 }
                 if ((readyOps & SelectionKey.OP_WRITE) != 0) {
