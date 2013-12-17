@@ -36,6 +36,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.Executor;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.currentThread;
 import static org.jboss.netty.channel.Channels.*;
 
 import com.kaazing.mina.netty.config.InternalSystemProperty;
@@ -99,9 +101,11 @@ public class NioWorker extends AbstractNioWorker {
                     // UGH: read only succeeded up after retrying several times
                     try {
                         System.out.println(String.format(
-                                "[%d] [%s] [%s] read zero bytes from socket %d times before read succeeded",
-                               System.currentTimeMillis(), Thread.currentThread().getName(), ch.getRemoteAddress(), tries));
-                    } catch (IOException e) {
+                         "[%d] [%s] [port=%d] read zero bytes from socket %d times before read succeeded",
+                         currentTimeMillis(), currentThread().getName(), channel.getRemoteSocketAddress().getPort(), tries));
+                    }
+                    catch (Exception e) {
+                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -128,9 +132,10 @@ public class NioWorker extends AbstractNioWorker {
                     Thread.sleep(0, READ_BACKOFF_DELAY);
                 } catch (InterruptedException ie) {
                     try {
-                        System.out.println(String.format("[%d] [%s] [%s] Interrupted in socket read loop after %d tries",
-                                System.currentTimeMillis(), Thread.currentThread().getName(), ch.getRemoteAddress(), tries));
-                    } catch (IOException e) {
+                        System.out.println(String.format("[%d] [%s] [port=%d] Interrupted in socket read loop after %d tries",
+                         currentTimeMillis(), currentThread().getName(), channel.getRemoteSocketAddress().getPort(), tries));
+                    }
+                    catch (Exception e) {
                         e.printStackTrace();
                     }
                     break;
