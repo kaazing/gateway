@@ -95,6 +95,11 @@ public class NioWorker extends AbstractNioWorker {
             }
 
             if (readBytes > 0) {
+                if (tries > 1) {
+                    // UGH: read only succeeded up after retrying several times
+                    System.out.println(String.format("[%d] [%d] read zero bytes from socket %d times before read succeeded",
+                           System.currentTimeMillis(), Thread.currentThread().getId(), tries));
+                }
                 bb.flip();
 
                 final ChannelBuffer buffer = bufferFactory.getBuffer(readBytes);
