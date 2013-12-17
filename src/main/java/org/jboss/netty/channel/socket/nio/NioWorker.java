@@ -97,8 +97,13 @@ public class NioWorker extends AbstractNioWorker {
             if (readBytes > 0) {
                 if (tries > 1) {
                     // UGH: read only succeeded up after retrying several times
-                    System.out.println(String.format("[%d] [%d] read zero bytes from socket %d times before read succeeded",
-                           System.currentTimeMillis(), Thread.currentThread().getId(), tries));
+                    try {
+                        System.out.println(String.format(
+                                "[%d] [%s] [%s] read zero bytes from socket %d times before read succeeded",
+                               System.currentTimeMillis(), Thread.currentThread().getName(), ch.getRemoteAddress(), tries));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 bb.flip();
 
@@ -122,8 +127,12 @@ public class NioWorker extends AbstractNioWorker {
                 try {
                     Thread.sleep(0, READ_BACKOFF_DELAY);
                 } catch (InterruptedException ie) {
-                    System.out.println(String.format("[%d] [%d] Interrupted in socket read loop after %d tries",
-                                                     System.currentTimeMillis(), Thread.currentThread().getId(), tries));
+                    try {
+                        System.out.println(String.format("[%d] [%s] [%s] Interrupted in socket read loop after %d tries",
+                                System.currentTimeMillis(), Thread.currentThread().getName(), ch.getRemoteAddress(), tries));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 }
                 tries++;
