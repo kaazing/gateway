@@ -133,19 +133,27 @@ public class NioWorker extends AbstractNioWorker {
                 } catch (InterruptedException ie) {
                     try {
                         System.out.println(String.format("[%d] [%s] [port=%d] Interrupted in socket read loop after %d tries",
-                         currentTimeMillis(), currentThread().getName(), channel.getRemoteSocketAddress().getPort(), tries));
+	                                                 currentTimeMillis(), currentThread().getName(),
+                                                         channel.getRemoteSocketAddress().getPort(), tries));
                     }
-                    catch (Exception e) {
-                        e.printStackTrace();
+                    catch (Exception e2) {
+                        e2.printStackTrace();
                     }
                     break;
                 }
                 tries++;
             }
             else {
-                // UGH: Giving up after retrying several times
-                System.out.println(String.format("[%d] [%d] read zero bytes from socket after %d tries",
-                                                 System.currentTimeMillis(), Thread.currentThread().getId(), tries));
+                try {
+                    // UGH: Giving up after retrying several times
+                    System.out.println(String.format("[%d] [%s] [port=%d] read zero bytes from socket after %d tries",
+                                                     currentTimeMillis(), currentThread().getName(),
+                                                     channel.getRemoteSocketAddress().getPort(), tries));
+                }
+                catch (Exception e3) {
+                    e3.printStackTrace();
+                }
+
                 break;
             }
         }
