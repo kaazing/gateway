@@ -24,6 +24,7 @@
 /* Differences from class of same name in Mina 2.0.0-RC1 include:
  * 1. Use IoSessionEx.BUFFER_ALLOCATOR instead of calling IoBuffer.allocate
  * 2. Use non-static attribute keys
+ * 3. Make getDecoder protected instead of private
  */
 package com.kaazing.mina.filter.codec;
 
@@ -460,7 +461,7 @@ public class ProtocolCodecFilter extends IoFilterAdapter {
      * @param session The associated session we will get the decoder from
      * @return The decoder instance
      */
-    private ProtocolDecoder getDecoder(IoSession session) {
+    protected ProtocolDecoder getDecoder(IoSession session) {
         return (ProtocolDecoder) session.getAttribute(DECODER);
     }
 
