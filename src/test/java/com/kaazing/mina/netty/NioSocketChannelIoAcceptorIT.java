@@ -14,6 +14,7 @@ import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
 import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,7 +46,9 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jmock.Expectations;
+import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
@@ -248,6 +251,86 @@ public class NioSocketChannelIoAcceptorIT {
         }
         assertTrue(String.format("No worker or boss threads should be running %s, found %d workers, %d bosses: %s",
                 when, workersFound, bossesFound, badThreads), workersFound == 0 && bossesFound == 0);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldNotIdleTimeoutWhenBothNotIdle() throws Exception {
+        shouldNotIdleTimeoutWhenNotIdle(BOTH_IDLE);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldNotIdleTimeoutWhenReaderNotIdle() throws Exception {
+        shouldNotIdleTimeoutWhenNotIdle(READER_IDLE);
+    }
+
+    @Test (timeout = 5000)
+    public void shouldNotIdleTimeoutWhenWriterNotIdle() throws Exception {
+        shouldNotIdleTimeoutWhenNotIdle(WRITER_IDLE);
+    }
+
+    private void shouldNotIdleTimeoutWhenNotIdle(final IdleStatus statusUnderTest) throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        //context.setThreadingPolicy(new Synchroniser());
+        final boolean[] sessonIdleCalled = new boolean[]{false};
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
+                will(perform("$0.getConfig().setIdleTimeInMillis(status, 1000L); return;").where("status", statusUnderTest));
+
+                oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)), with(any(Object.class)));
+                // will(perform("$0.write($0.getBufferAllocator().wrap(ByteBuffer.wrap(new byte[]{0x41, 0x42}))); return;"));
+                will(perform("$0.write($1); return;"));
+
+                oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)), with(any(Object.class)));
+                will(perform("$0.close(false); return;"));
+
+                oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
+
+                allowing(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
+                will(new CustomAction("fail the test") {
+
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        sessonIdleCalled[0] = true;
+                        return null;
+                    }
+
+                });
+            }
+        });
+
+        InetSocketAddress bindAddress = new InetSocketAddress("127.0.0.1", nextPort(2100, 100));
+
+        acceptor.setHandler(handler);
+        acceptor.bind(bindAddress);
+
+        Socket socket = new Socket();
+        socket.connect(bindAddress);
+
+        // Cause IO half way through idle timeout. Should prevent sessionIdle from firing within the next idle time period.
+        Thread.sleep(500);
+        socket.getOutputStream().write(new byte[]{0x41});
+
+        int read = socket.getInputStream().read();
+        assertEquals(0x41, read);
+
+
+        // Sleep past first idle time period
+        Thread.sleep(600);
+
+        if (sessonIdleCalled[0]) {
+            fail("sessionIdle should not be called, for idle status " + statusUnderTest);
+        }
+
+        // This message should cause close
+        socket.getOutputStream().write(new byte[]{0x42});
+
+        int eos = socket.getInputStream().read();
+        assertEquals(-1, eos);
+
+        acceptor.unbind();
     }
 
     @Test (timeout = 5000)
