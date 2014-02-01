@@ -10,13 +10,13 @@
 
   <groupId>com.kaazing.mina.netty</groupId>
   <artifactId>com.kaazing.mina.netty</artifactId>
-  <version>1.4.0.26-SNAPSHOT</version>
+  <version>1.4.0.26</version>
   <packaging>jar</packaging>
   <name>Mina Netty Adapter</name>
 
   <scm>
-      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/branches/1.4.x.y</connection>
-      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.4.x.y</url>
+      <connection>scm:svn:http://svn.kaazing.wan/mina.netty/tags/com.kaazing.mina.netty-1.4.0.26</connection>
+      <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/tags/com.kaazing.mina.netty-1.4.0.26</url>
   </scm>
 
   <dependencies>
