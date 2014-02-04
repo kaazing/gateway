@@ -225,7 +225,6 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             // 1a. buffer is shared
                             ByteBuffer sharedBuf = channelIoBuf.buf();
                             int position = sharedBuf.position();
-                            int bytesWritten = sharedBuf.remaining();
 
                             // write shared buffer to channel
                             DownstreamMessageEventEx writeRequest = writeRequestEx.get();
@@ -244,7 +243,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                                 sharedBuf.position(position);
 
                                 // shared buffer write complete
-                                ChannelWriteFutureListener.operationComplete(future, filterChain, req, bytesWritten);
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
                             }
                             else {
                                 // shared buffer write incomplete
@@ -257,14 +256,13 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                                 channelIoBuf.buf(newSharedBuf);
 
                                 // register listener to detect when write completed
-                                future.addListener(new ChannelWriteFutureListener(filterChain, req, bytesWritten));
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
                             }
                         }
                         else {
                             // 1b. buffer is unshared
                             // write unshared buffer to channel
                             ByteBuffer unsharedBuf = channelIoBuf.buf();
-                            int bytesWritten = unsharedBuf.remaining();
 
                             DownstreamMessageEventEx writeRequest = writeRequestEx.get();
                             if (!writeRequest.isResetable()) {
@@ -279,11 +277,11 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                             ChannelFuture future = writeRequest.getFuture();
                             if (future.isDone()) {
                                 // unshared buffer write complete
-                                ChannelWriteFutureListener.operationComplete(future, filterChain, req, bytesWritten);
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
                             }
                             else {
                                 // unshared buffer write incomplete
-                                future.addListener(new ChannelWriteFutureListener(filterChain, req, bytesWritten));
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
                             }
                         }
                     }
@@ -291,7 +289,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                 else if (message instanceof FileRegion) {
                     FileRegion region = (FileRegion) message;
                     ChannelFuture future = channel.write(region);  // TODO: FileRegion
-                    future.addListener(new ChannelWriteFutureListener(filterChain, req, (int) region.getWrittenBytes()));
+                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
                 }
                 else if (message instanceof IoBufferEx && ((IoBufferEx) message).isShared()) {
                     String messageClassName = message.getClass().getName();
@@ -303,9 +301,8 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                         filterChain.fireMessageSent(req);
                     }
                     else {
-                        int bytesWritten = buf.remaining();
                         ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
-                        future.addListener(new ChannelWriteFutureListener(filterChain, req, bytesWritten));
+                        future.addListener(new ChannelWriteFutureListener(filterChain, req));
                     }
                 }
                 else {

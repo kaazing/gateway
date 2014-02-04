@@ -6,6 +6,7 @@ package com.kaazing.mina.netty;
 
 import static com.kaazing.junit.matchers.JUnitMatchers.instanceOf;
 import static com.kaazing.mina.netty.PortUtil.nextPort;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.apache.mina.core.session.IdleStatus.BOTH_IDLE;
@@ -32,6 +33,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
@@ -51,6 +54,7 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -107,13 +111,70 @@ public class NioSocketChannelIoAcceptorIT {
         acceptor.bind(bindAddress);
     }
 
-    @Test //(timeout = 1000)
+    @Test
+    // (timeout = 1000)
+    public void shouldCountScheduledAndWrittenBytes() throws Exception {
+        final List<Throwable> exceptionsCaught = Collections.synchronizedList(new ArrayList<Throwable>());
+        acceptor.setHandler(new IoHandlerAdapter() {
+            private final AtomicInteger written = new AtomicInteger(0);
+
+            @Override
+            public void messageReceived(final IoSession session, Object message) throws Exception {
+                IoBuffer buf = (IoBuffer) message;
+                final int expectedWrittenBytes = written.addAndGet(buf.remaining());
+                session.write(buf.duplicate()).addListener(new IoFutureListener<WriteFuture>() {
+                    @Override
+                    public void operationComplete(WriteFuture future) {
+                        try {
+                            assertEquals("getScheduledWriteBytes", 0, session.getScheduledWriteBytes());
+                        }
+                        catch (Throwable t) {
+                            exceptionsCaught.add(t);
+                        }
+                        try {
+                            assertEquals("getWrittenBytes", expectedWrittenBytes, session.getWrittenBytes());
+                        }
+                        catch (Throwable t) {
+                            exceptionsCaught.add(t);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+                exceptionsCaught.add(cause);
+            }
+        });
+
+        SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
+        acceptor.bind(bindAddress);
+
+        socket.connect(bindAddress);
+        OutputStream output = socket.getOutputStream();
+        InputStream input = socket.getInputStream();
+        byte[] sendPayload = new byte[]{0x00, 0x01, 0x02};
+        output.write(sendPayload);
+        byte[] receivePayload = new byte[sendPayload.length];
+        input.read(receivePayload);
+        assertTrue("payload echoed", Arrays.equals(sendPayload, receivePayload));
+
+        sendPayload = new byte[]{0x03, 0x04, 0x05, 0x7};
+        output.write(sendPayload);
+        receivePayload = new byte[sendPayload.length];
+        input.read(receivePayload);
+        assertTrue("payload echoed", Arrays.equals(sendPayload, receivePayload));
+
+        assertTrue(format("Got handler exceptions: %s", exceptionsCaught), 0 == exceptionsCaught.size());
+    }
+
+    @Test
+    // (timeout = 1000)
     public void shouldEchoBytes() throws Exception {
         final AtomicInteger exceptionsCaught = new AtomicInteger();
         acceptor.setHandler(new IoHandlerAdapter() {
             @Override
-            public void messageReceived(IoSession session, Object message)
-                    throws Exception {
+            public void messageReceived(IoSession session, Object message) throws Exception {
                 IoBuffer buf = (IoBuffer) message;
                 session.write(buf.duplicate());
             }
@@ -130,7 +191,7 @@ public class NioSocketChannelIoAcceptorIT {
         socket.connect(bindAddress);
         OutputStream output = socket.getOutputStream();
         InputStream input = socket.getInputStream();
-        byte[] sendPayload = new byte[] { 0x00, 0x01, 0x02 };
+        byte[] sendPayload = new byte[]{0x00, 0x01, 0x02};
         output.write(sendPayload);
         byte[] receivePayload = new byte[sendPayload.length];
         input.read(receivePayload);
@@ -231,14 +292,13 @@ public class NioSocketChannelIoAcceptorIT {
         assertEquals("filter.sessionCreated", actions.get(1));
     }
 
-
     private void assertNoWorkerThreads(String when) {
         Thread[] threads = new Thread[Thread.activeCount()];
         Thread.enumerate(threads);
         int workersFound = 0;
         int bossesFound = 0;
         List<String> badThreads = new LinkedList<String>();
-        for (Thread thread: threads) {
+        for (Thread thread : threads) {
             System.out.println(thread.getName());
             if (thread.getName().matches(".*I/O worker.*")) {
                 badThreads.add(thread.getName());
@@ -253,31 +313,32 @@ public class NioSocketChannelIoAcceptorIT {
                 when, workersFound, bossesFound, badThreads), workersFound == 0 && bossesFound == 0);
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldNotIdleTimeoutWhenBothNotIdle() throws Exception {
         shouldNotIdleTimeoutWhenNotIdle(BOTH_IDLE);
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldNotIdleTimeoutWhenReaderNotIdle() throws Exception {
         shouldNotIdleTimeoutWhenNotIdle(READER_IDLE);
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldNotIdleTimeoutWhenWriterNotIdle() throws Exception {
         shouldNotIdleTimeoutWhenNotIdle(WRITER_IDLE);
     }
 
     private void shouldNotIdleTimeoutWhenNotIdle(final IdleStatus statusUnderTest) throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        //context.setThreadingPolicy(new Synchroniser());
+        // context.setThreadingPolicy(new Synchroniser());
         final boolean[] sessonIdleCalled = new boolean[]{false};
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
-                will(perform("$0.getConfig().setIdleTimeInMillis(status, 1000L); return;").where("status", statusUnderTest));
+                will(perform("$0.getConfig().setIdleTimeInMillis(status, 1000L); return;").where("status",
+                        statusUnderTest));
 
                 oneOf(handler).messageReceived(with(instanceOf(IoSessionEx.class)), with(any(Object.class)));
                 // will(perform("$0.write($0.getBufferAllocator().wrap(ByteBuffer.wrap(new byte[]{0x41, 0x42}))); return;"));
@@ -309,13 +370,13 @@ public class NioSocketChannelIoAcceptorIT {
         Socket socket = new Socket();
         socket.connect(bindAddress);
 
-        // Cause IO half way through idle timeout. Should prevent sessionIdle from firing within the next idle time period.
+        // Cause IO half way through idle timeout. Should prevent sessionIdle from firing within the next idle time
+        // period.
         Thread.sleep(500);
         socket.getOutputStream().write(new byte[]{0x41});
 
         int read = socket.getInputStream().read();
         assertEquals(0x41, read);
-
 
         // Sleep past first idle time period
         Thread.sleep(600);
@@ -333,17 +394,17 @@ public class NioSocketChannelIoAcceptorIT {
         acceptor.unbind();
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldRepeatedlyIdleTimeoutWhenBothIdle() throws Exception {
         shouldRepeatedlyIdleTimeoutWhenIdle(BOTH_IDLE);
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldRepeatedlyIdleTimeoutWhenReaderIdle() throws Exception {
         shouldRepeatedlyIdleTimeoutWhenIdle(READER_IDLE);
     }
 
-    @Test (timeout = 5000)
+    @Test(timeout = 5000)
     public void shouldRepeatedlyIdleTimeoutWhenWriterIdle() throws Exception {
         shouldRepeatedlyIdleTimeoutWhenIdle(WRITER_IDLE);
     }
@@ -355,7 +416,8 @@ public class NioSocketChannelIoAcceptorIT {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
-                will(perform("$0.getConfig().setIdleTimeInMillis(status, 50L); return;").where("status", statusUnderTest));
+                will(perform("$0.getConfig().setIdleTimeInMillis(status, 50L); return;").where("status",
+                        statusUnderTest));
                 oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
                 oneOf(handler).sessionIdle(with(instanceOf(IoSessionEx.class)), with(statusUnderTest));
                 will(perform("$0.close(false); return;"));
@@ -398,22 +460,19 @@ public class NioSocketChannelIoAcceptorIT {
             }
 
             @Override
-            public void sessionIdle(IoSession session, IdleStatus status)
-                    throws Exception {
+            public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
                 Object affinity = session.getAttribute("affinity");
                 assertTrue("thread aligned", affinity == currentThread());
             }
 
             @Override
-            public void messageReceived(IoSession session, Object message)
-                    throws Exception {
+            public void messageReceived(IoSession session, Object message) throws Exception {
                 Object affinity = session.getAttribute("affinity");
                 assertTrue("thread aligned", affinity == currentThread());
             }
 
             @Override
-            public void messageSent(IoSession session, Object message)
-                    throws Exception {
+            public void messageSent(IoSession session, Object message) throws Exception {
                 Object affinity = session.getAttribute("affinity");
                 assertTrue("thread aligned", affinity == currentThread());
             }
@@ -437,7 +496,7 @@ public class NioSocketChannelIoAcceptorIT {
         SocketAddress bindAddress = new InetSocketAddress("localhost", nextPort(8100, 100));
         acceptor.bind(bindAddress);
 
-        byte[] sendPayload = new byte[] { 0x00, 0x01, 0x02 };
+        byte[] sendPayload = new byte[]{0x00, 0x01, 0x02};
         socket.connect(bindAddress);
         OutputStream output = socket.getOutputStream();
         output.write(sendPayload);

@@ -5,6 +5,8 @@
 package com.kaazing.mina.netty;
 
 
+import static java.lang.System.currentTimeMillis;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -81,7 +83,7 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void writeComplete(ChannelHandlerContext ctx, WriteCompletionEvent e) throws Exception {
         int writtenBytes = (int) e.getWrittenAmount();
-        session.increaseScheduledWriteBytes(-writtenBytes);
+        session.increaseWrittenBytes(writtenBytes, currentTimeMillis());
     }
 
 }
