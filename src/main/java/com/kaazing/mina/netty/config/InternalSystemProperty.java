@@ -4,6 +4,7 @@
 
 package com.kaazing.mina.netty.config;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 import java.util.Properties;
@@ -15,11 +16,11 @@ public enum InternalSystemProperty {
     MAXIMUM_PROCESS_TASKS_TIME("com.kaazing.netty.MAXIMUM_PROCESS_TASKS_TIME", "0"), // disabled by default
 
     // select() timeout used after quitting processTaskQueue due to it taking longer than MAXIMUM_PROCESS_TASKS_TIME
-    // (if set to non-zero).
+    // (if set to non-zero). Unit is MILLISECONDS.
     // The value used should be large enough to guarantee we do get socket readable/writable notification from
     // the kernel (selectNow, done if the value is 0, does not always seem to achieve this) but small enough
     // not to waste too much time if there are no ready ops.
-    QUICK_SELECT_TIMEOUT("com.kaazing.netty.QUICK_SELECT_TIMEOUT", "0");  // use selectNow by default
+    QUICK_SELECT_TIMEOUT("com.kaazing.netty.QUICK_SELECT_TIMEOUT", "0"); // use selectNow by default
 
     private final String name;
     private final String defaultValue;
@@ -35,6 +36,14 @@ public enum InternalSystemProperty {
 
     public String getProperty(Properties configuration) {
         return configuration.getProperty(name, defaultValue);
+    }
+
+    public Integer getIntProperty(Properties configuration) {
+        String value = getProperty(configuration);
+        if (value == null) {
+            return null;
+        }
+        return parseInt(value);
     }
 
     public Long getLongProperty(Properties configuration) {

@@ -2,6 +2,7 @@
  * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
  * Copied From: Netty-3.6.3-Final
  */
+
 /*
  * Copyright 2012 The Netty Project
  *
@@ -19,6 +20,24 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
+import static com.kaazing.mina.netty.config.InternalSystemProperty.MAXIMUM_PROCESS_TASKS_TIME;
+import static java.lang.String.format;
+import static org.jboss.netty.channel.Channels.fireChannelBound;
+import static org.jboss.netty.channel.Channels.fireChannelConnected;
+import static org.jboss.netty.channel.Channels.fireExceptionCaught;
+import static org.jboss.netty.channel.Channels.fireMessageReceived;
+import static org.jboss.netty.channel.Channels.succeededFuture;
+
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
@@ -27,19 +46,36 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ReceiveBufferSizePredictor;
 import org.jboss.netty.util.ThreadNameDeterminer;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.util.concurrent.Executor;
-
-import static org.jboss.netty.channel.Channels.*;
+import com.kaazing.mina.netty.config.InternalSystemProperty;
 
 public class NioWorker extends AbstractNioWorker {
 
     private final SocketReceiveBufferAllocator recvBufferPool = new SocketReceiveBufferAllocator();
+
+    // Avoid static variables to facilitate unit tests
+    private final long MAXIMUM_PROCESS_TASKS_TIME_MILLIS
+    = MAXIMUM_PROCESS_TASKS_TIME.getLongProperty(System.getProperties());
+
+    private final long MAXIMUM_PROCESS_TASKS_TIME_NANOS =
+            TimeUnit.MILLISECONDS.toNanos(MAXIMUM_PROCESS_TASKS_TIME_MILLIS);
+
+    private final long QUICK_SELECT_TIMEOUT =
+            InternalSystemProperty.QUICK_SELECT_TIMEOUT.getLongProperty(System.getProperties());
+
+    {
+        // Always report when any of the tuning features are active, irrespective of log4j configuration
+        if (MAXIMUM_PROCESS_TASKS_TIME_MILLIS > 0) {
+            String message = format(
+               "NioWorker: maximum task queue processing time = %d ms. Quick select timeout = %s.",
+               MAXIMUM_PROCESS_TASKS_TIME_MILLIS, QUICK_SELECT_TIMEOUT == 0 ? "selectNow used" : QUICK_SELECT_TIMEOUT);
+            if (PERF_LOGGER.isInfoEnabled()) {
+                PERF_LOGGER.info(message);
+            }
+             else {
+                System.out.println(message);
+            }
+        }
+    }
 
     public NioWorker(Executor executor) {
         super(executor);
@@ -47,6 +83,11 @@ public class NioWorker extends AbstractNioWorker {
 
     public NioWorker(Executor executor, ThreadNameDeterminer determiner) {
         super(executor, determiner);
+    }
+
+    @Override
+    protected final long getMaximumProcessTaskQueueTimeNanos() {
+        return MAXIMUM_PROCESS_TASKS_TIME_NANOS;
     }
 
     @Override
@@ -117,6 +158,15 @@ public class NioWorker extends AbstractNioWorker {
     }
 
     @Override
+    protected int select(Selector selector, boolean quickSelect) throws IOException {
+        if (quickSelect) {
+            return SelectorUtil.select(selector, QUICK_SELECT_TIMEOUT);
+        } else {
+            return SelectorUtil.select(selector);
+        }
+    }
+
+    @Override
     protected Runnable createRegisterTask(Channel channel, ChannelFuture future) {
         boolean server = !(channel instanceof NioClientSocketChannel);
         return new RegisterTask((NioSocketChannel) channel, future, server);
@@ -135,6 +185,7 @@ public class NioWorker extends AbstractNioWorker {
             this.server = server;
         }
 
+        @Override
         public void run() {
             SocketAddress localAddress = channel.getLocalAddress();
             SocketAddress remoteAddress = channel.getRemoteAddress();

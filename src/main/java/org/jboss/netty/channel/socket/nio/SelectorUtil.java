@@ -64,8 +64,12 @@ final class SelectorUtil {
     }
 
     static int select(Selector selector) throws IOException {
+        return select(selector, SELECT_TIMEOUT);
+    }
+
+    static int select(Selector selector, long timeout) throws IOException {
         try {
-            return selector.select(SELECT_TIMEOUT);
+            return timeout > 0 ? selector.select(timeout) : selector.selectNow();
         } catch (CancelledKeyException e) {
             if (logger.isDebugEnabled()) {
                 logger.debug(

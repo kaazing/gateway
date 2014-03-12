@@ -19,7 +19,6 @@
  */
 package org.jboss.netty.channel.socket.nio;
 
-import static com.kaazing.mina.netty.config.InternalSystemProperty.MAXIMUM_PROCESS_TASKS_TIME;
 import static java.lang.String.format;
 
 import java.io.IOException;
@@ -50,30 +49,12 @@ import org.jboss.netty.util.internal.DeadLockProofWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kaazing.mina.netty.config.InternalSystemProperty;
-
 abstract class AbstractNioSelector implements NioSelector {
-
-    private static final long MAXIMUM_PROCESS_TASKS_TIME_MILLIS
-        = MAXIMUM_PROCESS_TASKS_TIME.getLongProperty(System.getProperties());
-
-    private static final long MAXIMUM_PROCESS_TASKS_TIME_NANOS =
-            TimeUnit.MILLISECONDS.toNanos(MAXIMUM_PROCESS_TASKS_TIME_MILLIS);
-
-    private static final long QUICK_SELECT_TIMEOUT =
-            InternalSystemProperty.QUICK_SELECT_TIMEOUT.getLongProperty(System.getProperties());
+    protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("performance.tcp");
 
     private static final AtomicInteger nextId = new AtomicInteger();
     protected static final long LATENCY_BEFORE_LOG_PROCESS_SELECT = TimeUnit.MILLISECONDS.toNanos(100);
     private static final long LATENCY_BEFORE_LOG_TASK = TimeUnit.MILLISECONDS.toNanos(100);
-    protected static final Logger PERF_LOGGER = LoggerFactory.getLogger("service.jms.performance");
-    static {
-        if (PERF_LOGGER.isInfoEnabled() && MAXIMUM_PROCESS_TASKS_TIME_MILLIS > 0) {
-                PERF_LOGGER.info(format(
-                 "AbstractyNioSelector: maximum task queue processing time = %d ms. Quick select timeout = %s.",
-                 MAXIMUM_PROCESS_TASKS_TIME_MILLIS, QUICK_SELECT_TIMEOUT == 0 ? "selectNow used" : QUICK_SELECT_TIMEOUT));
-        }
-    }
 
     private final int id = nextId.incrementAndGet();
 
@@ -116,8 +97,6 @@ abstract class AbstractNioSelector implements NioSelector {
 
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
     private volatile boolean shutdown;
-
-    private boolean quickSelect;
 
     AbstractNioSelector(Executor executor) {
         this(executor, null);
@@ -236,12 +215,14 @@ abstract class AbstractNioSelector implements NioSelector {
         // use 80% of the timeout for measure
         final long minSelectTimeout = SelectorUtil.SELECT_TIMEOUT_NANOS * 80 / 100;
         boolean wakenupFromLoop = false;
+        boolean quickSelect = false;
+        long maximumProcessTaskQueueNanos = getMaximumProcessTaskQueueTimeNanos();
         for (;;) {
             wakenUp.set(false);
 
             try {
                 long beforeSelect = System.nanoTime();
-                int selected = select(selector);
+                int selected = select(selector, quickSelect);
                 if (SelectorUtil.EPOLL_BUG_WORKAROUND && selected == 0 && !wakenupFromLoop && !wakenUp.get()) {
                     long timeBlocked = System.nanoTime() - beforeSelect;
 
@@ -288,7 +269,6 @@ abstract class AbstractNioSelector implements NioSelector {
                     // reset counter
                     selectReturnsImmediately = 0;
                 }
-                // log(format("%d\tinSelect", System.nanoTime() - beforeSelect));
 
                 // 'wakenUp.compareAndSet(false, true)' is always evaluated
                 // before calling 'selector.wakeup()' to reduce the wake-up
@@ -326,7 +306,13 @@ abstract class AbstractNioSelector implements NioSelector {
                 }
 
                 cancelledKeys = 0;
-                processTaskQueue();
+                if (maximumProcessTaskQueueNanos > 0) {
+                    long deadlineNanos = System.nanoTime() + maximumProcessTaskQueueNanos;
+                    quickSelect = processTaskQueue(deadlineNanos);
+                }
+                else {
+                    processTaskQueue();
+                }
                 selector = this.selector; // processTaskQueue() can call rebuildSelector()
 
                 if (shutdown) {
@@ -398,9 +384,26 @@ abstract class AbstractNioSelector implements NioSelector {
     }
 
     private void processTaskQueue() {
-        boolean taskProcessingTimeLimitEnabled = MAXIMUM_PROCESS_TASKS_TIME_NANOS > 0;
-        long startTime = taskProcessingTimeLimitEnabled ? System.nanoTime() : 0;
+        for (;;) {
+            final Runnable task = taskQueue.poll();
+            if (task == null) {
+                break;
+            }
+            task.run();
+
+            try {
+                cleanUpCancelledKeys();
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
+    }
+
+    private boolean processTaskQueue(long deadLineNanos) {
         long numTasks = 0;
+        boolean perfLogEnabled = PERF_LOGGER.isInfoEnabled();
+        long startTime = perfLogEnabled ? System.nanoTime() : 0;
+        boolean quickSelect;
         for (;;) {
             final Runnable task = taskQueue.poll();
             if (task == null) {
@@ -415,22 +418,22 @@ abstract class AbstractNioSelector implements NioSelector {
             } catch (IOException e) {
                 // Ignore
             }
-            if (taskProcessingTimeLimitEnabled) {
-                long timeSoFar = System.nanoTime() - startTime;
-                if (timeSoFar > MAXIMUM_PROCESS_TASKS_TIME_NANOS) {
-                    if (PERF_LOGGER.isInfoEnabled()) {
-                        if (PERF_LOGGER.isDebugEnabled() || timeSoFar > LATENCY_BEFORE_LOG_TASK) {
-                           PERF_LOGGER.info(format(
-                                   "AbstractyNioSelector.processTaskQueue: exiting after processing %d tasks in %d ms",
-                                   numTasks, TimeUnit.NANOSECONDS.toMillis(timeSoFar)));
-                        }
+            long now = System.nanoTime();
+            if (now > deadLineNanos) {
+                if (perfLogEnabled) {
+                    long timeSoFar = now - startTime;
+                    if (PERF_LOGGER.isDebugEnabled() || timeSoFar > LATENCY_BEFORE_LOG_TASK) {
+                       PERF_LOGGER.info(format(
+                               "AbstractyNioSelector.processTaskQueue: exiting after processing %d tasks in %d ms",
+                               numTasks, TimeUnit.NANOSECONDS.toMillis(timeSoFar)));
                     }
-                    // Make sure select in run() loop is no wait since we still have tasks to do
-                    quickSelect = true;
-                    break;
                 }
+                // Make sure select in run() loop is no wait or short since we still have tasks to do
+                quickSelect = true;
+                break;
             }
         }
+        return quickSelect;
     }
 
     protected final void increaseCancelledKeys() {
@@ -467,38 +470,12 @@ abstract class AbstractNioSelector implements NioSelector {
 
     protected abstract void process(Selector selector) throws IOException;
 
+    protected int select(Selector selector, boolean quickSelect) throws IOException {
+        return select(selector);
+    }
+
     protected int select(Selector selector) throws IOException {
-        if (quickSelect) {
-            return QUICK_SELECT_TIMEOUT == 0 ? selectNow(selector) : select(selector, QUICK_SELECT_TIMEOUT);
-        } else {
-            return SelectorUtil.select(selector);
-        }
-    }
-
-    private int selectNow(Selector selector) throws IOException {
-        try {
-            return selector.selectNow();
-        } catch (CancelledKeyException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                        CancelledKeyException.class.getSimpleName() +
-                        " raised by a Selector - JDK bug?", e);
-            }
-            // Harmless exception - log anyway
-        }
-        return -1;
-    }
-
-    private int select(Selector selector, long timeout) throws IOException {
-        try {
-            return selector.select(timeout);
-        } catch (CancelledKeyException e) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(CancelledKeyException.class.getSimpleName() + " raised by a Selector - JDK bug?", e);
-            }
-            // Harmless exception - log anyway
-        }
-        return -1;
+        return SelectorUtil.select(selector);
     }
 
     protected abstract void close(SelectionKey k);
@@ -506,4 +483,8 @@ abstract class AbstractNioSelector implements NioSelector {
     protected abstract ThreadRenamingRunnable newThreadRenamingRunnable(int id, ThreadNameDeterminer determiner);
 
     protected abstract Runnable createRegisterTask(Channel channel, ChannelFuture future);
+
+    protected long getMaximumProcessTaskQueueTimeNanos() {
+        return 0; // no limit (process all tasks)
+    }
 }
