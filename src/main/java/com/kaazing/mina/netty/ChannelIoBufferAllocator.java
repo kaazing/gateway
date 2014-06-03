@@ -11,6 +11,7 @@ import com.kaazing.mina.core.buffer.AbstractIoBufferAllocatorEx;
 import com.kaazing.mina.core.buffer.AbstractIoBufferEx;
 import com.kaazing.mina.core.buffer.IoBufferEx;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<ChannelIoBuffer> {
 
@@ -49,7 +50,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         private ChannelIoSharedBuffer(final ByteBuffer buf) {
             super(buf.capacity());
 
-            this.bufRef = new ThreadLocal<ByteBuffer>() {
+            this.bufRef = new VicariousThreadLocal<ByteBuffer>() {
                 @Override
                 protected ByteBuffer initialValue() {
                     return buf.duplicate();
@@ -60,7 +61,7 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         private ChannelIoSharedBuffer(ChannelIoBuffer parent, final ByteBuffer buf) {
             super(parent);
 
-            this.bufRef = new ThreadLocal<ByteBuffer>() {
+            this.bufRef = new VicariousThreadLocal<ByteBuffer>() {
                 @Override
                 protected ByteBuffer initialValue() {
                     return buf.duplicate();
@@ -76,15 +77,6 @@ public final class ChannelIoBufferAllocator extends AbstractIoBufferAllocatorEx<
         @Override
         public void buf(ByteBuffer buf) {
             bufRef.set(buf);
-        }
-
-        @Override
-        public void free() {
-            // KG-11290: 4.0.5 JMS/TWM Gateway Memory Leak
-            // We should always call remove because ThreadLocal class puts values from the Thread
-            // Class defined by ThreadLocal.Values localValues. This will also cause to hold reference
-            // of Thread and associated objects
-            bufRef.remove();
         }
 
         @Override

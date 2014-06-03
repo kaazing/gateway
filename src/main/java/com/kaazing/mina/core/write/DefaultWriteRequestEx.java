@@ -18,6 +18,7 @@ import org.apache.mina.core.write.WriteRequest;
 
 import com.kaazing.mina.core.future.DefaultWriteFutureEx;
 import com.kaazing.mina.core.future.WriteFutureEx;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * Extended version of WriteRequest to add support for mutating the
@@ -203,7 +204,7 @@ public class DefaultWriteRequestEx implements WriteRequestEx {
         return message.toString() + " => " + getDestination();
     }
 
-    public static final class ShareableWriteRequest extends ThreadLocal<WriteRequestEx> {
+    public static final class ShareableWriteRequest extends VicariousThreadLocal<WriteRequestEx> {
         @Override
         public WriteRequestEx get() {
             WriteRequestEx writeRequest = super.get();

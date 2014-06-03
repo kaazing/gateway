@@ -13,6 +13,7 @@ import org.jboss.netty.buffer.AbstractChannelBufferFactory;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.buffer.ChannelBuffers;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public final class ByteBufferWrappingChannelBufferFactory extends AbstractChannelBufferFactory {
 
@@ -21,7 +22,7 @@ public final class ByteBufferWrappingChannelBufferFactory extends AbstractChanne
     public static final ChannelBufferFactory CHANNEL_BUFFER_FACTORY = new ByteBufferWrappingChannelBufferFactory();
 
     private final ThreadLocal<ByteBufferWrappingChannelBuffer> wrappingBufRef =
-        new ThreadLocal<ByteBufferWrappingChannelBuffer>() {
+        new VicariousThreadLocal<ByteBufferWrappingChannelBuffer>() {
 
             @Override
             protected ByteBufferWrappingChannelBuffer initialValue() {

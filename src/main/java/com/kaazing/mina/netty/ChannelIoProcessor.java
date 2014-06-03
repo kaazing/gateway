@@ -30,13 +30,14 @@ import com.kaazing.mina.core.service.AbstractIoProcessor;
 import com.kaazing.mina.core.service.AbstractIoService;
 import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 import com.kaazing.mina.netty.channel.DownstreamMessageEventEx;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
  */
 final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? extends ChannelConfig>> {
 
-    private static class ResetableThreadLocal<T> extends ThreadLocal<T> {
+    private static class ResetableThreadLocal<T> extends VicariousThreadLocal<T> {
 
         public T reset() {
             T newValue = initialValue();

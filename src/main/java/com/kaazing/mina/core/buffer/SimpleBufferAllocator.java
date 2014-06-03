@@ -28,6 +28,8 @@ import java.nio.ByteOrder;
 
 import org.apache.mina.core.buffer.IoBufferAllocator;
 
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
+
 /**
  * A simplistic {@link IoBufferAllocator} which simply allocates a new
  * buffer every time.
@@ -140,7 +142,7 @@ public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<Sim
 
         protected SimpleSharedBuffer(final ByteBuffer buf) {
             super(buf.capacity());
-            this.bufRef = new ThreadLocal<ByteBuffer>() {
+            this.bufRef = new VicariousThreadLocal<ByteBuffer>() {
                 @Override
                 protected ByteBuffer initialValue() {
                     return buf.duplicate();
@@ -151,7 +153,7 @@ public final class SimpleBufferAllocator extends AbstractIoBufferAllocatorEx<Sim
 
         protected SimpleSharedBuffer(SimpleBuffer parent, final ByteBuffer buf) {
             super(parent);
-            this.bufRef = new ThreadLocal<ByteBuffer>() {
+            this.bufRef = new VicariousThreadLocal<ByteBuffer>() {
                 @Override
                 protected ByteBuffer initialValue() {
                     return buf.duplicate();

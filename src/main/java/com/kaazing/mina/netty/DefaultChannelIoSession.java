@@ -13,6 +13,7 @@ import org.jboss.netty.channel.ChannelConfig;
 
 import com.kaazing.mina.core.filterchain.DefaultIoFilterChainEx.CallNextSessionIdleCommand;
 import com.kaazing.mina.core.service.IoProcessorEx;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * This session will throw runtime exceptions if any operation is attempted on the session in a thread other than the
@@ -20,7 +21,7 @@ import com.kaazing.mina.core.service.IoProcessorEx;
  */
 public class DefaultChannelIoSession extends ChannelIoSession<ChannelConfig> {
 
-    private static final ThreadLocal<Executor> CREATION_ALIGNED_EXECUTOR = new ThreadLocal<Executor>() {
+    private static final ThreadLocal<Executor> CREATION_ALIGNED_EXECUTOR = new VicariousThreadLocal<Executor>() {
 
         @Override
         protected Executor initialValue() {

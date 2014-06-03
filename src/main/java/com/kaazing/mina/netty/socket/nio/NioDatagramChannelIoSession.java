@@ -18,6 +18,7 @@ import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
 import com.kaazing.mina.netty.ChannelIoSession;
 import com.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * This session is always used in conjunction with an NioDatagramChannel, which necessarily has an associated worker.
@@ -26,7 +27,7 @@ import com.kaazing.mina.netty.socket.DefaultDatagramChannelIoSessionConfig;
  */
 public class NioDatagramChannelIoSession extends ChannelIoSession<DatagramChannelConfig> {
 
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new ThreadLocal<WorkerExecutor>();
+    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<WorkerExecutor>();
 
     public NioDatagramChannelIoSession(ChannelIoService service,
             IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor, NioDatagramChannel channel) {

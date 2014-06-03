@@ -17,6 +17,7 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.netty.ChannelIoService;
 import com.kaazing.mina.netty.ChannelIoSession;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * This session is always used in conjunction with an NioSocketChannel, which necessarily has an associated worker.
@@ -26,7 +27,7 @@ import com.kaazing.mina.netty.ChannelIoSession;
 public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannelConfig> {
 
     // TODO: move to non-static on NioSocketChannelIoAcceptor / NioSocketChannelIoConnector
-    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new ThreadLocal<WorkerExecutor>();
+    private static final ThreadLocal<WorkerExecutor> WORKER_EXECUTOR = new VicariousThreadLocal<WorkerExecutor>();
 
     public NioSocketChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>>
         processor, NioSocketChannel channel) {

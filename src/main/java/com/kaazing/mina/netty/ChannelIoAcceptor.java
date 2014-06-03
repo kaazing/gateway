@@ -39,6 +39,7 @@ import com.kaazing.mina.core.service.IoProcessorEx;
 import com.kaazing.mina.core.session.IoSessionConfigEx;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrap;
 import com.kaazing.mina.netty.bootstrap.ServerBootstrapFactory;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends ChannelFactory, A extends SocketAddress>
                 extends AbstractIoAcceptorEx implements ChannelIoService {
@@ -52,7 +53,7 @@ public abstract class ChannelIoAcceptor<C extends IoSessionConfigEx, F extends C
     private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
-        = new ThreadLocal<IoSessionIdleTracker>() {
+        = new VicariousThreadLocal<IoSessionIdleTracker>() {
         @Override
         protected IoSessionIdleTracker initialValue() {
             IoSessionIdleTracker result = new DefaultIoSessionIdleTracker();
