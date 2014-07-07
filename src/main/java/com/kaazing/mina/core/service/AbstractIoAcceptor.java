@@ -36,6 +36,7 @@ import org.apache.mina.core.session.IoSessionConfig;
  *    AbstractIoAcceptorEx
  * 4. Fix apparent Mina bugs in bind and unbind: fire service listeners to indicate service activated or deactivated
  *    inside the synchronized bindLock block, to avoid possible wrong outcome in case of race between bind and unbind.
+ * 5. Widen scope of bind lock for subclasses.
  */
 public abstract class AbstractIoAcceptor
         extends AbstractIoService implements IoAcceptor {
@@ -54,7 +55,7 @@ public abstract class AbstractIoAcceptor
      * Acquire this lock in your property setters which shouldn't be changed while
      * the service is bound.
      */
-    final Object bindLock = new Object();
+    protected final Object bindLock = new Object();
 
     /**
      * Constructor for {@link AbstractIoAcceptor}. You need to provide a default
