@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  * Copied From: Netty-3.6.3-Final because it is used in AbstractSocketEchoTest
  */
 

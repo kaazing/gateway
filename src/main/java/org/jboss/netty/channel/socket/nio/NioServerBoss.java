@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  * Copied From: Netty-3.6.3-Final and modifications made (KG-9219).
  * This was in order to workaround the fact that on Windows the physical close does not
  * occur until the SelectionKey is unregistered from the selector and that does not

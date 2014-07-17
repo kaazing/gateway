@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  */
 
 package com.kaazing.mina.filter.codec;
