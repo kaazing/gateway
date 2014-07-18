@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.kaazing.gateway.core</groupId>
         <artifactId>com.kaazing.gateway.core.common</artifactId>
-        <version>1.0.0.48-SNAPSHOT</version>
+        <version>1.0.0.47</version>
     </parent>
 
     <groupId>com.kaazing.mina.netty</groupId>
