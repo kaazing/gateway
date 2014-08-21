@@ -77,13 +77,41 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
     }
 
+    // KG-9954: This class will be used to assign a noop timer in place of using null
+    private static final Timeout NULL_TIMEOUT = new Timeout() {
+        @Override
+        public Timer getTimer() {
+            return null;
+        }
+
+        @Override
+        public TimerTask getTask() {
+            return null;
+        }
+
+        @Override
+        public boolean isExpired() {
+            return true;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return true;
+        }
+
+        @Override
+        public void cancel() {
+            // noop
+        }
+    };
+
     private abstract class NotifyIdleTask implements TimerTask {
 
         protected final IoSessionEx session;
         protected final IoFilterChain filterChain;
 
         private volatile long idleTimeMillis;
-        private volatile Timeout timeout;
+        private volatile Timeout timeout = NULL_TIMEOUT;
 
         public NotifyIdleTask(IoSessionEx session) {
             this.session = session;
@@ -98,7 +126,9 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
 
         private void reschedule(long delayMillis) {
-            if (timeout != null) {
+            // KG-9954 - We do not want to synchronize the reschedule method, instead use the NULL Timeout in case
+            // timeout gets set to null by another thread before we call cancel.
+            if (timeout != NULL_TIMEOUT) {
                 timeout.cancel();
             }
 
@@ -106,7 +136,7 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
                 timeout = timer.newTimeout(this, delayMillis, MILLISECONDS);
             }
             else {
-                timeout = null;
+                timeout = NULL_TIMEOUT;
             }
         }
 
