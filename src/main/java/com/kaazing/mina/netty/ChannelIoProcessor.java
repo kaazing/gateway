@@ -1,129 +1,112 @@
 /**
- * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  */
 
-/**
- * 
- */
 package com.kaazing.mina.netty;
 
-import static io.netty.buffer.ChannelBufType.BYTE;
-import static io.netty.buffer.ChannelBufType.MESSAGE;
-import static io.netty.buffer.Unpooled.wrappedBuffer;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ChannelBufType;
-import io.netty.buffer.CompositeByteBuf;
-import io.netty.buffer.MessageBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
+import static java.lang.String.format;
+import static org.jboss.netty.buffer.ChannelBuffers.wrappedBuffer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.file.FileRegion;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChainBuilder;
-import org.apache.mina.core.service.AbstractIoService;
-import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.service.IoServiceListenerSupport;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.apache.mina.util.ExceptionMonitor;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelConfig;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelPipeline;
 
-import com.kaazing.mina.netty.ChannelIoSession.InterestOps;
+import com.kaazing.mina.core.buffer.IoBufferEx;
+import com.kaazing.mina.core.service.AbstractIoProcessor;
+import com.kaazing.mina.core.service.AbstractIoService;
+import com.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
+import com.kaazing.mina.netty.channel.DownstreamMessageEventEx;
+import com.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
+/**
+ * Since this class is stateless it is a singleton within each consuming service (to avoid static state)
+ */
+final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? extends ChannelConfig>> {
 
-final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
+    private static class ResetableThreadLocal<T> extends VicariousThreadLocal<T> {
 
-	@Override
-	public void add(ChannelIoSession session) {
+        public T reset() {
+            T newValue = initialValue();
+            set(newValue);
+            return newValue;
+        }
+
+    }
+
+    // note: ChannelIoProcessor instance is shared across worker threads (!)
+    private final ResetableThreadLocal<DownstreamMessageEventEx> writeRequestEx;
+
+    ChannelIoProcessor() {
+        this.writeRequestEx = new ResetableThreadLocal<DownstreamMessageEventEx>() {
+
+            @Override
+            protected DownstreamMessageEventEx initialValue() {
+                return new DownstreamMessageEventEx();
+            }
+        };
+    };
+
+    @Override
+    protected void add0(ChannelIoSession<? extends ChannelConfig> session) {
         addNow(session);
-	}
+    }
 
-	@Override
-	public void remove(ChannelIoSession session) {
-		removeNow(session);
-	}
-	
-	@Override
-	public void flush(ChannelIoSession session) {
-		flushNow(session, System.currentTimeMillis());
-	}
+    @Override
+    protected void remove0(ChannelIoSession<? extends ChannelConfig> session) {
+        removeNow(session);
+    }
 
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public boolean isDisposed() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    protected void flush0(ChannelIoSession<? extends ChannelConfig> session) {
+        flushNow(session);
+    }
 
-	@Override
-	public boolean isDisposing() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public void dispose() {
+        // TODO Auto-generated method stub
+    }
 
-	@Override
-	public void updateTrafficControl(ChannelIoSession session) {
+    @Override
+    public boolean isDisposed() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	    // TODO: patch MINA so we can override suspendRead / resumeRead
-	    //       and eliminate the elaborate guess-work here
-	    Set<InterestOps> interestOps = session.getInterestOps();
-        boolean wasWritable = interestOps.contains(InterestOps.WRITE);
-	    
-        interestOps = session.updateInterestOps();
-        boolean wantReadable = interestOps.contains(InterestOps.READ);
-        boolean wantWritable = interestOps.contains(InterestOps.WRITE);
-        
-        ChannelHandlerContext ctx = session.getChannelHandlerContext();
-        if (wasWritable ^ wantWritable) {
-            // updateTrafficControl called from suspendWrite / resumeWrite
-            if (wantWritable) {
-                flush(session);
-            }
-        }
-        else {
-            // updateTrafficControl called from suspendRead / resumeRead
+    @Override
+    public boolean isDisposing() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-            // suspend count / resume count
-            AtomicInteger readSuspendCount = session.getReadSuspendCount();
-            boolean willSuspendOrResumeRead = ((wantReadable ? readSuspendCount.decrementAndGet() : readSuspendCount.getAndIncrement()) == 0);
+    @Override
+    protected void updateTrafficControl0(ChannelIoSession<? extends ChannelConfig> session) {
+        // suspend/resumeRead is implemented directly in ChannelIoSession so this should never be called
+        throw new UnsupportedOperationException();
+    }
 
-            if (willSuspendOrResumeRead) {
-                // reset the reader index on resume read 
-                // to prevent direct buffer from growing
-                if (wantReadable && ctx.hasInboundByteBuffer()) {
-                    ByteBuf inbound = ctx.inboundByteBuffer();
-                    inbound.setIndex(0, 0);
-                }
-                
-                // must defer resume read until after in-bound buffer has been reset
-                ctx.readable(wantReadable);
-            }
-        }
-	}
+    protected void init(ChannelIoSession<? extends ChannelConfig> session) {
+    }
 
-	protected void init(ChannelIoSession session) {
-		
-	}
-	
-	protected void destroy(ChannelIoSession session) {
-//		new Exception(String.format("%s (closing ChannelIoSession)", session.getChannel())).printStackTrace();
-		session.getChannel().close();
-	}
+    protected void destroy(ChannelIoSession<? extends ChannelConfig> session) {
+        session.getChannel().close();
+    }
 
-    private void addNow(ChannelIoSession session) {
-		try {
+    private void addNow(ChannelIoSession<? extends ChannelConfig> session) {
+        try {
             init(session);
 
             // Build the filter chain of this session.
@@ -137,16 +120,16 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
             listeners.fireSessionCreated(session);
         } catch (Throwable e) {
             ExceptionMonitor.getInstance().exceptionCaught(e);
-            
+
             try {
                 destroy(session);
             } catch (Exception e1) {
                 ExceptionMonitor.getInstance().exceptionCaught(e1);
             }
         }
-	}
+    }
 
-    private boolean removeNow(ChannelIoSession session) {
+    private boolean removeNow(ChannelIoSession<? extends ChannelConfig> session) {
         clearWriteRequestQueue(session);
 
         try {
@@ -163,7 +146,7 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
         return false;
     }
 
-    private void clearWriteRequestQueue(ChannelIoSession session) {
+    private void clearWriteRequestQueue(ChannelIoSession<? extends ChannelConfig> session) {
         WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         WriteRequest req;
 
@@ -171,9 +154,9 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
         if ((req = writeRequestQueue.poll(session)) != null) {
             Object message = req.getMessage();
-            
+
             if (message instanceof IoBuffer) {
-                IoBuffer buf = (IoBuffer)message;
+                IoBuffer buf = (IoBuffer) message;
 
                 // The first unwritten empty buffer must be
                 // forwarded to the filter chain.
@@ -198,18 +181,18 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
         if (!failedRequests.isEmpty()) {
             WriteToClosedSessionException cause = new WriteToClosedSessionException(
                     failedRequests);
-            
+
             for (WriteRequest r : failedRequests) {
                 session.decreaseScheduledBytesAndMessages(r);
                 r.getFuture().setException(cause);
             }
-            
+
             IoFilterChain filterChain = session.getFilterChain();
             filterChain.fireExceptionCaught(cause);
         }
     }
 
-    private boolean flushNow(ChannelIoSession session, long currentTime) {
+    private boolean flushNow(ChannelIoSession<? extends ChannelConfig> session) {
         if (!session.isConnected()) {
             removeNow(session);
             return false;
@@ -219,65 +202,109 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
 
         final Channel channel = session.getChannel();
         final IoFilterChain filterChain = session.getFilterChain();
-        final ChannelBufType bufferType = channel.metadata().bufferType();
-        final ByteBuf outboundByteBuffer = (bufferType == BYTE) ? (ByteBuf)channel.outboundByteBuffer() : null;
-        final CompositeByteBuf compositeOutboundByteBuffer = (outboundByteBuffer instanceof CompositeByteBuf) ? (CompositeByteBuf)outboundByteBuffer : null;
-        final MessageBuf<Object> outboundMessageBuffer = (bufferType == MESSAGE) ? channel.outboundMessageBuffer() : null;
         WriteRequest req = null;
-        
+
         try {
-            for(;;) {
+            for (;;) {
                 // Check for pending writes.
-                req = session.getCurrentWriteRequest();
-                
+                req = writeRequestQueue.poll(session);
+
                 if (req == null) {
-                    req = writeRequestQueue.poll(session);
-                    
-                    if (req == null) {
-                        break;
-                    }
-                    
-                    session.setCurrentWriteRequest(req);
+                    break;
                 }
 
                 Object message = req.getMessage();
-                
-                if (message instanceof IoBuffer) {
-                	IoBuffer buf = (IoBuffer)message;
 
-                	// compatibility: MINA skips empty buffers
-                	if (buf.hasRemaining()) {
-						ByteBuf byteBuf = (buf instanceof ChannelIoBuffer) ? ((ChannelIoBuffer)buf).byteBuf() : wrappedBuffer(buf.buf());
-						switch (bufferType) {
-						case BYTE:
-						    if (compositeOutboundByteBuffer != null) {
-						        compositeOutboundByteBuffer.addComponent(byteBuf);
-						        int writerIndex = compositeOutboundByteBuffer.writerIndex();
-						        compositeOutboundByteBuffer.writerIndex(writerIndex + byteBuf.readableBytes());
-						    }
-						    else {
-						        outboundByteBuffer.writeBytes(byteBuf);
-						    }
-						    break;
-						case MESSAGE:
-						    outboundMessageBuffer.offer(byteBuf);
-						    break;
-						}
-                	}
+                if (message instanceof ChannelIoBuffer) {
+                    ChannelIoBuffer channelIoBuf = (ChannelIoBuffer) message;
+                    if (channelIoBuf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
+                    }
+                    else {
+                        // 1. detect shared buffer
+                        if (channelIoBuf.isShared()) {
+                            // 1a. buffer is shared
+                            ByteBuffer sharedBuf = channelIoBuf.buf();
+                            int position = sharedBuf.position();
 
-					// clear before future completion in case resume read flushes writes
-					// causing the current write request to be resent
-	                session.setCurrentWriteRequest(null);
-                    flushNow(channel, bufferType, outboundByteBuffer, outboundMessageBuffer, filterChain, req, buf);
+                            // write shared buffer to channel
+                            DownstreamMessageEventEx writeRequest = writeRequestEx.get();
+                            if (!writeRequest.isResetable()) {
+                                writeRequest = writeRequestEx.reset();
+                            }
+                            assert writeRequest.isResetable();
+                            writeRequest.reset(channel, sharedBuf, null, false);
 
-                	session.increaseWrittenBytes(buf.remaining(), currentTime);
-                } else if (message instanceof FileRegion) {
-                	throw new IllegalArgumentException("FileRegion not supported");
-                } else if (message == ChannelIoSession.FLUSH) {
-                    // clear before future completion in case resume read flushes writes
-                    // causing the current write request to be resent
-                    session.setCurrentWriteRequest(null);
-                    flushNow(channel, bufferType, outboundByteBuffer, outboundMessageBuffer, filterChain, req, null);
+                            ChannelPipeline pipeline = channel.getPipeline();
+                            pipeline.sendDownstream(writeRequest);
+
+                            ChannelFuture future = writeRequest.getFuture();
+                            if (future.isDone()) {
+                                // reset shared buffer before messageSent
+                                sharedBuf.position(position);
+
+                                // shared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // shared buffer write incomplete
+                                // update MINA IoBuffer to reference new shared buffer instead
+                                // (leaving old shared buffer on this NETTY channel writeQueue)
+                                ByteBuffer newSharedBuf = sharedBuf.duplicate();
+
+                                // "reset" shared before messageSent
+                                newSharedBuf.position(position);
+                                channelIoBuf.buf(newSharedBuf);
+
+                                // register listener to detect when write completed
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
+                        }
+                        else {
+                            // 1b. buffer is unshared
+                            // write unshared buffer to channel
+                            ByteBuffer unsharedBuf = channelIoBuf.buf();
+
+                            DownstreamMessageEventEx writeRequest = writeRequestEx.get();
+                            if (!writeRequest.isResetable()) {
+                                writeRequest = writeRequestEx.reset();
+                            }
+                            assert writeRequest.isResetable();
+                            writeRequest.reset(channel, unsharedBuf, null, false);
+
+                            ChannelPipeline pipeline = channel.getPipeline();
+                            pipeline.sendDownstream(writeRequest);
+
+                            ChannelFuture future = writeRequest.getFuture();
+                            if (future.isDone()) {
+                                // unshared buffer write complete
+                                ChannelWriteFutureListener.operationComplete(future, filterChain, req);
+                            }
+                            else {
+                                // unshared buffer write incomplete
+                                future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                            }
+                        }
+                    }
+                }
+                else if (message instanceof FileRegion) {
+                    FileRegion region = (FileRegion) message;
+                    ChannelFuture future = channel.write(region);  // TODO: FileRegion
+                    future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                }
+                else if (message instanceof IoBufferEx && ((IoBufferEx) message).isShared()) {
+                    String messageClassName = message.getClass().getName();
+                    throw new IllegalStateException(format("Shared buffer MUST be ChannelIoBuffer, not %s", messageClassName));
+                }
+                else if (message instanceof IoBuffer) {
+                    IoBuffer buf = (IoBuffer) message;
+                    if (buf.remaining() == 0) {
+                        filterChain.fireMessageSent(req);
+                    }
+                    else {
+                        ChannelFuture future = channel.write(wrappedBuffer(buf.buf()));
+                        future.addListener(new ChannelWriteFutureListener(filterChain, req));
+                    }
                 }
                 else {
                     throw new IllegalStateException(
@@ -285,45 +312,17 @@ final class ChannelIoProcessor implements IoProcessor<ChannelIoSession> {
                                     + message.getClass().getName()
                                     + "'.  Are you missing a protocol encoder?");
                 }
-                
             }
         } catch (Exception e) {
             if (req != null) {
                 req.getFuture().setException(e);
             }
-            
+
             filterChain.fireExceptionCaught(e);
             return false;
         }
 
         return true;
-    }
-
-    private void flushNow(Channel channel, ChannelBufType bufferType,
-            ByteBuf outboundByteBuffer, MessageBuf<Object> outboundMessageBuffer,
-            IoFilterChain filterChain, WriteRequest req, IoBuffer buf) {
-        switch (bufferType) {
-        case BYTE:
-            if (outboundByteBuffer.readable()) {
-                ChannelFuture future = channel.flush();
-                if (!future.isDone()) {
-                    if (buf != null) {
-                        buf.skip(buf.remaining());
-                    }
-                    future.addListener(new IoSessionWriteFutureListener(filterChain, req));
-                }
-                else {
-                    filterChain.fireMessageSent(req);
-                }
-            }
-            else {
-                filterChain.fireMessageSent(req);
-            }
-            break;
-        case MESSAGE:
-            filterChain.fireMessageSent(req);
-            break;
-        }
     }
 
 }
