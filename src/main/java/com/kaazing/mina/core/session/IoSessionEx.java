@@ -9,6 +9,8 @@ import static org.apache.mina.core.future.DefaultWriteFuture.newWrittenFuture;
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
 
+import javax.security.auth.Subject;
+
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
@@ -127,4 +129,26 @@ public interface IoSessionEx extends IoSession, IoAlignment {
     void setIoAlignment(Thread ioThread, Executor ioExecutor);
 
     boolean isIoRegistered();
+
+    /**
+     * Returns the Subject representing the current logged on user, or null if none
+     */
+    Subject getSubject();
+
+    /**
+     * Memorize this the Subject representing the current logged on user and fires any
+     * currently registered SubjectChangeListeners
+     */
+    void setSubject(Subject subject);
+
+    /**
+     * Adds a subject change listener to listen subject change.
+     */
+    void addSubjectChangeListener(SubjectChangeListener listener);
+
+    /**
+     * Removes a subject change listener was listening to subject change.
+     * @param listener
+     */
+    void removeSubjectChangeListener(SubjectChangeListener listener);
 }

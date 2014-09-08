@@ -7,7 +7,12 @@ package com.kaazing.mina.core.session;
 import static java.lang.Thread.currentThread;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 
@@ -34,6 +39,9 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     private volatile Thread ioThread;
     private volatile Executor ioExecutor;
     private volatile boolean ioRegistered;
+
+    private Subject subject;
+    private List<SubjectChangeListener> subjectChangeListeneres;
 
     protected AbstractIoSessionEx(int ioLayer, Thread ioThread, Executor ioExecutor,
                                   ThreadLocal<WriteRequestEx> ioWriteRequest) {
@@ -70,6 +78,9 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
                 resumeRead1();
             }
         };
+
+        subjectChangeListeneres = ioAligned ? new ArrayList<SubjectChangeListener>()
+                : new CopyOnWriteArrayList<SubjectChangeListener>();
     }
 
     @Override
@@ -202,4 +213,41 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
             getProcessor().flush(AbstractIoSessionEx.this);
         }
     };
+
+    /**
+     * Returns the Subject representing the current logged on user, or null if none
+     */
+    @Override
+    public Subject getSubject() {
+        return subject;
+    }
+
+    /**
+     * Memorize this the Subject representing the current logged on user and fires any
+     * currently registered SubjectChangeListeners
+     */
+    @Override
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+        for (SubjectChangeListener listener : subjectChangeListeneres) {
+            listener.subjectChanged(subject);
+        }
+    }
+
+    /**
+     * Adds a subject change listener to listen subject change.
+     */
+    @Override
+    public void addSubjectChangeListener(SubjectChangeListener listener) {
+        subjectChangeListeneres.add(listener);
+    }
+
+    /**
+     * Removes a subject change listener was listening to subject change.
+     * @param listener
+     */
+    @Override
+    public void removeSubjectChangeListener(SubjectChangeListener listener) {
+        subjectChangeListeneres.remove(listener);
+    }
 }
