@@ -41,7 +41,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     private volatile boolean ioRegistered;
 
     private Subject subject;
-    private List<SubjectChangeListener> subjectChangeListeneres;
+    private final List<SubjectChangeListener> subjectChangeListeneres;
 
     protected AbstractIoSessionEx(int ioLayer, Thread ioThread, Executor ioExecutor,
                                   ThreadLocal<WriteRequestEx> ioWriteRequest) {
@@ -214,18 +214,11 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
     };
 
-    /**
-     * Returns the Subject representing the current logged on user, or null if none
-     */
     @Override
     public Subject getSubject() {
         return subject;
     }
 
-    /**
-     * Memorize this the Subject representing the current logged on user and fires any
-     * currently registered SubjectChangeListeners
-     */
     @Override
     public void setSubject(Subject subject) {
         this.subject = subject;
@@ -234,18 +227,11 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
         }
     }
 
-    /**
-     * Adds a subject change listener to listen subject change.
-     */
     @Override
     public void addSubjectChangeListener(SubjectChangeListener listener) {
         subjectChangeListeneres.add(listener);
     }
 
-    /**
-     * Removes a subject change listener was listening to subject change.
-     * @param listener
-     */
     @Override
     public void removeSubjectChangeListener(SubjectChangeListener listener) {
         subjectChangeListeneres.remove(listener);

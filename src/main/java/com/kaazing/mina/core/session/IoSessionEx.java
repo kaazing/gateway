@@ -136,19 +136,18 @@ public interface IoSessionEx extends IoSession, IoAlignment {
     Subject getSubject();
 
     /**
-     * Memorize this the Subject representing the current logged on user and fires any
+     * Memorizes this the Subject representing the current logged on user and fires any
      * currently registered SubjectChangeListeners
      */
     void setSubject(Subject subject);
 
     /**
-     * Adds a subject change listener to listen subject change.
+     * Adds a subject change listener to listen for a subject change.
      */
     void addSubjectChangeListener(SubjectChangeListener listener);
 
     /**
-     * Removes a subject change listener was listening to subject change.
-     * @param listener
+     * Removes a subject change listener if it was previously added.
      */
     void removeSubjectChangeListener(SubjectChangeListener listener);
 }
