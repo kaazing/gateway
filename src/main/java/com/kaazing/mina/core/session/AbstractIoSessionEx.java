@@ -221,7 +221,27 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
 
     @Override
     public void setSubject(Subject subject) {
-        this.subject = subject;
+        Subject currentSubject = this.subject;
+        if ((currentSubject != null && subject == null)
+         || (currentSubject == null && subject != null)
+         || (currentSubject != null && subject != null && !subject.equals(currentSubject))) {
+            this.subject = subject;
+            if (currentThread() == ioThread) {
+                notifySubjectChanged(subject);
+            }
+            else {
+                final Subject changedSubject = subject;
+                ioExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifySubjectChanged(changedSubject);
+                    }
+                });
+            }
+        }
+    }
+
+    private void notifySubjectChanged(Subject subject) {
         for (SubjectChangeListener listener : subjectChangeListeneres) {
             listener.subjectChanged(subject);
         }
