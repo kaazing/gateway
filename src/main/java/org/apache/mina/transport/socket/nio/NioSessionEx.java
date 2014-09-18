@@ -67,11 +67,6 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
     }
 
     @Override
-    public void setSubject(Subject subject) {
-        throw new UnsupportedOperationException("not supported");
-    }
-
-    @Override
     public void addSubjectChangeListener(SubjectChangeListener listener) {
         throw new UnsupportedOperationException("not supported");
     }
