@@ -223,7 +223,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
      * Memorizes this the Subject representing the current logged on user and fires any
      * currently registered SubjectChangeListeners
      */
-    public void setSubject(Subject subject) {
+    protected void setSubject(Subject subject) {
         Subject currentSubject = this.subject;
         if ((currentSubject != null && subject == null)
          || (currentSubject == null && subject != null)
