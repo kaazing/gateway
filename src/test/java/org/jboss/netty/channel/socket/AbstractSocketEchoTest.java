@@ -32,7 +32,6 @@ import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
@@ -102,7 +101,7 @@ public abstract class AbstractSocketEchoTest {
             i += length;
         }
 
-        while (ch.counter.get() < data.length) {
+        while (ch.counter < data.length) {
             if (sh.exception.get() != null) {
                 break;
             }
@@ -111,13 +110,13 @@ public abstract class AbstractSocketEchoTest {
             }
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 // Ignore.
             }
         }
 
-        while (sh.counter.get() < data.length) {
+        while (sh.counter < data.length) {
             if (sh.exception.get() != null) {
                 break;
             }
@@ -126,7 +125,7 @@ public abstract class AbstractSocketEchoTest {
             }
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 // Ignore.
             }
@@ -166,7 +165,7 @@ public abstract class AbstractSocketEchoTest {
     private static class EchoHandler extends SimpleChannelUpstreamHandler {
         volatile Channel channel;
         final AtomicReference<Throwable> exception = new AtomicReference<Throwable>();
-        final AtomicInteger counter = new AtomicInteger();
+        volatile int counter;
         volatile boolean expectException;
         ChannelFuture caughtExceptionFuture;
 
@@ -186,7 +185,7 @@ public abstract class AbstractSocketEchoTest {
             byte[] actual = new byte[m.readableBytes()];
             m.getBytes(0, actual);
 
-            int lastIdx = counter.get();
+            int lastIdx = counter;
             for (int i = 0; i < actual.length; i ++) {
                 assertEquals(data[i + lastIdx], actual[i]);
             }
@@ -194,7 +193,8 @@ public abstract class AbstractSocketEchoTest {
             if (channel.getParent() != null) {
                 channel.write(m);
             }
-            counter.addAndGet(actual.length);
+
+            counter += actual.length;
         }
 
         @Override
