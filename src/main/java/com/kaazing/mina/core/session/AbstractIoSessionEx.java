@@ -225,9 +225,7 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
      */
     protected void setSubject(Subject subject) {
         Subject currentSubject = this.subject;
-        if ((currentSubject != null && subject == null)
-         || (currentSubject == null && subject != null)
-         || (currentSubject != null && subject != null && !subject.equals(currentSubject))) {
+        if (!(currentSubject == null && subject == null)) {
             this.subject = subject;
             if (currentThread() == ioThread) {
                 notifySubjectChanged(subject);
