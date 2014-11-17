@@ -1,0 +1,10 @@
+This product depends on Http Resource Address 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.http.git
+
+This product depends on Resource Address 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.git
+
