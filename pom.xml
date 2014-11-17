@@ -14,9 +14,11 @@
     <packaging>jar</packaging>
     <name>Mina Netty Adapter</name>
 
+    <url>https://github.com/kaazing-private/mina.netty.git</url>
     <scm>
-        <connection>scm:git:ssh://git@stash.kaazing.wan/KG2/mina.netty.git</connection>
-        <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.6.x.y</url>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing-private/mina.netty.git</url>
     </scm>
 
     <dependencies>
