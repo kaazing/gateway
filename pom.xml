@@ -15,7 +15,7 @@
     <name>Mina Netty Adapter</name>
 
     <scm>
-        <connection>scm:svn:http://svn.kaazing.wan/mina.netty/branches/1.6.x.y</connection>
+        <connection>scm:git:ssh://git@stash.kaazing.wan/KG2/mina.netty.git</connection>
         <url>http://fisheye.kaazing.wan/browse/KaazingSVN/mina.netty/branches/1.6.x.y</url>
     </scm>
 
