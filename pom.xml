@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2007-2008, Kaazing Corporation. All rights reserved.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>common</artifactId>
+        <version>2.0.0.23</version>
+    </parent>
+
+    <groupId>org.kaazing</groupId>
+    <artifactId>gateway.truststore</artifactId>
+    <version>1.0.0.64-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Kaazing WebSocket Gateway - Truststore</name>
+
+    <url>https://github.com/kaazing/gateway.truststore.git</url>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing/gateway.truststore.git</url>
+    </scm>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>target/truststore</directory>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>com.kaazing.maven.plugins</groupId>
+                <artifactId>truststore-maven-plugin</artifactId>
+                <version>1.0.0.7</version>
+                <executions>
+                    <execution>
+                        <id>truststore</id>
+                        <goals>
+                            <goal>generate-truststore</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <properties>
+        <truststore.file>target/truststore/truststore.db</truststore.file>
+    </properties>
+</project>
