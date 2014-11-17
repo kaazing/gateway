@@ -1,0 +1,52 @@
+#!/bin/bash
+#
+# Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+PRG="$0"
+
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
+done
+
+PRGDIR=`dirname "$PRG"`
+
+# A temporary variable for the location of the gateway installation,
+# to allow determining the conf and lib subdirectories (assumed to 
+# be siblings to this script's 'bin' directory).
+GW_HOME=`cd "$PRGDIR/.." ; pwd`
+
+# You can define various Java system properties by setting the value
+# of the GATEWAY_OPTS environment variable before calling this script.
+# The script itself should not be changed. For example, the setting
+# below sets the Java maximum memory to 512MB.
+[ -z "$GATEWAY_OPTS" ] && GATEWAY_OPTS="-Xmx512m"
+
+# Add a directory for management support
+JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
+
+java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+

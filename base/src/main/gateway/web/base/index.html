@@ -1,0 +1,100 @@
+<!--
+
+    Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+    
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+    
+      http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
+<!DOCTYPE html>
+<!--
+
+    Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
+
+-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <style type="text/css">
+      body {
+        font-family: Arial, Verdana, sans-serif;
+        font-size: 11pt;
+        color: #000000;
+        background-color: #E8E8E8;
+      }
+
+      #mainText {
+        display: block;
+        position: relative;
+        border: solid 2px #ff6600;
+        border-radius: 0.4em;
+        -webkit-border-radius: 0.4em;
+        -moz-border-radius: 0.4em;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin: 40px;
+        margin-bottom: 0px;
+        width: 775px;
+        background-color: #FFFFFF;
+      }
+
+      #header {
+        color: #44687D;
+      }
+
+      .location {
+        color: #000000;
+      }
+
+      a:link, a:visited, a:active {
+        color: #3c708f;
+        text-decoration: none
+      }
+
+      a:hover {
+        color: #3c708f;
+        text-decoration: underline;
+      }
+	  
+    </style>
+
+    <script>
+	  var hostname = window.location.hostname;
+      function loadDemos() {
+          window.location = 'http://' + hostname + ':8001/';
+      }
+      function loadCommandCenter() {
+          window.location = 'http://' + hostname + ':8000/commandcenter';
+      }
+    </script>
+
+  </head>
+
+  <body>
+  <div id="mainText" float="center">
+      <h2 id="header">It works!</h2>
+      <p>Congratulations! You've successfully installed and started ${gateway.name.long} ${gateway.edition} ${gateway.version}.</p>
+      <p>To view sample Kaazing client applications and to learn how to use, configure, and administer the Gateway, read the <a href="http://tech.kaazing.com/documentation/index.html">Documentation</a> and check out the <a href="javascript:loadDemos()">Demos</a>. (Demos require extras to be installed. For more information, see the <a href="http://kaazing.com/download.html">Kaazing download</a> page.)</p>
+      <p>View system health, visualize configuration, and monitor sessions using <a href="javascript:loadCommandCenter()">Command Center</a>.</p>
+  </div>
+
+  </body>
+
+</html>

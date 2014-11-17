@@ -1,0 +1,232 @@
+Kaazing Gateway
+Copyright 2007-2013 Kaazing Corporation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Javassist distribution.          ==
+=========================================================================
+
+This product include the unmodified Javassist library
+(http://www.csg.is.titech.ac.jp/~chiba/javassist/)
+with source code licensed under the Mozilla
+Public License 1.1. Original source is available at
+the listed site.
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache SLF4J distribution.       ==
+=========================================================================
+
+Message logging is provided by the SLF4J library package,
+which is open source software, written by Ceki Gülcü, and
+copyright by SLF4J.ORG and QOS.ch.  The original software is
+available from
+
+   http://www.slf4j.org/
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the OGNL distribution.               ==
+=========================================================================
+
+OGNL is provided by the OGNL library package, which is open source
+software, written by Drew Davidson and Luke Blanshard.  The original
+software is available from
+
+   http://www.ognl.org/
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache XmlBeans distribution.    ==
+=========================================================================
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+Portions of this software were originally based on the following:
+- software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+
+Aside from contributions to the Apache XMLBeans project, this
+software also includes:
+
+- one or more source files from the Apache Xerces-J and Apache Axis
+products, Copyright (c) 1999-2003 Apache Software Foundation
+
+- W3C XML Schema documents Copyright 2001-2003 (c) World Wide Web
+Consortium (Massachusetts Institute of Technology, European Research
+Consortium for Informatics and Mathematics, Keio University)
+
+- resolver.jar from Apache Xml Commons project,
+Copyright (c) 2001-2003 Apache Software Foundation
+
+- Piccolo XML Parser for Java from http://piccolo.sourceforge.net/,
+Copyright 2002 Yuval Oren under the terms of the Apache Software License 2.0
+
+- JSR-173 Streaming API for XML from 
+  http://sourceforge.net/projects/xmlpullparser/,
+Copyright 2005 BEA under the terms of the Apache Software License 2.0
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Hazelcast distribution.          ==
+=========================================================================
+
+This product includes software developed by the Hazelcast
+Project (http://www.hazelcast.com).
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache MINA distribution.        ==
+=========================================================================
+
+Apache MINA
+Copyright 2007-2013 The Apache Software Foundation.
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Please refer to each LICENSE.<component>.txt file for the
+license terms of the components that Apache MINA depends on.
+
+Message logging is provided by the SLF4J library package,
+which is open source software, written by Ceki Gülcü, and
+copyright by SLF4J.ORG and QOS.ch.  The original software is
+available from
+
+   http://www.slf4j.org/
+
+Data compression support is provided by the JZLib library package,
+which is open source software, written by JCraft, and copyright
+by JCraft.  The original software is available from
+
+   http://www.jcraft.com/jzlib/
+
+Spring framework is provided by the Spring framework library
+package, which is open source software, written by Rod Johnson
+et al, and copyright by Springframework.org.  The original
+software is available from
+
+   http://www.springframework.org/
+
+OGNL is provided by the OGNL library package, which is open source
+software, written by Drew Davidson and Luke Blanshard.  The original
+software is available from
+
+   http://www.ognl.org/
+
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Netty distribution.              ==
+=========================================================================
+
+
+                            The Netty Project
+                            =================
+
+Please visit the Netty web site for more information:
+
+  * http://netty.io/
+
+Copyright 2011 The Netty Project
+
+The Netty Project licenses this file to you under the Apache License,
+version 2.0 (the "License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at:
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations
+under the License.
+
+Also, please refer to each LICENSE.<component>.txt file, which is located in
+the 'license' directory of the distribution file, for the license terms of the
+components that this product depends on.
+
+-------------------------------------------------------------------------------
+This product contains the extensions to Java Collections Framework which has
+been derived from the works by JSR-166 EG, Doug Lea, and Jason T. Greene:
+
+  * LICENSE:
+    * license/LICENSE.jsr166y.txt (Public Domain)
+  * HOMEPAGE:
+    * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/
+    * http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbosscache/experimental/jsr166/
+
+This product contains a modified version of Robert Harder's Public Domain
+Base64 Encoder and Decoder, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.base64.txt (Public Domain)
+  * HOMEPAGE:
+    * http://iharder.sourceforge.net/current/java/base64/
+
+This product contains a modified version of 'JZlib', a re-implementation of
+zlib in pure Java, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.jzlib.txt (BSD Style License)
+  * HOMEPAGE:
+    * http://www.jcraft.com/jzlib/
+
+This product optionally depends on 'Protocol Buffers', Google's data
+interchange format, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.protobuf.txt (New BSD License)
+  * HOMEPAGE:
+    * http://code.google.com/p/protobuf/
+
+This product optionally depends on 'SLF4J', a simple logging facade for Java,
+which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.slf4j.txt (MIT License)
+  * HOMEPAGE:
+    * http://www.slf4j.org/
+
+This product optionally depends on 'Apache Commons Logging', a logging
+framework, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.commons-logging.txt (Apache License 2.0)
+  * HOMEPAGE:
+    * http://commons.apache.org/logging/
+
+This product optionally depends on 'Apache Log4J', a logging framework,
+which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.log4j.txt (Apache License 2.0)
+  * HOMEPAGE:
+    * http://logging.apache.org/log4j/
+
+This product optionally depends on 'JBoss Logging', a logging framework,
+which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.jboss-logging.txt (GNU LGPL 2.1)
+  * HOMEPAGE:
+    * http://anonsvn.jboss.org/repos/common/common-logging-spi/
+
+This product optionally depends on 'Apache Felix', an open source OSGi
+framework implementation, which can be obtained at:
+
+  * LICENSE:
+    * license/LICENSE.felix.txt (Apache License 2.0)
+  * HOMEPAGE:
+    * http://felix.apache.org/
+    
+This product optionally depends on 'Webbit', a Java event based  
+WebSocket and HTTP server:
+
+  * LICENSE:
+    * license/LICENSE.webbit.txt (BSD License)
+  * HOMEPAGE:
+    * https://github.com/joewalnes/webbit
+     
