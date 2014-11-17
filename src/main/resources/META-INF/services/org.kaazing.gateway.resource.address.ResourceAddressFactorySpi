@@ -1,0 +1,4 @@
+org.kaazing.gateway.resource.address.sse.SseResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.sse.SseSslResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.sse.SseHttpxeResourceAddressFactorySpi
+org.kaazing.gateway.resource.address.sse.SseHttpxeSslResourceAddressFactorySpi
