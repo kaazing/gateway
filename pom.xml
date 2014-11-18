@@ -10,7 +10,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>mina.netty</artifactId>
-    <version>1.5.0.14-SNAPSHOT</version>
+    <version>1.5.0.14</version>
     <packaging>jar</packaging>
     <name>Mina Netty Adapter</name>
 
