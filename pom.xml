@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.util</artifactId>
     <name>Gateway Utils</name>
-    <version>1.0.0.25-SNAPSHOT</version>
+    <version>1.0.0.26</version>
 
     <url>https://github.com/kaazing/gateway.util.git</url>
     <scm>
