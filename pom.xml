@@ -10,7 +10,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.bridge</artifactId>
     <packaging>jar</packaging>
-    <version>5.0.0.5-SNAPSHOT</version>
+    <version>5.0.0.6-SNAPSHOT</version>
 
     <name>Kaazing WebSocket Gateway - Bridge Resources</name>
 
