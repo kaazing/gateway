@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.wsdraft</artifactId>
-    <version>1.0.0.12-SNAPSHOT</version>
+    <version>1.0.0.13-SNAPSHOT</version>
     <name>Wsdraft Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.wsdraft.git</url>
