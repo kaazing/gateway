@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address</artifactId>
     <name>Resource Address</name>
-    <version>1.0.0.38-SNAPSHOT</version>
+    <version>1.0.0.37</version>
 
     <url>https://github.com/kaazing/gateway.resource.address.git</url>
     <scm>
