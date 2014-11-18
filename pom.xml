@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.tcp</artifactId>
-    <version>1.0.0.14-SNAPSHOT</version>
+    <version>1.0.0.14</version>
     <name>Tcp Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.tcp.git</url>
