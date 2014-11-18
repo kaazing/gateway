@@ -10,7 +10,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.server.spi</artifactId>
     <name>Kaazing WebSocket Gateway - Server Service Provider Interface</name>
-    <version>5.0.0.9-SNAPSHOT</version>
+    <version>5.0.0.9</version>
 
     <url>https://github.com/kaazing/gateway.server.spi.git</url>
     <scm>
