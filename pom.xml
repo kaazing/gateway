@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.ssl</artifactId>
-    <version>1.0.0.15-SNAPSHOT</version>
+    <version>1.0.0.16-SNAPSHOT</version>
     <name>Ssl Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.ssl.git</url>
