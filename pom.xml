@@ -11,12 +11,12 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.0.0.23</version>
+        <version>2.0.0.41</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.truststore</artifactId>
-    <version>1.0.0.64</version>
+    <version>1.0.0.65</version>
     <packaging>jar</packaging>
 
     <name>Kaazing WebSocket Gateway - Truststore</name>
@@ -37,9 +37,9 @@
 
         <plugins>
             <plugin>
-                <groupId>com.kaazing.maven.plugins</groupId>
+                <groupId>org.kaazing</groupId>
                 <artifactId>truststore-maven-plugin</artifactId>
-                <version>1.0.0.7</version>
+                <version>2.0.0.1</version>
                 <executions>
                     <execution>
                         <id>truststore</id>
