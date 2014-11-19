@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.http</artifactId>
-    <version>1.0.0.29-SNAPSHOT</version>
+    <version>1.0.0.30-SNAPSHOT</version>
     <name>Http Transport</name>
 
     <url>https://github.com/kaazing/gateway.transport.http.git</url>
