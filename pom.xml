@@ -179,7 +179,7 @@
                         </projectDescription>
                         <projectDescription>
                             <projectName>cglib</projectName>
-                            <licenseName></licenseName>
+                            <licenseName />
                             <version>2.0</version>
                         </projectDescription>
                     </projectHints>
