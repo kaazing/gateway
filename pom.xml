@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.bio</artifactId>
-    <version>1.0.0.20-SNAPSHOT</version>
+    <version>1.0.0.20</version>
     <name>BIO Transport</name>
 
     <url>https://github.com/kaazing/gateway.transport.bio.git</url>
