@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service</artifactId>
     <name>Gateway Service</name>
-    <version>1.0.0.25-SNAPSHOT</version>
+    <version>1.0.0.26-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.git</url>
     <scm>
