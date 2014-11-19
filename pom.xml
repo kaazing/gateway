@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.http.directory</artifactId>
     <name>Http Directory Service</name>
-    <version>1.0.0.17-SNAPSHOT</version>
+    <version>1.0.0.17</version>
 
     <url>https://github.com/kaazing/gateway.service.http.directory.git</url>
     <scm>
