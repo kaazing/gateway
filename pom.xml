@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.udp</artifactId>
-    <version>1.0.0.18-SNAPSHOT</version>
+    <version>1.0.0.17</version>
     <name>Udp Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.udp.git</url>
