@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.ws</artifactId>
-    <version>1.0.0.21-SNAPSHOT</version>
+    <version>1.0.0.22-SNAPSHOT</version>
     <name>WS Transport</name>
 
     <url>https://github.com/kaazing/gateway.transport.ws.git</url>
