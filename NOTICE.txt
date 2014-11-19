@@ -1,6 +1,6 @@
 This product depends on cglib 2.1_3
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	http://cglib.sourceforge.net/
 
 This product depends on Commons CLI 1.2
@@ -10,22 +10,22 @@ This product depends on Commons CLI 1.2
 
 This product depends on Http Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.http.git
 
 This product depends on Pipe Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.pipe.git
 
 This product depends on Sse Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.sse.git
 
 This product depends on Ssl Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.ssl.git
 
 This product depends on Tcp Resource Address 1.0
@@ -35,27 +35,27 @@ This product depends on Tcp Resource Address 1.0
 
 This product depends on Udp Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.udp.git
 
 This product depends on Ws Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.ws.git
 
 This product depends on Wse Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.wse.git
 
 This product depends on Wsn Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.wsn.git
 
 This product depends on Wsr Resource Address 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.resource.address.wsr.git
 
 This product depends on Resource Address 1.0
@@ -70,7 +70,7 @@ This product depends on Gateway Security 1.0
 
 This product depends on Kaazing WebSocket Gateway - Server API 5.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.server.api.git
 
 This product depends on Kaazing WebSocket Gateway - Server Service Provider Interface 5.0
@@ -80,72 +80,72 @@ This product depends on Kaazing WebSocket Gateway - Server Service Provider Inte
 
 This product depends on Kaazing WebSocket Gateway - Server 5.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.server.git
 
 This product depends on Http Balancer Service 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.service.http.balancer.git
 
 This product depends on Proxy Service 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.service.proxy.git
 
 This product depends on Update Check Service 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.service.update.check.git
 
 This product depends on Gateway Service 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.service.git
 
 This product depends on BIO Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.bio.git
 
 This product depends on Http Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.http.git
 
 This product depends on NIO Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.nio.git
 
 This product depends on Pipe Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.pipe.git
 
 This product depends on Sse Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.sse.git
 
 This product depends on WS Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.ws.git
 
 This product depends on WSEB Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.wseb.git
 
 This product depends on WSN Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.wsn.git
 
 This product depends on wsr Transport 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.transport.wsr.git
 
 This product depends on Transport Core 1.0
@@ -155,7 +155,7 @@ This product depends on Transport Core 1.0
 
 This product depends on Gateway Utils 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/gateway.util.git
 
 This product depends on Hamcrest Core 1.3
@@ -200,8 +200,8 @@ This product depends on jMock 2 Core 2.6
 
 This product depends on Java Native Access 3.3
 
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
+	License:	http://www.gnu.org/licenses/licenses.html (LGPL)
+	Homepage:	https://github.com/twall/jna
 
 This product depends on JSON (JavaScript Object Notation) 20090211
 
@@ -220,7 +220,7 @@ This product depends on Apache Log4j 1.2
 
 This product depends on Mina Netty Adapter 1.5
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/mina.netty.git
 
 This product depends on Objenesis 1.0
@@ -230,8 +230,8 @@ This product depends on Objenesis 1.0
 
 This product depends on sigar.dist 1.6
 
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
+	License:	https://github.com/hyperic/sigar/blob/master/LICENSE (Apache 2 License)
+	Homepage:	http://sigar.hyperic.com
 
 This product depends on SLF4J API Module 1.7
 
@@ -260,7 +260,7 @@ This product depends on StAX API 1.0
 
 This product depends on Test Utils 1.0
 
-	License is not included in maven artifact, look at homepage for license	
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
 	Homepage:	https://github.com/kaazing/test.util.git
 
 This product depends on XmlBeans 2.4
