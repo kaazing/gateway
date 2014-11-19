@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport</artifactId>
     <name>Transport Core</name>
-    <version>1.0.0.28-SNAPSHOT</version>
+    <version>1.0.0.28</version>
 
     <url>https://github.com/kaazing/gateway.transport.git</url>
     <scm>
