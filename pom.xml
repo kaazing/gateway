@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.wsr</artifactId>
-    <version>1.0.0.18-SNAPSHOT</version>
+    <version>1.0.0.18</version>
     <name>wsr Transport</name>
 
     <url>https://github.com/kaazing/gateway.transport.wsr.git</url>
