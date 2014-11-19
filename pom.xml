@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.wsn</artifactId>
-    <version>1.0.0.28-SNAPSHOT</version>
+    <version>1.0.0.27</version>
     <name>WSN Transport</name>
 
     <url>https://github.com/kaazing/gateway.transport.wsn.git</url>
