@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.http.balancer</artifactId>
     <name>Http Balancer Service</name>
-    <version>1.0.0.11</version>
+    <version>1.0.0.12-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.http.balancer.git</url>
     <scm>
