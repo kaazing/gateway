@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.wsr</artifactId>
-    <version>1.0.0.13</version>
+    <version>1.0.0.14-SNAPSHOT</version>
     <name>Wsr Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.wsr.git</url>
