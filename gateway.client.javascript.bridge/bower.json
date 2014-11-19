@@ -1,0 +1,6 @@
+{
+    "name": "javascript.bridge",
+    "dependencies": {
+        "javascript-bridge": "https://github.com/kaazing/bower-kaazing-client-javascript-bridge <5.0.0"
+    }
+}

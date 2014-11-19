@@ -1,25 +1,10 @@
-This product depends on Kaazing WebSocket Gateway - Java Client Bridge 4.0
+This product depends on Kaazing WebSocket Gateway - Java Client Bridge 5.0
 
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	http://stash.kaazing.wan/scm/kgexport/gateway.client.java.bridge.git
 
-This product depends on Kaazing WebSocket Gateway - Java Client Transport 4.0
+This product depends on Kaazing WebSocket Gateway - Java Client Transport 5.0
 
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
-
-This product depends on Kaazing WebSocket Gateway - JavaScript Client Bridge 4.0
-
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
-
-This product depends on Kaazing WebSocket Gateway - JavaScript Client Utilities 4.0
-
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
-
-This product depends on Kaazing WebSocket Gateway - Core Java Client Bridge 3.3
-
-	License is not included in maven artifact, look at homepage for license	
-	Homepage:	Home page is not included in maven artifact, and thus couldn't be referenced here
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	http://stash.kaazing.wan/scm/kgexport/gateway.client.java.transport.git
 
