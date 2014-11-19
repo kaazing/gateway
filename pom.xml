@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.pipe</artifactId>
-    <version>1.0.0.11</version>
+    <version>1.0.0.12-SNAPSHOT</version>
     <name>Pipe Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.pipe.git</url>
