@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.rtmp</artifactId>
-    <version>1.0.0.12-SNAPSHOT</version>
+    <version>1.0.0.11</version>
     <name>Rtmp Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.rtmp.git</url>
