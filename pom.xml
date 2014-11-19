@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.sse</artifactId>
-    <version>1.0.0.12</version>
+    <version>1.0.0.13-SNAPSHOT</version>
     <name>Sse Resource Address</name>
 
     <url>https://github.com/kaazing/gateway.resource.address.sse.git</url>
