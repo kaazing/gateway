@@ -1,232 +1,320 @@
-Kaazing Gateway
-Copyright 2007-2013 Kaazing Corporation
+This product depends on Commons CLI 1.2
 
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://commons.apache.org/cli/
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Javassist distribution.          ==
-=========================================================================
+This product depends on Kaazing Gateway Distribution Version Provider 5.0
 
-This product include the unmodified Javassist library
-(http://www.csg.is.titech.ac.jp/~chiba/javassist/)
-with source code licensed under the Mozilla
-Public License 1.1. Original source is available at
-the listed site.
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.distribution.git/gateway.distribution.version
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Apache SLF4J distribution.       ==
-=========================================================================
+This product depends on Kaazing WebSocket Gateway - Management 5.0
 
-Message logging is provided by the SLF4J library package,
-which is open source software, written by Ceki Gülcü, and
-copyright by SLF4J.ORG and QOS.ch.  The original software is
-available from
+	License is not included in maven artifact, look at homepage for license	
+	Homepage:	https://github.com/kaazing/gateway.management.git
 
-   http://www.slf4j.org/
+This product depends on Http Resource Address 1.0
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the OGNL distribution.               ==
-=========================================================================
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.http.git
 
-OGNL is provided by the OGNL library package, which is open source
-software, written by Drew Davidson and Luke Blanshard.  The original
-software is available from
+This product depends on Httpx Resource Address 1.0
 
-   http://www.ognl.org/
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.httpx.git
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Apache XmlBeans distribution.    ==
-=========================================================================
+This product depends on Httpxdraft Resource Address 1.0
 
-This product includes software developed by
-The Apache Software Foundation (http://www.apache.org/).
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.httpxdraft.git
 
-Portions of this software were originally based on the following:
-- software copyright (c) 2000-2003, BEA Systems, <http://www.bea.com/>.
+This product depends on Httpxe Resource Address 1.0
 
-Aside from contributions to the Apache XMLBeans project, this
-software also includes:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.httpxe.git
 
-- one or more source files from the Apache Xerces-J and Apache Axis
-products, Copyright (c) 1999-2003 Apache Software Foundation
+This product depends on Pipe Resource Address 1.0
 
-- W3C XML Schema documents Copyright 2001-2003 (c) World Wide Web
-Consortium (Massachusetts Institute of Technology, European Research
-Consortium for Informatics and Mathematics, Keio University)
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.pipe.git
 
-- resolver.jar from Apache Xml Commons project,
-Copyright (c) 2001-2003 Apache Software Foundation
+This product depends on Rtmp Resource Address 1.0
 
-- Piccolo XML Parser for Java from http://piccolo.sourceforge.net/,
-Copyright 2002 Yuval Oren under the terms of the Apache Software License 2.0
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.rtmp.git
 
-- JSR-173 Streaming API for XML from 
-  http://sourceforge.net/projects/xmlpullparser/,
-Copyright 2005 BEA under the terms of the Apache Software License 2.0
+This product depends on Sse Resource Address 1.0
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Hazelcast distribution.          ==
-=========================================================================
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.sse.git
 
-This product includes software developed by the Hazelcast
-Project (http://www.hazelcast.com).
+This product depends on Ssl Resource Address 1.0
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Apache MINA distribution.        ==
-=========================================================================
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.ssl.git
 
-Apache MINA
-Copyright 2007-2013 The Apache Software Foundation.
+This product depends on Tcp Resource Address 1.0
 
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.tcp.git
 
-Please refer to each LICENSE.<component>.txt file for the
-license terms of the components that Apache MINA depends on.
+This product depends on Udp Resource Address 1.0
 
-Message logging is provided by the SLF4J library package,
-which is open source software, written by Ceki Gülcü, and
-copyright by SLF4J.ORG and QOS.ch.  The original software is
-available from
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.udp.git
 
-   http://www.slf4j.org/
+This product depends on Ws Resource Address 1.0
 
-Data compression support is provided by the JZLib library package,
-which is open source software, written by JCraft, and copyright
-by JCraft.  The original software is available from
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.ws.git
 
-   http://www.jcraft.com/jzlib/
+This product depends on Wsdraft Resource Address 1.0
 
-Spring framework is provided by the Spring framework library
-package, which is open source software, written by Rod Johnson
-et al, and copyright by Springframework.org.  The original
-software is available from
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wsdraft.git
 
-   http://www.springframework.org/
+This product depends on Wse Resource Address 1.0
 
-OGNL is provided by the OGNL library package, which is open source
-software, written by Drew Davidson and Luke Blanshard.  The original
-software is available from
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wse.git
 
-   http://www.ognl.org/
+This product depends on Wsn Resource Address 1.0
 
-=========================================================================
-==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
-==  Version 2.0, in this case for the Netty distribution.              ==
-=========================================================================
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wsn.git
 
+This product depends on Wsr Resource Address 1.0
 
-                            The Netty Project
-                            =================
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wsr.git
 
-Please visit the Netty web site for more information:
+This product depends on Wsx Resource Address 1.0
 
-  * http://netty.io/
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wsx.git
 
-Copyright 2011 The Netty Project
+This product depends on Wsxdraft Resource Address 1.0
 
-The Netty Project licenses this file to you under the Apache License,
-version 2.0 (the "License"); you may not use this file except in compliance
-with the License. You may obtain a copy of the License at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.wsxdraft.git
 
-http://www.apache.org/licenses/LICENSE-2.0
+This product depends on Resource Address 1.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-License for the specific language governing permissions and limitations
-under the License.
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.resource.address.git
 
-Also, please refer to each LICENSE.<component>.txt file, which is located in
-the 'license' directory of the distribution file, for the license terms of the
-components that this product depends on.
+This product depends on Gateway Security 1.0
 
--------------------------------------------------------------------------------
-This product contains the extensions to Java Collections Framework which has
-been derived from the works by JSR-166 EG, Doug Lea, and Jason T. Greene:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.security.git
 
-  * LICENSE:
-    * license/LICENSE.jsr166y.txt (Public Domain)
-  * HOMEPAGE:
-    * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/
-    * http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbosscache/experimental/jsr166/
+This product depends on Kaazing WebSocket Gateway - Server API 5.0
 
-This product contains a modified version of Robert Harder's Public Domain
-Base64 Encoder and Decoder, which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.server.api.git
 
-  * LICENSE:
-    * license/LICENSE.base64.txt (Public Domain)
-  * HOMEPAGE:
-    * http://iharder.sourceforge.net/current/java/base64/
+This product depends on Kaazing WebSocket Gateway - Server Service Provider Interface 5.0
 
-This product contains a modified version of 'JZlib', a re-implementation of
-zlib in pure Java, which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.server.spi.git
 
-  * LICENSE:
-    * license/LICENSE.jzlib.txt (BSD Style License)
-  * HOMEPAGE:
-    * http://www.jcraft.com/jzlib/
+This product depends on Kaazing WebSocket Gateway - Server 5.0
 
-This product optionally depends on 'Protocol Buffers', Google's data
-interchange format, which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.server.git
 
-  * LICENSE:
-    * license/LICENSE.protobuf.txt (New BSD License)
-  * HOMEPAGE:
-    * http://code.google.com/p/protobuf/
+This product depends on Kaazing WebSocket Gateway - AMQP Service 5.0
 
-This product optionally depends on 'SLF4J', a simple logging facade for Java,
-which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/amqp.server.git
 
-  * LICENSE:
-    * license/LICENSE.slf4j.txt (MIT License)
-  * HOMEPAGE:
-    * http://www.slf4j.org/
+This product depends on Broadcast Service 1.0
 
-This product optionally depends on 'Apache Commons Logging', a logging
-framework, which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.broadcast.git
 
-  * LICENSE:
-    * license/LICENSE.commons-logging.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://commons.apache.org/logging/
+This product depends on Echo Service 1.0
 
-This product optionally depends on 'Apache Log4J', a logging framework,
-which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.echo.git
 
-  * LICENSE:
-    * license/LICENSE.log4j.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://logging.apache.org/log4j/
+This product depends on Http Balancer Service 1.0
 
-This product optionally depends on 'JBoss Logging', a logging framework,
-which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.http.balancer.git
 
-  * LICENSE:
-    * license/LICENSE.jboss-logging.txt (GNU LGPL 2.1)
-  * HOMEPAGE:
-    * http://anonsvn.jboss.org/repos/common/common-logging-spi/
+This product depends on Http Directory Service 1.0
 
-This product optionally depends on 'Apache Felix', an open source OSGi
-framework implementation, which can be obtained at:
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.http.directory.git
 
-  * LICENSE:
-    * license/LICENSE.felix.txt (Apache License 2.0)
-  * HOMEPAGE:
-    * http://felix.apache.org/
-    
-This product optionally depends on 'Webbit', a Java event based  
-WebSocket and HTTP server:
+This product depends on Proxy Service 1.0
 
-  * LICENSE:
-    * license/LICENSE.webbit.txt (BSD License)
-  * HOMEPAGE:
-    * https://github.com/joewalnes/webbit
-     
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.proxy.git
+
+This product depends on gateway.service.update.check.management 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.update.check.management.git
+
+This product depends on Update Check Service 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.update.check.git
+
+This product depends on Gateway Service 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.service.git
+
+This product depends on BIO Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.bio.git
+
+This product depends on Http Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.http.git
+
+This product depends on NIO Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.nio.git
+
+This product depends on Pipe Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.pipe.git
+
+This product depends on Sse Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.sse.git
+
+This product depends on SSL Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.ssl.git
+
+This product depends on WS Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.ws.git
+
+This product depends on WSEB Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.wseb.git
+
+This product depends on WSN Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.wsn.git
+
+This product depends on wsr Transport 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.wsr.git
+
+This product depends on Transport Core 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.transport.git
+
+This product depends on Kaazing WebSocket Gateway - Truststore 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.truststore.git
+
+This product depends on Gateway Utils 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/gateway.util.git
+
+This product depends on hazelcast-client 1.9
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.com/hazelcast-client/
+
+This product depends on hazelcast-cloud 1.9
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.com/hazelcast-cloud/
+
+This product depends on hazelcast 1.9
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://www.hazelcast.com/hazelcast/
+
+This product depends on JDOM 1.1
+
+	License:	https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt (JDOM License)
+	Homepage:	http://www.jdom.org/
+
+This product depends on Java Native Access 3.3
+
+    License:    http://www.gnu.org/licenses/licenses.html (LGPL)
+    Homepage:   https://github.com/twall/jna
+
+This product depends on JSON (JavaScript Object Notation) 20090211
+
+	License:	http://www.json.org/license.html (provided without support or warranty)
+	Homepage:	http://www.json.org/java/index.html
+
+This product depends on Apache Log4j 1.2
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://logging.apache.org/log4j/1.2/
+
+This product depends on Mina Netty Adapter 1.5
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/mina.netty.git
+
+This product depends on sigar.dist 1.6
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	http://sigar.hyperic.com/
+
+This product depends on SLF4J API Module 1.7
+
+	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
+	Homepage:	http://www.slf4j.org
+
+This product depends on SLF4J LOG4J-12 Binding 1.7
+
+	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
+	Homepage:	http://www.slf4j.org
+
+This product depends on SNMP4J-Agent 1.4
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
+	Homepage:	http://www.snmp4j.org
+
+This product depends on SNMP4J 1.11
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (Apache 2)
+	Homepage:	http://www.snmp4j.org
+
+This product depends on StAX API 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://stax.codehaus.org/
+
+This product depends on Test Utils 1.0
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
+	Homepage:	https://github.com/kaazing/test.util.git
+
+This product depends on XmlBeans 2.4
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://xmlbeans.apache.org
+
+This product contains a modified version of Apache Mina 2.0.0 RC1
+
+	License:  http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage: http://mina.apache.org/
+
