@@ -10,13 +10,13 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.0.0.29</version>
+        <version>2.0.0.41</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.util</artifactId>
     <name>Gateway Utils</name>
-    <version>1.0.0.26</version>
+    <version>1.0.0.27</version>
 
     <url>https://github.com/kaazing/gateway.util.git</url>
     <scm>
