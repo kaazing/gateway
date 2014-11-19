@@ -16,7 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
-    <version>1.0.0.23-SNAPSHOT</version>
+    <version>1.0.0.23</version>
 
     <url>https://github.com/kaazing/gateway.transport.nio.git</url>
     <scm>
