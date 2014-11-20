@@ -96,6 +96,22 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.0.0.4</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify-notice</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <matchWithExisting>false</matchWithExisting>
+                    <strict>false</strict>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.google.code.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
                 <configuration>
