@@ -300,7 +300,7 @@
                     <goal>exec</goal>
                   </goals>
                   <configuration>
-                    <executable>bower</executable>
+                    <executable>${basedir}/target/commandcenter/node_modules/bower/bin/bower</executable>
                     <arguments>
                       <argument>install</argument>
                     </arguments>
