@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.kaazing</groupId>
     <artifactId>mina-parent</artifactId>
-    <version>2.0.0-RC1o</version>
+    <version>2.0.0-RC2o-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <artifactId>mina-integration-jmx</artifactId>
