@@ -31,7 +31,7 @@
         <url>http://mina.apache.org/</url>
     </organization>
     <groupId>org.kaazing</groupId>
-    <version>2.0.0-RC1o-SNAPSHOT</version>
+    <version>2.0.0-RC2o-SNAPSHOT</version>
     <artifactId>mina-build</artifactId>
     <name>Apache MINA</name>
     <packaging>pom</packaging>
@@ -48,7 +48,8 @@
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
         <url>git@github.com:kaazing/mina.core.git</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <description>Apache MINA is a network application framework which helps users develop high performance and highly scalable network applications easily.    It provides an abstract event-driven asynchronous API over various transports such as TCP/IP and UDP/IP via Java NIO.</description>
 
