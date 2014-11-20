@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved.
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.kaazing</groupId>
@@ -15,7 +10,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.amqp</artifactId>
     <name>Kaazing WebSocket Gateway - AMQP Service</name>
-    <version>5.0.0.11-SNAPSHOT</version>
+    <version>5.0.0.11</version>
 
     <url>https://github.com/kaazing/amqp.server.git</url>
     <scm>
@@ -127,6 +122,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.0.0.4</version>
+                <configuration>
+                    <!-- Project hints go here -->
+                    <projectHints>
+                        <projectDescription>
+                            <projectName>cglib</projectName>
+                            <licenseName>APACHE 2</licenseName>
+                            <licenseUrl>https://github.com/kaazing/gateway.service.amqp/blob/develop/LICENSE.txt</licenseUrl>
+                        </projectDescription>
+                        <projectDescription>
+                            <projectName>JDOM</projectName>
+                            <licenseName>JDOM License</licenseName>
+                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
+                            <homePage>http://jdom.org</homePage>
+                            <version>1.1</version>
+                        </projectDescription>
+                        <projectDescription>
+                            <projectName>Java Native Access</projectName>
+                            <licenseName>LGPL</licenseName>
+                            <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>
+                            <homePage>https://github.com/twall/jna</homePage>
+                            <version>2.1</version>
+                        </projectDescription>
+                    </projectHints>
+                </configuration>
             </plugin>
         </plugins>
     </build>
