@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>mina-build</artifactId>
-        <version>2.0.0-RC1o-SNAPSHOT</version>
+        <version>2.0.0-RC1o</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
@@ -32,7 +32,7 @@
 
     <properties>
         <symbolicName>${exportedPackage}</symbolicName>
-        <mina.version>2.0.0-RC1o-SNAPSHOT</mina.version>
+        <mina.version>2.0.0-RC1o</mina.version>
         <mina.groupId>org.kaazing</mina.groupId>
     </properties>
 
