@@ -2,20 +2,37 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.kaazing</groupId>
-        <artifactId>gateway.bridge.parent</artifactId>
-        <version>${project.version}</version>
-    </parent>
-
-    <artifactId>gateway.client.javascript.bridge</artifactId>
-    <packaging>jar</packaging>
+    <!--parent>
+        <groupId>org.kaazing.core.common</groupId>
+        <artifactId>org.kaazing.gateway.core.common</artifactId>
+        <version>1.0.0.44</version>
+    </parent-->
+    <groupId>org.kaazing.gateway</groupId>
+    <artifactId>org.kaazing.gateway.client.javascript.bridge</artifactId>
+    <!--packaging>jar</packaging-->
 
     <name>Kaazing Gateway Client Javascript Bridge</name>
-
+    <version>5.0.0.1-SNAPSHOT</version>
 
     <build>
+        <!-- Needed to produce non-empty sources JAR -->
+        <sourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory>
+        <scriptSourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory>
+
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- copy the bower-related files to target/kaazing-client-javascript-bridge -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -47,7 +64,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
-                    <execution>
+                    <!--execution>
                         <id>installBower</id>
                         <phase>generate-sources</phase>
                         <goals>
@@ -60,7 +77,7 @@
                             </arguments>
                             <workingDirectory>${basedir}/target/kaazing-client-javascript-bridge</workingDirectory>
                         </configuration>
-                    </execution>
+                    </execution-->
                     <execution>
                         <id>runBower</id>
                         <phase>generate-sources</phase>
@@ -68,7 +85,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>bower</executable>
+                             <executable>bower</executable>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>

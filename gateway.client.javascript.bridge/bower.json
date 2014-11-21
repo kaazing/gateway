@@ -1,6 +1,6 @@
 {
-    "name": "javascript.bridge",
+    "name": "kaazing-client-javascript-bridge",
     "dependencies": {
-        "javascript-bridge": "https://github.com/kaazing/bower-kaazing-client-javascript-bridge <5.0.0"
+        "kaazing-client-javascript-bridge": "git@github.com:kaazing/bower-kaazing-client-javascript-bridge.git#>=5.0.0-1 <5.1.0"
     }
 }
