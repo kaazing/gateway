@@ -2,22 +2,23 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--parent>
-        <groupId>org.kaazing.core.common</groupId>
-        <artifactId>org.kaazing.gateway.core.common</artifactId>
-        <version>1.0.0.44</version>
-    </parent-->
-    <groupId>org.kaazing.gateway</groupId>
-    <artifactId>org.kaazing.gateway.client.javascript.bridge</artifactId>
-    <!--packaging>jar</packaging-->
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway.bridge.parent</artifactId>
+        <version>5.0.0.6-SNAPSHOT</version>
+    </parent>
 
-    <name>Kaazing Gateway Client Javascript Bridge</name>
-    <version>5.0.0.1-SNAPSHOT</version>
+    <groupId>org.kaazing</groupId>
+    <artifactId>gateway.client.javascript.bridge</artifactId>
+    <packaging>jar</packaging>
+    <name>Kaazing Gateway Client Javascript Bridge Packaging</name>
 
     <build>
         <!-- Needed to produce non-empty sources JAR -->
-        <sourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory>
-        <scriptSourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory>
+        <!-- <sourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory> 
+            <scriptSourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory> -->
+        <!-- <sourceDirectory>${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory> 
+            <scriptSourceDirectory>${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory> -->
 
         <plugins>
             <plugin>
@@ -64,7 +65,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
-                    <!--execution>
+                    <execution>
                         <id>installBower</id>
                         <phase>generate-sources</phase>
                         <goals>
@@ -77,7 +78,7 @@
                             </arguments>
                             <workingDirectory>${basedir}/target/kaazing-client-javascript-bridge</workingDirectory>
                         </configuration>
-                    </execution-->
+                    </execution>
                     <execution>
                         <id>runBower</id>
                         <phase>generate-sources</phase>
@@ -85,11 +86,34 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${basedir}/target/commandcenter/node_modules/bower/bin/bower</executable>
+                            <executable>${basedir}/target/kaazing-client-javascript-bridge/node_modules/bower/bin/bower</executable>
                             <arguments>
                                 <argument>install</argument>
                             </arguments>
                             <workingDirectory>${basedir}/target/kaazing-client-javascript-bridge</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- <copy src="${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js" 
+                                    dest="${project.build.outputDirectory}" /> <patternset> <include name="**/*.js" 
+                                    /> </patternset> -->
+                                <copy todir="${project.build.outputDirectory}/org/kaazing/gateway/client/xd/">
+                                    <fileset
+                                        dir="${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js" />
+                                </copy>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

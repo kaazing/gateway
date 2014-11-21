@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.bridge.parent</artifactId>
-        <version>${project.version}</version>
+        <version>5.0.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.bridge</artifactId>
@@ -40,10 +40,10 @@
                         </goals>
                         <configuration>
                             <stripVersion>true</stripVersion>
-                            <outputDirectory>target/resources</outputDirectory>
+                            <outputDirectory>${basedir}/target/resources</outputDirectory>
                             <includeArtifactIds>
-                                org.kaazing:gateway.client.java.bridge
-                                org.kaazing:gateway.client.javascript.bridge
+                                gateway.client.java.bridge,
+                                gateway.client.javascript.bridge
                             </includeArtifactIds>
                         </configuration>
                     </execution>
@@ -61,10 +61,10 @@
                         <configuration>
                             <target>
                                 <copy
-                                    file="target/resources/gateway.client.java.bridge.jar"
+                                    file="${basedir}/target/resources/gateway.client.java.bridge.jar"
                                     tofile="${project.build.outputDirectory}/org/kaazing/gateway/bridge/CrossSiteAcceptor40.jar" />
                                 <unzip
-                                    src="target/resources/gateway.client.javascript.bridge.jar"
+                                    src="${basedir}/target/resources/gateway.client.javascript.bridge.jar"
                                     dest="${project.build.outputDirectory}">
                                     <patternset>
                                         <include name="**/*.js" />
