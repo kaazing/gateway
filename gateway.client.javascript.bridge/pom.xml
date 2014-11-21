@@ -14,12 +14,6 @@
     <name>Kaazing Gateway Client Javascript Bridge Packaging</name>
 
     <build>
-        <!-- Needed to produce non-empty sources JAR -->
-        <!-- <sourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory> 
-            <scriptSourceDirectory>target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory> -->
-        <!-- <sourceDirectory>${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</sourceDirectory> 
-            <scriptSourceDirectory>${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js</scriptSourceDirectory> -->
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -106,9 +100,6 @@
                         </goals>
                         <configuration>
                             <target>
-                                <!-- <copy src="${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js" 
-                                    dest="${project.build.outputDirectory}" /> <patternset> <include name="**/*.js" 
-                                    /> </patternset> -->
                                 <copy todir="${project.build.outputDirectory}/org/kaazing/gateway/client/xd/">
                                     <fileset
                                         dir="${basedir}/target/kaazing-client-javascript-bridge/bower_components/kaazing-client-javascript-bridge/js" />
