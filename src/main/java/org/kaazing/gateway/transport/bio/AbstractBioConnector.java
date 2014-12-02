@@ -33,7 +33,6 @@ import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
@@ -131,7 +130,8 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                 @Override
                 public void initializeSession(IoSession session, F future) {
                     REMOTE_ADDRESS.set(session, remoteAddress);
-                    
+                    setLocalAddressFromSocketAddress(session, getTransportName());
+
                     if (initializer != null) {
                         initializer.initializeSession(session, future);
                     }
@@ -149,6 +149,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                     // connectors don't need lookup so set this directly on the session
                     session.setAttribute(BridgeConnectHandler.DELEGATE_KEY, handler);
                     REMOTE_ADDRESS.set(session, remoteAddress);
+                    setLocalAddressFromSocketAddress(session, getTransportName());
 
                     if (initializer != null) {
                         initializer.initializeSession(session, future);
@@ -156,60 +157,46 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                 }
             });
         }
-        
-        future.addListener(new IoFutureListener<ConnectFuture>() {
 
-            @Override
-            public void operationComplete(ConnectFuture future) {
-                if (future.isConnected()) {
-                    IoSession session = future.getSession();
-
-                    setLocalAddressFromSocketAddress(session,getTransportName());
-                }
-            }
-
-            private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                          final String transportName) {
-                SocketAddress socketAddress = session.getLocalAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                                                                                        transportName);
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                }
-                else if (socketAddress instanceof NamedPipeAddress) {
-                    NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                                                                                        transportName);
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                }
-            }
-
-            public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                                       final String transportName) {
-                String addressFormat = "%s://%s";
-                String pipeName = namedPipeAddress.getPipeName();
-                URI transport = URI.create(format(addressFormat, transportName, pipeName));
-                return resourceAddressFactory.newResourceAddress(transport);
-            }
-
-            public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                                       final String transportName) {
-                InetAddress inetAddress = inetSocketAddress.getAddress();
-                String hostAddress = inetAddress.getHostAddress();
-                String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
-                int port = inetSocketAddress.getPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-                return resourceAddressFactory.newResourceAddress(transport);
-            }
-
-
-        });
-        
         return future;
     }
 
+    private void setLocalAddressFromSocketAddress(final IoSession session,
+                                                  final String transportName) {
+        SocketAddress socketAddress = session.getLocalAddress();
+        if (socketAddress instanceof InetSocketAddress) {
+            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
+                                                                                transportName);
+            LOCAL_ADDRESS.set(session, resourceAddress);
+        }
+        else if (socketAddress instanceof NamedPipeAddress) {
+            NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
+            ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
+                                                                                transportName);
+            LOCAL_ADDRESS.set(session, resourceAddress);
+        }
+    }
+
+    public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
+                                               final String transportName) {
+        String addressFormat = "%s://%s";
+        String pipeName = namedPipeAddress.getPipeName();
+        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+        return resourceAddressFactory.newResourceAddress(transport);
+    }
+
+    public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
+                                               final String transportName) {
+        InetAddress inetAddress = inetSocketAddress.getAddress();
+        String hostAddress = inetAddress.getHostAddress();
+        String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
+        int port = inetSocketAddress.getPort();
+        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+        return resourceAddressFactory.newResourceAddress(transport);
+    }
+
     protected abstract IoConnector initConnector();
-    
+
     protected abstract String getTransportName();
 }

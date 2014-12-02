@@ -153,11 +153,6 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 IoHandler handler = binding.handler();
                 DELEGATE_KEY.set(session, handler);
 
-                BridgeSessionInitializer<? extends IoFuture> initializer = binding.initializer();
-                if (initializer != null) {
-                    initializer.initializeSession(session, null);
-                }
-
                 // This is added to store the associated resource address
                 // with the nio socket session.  An NioSocketSession localAddress
                 // is still an InetSocketAddress, but we can count on this
@@ -168,6 +163,11 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 SocketAddress remoteSocketAddress = session.getRemoteAddress();
                 ResourceAddress remoteAddress = asResourceAddress(remoteSocketAddress);
                 REMOTE_ADDRESS.set(session, remoteAddress);
+
+                BridgeSessionInitializer<? extends IoFuture> initializer = binding.initializer();
+                if (initializer != null) {
+                    initializer.initializeSession(session, null);
+                }
 
                 // next-protocol has been determined
                 super.sessionCreated(session);
