@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.distribution</artifactId>
-        <version>5.0.0.9-SNAPSHOT</version>
+        <version>5.0.0.9</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
@@ -203,12 +203,6 @@
             <artifactId>gateway.management</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>gateway.console</artifactId>
-            <classifier>sources</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>org.snmp4j</groupId>
             <artifactId>snmp4j</artifactId>
         </dependency>
@@ -250,6 +244,28 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>bower-dependency-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <bowerDependencies>
+                        <bowerDependency>
+                            <name>command-center</name>
+                            <location>https://github.com/kaazing/bower-kaazing-command-center</location>
+                            <version>[5.0.0,5.1.0]</version>
+                        </bowerDependency>
+                    </bowerDependencies>
+                </configuration>
             </plugin>
 
             <plugin>

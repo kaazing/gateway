@@ -121,15 +121,6 @@
       <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
-
-    <!-- Overlay Command Center files -->
-    <dependencySet>
-      <unpack>true</unpack>
-      <includes>
-        <include>org.kaazing:gateway.console:zip:sources</include>
-      </includes>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
         
     <!-- Overlay the truststore DB.  It is binary, and so does not change
          line endings as above. -->
@@ -153,6 +144,16 @@
   </dependencySets>
 
   <fileSets>
+    <!-- Overlay NOTICE.txt -->
+    <fileSet>
+      <directory>..</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+          <include>NOTICE.txt</include>
+      </includes>
+      <filtered>false</filtered>
+    </fileSet>
+
     <!-- Overlay Kaazing WebSocket Gateway Keystore -->
     <fileSet>
       <directory>src/main/gateway</directory>
@@ -190,6 +191,12 @@
       <excludes>
         <exclude>*.jar</exclude>  <!-- we get sigar.jar elsewhere -->
       </excludes>
+    </fileSet>
+
+    <!-- Overlay Command Center files from our bower download -->
+    <fileSet>
+      <outputDirectory>web/commandcenter</outputDirectory>
+      <directory>target/bower-dependency/command-center/commandcenter</directory>
     </fileSet>
 
   </fileSets>
