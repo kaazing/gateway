@@ -196,7 +196,7 @@
     <!-- Overlay Command Center files from our bower download -->
     <fileSet>
       <outputDirectory>web/commandcenter</outputDirectory>
-      <directory>target/commandcenter/bower_components/commandcenter/commandcenter</directory>
+      <directory>target/bower-dependency/command-center/commandcenter</directory>
     </fileSet>
 
   </fileSets>

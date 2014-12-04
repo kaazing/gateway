@@ -246,68 +246,26 @@
                 </executions>
             </plugin>
 
-            <!-- copy the bower-related files to target/commandcenter -->
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.4.3</version>
+                <groupId>org.kaazing</groupId>
+                <artifactId>bower-dependency-maven-plugin</artifactId>
+                <version>1.0.0</version>
                 <executions>
                     <execution>
-                        <id>copy-resources</id>
-                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>copy-resources</goal>
+                            <goal>unpack</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/commandcenter</outputDirectory>
-                            <resources>          
-                                <resource>
-                                    <directory>${basedir}</directory>
-                                    <includes>
-                                      <include>bower.json</include>
-                                      <include>package.json</include>
-                                    </includes>
-                                </resource>
-                            </resources>              
-                        </configuration>            
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- Use the npm and bower-related files to download the relevant bower artifacts,
-                 i.e. kaazing.command.center -->
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>exec-maven-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>installBower</id>
-                  <phase>generate-sources</phase>
-                  <goals>
-                    <goal>exec</goal>
-                  </goals>
-                  <configuration>
-                    <executable>npm</executable>
-                    <arguments>
-                      <argument>install</argument>
-                    </arguments>
-                    <workingDirectory>${basedir}/target/commandcenter</workingDirectory>
-                  </configuration>
-                </execution>
-                <execution>
-                  <id>runBower</id>
-                  <phase>generate-sources</phase>
-                  <goals>
-                    <goal>exec</goal>
-                  </goals>
-                  <configuration>
-                    <executable>${basedir}/target/commandcenter/node_modules/bower/bin/bower</executable>
-                    <arguments>
-                      <argument>install</argument>
-                    </arguments>
-                    <workingDirectory>${basedir}/target/commandcenter</workingDirectory>
-                  </configuration>
-                </execution>
-              </executions>
+                <configuration>
+                    <bowerDependencies>
+                        <bowerDependency>
+                            <name>command-center</name>
+                            <location>https://github.com/kaazing/bower-kaazing-command-center</location>
+                            <version>[5.0.0,5.1.0]</version>
+                        </bowerDependency>
+                    </bowerDependencies>
+                </configuration>
             </plugin>
 
             <plugin>
