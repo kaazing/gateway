@@ -16,7 +16,7 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.distribution</artifactId>
-    <version>5.0.0.10-SNAPSHOT</version>
+    <version>5.0.0.11-SNAPSHOT</version>
 
     <name>Kaazing WebSocket Gateway</name>
     <packaging>pom</packaging>
