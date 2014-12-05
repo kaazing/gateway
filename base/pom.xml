@@ -211,13 +211,9 @@
             <artifactId>snmp4j-agent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hyperic</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.hyperic</groupId>
-            <artifactId>sigar.dist</artifactId>
+            <classifier>distribution</classifier>
             <type>zip</type>
         </dependency>
     </dependencies>

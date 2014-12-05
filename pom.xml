@@ -14,7 +14,6 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
         <version>2.0.0.41</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.distribution</artifactId>
     <version>5.0.0.12-SNAPSHOT</version>
 
@@ -94,16 +93,11 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
                 <version>1.4.3</version>
             </dependency>
             <dependency>
-                <groupId>org.hyperic</groupId>
+                <groupId>org.kaazing</groupId>
                 <artifactId>sigar.dist</artifactId>
-                <version>1.6.4</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.hyperic</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <version>1.6.4</version>
+                <classifier>distribution</classifier>
                 <type>zip</type>
+                <version>[1.0.0.0,1.1.0.0)</version>
             </dependency>
             <!-- service dependencies -->
             <dependency>
