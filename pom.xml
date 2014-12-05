@@ -11,6 +11,7 @@
 
     <artifactId>gateway.service.update.check</artifactId>
     <name>Update Check Service</name>
+    <description>Gateway service that checks for new releases of gateway</description>
     <version>1.0.0.3-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.update.check.git</url>
