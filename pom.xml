@@ -16,6 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>test.util</artifactId>
     <name>Test Utils</name>
+    <description>Miscellaneous test utilities for a variety of projects</description>
     <version>1.0.0.14-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/test.util.git</url>
