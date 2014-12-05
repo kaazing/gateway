@@ -16,6 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.http.directory</artifactId>
     <name>Http Directory Service</name>
+    <description>Directory Service that exposes files hosted on the gateway via HTTP</description>
     <version>1.0.0.18-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.http.directory.git</url>
