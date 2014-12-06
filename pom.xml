@@ -17,6 +17,7 @@
     <artifactId>gateway.transport.wseb</artifactId>
     <version>1.0.0.26-SNAPSHOT</version>
     <name>WSEB Transport</name>
+    <description>WebSocket emulation transport</description>
 
     <url>https://github.com/kaazing/gateway.transport.wseb.git</url>
     <scm>
