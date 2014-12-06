@@ -17,6 +17,7 @@
     <artifactId>gateway.resource.address.wsn</artifactId>
     <version>1.0.0.14-SNAPSHOT</version>
     <name>Wsn Resource Address</name>
+    <description>Resource address for WebSocket native (RFC 6455) endpoints</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.wsn.git</url>
     <scm>
