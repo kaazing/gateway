@@ -1,5 +1,4 @@
 # gateway.test.ca
-====================
 
 # About this project provides a keystore and truststore that can be used for tests
 
