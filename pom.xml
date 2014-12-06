@@ -13,6 +13,7 @@
     <version>5.0.0.6-SNAPSHOT</version>
 
     <name>Kaazing Gateway Bridge Parent</name>
+    <description>Project that packages bridge files for various files into jar</description>
 
     <url>https://github.com/kaazing/gateway.bridge.git</url>
     <scm>
