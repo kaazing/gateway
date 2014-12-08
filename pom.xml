@@ -16,6 +16,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address</artifactId>
     <name>Resource Address</name>
+    <description>Resource Address is a core abstraction to represent endpoint</description>
     <version>1.0.0.39-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.resource.address.git</url>
