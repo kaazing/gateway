@@ -12,10 +12,11 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.test.ca</artifactId>
-    <version>1.0.0.9</version>
+    <version>1.0.0.10</version>
     <packaging>jar</packaging>
 
     <name>Keystore and Truststore used for testing TLS</name>
+    <description>A generated Keystore and Truststore that can be used for testing</description>
 
     <url>https://github.com/kaazing/gateway.test.ca.git</url>
     <scm>
