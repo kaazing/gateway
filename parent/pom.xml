@@ -32,7 +32,7 @@
 
     <properties>
         <symbolicName>${exportedPackage}</symbolicName>
-        <mina.version>2.1.0.0-SNAPSHOT</mina.version>
+        <mina.version>${project.parent.version}</mina.version>
         <mina.groupId>org.kaazing</mina.groupId>
     </properties>
 
