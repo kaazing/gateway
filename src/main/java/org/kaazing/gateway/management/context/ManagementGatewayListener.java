@@ -46,9 +46,20 @@ public class ManagementGatewayListener extends GatewayListenerFactorySpiPrototyp
     public void startingGateway() {
         managementContext.createGatewayManagementBean();
     }
-
+    
+    /**
+     * Respond to a service starting by adding a management bean for it.
+     * Note that we CANNOT do this during initedService because a given
+     * service may come before the SNMP Management service, which does
+     * create the SNMP agent until its own init().
+     * Note: it is still slightly possible that someone could attempt
+     * to log in through Command Center in the second or so during
+     * service startup. If some service hasn't started yet, it won't
+     * show up in the service list. The chance of this is very slight, 
+     * though, so we should deal with it later, if at all.
+     */
     @Override
-    public void initedService(ServiceContext serviceContext) {
+    public void startingService(ServiceContext serviceContext) {
         // Order matters here
         if (!(serviceContext.getService() instanceof ManagementService)) {
             managementContext.addServiceManagementBean(serviceContext);
