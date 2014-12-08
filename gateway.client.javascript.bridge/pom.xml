@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.bridge.parent</artifactId>
-        <version>5.0.0.6-SNAPSHOT</version>
+        <version>5.0.0.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.client.javascript.bridge</artifactId>
@@ -60,8 +59,7 @@
                         <configuration>
                             <target>
                                 <copy todir="${project.build.outputDirectory}/org/kaazing/gateway/client/xd/">
-                                    <fileset
-                                        dir="${basedir}/target/bower-dependency/kaazing-client-javascript-bridge/js" />
+                                    <fileset dir="${basedir}/target/bower-dependency/kaazing-client-javascript-bridge/js" />
                                 </copy>
                             </target>
                         </configuration>
