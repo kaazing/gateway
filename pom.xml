@@ -11,6 +11,8 @@
 
     <artifactId>gateway.service.update.check.management</artifactId>
     <packaging>jar</packaging>
+    <name>Update Check Management Service</name>
+    <description>Management extension of update check service</description>
     <version>1.0.0.3-SNAPSHOT</version>
     
     <url>https://github.com/kaazing/gateway.service.update.check.management.git</url>
