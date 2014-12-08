@@ -37,6 +37,7 @@
     <dependency>
       <groupId>${mina.groupId}</groupId>
       <artifactId>mina-core</artifactId>
+      <version>${project.version}</version>  
     </dependency>
     <!--
     <dependency>

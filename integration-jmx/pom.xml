@@ -37,14 +37,17 @@
     <dependency>
       <groupId>${mina.groupId}</groupId>
       <artifactId>mina-core</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${mina.groupId}</groupId>
       <artifactId>mina-integration-beans</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${mina.groupId}</groupId>
       <artifactId>mina-integration-ognl</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

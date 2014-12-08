@@ -39,11 +39,6 @@
     <dependencyManagement>
         <dependencies>
             <!-- Submodules -->
-            <dependency>
-                <groupId>${mina.groupId}</groupId>
-                <artifactId>mina-core</artifactId>
-                <version>${mina.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.apache.mina</groupId>
@@ -55,24 +50,6 @@
                 <groupId>org.apache.mina</groupId>
                 <artifactId>mina-filter-compression</artifactId>
                 <version>2.0.0-RC1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${mina.groupId}</groupId>
-                <artifactId>mina-integration-beans</artifactId>
-                <version>${mina.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${mina.groupId}</groupId>
-                <artifactId>mina-integration-ognl</artifactId>
-                <version>${mina.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${mina.groupId}</groupId>
-                <artifactId>mina-integration-jmx</artifactId>
-                <version>${mina.version}</version>
             </dependency>
 
             <dependency>
