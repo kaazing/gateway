@@ -17,6 +17,7 @@
     <artifactId>gateway.resource.address.wse</artifactId>
     <version>1.0.0.14-SNAPSHOT</version>
     <name>Wse Resource Address</name>
+    <description>Resource address implementation of wse endpoints</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.wse.git</url>
     <scm>
