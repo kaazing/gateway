@@ -17,6 +17,7 @@
     <artifactId>gateway.resource.address.wsxdraft</artifactId>
     <version>1.0.0.14-SNAPSHOT</version>
     <name>Wsxdraft Resource Address</name>
+    <description>Resource address implementation of wsxdraft enpoint</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.wsxdraft.git</url>
     <scm>
