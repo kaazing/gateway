@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -60,12 +59,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <copy
-                                    file="${basedir}/target/resources/gateway.client.java.bridge.jar"
-                                    tofile="${project.build.outputDirectory}/org/kaazing/gateway/bridge/CrossSiteAcceptor40.jar" />
-                                <unzip
-                                    src="${basedir}/target/resources/gateway.client.javascript.bridge.jar"
-                                    dest="${project.build.outputDirectory}">
+                                <copy file="${basedir}/target/resources/gateway.client.java.bridge.jar" tofile="${project.build.outputDirectory}/org/kaazing/gateway/bridge/CrossSiteAcceptor40.jar" />
+                                <unzip src="${basedir}/target/resources/gateway.client.javascript.bridge.jar" dest="${project.build.outputDirectory}">
                                     <patternset>
                                         <include name="**/*.js" />
                                     </patternset>
