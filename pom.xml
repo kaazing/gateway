@@ -17,6 +17,7 @@
     <artifactId>gateway.transport.http</artifactId>
     <version>1.0.0.30-SNAPSHOT</version>
     <name>Http Transport</name>
+    <description>Http Transport</description>
 
     <url>https://github.com/kaazing/gateway.transport.http.git</url>
     <scm>
