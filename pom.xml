@@ -10,6 +10,7 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.server.api</artifactId>
     <name>Kaazing WebSocket Gateway - Server API</name>
+    <description>Gateway server API to embed the gateway into an application</description>
     <version>5.0.0.10-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.server.api.git</url>
