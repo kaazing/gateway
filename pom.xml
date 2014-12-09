@@ -118,9 +118,9 @@
             <artifactId>jmock</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hyperic</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
-            <version>1.6.4</version>
+            <version>[1.0.0.0, 1.1.0.0)</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -157,13 +157,6 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <projectHints>
-                        <projectDescription>
-                            <projectName>sigar.dist</projectName>
-                            <licenseName>Apache 2 License</licenseName>
-                            <licenseUrl>https://github.com/hyperic/sigar/blob/master/LICENSE</licenseUrl>
-                            <homePage>http://sigar.hyperic.com</homePage>
-                            <version>1.6.4</version>
-                        </projectDescription>
                         <projectDescription>
                             <projectName>Java Native Access</projectName>
                             <licenseName>LGPL</licenseName>
