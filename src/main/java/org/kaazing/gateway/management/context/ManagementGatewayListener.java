@@ -60,7 +60,12 @@ public class ManagementGatewayListener extends GatewayListenerFactorySpiPrototyp
      */
     @Override
     public void startingService(ServiceContext serviceContext) {
-        // Order matters here
+        // NOTE: the session initializer ultimately will create a management filter
+        // to add to the session filter chain. Creating that filter requires that
+        // the service management bean actually exist, which means that the first
+        // line in the block to add the bean MUST come first, and the two lines
+        // must exist together. Adding the bean before startingService doesn't work
+        // as explained above.
         if (!(serviceContext.getService() instanceof ManagementService)) {
             managementContext.addServiceManagementBean(serviceContext);
             addSessionInitializer(serviceContext.getService(), serviceContext);
