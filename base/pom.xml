@@ -271,7 +271,6 @@
             <plugin>
                 <groupId>com.google.code.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
-                <version>1.3.2</version>
                 <configuration>
                     <useDefaultExcludes>true</useDefaultExcludes>
                     <includes>
