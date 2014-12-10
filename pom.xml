@@ -17,7 +17,7 @@
     <artifactId>gateway.util</artifactId>
     <name>Gateway Utils</name>
     <description>A project for common utilities</description>
-    <version>1.0.0.28-SNAPSHOT</version>
+    <version>1.0.0.28</version>
 
     <url>https://github.com/kaazing/gateway.util.git</url>
     <scm>
