@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.http</artifactId>
-    <version>1.0.0.17-SNAPSHOT</version>
+    <version>1.0.0.18-SNAPSHOT</version>
     <name>Http Resource Address</name>
     <description>Resource Address for HTTP endpoint</description>
 
