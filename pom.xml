@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.ssl</artifactId>
-    <version>1.0.0.16-SNAPSHOT</version>
+    <version>1.0.0.16</version>
     <name>Ssl Resource Address</name>
     <description>Resource address implementation of SSL/TLS endpoint</description>
 
