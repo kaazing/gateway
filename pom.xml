@@ -15,10 +15,11 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.tcp</artifactId>
-    <version>1.0.0.15</version>
+    <version>1.0.0.16</version>
     <name>Tcp Resource Address</name>
+    <description>Resource address implementation of TCP endpoint</description>
 
-    <url>https://github.com/kaazing/gateway.resource.address.tcp.git</url>
+    <url>https://github.com/kaazing/gateway.resource.address.tcp</url>
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
