@@ -22,12 +22,6 @@
 -->
 
 <!DOCTYPE html>
-<!--
-
-    Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
-
--->
-
 <html>
   <head>
     <meta charset="utf-8">
@@ -37,10 +31,18 @@
         font-family: Arial, Verdana, sans-serif;
         font-size: 11pt;
         color: #000000;
-        background-color: #E8E8E8;
+        background-color: #0E2B3D;
       }
 
-      #mainText {
+      .hiddenText {
+        display: none;
+      }
+
+      .blockText {
+        display: block;
+      }
+
+      .mainText {
         display: block;
         position: relative;
         border: solid 2px #ff6600;
@@ -55,7 +57,7 @@
         background-color: #FFFFFF;
       }
 
-      #header {
+      .header {
         color: #44687D;
       }
 
@@ -72,27 +74,147 @@
         color: #3c708f;
         text-decoration: underline;
       }
-	  
+
+      #consoleLog {
+        border: solid 1px #999999;
+        border-top-color: #CCCCCC;
+        border-left-color: #CCCCCC;
+        padding-left: 5px;
+        padding-right: 5px;
+        width: 350px;
+        height: 172px;
+        overflow-y: scroll;
+        overflow-x: auto;
+        font-size: 11px;
+        font-family: arial, sans-serif;
+      }
+
+      #consoleLog div {
+        padding : 3px;
+      }
+
+      .system {
+        text-align : left;
+      }
+      .send {
+        text-align : left;
+        color: #ff6600;
+      }
+      .received {
+        text-align : right;
+        color: #0066ff;
+      }
+
+      .clearfix {
+        clear:both;
+      }
     </style>
 
     <script>
-	  var hostname = window.location.hostname;
-      function loadDemos() {
-          window.location = 'http://' + hostname + ':8001/';
-      }
+      var websocket;
+      var consoleLog;
+      var hostname = window.location.hostname;
       function loadCommandCenter() {
           window.location = 'http://' + hostname + ':8000/commandcenter';
+      }
+
+      function detectWebSocketSupport() {
+        if (window.WebSocket) {
+          var wsPort = (window.location.port.toString() === "" ? "" : ":"+window.location.port);
+          var wsUri = "ws://" + hostname + wsPort + "/echo";
+
+          consoleLog = document.getElementById("consoleLog");
+          var sendMessage = document.getElementById("sendMessage");
+
+          var sendButton = document.getElementById("send");
+          sendButton.onclick=function() {
+            doLog("SENT: " + sendMessage.value, 0);
+            websocket.send(sendMessage.value);
+          }
+
+          var clearButton = document.getElementById("clearMessages");
+          clearButton.onclick=function() {
+            while (consoleLog.childNodes.length > 0) {
+              consoleLog.removeChild(consoleLog.lastChild);
+            }
+          }
+
+          document.getElementById("webSocketSupp").className = "blockText";
+
+          websocket = new WebSocket(wsUri);
+          websocket.onopen = function(evt) { doLog("CONNECTED to " + wsUri) };
+          websocket.onclose = function(evt) { doLog("DISCONNECTED") };
+          websocket.onmessage = function(evt) { doLog("RECEIVED: " + evt.data, 1) };
+          websocket.onerror = function(evt) { doLog("ERROR: " + evt.data) };
+        } else {
+          document.getElementById("noWebSocketSupp").className = "blockText";
+        }
+      }
+
+      function doLog(message, send) {
+        var pre = document.createElement("div");
+        if (send === undefined) {
+          pre.className = "system";
+        } else if (send === 0) {
+          pre.className = "send";
+        } else {
+          pre.className = "received";
+        }
+        pre.innerHTML = message;
+        consoleLog.appendChild(pre);
+
+        while (consoleLog.childNodes.length > 25) {
+          consoleLog.removeChild(consoleLog.firstChild);
+        }
+    
+        consoleLog.scrollTop = consoleLog.scrollHeight;
+      }
+    
+      // Handle difference for IE.
+      if (window.addEventListener) {
+        window.addEventListener("load", detectWebSocketSupport, false);
+      } else if (window.attachEvent) {
+        window.attachEvent("onload", detectWebSocketSupport);
       }
     </script>
 
   </head>
 
   <body>
-  <div id="mainText" float="center">
-      <h2 id="header">It works!</h2>
+  <div class="mainText" float="center">
+      <h2 class="header">It works!</h2>
       <p>Congratulations! You've successfully installed and started ${gateway.name.long} ${gateway.edition} ${gateway.version}.</p>
-      <p>To view sample Kaazing client applications and to learn how to use, configure, and administer the Gateway, read the <a href="http://tech.kaazing.com/documentation/index.html">Documentation</a> and check out the <a href="javascript:loadDemos()">Demos</a>. (Demos require extras to be installed. For more information, see the <a href="http://kaazing.com/download.html">Kaazing download</a> page.)</p>
-      <p>View system health, visualize configuration, and monitor sessions using <a href="javascript:loadCommandCenter()">Command Center</a>.</p>
+
+      <div id="webSocketSupp" class="hiddenText">
+      <h4 class="header">Try out WebSockets</h4>
+
+      <div>
+        <div style="float:left;">
+          <strong>Message:</strong><br>
+          <input id="sendMessage" size="35" value="It works!">
+          <button id="send" class="wsButton">Send</button>
+          <br>
+          <div id="consoleLog"></div>
+          <button id="clearMessages" style="position: relative; top: 3px;">Clear</button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+    </div>
+
+    <div id="noWebSocketSupp" class="hiddenText">
+      <div style="float: left;">
+        <p style="color:#ff0000"><i>Uh-oh, the browser you're using doesn't have native support for WebSocket.
+            That means you can't connect to the simple echo service to validate your
+            installation.</i></p>
+        <p>The following link lists the browsers that support WebSocket:</p>
+        <p><a href="http://caniuse.com/#feat=websockets">http://caniuse.com/#feat=websockets</a></p>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+
+    <p>To view sample Kaazing client applications and to learn how to use, configure, and administer the Gateway, read the <a href="http://developer.kaazing.com/documentation/5.0/index.html">Documentation</a>.</p>
+    <p>View system health, visualize configuration, and monitor sessions using <a href="javascript:loadCommandCenter()">Command Center</a>.</p>
   </div>
 
   </body>
