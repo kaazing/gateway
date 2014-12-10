@@ -10,7 +10,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>mina.netty</artifactId>
-    <version>3.0.0.0</version>
+    <version>3.0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Mina Netty Adapter</name>
     <description>Implementation of mina abstractions using netty</description>
