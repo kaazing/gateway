@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.distribution</artifactId>
-        <version>5.0.0.12-SNAPSHOT</version>
+        <version>5.0.0.14-SNAPSHOT</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
@@ -19,6 +19,7 @@
     <packaging>pom</packaging>
 
     <name>Kaazing Gateway Distribution Base</name>
+    <description>Gateway base distribution</description>
 
     <dependencies>
         <dependency>
@@ -211,13 +212,9 @@
             <artifactId>snmp4j-agent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hyperic</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.hyperic</groupId>
-            <artifactId>sigar.dist</artifactId>
+            <classifier>distribution</classifier>
             <type>zip</type>
         </dependency>
     </dependencies>

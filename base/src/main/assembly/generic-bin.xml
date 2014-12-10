@@ -101,7 +101,7 @@
         <include>log4j:log4j</include>
         <include>org.snmp4j:snmp4j</include>
         <include>org.snmp4j:snmp4j-agent</include>
-        <include>org.hyperic:sigar.dist:jar</include>
+        <!-- <include>org.hyperic:sigar.dist:jar</include> -->
         <include>org.apache.xmlbeans:xmlbeans</include>
         <include>com.hazelcast:hazelcast</include>
         <include>com.hazelcast:hazelcast-client</include>
@@ -172,7 +172,7 @@
         <exclude>**/*</exclude>
       </excludes>
     </fileSet>
- 
+
     <!-- Similar dummy directory for temp -->
     <fileSet>
       <outputDirectory>temp</outputDirectory>
@@ -187,10 +187,18 @@
          a subdirectory under lib -->
     <fileSet>
       <outputDirectory>lib/sigar</outputDirectory>
-      <directory>target/sigar/hyperic-sigar-1.6.4/sigar-bin/lib</directory>
+      <directory>target/sigar/sigar</directory>
       <excludes>
         <exclude>*.jar</exclude>  <!-- we get the sigar.jar here -->
       </excludes>
+    </fileSet>
+
+    <fileSet>
+      <outputDirectory>lib</outputDirectory>
+      <directory>target/sigar/sigar</directory>
+      <includes>
+        <include>*.jar</include>  <!-- we get sigar.jar elsewhere -->
+      </includes>
     </fileSet>
 
     <!-- Overlay Command Center files from our bower download -->
