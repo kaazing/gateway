@@ -10,9 +10,10 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>mina.netty</artifactId>
-    <version>1.5.0.16</version>
+    <version>3.0.0.0</version>
     <packaging>jar</packaging>
     <name>Mina Netty Adapter</name>
+    <description>Implementation of mina abstractions using netty</description>
 
     <url>https://github.com/kaazing/mina.netty.git</url>
     <scm>
@@ -128,7 +129,6 @@
             <plugin>
                 <groupId>com.google.code.maven-license-plugin</groupId>
                 <artifactId>maven-license-plugin</artifactId>
-                <version>1.3.2</version>
                 <configuration>
                     <excludes>
                         <exclude>**/ChannelIoProcessor.java</exclude>
@@ -237,6 +237,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <configuration>
+                    <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                     <createSourcesJar>${create.shaded.sources}</createSourcesJar>
                        <filters>
                             <filter>
@@ -300,7 +301,7 @@
     </profiles>
 
     <properties>
-        <kaazing.mina.version>2.0.0-RC1m</kaazing.mina.version>
+        <kaazing.mina.version>2.1.0.0</kaazing.mina.version>
 
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipTests>true</skipTests>
