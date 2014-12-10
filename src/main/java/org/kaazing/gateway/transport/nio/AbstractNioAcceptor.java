@@ -201,7 +201,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             URI candidateURI = boundAddress.getExternalURI();
 
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
-            candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
+            String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
+            candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
             candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
             ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
@@ -223,7 +224,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             LOCAL_ADDRESS.set(session, localAddress);
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
-            ResourceAddress remoteAddress = asResourceAddress(remoteSocketAddress);
+            URI remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
+            ResourceAddress remoteAddress = resourceAddressFactory.newResourceAddress(remoteExternalURI, nextProtocol);
             REMOTE_ADDRESS.set(session, remoteAddress);
 
             BridgeSessionInitializer<? extends IoFuture> initializer = binding.initializer();
@@ -257,13 +259,17 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
+        URI transport = asResourceURI(inetSocketAddress);
+        return resourceAddressFactory.newResourceAddress(transport);
+    }
+
+    private URI asResourceURI(InetSocketAddress inetSocketAddress) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-        return resourceAddressFactory.newResourceAddress(transport);
+        return URI.create(format(addressFormat, transportName, hostAddress, port));
     }
 
     protected final void init() {
