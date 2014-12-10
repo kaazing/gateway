@@ -13,6 +13,7 @@
     <version>1.5.0.17-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Mina Netty Adapter</name>
+    <description>Implementation of mina abstractions using netty</description>
 
     <url>https://github.com/kaazing/mina.netty.git</url>
     <scm>
