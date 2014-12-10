@@ -19,6 +19,7 @@
     <packaging>pom</packaging>
 
     <name>Kaazing Gateway Distribution Base</name>
+    <description>Gateway base distribution</description>
 
     <dependencies>
         <dependency>
