@@ -15,8 +15,9 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.http</artifactId>
-    <version>1.0.0.16</version>
+    <version>1.0.0.17</version>
     <name>Http Resource Address</name>
+    <description>Resource Address for HTTP endpoint</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.http.git</url>
     <scm>
