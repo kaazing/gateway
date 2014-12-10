@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.tcp</artifactId>
-    <version>1.0.0.18-SNAPSHOT</version>
+    <version>1.0.0.17</version>
     <name>Tcp Resource Address</name>
     <description>Resource address implementation of TCP endpoint</description>
 
