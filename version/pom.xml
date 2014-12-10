@@ -10,12 +10,13 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.distribution</artifactId>
-        <version>5.0.0.9-SNAPSHOT</version>
+        <version>5.0.0.14-SNAPSHOT</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.distribution.version</artifactId>
     <name>Kaazing Gateway Distribution Version Provider</name>
+    <description>Gateway distribution version provider</description>
 
     <build>
         <plugins>
