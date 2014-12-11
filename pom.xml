@@ -17,6 +17,7 @@
     <artifactId>gateway.resource.address.httpxe</artifactId>
     <version>1.0.0.12-SNAPSHOT</version>
     <name>Httpxe Resource Address</name>
+    <description>Resource implementation of httpxe endpoint</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.httpxe.git</url>
     <scm>
