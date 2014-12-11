@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.wsxdraft</artifactId>
-    <version>1.0.0.15-SNAPSHOT</version>
+    <version>1.0.0.14</version>
     <name>Wsxdraft Resource Address</name>
     <description>Resource address implementation of wsxdraft enpoint</description>
 
