@@ -16,7 +16,8 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.proxy</artifactId>
     <name>Proxy Service</name>
-    <version>1.0.0.15</version>
+    <description>Proxy service to connect to backend services</description>
+    <version>1.0.0.16</version>
 
     <url>https://github.com/kaazing/gateway.service.proxy.git</url>
     <scm>
