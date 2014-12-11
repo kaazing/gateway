@@ -11,7 +11,8 @@
 
     <artifactId>gateway.service.update.check</artifactId>
     <name>Update Check Service</name>
-    <version>1.0.0.2</version>
+    <description>Gateway service that checks for new releases of gateway</description>
+    <version>1.0.0.3</version>
 
     <url>https://github.com/kaazing/gateway.service.update.check.git</url>
     <scm>
@@ -31,14 +32,6 @@
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.api</artifactId>
             <version>[5.0.0.0,5.1.0.0)</version>
-        </dependency>
-        <!-- gateway.distribution.version is used for testing -->
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>gateway.distribution.version</artifactId>
-            <!-- version is hardcoded so the tests knows what version is in use -->
-            <version>5.0.0.8</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
@@ -65,7 +58,7 @@
             <version>20090211</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -85,6 +78,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <additionalClasspathElements>
+                        <!-- gateway.distribution.version is used for testing parsing of versions with 5.0.0.8 -->
+                        <additionalClasspathElement>${basedir}/src/test/resources/gateway.distribution.version-5.0.0.8.jar</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
             </plugin>
         </plugins>
     </build>
