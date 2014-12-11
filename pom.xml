@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.ws</artifactId>
-    <version>1.0.0.19-SNAPSHOT</version>
+    <version>1.0.0.18</version>
     <name>Ws Resource Address</name>
     <description>Resource address implementation of websocket endpoint</description>
 
