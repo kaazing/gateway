@@ -15,8 +15,9 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.ws</artifactId>
-    <version>1.0.0.21</version>
+    <version>1.0.0.22</version>
     <name>WS Transport</name>
+    <description>WebSocket transport</description>
 
     <url>https://github.com/kaazing/gateway.transport.ws.git</url>
     <scm>
