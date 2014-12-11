@@ -16,7 +16,8 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.echo</artifactId>
     <name>Echo Service</name>
-    <version>1.0.0.13</version>
+    <description>Gateway service that echoes whatever client has sent to it</description>
+    <version>1.0.0.14</version>
 
     <url>https://github.com/kaazing/gateway.service.echo.git</url>
     <scm>
