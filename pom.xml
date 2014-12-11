@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.httpx</artifactId>
-    <version>1.0.0.12-SNAPSHOT</version>
+    <version>1.0.0.12</version>
     <name>Httpx Resource Address</name>
     <description>Resource Address for httpx endpoint</description>
 
