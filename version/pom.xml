@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.distribution</artifactId>
-        <version>5.0.0.14</version>
+        <version>5.0.0.15-SNAPSHOT</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
