@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.wsr</artifactId>
-    <version>1.0.0.19</version>
+    <version>1.0.0.20-SNAPSHOT</version>
     <description>WebSocket protocol using RTMP transport</description>
     <name>wsr Transport</name>
 
