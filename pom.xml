@@ -17,6 +17,7 @@
     <artifactId>gateway.resource.address.ws</artifactId>
     <version>1.0.0.17</version>
     <name>Ws Resource Address</name>
+    <description>Resource address implementation of websocket endpoint</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.ws.git</url>
     <scm>
