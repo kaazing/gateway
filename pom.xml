@@ -16,7 +16,8 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
-    <version>5.0.0.86</version>
+    <description>WebSocket Gateway Server</description>
+    <version>5.0.0.87</version>
 
     <url>https://github.com/kaazing/gateway.server.git</url>
     <scm>
