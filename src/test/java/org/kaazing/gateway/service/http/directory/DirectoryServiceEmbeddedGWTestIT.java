@@ -86,21 +86,9 @@ public class DirectoryServiceEmbeddedGWTestIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "get.content.type.xsa")
-    @Test(timeout = 5000)
-    public void testGetContentTypeXSA() throws Exception {
-        robot.join();
-    }
-
     @Robotic(script = "get.content.type.xsj")
     @Test(timeout = 5000)
     public void testGetContentTypeXSJ() throws Exception {
-        robot.join();
-    }
-    
-    @Robotic(script = "get.content.type.xsja")
-    @Test(timeout = 5000)
-    public void testGetContentTypeXSJA() throws Exception {
         robot.join();
     }
 }
