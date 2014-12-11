@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.wsn</artifactId>
-    <version>1.0.0.28</version>
+    <version>1.0.0.29-SNAPSHOT</version>
     <description>Native WebSocket (RFC 6455) transport</description>
     <name>WSN Transport</name>
 
