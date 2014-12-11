@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.pipe</artifactId>
-    <version>1.0.0.12</version>
+    <version>1.0.0.13-SNAPSHOT</version>
     <name>Pipe Resource Address</name>
     <description>Resource address implementation of named-pipe endpoint</description>
 
