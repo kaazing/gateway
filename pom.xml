@@ -17,7 +17,7 @@
     <artifactId>gateway.service.proxy</artifactId>
     <name>Proxy Service</name>
     <description>Proxy service to connect to backend services</description>
-    <version>1.0.0.16-SNAPSHOT</version>
+    <version>1.0.0.16</version>
 
     <url>https://github.com/kaazing/gateway.service.proxy.git</url>
     <scm>
