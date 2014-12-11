@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.rtmp</artifactId>
-    <version>1.0.0.12-SNAPSHOT</version>
+    <version>1.0.0.12</version>
     <name>Rtmp Resource Address</name>
     <description>Resource address implementation of RTMP endpoint</description>
 
