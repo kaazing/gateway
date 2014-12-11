@@ -17,7 +17,7 @@
     <artifactId>gateway.service</artifactId>
     <name>Gateway Service</name>
     <description>Core service abstraction that has a list of accepting and connecting endpoints that provide functionality like echoing, broadcasting etc.</description>
-    <version>1.0.0.26-SNAPSHOT</version>
+    <version>1.0.0.27-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.git</url>
     <scm>
