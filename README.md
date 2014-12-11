@@ -26,7 +26,7 @@ Windows unzip kaazing-community-edition-gateway-5.0.0-windows-base.zip)
 
 # Running a Prebuilt Project
 
-You can also download and run this project by downloading the full distribution from kaazing.org
+You can also download and run this project by downloading the full distribution from [kaazing.org](http://kaazing.org)
 
 # Learning How to Develop Client Applications
 
@@ -34,4 +34,4 @@ Learn how to develop client applications using the distribution (download from k
 
 # View a Running Demo
 
-View a demo (see kaazing.org)
+View a demo (see [kaazing.org](http://kaazing.org))
