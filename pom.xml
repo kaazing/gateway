@@ -17,7 +17,7 @@
     <artifactId>gateway.management</artifactId>
     <name>Kaazing WebSocket Gateway - Management</name>
     <description>Gateway Management using JMX, SNMP</description>
-    <version>5.0.0.62</version>
+    <version>5.0.0.63</version>
 
     <url>https://github.com/kaazing/gateway.management.git</url>
     <scm>
@@ -124,12 +124,12 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.snmp4j</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>snmp4j</artifactId>
             <version>1.11.3</version>
         </dependency>
         <dependency>
-            <groupId>org.snmp4j</groupId>
+            <groupId>org.kaazing</groupId>
             <artifactId>snmp4j-agent</artifactId>
             <version>1.4.3</version>
         </dependency>
@@ -207,24 +207,6 @@
                     </execution>
                 </executions>
                 <inherited>true</inherited>
-            </plugin>
-            <!-- Attempt to turn off Javadoc at release time -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <!-- Attempt to turn off source attachment at release time. Might need
-                 to revert this later if sources are needed. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <attach>false</attach>
-                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
