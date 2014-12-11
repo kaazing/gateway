@@ -343,23 +343,6 @@
                 </executions>
                 <inherited>true</inherited>
             </plugin>
-            <!-- Attempt to turn off Javadoc at release time -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>false</skip>
-                </configuration>
-            </plugin>
-            <!-- Attempt to turn off source attachment at release time. Might need
-                 to revert this later if sources are needed. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <configuration>
-                    <attach>false</attach>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>robot-maven-plugin</artifactId>
