@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.wse</artifactId>
-    <version>1.0.0.14-SNAPSHOT</version>
+    <version>1.0.0.14</version>
     <name>Wse Resource Address</name>
     <description>Resource address implementation of wse endpoints</description>
 
