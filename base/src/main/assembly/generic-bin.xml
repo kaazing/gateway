@@ -99,9 +99,15 @@
         <include>org.slf4j:slf4j-api</include>
         <include>org.slf4j:slf4j-log4j12</include>
         <include>log4j:log4j</include>
+<<<<<<< Updated upstream
         <include>org.snmp4j:snmp4j</include>
         <include>org.snmp4j:snmp4j-agent</include>
         <include>org.hyperic:sigar.dist:jar</include>
+=======
+        <include>org.kaazing:snmp4j</include>
+        <include>org.kaazing:snmp4j-agent</include>
+        <!-- <include>org.hyperic:sigar.dist:jar</include> -->
+>>>>>>> Stashed changes
         <include>org.apache.xmlbeans:xmlbeans</include>
         <include>com.hazelcast:hazelcast</include>
         <include>com.hazelcast:hazelcast-client</include>
