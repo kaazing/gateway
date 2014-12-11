@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.wsr</artifactId>
-    <version>1.0.0.15-SNAPSHOT</version>
+    <version>1.0.0.14</version>
     <name>Wsr Resource Address</name>
     <description>Resource Address for flash bashed WebSocket endpoints</description>
 
