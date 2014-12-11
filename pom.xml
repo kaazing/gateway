@@ -16,7 +16,8 @@
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport</artifactId>
     <name>Transport Core</name>
-    <version>1.0.0.28</version>
+    <description>Core abstraction of a transport protocol that is used to communicate with an ednpoint</description>
+    <version>1.0.0.29</version>
 
     <url>https://github.com/kaazing/gateway.transport.git</url>
     <scm>
