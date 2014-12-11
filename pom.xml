@@ -15,8 +15,9 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.pipe</artifactId>
-    <version>1.0.0.15</version>
+    <version>1.0.0.16</version>
     <name>Pipe Transport</name>
+    <description>Implemenation of in-memory named pipe transport</description>
 
     <url>https://github.com/kaazing/gateway.transport.pipe.git</url>
     <scm>
