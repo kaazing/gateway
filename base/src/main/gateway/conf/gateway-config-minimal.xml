@@ -70,6 +70,14 @@
     </properties>
   </service>
 
+  <service>
+    <name>echo</name>
+    <description>Simple echo service</description>
+    <accept>ws://${gateway.hostname}:${gateway.base.port}/echo</accept>
+
+    <type>echo</type>
+  </service>
+
   <!--
     Security, for more information See 'Security' in Kaazing Admin Reference
     http://review.kaazing.wan/documentation/5.0/admin-reference/r_conf_security.html
