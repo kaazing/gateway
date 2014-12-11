@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.sse</artifactId>
-    <version>1.0.0.17-SNAPSHOT</version>
+    <version>1.0.0.17</version>
     <name>Sse Transport</name>
     <description>Server-Sent Events (SSE) transport</description>
 
