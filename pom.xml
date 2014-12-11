@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>Update Check Management Service</name>
     <description>Management extension of update check service</description>
-    <version>1.0.0.3-SNAPSHOT</version>
+    <version>1.0.0.3</version>
     
     <url>https://github.com/kaazing/gateway.service.update.check.management.git</url>
     <scm>
