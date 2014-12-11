@@ -15,8 +15,9 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.sse</artifactId>
-    <version>1.0.0.12</version>
+    <version>1.0.0.13</version>
     <name>Sse Resource Address</name>
+    <description>Resource address implementation of Server-Sent Events(SSE) endpoint</description>
 
     <url>https://github.com/kaazing/gateway.resource.address.sse.git</url>
     <scm>
