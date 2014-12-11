@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.udp</artifactId>
-    <version>1.0.0.18-SNAPSHOT</version>
+    <version>1.0.0.19-SNAPSHOT</version>
     <name>Udp Resource Address</name>
     <description>Resource address implementation of udp endpoint</description>
 
