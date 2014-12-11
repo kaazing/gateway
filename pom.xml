@@ -11,7 +11,7 @@
     <artifactId>gateway.service.amqp</artifactId>
     <name>Kaazing WebSocket Gateway - AMQP Service</name>
     <description>WebSocket Gateway AMQP Service</description>
-    <version>5.0.0.12-SNAPSHOT</version>
+    <version>5.0.0.13-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/amqp.server.git</url>
     <scm>
