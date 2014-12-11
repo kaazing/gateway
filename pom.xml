@@ -17,7 +17,7 @@
     <artifactId>gateway.service.broadcast</artifactId>
     <name>Broadcast Service</name>
     <description>Broadcast service that relays any data from back end service to all clients</description>
-    <version>1.0.0.18-SNAPSHOT</version>
+    <version>1.0.0.18</version>
 
     <url>https://github.com/kaazing/gateway.service.broadcast.git</url>
     <scm>
