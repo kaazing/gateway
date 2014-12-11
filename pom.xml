@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.bio</artifactId>
-    <version>1.0.0.22-SNAPSHOT</version>
+    <version>1.0.0.21</version>
     <name>BIO Transport</name>
     <description>Blocking i/o transport</description>
 
