@@ -17,7 +17,7 @@
     <artifactId>gateway.management</artifactId>
     <name>Kaazing WebSocket Gateway - Management</name>
     <description>Gateway Management using JMX, SNMP</description>
-    <version>5.0.0.63-SNAPSHOT</version>
+    <version>5.0.0.63</version>
 
     <url>https://github.com/kaazing/gateway.management.git</url>
     <scm>
