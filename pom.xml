@@ -17,7 +17,7 @@
     <artifactId>gateway.service.echo</artifactId>
     <name>Echo Service</name>
     <description>Gateway service that echoes whatever client has sent to it</description>
-    <version>1.0.0.14-SNAPSHOT</version>
+    <version>1.0.0.15-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.echo.git</url>
     <scm>
