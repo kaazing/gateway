@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.resource.address.httpxdraft</artifactId>
-    <version>1.0.0.13-SNAPSHOT</version>
+    <version>1.0.0.13</version>
     <name>Httpxdraft Resource Address</name>
     <description>Resource Address for httpxdraft endpoint</description>
 
