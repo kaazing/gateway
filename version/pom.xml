@@ -33,7 +33,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Implementation-Title>Kaazing Community Gateway</Implementation-Title>
+                            <Implementation-Title>Kaazing Gateway</Implementation-Title>
                             <Implementation-Version>${project.version.implementation}</Implementation-Version>
                             <Kaazing-Product>Community.Gateway</Kaazing-Product>
                         </manifestEntries>
