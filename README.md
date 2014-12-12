@@ -10,9 +10,6 @@ KAAZING Gateway and generates an executable.
 ## Minimum requirements for building the project
 * Java Developer Kit (JDK) or Java Runtime Environment (JRE) Java 7 (version 1.7.0_21) or higher
 * Apache Maven 3.0.5 or higher
-* Node package manager (npm) already installed, necessary to include KAAZING Command Center files. On Linux systems
-  this is available by installing NodeJS, e.g. 'sudo apt-get install nodejs' on Debian-based systems. On Windows
-  system, npm is available in the NodeJS install. See http://nodejs.org/download/ for the Windows download.
 
 ## Steps for building this project
 0. mvn clean install
