@@ -75,6 +75,10 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
             throws Exception {
 //        GL.debug("http", getClass().getSimpleName() + " request received.");
 
+        // unique query parameter is used only to fully defeat caching at client
+        // where cache-control headers were ignored by some http client stacks
+        httpRequest.removeParameter(".kn");
+
         ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest);
         Binding binding = bindings.getBinding(candidateAddress);
         ResourceAddress localAddress = (binding != null) ? binding.bindAddress() : null;
