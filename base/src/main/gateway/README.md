@@ -39,7 +39,7 @@ For detailed instructions on starting the Gateway, see the "Setting Up" document
 
 If you downloaded, installed, and started the full version of KAAZING Gateway, you can view the demos by visiting:
 
-	   http://localhost:8001/
+	   http://localhost:8000/
 
 For information about the product, see the documentation at http://kaazing.org.
 
