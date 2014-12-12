@@ -23,7 +23,7 @@
 -->
 
 <assembly>
-  <id>unix-base</id>
+  <id>unix</id>
   <formats>
     <format>tar.gz</format>
   </formats>
