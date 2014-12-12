@@ -17,9 +17,9 @@ KAAZING Gateway and generates an executable.
 # Running this Project
 
 0. cd base/target
-1. Unpack the appropriate distribution (Mac/Linux tar -xvf kaazing-community-edition-gateway-5.0.0-unix-base.tar.gz,
-Windows unzip kaazing-community-edition-gateway-5.0.0-windows-base.zip)
-2. Start the Gateway (on Mac/Linux ./kaazing-community-edition-gateway-5.0.0/bin/gateway.start, on Windows ./kaazing-community-edition-gateway-5.0.0/bin/gateway.start.bat)
+1. Unpack the appropriate distribution (Mac/Linux tar -xvf kaazing-gateway-community-5.0.0-unix.tar.gz,
+Windows unzip kaazing-gateway-community-5.0.0-windows.zip)
+2. Start the Gateway (on Mac/Linux ./kaazing-gateway-community-5.0.0/bin/gateway.start, on Windows ./kaazing-gateway-community-5.0.0/bin/gateway.start.bat)
 
 # Running a Prebuilt Project
 
