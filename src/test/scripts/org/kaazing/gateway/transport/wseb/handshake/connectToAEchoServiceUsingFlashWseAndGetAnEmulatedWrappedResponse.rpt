@@ -26,7 +26,7 @@ connect tcp://127.0.0.1:8003
 connected
 
 # Connection request -emulated
-write "POST /echo8003/;e/cb?.ks=200 HTTP/1.1\r\n"
+write "POST /echo8003/;e/cb HTTP/1.1\r\n"
 write "Host: localhost:8003\r\n"
 write "Connection: keep-alive\r\n"
 write "Content-Length: 3\r\n"

@@ -68,13 +68,13 @@ public class WsebInactivityTimeoutIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "echo.inactivity.timeout.should.close")
+    @Robotic("echo.inactivity.timeout.should.close")
     @Test(timeout = 15000)
     public void testEchoInactiveTimeoutShouldCloseConnection() throws Exception {
         robot.join();
     }
 
-    @Robotic(script = "echo.inactivity.timeout.should.not.ping.old.client")
+    @Robotic("echo.inactivity.timeout.should.not.ping.old.client")
     @Test(timeout = 15000)
     public void testEchoInactiveTimeoutShouldNotPingOldClient() throws Exception {
         robot.join();
