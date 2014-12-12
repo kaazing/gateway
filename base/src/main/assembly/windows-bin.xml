@@ -23,7 +23,7 @@
 -->
 
 <assembly>
-  <id>windows-base</id>
+  <id>windows</id>
   <formats>
     <format>zip</format>
   </formats>

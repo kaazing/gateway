@@ -361,7 +361,7 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
         <!-- gateway.feature.version supplies a 2-digit version of the
              major/minor version of the Gateway. -->
         <gateway.feature.version>${project.version.minor}</gateway.feature.version>
-        <gateway.edition.directory>kaazing-community-edition-gateway-${project.version.patch}</gateway.edition.directory>
+        <gateway.edition.directory>kaazing-gateway-community-${project.version.patch}</gateway.edition.directory>
         <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
     </properties>
 
