@@ -1,7 +1,7 @@
 <!--
 
     Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
-    
+
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
     distributed with this work for additional information
@@ -9,9 +9,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-    
+
       http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -166,10 +166,10 @@
         while (consoleLog.childNodes.length > 25) {
           consoleLog.removeChild(consoleLog.firstChild);
         }
-    
+
         consoleLog.scrollTop = consoleLog.scrollHeight;
       }
-    
+
       // Handle difference for IE.
       if (window.addEventListener) {
         window.addEventListener("load", detectWebSocketSupport, false);
@@ -183,7 +183,7 @@
   <body>
   <div class="mainText" float="center">
       <h2 class="header">It works!</h2>
-      <p>Congratulations! You've successfully installed and started ${gateway.name.long} ${gateway.edition} ${gateway.version}.</p>
+      <p>Congratulations! You've successfully installed and started ${gateway.name.long} ${gateway.version}.</p>
 
       <div id="webSocketSupp" class="hiddenText">
       <h4 class="header">Try out WebSockets</h4>
@@ -213,7 +213,7 @@
       <div class="clearfix"></div>
     </div>
 
-    <p>To view sample Kaazing client applications and to learn how to use, configure, and administer the Gateway, read the <a href="http://kaazing.org">Documentation</a>.</p>
+    <p>To view sample KAAZING client applications and to learn how to use, configure, and administer the Gateway, read the <a href="http://kaazing.org">documentation</a>.</p>
     <p>View system health, visualize configuration, and monitor sessions using <a href="javascript:loadCommandCenter()">Command Center</a>.</p>
   </div>
 
