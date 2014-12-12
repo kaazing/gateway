@@ -34,4 +34,4 @@ To learn how to develop client applications using the distribution, see the docu
 
 # View a Running Demo
 
-To view a demo, see kaazing.org.
+To view a demo, see http://kaazing.org.
