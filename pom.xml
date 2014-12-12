@@ -10,14 +10,14 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.0.0.41</version>
+        <version>2.1.0.2</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
     <description>Nonblocking i/o transport</description>
-    <version>1.0.0.24-SNAPSHOT</version>
+    <version>1.0.0.25-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.transport.nio.git</url>
     <scm>
