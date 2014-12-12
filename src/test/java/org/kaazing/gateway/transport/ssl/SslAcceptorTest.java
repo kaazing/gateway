@@ -233,6 +233,76 @@ public class SslAcceptorTest {
         }
     }
 
+    @Test
+    public void shouldNotBindUsingUnknownHostName() throws Exception {
+
+        VirtualHostKeySelectorTest.assumeDNSNameAccessible("one.example.test");
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage("Keystore does not have a certificate entry for otherhost");
+
+        keyStorePassword = getPassword("keystore.pw");
+        keyStore = getKeyStore("keystore.db");
+        trustStore = getTrustStore("truststore-JCEKS.db");
+
+        TestSecurityContext securityContext = getSecurityContext();
+
+        sslAcceptor = (SslAcceptor)transportFactory.getTransport("ssl").getAcceptor();
+
+        tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+
+        schedulerProvider = new SchedulerProvider();
+
+        sslAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
+        sslAcceptor.setResourceAddressFactory(resourceAddressFactory);
+        sslAcceptor.setSecurityContext(securityContext);
+
+        tcpAcceptor.setSchedulerProvider(schedulerProvider);
+
+        final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {
+            @Override
+            protected void doSessionOpened(final IoSession session)
+                throws Exception {
+            }
+
+            @Override
+            protected void doMessageReceived(IoSession session,
+                                             Object message)
+                throws Exception {
+            }
+        };
+
+        Map<String, Object> opts = buildSslOptionsMap();
+
+        URI firstURI = URI.create("ssl://one.example.test:443");
+        ResourceAddress firstAccept =
+            resourceAddressFactory.newResourceAddress(firstURI, opts);
+        sslAcceptor.bind(firstAccept, acceptHandler, null);
+
+        // The opts are mutated on first bind, so build them again
+        opts = buildSslOptionsMap();
+
+        try {
+            opts.put(ResourceAddress.TRANSPORT_URI.name(), "tcp://127.0.0.1:443");
+            URI secondURI = URI.create("ssl://otherhost:443");
+            ResourceAddress secondAccept =
+                resourceAddressFactory.newResourceAddress(secondURI, opts);
+            sslAcceptor.bind(secondAccept, acceptHandler, null);
+
+        } finally {
+            UnbindFuture unbindFuture = sslAcceptor.unbind(firstAccept);
+            unbindFuture.addListener(new IoFutureListener<UnbindFuture>() {
+                @Override
+                public void operationComplete(UnbindFuture future) {
+                    schedulerProvider.shutdownNow();
+                }
+            });
+            unbindFuture.awaitUninterruptibly(5, TimeUnit.SECONDS);
+            if (!unbindFuture.isUnbound()) {
+                throw new Exception(String.format("Failed to unbind from %s within 5 seconds", firstAccept));
+            }
+        }
+    }
+
     private Map<String, Object> buildSslOptionsMap() {
         Map<String, Object> opts = new HashMap<String, Object>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
