@@ -17,7 +17,7 @@
     <artifactId>gateway.transport.pipe</artifactId>
     <version>1.0.0.17-SNAPSHOT</version>
     <name>Pipe Transport</name>
-    <description>Implemenation of in-memory named pipe transport</description>
+    <description>Implementation of in-memory named pipe transport</description>
 
     <url>https://github.com/kaazing/gateway.transport.pipe.git</url>
     <scm>
