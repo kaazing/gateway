@@ -62,13 +62,13 @@ public class WseHandshakeIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "wse.handshake.send.receive.3_5")
+    @Robotic("wse.handshake.send.receive.3_5")
     @Test(timeout = 5000)
     public void testHandshakeSendReceiveVersion3_5() throws Exception {
         robot.join();
     }
 
-    @Robotic(script = "wse.handshake.send.receive")
+    @Robotic("wse.handshake.send.receive")
     @Test(timeout = 5000)
     public void testHandshakeSendReceive() throws Exception {
         robot.join();

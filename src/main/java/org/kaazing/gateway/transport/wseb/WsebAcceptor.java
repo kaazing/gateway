@@ -667,33 +667,37 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
 
             // Find the http/1.1 session and use it's external uri as the basis for the up and downstream urls on wire.
-            ResourceAddress http11Address = localAddress.findTransport("http[http/1.1]");
-            if (http11Address==null) {
+            // note: we must use the remote address to transfer any query parameters from create to upstream and downstream
+            ResourceAddress remoteHttp11Address = remoteAddress.findTransport("http[http/1.1]");
+            ResourceAddress localHttp11Address = localAddress.findTransport("http[http/1.1]");
+            if (remoteHttp11Address == null || localHttp11Address == null) {
                 throw new RuntimeException("Cannot construct up- and down- stream urls: no http/1.1 transport found.");
             }
-            URI externalUri = http11Address.getExternalURI();
+            URI remoteExternalHttp11 = remoteHttp11Address.getExternalURI();
+            URI localExternalHttp11 = localHttp11Address.getExternalURI();
 
             final String sessionIdSuffix = '/' + sessionId;
-            // add path suffixes for upstream and downstream URLs
+            // add path suffixes for upstream and downstream URLs relative to local bind path
+            // but retain query parameters
             // Note: to integrate with cross-site access control,
             // it is important for suffixes to be hierarchical
             // (begin with forward slash)
 
-            URI downstream = new URI(externalUri.getScheme(),
-                                     externalUri.getUserInfo(),
-                                     externalUri.getHost(),
-                                     externalUri.getPort(),
-                                     createResolvePath(externalUri, downstreamSuffix + sessionIdSuffix),
-                                     externalUri.getQuery(),
-                                     externalUri.getFragment());
+            URI remoteExternalDownstream = new URI(remoteExternalHttp11.getScheme(),
+                                                   remoteExternalHttp11.getUserInfo(),
+                                                   remoteExternalHttp11.getHost(),
+                                                   remoteExternalHttp11.getPort(),
+                                                   createResolvePath(localExternalHttp11, downstreamSuffix + sessionIdSuffix),
+                                                   remoteExternalHttp11.getQuery(),
+                                                   remoteExternalHttp11.getFragment());
 
-            URI upstream = new URI(externalUri.getScheme(),
-                                   externalUri.getUserInfo(),
-                                   externalUri.getHost(),
-                                   externalUri.getPort(),
-                                   createResolvePath(externalUri, upstreamSuffix + sessionIdSuffix),
-                                   externalUri.getQuery(),
-                                   externalUri.getFragment());
+            URI remoteExternalUpstream = new URI(remoteExternalHttp11.getScheme(),
+                                                 remoteExternalHttp11.getUserInfo(),
+                                                 remoteExternalHttp11.getHost(),
+                                                 remoteExternalHttp11.getPort(),
+                                                 createResolvePath(localExternalHttp11, upstreamSuffix + sessionIdSuffix),
+                                                 remoteExternalHttp11.getQuery(),
+                                                 remoteExternalHttp11.getFragment());
 
             //
             // UP- and DOWN- STREAMS: BIND
@@ -717,19 +721,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                                                               httpAddress.getOption(ResourceAddress.QUALIFIER));
 
 
-            ResourceAddress downstreamAddress = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), downstreamSuffix + sessionIdSuffix));
-            logger.trace("Binding "+downstreamAddress.getTransport()+" to downstreamHandler");
+            ResourceAddress localDownstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), downstreamSuffix + sessionIdSuffix));
+            logger.trace("Binding "+localDownstream.getTransport()+" to downstreamHandler");
 
-            ResourceAddress upstreamAddress = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), upstreamSuffix + sessionIdSuffix));
-            logger.trace("Binding "+upstreamAddress.getTransport()+" to upstreamHandler");
+            ResourceAddress localUpstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), upstreamSuffix + sessionIdSuffix));
+            logger.trace("Binding "+localUpstream.getTransport()+" to upstreamHandler");
 
-            BridgeAcceptor downstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(downstreamAddress);
-            downstreamAcceptor.bind(downstreamAddress,
+            BridgeAcceptor downstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(localDownstream);
+            downstreamAcceptor.bind(localDownstream,
                     selectDownstreamHandler(localAddress, wsebSession),
                     null);
 
-            BridgeAcceptor upstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(upstreamAddress);
-            upstreamAcceptor.bind(upstreamAddress,
+            BridgeAcceptor upstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(localUpstream);
+            upstreamAcceptor.bind(localUpstream,
                 selectUpstreamHandler(localAddress, wsebSession),
                     null);
 
@@ -737,7 +741,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // WEBSOCKET SESSION CLOSE
             //
             CloseFuture closeFuture = wsebSession.getCloseFuture();
-            closeFuture.addListener(getWsebCloseListener(upstreamAcceptor, downstreamAcceptor, wsebSession, downstreamAddress, upstreamAddress));
+            closeFuture.addListener(getWsebCloseListener(upstreamAcceptor, downstreamAcceptor, wsebSession, localDownstream, localUpstream));
 
 
             //
@@ -750,10 +754,10 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             IoBufferAllocatorEx<?> httpAllocator = session.getBufferAllocator();
             IoBufferEx buf = httpAllocator.wrap(httpAllocator.allocate(256)).setAutoExpander(allocator);
             CharsetEncoder utf8Encoder = UTF_8.newEncoder();
-            buf.putString(upstream.toASCIIString(), utf8Encoder);
-            if (!downstream.equals(upstream)) {
+            buf.putString(remoteExternalUpstream.toASCIIString(), utf8Encoder);
+            if (!remoteExternalDownstream.equals(remoteExternalUpstream)) {
                 buf.put(LINEFEED_BYTE);
-                buf.putString(downstream.toASCIIString(), utf8Encoder);
+                buf.putString(remoteExternalDownstream.toASCIIString(), utf8Encoder);
                 buf.put(LINEFEED_BYTE);
             }
             buf.flip();

@@ -92,14 +92,14 @@ public class WsebProxyTestIT {
     public TestRule chain = outerRule(robot).around(gateway);
 
     
-    @Robotic(script = "VerifyProxyModeFallbackFromInsecureToSecureInWseb")
+    @Robotic("VerifyProxyModeFallbackFromInsecureToSecureInWseb")
     @Test(timeout = 1500)
     @Ignore("KG-11239")
     public void VerifyProxyModeFallbackFromInsecureToSecureInWseb() throws Exception {
         robot.join();
     }
    
-    @Robotic(script = "BluecoatHeaderDetectionAndFallbackToProxyMode")
+    @Robotic("BluecoatHeaderDetectionAndFallbackToProxyMode")
     @Test(timeout = 1500)
     @Ignore("KG-11239")
     public void BluecoatHeaderDetectionAndFallbackToProxyMode() throws Exception {

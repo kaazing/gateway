@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.io.File;
@@ -28,7 +29,9 @@ import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -64,18 +67,26 @@ public class WsebTransportIT {
         }
     };
 
-    @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
 
-    @Robotic(script = "echo.aligned.downstream")
-    @Test(timeout = 4000)
+    @Rule
+    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+
+    @Robotic("echo.aligned.downstream")
+    @Test
     public void testEchoAlignedDownstream() throws Exception {
         robot.join();
     }
 
-    @Robotic(script = "echo.no.kaazing.handshake.protocol.negotiated")
-    @Test(timeout = 4000)
+    @Robotic("echo.no.kaazing.handshake.protocol.negotiated")
+    @Test
     public void testXKaazingHandshakeMustNOTBeNegotiatedForWseHandhakeRequests() throws Exception {
+        robot.join();
+    }
+
+    @Robotic("propagate.create.query.params")
+    @Test
+    public void shouldPropagateQueryParametersFromCreateToUpstreamAndDownstream() throws Exception {
         robot.join();
     }
 
