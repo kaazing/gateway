@@ -49,8 +49,10 @@ public class HttpRequestMessage extends HttpStartMessage {
 	private URI requestURI;
 	private HttpMethod method;
 	private ResourceAddress localAddress;
-	
+	private URI externalURI;
+
 	private QueryUpdate queryUpdate;
+
 
 	@Override
 	public Kind getKind() {
@@ -69,7 +71,15 @@ public class HttpRequestMessage extends HttpStartMessage {
     public ResourceAddress getLocalAddress() {
         return localAddress;
     }
-    
+
+    public void setExternalURI(URI externalURI) {
+        this.externalURI = externalURI;
+    }
+
+    public URI getExternalURI() {
+        return externalURI;
+    }
+
 	public String getParameter(String parameterName) {
 		List<String> parameterValues = getParameterValues(parameterName, false);
 		if (parameterValues == null || parameterValues.isEmpty()) {
