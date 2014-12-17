@@ -37,6 +37,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.service.ServiceContext;
@@ -50,7 +51,12 @@ public class UpdateCheckServiceTest {
     @Before
     public void setupService() {
         BasicConfigurator.configure();
-        this.service = new UpdateCheckService();
+        try {
+            this.service = new UpdateCheckService();
+        } catch (RuntimeException e) {
+            Assert.fail("There is a jar in ./src/test/resources/gateway.distribution.version-5.0.0.8.jar that needs to be on the class path, fix your test runner settings");
+            throw e;
+        }
         this.listener = new MockUpdateCheckListener();
     }
 
@@ -59,7 +65,7 @@ public class UpdateCheckServiceTest {
         service.addListener(listener);
         assertTrue("No notification when no new versions", listener.notifiedEvents.size() == 0);
     }
-    
+
     @Test
     public void testListenersAreGivenTheService() {
         service.addListener(listener);
@@ -118,10 +124,11 @@ public class UpdateCheckServiceTest {
         final ScheduledExecutorService executorService = context.mock(ScheduledExecutorService.class);
         final ScheduledFuture<?> scheduledFuture = context.mock(ScheduledFuture.class);
         final ServiceContext serviceContext = context.mock(ServiceContext.class);
-        
+
         context.checking(new Expectations() {
             {
-                oneOf(serviceContext).getServiceSpecificObjects(); will(returnValue(new HashMap<>()));
+                oneOf(serviceContext).getServiceSpecificObjects();
+                will(returnValue(new HashMap<>()));
                 oneOf(scheduleProvider).getScheduler(with(equal("update_check_service")), with(false));
                 will(returnValue(executorService));
 
@@ -133,7 +140,8 @@ public class UpdateCheckServiceTest {
                     public Object invoke(Invocation invocation) throws Throwable {
                         UpdateCheckTask task = (UpdateCheckTask) invocation.getParameter(0);
                         String webserviceUrl = task.getVersionServiceUrl();
-                        assertTrue("https://version.kaazing.com/KaazingWebSocketGateway/1.0/latest".equals(webserviceUrl));
+                        assertTrue("https://version.kaazing.org/KaazingWebSocketGateway/1.0/latest"
+                                .equals(webserviceUrl));
                         return scheduledFuture;
                     }
                 });
@@ -161,8 +169,9 @@ public class UpdateCheckServiceTest {
 
         context.checking(new Expectations() {
             {
-                oneOf(serviceContext).getServiceSpecificObjects(); will(returnValue(new HashMap<>()));
-                
+                oneOf(serviceContext).getServiceSpecificObjects();
+                will(returnValue(new HashMap<>()));
+
                 oneOf(scheduleProvider).getScheduler(with(equal("update_check_service")), with(false));
                 will(returnValue(executorService));
 
@@ -174,7 +183,8 @@ public class UpdateCheckServiceTest {
                     public Object invoke(Invocation invocation) throws Throwable {
                         UpdateCheckTask task = (UpdateCheckTask) invocation.getParameter(0);
                         String webserviceUrl = task.getVersionServiceUrl();
-                        assertTrue("https://version.kaazing.com/KaazingWebSocketGateway/1.0/latest".equals(webserviceUrl));
+                        assertTrue("https://version.kaazing.org/KaazingWebSocketGateway/1.0/latest"
+                                .equals(webserviceUrl));
                         return scheduledFuture;
                     }
                 });

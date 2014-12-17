@@ -62,10 +62,11 @@ public class UpdateCheckService implements Service {
         try {
             currentVersion = parseGatewayVersion(getGatewayProductVersionPatch());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not locate a product version associated with the jars on the classpath",
+                    e);
         }
-        versionServiceUrl = (productName.toLowerCase().contains("community")) ? "https://version.kaazing.org"
-                : "https://version.kaazing.com";
+        versionServiceUrl = (productName.toLowerCase().contains("enterprise")) ? "https://version.kaazing.com"
+                : "https://version.kaazing.org";
         // useful for local testing
         // versionServiceUrl = (productName.toLowerCase().contains("community")) ? "http://version.kaazing.org"
         // : "http://version.kaazing.com";
