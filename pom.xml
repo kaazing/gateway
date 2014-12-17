@@ -11,11 +11,11 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.1.0.2</version>
+        <version>2.1.0.3</version>
     </parent>
 
     <artifactId>gateway.distribution</artifactId>
-    <version>5.0.1.14</version>
+    <version>5.0.1.15</version>
 
     <name>Kaazing WebSocket Gateway</name>
     <description>Gateway distribution</description>
