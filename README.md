@@ -1,5 +1,7 @@
 # Gateway Distribution
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kaazing/gateway.distribution?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # About this Project
 
 The gateway.distribution packages together all the dependencies that are incorporated in a
