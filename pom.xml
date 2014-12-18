@@ -10,14 +10,14 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.1.0.2</version>
+        <version>2.1.0.3</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.management</artifactId>
     <name>Kaazing WebSocket Gateway - Management</name>
     <description>Gateway Management using JMX, SNMP</description>
-    <version>5.0.0.63</version>
+    <version>5.0.0.64</version>
 
     <url>https://github.com/kaazing/gateway.management.git</url>
     <scm>
