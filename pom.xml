@@ -11,7 +11,7 @@
     <artifactId>gateway.server.spi</artifactId>
     <name>Kaazing WebSocket Gateway - Server Service Provider Interface</name>
     <description>SPI that applications can use to implement custom functionality(like custom login modules)</description>
-    <version>5.0.0.12</version>
+    <version>5.0.0.13-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.server.spi.git</url>
     <scm>
