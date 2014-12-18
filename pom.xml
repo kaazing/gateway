@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
-
--->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -285,30 +279,6 @@ Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>xmlbeans-maven-plugin</artifactId>
                     <version>2.3.3</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>com.google.code.maven-license-plugin</groupId>
-                    <artifactId>maven-license-plugin</artifactId>
-                    <configuration>
-<!--
-                        <header>${project.build.directory}/dependency/COPYRIGHT</header>
--->
-                        <failIfMissing>true</failIfMissing>
-                        <useDefaultExcludes>false</useDefaultExcludes>
-                        <includes>
-                            <include>src/**</include>
-                        </includes>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>process-sources</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
