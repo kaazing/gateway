@@ -10,14 +10,14 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.1.0.2</version>
+        <version>2.1.0.3</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
     <description>WebSocket Gateway Server</description>
-    <version>5.0.0.88</version>
+    <version>5.0.0.89</version>
 
     <url>https://github.com/kaazing/gateway.server.git</url>
     <scm>
