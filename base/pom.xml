@@ -310,6 +310,7 @@
                                 <descriptor>src/main/assembly/unix-bin.xml</descriptor>
                                 <descriptor>src/main/assembly/windows-bin.xml</descriptor>
                             </descriptors>
+                            <tarLongFileMode>posix</tarLongFileMode>
                         </configuration>
                     </execution>
                 </executions>
