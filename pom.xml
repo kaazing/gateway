@@ -31,7 +31,7 @@
     </parent>
 
     <artifactId>gateway.distribution</artifactId>
-    <version>5.0.1.18-SNAPSHOT</version>
+    <version>5.0.1.19-SNAPSHOT</version>
 
     <name>Kaazing WebSocket Gateway</name>
     <description>Gateway distribution</description>
