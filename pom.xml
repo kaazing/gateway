@@ -9,7 +9,7 @@
 
     <artifactId>gateway.bridge.parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.0.0.9</version>
+    <version>5.0.0.10</version>
 
     <name>Kaazing Gateway Bridge Parent</name>
     <description>Project that packages bridge files for various files into jar</description>
