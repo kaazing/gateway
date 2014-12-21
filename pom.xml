@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -7,7 +8,6 @@
         <version>2.1.0.3</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.server.api</artifactId>
     <name>Kaazing WebSocket Gateway - Server API</name>
     <description>Gateway server API to embed the gateway into an application</description>
@@ -19,6 +19,10 @@
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
         <url>git@github.com:kaazing/gateway.server.api.git</url>
     </scm>
+
+    <properties>
+        <checkstyle.config.location>config/checkstyle/checkstyle.xml</checkstyle.config.location>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -33,6 +37,28 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.11</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <!-- checkstyle doesn't like lambdas and·
+                                 exceptions and bails -->
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <failOnViolation>true</failOnViolation>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.8.1</version>
