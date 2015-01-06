@@ -255,7 +255,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         while (true);
     }
 
-    private void finishWrite(final WsebSession session, final BridgeSession writer) {
+    private void finishWrite(final WsebSession session, final HttpSession writer) {
         // ensure upstream is serialized to avoid out-of-order delivery
         session.suspendWrite();
 

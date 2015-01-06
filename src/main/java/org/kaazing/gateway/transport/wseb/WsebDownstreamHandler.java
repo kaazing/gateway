@@ -203,8 +203,6 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         final ActiveWsExtensions extensions = ActiveWsExtensions.get(wsebSession);
 
         codec.setExtensions(session, extensions);
-
-        bridgeFilterChain.addLast(RECONNECT_FILTER, new WsebReconnectFilter(wsebSession));
     }
 
     public void removeBridgeFilters(IoFilterChain filterChain) {
@@ -265,8 +263,11 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             longPoll = true;
         }
 
-        // disable pipelining, avoid the need for HTTP chunking
-        session.setWriteHeader("Connection", "close");
+        if (!longPoll) {
+            // In long-polling, Content-Length would be sent. So, don't send Connection:close
+            // disable pipelining, avoid the need for HTTP chunking
+            session.setWriteHeader("Connection", "close");
+        }
 
         // set the content type header
         String contentType = this.contentType;

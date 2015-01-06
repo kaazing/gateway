@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -44,14 +44,12 @@ public class WsebProxyTestIT {
     private RobotRule robot = new RobotRule();
     KeyStore keyStore = null;
     char[] password = "ab987c".toCharArray();
-    File keyStorePwFile = new File("src/test/resources/gateway/conf/keystore.pw");
 
     private GatewayRule gateway = new GatewayRule() {
         {
             try {
                 keyStore = KeyStore.getInstance("JCEKS");              
-                FileInputStream in = new FileInputStream(
-                        "src/test/resources/gateway/conf/keystore.db");
+                FileInputStream in = new FileInputStream("target/truststore/keystore.db");
                 keyStore.load(in, password);
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -62,25 +60,26 @@ public class WsebProxyTestIT {
                         .property(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY,
                                   "src/test/resources/gateway/conf")
                         .service()
-                            .accept(URI.create("ws://localhost:8001/echo"))
-                             .accept(URI.create("wss://localhost:9002/echo"))
-                            .accept(URI.create("wss://localhost:9001/echo"))
+                            .accept(URI.create("wse://localhost:8001/echo"))
+                             .accept(URI.create("wse+ssl://localhost:9002/echo"))
+                            .accept(URI.create("wse+ssl://localhost:9001/echo"))
 
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
                         .done()
-                        .security()      
-                    // TODO: keyStoreFile and keyStorePasswordFile are
-                    // deprecated method which will be removed eventually(4.0.1
-                    // time frame) and keyStore + keyStorePassword should be
-                    // sufficient.
-                    // KG-8840
-                        .keyStoreFile("src/test/resources/gateway/conf/keystore.db")
+                        .service()
+                            .accept(URI.create("wse+ssl://localhost:9003/echo"))
+                            .type("echo")
+                            .crossOrigin()
+                                .allowOrigin("*")
+                            .done()
+                            .acceptOption("ssl.encryption", "disabled")
+                        .done()
+                    .security()
                         .keyStore(keyStore)
                         .keyStorePassword(password)
-                        .keyStorePasswordFile(keyStorePwFile)
                         .done()
                     .done();
             // @formatter:on
@@ -105,7 +104,23 @@ public class WsebProxyTestIT {
     public void BluecoatHeaderDetectionAndFallbackToProxyMode() throws Exception {
         robot.join();
     }
-   
-    
-    
+
+    @Robotic("wsebLongPolling")
+    @Test(timeout = 7500)
+    public void wsebLongPolling() throws Exception {
+        robot.join();
+    }
+
+    @Robotic("wsebSecureLongPolling")
+    @Test(timeout = 7500)
+    public void wsebSecureLongPolling() throws Exception {
+        robot.join();
+    }
+
+    @Robotic("wsebLongPollingByHeader")
+    @Test(timeout = 7500)
+    public void wsebLongPollingTriggeredByHeader() throws Exception {
+        robot.join();
+    }
+       
 }
