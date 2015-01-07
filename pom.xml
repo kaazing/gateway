@@ -17,7 +17,7 @@
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
     <description>Nonblocking i/o transport</description>
-    <version>1.0.0.25</version>
+    <version>1.0.0.26-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.transport.nio.git</url>
     <scm>
