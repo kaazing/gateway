@@ -85,4 +85,6 @@ public interface HttpSession extends BridgeSession {
 		
 	String getReason();
 
+	void shutdownWrite();
+
 }
