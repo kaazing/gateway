@@ -123,13 +123,9 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
                 try {
-                    // WsebReconnectFilter will write out the WsCommandMessage.RECONNECT message
-                    writer.close(false);
-
-                    // thread safety
-                    // this code assumes single-threaded access (flushInternal)
-                    // otherwise there is a race for code already past
-                    // the parent != null check above
+                    if (!session.isClosing()) {
+                        writer.write(WsCommandMessage.RECONNECT);
+                    }
                 }
                 finally {
                     // explicitly null the parent reference because
@@ -211,12 +207,12 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                         // Check whether we require block padding
                         boolean checkBlockPadding = (writer.getAttribute(WsebAcceptor.CLIENT_BLOCK_PADDING_KEY) != null);
                         if (checkBlockPadding) {
-                            lastWrite.addListener(new CheckBufferAndBlockPadding(session));
+                            checkBufferPadding(writer, session);
                         }
                         else {
                             // Don't incur overhead of the write future if there was no .kb parameter
                             if (clientBuffer != null) {
-                                lastWrite.addListener(new CheckBuffer(session));
+                                checkBuffer(writer, session);
                             }
                         }
                     }
@@ -303,49 +299,30 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         }
     }
 
-    private static final class CheckBufferAndBlockPadding extends CheckBuffer {
-        public CheckBufferAndBlockPadding(WsebSession wsebSession) {
-            super(wsebSession);
+
+    private static void checkBufferPadding(HttpAcceptSession parent, WsebSession wsebSession) {
+        checkBlockPadding(parent);
+        checkBuffer(parent, wsebSession);
+    }
+
+    private static void checkBuffer(HttpAcceptSession parent, WsebSession wsebSession) {
+        if (parent.isClosing() || wsebSession.isReconnecting()) {
+            return;
         }
-
-        @Override
-        public void operationComplete(WriteFuture future) {
-            HttpAcceptSession session = (HttpAcceptSession)future.getSession();
-            checkBlockPadding(session);
-
-            super.operationComplete(future);
-        }
-    };
-
-    private static class CheckBuffer implements IoFutureListener<WriteFuture> {
-
-        private final WsebSession wsebSession;
-
-        public CheckBuffer(WsebSession wsebSession) {
-            this.wsebSession = wsebSession;
-        }
-
-        @Override
-        public void operationComplete(WriteFuture future) {
-            HttpAcceptSession parent = (HttpAcceptSession)future.getSession();
-            if (parent.isClosing() || wsebSession.isReconnecting()) {
-                return;
-            }
-            // check to see if we have written out at least enough bytes to be
-            // over the client buffer
-            Long clientBuffer = (Long)parent.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY);
-            if (clientBuffer != null) {
-                long bytesWritten = parent.getWrittenBytes();
-                if (bytesWritten >= clientBuffer) {
-                    // TODO: thread safety
-                    // multiple threads can trigger a reconnect on the same WsfSession
-                    if (wsebSession.compareAndSetReconnecting(false, true)) {
-                        wsebSession.enqueueReconnectAndFlush();
-                    }
+        // check to see if we have written out at least enough bytes to be
+        // over the client buffer
+        Long clientBuffer = (Long)parent.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY);
+        if (clientBuffer != null) {
+            long bytesWritten = parent.getWrittenBytes()+parent.getScheduledWriteBytes();
+            if (bytesWritten >= clientBuffer) {
+                // TODO: thread safety
+                // multiple threads can trigger a reconnect on the same WsfSession
+                if (wsebSession.compareAndSetReconnecting(false, true)) {
+                    wsebSession.enqueueReconnectAndFlush();
                 }
             }
         }
-    };
+    }
      
    
 }
