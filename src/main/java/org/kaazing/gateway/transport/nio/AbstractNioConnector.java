@@ -201,6 +201,8 @@ public abstract class AbstractNioConnector implements BridgeConnector {
             return DefaultConnectFuture.newFailedFuture(new IllegalStateException("Connector is being shut down"));
         }
 
+        final String nextProtocol = address.getOption(ResourceAddress.NEXT_PROTOCOL);
+
         future = connector.connect(inetAddress, new IoSessionInitializer<T>() {
             @Override
             public void initializeSession(IoSession session, T future) {
@@ -218,7 +220,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                 // remote InetSocketAddress -- so we set that as the
                 // remote address in the created session.
                 REMOTE_ADDRESS.set(session, address);
-                LOCAL_ADDRESS.set(session, createResourceAddress(inetAddress));
+                LOCAL_ADDRESS.set(session, createResourceAddress(inetAddress, nextProtocol));
 
                 if (initializer != null) {
                     initializer.initializeSession(session, future);
@@ -226,7 +228,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
             }
         });
-        
+
         future.addListener(new IoFutureListener<ConnectFuture>() {
 
             @Override
@@ -236,12 +238,12 @@ public abstract class AbstractNioConnector implements BridgeConnector {
                     SocketAddress localAddress = session.getLocalAddress();
                     if (localAddress instanceof InetSocketAddress) {
                         InetSocketAddress inetSocketAddress = (InetSocketAddress) localAddress;
-                        ResourceAddress resourceAddress = createResourceAddress(inetSocketAddress);
+                        ResourceAddress resourceAddress = createResourceAddress(inetSocketAddress, nextProtocol);
                         LOCAL_ADDRESS.set(session, resourceAddress);
                     }
                     else if (localAddress instanceof NamedPipeAddress) {
                         NamedPipeAddress namedPipeAddress = (NamedPipeAddress) localAddress;
-                        ResourceAddress resourceAddress = createResourceAddress(namedPipeAddress);
+                        ResourceAddress resourceAddress = createResourceAddress(namedPipeAddress, nextProtocol);
                         LOCAL_ADDRESS.set(session, resourceAddress);
                     }
                 }
@@ -252,22 +254,22 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         return future;
     }
 
-    private ResourceAddress createResourceAddress(NamedPipeAddress namedPipeAddress) {
+    private ResourceAddress createResourceAddress(NamedPipeAddress namedPipeAddress, String nextProtocol) {
         String transportName = getTransportName();
         String addressFormat = "%s://%s";
         String pipeName = namedPipeAddress.getPipeName();
         URI transport = URI.create(format(addressFormat, transportName, pipeName));
-        return addressFactory.newResourceAddress(transport);
+        return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
-    private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
+    private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress, String nextProtocol) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
         URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-        return addressFactory.newResourceAddress(transport);
+        return addressFactory.newResourceAddress(transport, nextProtocol);
     }
     
     protected abstract IoConnectorEx initConnector();
