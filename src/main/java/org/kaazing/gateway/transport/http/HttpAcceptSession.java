@@ -47,5 +47,4 @@ public interface HttpAcceptSession extends HttpSession {
     
     CommitFuture commit();
     
-    void shutdownWrite();
 }

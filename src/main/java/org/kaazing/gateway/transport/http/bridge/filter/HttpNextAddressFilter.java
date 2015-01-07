@@ -47,7 +47,7 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 
-public class HttpNextAddressFilter extends HttpFilterAdapter {
+public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
     private ResourceAddressFactory addressFactory;
     private Bindings<HttpBinding> bindings;
@@ -75,8 +75,15 @@ public class HttpNextAddressFilter extends HttpFilterAdapter {
             throws Exception {
 //        GL.debug("http", getClass().getSimpleName() + " request received.");
 
-        ResourceAddress localAddress = findMatchingLocalAddress(session, httpRequest);
+        // unique query parameter is used only to fully defeat caching at client
+        // where cache-control headers were ignored by some http client stacks
+        httpRequest.removeParameter(".kn");
+
+        ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest);
+        Binding binding = bindings.getBinding(candidateAddress);
+        ResourceAddress localAddress = (binding != null) ? binding.bindAddress() : null;
         if (localAddress != null) {
+            httpRequest.setExternalURI(candidateAddress.getExternalURI());
             httpRequest.setLocalAddress(localAddress);
             super.httpRequestReceived(nextFilter, session, httpRequest);
         }
@@ -103,7 +110,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter {
         }
     }
 
-    private ResourceAddress findMatchingLocalAddress(IoSession session, HttpRequestMessage httpRequest) {
+    private ResourceAddress createCandidateAddress(IoSession session, HttpRequestMessage httpRequest) {
 
         URI requestURI = httpRequest.getRequestURI();
         String authority = httpRequest.getHeader(HEADER_HOST);
@@ -113,8 +120,8 @@ public class HttpNextAddressFilter extends HttpFilterAdapter {
         if (authority == null) {
             return null;
         }
-        
-        URI candidateURI = URI.create(format("%s://%s%s", scheme, authority, requestURI.getRawPath()));
+
+        URI candidateURI = URI.create(format("%s://%s/", scheme, authority)).resolve(requestURI);
         String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
 
         ResourceAddress transport = LOCAL_ADDRESS.get(session);
@@ -125,11 +132,8 @@ public class HttpNextAddressFilter extends HttpFilterAdapter {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(NEXT_PROTOCOL, nextProtocol);
         options.setOption(TRANSPORT, transport);
-        ResourceAddress candidate = addressFactory.newResourceAddress(candidateURI, options);
 
-        Binding binding = bindings.getBinding(candidate);
-
-        return (binding != null) ? binding.bindAddress() : null;
+        return addressFactory.newResourceAddress(candidateURI, options);
     }
 
 }

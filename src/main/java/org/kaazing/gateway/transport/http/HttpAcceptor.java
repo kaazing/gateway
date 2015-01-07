@@ -435,7 +435,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
 
                 ResourceAddress transportAddress = BridgeSession.REMOTE_ADDRESS.get(session);
-                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(localAddress, transportAddress);
+                ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+                options.setOption(TRANSPORT, transportAddress);
+                options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
+
+                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(httpRequest.getExternalURI(), options);
 
                 // percolate subject
                 final Subject subject = (Subject) session.removeAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);

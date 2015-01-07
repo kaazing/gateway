@@ -66,7 +66,11 @@ import org.slf4j.LoggerFactory;
 
 
 public class HttpUtils {
-
+	// An optional header for requests to the gateway to turn on long-polling
+	// X-Kaazing-Proxy-Buffering: on | off
+	// "on" means an intermediary between the client and gateway is buffering.
+	// "off" is the default value
+	private static final String PROXY_BUFFERING_HEADER = "X-Kaazing-Proxy-Buffering";
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtils.class);
 	
 	private static final Charset UTF_8 = Charset.forName("UTF-8");
@@ -378,27 +382,19 @@ public class HttpUtils {
 			}
 		}
 	}
-	
-	public static final boolean canStream(HttpSession session) {
-		boolean secure = session.isSecure();
-		boolean forceProxy = "p".equals(session.getParameter(".ki"));
-		boolean proxy = forceProxy || hasProxyHeader(session);
-		
-		if (!secure && proxy) {
+
+	public static boolean canStream(HttpSession session) {
+		if ("p".equals(session.getParameter(".ki"))) {
 			return false;
-		} else {
-			return true;
 		}
+		String responseMode = session.getReadHeader(PROXY_BUFFERING_HEADER);
+		if (responseMode != null) {
+			assert responseMode.equals("on") || responseMode.equals("off");
+			return responseMode.equals("off");
+		}
+		return true;
 	}
 
-	private static boolean hasProxyHeader(HttpSession session) {
-		return (session.getReadHeader("Via") != null ||
-				session.getReadHeader("X-Forwarded-For") != null ||
-				session.getReadHeader("X-Forwarded-Host") != null ||
-                session.getReadHeader("X-Forwarded-Server") != null ||
-                session.getReadHeader("X-BlueCoat-Via") != null);
-	}
-	
 	public static final String newSessionId() {
 		// base-62, 32 chars long, random
 		int size = 32;
