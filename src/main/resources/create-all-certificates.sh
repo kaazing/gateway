@@ -6,3 +6,4 @@
 ./create-certificate.sh two.kaazing.test two.kaazing.test 'CN=two.kaazing.test, OU=Engineering, O=Kaazing Corporation, L=Mountain View, S=California, C=US' 'DNS:two.kaazing.test,DNS:www.two.kaazing.test'
 ./create-certificate.sh one.example.test one.example.test 'CN=one.example.test, OU=Engineering, O=Kaazing Corporation, L=Mountain View, S=California, C=US' 'DNS:one.example.test,DNS:www.one.example.test'
 ./create-certificate.sh two.example.test two.example.test 'CN=two.example.test, OU=Engineering, O=Kaazing Corporation, L=Mountain View, S=California, C=US' 'DNS:two.example.test,DNS:www.two.example.test'
+./create-ocsp.sh ocsp ocsp 'CN=localhost, OU=Engineering, O=Kaazing Corporation, L=Mountain View, S=California, C=US' 'DNS:localhost,DNS:www.localhost'
