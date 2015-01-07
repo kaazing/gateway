@@ -70,7 +70,7 @@ public class WsebAsyncAuthIT {
 	@Rule
 	public TestRule chain = outerRule(robot).around(gateway);
 
-	@Robotic(script = "asyncAuthWsebSuccess")
+	@Robotic("asyncAuthWsebSuccess")
     @Test(timeout = 5000)
 	public void asyncAuthWsebSuccess() throws Exception {
 		robot.join();

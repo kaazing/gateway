@@ -35,6 +35,7 @@ import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
@@ -227,6 +228,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 enqueueReconnectRequest();
                 // Do not return here, need to flush (below) to make sure the old downstream gets closed
                 // even if there is no more downstream data being sent (KG-4384)
+            } else {
+                if (Long.valueOf(0L).equals(newWriter.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY))) {
+                    // long-polling case, need to buffer so that Content-Length is written
+                    newWriter.suspendWrite();
+                }
             }
 
             if (!isWriteSuspended()) {
@@ -255,8 +261,18 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    public boolean detachWriter(IoSessionEx oldWriter) {
-        return compareAndSetParent(oldWriter, null);
+    boolean detachWriter(HttpSession oldWriter) {
+        boolean detached = compareAndSetParent(oldWriter, null);
+
+        if (detached && Long.valueOf(0L).equals(oldWriter.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY))) {
+            // long-polling case, writes are done (so end of buffering)
+            oldWriter.shutdownWrite();
+            oldWriter.resumeWrite();
+        }
+
+        oldWriter.close(false);
+
+        return detached;
     }
 
     public void attachPendingWriter() {

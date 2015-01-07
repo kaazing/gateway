@@ -88,7 +88,7 @@ public class FlashWseEmulatedResponseOnChromeTestIT {
 	@Rule
 	public TestRule chain = outerRule(robot).around(gateway);
 
-	@Robotic(script = "connectToAEchoServiceUsingFlashWseAndGetAnEmulatedWrappedResponse")
+	@Robotic("connectToAEchoServiceUsingFlashWseAndGetAnEmulatedWrappedResponse")
 	@Test(timeout = 1500)
 	public void connectToAEchoServiceUsingFlashWseAndGetAnEmulatedWrappedResponse()
 			throws Exception {
