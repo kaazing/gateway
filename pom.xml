@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>gateway.transport.wseb</artifactId>
-    <version>1.0.0.27</version>
+    <version>1.0.0.28-SNAPSHOT</version>
     <name>WSEB Transport</name>
     <description>WebSocket emulation transport</description>
 
