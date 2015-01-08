@@ -10,12 +10,12 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>common</artifactId>
-        <version>2.1.0.2</version>
+        <version>2.1.0.3</version>
     </parent>
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.ssl</artifactId>
-    <version>1.0.0.24</version>
+    <version>1.0.0.25</version>
     <name>SSL Transport</name>
     <description>SSL/TLS transport</description>
 
@@ -88,10 +88,32 @@
             <artifactId>jmock-legacy</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>robot.junit</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>robot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipITs}</skipTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
