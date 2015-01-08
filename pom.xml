@@ -15,7 +15,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.ssl</artifactId>
-    <version>1.0.0.25-SNAPSHOT</version>
+    <version>1.0.0.26-SNAPSHOT</version>
     <name>SSL Transport</name>
     <description>SSL/TLS transport</description>
 
