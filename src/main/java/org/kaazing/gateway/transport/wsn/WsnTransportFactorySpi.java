@@ -33,7 +33,7 @@ import org.kaazing.gateway.transport.TransportFactorySpi;
 public final class WsnTransportFactorySpi extends TransportFactorySpi {
 
     private final Collection<String> WSN_SCHEMES =
-            Collections.unmodifiableCollection(Arrays.asList("wsn", "wsn+ssl", "wsx"));
+            Collections.unmodifiableCollection(Arrays.asList("wsn", "wsn+ssl", "wsx", "wsx+ssl"));
 
     @Override
     public String getTransportName() {
