@@ -16,7 +16,7 @@
 
     <groupId>org.kaazing</groupId>
     <artifactId>gateway.truststore</artifactId>
-    <version>1.0.0.73</version>
+    <version>1.0.0.74</version>
     <packaging>jar</packaging>
 
     <name>Kaazing WebSocket Gateway - Truststore</name>
