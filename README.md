@@ -1,5 +1,10 @@
 # gateway.transport.bio
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.bio.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.bio
+
 # About this Project
 
 The gateway.transport.bio is implemention of blocking i/o. 
