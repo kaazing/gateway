@@ -1,5 +1,10 @@
 # Mina Core
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/mina.core-1.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/mina.core-1
+
 # About this Project
 
 The mina.core projects has minor alterations to the Apache project 
