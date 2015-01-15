@@ -1,5 +1,10 @@
 # gateway.transport.ws
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.ws.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.ws
+
 # About this Project
 
 The gateway.transport.ws is an implemenation of WebSocket transport. 
