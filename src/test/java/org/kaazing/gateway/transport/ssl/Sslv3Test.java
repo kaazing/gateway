@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway;
+package org.kaazing.gateway.transport.ssl;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
