@@ -1,5 +1,10 @@
 # gateway.transport.http
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.http.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.http
+
 # About this Project
 
 The gateway.transport.http is an implemenation of HTTP transport. 
