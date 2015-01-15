@@ -1,5 +1,10 @@
 # gateway.transport.wsr
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.wsr.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.wsr
+
 # About this Project
 
 The gateway.transport.wsr is an implemenation of WebSocket using RTMP transport. 
