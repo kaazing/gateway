@@ -1,5 +1,10 @@
 # gateway.service.update.check
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.update.check.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.update.check
+
 # About this Project
 
 The gateway.service.update.check project hosts a service that checks if there is a new release of gateway available.
