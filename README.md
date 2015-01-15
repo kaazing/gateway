@@ -1,5 +1,10 @@
 # gateway.resource.address.wse
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.wse.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.wse
+
 # About this Project
 
 The gateway.resource.address.wse is an implementation of WebSocket emulated enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for pipe URI schemes.
