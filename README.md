@@ -1,5 +1,10 @@
 # gateway.server.demo
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.server.demo.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.server.demo
+
 # About this Project
 
 This project is a demo using the gateway.server.demo API
