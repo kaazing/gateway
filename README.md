@@ -1,5 +1,10 @@
 # gateway.resource.address.httpxe
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.httpxe.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.httpxe
+
 # About this Project
 
 The gateway.resource.address.httpxe is an implementation of httpxe enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for httpxe and httpxe+ssl URI schemes.
