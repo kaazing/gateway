@@ -1,5 +1,10 @@
 # gateway.resource.address.httpx
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.httpx.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.httpx
+
 # About this Project
 
 The gateway.resource.address.httpx is an implementation of httpx enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for httpx and httpx+ssl URI schemes.
