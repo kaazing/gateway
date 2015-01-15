@@ -1,5 +1,10 @@
 # gateway.resource.address.pipe
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.pipe.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.pipe
+
 # About this Project
 
 The gateway.resource.address.pipe is an implementation of pipe enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for pipe URI schemes. Pipe based endpoints use in-memory transport to communicate with another endpoint in the same gateway.
