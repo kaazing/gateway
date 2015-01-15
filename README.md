@@ -1,5 +1,10 @@
 # gateway.bridge 
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.bridge-1.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.bridge-1
+
 # About this Project
 
 This project combines the different client type bridges into a single gateway.bridge jar that can be served from the gateway
