@@ -1,5 +1,10 @@
 # Gateway Server
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.server.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.server
+
 # About this Project
 
 Gateway Server is the container for all the componenets of a Kaazing Gateway
