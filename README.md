@@ -1,5 +1,10 @@
 # gateway.transport.sse
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.sse.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.sse
+
 # About this Project
 
 The gateway.transport.sse is an implemenation of Server-Sent Events transport. 
