@@ -1,5 +1,10 @@
 # gateway.resource.address.tcp
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.tcp.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.tcp
+
 # About this Project
 
 The gateway.resource.address.tcp is an implementation of tcp enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for tcp URI schemes.
