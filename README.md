@@ -1,5 +1,10 @@
 # gateway.util
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.util.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.util
+
 # About this Project
 
 The gateway.util hosts various common utility code
