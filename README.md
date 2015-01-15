@@ -1,5 +1,10 @@
 # Gateway Distribution
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.distribution.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.distribution
+
 # About this Project
 
 The gateway.distribution packages together all the dependencies that are incorporated in a
