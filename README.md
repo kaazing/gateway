@@ -1,5 +1,10 @@
 # gateway.transport.wseb
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.wseb.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.wseb
+
 # About this Project
 
 The gateway.transport.wseb is an implemenation of WebSocket emulation transport. 
