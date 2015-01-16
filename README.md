@@ -1,5 +1,6 @@
 # Gateway Distribution
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kaazing/gateway.distribution?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status][build-status-image]][build-status]
 
 [build-status-image]: https://travis-ci.org/kaazing/gateway.distribution.svg?branch=develop

@@ -1,4 +1,4 @@
-# Welcome to KAAZING Gateway Release 5.0
+# Welcome to KAAZING Gateway 5.0
 
    KAAZING Gateway is an HTML5-compliant WebSocket server, with
    emulation to support legacy browsers and mobile devices.
@@ -31,15 +31,11 @@
 
 To start KAAZING Gateway, run the gateway.start command from the directory in which you have just unpacked the KAAZING Gateway distribution, for example: C:\kaazing\kaazing-gateway-edition-version\bin.
 
-For detailed instructions on starting the Gateway, see the "Setting Up" document for this edition at:
-
-	http://kaazing.org
+For detailed instructions on starting the Gateway, see the "Setting Up" document at http://kaazing.org.
 
 # View the Demos and Documentation
 
-If you downloaded, installed, and started the full version of KAAZING Gateway, you can view the demos by visiting:
-
-	   http://localhost:8000/
+If you downloaded, installed, and started the full version of KAAZING Gateway, you can view the demos by visiting http://localhost:8000/
 
 For information about the product, see the documentation at http://kaazing.org.
 
