@@ -1,5 +1,10 @@
 # gateway.resource.address
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address
+
 # About this Project
 
 The gateway.resource.address is a core abstraction to represent an endpoint. The endpoint can be a server enpoint or a client endpoint.  It is hierarchical in nature and may have a transport resource address representing an another endpoint used to reach it.
