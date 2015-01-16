@@ -1,5 +1,10 @@
 # gateway.server.spi
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.server.spi.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.server.spi
+
 # About this Project
 
 The gateway.server.spi hosts SPI that applications can use to implement some custom functionality. For example, applications can build custom login modules that do authentication and autorization.
