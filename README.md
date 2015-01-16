@@ -1,5 +1,10 @@
 # gateway.resource.address.httpx-draft
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.httpxdraft.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.httpxdraft
+
 # About this Project
 
 The gateway.resource.address.httpx is an implementation of httpx-draft enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for httpx-draft and httpx-draft+ssl URI schemes.
