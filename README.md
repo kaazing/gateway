@@ -1,5 +1,10 @@
 # gateway.transport
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport
+
 # About this Project
 
 The gateway.transport is a core abstraction of a transport protocol that is used to communicate with an endpoint. 
