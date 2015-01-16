@@ -1,5 +1,10 @@
 # mina.netty
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/mina.netty.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/mina.netty
+
 # About this Project
 
 The mina.netty project implements mina abstractions using netty.
