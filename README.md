@@ -1,5 +1,10 @@
 # gateway.resource.address.wsr
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.wsr.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.wsr
+
 # About this Project
 
 The gateway.resource.address.wsr is an implementation of flash based WebSocket enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for websocket URI schemes.
