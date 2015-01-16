@@ -1,5 +1,10 @@
 # Test Util
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/test.util-1.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/test.util-1
+
 # About this Project
 
 Miscellaneous test utilities used for a variety of projects
