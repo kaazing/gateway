@@ -1,5 +1,10 @@
 # gateway.server.api
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.server.api.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.server.api
+
 # About this Project
 
 The gateway.server.api has API to embed gateway in an application. The API provides a way to start and stop the gateway.
