@@ -1,5 +1,10 @@
 # gateway.resource.address.sse
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.sse.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.sse
+
 # About this Project
 
 The gateway.resource.address.sse is an implementation of sse (Server-Sent Events) enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for sse URI schemes.
