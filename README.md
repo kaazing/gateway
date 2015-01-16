@@ -1,5 +1,10 @@
 # gateway.transport.pipe
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.pipe.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.pipe
+
 # About this Project
 
 The gateway.transport.pipe is an implemenation of in-memory named pipe transport. 
