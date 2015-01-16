@@ -1,5 +1,10 @@
 # gateway.resource.address.http
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.http.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.http
+
 # About this Project
 
 The gateway.resource.address.http is an implementation of http enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for http and https URI schemes.
