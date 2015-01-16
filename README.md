@@ -1,5 +1,10 @@
 # gateway.security
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.security.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.security
+
 # About this Project
 
 The gateway.security hosts common security abstractions of gateway. Gateway integrates with Java Authentication and Authorization Service (JAAS) and this project hosts the pluggable login modules to support authentication and authorization.
