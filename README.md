@@ -1,5 +1,10 @@
 # gateway.resource.address.wsdraft
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.resource.address.wsdraft.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.resource.address.wsdraft
+
 # About this Project
 
 The gateway.resource.address.wsdraft is an implementation of wsdraft (WebSocket drafts) enpoint representations. It builds on the core abstraction provided by the gaeway.resource.address and defines endpoints for wsdraft URI schemes.
