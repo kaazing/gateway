@@ -36,12 +36,13 @@ export DEMOCA_CERT=../democa.crt
 export DEMOCA_ALIAS=democa
 
 echo 'Download the keytool jar from github, this is a tool that fixes a bug in Java 7 Keytool with wildcard certs'
-git clone https://github.com/kaazing/keytool.dnsname
-pushd keytool.dnsname
-mvn clean install
-cp target/keytool.dnsname*.jar ../keytool.dnsname.jar
-popd
-#curl -O http://artifactory.kaazing.wan/artifactory/archiva-internal/com/kaazing/keytool/com.kaazing.keytool.dnsname/0.0.0.2/com.kaazing.keytool.dnsname-0.0.0.2.jar
+#git clone https://github.com/dpwspoon/keytool-dnsname -b feature/community
+#pushd keytool-dnsname
+#mvn clean install
+#cp target/keytool.dnsname*.jar ../keytool.dnsname.jar
+#popd
+#curl -o keytool.dnsname.jar http://artifactory.kaazing.wan/artifactory/archiva-internal/com/kaazing/keytool/com.kaazing.keytool.dnsname/0.0.0.2/com.kaazing.keytool.dnsname-0.0.0.2.jar
+cp ../keytool.dnsname.jar keytool.dnsname.jar
 
 echo 'Generate certificate'
 keytool -genkeypair -keystore ${CERTNAME}.jks -keypass storepass -storepass storepass -alias ${ALIAS} -dname "${DNAME}" -keyalg ${KEYALG} -validity 1500
