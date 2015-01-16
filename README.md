@@ -1,5 +1,10 @@
 # gateway.transport.nio
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.transport.nio.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.transport.nio
+
 # About this Project
 
 The gateway.transport.nio is an implemenation of non-blocking i/o transport. 
