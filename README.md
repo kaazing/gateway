@@ -1,5 +1,10 @@
 # gateway.service.proxy
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.proxy.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.proxy
+
 # About this Project
 
 The gateway.service.proxy is an implemenation of proxy service. This service enables gateway clients connect to back-end servers that cannot be connected directly.
