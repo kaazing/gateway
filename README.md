@@ -1,5 +1,10 @@
 # gateway.service.http.balancer
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.http.balancer.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.http.balancer
+
 # About this Project
 
 The gateway.service.http.balancer is an implemenation of balancer service that balances requests for any other gateway service.
