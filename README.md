@@ -1,5 +1,10 @@
 # gateway.service.http.directory
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.http.directory-1.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.http.directory-1
+
 # About this Project
 
 The gateway.service.http.directory is an implemenation of directory service that exposes directories or files hosted on the gateway via HTTP.
