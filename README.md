@@ -1,5 +1,10 @@
 # gateway.service.echo
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.echo.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.echo
+
 # About this Project
 
 The gateway.service.echo is an implemenation of echo service that echoes any received data to the sender.
