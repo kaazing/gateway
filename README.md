@@ -1,5 +1,10 @@
 # gateway.service
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service
+
 # About this Project
 
 The gateway.service is an implemenation of core service abstraction. A service is a list of accepting and connecting endpoints that provide certain functionality (for e.g echoing, broadcasting).
