@@ -1,5 +1,10 @@
 # Gateway Service AMQP
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.amqp-1.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.amqp-1
+
 # About this Project
 
 This projects provides a AMQP 0.9.1 service to the Kaazing Gateway 
