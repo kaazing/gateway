@@ -1,5 +1,10 @@
 # gateway.service.broadcast
 
+[![Build Status][build-status-image]][build-status]
+
+[build-status-image]: https://travis-ci.org/kaazing/gateway.service.broadcast.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway.service.broadcast
+
 # About this Project
 
 The gateway.service.broadcast is an implemenation of broadcast service that relays any data from a back-end service.
