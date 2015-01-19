@@ -1,6 +1,5 @@
 language: Java
-os:
-  - osx
 jdk:
   - oraclejdk7
   - openjdk7
+script: mvn clean verify
