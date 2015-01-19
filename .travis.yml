@@ -2,4 +2,3 @@ language: Java
 jdk:
   - oraclejdk7
   - openjdk7
-script: mvn verify
