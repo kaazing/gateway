@@ -75,6 +75,9 @@
                             <excludePackageNames>org.kaazing.gateway.server.impl</excludePackageNames>
                             <windowtitle>All Classes - API Documentation</windowtitle>
                             <doctitle>"All Classes - API Documentation"</doctitle>
+                            <bottom>
+                                <![CDATA[Copyright &copy; 2014 Kaazing Licensed under Apache 2.0.]]>
+                            </bottom>
                         </configuration>
                     </execution>
                 </executions>
