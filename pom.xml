@@ -21,7 +21,7 @@
     </scm>
 
     <properties>
-        <checkstyle.config.location>config/checkstyle/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.config.location>https://raw.githubusercontent.com/kaazing/code.quality/develop/src/main/resources/org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
     </properties>
 
     <dependencies>
