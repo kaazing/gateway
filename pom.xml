@@ -21,7 +21,7 @@
     </scm>
 
     <properties>
-        <checkstyle.config.location>https://raw.githubusercontent.com/kaazing/code.quality/develop/src/main/resources/org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
     </properties>
 
     <dependencies>
@@ -58,6 +58,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.kaazing</groupId>
+                        <artifactId>code.quality</artifactId>
+                        <version>1.1-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
