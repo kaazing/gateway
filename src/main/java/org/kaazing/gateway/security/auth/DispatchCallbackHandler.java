@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -39,15 +39,16 @@ import org.kaazing.gateway.security.TypedCallbackHandlerMap;
  * regard to the sharedState/callback choice, and always
  * use callback.
  */
-public class DispatchCallbackHandler implements CallbackHandler{
+public class DispatchCallbackHandler implements CallbackHandler {
 
-    private Map<Class<? extends Callback>, CallbackHandler> dispatchMap = new ConcurrentHashMap<Class<? extends Callback>, CallbackHandler>();
+    private Map<Class<? extends Callback>, CallbackHandler> dispatchMap =
+            new ConcurrentHashMap<Class<? extends Callback>, CallbackHandler>();
 
     public DispatchCallbackHandler register(Class<? extends Callback> callbackClass, CallbackHandler callbackHandler) {
-        if ( callbackClass == null ) {
+        if (callbackClass == null) {
             throw new NullPointerException("callbackClass");
         }
-        if ( callbackHandler == null ) {
+        if (callbackHandler == null) {
             throw new NullPointerException("callbackHandler");
         }
 
@@ -58,7 +59,7 @@ public class DispatchCallbackHandler implements CallbackHandler{
 
     public DispatchCallbackHandler registerAll(TypedCallbackHandlerMap callbackHandlers) {
 
-        if ( callbackHandlers == null ) {
+        if (callbackHandlers == null) {
             throw new NullPointerException("callbackHandlers");
         }
 
@@ -68,7 +69,7 @@ public class DispatchCallbackHandler implements CallbackHandler{
     }
 
     public CallbackHandler unregister(Class<? extends Callback> callbackClass) {
-        if ( callbackClass == null ) {
+        if (callbackClass == null) {
             throw new NullPointerException("callbackClass");
         }
         dispatchMap.remove(callbackClass);
@@ -78,19 +79,21 @@ public class DispatchCallbackHandler implements CallbackHandler{
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        if ( dispatchMap != null && dispatchMap.size() > 0) {
+        if (dispatchMap != null && dispatchMap.size() > 0) {
 
-            if ( callbacks != null && callbacks.length > 0) {
-                for ( Callback callback : callbacks ) {
-                    if ( callback != null ) {
+            if (callbacks != null && callbacks.length > 0) {
+                for (Callback callback : callbacks) {
+                    if (callback != null) {
                         CallbackHandler handler = dispatchMap.get(callback.getClass());
-                        if ( handler != null ) {
+                        if (handler != null) {
                              handler.handle(new Callback[]{callback});
                         } else {
-                            throw new UnsupportedCallbackException(callback, "Could not find a handler for callback class "+callback.getClass().getName());
+                            throw new UnsupportedCallbackException(callback, "Could not find a handler for callback class "
+                                    + callback.getClass().getName());
                         }
                     } else {
-                        throw new UnsupportedCallbackException(callback, "A null callback was encountered in the callbacks provided.");
+                        throw new UnsupportedCallbackException(callback,
+                                "A null callback was encountered in the callbacks provided.");
 
                     }
                 }

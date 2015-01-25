@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -62,8 +62,8 @@ public class FileLoginModule implements LoginModule {
     private static final String PWD = "javax.security.auth.login.password";
 
     private static enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
-	private static final ConcurrentMap<String, JaasConfig> SHARED_STATE = new ConcurrentHashMap<String, JaasConfig>();
-	
+    private static final ConcurrentMap<String, JaasConfig> SHARED_STATE = new ConcurrentHashMap<String, JaasConfig>();
+
     private State state;
     private Subject subject;
     private UserConfig user;
@@ -85,43 +85,44 @@ public class FileLoginModule implements LoginModule {
                            Map<String, ?> sharedState, Map<String, ?> options) {
 
         this.sharedState = sharedState;
-        this.tryFirstPass = "true".equalsIgnoreCase((String)options.get("tryFirstPass"));
-        this.debug = "true".equalsIgnoreCase((String)options.get("debug"));
+        this.tryFirstPass = "true".equalsIgnoreCase((String) options.get("tryFirstPass"));
+        this.debug = "true".equalsIgnoreCase((String) options.get("debug"));
 
-		// TODO: retrieve parsed XML from sharedState
-		String jaasFilename = (String)options.get(FILE_KEY);
-		if (jaasFilename == null) {
-			throw new RuntimeException("Missing required option \"" + FILE_KEY + "\" to locate JAAS configuration file");
-		}
-		
-		JaasConfig jaasConfig = (JaasConfig)SHARED_STATE.get(jaasFilename);
-		if (jaasConfig == null) {
-			File jaasFile = new File(jaasFilename);
-			if (!jaasFile.isAbsolute()) {
-				String configDir = (String)options.get("GATEWAY_CONFIG_DIRECTORY");
-				if (configDir != null) {
-					jaasFile = new File(configDir, jaasFilename);
-				}
-			}
-			
-			if (jaasFile.exists() && jaasFile.isFile()) {
-				try {
-					jaasConfig = new JaasConfigParser().parse(jaasFile.toURI().toURL());
-					SHARED_STATE.put(jaasFilename, jaasConfig);
-				} 
-				catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+        // TODO: retrieve parsed XML from sharedState
+        String jaasFilename = (String) options.get(FILE_KEY);
+        if (jaasFilename == null) {
+            throw new RuntimeException("Missing required option \"" + FILE_KEY + "\" to locate JAAS configuration file");
+        }
 
-			} else {
-//                            throw new RuntimeException(String.format("Unable to use '%s' for file-based login: File does not exist or is directory", jaasFile));
+        JaasConfig jaasConfig = (JaasConfig) SHARED_STATE.get(jaasFilename);
+        if (jaasConfig == null) {
+            File jaasFile = new File(jaasFilename);
+            if (!jaasFile.isAbsolute()) {
+                String configDir = (String) options.get("GATEWAY_CONFIG_DIRECTORY");
+                if (configDir != null) {
+                    jaasFile = new File(configDir, jaasFilename);
+                }
+            }
+
+            if (jaasFile.exists() && jaasFile.isFile()) {
+                try {
+                    jaasConfig = new JaasConfigParser().parse(jaasFile.toURI().toURL());
+                    SHARED_STATE.put(jaasFilename, jaasConfig);
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+            } else {
+//  throw new RuntimeException(
+//      String.format("Unable to use '%s' for file-based login: File does not exist or is directory", jaasFile));
                         }
-		}
+        }
 
-		this.state = State.INITIALIZE_COMPLETE;
-		this.subject = subject;
-		this.handler = callback;
-		this.jaasConfig = jaasConfig;
+        this.state = State.INITIALIZE_COMPLETE;
+        this.subject = subject;
+        this.handler = callback;
+        this.jaasConfig = jaasConfig;
     }
 
     public boolean login() throws LoginException {
@@ -218,7 +219,7 @@ public class FileLoginModule implements LoginModule {
         } catch (LoginException loginException) {
             cleanState();
             if (debug) {
-                LOG.debug("[FileLoginModule] " + "regular authentication failed: "+loginException.getMessage());
+                LOG.debug("[FileLoginModule] " + "regular authentication failed: " + loginException.getMessage());
             }
             throw loginException;
         }
@@ -259,7 +260,7 @@ public class FileLoginModule implements LoginModule {
 
             cleanState();
 
-            if ( LOG.isTraceEnabled() ) {
+            if (LOG.isTraceEnabled()) {
                 LOG.trace(String.format("Did not find username '%s'.", usernameNotFoundStr));
             }
 
@@ -297,8 +298,8 @@ public class FileLoginModule implements LoginModule {
 
     private void getUsernamePassword(boolean useSharedState) throws LoginException {
         if (useSharedState) {
-            username = (String)sharedState.get(NAME);
-            password = (char[])sharedState.get(PWD);
+            username = (String) sharedState.get(NAME);
+            password = (char[]) sharedState.get(PWD);
             return;
         }
 
@@ -327,7 +328,7 @@ public class FileLoginModule implements LoginModule {
     private void logout0() throws LoginException {
         Set<Principal> principals = subject.getPrincipals();
         principals.remove(user);
-        if (userRoles!= null) {
+        if (userRoles != null) {
             principals.removeAll(userRoles);
         }
 

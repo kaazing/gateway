@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -49,7 +49,8 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
     private boolean tryFirstToken;
 
     @Override
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler,
+                           Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, sharedState, options);
         this.debug = "true".equalsIgnoreCase((String) options.get("debug"));
         this.tryFirstToken = "true".equalsIgnoreCase((String) options.get("tryFirstToken"));
@@ -58,7 +59,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
     @Override
     protected boolean doLogin() throws LoginException {
 
-        if ( !authenticationSchemeIsNegotiate()) {
+        if (! authenticationSchemeIsNegotiate()) {
             return true;
         }
 
@@ -77,8 +78,8 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             attemptAuthenticate(false);
             return true;
         } catch (Exception loginException) {
-            if ( debug ) {
-                LOG.debug("[NegotiateLoginModule] " + "regular authentication failed: "+loginException.getMessage());
+            if (debug) {
+                LOG.debug("[NegotiateLoginModule] " + "regular authentication failed: " + loginException.getMessage());
             }
         }
 
@@ -94,7 +95,7 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
             if (negotiateAuthToken == null) {
                 throw new LoginException("No HTTP Negotiate Authentication Token found.");
             }
-            if ( negotiateAuthToken.startsWith("Negotiate ")) {
+            if (negotiateAuthToken.startsWith("Negotiate ")) {
                 negotiateAuthToken = negotiateAuthToken.substring("Negotiate ".length());
             }
 

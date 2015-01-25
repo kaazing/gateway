@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,7 @@ import javax.security.auth.spi.LoginModule;
 
 public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
-    protected static enum State {INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE}
+    protected static enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
 
     protected State state = State.INITIALIZE_REQUIRED;
     protected Subject subject;
@@ -85,7 +85,7 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
     private boolean login0() throws LoginException {
         boolean result = doLogin();
-        if ( result ) {
+        if (result) {
             this.state = State.LOGIN_COMPLETE;
         }
         return result;
@@ -94,7 +94,7 @@ public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
     private boolean commit0()  throws LoginException {
         boolean result = doCommit();
-        if ( result ) {
+        if (result) {
             this.state = State.COMMIT_COMPLETE;
         }
         return result;
