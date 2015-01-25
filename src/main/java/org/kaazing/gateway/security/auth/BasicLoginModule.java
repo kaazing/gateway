@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -56,7 +56,8 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
     private boolean tryFirstToken;
 
     @Override
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler,
+                           Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, sharedState, options);
         this.debug = "true".equalsIgnoreCase((String) options.get("debug"));
         this.tryFirstToken = "true".equalsIgnoreCase((String) options.get("tryFirstToken"));
@@ -65,7 +66,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
     @Override
     protected boolean doLogin() throws LoginException {
 
-        if ( !authenticationSchemeIsBasic()) {
+        if (!authenticationSchemeIsBasic()) {
             return true;
         }
 
@@ -85,8 +86,8 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             return true;
         } catch (LoginException loginException) {
             cleanState();
-            if ( debug ) {
-                LOG.debug("[BasicLoginModule] " + "regular authentication failed: "+loginException.getMessage());
+            if (debug) {
+                LOG.debug("[BasicLoginModule] " + "regular authentication failed: " + loginException.getMessage());
             }
         }
 
@@ -125,7 +126,7 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
             if (basicAuthToken == null) {
                 throw new LoginException("No HTTP Basic Authentication Token found.");
             }
-            if ( basicAuthToken.startsWith("Basic ")) {
+            if (basicAuthToken.startsWith("Basic ")) {
                 basicAuthToken = basicAuthToken.substring("Basic ".length());
             }
             ByteBuffer credentialsBuf = Encoding.BASE64.decode(ByteBuffer.wrap(basicAuthToken.getBytes(UTF8)));
@@ -142,8 +143,8 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
 
                 ((Map) sharedState).put(NAME, username);
                 ((Map) sharedState).put(PWD, password);
-                ((DispatchCallbackHandler)handler).register(NameCallback.class, new NameCallbackHandler(username));
-                ((DispatchCallbackHandler)handler).register(PasswordCallback.class, new PasswordCallbackHandler(password));
+                ((DispatchCallbackHandler) handler).register(NameCallback.class, new NameCallbackHandler(username));
+                ((DispatchCallbackHandler) handler).register(PasswordCallback.class, new PasswordCallbackHandler(password));
             } else {
                 throw new LoginException("Syntax error while decoding HTTP Basic Authentication token.");
             }
@@ -187,8 +188,8 @@ public class BasicLoginModule extends BaseStateDrivenLoginModule {
     private void cleanState() {
         sharedState.remove(NAME);
         sharedState.remove(PWD);
-        ((DispatchCallbackHandler)handler).unregister(NameCallback.class);
-        ((DispatchCallbackHandler)handler).unregister(PasswordCallback.class);
+        ((DispatchCallbackHandler) handler).unregister(NameCallback.class);
+        ((DispatchCallbackHandler) handler).unregister(PasswordCallback.class);
     }
 
     @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -52,7 +52,7 @@ public class JaasConfigParser {
     public JaasConfig parse(URL resource) throws Exception {
         List<String> errors = new ArrayList<String>();
         JaasConfig result = parse0(resource, new JaasConfigHandler(errors));
-        if(!errors.isEmpty()){
+        if  (!errors.isEmpty()) {
             throw new ParserConfigurationException(errors.get(0));
         }
         return result;
@@ -68,7 +68,7 @@ public class JaasConfigParser {
             in.close();
         }
     }
-    
+
     private JaasConfig parse0(InputStream in, JaasConfigHandler handler)
             throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory parserFactory = SAXParserFactory.newInstance();
@@ -77,12 +77,12 @@ public class JaasConfigParser {
         parser.parse(in, handler);
         return handler.getAuthConfig();
     }
-    
-    private static enum HandlerState { 
-        DOCUMENT, JAAS_CONFIG, 
+
+    private static enum HandlerState {
+        DOCUMENT, JAAS_CONFIG,
         USER, USER_NAME, USER_PASSWORD, USER_ROLE_NAME,
-        ROLE, ROLE_NAME, ROLE_DESCRIPTION, ROLE_ROLE_NAME } 
-    
+        ROLE, ROLE_NAME, ROLE_DESCRIPTION, ROLE_ROLE_NAME }
+
     private static class JaasConfigHandler extends DefaultHandler {
 
         private static final String NAMESPACE_URI = "http://xmlns.kaazing.com/jaas-config/centurion";
@@ -95,7 +95,7 @@ public class JaasConfigParser {
         private static final String NAME_ELEMENT = "name";
         private static final String PASSWORD_ELEMENT = "password";
         private static final String DESCRIPTION_ELEMENT = "description";
-        private static final String ROLE_NAME_ELEMENT = "role-name";        
+        private static final String ROLE_NAME_ELEMENT = "role-name";
         private static final Properties EMPTY_PROPERTIES = new Properties();
         private static  List<String> errors = new ArrayList<String>();
 
@@ -103,16 +103,16 @@ public class JaasConfigParser {
         private HandlerState handlerState;
         private Deque<Object> handlerStack;
         private DefaultJaasConfig authConfig;
-        
-        public JaasConfigHandler( List<String> errors) {
+
+        public JaasConfigHandler(List<String> errors) {
             this(null, errors);
         }
-    
+
         public JaasConfigHandler(File configFile, List<String> errors) {
             handlerStack = new ArrayDeque<Object>(4);
             this.configFile = configFile;
         }
-        
+
         public JaasConfig getAuthConfig() {
             return authConfig;
         }
@@ -127,7 +127,7 @@ public class JaasConfigParser {
             if (handlerState != HandlerState.DOCUMENT) {
                 throw new SAXException("Invalid handler state: " + handlerState);
             }
-            
+
             if (!handlerStack.isEmpty()) {
                 throw new SAXException("Handler stack not empty: " + handlerStack);
             }
@@ -195,7 +195,8 @@ public class JaasConfigParser {
             }
             else if (ATLANTIS_URI.equals(uri) || BATTLESTAR_URI.equals(uri)) {
                 if (configFile != null) {
-                    LOGGER.error("Update your configuration namespace in the file \"" + configFile.getAbsolutePath() + "\" to use \"" + NAMESPACE_URI + "\"");
+                    LOGGER.error("Update your configuration namespace in the file \"" +
+                            configFile.getAbsolutePath() + "\" to use \"" + NAMESPACE_URI + "\"");
                 }
                 else {
                     LOGGER.error("Update your configuration namespace to use \"" + NAMESPACE_URI + "\"");
@@ -221,8 +222,9 @@ public class JaasConfigParser {
             case ROLE_DESCRIPTION:
             case ROLE_ROLE_NAME:
                 String string = new StringBuilder().append(ch, start, length).toString();
-                string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.<String, String> emptyMap(), EMPTY_PROPERTIES, errors);
-                StringBuilder sb = (StringBuilder)handlerStack.peek();
+                string = ConfigParameter.resolveAndReplace(ch, start, length, Collections.<String, String>emptyMap(),
+                        EMPTY_PROPERTIES, errors);
+                StringBuilder sb = (StringBuilder) handlerStack.peek();
                 sb.append(string);
                 break;
             default:
@@ -235,62 +237,62 @@ public class JaasConfigParser {
                 throws SAXException {
             switch (handlerState) {
             case JAAS_CONFIG: {
-                this.authConfig = (DefaultJaasConfig)handlerStack.pop();
+                this.authConfig = (DefaultJaasConfig) handlerStack.pop();
                 handlerState = HandlerState.DOCUMENT;
                 break;
             }
             case USER: {
-                DefaultUserConfig userConfig = (DefaultUserConfig)handlerStack.pop();
-                DefaultJaasConfig authConfig = (DefaultJaasConfig)handlerStack.peek();
+                DefaultUserConfig userConfig = (DefaultUserConfig) handlerStack.pop();
+                DefaultJaasConfig authConfig = (DefaultJaasConfig) handlerStack.peek();
                 authConfig.getUsers().put(userConfig.getName(), userConfig);
                 handlerState = HandlerState.JAAS_CONFIG;
                 break;
             }
             case USER_NAME: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultUserConfig userConfig = (DefaultUserConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultUserConfig userConfig = (DefaultUserConfig) handlerStack.peek();
                 userConfig.setName(sb.toString());
                 handlerState = HandlerState.USER;
                 break;
             }
             case USER_PASSWORD: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultUserConfig userConfig = (DefaultUserConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultUserConfig userConfig = (DefaultUserConfig) handlerStack.peek();
                 userConfig.setPassword(sb.toString());
                 handlerState = HandlerState.USER;
                 break;
             }
             case USER_ROLE_NAME: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultUserConfig userConfig = (DefaultUserConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultUserConfig userConfig = (DefaultUserConfig) handlerStack.peek();
                 userConfig.getRoleNames().add(sb.toString());
                 handlerState = HandlerState.USER;
                 break;
             }
             case ROLE: {
-                DefaultRoleConfig roleConfig = (DefaultRoleConfig)handlerStack.pop();
-                DefaultJaasConfig authConfig = (DefaultJaasConfig)handlerStack.peek();
+                DefaultRoleConfig roleConfig = (DefaultRoleConfig) handlerStack.pop();
+                DefaultJaasConfig authConfig = (DefaultJaasConfig) handlerStack.peek();
                 authConfig.getRoles().put(roleConfig.getName(), roleConfig);
                 handlerState = HandlerState.JAAS_CONFIG;
                 break;
             }
             case ROLE_NAME: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultRoleConfig roleConfig = (DefaultRoleConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultRoleConfig roleConfig = (DefaultRoleConfig) handlerStack.peek();
                 roleConfig.setName(sb.toString());
                 handlerState = HandlerState.ROLE;
                 break;
             }
             case ROLE_DESCRIPTION: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultRoleConfig roleConfig = (DefaultRoleConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultRoleConfig roleConfig = (DefaultRoleConfig) handlerStack.peek();
                 roleConfig.setDescription(sb.toString());
                 handlerState = HandlerState.ROLE;
                 break;
             }
             case ROLE_ROLE_NAME: {
-                StringBuilder sb = (StringBuilder)handlerStack.pop();
-                DefaultRoleConfig roleConfig = (DefaultRoleConfig)handlerStack.peek();
+                StringBuilder sb = (StringBuilder) handlerStack.pop();
+                DefaultRoleConfig roleConfig = (DefaultRoleConfig) handlerStack.peek();
                 roleConfig.getRoleNames().add(sb.toString());
                 handlerState = HandlerState.ROLE;
                 break;

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,7 +36,10 @@ import org.slf4j.LoggerFactory;
  * A static class that manages access to an instantiation of login context factories.
  *
  */
-public class LoginContextFactories {
+public final class LoginContextFactories {
+
+    private LoginContextFactories() {
+    }
 
     /**
      * Cache login factories on a per realm/configuration basis.
@@ -47,7 +50,7 @@ public class LoginContextFactories {
     public static LoginContextFactory create(String name, Configuration configuration) {
         LoginContextFactory defaultProvider;
         String key = name + (configuration != null ? configuration.hashCode() : "null");
-        if ( CACHE.containsKey(key)) {
+        if (CACHE.containsKey(key)) {
             defaultProvider = CACHE.get(key);
         } else {
             defaultProvider = new DefaultLoginContextFactory(name, configuration);

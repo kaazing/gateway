@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,7 +48,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
     private List<String> components;
 
 
-    private Map<String,String> namedComponents;
+    private Map<String, String> namedComponents;
 
     /**
      * Default constructor.
@@ -119,18 +119,18 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @throws IndexOutOfBoundsException when the specified index is larger than the number of added components.
      */
     public String get(int index) {
-        if ( index >= 0 && index < components.size() ) {
+        if (index >= 0 && index < components.size()) {
             return components.get(index);
         }
-        
-        if ( index >= components.size() && index < components.size()+namedComponents.size()) {
-            int namedIndex = index-components.size();
+
+        if (index >= components.size() && index < components.size() + namedComponents.size()) {
+            int namedIndex = index - components.size();
             List<String> namedValues = new ArrayList<String>(namedComponents.values());
             return namedValues.get(namedIndex);
         }
 
-        throw new IndexOutOfBoundsException("Attempting access token component "+index+
-                                            " when only "+size()+" components are available.");
+        throw new IndexOutOfBoundsException("Attempting access token component " + index +
+                                            " when only " + size() + " components are available.");
 
     }
 
@@ -160,18 +160,18 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @return the number of components comprising this {@code DefaultAuthenticationToken}.
      */
     public int size() {
-        return components.size()+namedComponents.size();
+        return components.size() + namedComponents.size();
     }
 
     @Override
     public boolean isEmpty() {
         boolean isEmpty = true;
-        if ( size() == 0 ) {
+        if (size() == 0) {
             return true;
         }
-        for ( int i = 0; i < size(); i++ ) {
+        for (int i = 0; i < size(); i++) {
             String v = get(i);
-            if ( v != null && v.length() > 0) {
+            if (v != null && v.length() > 0) {
                 isEmpty = false;
             }
         }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,11 +48,13 @@ import org.slf4j.LoggerFactory;
  *
  *  The following options are available for use with the Lifetime Login mdoule:
  * <pre>
- *  <debug>true<debug>	When set to true, enables debug information at the DEBUG level to be sent.
+ *  <debug>true<debug>    When set to true, enables debug information at the DEBUG level to be sent.
  *  When false, no such logging information is sent to that logger.
  *
- *  <session-timeout>30 minutes</session-timeout>	When specified, the WebSocket session will remain connected
+ *  &lt;session-timeout&gt;30 minutes&lt;/session-timeout&gt;    When specified, the WebSocket session will remain connected
+ *
  *  no longer than the time interval provided.  Equivalent to {@link LoginResult#setSessionTimeout}.
+ *
  *
  * </pre>
  */
@@ -68,17 +70,18 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
     private boolean forceFailure;
 
     @Override
-    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler,
+                           Map<String, ?> sharedState, Map<String, ?> options) {
         super.initialize(subject, callbackHandler, sharedState, options);
         this.debug = "true".equalsIgnoreCase((String) options.get("debug"));
-        this.forceFailure = "true".equalsIgnoreCase((String)options.get("force-failure"));
+        this.forceFailure = "true".equalsIgnoreCase((String) options.get("force-failure"));
         this.sessionTimeout = readOption(options, SESSION_TIMEOUT_KEY);
-        if ( sessionTimeout == null) {
-            throw new RuntimeException("You must specify "+ SESSION_TIMEOUT_KEY  +" option.");
+        if (sessionTimeout == null) {
+            throw new RuntimeException("You must specify " + SESSION_TIMEOUT_KEY  + " option.");
         }
 
-        if ( debug ) {
-            logger.trace("[TimeoutLoginModule] session timeout configured as '"+ sessionTimeout +"'");
+        if (debug) {
+            logger.trace("[TimeoutLoginModule] session timeout configured as '" + sessionTimeout + "'");
         }
     }
 
@@ -86,13 +89,13 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
     @Override
     protected boolean doLogin() throws LoginException {
         LoginResult loginResult = getLoginResultFromCallback();
-        if ( loginResult == null ) {
+        if (loginResult == null) {
             return false;
         }
         boolean performedAction = false;
-        if ( this.sessionTimeout != null ) {
-            if ( debug ) {
-                logger.trace("[TimeoutLoginModule] Setting session timeout to '"+ sessionTimeout +"'");
+        if (this.sessionTimeout != null) {
+            if (debug) {
+                logger.trace("[TimeoutLoginModule] Setting session timeout to '" + sessionTimeout + "'");
             }
             loginResult.setSessionTimeout(sessionTimeout);
             performedAction = true;
@@ -100,7 +103,7 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
         }
 
         // Clean up in case of failure to ensure nothing is set.
-        if ( !performedAction || this.forceFailure ) {
+        if (!performedAction || this.forceFailure) {
             cleanState();
             return false;
         }
@@ -145,13 +148,13 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
 
     private Long readOption(Map<String, ?> options, final String key) {
         final String timeIntervalValue = (String) options.get(key);
-        if ( timeIntervalValue == null ) {
+        if (timeIntervalValue == null) {
             return null;
         } else {
             try {
                 return  Utils.parseTimeInterval(timeIntervalValue, TimeUnit.SECONDS);
-            } catch ( NumberFormatException e ) {
-                logger.error("[TimeoutLoginModule] Cannot determine the value for "+key, e);
+            } catch (NumberFormatException e) {
+                logger.error("[TimeoutLoginModule] Cannot determine the value for " + key, e);
                 throw e;
             }
         }
@@ -160,7 +163,7 @@ public class TimeoutLoginModule extends BaseStateDrivenLoginModule {
     private void cleanState() {
         this.sessionTimeout = 0L;
         DefaultLoginResult loginResult = (DefaultLoginResult) getLoginResultFromCallback();
-        if (loginResult != null ) {
+        if (loginResult != null) {
             loginResult.clearTimeouts();
         }
     }
