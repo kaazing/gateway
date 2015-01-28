@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,7 +45,8 @@ public final class Asn1Utils {
     private static final int ASN1_IA5STRING_TAG_NUM = 27;
 
     // Generalized time format is yyyyMMddHHmmss[.[s]+][Z|[+-]zzzz]
-    private static final String GENERALIZED_TIME_REGEX = "(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\.\\d+)?(Z|[+-]\\d{4})?";
+    private static final String GENERALIZED_TIME_REGEX =
+            "(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\.\\d+)?(Z|[+-]\\d{4})?";
     private static final Pattern GENERALIZED_TIME_PATTERN = Pattern.compile(GENERALIZED_TIME_REGEX);
     private static final String GENERALIZED_TIME_FORMAT = "yyyyMMddHHmmss'Z'"; // always use UTC
 
@@ -53,7 +54,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 BIT STRING.
-     * 
+     *
      * @param buf
      *            the buffer containing the DER-encoded BIT STRING.
      * @return the bits in the BIT STRING
@@ -93,7 +94,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 GeneralizedTime.
-     * 
+     *
      * @param buf
      *            the DER-encoded GeneralizedTime
      * @return the data and time
@@ -148,7 +149,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 IA5String.
-     * 
+     *
      * @param buf
      *            the DER-encoded IA5String
      * @return the string
@@ -169,7 +170,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 INTEGER.
-     * 
+     *
      * @param buf
      *            the buffer containing the DER-encoded INTEGER
      * @return the value of the INTEGER
@@ -192,7 +193,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 OCTET STRING.
-     * 
+     *
      * @param buf
      *            the DER-encoded OCTET STRING
      * @return the octets
@@ -215,7 +216,7 @@ public final class Asn1Utils {
 
     /**
      * Decode an ASN.1 SEQUENCE by reading the identifier and length octets. The remaining data in the buffer is the SEQUENCE.
-     * 
+     *
      * @param buf
      *            the DER-encoded SEQUENCE
      * @return the length of the SEQUENCE
@@ -234,7 +235,7 @@ public final class Asn1Utils {
 
     /**
      * Encode an ASN.1 BIT STRING.
-     * 
+     *
      * @param value
      *            the value to be encoded
      * @param nbits
@@ -269,12 +270,12 @@ public final class Asn1Utils {
         buf.position(buf.position() - contentLength);
         int headerLength = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE,
                 ASN1_BIT_STRING_TAG_NUM, contentLength, buf);
-        return (headerLength + contentLength);
+        return headerLength + contentLength;
     }
 
     /**
      * Encode an ASN.1 GeneralizedTime.
-     * 
+     *
      * @param date
      *            the date value
      * @param buf
@@ -295,15 +296,15 @@ public final class Asn1Utils {
             pos--;
             buf.put(pos, data[i]);
         }
-        buf.position(buf.position()-data.length);
+        buf.position(buf.position() - data.length);
         int headerLength = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE,
                 ASN1_GENERALIZED_TIME_TAG_NUM, data.length, buf);
-        return (headerLength + data.length);
+        return headerLength + data.length;
     }
 
     /**
      * Encode an ASN.1 IA5String.
-     * 
+     *
      * @param value
      *            the value to be encoded
      * @param buf
@@ -317,15 +318,15 @@ public final class Asn1Utils {
             pos--;
             buf.put(pos, data[i]);
         }
-        buf.position(buf.position()-data.length);
+        buf.position(buf.position() - data.length);
         int headerLength = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE,
                 ASN1_IA5STRING_TAG_NUM, data.length, buf);
-        return (headerLength + data.length);
+        return headerLength + data.length;
     }
 
     /**
      * Encode an ASN.1 INTEGER.
-     * 
+     *
      * @param value
      *            the value to be encoded
      * @param buf
@@ -341,15 +342,15 @@ public final class Asn1Utils {
             value >>>= 8;
             contentLength++;
         } while (value != 0);
-        buf.position(buf.position()-contentLength);
+        buf.position(buf.position() - contentLength);
         int headerLen = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE, ASN1_INTEGER_TAG_NUM,
                 contentLength, buf);
-        return (headerLen + contentLength);
+        return headerLen + contentLength;
     }
 
     /**
      * Encode an ASN.1 OCTET STRING.
-     * 
+     *
      * @param octets
      *            the octets
      * @param buf
@@ -365,15 +366,15 @@ public final class Asn1Utils {
             pos--;
             buf.put(pos, (byte) octets[i]);
         }
-        buf.position(buf.position()-octets.length);
+        buf.position(buf.position() - octets.length);
         int headerLength = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE,
                 ASN1_OCTET_STRING_TAG_NUM, octets.length, buf);
-        return (headerLength + octets.length);
+        return headerLength + octets.length;
     }
 
     /**
      * Encode an ASN.1 SEQUENCE.
-     * 
+     *
      * @param contentLength
      *            the length of the SEQUENCE
      * @param buf
@@ -383,12 +384,12 @@ public final class Asn1Utils {
     public static int encodeSequence(int contentLength, ByteBuffer buf) {
         int headerLength = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.CONSTRUCTED,
                 ASN1_SEQUENCE_TAG_NUM, contentLength, buf);
-        return (headerLength + contentLength);
+        return headerLength + contentLength;
     }
 
     /**
      * Size of an ASN.1 BIT STRING.
-     * 
+     *
      * @param value
      *            the BIT STRING value
      * @param nbits
@@ -401,7 +402,7 @@ public final class Asn1Utils {
 
     /**
      * Size of an ASN.1 GeneralizedTime.
-     * 
+     *
      * @param date
      *            the date and time
      * @return the size of the encoded data
@@ -412,7 +413,7 @@ public final class Asn1Utils {
 
     /**
      * Size of an ASN.1 IA5String.
-     * 
+     *
      * @param value
      *            the string
      * @return the size of the encoded data
@@ -423,7 +424,7 @@ public final class Asn1Utils {
 
     /**
      * Size of an ASN.1 INTEGER.
-     * 
+     *
      * @param value
      *            the integer value
      * @return the size of the encoded data
@@ -439,7 +440,7 @@ public final class Asn1Utils {
 
     /**
      * Size of an ASN.1 OCTET STRING.
-     * 
+     *
      * @param octets
      *            the octets
      * @return the size of the encoded data
@@ -450,7 +451,7 @@ public final class Asn1Utils {
 
     /**
      * Size of an ASN.1 SEQUENCE.
-     * 
+     *
      * @param length
      *            the length of the SEQUENCE data
      * @return the size of the encoded data

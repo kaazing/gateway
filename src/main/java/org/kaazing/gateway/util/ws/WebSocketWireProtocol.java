@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,7 +25,8 @@ package org.kaazing.gateway.util.ws;
  * Models the wire protocol versions of the IETF Web Socket Specification,
  * and associate specification version(s) with each known wire protocol.
  * <p/>
- * For example, see <a href="http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-17">the latest websocket specification</a>
+ * For example,
+ * see <a href="http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-17">the latest websocket specification</a>
  * as of writing with specification version 17 and wire protocol version 13.
  * <p/>
  * Note: arbitrary specification version numbers are assigned to Hixie-75 and Hixie-76 versions of the protocol.

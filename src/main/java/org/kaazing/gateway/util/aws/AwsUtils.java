@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -55,6 +55,9 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public final class AwsUtils {
+    private AwsUtils() {
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AwsUtils.class);
 
     private static final String UTF8_CHARSET = "UTF-8";
@@ -63,8 +66,8 @@ public final class AwsUtils {
 
     /**
      * Returns the AccountId of the user who is running the instance.
-     * 
-     * @return String       representing the AccountId or the owner-id 
+     *
+     * @return String       representing the AccountId or the owner-id
      * @throws java.io.IOException  if failed to retrieve the AccountId using the
      *                      Cloud infrastructure
      */
@@ -78,7 +81,7 @@ public final class AwsUtils {
         String idUrl = macUrl + mac + "owner-id";
         String acctId = invokeUrl(idUrl).trim();
 
-        assert(acctId != null);
+        assert  acctId != null;
         return acctId;
     }
 
@@ -110,7 +113,7 @@ public final class AwsUtils {
         // etc. We have to strip that last character to get the
         // correct region.
         String region = zone.substring(0, zone.length() - 1);
-        assert(region != null);
+        assert region != null;
         return region;
     }
 
@@ -321,8 +324,8 @@ public final class AwsUtils {
           connection.setRequestMethod("GET");
 
           // Set 2seconds timeout interval.
-          connection.setConnectTimeout(2*1000);
-          connection.setReadTimeout(2*1000);
+          connection.setConnectTimeout(2 * 1000);
+          connection.setReadTimeout(2 * 1000);
 
           connection.connect();
 
@@ -412,8 +415,11 @@ public final class AwsUtils {
             DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             return db.parse(new ByteArrayInputStream(xmlStr.getBytes()));
         } catch (ParserConfigurationException pcex) {
+            //ignore
         } catch (SAXException saxEx) {
+            //ignore
         } catch (IOException ioex) {
+            //ignore
         }
 
         return null;
@@ -425,9 +431,9 @@ public final class AwsUtils {
                                           String     algorithm)
             throws SignatureException {
 
-        assert(stringToSign != null);
-        assert(awsSecretKey != null);
-        assert(algorithm != null);
+        assert stringToSign != null;
+        assert awsSecretKey != null;
+        assert algorithm != null;
 
         String signature = null;
 
@@ -460,7 +466,7 @@ public final class AwsUtils {
         StringBuilder strBuilder = new StringBuilder();
 
         try {
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 strBuilder.append(line + "\n");
             }
@@ -488,7 +494,7 @@ public final class AwsUtils {
             throws SignatureException {
         String signature = null;
 
-        if ((stringToSign == null) || 
+        if ((stringToSign == null) ||
             (awsSecretKey == null) ||
             (algorithm == null)) {
             return null;
@@ -519,7 +525,7 @@ public final class AwsUtils {
     }
 
     private static String getV1StringToSign(Map<String, String> paramMap) {
-        assert(paramMap != null);
+        assert paramMap != null;
 
         Set<String> sortedKeys = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
         sortedKeys.addAll(paramMap.keySet());
@@ -537,13 +543,13 @@ public final class AwsUtils {
     }
 
     private static String getV2CanonicalizedQueryString(Map<String, String> params) {
-        assert((params != null) && !params.isEmpty());
+        assert params != null && !params.isEmpty();
 
         SortedMap<String, String> sortedMap = new TreeMap<String, String>(params);
 
         // Remove "Signature" parameter, if added.
         sortedMap.remove("Signature");
-        
+
         StringBuffer buffer = new StringBuffer();
         Iterator<Map.Entry<String, String>> iter = sortedMap.entrySet().iterator();
 
@@ -556,16 +562,16 @@ public final class AwsUtils {
                 buffer.append("&");
             }
         }
-     
+
         return buffer.toString();
     }
 
     // Based on RFC 3986 and AWS doc, further encode certain characters.
     private static String rfc3986Conformance(String s) {
-        assert(s != null);
+        assert s != null;
 
         String out = null;
-        
+
         if (s == null) {
             return null;
         }

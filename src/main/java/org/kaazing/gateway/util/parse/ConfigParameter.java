@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -44,7 +44,7 @@ public abstract class ConfigParameter {
 
     /**
      * regex to capture parameter definitions amongst free text as per
-     * {@link #resolveAndReplace(char[], int, int, Properties, List)}
+     * {@link # resolveAndReplace(char[], int, int, Properties, List)}
      */
     private static final Pattern PARAM_REGEX = Pattern.compile("([\\$]?)([\\$]+\\{)([^\\{\\}]*)(\\})");
 
@@ -62,7 +62,8 @@ public abstract class ConfigParameter {
     };
 
     private enum ParameterResolutionStrategy {
-        PARAMETER_DEFINITION_DEFAULT, PARAMETER_PROPERTIES_FILE, SYSTEM_PROPERTIES, ENVIRONMENT_VARIABLES, ESCAPED_PARAMETER_DEFINITION, UNRESOLVED_PARAMETER_DEFINITION, CLOUD_RESOLUTION_STRATEGY
+        PARAMETER_DEFINITION_DEFAULT, PARAMETER_PROPERTIES_FILE, SYSTEM_PROPERTIES, ENVIRONMENT_VARIABLES,
+        ESCAPED_PARAMETER_DEFINITION, UNRESOLVED_PARAMETER_DEFINITION, CLOUD_RESOLUTION_STRATEGY
     };
 
     /**
@@ -90,8 +91,8 @@ public abstract class ConfigParameter {
      * @param offset the offset into <code>chars</code>
      * @param length the length of <code>chars</code> to consider
      * @param parameterValuePairs parameter name value pairs used for resolution
-     * @param configuration Properties used to override parameterValuePairs.  The latter is specified in the config file, the former
-     *        is passed to the Gateway either on the command line or when configuring a Gateway.
+     * @param configuration Properties used to override parameterValuePairs.  The latter is specified in the config file,
+     *                      the former is passed to the Gateway either on the command line or when configuring a Gateway.
      * @param errors list of <code>String</code> errors
      * @return the new string, with all parameters replaced by their resolved value
      */
@@ -113,7 +114,7 @@ public abstract class ConfigParameter {
             lastMatchCharIndex = matcher.end(ParameterRegex.CLOSE.index);
 
             // match escape sequence
-            if ( matcher.start(ParameterRegex.ESCAPE.index) != matcher.end(ParameterRegex.ESCAPE.index) ) {
+            if (matcher.start(ParameterRegex.ESCAPE.index) != matcher.end(ParameterRegex.ESCAPE.index)) {
                 // we have an escaped out match, drop leading escape tokens and pass the match through unchanged
                 value = new String(chars, offset + matcher.start(ParameterRegex.OPEN.index),
                         matcher.end(ParameterRegex.CLOSE.index) - matcher.start(ParameterRegex.OPEN.index));
@@ -122,51 +123,57 @@ public abstract class ConfigParameter {
             // match parameter definition
             else {
                 // attempt to resolve value from hierarchy of value stores
-                if ( !"".equals(name) )
-                    if ( (value = configuration.getProperty(name)) != null && !"".equals(value) )
+                if (!"".equals(name)) {
+                    if ((value = configuration.getProperty(name)) != null && !"".equals(value)) {
                         strategy = ParameterResolutionStrategy.SYSTEM_PROPERTIES;
-                    else if ( (value = parameterValuePairs.get(name)) != null && !"".equals(value) )
+                    }
+                    else if ((value = parameterValuePairs.get(name)) != null && !"".equals(value)) {
                         strategy = ParameterResolutionStrategy.PARAMETER_DEFINITION_DEFAULT;
+                    }
+                }
             }
 
-			// resolve cloud.host
-			if (value == null && "cloud.host".equals(matcher.group(3))) {
-				LOGGER.info("${cloud.host} found in config, attempting resolution by searching cloud provider");
-				strategy = ParameterResolutionStrategy.CLOUD_RESOLUTION_STRATEGY;
-				value = resolveCloudHost(new DefaultUtilityHttpClient());
-				// value may be returned as null but that is good so it is caught as can't 
-				// determine value
-				if (value == null){
-					LOGGER.warn("${cloud.host} detected in config but could not determine cloud enviroment and find valid replacement for it");
-				}
-			}
+            // resolve cloud.host
+            if (value == null && "cloud.host".equals(matcher.group(3))) {
+                LOGGER.info("${cloud.host} found in config, attempting resolution by searching cloud provider");
+                strategy = ParameterResolutionStrategy.CLOUD_RESOLUTION_STRATEGY;
+                value = resolveCloudHost(new DefaultUtilityHttpClient());
+                // value may be returned as null but that is good so it is caught as can't
+                // determine value
+                if (value == null) {
+                    LOGGER.warn("${cloud.host} detected in config but could not " +
+                            "determine cloud enviroment and find valid replacement for it");
+                }
+            }
 
-			// resolve cloud.instanceId
-			if (value == null && "cloud.instanceId".equals(matcher.group(3))) {
-				LOGGER.info("${cloud.instanceId} found in config, attempting resolution by searching cloud provider");
-				strategy = ParameterResolutionStrategy.CLOUD_RESOLUTION_STRATEGY;
-				value = resolveCloudInstanceId(new DefaultUtilityHttpClient());
-				// value may be returned as null but that is good so it is caught as can't 
-				// determine value
-				if (value == null){
-					LOGGER.warn("${cloud.instanceId} detected in config but could not determine cloud enviroment and find valid replacement for it");
-				}
-			}
+            // resolve cloud.instanceId
+            if (value == null && "cloud.instanceId".equals(matcher.group(3))) {
+                LOGGER.info("${cloud.instanceId} found in config, attempting resolution by searching cloud provider");
+                strategy = ParameterResolutionStrategy.CLOUD_RESOLUTION_STRATEGY;
+                value = resolveCloudInstanceId(new DefaultUtilityHttpClient());
+                // value may be returned as null but that is good so it is caught as can't
+                // determine value
+                if (value == null) {
+                    LOGGER.warn("${cloud.instanceId} detected in config but could not " +
+                            "determine cloud enviroment and find valid replacement for it");
+                }
+            }
 
-			// if not resolved, add error and pass match through unchanged
-			if (value == null || "".equals(value)) {
-				value = matcher.group();
-				strategy = ParameterResolutionStrategy.UNRESOLVED_PARAMETER_DEFINITION;
-				errors.add("Could not determine non-null value for parameter definition "
-						+ matcher.group());
-			}
+            // if not resolved, add error and pass match through unchanged
+            if (value == null || "".equals(value)) {
+                value = matcher.group();
+                strategy = ParameterResolutionStrategy.UNRESOLVED_PARAMETER_DEFINITION;
+                errors.add("Could not determine non-null value for parameter definition "
+                        + matcher.group());
+            }
 
             // add resolved value
             string.append(value);
 
-            if ( LOGGER.isInfoEnabled() )
+            if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Detected configuration parameter [" + matcher.group() + "], replaced with [" + value
                         + "], as a result of resolution strategy [" + strategy + "]");
+            }
         }
 
         // we have a match/non-match, process suffix/entire buffer
@@ -174,71 +181,71 @@ public abstract class ConfigParameter {
 
         return string.toString();
     }
-    
-    public static String cachedCloudHost = null;
-    public static String cachedCloudInstanceId = null;
 
-	// public with UtilityHttpClient is for testing
-	public static String resolveCloudHost(UtilityHttpClient httpClient) {
-		// cached so we only attempt it once
-		if(cachedCloudHost == null){
-			String value = null;
-			// AWS
-			LOGGER.debug("Attempting to get AWS host information");
-	
-			try {
-				String response = httpClient
-						.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-hostname");
-				// confirm it has a aws hostname
-				if (response != null && response.contains("amazonaws.com")) {
-					value = response;
-					LOGGER.debug(format("Found AWS hostname: %s", value));
-				} else if (response != null && "".equals(response)) {
-					// sometimes aws does not get a hostname, so we fallback to use
-					// the public ip
-					response = httpClient
-							.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-ipv4");
-					if (response != null) {
-						value = response;
-						LOGGER.debug(format(
-								"Couldn't find AWS hostname, but did find AWS public ip: %s",
-								value));
-					}
-				}
-	
-			} catch (Exception e) {
-				// NOOP try next supported cloud provider if it exists
-				LOGGER.debug(format("failed to get value due to exception with message: %s ", e.getMessage()));
-			}
-			// TODO: Add more as we support cloud platforms
-			cachedCloudHost = value;
-		}
-		return cachedCloudHost;
-	}
+    public static String cachedCloudHost;
+    public static String cachedCloudInstanceId;
 
-	// public with UtilityHttpClient is for testing
-	public static String resolveCloudInstanceId(UtilityHttpClient httpClient) {
-		// cached so we only attempt it once
-		if (cachedCloudInstanceId == null) {
-			String value = null;
-			// AWS
-			LOGGER.debug("Attempting to get AWS instanceId information");
+    // public with UtilityHttpClient is for testing
+    public static String resolveCloudHost(UtilityHttpClient httpClient) {
+        // cached so we only attempt it once
+        if (cachedCloudHost == null) {
+            String value = null;
+            // AWS
+            LOGGER.debug("Attempting to get AWS host information");
 
-			try {
-				String response = httpClient
-						.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/instance-id");
-				// confirm it has a aws hostname
-				if (response != null) {
-					value = response;
-					LOGGER.debug(format("Found AWS instanceId: %s", value));
-				}
-			} catch (Exception e) {
-				// NOOP try next supported cloud provider if it exists
-			}
-			// TODO: Add more as we support cloud platforms
-			cachedCloudInstanceId = value;
-		}
-		return cachedCloudInstanceId;
-	}
+            try {
+                String response = httpClient
+                        .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-hostname");
+                // confirm it has a aws hostname
+                if (response != null && response.contains("amazonaws.com")) {
+                    value = response;
+                    LOGGER.debug(format("Found AWS hostname: %s", value));
+                } else if (response != null && "".equals(response)) {
+                    // sometimes aws does not get a hostname, so we fallback to use
+                    // the public ip
+                    response = httpClient
+                            .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-ipv4");
+                    if (response != null) {
+                        value = response;
+                        LOGGER.debug(format(
+                                "Couldn't find AWS hostname, but did find AWS public ip: %s",
+                                value));
+                    }
+                }
+
+            } catch (Exception e) {
+                // NOOP try next supported cloud provider if it exists
+                LOGGER.debug(format("failed to get value due to exception with message: %s ", e.getMessage()));
+            }
+            // TODO: Add more as we support cloud platforms
+            cachedCloudHost = value;
+        }
+        return cachedCloudHost;
+    }
+
+    // public with UtilityHttpClient is for testing
+    public static String resolveCloudInstanceId(UtilityHttpClient httpClient) {
+        // cached so we only attempt it once
+        if (cachedCloudInstanceId == null) {
+            String value = null;
+            // AWS
+            LOGGER.debug("Attempting to get AWS instanceId information");
+
+            try {
+                String response = httpClient
+                        .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/instance-id");
+                // confirm it has a aws hostname
+                if (response != null) {
+                    value = response;
+                    LOGGER.debug(format("Found AWS instanceId: %s", value));
+                }
+            } catch (Exception e) {
+                // NOOP try next supported cloud provider if it exists
+            }
+            // TODO: Add more as we support cloud platforms
+            cachedCloudInstanceId = value;
+        }
+        return cachedCloudInstanceId;
+    }
 
 }

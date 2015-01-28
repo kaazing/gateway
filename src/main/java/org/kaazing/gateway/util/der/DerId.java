@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -50,7 +50,7 @@ public class DerId {
 
     /**
      * Gets the tag class.
-     * 
+     *
      * @return the tag class
      */
     public TagClass getTagClass() {
@@ -59,7 +59,7 @@ public class DerId {
 
     /**
      * Gets the encoding type.
-     * 
+     *
      * @return the encoding type
      */
     public EncodingType getEncodingType() {
@@ -68,7 +68,7 @@ public class DerId {
 
     /**
      * Gets the tag number.
-     * 
+     *
      * @return the tag number
      */
     public int getTagNumber() {
@@ -77,12 +77,14 @@ public class DerId {
 
     @Override
     public String toString() {
-        return "DerId [tagClass=" + getTagClass() + ", encodingType=" + getEncodingType() + ", tagNumber=" + getTagNumber() + "]";
+        return "DerId [tagClass=" + getTagClass() +
+                ", encodingType=" + getEncodingType() +
+                ", tagNumber=" + getTagNumber() + "]";
     }
 
     /**
      * Decodes identifier octets from a DER-encoded message.
-     * 
+     *
      * @param buf
      *            the buffer containing the DER-encoded message
      * @return the DER identifier
@@ -104,7 +106,7 @@ public class DerId {
 
         // Bits 5 through 1 represent the tag number if tag number is less than 30.
         // Bits 5 through 1 are set to 1 if the tag number is greater than 30.
-        int tagNum = (first & 0x1f);
+        int tagNum = first & 0x1f;
         if (tagNum == 0x1F) {
             // Tag number greater than 30
             if (buf.remaining() == 0) {
@@ -126,7 +128,7 @@ public class DerId {
 
     /**
      * Tests whether this DER identifier matches the specified tag class, encoding type and tag number.
-     * 
+     *
      * @param tagClass
      *            the tag class to match against
      * @param encodingType
@@ -136,12 +138,13 @@ public class DerId {
      * @return whether there's a match
      */
     public boolean matches(TagClass tagClass, EncodingType encodingType, int tagNumber) {
-        return (this.tagClass == tagClass && this.encodingType == encodingType && this.tagNumber == tagNumber);
+        return this.tagClass == tagClass && this.encodingType == encodingType && this.tagNumber == tagNumber;
     }
 
     /**
-     * Tests whether this DER identifier matches the specified tag class and tag number. (Encoding type could be either one of the encoding types).
-     * 
+     * Tests whether this DER identifier matches the specified tag class and tag number.
+     * (Encoding type could be either one of the encoding types).
+     *
      * @param tagClass
      *            the tag class to match against
      * @param tagNumber
@@ -149,6 +152,6 @@ public class DerId {
      * @return whether there's a match
      */
     public boolean matches(TagClass tagClass, int tagNumber) {
-        return (this.tagClass == tagClass && this.tagNumber == tagNumber);
+        return this.tagClass == tagClass && this.tagNumber == tagNumber;
     }
 }

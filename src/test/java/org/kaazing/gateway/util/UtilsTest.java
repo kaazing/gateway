@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,7 +45,7 @@ public class UtilsTest {
         public static int INT_FIELD = 11;
     }
     private static String NON_ASCII_UTF8_STRING = "\u6C34"; // CJK UNIFIED IDEOGRAPH-6C34 (water)
-    
+
 
 
     @Test
@@ -99,7 +99,7 @@ public class UtilsTest {
         String result = Utils.asString(in);
         assertEquals(NON_ASCII_UTF8_STRING.charAt(0), result.charAt(0));
     }
-    
+
     @Test
     public void getIntShouldWorkBigEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -110,7 +110,7 @@ public class UtilsTest {
         int expected = buf.getInt();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getIntShouldWorkLittleEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -121,7 +121,7 @@ public class UtilsTest {
         int expected = buf.getInt();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getIntShouldWorkBigEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
@@ -132,7 +132,7 @@ public class UtilsTest {
         int result = Utils.getInt(buf, 4);
         assertEquals(87654321, result);
     }
-    
+
     @Test
     public void getIntShouldWorkLittleEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
@@ -143,21 +143,21 @@ public class UtilsTest {
         int result = Utils.getInt(buf, 4);
         assertEquals(87654321, result);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getIntShouldFailIfLimitTooLowBigEndian() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(3);
         buf.order(BIG_ENDIAN);
         Utils.getInt(buf, 0);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getIntShouldFailIfLimitTooLowLittleEndianIndex() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(3);
         buf.order(LITTLE_ENDIAN);
         Utils.getInt(buf, 0);
     }
-    
+
     @Test
     public void getLongShouldWorkBigEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
@@ -168,7 +168,7 @@ public class UtilsTest {
         long expected = buf.getLong();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getLongShouldWorkLittleEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
@@ -179,7 +179,7 @@ public class UtilsTest {
         long expected = buf.getLong();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getLongShouldWorkBigEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(16);
@@ -190,7 +190,7 @@ public class UtilsTest {
         long result = Utils.getLong(buf, 8);
         assertEquals(876543210987654321L, result);
     }
-    
+
     @Test
     public void getLongShouldWorkLittleEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(16);
@@ -201,21 +201,21 @@ public class UtilsTest {
         long result = Utils.getLong(buf, 8);
         assertEquals(876543210987654321L, result);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getLongShouldFailIfLimitTooLowBigEndian() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
         buf.order(BIG_ENDIAN);
         Utils.getLong(buf, 1);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getLongShouldFailIfLimitTooLowLittleEndianIndex() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(8);
         buf.order(LITTLE_ENDIAN);
         Utils.getLong(buf, 1);
     }
-    
+
     @Test
     public void getShortShouldWorkBigEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -226,7 +226,7 @@ public class UtilsTest {
         short expected = buf.getShort();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getShortShouldWorkLittleEndianIndex0() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -237,7 +237,7 @@ public class UtilsTest {
         short expected = buf.getShort();
         assertEquals(expected, result);
     }
-    
+
     @Test
     public void getShortShouldWorkBigEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -248,7 +248,7 @@ public class UtilsTest {
         short result = Utils.getShort(buf, 2);
         assertEquals(32101, result);
     }
-    
+
     @Test
     public void getShortShouldWorkLittleEndianIndexNonZero() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -259,14 +259,14 @@ public class UtilsTest {
         short result = Utils.getShort(buf, 2);
         assertEquals(32101, result);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getShortShouldFailIfLimitTooLowBigEndian() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(3);
         buf.order(BIG_ENDIAN);
         Utils.getShort(buf, 2);
     }
-    
+
     @Test(expected=IndexOutOfBoundsException.class)
     public void getShortShouldFailIfLimitTooLowLittleEndianIndex() throws Exception {
         ByteBuffer buf = ByteBuffer.allocate(3);
@@ -336,19 +336,19 @@ public class UtilsTest {
     @Test
     public void kilobytesLC() {
         int result = Utils.parseDataSize("12345k");
-        assertEquals(12345*1024, result);
+        assertEquals(12345 * 1024, result);
     }
 
     @Test
     public void kilobytesUC() {
         int result = Utils.parseDataSize("12345K");
-        assertEquals(12345*1024, result);
+        assertEquals(12345 * 1024, result);
     }
 
     @Test
     public void megabytesLC() {
         int result = Utils.parseDataSize("1m");
-        assertEquals(1*1024*1024, result);
+        assertEquals(1 * 1024 * 1024, result);
     }
 
     @Test
@@ -392,25 +392,25 @@ public class UtilsTest {
     @Test
     public void kilobytesDataRate() {
         long result = Utils.parseDataRate("12345kB/s");
-        assertEquals(12345*1000, result);
+        assertEquals(12345 * 1000, result);
     }
 
     @Test
     public void kibibytesDataRate() {
         long result = Utils.parseDataRate("12345KiB/s");
-        assertEquals(12345*1024, result);
+        assertEquals(12345 * 1024, result);
     }
 
     @Test
     public void megabytesDataRate() {
         long result = Utils.parseDataRate("1MB/s");
-        assertEquals(1*1000*1000, result);
+        assertEquals(1 * 1000 * 1000, result);
     }
 
     @Test
     public void mibibytesDataRate() {
         long result = Utils.parseDataRate("100MiB/s");
-        assertEquals(100*1024*1024, result);
+        assertEquals(100 * 1024 * 1024, result);
     }
 
     @Test (expected=NumberFormatException.class)

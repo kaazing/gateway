@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -75,7 +75,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeIntegerZero() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[3]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = Asn1Utils.encodeInteger(0, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -87,7 +87,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeInteger1Byte() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[3]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = Asn1Utils.encodeInteger(15, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -99,7 +99,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeInteger2Byte() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
-        buf.position(buf.position()+4);
+        buf.position(buf.position() + 4);
         int len = Asn1Utils.encodeInteger(512, buf);
         assertEquals(4, len);
         assertEquals(0, buf.position());
@@ -153,7 +153,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeSequence() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = Asn1Utils.encodeSequence(2, buf);
         assertEquals(4, len);
         assertEquals(0, buf.position());
@@ -223,7 +223,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeBitString8() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
-        buf.position(buf.position()+4);
+        buf.position(buf.position() + 4);
         BitSet bits = new BitSet(8);
         bits.set(3);
         bits.set(5);
@@ -239,7 +239,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeBitString32() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[7]);
-        buf.position(buf.position()+7);
+        buf.position(buf.position() + 7);
         BitSet bits = new BitSet(32);
         bits.set(8);
         int len = Asn1Utils.encodeBitString(bits, 32, buf);
@@ -257,7 +257,7 @@ public class Asn1UtilsTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEncodeBitString32As8() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[7]);
-        buf.position(buf.position()+7);
+        buf.position(buf.position() + 7);
         BitSet bits = new BitSet(32);
         bits.set(8);
         Asn1Utils.encodeBitString(bits, 8, buf);
@@ -316,7 +316,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeIA5StringWithNull() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[2]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = Asn1Utils.encodeIA5String(null, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -327,7 +327,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeIA5StringWithEmpty() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[2]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = Asn1Utils.encodeIA5String("", buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -338,7 +338,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeIA5StringWithValue() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[6]);
-        buf.position(buf.position()+6);
+        buf.position(buf.position() + 6);
         int len = Asn1Utils.encodeIA5String("arun", buf);
         assertEquals(6, len);
         assertEquals(0, buf.position());
@@ -625,7 +625,7 @@ public class Asn1UtilsTest {
 
         int size = 17;
         ByteBuffer buf = ByteBuffer.wrap(new byte[size]);
-        buf.position(buf.position()+size);
+        buf.position(buf.position() + size);
         int len = Asn1Utils.encodeGeneralizedTime(date, buf);
 
         assertEquals(size, len);
@@ -663,7 +663,7 @@ public class Asn1UtilsTest {
         Date date = cal.getTime();
         assertEquals(17, Asn1Utils.sizeOfGeneralizedTime(date));
     }
-    
+
     @Test
     public void testSizeOfGeneralizedTimeWithFracSet() {
         Calendar cal = Calendar.getInstance();
@@ -679,7 +679,7 @@ public class Asn1UtilsTest {
         Date date = cal.getTime();
         assertEquals(17, Asn1Utils.sizeOfGeneralizedTime(date));
     }
-    
+
     // ----- END: GeneralizedTime tests
 
     // ----- BEGIN: OCTET STRING tests
@@ -728,7 +728,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeOctetStringNull() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[2]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = Asn1Utils.encodeOctetString(null, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -739,7 +739,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeOctetStringEmpty() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[2]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = Asn1Utils.encodeOctetString(new short[] {}, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -750,7 +750,7 @@ public class Asn1UtilsTest {
     @Test
     public void testEncodeOctetString() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[6]);
-        buf.position(buf.position()+6);
+        buf.position(buf.position() + 6);
         int len = Asn1Utils.encodeOctetString(new short[] { 192, 168, 0, 15 }, buf);
         assertEquals(6, len);
         assertEquals(0, buf.position());

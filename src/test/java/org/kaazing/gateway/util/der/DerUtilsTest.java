@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -92,14 +92,14 @@ public class DerUtilsTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEncodeIllegalTagNumber() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE, -1, 10, buf);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEncodeIllegalLength() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE, 2, -10, buf);
     }
 
@@ -107,7 +107,7 @@ public class DerUtilsTest {
     public void testEncode1() {
         // universal, primitive, tag <= 30, short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE, 2, 10, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -119,7 +119,7 @@ public class DerUtilsTest {
     public void testEncode2() {
         // application, primitive, tag <= 30, short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.APPLICATION, DerId.EncodingType.PRIMITIVE, 2, 10, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -131,7 +131,7 @@ public class DerUtilsTest {
     public void testEncode3() {
         // context specific, constructed, tag <= 30, short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.CONTEXT_SPECIFIC, DerId.EncodingType.CONSTRUCTED, 2, 10, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -143,7 +143,7 @@ public class DerUtilsTest {
     public void testEncode4() {
         // private, constructed, tag <= 30, short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[12]);
-        buf.position(buf.position()+2);
+        buf.position(buf.position() + 2);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.PRIVATE, DerId.EncodingType.CONSTRUCTED, 2, 10, buf);
         assertEquals(2, len);
         assertEquals(0, buf.position());
@@ -155,7 +155,7 @@ public class DerUtilsTest {
     public void testEncode5() {
         // universal, primitive, tag > 30 (2 byte), short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[13]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.UNIVERSAL, DerId.EncodingType.PRIMITIVE, 32, 10, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -168,7 +168,7 @@ public class DerUtilsTest {
     public void testEncode6() {
         // application, primitive, tag > 30 (2 byte), short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[13]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.APPLICATION, DerId.EncodingType.PRIMITIVE, 32, 10, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -181,7 +181,7 @@ public class DerUtilsTest {
     public void testEncode7() {
         // context specific, constructed, tag > 30 (2 byte), short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[13]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.CONTEXT_SPECIFIC, DerId.EncodingType.CONSTRUCTED, 32, 10, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -194,7 +194,7 @@ public class DerUtilsTest {
     public void testEncode8() {
         // private, constructed, tag > 30 (2 byte), short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[13]);
-        buf.position(buf.position()+3);
+        buf.position(buf.position() + 3);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.PRIVATE, DerId.EncodingType.CONSTRUCTED, 32, 10, buf);
         assertEquals(3, len);
         assertEquals(0, buf.position());
@@ -207,7 +207,7 @@ public class DerUtilsTest {
     public void testEncode9() {
         // context specific, constructed, tag > 30 (3 byte), short length
         ByteBuffer buf = ByteBuffer.wrap(new byte[14]);
-        buf.position(buf.position()+4);
+        buf.position(buf.position() + 4);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.CONTEXT_SPECIFIC, DerId.EncodingType.CONSTRUCTED, 53280, 10, buf);
         assertEquals(4, len);
         assertEquals(0, buf.position());
@@ -221,7 +221,7 @@ public class DerUtilsTest {
     public void testEncode10() {
         // context specific, constructed, tag > 30 (3 byte), long length (201)
         ByteBuffer buf = ByteBuffer.wrap(new byte[206]);
-        buf.position(buf.position()+5);
+        buf.position(buf.position() + 5);
         int len = DerUtils.encodeIdAndLength(DerId.TagClass.CONTEXT_SPECIFIC, DerId.EncodingType.CONSTRUCTED, 53280, 201, buf);
         assertEquals(5, len);
         assertEquals(0, buf.position());

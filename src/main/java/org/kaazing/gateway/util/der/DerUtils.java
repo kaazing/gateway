@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -32,7 +32,7 @@ public final class DerUtils {
 
     /**
      * Decode octets and extract the length information from a DER-encoded message.
-     * 
+     *
      * @param buf
      *            the DER-encoded data buffer with position immediately after the DER-identifier octets
      * @return the length of the DER-encoded contents
@@ -47,11 +47,11 @@ public final class DerUtils {
         byte first = buf.get();
         if (first >> 7 == 0) {
             // Bit 8 is zero: Short form
-            len = (first & 0x7f);
+            len = first & 0x7f;
         } else {
             // Bit 8 is one: Long form
             // Bit 7-1 represents number of subsequent octets
-            int numOctets = (first & 0x7f);
+            int numOctets = first & 0x7f;
             if (buf.remaining() < numOctets) {
                 throw new IllegalArgumentException("Insufficient data to decode long-form DER length");
             }
@@ -67,7 +67,7 @@ public final class DerUtils {
 
     /**
      * Decodes ID and length octets from a DER-encoded message.
-     * 
+     *
      * @param buf
      *            the buffer with the DER-encoded message
      * @return the ID
@@ -80,7 +80,7 @@ public final class DerUtils {
 
     /**
      * DER-encode content into a provided buffer.
-     * 
+     *
      * @param tagClass
      *            the tag class
      * @param encodingType
@@ -172,12 +172,12 @@ public final class DerUtils {
 
         // skip (origPos - pos) bytes
         buf.position(pos);
-        return (origPos - pos);
+        return origPos - pos;
     }
 
     /**
      * Computes the DER-encoded size of content with a specified tag number.
-     * 
+     *
      * @param tagNumber
      *            the DER tag number in the identifier
      * @param contentLength
@@ -195,14 +195,14 @@ public final class DerUtils {
         if (tagNumber <= 30) {
             len++; // single octet
         } else {
-            len += (1 + (int) Math.ceil((1 + Integer.numberOfTrailingZeros(Integer.highestOneBit(tagNumber))) / 7.0d));
+            len = len + 1 + (int) Math.ceil((1 + Integer.numberOfTrailingZeros(Integer.highestOneBit(tagNumber))) / 7.0d);
         }
 
         // Length octets (TODO: indefinite form)
         if (contentLength <= 0x7f) {
             len++; // definite form, single octet
         } else {
-            len += (1 + (int) Math.ceil((1 + Integer.numberOfTrailingZeros(Integer.highestOneBit(contentLength))) / 8.0d));
+            len = len + 1 + (int) Math.ceil((1 + Integer.numberOfTrailingZeros(Integer.highestOneBit(contentLength))) / 8.0d);
         }
 
         // Content octets
