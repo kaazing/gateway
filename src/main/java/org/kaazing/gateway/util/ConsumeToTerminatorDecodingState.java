@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,12 +25,13 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
-public abstract class ConsumeToTerminatorDecodingState extends org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState {
+public abstract class ConsumeToTerminatorDecodingState
+        extends org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState {
 
     public ConsumeToTerminatorDecodingState(IoBufferAllocatorEx<?> allocator, byte terminator) {
         super(allocator, terminator);
     }
-    
+
     @Override
     public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
         return this;

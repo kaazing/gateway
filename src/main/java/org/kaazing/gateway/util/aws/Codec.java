@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,16 +24,19 @@ package org.kaazing.gateway.util.aws;
 import java.nio.ByteBuffer;
 
 public class Codec {
+    protected Codec() {
+    }
 
     // HEX
-    
-    private static final byte[] TO_HEX = new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    
+
+    private static final byte[] TO_HEX =
+            new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
     public static final String encodeHexString(byte[] data) {
         byte[] out = encodeHex(data);
         return new String(out);
     }
-    
+
     public static final byte[] encodeHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
@@ -47,9 +50,9 @@ public class Codec {
         }
         return out;
     }
-    
+
     // Base64
-    
+
     private static final byte[] TO_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".getBytes();
     private static final byte BASE64_PADDING_BYTE = (byte) '=';
 
@@ -57,7 +60,7 @@ public class Codec {
         if (data == null) {
             return null;
         }
-        
+
         return decodeBase64(data).asCharBuffer().toString();
     }
 
@@ -65,7 +68,7 @@ public class Codec {
         if (data == null) {
             return null;
         }
-        
+
         return encodeBase64String(ByteBuffer.wrap(data));
     }
 
@@ -79,7 +82,7 @@ public class Codec {
                 remaining--;
 
                 buf.put(TO_BASE64[(byte0 >> 2) & 0x3f]);
-                buf.put(TO_BASE64[((byte0 << 4) & 0x30)]);
+                buf.put(TO_BASE64[(byte0 << 4) & 0x30]);
                 buf.put(BASE64_PADDING_BYTE);
                 buf.put(BASE64_PADDING_BYTE);
                 break;
@@ -148,10 +151,10 @@ public class Codec {
             }
         }
         buf.flip();
-        return (buf.slice());
+        return buf.slice();
     }
 
-    private static final byte mapped(int index) {
+    private static byte mapped(int index) {
         switch (index) {
         case BASE64_PADDING_BYTE:
         case 'A':
@@ -286,5 +289,5 @@ public class Codec {
             throw new IllegalArgumentException("Invalid base64 string");
         }
     }
-    
+
 }

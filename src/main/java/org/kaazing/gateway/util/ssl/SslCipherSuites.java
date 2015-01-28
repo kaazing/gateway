@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,6 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class SslCipherSuites {
+
+    protected SslCipherSuites() {
+    }
 
     private static enum CipherStrength {
         HIGH("HIGH"),
@@ -243,7 +246,7 @@ public class SslCipherSuites {
                        getStrengthBits().hashCode();
             return code;
         }
- 
+
         @Override
         public int compareTo(Object o) {
             if (o == null) {
@@ -254,7 +257,7 @@ public class SslCipherSuites {
 
             // To sort the ciphers in DESCENDING order of bits, we need to
             // invert the normal comparison
-            return (getStrengthBits().compareTo(c.getStrengthBits()) * -1);
+            return getStrengthBits().compareTo(c.getStrengthBits()) * -1;
         }
 
         @Override
@@ -275,7 +278,7 @@ public class SslCipherSuites {
         public OtherSslCipher(String name) {
             super(name, null, 0, null, null, null, null, null, null, false);
         }
-     
+
         @Override
         public int hashCode() {
             return getName().hashCode();
@@ -288,10 +291,10 @@ public class SslCipherSuites {
     }
 
     private static enum CipherOp {
-      ADD,		// default
-      KILL,		// '!' prefix
-      RIGHT_SHIFT,	// '+' prefix
-      REMOVE;		// '-' prefix
+      ADD,        // default
+      KILL,        // '!' prefix
+      RIGHT_SHIFT,    // '+' prefix
+      REMOVE;        // '-' prefix
     }
 
     // These mappings are based on the groupings used by OpenSSL; see
@@ -300,34 +303,34 @@ public class SslCipherSuites {
     //   openssl/ssl/s3_lib.c.
     //   openssl/ssl/ssl_locl.h
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_STRENGTHS = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledStrengths = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_STRENGTHS = new ConcurrentHashMap<>();
+    private static boolean filledStrengths;
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_KEY_EXCHANGES = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledKeyExchanges = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_KEY_EXCHANGES = new ConcurrentHashMap<>();
+    private static boolean filledKeyExchanges;
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_AUTHNS = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledAuths = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_AUTHNS = new ConcurrentHashMap<>();
+    private static boolean filledAuths;
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_ENCRYPTS = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledEncrypts = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_ENCRYPTS = new ConcurrentHashMap<>();
+    private static boolean filledEncrypts;
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_MACS = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledMACs = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_MACS = new ConcurrentHashMap<>();
+    private static boolean filledMACs;
 
-    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_PROTOCOLS = new ConcurrentHashMap<String, List<SslCipher>>();
-    private static boolean filledProtocols = false;
+    private static final ConcurrentMap<String, List<SslCipher>> CIPHER_PROTOCOLS = new ConcurrentHashMap<>();
+    private static boolean filledProtocols;
 
-    private static final List<SslCipher> CIPHER_FIPS = new LinkedList<SslCipher>();
-    private static boolean filledFIPS = false;
+    private static final List<SslCipher> CIPHER_FIPS = new LinkedList<>();
+    private static boolean filledFIPS;
 
     // Map of the ciphersuite name (as appearing in IETF specs) to
     // various details about that ciphersuite
-    private static boolean filledCiphers = false;
-    private static final ConcurrentMap<String, SslCipher> CIPHERS = new ConcurrentHashMap<String, SslCipher>();
+    private static boolean filledCiphers;
+    private static final ConcurrentMap<String, SslCipher> CIPHERS = new ConcurrentHashMap<>();
 
     // Map of the ciphersuite name (as defined as a nickname in OpenSSL)
-    private static final ConcurrentMap<String, SslCipher> CIPHER_NICKNAMES = new ConcurrentHashMap<String, SslCipher>();
+    private static final ConcurrentMap<String, SslCipher> CIPHER_NICKNAMES = new ConcurrentHashMap<>();
 
     private static void initStrengthGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // HIGH
@@ -683,7 +686,8 @@ public class SslCipherSuites {
 
     // These names are those documented in:
     //   http://docs.oracle.com/javase/6/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider
-    private static void initJava6SunCipherSuites(ConcurrentMap<String, SslCipher> ciphers, ConcurrentMap<String, SslCipher> ciphersByNickname) {
+    private static void initJava6SunCipherSuites(ConcurrentMap<String, SslCipher> ciphers,
+                                                 ConcurrentMap<String, SslCipher> ciphersByNickname) {
         SslCipher cipher = null;
 
         // SSL_RSA_WITH_RC4_128_MD5
@@ -1505,8 +1509,9 @@ public class SslCipherSuites {
 
     // These names are those documented in:
     //   http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider
-    private static void initJava7SunCipherSuites(ConcurrentMap<String, SslCipher> ciphers, ConcurrentMap<String, SslCipher> ciphersByNickname) {
-        SslCipher cipher = null;
+    private static void initJava7SunCipherSuites(ConcurrentMap<String, SslCipher> ciphers,
+                                                 ConcurrentMap<String, SslCipher> ciphersByNickname) {
+        SslCipher cipher;
 
         // TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
         cipher = new SslCipher("TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
@@ -1772,22 +1777,22 @@ public class SslCipherSuites {
         if (ciphers != null) {
             return ciphers;
         }
- 
+
         ciphers = CIPHER_KEY_EXCHANGES.get(token);
         if (ciphers != null) {
             return ciphers;
         }
- 
+
         ciphers = CIPHER_AUTHNS.get(token);
         if (ciphers != null) {
             return ciphers;
         }
- 
+
         ciphers = CIPHER_ENCRYPTS.get(token);
         if (ciphers != null) {
             return ciphers;
         }
- 
+
         ciphers = CIPHER_MACS.get(token);
         if (ciphers != null) {
             return ciphers;
@@ -1913,7 +1918,7 @@ public class SslCipherSuites {
                         }
                     }
 
-                    int idx = resolvedCiphers.size()-1;
+                    int idx = resolvedCiphers.size() - 1;
                     if (idx < 0) {
                         idx = 0;
                     }
@@ -1976,7 +1981,7 @@ public class SslCipherSuites {
             } else if (token.equals("DSS")) {
                 iter.remove();
                 iter.add(CipherAuthentication.DSS.getTokenName());
-    
+
             } else if (token.equals("ECDSA")) {
                 iter.remove();
                 iter.add(CipherAuthentication.ECDSA.getTokenName());
@@ -2113,10 +2118,10 @@ public class SslCipherSuites {
     // String array.
 
     public static String[] resolveCSV(String csv) {
-        List<String> resolved = null;
+        List<String> resolved;
 
         if (csv != null &&
-            csv.equals("") == false) {
+                ! csv.equals("")) {
             String[] elts = csv.split(",");
             List<String> tokens = new ArrayList<String>(elts.length);
             for (String elt : elts) {

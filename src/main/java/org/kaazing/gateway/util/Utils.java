@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -55,17 +55,16 @@ import javax.annotation.Resource;
 import org.apache.mina.filter.logging.LogLevel;
 import org.slf4j.Logger;
 
-/**
- * 
- */
-/**
- * 
- */
+
 public final class Utils {
+
+    private Utils() {
+    }
+
     public static final Charset UTF_8 = Charset.forName("UTF-8");
-    
+
     public static final Charset US_ASCII = Charset.forName("US-ASCII");
-    
+
     private static final byte[] LONG_MIN_VALUE_BYTES = "-9223372036854775808".getBytes(UTF_8);
 
     private static final int LONG_MIN_VALUE_BYTES_LENGTH = LONG_MIN_VALUE_BYTES.length;
@@ -74,60 +73,75 @@ public final class Utils {
 
     private static final int INTEGER_MIN_VALUE_BYTES_LENGTH = INTEGER_MIN_VALUE_BYTES.length;
 
-    private static final Pattern TIME_INTERVAL_PATTERN = Pattern.compile("([0-9\\.]+)\\s*(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours)?)");
+    private static final String TIME_UNIT_REGEX_STRING =
+            "(?i:(ms|milli|millis|millisecond|milliseconds|s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hour|hours)?)";
 
-    public static final Set<String> SECONDS_UNITS = new HashSet<String>(Arrays.asList("s", "sec", "secs", "second", "seconds"));
+    private static final String TIME_INTERVAL_REGEX_STRING = "([0-9\\.]+)\\s*" + TIME_UNIT_REGEX_STRING;
 
-    public static final Set<String> MILLISECONDS_UNITS = new HashSet<String>(Arrays.asList("ms", "milli", "millis", "millisecond", "milliseconds"));
+    private static final Pattern TIME_INTERVAL_PATTERN = Pattern.compile(TIME_INTERVAL_REGEX_STRING);
 
-    public static final Set<String> MINUTES_UNITS = new HashSet<String>(Arrays.asList("m", "min", "mins", "minute", "minutes"));
+    public static final Set<String> SECONDS_UNITS =
+            new HashSet<>(Arrays.asList("s", "sec", "secs", "second", "seconds"));
 
-    public static final Set<String> HOURS_UNITS = new HashSet<String>(Arrays.asList("h","hour","hours"));
-    
-    private static final String[] PERMITTED_DATA_RATE_UNITS = new String[] {"MiB/s", "KiB/s", "MB/s", "kB/s", "B/s"};
+    public static final Set<String> MILLISECONDS_UNITS =
+            new HashSet<>(Arrays.asList("ms", "milli", "millis", "millisecond", "milliseconds"));
+
+    public static final Set<String> MINUTES_UNITS =
+            new HashSet<>(Arrays.asList("m", "min", "mins", "minute", "minutes"));
+
+    public static final Set<String> HOURS_UNITS =
+            new HashSet<>(Arrays.asList("h", "hour", "hours"));
+
+    private static final String[] PERMITTED_DATA_RATE_UNITS =
+            new String[] {"MiB/s", "KiB/s", "MB/s", "kB/s", "B/s"};
+
     // The following must match the above by position:
-    private static final long[] DATA_RATE_MULTIPLIERS = new long[]{1024*1024, 1024, 1000*1000, 1000, 1};
+    private static final long[] DATA_RATE_MULTIPLIERS =
+            new long[]{1024 * 1024, 1024, 1000 * 1000, 1000, 1};
 
 
-    public static final String join(String[] array, String separator) {
+    public static String join(String[] array, String separator) {
         if (array == null) {
             throw new NullPointerException("array");
         }
-        
+
         if (separator == null) {
             throw new NullPointerException("separator");
         }
-        
+
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             if (i > 0) {
                 sb.append(separator);
             }
             sb.append(array[i]);
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Creates a new String filled with size of a repeating character
-     * 
+     *
      * @param c Character to repeat
      * @param size Size of resulting String
      * @return String full of repeated characters
      */
-    public static final String fill(char c, int size) {
+    public static String fill(char c, int size) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < size; i++) {
             builder.append(c);
         }
         return builder.toString();
     }
-    
-    private static final byte[] TO_HEX = new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-  private static final byte[] FROM_HEX = new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 
-    public static final String toHex(byte[] data) {
+    private static final byte[] TO_HEX =
+            new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  private static final byte[] FROM_HEX =
+          new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+
+    public static String toHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
         byte cur = 0;
@@ -161,7 +175,7 @@ public final class Utils {
         return 0x00;
     }
 
-    public static final byte[] fromHex(String hex) {
+    public static byte[] fromHex(String hex) {
 
         final int len = hex.length();
         byte[] out = new byte[len >> 1];
@@ -170,38 +184,38 @@ public final class Utils {
 
             final byte i1 = hexCharToByte(chars[i << 1]);
             final byte i2 = hexCharToByte(chars[(i << 1) + 1]);
-            out[i] =(byte) (  (i1<<4) + i2);
+            out[i] = (byte) ((i1 << 4) + i2);
 
         }
         return out;
     }
 
     public static int ENCODED_BOOLEAN_CAPACITY = 4;
-    
+
     public static void encodeBoolean(boolean b, ByteBuffer buf) {
         buf.put(b ? TRUE_BYTES : FALSE_BYTES);
     }
-    
+
     public static int ENCODED_INT_CAPACITY = INTEGER_MIN_VALUE_BYTES_LENGTH;
-    
+
     public static void encodeInt(int i, ByteBuffer buf) {
         if (i == Integer.MIN_VALUE) {
             buf.put(INTEGER_MIN_VALUE_BYTES);
         }
-        
+
         int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
         if (buf.remaining() < size) {
             throw new BufferUnderflowException();
         }
-        
+
         int position = buf.position();
         int offset = position + size;
-        
+
         int q, r;
         byte sign = 0;
 
         int positive = i;
-        if (positive < 0) { 
+        if (positive < 0) {
             sign = '-';
             positive = -positive;
         }
@@ -218,27 +232,29 @@ public final class Utils {
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
-        for (;;) { 
-            q = (positive * 52429) >>> (16+3);
+        for (;;) {
+            q = (positive * 52429) >>> (16 + 3);
             r = positive - ((q << 3) + (q << 1));  // r = i-(q*10) ...
             buf.put(--offset, digits[r]);
             positive = q;
-            if (positive == 0) break;
+            if (positive == 0) {
+                break;
+            }
         }
         if (sign != 0) {
             buf.put(--offset, sign);
         }
-        
+
         buf.position(position + size);
     }
-    
+
     public static int ENCODED_LONG_CAPACITY = LONG_MIN_VALUE_BYTES_LENGTH;
-    
+
     public static void encodeLong(long i, ByteBuffer buf) {
         if (i == Long.MIN_VALUE) {
             buf.put(LONG_MIN_VALUE_BYTES);
         }
-        
+
         int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
         if (buf.remaining() < size) {
             throw new BufferUnderflowException();
@@ -258,10 +274,10 @@ public final class Utils {
         }
 
         // Get 2 digits/iteration using longs until quotient fits into an int
-        while (positive > Integer.MAX_VALUE) { 
+        while (positive > Integer.MAX_VALUE) {
             q = positive / 100;
             // really: r = i - (q * 100);
-            r = (int)(positive - ((q << 6) + (q << 5) + (q << 2)));
+            r = (int) (positive - ((q << 6) + (q << 5) + (q << 2)));
             positive = q;
             buf.put(--offset, DigitOnes[r]);
             buf.put(--offset, DigitTens[r]);
@@ -269,7 +285,7 @@ public final class Utils {
 
         // Get 2 digits/iteration using ints
         int q2;
-        int i2 = (int)positive;
+        int i2 = (int) positive;
         while (i2 >= 65536) {
             q2 = i2 / 100;
             // really: r = i2 - (q * 100);
@@ -282,27 +298,30 @@ public final class Utils {
         // Fall thru to fast mode for smaller numbers
         // assert(i2 <= 65536, i2);
         for (;;) {
-            q2 = (i2 * 52429) >>> (16+3);
+            q2 = (i2 * 52429) >>> (16 + 3);
             r = i2 - ((q2 << 3) + (q2 << 1));  // r = i2-(q2*10) ...
             buf.put(--offset, digits[r]);
             i2 = q2;
-            if (i2 == 0) break;
+            if (i2 == 0) {
+                break;
+            }
         }
         if (sign != 0) {
             buf.put(--offset, sign);
         }
-        
+
         buf.position(position + size);
     }
 
-    public static final String asString(Map<ByteBuffer, ByteBuffer> headers) {
+    public static String asString(Map<ByteBuffer, ByteBuffer> headers) {
         if (headers == null) {
             return null;
         }
-        
-        Iterator<Entry<ByteBuffer,ByteBuffer>> i = headers.entrySet().iterator();
-        if (! i.hasNext())
+
+        Iterator<Entry<ByteBuffer, ByteBuffer>> i = headers.entrySet().iterator();
+        if (! i.hasNext()) {
             return "{}";
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append('{');
@@ -313,17 +332,18 @@ public final class Utils {
             sb.append(key   == headers ? "(this Map)" : asString(key));
             sb.append('=');
             sb.append(value == headers ? "(this Map)" : asString(value));
-            if (! i.hasNext())
-            return sb.append('}').toString();
+            if (! i.hasNext()) {
+                return sb.append('}').toString();
+            }
             sb.append(", ");
         }
     }
-    
+
     /**
      * @param  buf         UTF-8 encoded bytes
      * @return String      UTF-8 decoded result
      */
-    public static final String asString(ByteBuffer buf) {
+    public static String asString(ByteBuffer buf) {
         if (buf == null) {
             return null;
         }
@@ -342,12 +362,12 @@ public final class Utils {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * Gets the content of the ByteBuffer as a byte[] without mutating the buffer
      * (so thread safe) and minimizing GC (i.e. object creation)
      */
-    public static final byte[] asByteArray(ByteBuffer buf) {
+    public static byte[] asByteArray(ByteBuffer buf) {
         byte[] result = null;
         if (buf.hasArray() && buf.arrayOffset() == 0 && buf.capacity() == buf.remaining()) {
             result = buf.array();
@@ -367,58 +387,58 @@ public final class Utils {
         }
         return result;
     }
-    
+
     @Deprecated // Use asString now it's been fixed to use UTF-8 CharSet
-    public static final String asStringUTF8(ByteBuffer buf) {
+    public static String asStringUTF8(ByteBuffer buf) {
         return asString(buf);
     }
-    
-    public static final ByteBuffer asByteBuffer(String s) {
-        if(null == s ) {
+
+    public static ByteBuffer asByteBuffer(String s) {
+        if (null == s) {
             return null;
         }
-        if(s.length() < 1024) { // we will only check isASCII if message less then 1K.
+        if (s.length() < 1024) { // we will only check isASCII if message less then 1K.
             return isASCII(s) ? US_ASCII.encode(s) : UTF_8.encode(s);
         } else {
-            return UTF_8.encode(s);  
+            return UTF_8.encode(s);
         }
     }
-    
-    public static final boolean isASCII(String s) {
+
+    public static boolean isASCII(String s) {
         int size = s.length();
         char c;
         for (int i = 0; i < size; i++) {
             c = s.charAt(i);
-            if(!(c >= 0 && c <= 127)) {
+            if (!(c >= 0 && c <= 127)) {
                 return false;
             }
         }
         return true;
     }
-    
-    public static final ByteBuffer asByteBuffer(byte[] bytes) {
+
+    public static ByteBuffer asByteBuffer(byte[] bytes) {
         return (bytes != null) ? ByteBuffer.wrap(bytes) : null;
     }
-    
+
     /**
      * Reads an int value from the buffer starting at the given index relative to the current
-     * position() of the buffer, without mutating the buffer in any way (so it's thread safe). 
+     * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
      */
     public static int getInt(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getIntB(buf, index) : getIntL(buf, index);
     }
-    
+
     /**
      * Reads an long value from the buffer starting at the given index relative to the current
-     * position() of the buffer, without mutating the buffer in any way (so it's thread safe). 
+     * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
      */
     public static long getLong(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getLongB(buf, index) : getLongL(buf, index);
     }
-    
+
     /**
      * Reads a short value from the buffer starting at the given index relative to the current
-     * position() of the buffer, without mutating the buffer in any way (so it's thread safe). 
+     * position() of the buffer, without mutating the buffer in any way (so it's thread safe).
      */
     public static short getShort(ByteBuffer buf, int index) {
         return buf.order() == BIG_ENDIAN ? getShortB(buf, index) : getShortL(buf, index);
@@ -429,7 +449,7 @@ public final class Utils {
      * multithreaded access to source) and without GC (unless source is a direct buffer).
      */
     public static void putByteBuffer(ByteBuffer source, ByteBuffer target) {
-        if ( source.hasArray() ) {
+        if (source.hasArray()) {
             byte[] array = source.array();
             int arrayOffset = source.arrayOffset();
             target.put(array, arrayOffset + source.position(), source.remaining());
@@ -438,22 +458,22 @@ public final class Utils {
             target.put(source.duplicate());
         }
     }
-    
+
     /**
      * Load the specified class, which can be a (public static) inner class provided the physical name is used
      * ("my.package.MyClass$MyInnerClass") rather than the canonical name ("my.package.MyClass.MyInnerClass")
      * @param className Fully qualified class name
-     * @return The loaded Class 
+     * @return The loaded Class
      * @throws ClassNotFoundException
      * @throws NoSuchFieldException
      * @throws IllegalAccessException
      */
-    public static Class<?> loadClass(String className) 
+    public static Class<?> loadClass(String className)
     throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       return classLoader.loadClass(className);
     }
-    
+
     /**
      * Gets the value of a static int field (static final constant), given its fully qualified name.
      * The owner class can be a (public static) inner class provided the physical name is used
@@ -462,24 +482,24 @@ public final class Utils {
      * @return the value of the field
      * @throws ClassNotFoundException
      * @throws NoSuchFieldException
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException - if the given name is invalid 
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException - if the given name is invalid
      */
-    public static int loadStaticInt(String fullyQualifiedFieldName) 
+    public static int loadStaticInt(String fullyQualifiedFieldName)
       throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
         int lastDotPos = fullyQualifiedFieldName.lastIndexOf('.');
         // Name must contain "." but not as first or last character
-        if ( lastDotPos <= 0 || lastDotPos+1 >= fullyQualifiedFieldName.length() ) {
+        if (lastDotPos <= 0 || lastDotPos + 1 >= fullyQualifiedFieldName.length()) {
             throw new IllegalArgumentException(fullyQualifiedFieldName);
         }
         String className = fullyQualifiedFieldName.substring(0, lastDotPos);
-        String fieldName = fullyQualifiedFieldName.substring(lastDotPos+1);
+        String fieldName = fullyQualifiedFieldName.substring(lastDotPos + 1);
         Class<?> clazz = loadClass(className);
         Field field = clazz.getField(fieldName);
         int mode = field.getInt(clazz);
         return mode;
     }
-    
+
     /**
      * Validate that the given string value is a valid boolean ("true" or "false", case insensitive) and convert it to a boolean
      * @param valueName
@@ -490,7 +510,7 @@ public final class Utils {
      */
     public static boolean parseBoolean(String valueName, String value, boolean defaultValue) {
         boolean result = defaultValue;
-        if ( value != null ) {
+        if (value != null) {
             boolean valid = true;
             result = Boolean.parseBoolean(value);
             // parseBoolean allows any value, e.g. so a typo like "trye" would be silently interpreted as false
@@ -499,7 +519,7 @@ public final class Utils {
                     valid = false;
                 }
             }
-            if ( !valid ) {
+            if (!valid) {
                 String message = String.format("Invalid value \"%s\" for %s, must be \"%s\" or \"%s\"",
                         value, valueName, Boolean.TRUE.toString(), Boolean.FALSE.toString());
                 throw new IllegalArgumentException(message);
@@ -507,7 +527,7 @@ public final class Utils {
         }
         return result;
     }
-    
+
     /**
      * Validate that the given string value is a valid positive integer (int or long) and convert it to a long
      * @param valueName
@@ -518,18 +538,18 @@ public final class Utils {
      */
     public static long parsePositiveInteger(String valueName, String value, long defaultValue) {
         long result = defaultValue;
-        if ( value != null ) {
+        if (value != null) {
             boolean valid = true;
             try {
                 result = Long.parseLong(value);
-                if ( result <= 0 ) {
+                if (result <= 0) {
                     valid = false;
                 }
             }
             catch (NumberFormatException e) {
                 valid = false;
             }
-            if ( !valid ) {
+            if (!valid) {
                 String message = String.format("Invalid value \"%s\" for %s, must be a positive integer",
                         value, valueName);
                 throw new IllegalArgumentException(message);
@@ -551,7 +571,7 @@ public final class Utils {
     public static long parseTimeInterval(String timeIntervalValue, TimeUnit outputUnit, long defaultValue) {
         return parseTimeInterval(timeIntervalValue, outputUnit, String.valueOf(defaultValue) + "seconds");
     }
-    
+
     /**
      * @param timeIntervalValue - The value to be passed
      * @param outputUnit        - The value will be converted to this unit
@@ -561,61 +581,66 @@ public final class Utils {
      */
     public static long parseTimeInterval(String timeIntervalValue, TimeUnit outputUnit, String defaultValue) {
         outputUnit = outputUnit == null ? TimeUnit.SECONDS : outputUnit;
-        if ( timeIntervalValue == null ) {
+        if (timeIntervalValue == null) {
             return parseTimeInterval(defaultValue, outputUnit, 0);
         }
-        if ( outputUnit == null ) {
+        if (outputUnit == null) {
             return parseTimeInterval(String.valueOf(timeIntervalValue), TimeUnit.SECONDS, 0);
         }
 
         int length = timeIntervalValue.length();
-        if ( length < 1 ) {
-            throw new NumberFormatException("Illegal timeInterval value, empty string not allowed.\n"+TIME_INTERVAL_INFORMATION);
+        if (length < 1) {
+            throw new NumberFormatException("Illegal timeInterval value, empty string not allowed.\n"
+                    + TIME_INTERVAL_INFORMATION);
         }
 
         Matcher matcher = TIME_INTERVAL_PATTERN.matcher(timeIntervalValue);
-        if ( matcher.matches()) {
+        if (matcher.matches()) {
             String unit = "seconds";
             double providedMultiplier = Double.parseDouble(matcher.group(1));
-            if ( providedMultiplier < 0 ) {
-                throw new NumberFormatException("Illegal timeInterval value, negative intervals not allowed.\n"+TIME_INTERVAL_INFORMATION);
+            if (providedMultiplier < 0) {
+                throw new NumberFormatException("Illegal timeInterval value, negative intervals not allowed.\n"
+                        + TIME_INTERVAL_INFORMATION);
             }
-            if ( matcher.group(2) != null) {
+            if (matcher.group(2) != null) {
                 unit = matcher.group(2);
             }
 
             long result = 1L;
 
             try {
-                if ( SECONDS_UNITS.contains(unit.toLowerCase()) ) {
-                    result = (long)(providedMultiplier*outputUnit.convert(result, TimeUnit.SECONDS));
-                } else if ( MILLISECONDS_UNITS.contains(unit.toLowerCase()) ) {
-                    result = (long)(providedMultiplier*outputUnit.convert(result, TimeUnit.MILLISECONDS));
-                } else if ( MINUTES_UNITS.contains(unit.toLowerCase())) {
-                    result = (long)(providedMultiplier*outputUnit.convert(result, TimeUnit.MINUTES));
-                } else if ( HOURS_UNITS.contains(unit.toLowerCase())) {
-                    result = (long)(providedMultiplier*outputUnit.convert(result, TimeUnit.HOURS));
+                if (SECONDS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.SECONDS));
+                } else if (MILLISECONDS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MILLISECONDS));
+                } else if (MINUTES_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.MINUTES));
+                } else if (HOURS_UNITS.contains(unit.toLowerCase())) {
+                    result = (long) (providedMultiplier * outputUnit.convert(result, TimeUnit.HOURS));
                 }
-                if ( result < 0) {
-                    throw new NumberFormatException("Expected a non-negative time interval, received \""+timeIntervalValue+"\"");
+                if (result < 0) {
+                    throw new NumberFormatException("Expected a non-negative time interval, received \""
+                            + timeIntervalValue + "\"");
                 }
                 return result;
             } catch (Exception e) {
                 throw (NumberFormatException)
                         new NumberFormatException("Illegal timeIntervalValue value \"" +
-                                timeIntervalValue + "\".\n"+TIME_INTERVAL_INFORMATION).initCause(e);
+                                timeIntervalValue + "\".\n" + TIME_INTERVAL_INFORMATION).initCause(e);
             }
         } else {
-            throw new NumberFormatException("Illegal timeIntervalValue value \"" + timeIntervalValue + "\".\n"+TIME_INTERVAL_INFORMATION);
+            throw new NumberFormatException("Illegal timeIntervalValue value \"" + timeIntervalValue + "\".\n"
+                    + TIME_INTERVAL_INFORMATION);
         }
     }
 
     private static String TIME_INTERVAL_INFORMATION =
-            "Time intervals can be specified as numeric amounts of the following units: millisecond, second, minute, hour.\nFor example, \"1800 second\" or \"30 minutes\" or \"0.5 hour\".";
+            "Time intervals can be specified as numeric amounts of the following units: millisecond, second, minute, hour.\n" +
+                    "For example, \"1800 second\" or \"30 minutes\" or \"0.5 hour\".";
     /**
-     * Converts a data size specified in bytes (all digits), kilobytes (digits followed by k or K) 
+     * Converts a data size specified in bytes (all digits), kilobytes (digits followed by k or K)
      * or megabytes (digits followed by m or M), values like 1048, 64k, 10M.
-     * @param dataSizeValue   data size 
+     * @param dataSizeValue   data size
      * @return - data size converted to int number of bytes
      */
     public static int parseDataSize(String dataSizeValue) {
@@ -624,45 +649,46 @@ public final class Utils {
 
     /**
      * Converts a per second data rate specified in bytes (all digits), decimal kilobytes (digits followed by kB/s),
-     * binary kilobytes (digits followed by KiB/s), decimal megabytes (digits followed by MB/s), or 
+     * binary kilobytes (digits followed by KiB/s), decimal megabytes (digits followed by MB/s), or
      * binary megabytes (digits followed by KiB/s), values like 1048, 64kB/s, 10MiB/s.
      * @param dataRateValue   data size
      * @return - data rate converted to int number of bytes (implicitly per second)
      */
     public static long parseDataRate(String dataRateValue) {
         int length = dataRateValue.length();
-        if ( length < 1 ) {
+        if (length < 1) {
             throw new NumberFormatException("Illegal dataRate value, empty string not allowed");
         }
-        char last = dataRateValue.charAt(length-1);
+        char last = dataRateValue.charAt(length - 1);
         long multiplier = 1;
         String numberPart = dataRateValue;
         if (!Character.isDigit(last)) {
-            for (int i=0; i<PERMITTED_DATA_RATE_UNITS.length; i++) {
+            for (int i = 0; i < PERMITTED_DATA_RATE_UNITS.length; i++) {
                 if (dataRateValue.endsWith(PERMITTED_DATA_RATE_UNITS[i])) {
                     multiplier = DATA_RATE_MULTIPLIERS[i];
                     int unitLength = PERMITTED_DATA_RATE_UNITS[i].length();
-                    if (length < (unitLength+1)) {
+                    if (length < (unitLength + 1)) {
                         throw new NumberFormatException("Invalid dataRate value \"" + dataRateValue + "\", number part missing");
                     }
-                    numberPart  = dataRateValue.substring(0, length-unitLength);
+                    numberPart  = dataRateValue.substring(0, length - unitLength);
                     break;
                 }
             }
         }
         final long result = Long.parseLong(numberPart) * multiplier;
-        if ( result <= 0 ) {
-            throw new NumberFormatException("Illegal dataRate value \"" + dataRateValue + "\", must be a positive number or overflow occurred");
+        if (result <= 0) {
+            throw new NumberFormatException("Illegal dataRate value \"" + dataRateValue +
+                    "\", must be a positive number or overflow occurred");
         }
         return result;
     }
 
     private static int parseDataSize(String dataSizeValue, String specifier) {
         int length = dataSizeValue.length();
-        if ( length < 1 ) {
-            throw new NumberFormatException("Illegal "+specifier+" value, empty string not allowed");
+        if (length < 1) {
+            throw new NumberFormatException("Illegal " + specifier + " value, empty string not allowed");
         }
-        char last = dataSizeValue.charAt(length-1); 
+        char last = dataSizeValue.charAt(length - 1);
         int multiplier = 1;
         String numberPart = dataSizeValue;
         switch(last) {
@@ -672,41 +698,41 @@ public final class Utils {
                 break;
             case 'm':
             case 'M':
-                multiplier = 1024*1024;
+                multiplier = 1024 * 1024;
                 break;
         }
         if (multiplier > 1) {
             if (length < 2) {
-               throw new NumberFormatException("Illegal "+specifier+" value \"" + dataSizeValue + "\", number part missing");
+               throw new NumberFormatException("Illegal " + specifier + " value \"" + dataSizeValue + "\", number part missing");
             }
             else {
-                numberPart  = dataSizeValue.substring(0, length-1);
+                numberPart  = dataSizeValue.substring(0, length - 1);
             }
         }
         final int result = Integer.parseInt(numberPart) * multiplier;
         return result;
     }
-    
-    public static final boolean sameOrEquals(Object this_, Object that) {
+
+    public static boolean sameOrEquals(Object this_, Object that) {
         return (this_ == that) || (this_ != null && this_.equals(that));
     }
-    
-    public static final <K, V> boolean sameOrEquals(Map<K, V> this_, Map<K, V> that) {
-        return (this_ == that) || 
-                (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) || 
+
+    public static <K, V> boolean sameOrEquals(Map<K, V> this_, Map<K, V> that) {
+        return (this_ == that) ||
+                (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) ||
                 (this_ != null && this_.equals(that));
     }
-    
-    public static final <T> boolean sameOrEquals(Collection<T> this_, Collection<T> that) {
-        return (this_ == that) || 
-                (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) || 
+
+    public static <T> boolean sameOrEquals(Collection<T> this_, Collection<T> that) {
+        return (this_ == that) ||
+                (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) ||
                 (this_ != null && this_.equals(that));
     }
-    
+
     private static final byte[] TRUE_BYTES = "true".getBytes(UTF_8);
     private static final byte[] FALSE_BYTES = "false".getBytes(UTF_8);
-    
-    final static byte[] digits = {
+
+    static final byte[] digits = {
         '0' , '1' , '2' , '3' , '4' , '5' ,
         '6' , '7' , '8' , '9' , 'a' , 'b' ,
         'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,
@@ -715,7 +741,7 @@ public final class Utils {
         'u' , 'v' , 'w' , 'x' , 'y' , 'z'
         };
 
-    final static byte[] DigitTens = {
+    static final byte[] DigitTens = {
         '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
         '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
         '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
@@ -726,9 +752,9 @@ public final class Utils {
         '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
         '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
         '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
-        } ; 
+        } ;
 
-    final static byte[] DigitOnes = { 
+    static final byte[] DigitOnes = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -741,29 +767,32 @@ public final class Utils {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         } ;
 
-    final static int [] sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999,
+    static final int [] sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999,
         99999999, 999999999, Integer.MAX_VALUE };
 
     // Requires positive x
     static int stringSize(int x) {
-        for (int i = 0;; i++)
-            if (x <= sizeTable[i])
+        for (int i = 0;; i++) {
+            if (x <= sizeTable[i]) {
                 return i + 1;
+            }
+        }
     }
 
     static int stringSize(long x) {
         long p = 10;
-        for (int i=1; i<19; i++) {
-            if (x < p)
+        for (int i = 1; i < 19; i++) {
+            if (x < p) {
                 return i;
-            p = 10*p;
+            }
+            p = 10 * p;
         }
         return 19;
     }
 
     private static final Random rand = new SecureRandom();
-    
-    public static final String randomHexString(int len) {
+
+    public static String randomHexString(int len) {
         byte[] out = randomHexBytes(len);
         return new String(out);
     }
@@ -776,12 +805,12 @@ public final class Utils {
         }
         return out;
     }
-    
-    public static final int randomInt() {
+
+    public static int randomInt() {
         return rand.nextInt();
     }
-    
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
+
+    public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, cause); return;
             case DEBUG : logger.debug(message, cause); return;
@@ -792,7 +821,7 @@ public final class Utils {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param); return;
             case DEBUG : logger.debug(message, param); return;
@@ -803,7 +832,7 @@ public final class Utils {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param1, param2); return;
             case DEBUG : logger.debug(message, param1, param2); return;
@@ -814,7 +843,7 @@ public final class Utils {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, new Object[] { param1, param2, param3 }); return;
             case DEBUG : logger.debug(message, new Object[] { param1, param2, param3 }); return;
@@ -828,16 +857,16 @@ public final class Utils {
     public static <T> void inject(Object target,
                                   Class<T> injectableType,
                                   T injectableInstance) {
-    	inject0(target, injectableType, injectableInstance);
+        inject0(target, injectableType, injectableInstance);
     }
 
     private static void inject0(Object target,
             Class<?> injectableType,
             Object injectableInstance) {
 
-    	Class<? extends Object> targetClass = target.getClass();
-    	Method[] methods = targetClass.getMethods();
-    	for (Method method : methods) {
+        Class<? extends Object> targetClass = target.getClass();
+        Method[] methods = targetClass.getMethods();
+        for (Method method : methods) {
             String methodName = method.getName();
             Class<?>[] parameterTypes = method.getParameterTypes();
             if (methodName.startsWith("set") &&
@@ -873,27 +902,27 @@ public final class Utils {
         }
     }
 
-	public static void injectAll(Object target, Map<Class<?>, Object> injectables) {
+    public static void injectAll(Object target, Map<Class<?>, Object> injectables) {
 
-		for (Map.Entry<Class<?>, Object> entry : injectables.entrySet()) {
-			Class<?> injectableType = entry.getKey();
-			Object injectableInstance = entry.getValue();
-			inject0(target, injectableType, injectableInstance);
-		}
-	}
+        for (Map.Entry<Class<?>, Object> entry : injectables.entrySet()) {
+            Class<?> injectableType = entry.getKey();
+            Object injectableInstance = entry.getValue();
+            inject0(target, injectableType, injectableInstance);
+        }
+    }
 
     public static String join(Object[] data, String separator) {
-		int len = data.length;
-		if (len == 0) {
-			return null;
-		}
-		StringBuilder buf = new StringBuilder();
-		buf.append(data[0].toString());
-		for (int i = 1; i < data.length; i++) {
-			buf.append(separator);
-			buf.append(data[i].toString());
-		}		
-		return buf.toString();
+        int len = data.length;
+        if (len == 0) {
+            return null;
+        }
+        StringBuilder buf = new StringBuilder();
+        buf.append(data[0].toString());
+        for (int i = 1; i < data.length; i++) {
+            buf.append(separator);
+            buf.append(data[i].toString());
+        }
+        return buf.toString();
     }
 
     public static String asCommaSeparatedString(final Collection<String> strings) {
@@ -904,28 +933,30 @@ public final class Utils {
 
     public static String asSeparatedString(final Collection<String> strings, final String separator) {
             StringBuilder b = new StringBuilder();
-            if (  strings != null ) {
+            if (strings != null) {
                 for (String protocol: strings) {
                     b.append(protocol).append(separator);
                 }
-                if ( strings.size() > 0 ) {
-                    b.deleteCharAt(b.length()-1);
+                if (strings.size() > 0) {
+                    b.deleteCharAt(b.length() - 1);
                 }
             }
             return b.toString();
         }
 
-    public static Map<String,Object> rewriteKeys(final Map<String,Object> options, String prefix, String newPrefix) {
+    public static Map<String, Object> rewriteKeys(final Map<String, Object> options, String prefix, String newPrefix) {
         final String separator = ".";
-        final String startWith = prefix+separator;
+        final String startWith = prefix + separator;
         final int startWithLength = startWith.length();
-        if ( options == null) return null;
-        Map<String,Object> result = new HashMap<String,Object>(options);
-        for ( Entry<String,Object> e: options.entrySet()) {
-            if ( e.getKey().startsWith(startWith)) {
-                String newKey = newPrefix+separator;
+        if (options == null) {
+            return null;
+        }
+        Map<String, Object> result = new HashMap<>(options);
+        for (Entry<String, Object> e: options.entrySet()) {
+            if (e.getKey().startsWith(startWith)) {
+                String newKey = newPrefix + separator;
                 final String suffix = e.getKey().substring(startWithLength);
-                result.put(newKey+suffix, result.remove(e.getKey()));
+                result.put(newKey + suffix, result.remove(e.getKey()));
             }
         }
         return result;
@@ -941,7 +972,7 @@ public final class Utils {
      */
     public static String getHostStringWithoutNameLookup(InetSocketAddress inetSocketAddress) {
         String newHost;
-        if ( inetSocketAddress.isUnresolved() ) {
+        if (inetSocketAddress.isUnresolved()) {
             newHost = inetSocketAddress.getHostName();
         } else {
             newHost = inetSocketAddress.getAddress().getHostAddress();
@@ -956,32 +987,32 @@ public final class Utils {
         cause.printStackTrace(printStream);
         printStream.flush();
         return byteArrayOutputStream.toString();
-		
+
     }
-    
-    static private short makeShort(byte b1, byte b0) {
-        return (short)((b1 << 8) | (b0 & 0xff));
+
+    private static short makeShort(byte b1, byte b0) {
+        return (short) ((b1 << 8) | (b0 & 0xff));
     }
 
     static short getShortL(ByteBuffer bb, int bi) {
         return makeShort(bb.get(bi + 1),
-                         bb.get(bi    ));
+                         bb.get(bi));
     }
 
     static short getShortB(ByteBuffer bb, int bi) {
-        return makeShort(bb.get(bi    ),
+        return makeShort(bb.get(bi),
                          bb.get(bi + 1));
     }
-	
+
     private static int makeInt(byte b3, byte b2, byte b1, byte b0) {
-        return (((b3       ) << 24) |
-                ((b2 & 0xff) << 16) |
-                ((b1 & 0xff) <<  8) |
-                ((b0 & 0xff)      ));
+        return b3 << 24 |
+                (b2 & 0xff) << 16 |
+                (b1 & 0xff) <<  8 |
+                b0 & 0xff;
     }
 
     private static int getIntB(ByteBuffer bb, int index) {
-        return makeInt(bb.get(index    ),
+        return makeInt(bb.get(index),
                        bb.get(index + 1),
                        bb.get(index + 2),
                        bb.get(index + 3));
@@ -991,20 +1022,19 @@ public final class Utils {
         return makeInt(bb.get(index + 3),
                        bb.get(index + 2),
                        bb.get(index + 1),
-                       bb.get(index    ));
+                       bb.get(index));
     }
-    
+
     private static long makeLong(byte b7, byte b6, byte b5, byte b4,
-            byte b3, byte b2, byte b1, byte b0)
-    {       
-        return ((((long)b7       ) << 56) |
-                (((long)b6 & 0xff) << 48) |
-                (((long)b5 & 0xff) << 40) |
-                (((long)b4 & 0xff) << 32) |
-                (((long)b3 & 0xff) << 24) |
-                (((long)b2 & 0xff) << 16) |
-                (((long)b1 & 0xff) <<  8) |
-                (((long)b0 & 0xff)      ));
+            byte b3, byte b2, byte b1, byte b0) {
+        return (long) b7 << 56 |
+                ((long) b6 & 0xff) << 48 |
+                ((long) b5 & 0xff) << 40 |
+                ((long) b4 & 0xff) << 32 |
+                ((long) b3 & 0xff) << 24 |
+                ((long) b2 & 0xff) << 16 |
+                ((long) b1 & 0xff) <<  8 |
+                (long) b0 & 0xff;
     }
 
     private static long getLongL(ByteBuffer bb, int index) {
@@ -1015,11 +1045,11 @@ public final class Utils {
                         bb.get(index + 3),
                         bb.get(index + 2),
                         bb.get(index + 1),
-                        bb.get(index    ));
+                        bb.get(index));
     }
-    
+
     private static long getLongB(ByteBuffer bb, int index) {
-        return makeLong(bb.get(index    ),
+        return makeLong(bb.get(index),
                         bb.get(index + 1),
                         bb.get(index + 2),
                         bb.get(index + 3),
@@ -1039,20 +1069,20 @@ public final class Utils {
         int index = -1;
         for (int i = 0; i < option.length; i++) {
             String element = option[i];
-            if ( remove == null ) {
+            if (remove == null) {
                 if (element == null) {
                     index = i;
                     break;
                 }
             } else {
-                if ( remove.equals(element)) {
+                if (remove.equals(element)) {
                     index = i;
                 }
             }
         }
 
-        if ( index != -1 ) {
-            String[] result = new String[option.length-1];
+        if (index != -1) {
+            String[] result = new String[option.length - 1];
             System.arraycopy(option, 0, result, 0, index);
             System.arraycopy(option, index + 1, result, index, option.length - (index + 1));
             return result;

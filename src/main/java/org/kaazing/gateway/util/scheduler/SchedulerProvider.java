@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,14 +48,18 @@ public class SchedulerProvider {
 
 
     /*
-     * @param owner               - Object which will be using the scheduler (and shutting it down when the object is disposed)
-     * @param purpose             - short description of the purpose of the scheduler, will be set as the thread name if a dedicated thread is used
-     * @param needDedicatedThread - set this to true to guarantee the scheduler will have its own dedicated thread. This is appropriate if the tasks
-     *                              that will be scheduled may take significant time, e.g. sending periodic keep alive messages to all sessions
+     * @param owner    Object which will be using the scheduler (and shutting it down when the object is disposed)
+     *
+     * @param purpose  short description of the purpose of the scheduler, will be set as the thread name
+     *                 if a dedicated thread is used
+     *
+     * @param needDedicatedThread set this to true to guarantee the scheduler will have its own dedicated thread.
+     *                            This is appropriate if the tasks that will be scheduled may take significant time,
+     *                            e.g. sending periodic keep alive messages to all sessions
      * @return
      */
     public synchronized ScheduledExecutorService getScheduler(final String purpose, boolean needDedicatedThread) {
-        if ( needDedicatedThread ) {
+        if (needDedicatedThread) {
             return new ManagedScheduledExecutorService(1, purpose, false);
         }
         else {
@@ -63,17 +67,17 @@ public class SchedulerProvider {
             return sharedScheduler;
         }
     }
-    
+
     public synchronized void shutdownNow() {
-        for ( ManagedScheduledExecutorService scheduler : schedulers ) {
+        for (ManagedScheduledExecutorService scheduler : schedulers) {
             scheduler.shutdownImmediate();
         }
     }
- 
+
     /**
      * This class represents a scheduler which may be shared. If it is, attempts to shut it down using the standard
      * ScheduledExecutorService methods shutdown and shutdownNow will be noops.
-     * 
+     *
      */
     private class ManagedScheduledExecutorService extends ScheduledThreadPoolExecutor {
         private boolean shared;
@@ -85,7 +89,7 @@ public class SchedulerProvider {
 
                 @Override
                 public Thread newThread(Runnable r) {
-                    return new Thread(r, namePrefix+poolNumber.getAndIncrement());
+                    return new Thread(r, namePrefix + poolNumber.getAndIncrement());
                 }
             });
             this.shared = shared;
@@ -94,14 +98,14 @@ public class SchedulerProvider {
 
         @Override
         public void shutdown() {
-            if ( !shared ) {
+            if (!shared) {
                 super.shutdown();
             }
         }
 
         @Override
         public List<Runnable> shutdownNow() {
-            if ( !shared ) {
+            if (!shared) {
                 return super.shutdownNow();
             }
             else {
@@ -113,5 +117,5 @@ public class SchedulerProvider {
             super.shutdownNow();
         }
     }
-    
+
 }
