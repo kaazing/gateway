@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *   http://www.apache.org/licenses/LICENSE - 2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,13 +30,13 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * This class is a subclass of log4j ConsoleAppender. It stores all logged messages in memory until (and if) static method printAllMessages
- * is called. The in-memory list of log messages is reset by calling the static initialize method. 
+ * This class is a subclass of log4j ConsoleAppender. It stores all logged messages in memory until (and if) static method
+ * printAllMessages is called. The in-memory list of log messages is reset by calling the static initialize method.
  * This class automatically sets the level of the root logger to Level.TRACE, the first time a messages is logged using it.
  * USAGE: configure this class as the ONLY appender on the root Logger (on the <root> element log4j-config.xml) in order
- * to store trace level log messages in memory during a test run without seriously impacting performance or thread concurrency. If a 
- * test fails, the printAllMessages method can be called to write all the messages to standard output.
- * 
+ * to store trace level log messages in memory during a test run without seriously impacting performance or thread concurrency.
+ * If a test fails, the printAllMessages method can be called to write all the messages to standard output.
+ *
  * TODO: remove this class and consume the version from itests.util instead (which is identical).
  */
 public class MemoryAppender extends ConsoleAppender {
@@ -46,9 +46,9 @@ public class MemoryAppender extends ConsoleAppender {
     private static MemoryAppender lastInstance;
     private static int MAX_MESSAGES = 30000;
     private static AtomicInteger messageCount = new AtomicInteger(0);
-    private static String gatewayBeingStarted = null;
+    private static String gatewayBeingStarted;
 
-    private boolean printNow = false;
+    private boolean printNow;
     private String gatewayName;
 
     static {
@@ -65,7 +65,7 @@ public class MemoryAppender extends ConsoleAppender {
     public static void printAllMessages() {
         if (lastInstance == null) {
             System.out.println("Unable to print out trace level root logger messages - please "
-                               + "configure MemoryAppender on the <root> logger in log4j-config.xml");
+                               + "configure MemoryAppender on the <root> logger in log4j - config.xml");
         } else {
             System.out.println(String.format("Printing last %d of %d log messages", eventsList.size(), messageCount.get()));
             lastInstance.appendAll();
@@ -95,7 +95,7 @@ public class MemoryAppender extends ConsoleAppender {
         } else {
             // set name of current thread on the event so it's correct when/if we print the message later
             event.getThreadName();
-            
+
             if (gatewayName != null) {
                 injectGatewayName(event);
             }
