@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,8 +37,8 @@ public class MethodExecutionTrace extends TestWatchman {
     //we can call the public static method which retrieves this
     //variable. This variable is set in the starting method, and
     //and unset in the fail/success methods
-    private static String currentFullTestName = null;
-    
+    private static String currentFullTestName;
+
     public static String getFullTestName() {
         return currentFullTestName;
     }
@@ -69,7 +69,8 @@ public class MethodExecutionTrace extends TestWatchman {
     @Override
     public void failed(Throwable e, FrameworkMethod method) {
         if (e instanceof AssumptionViolatedException) {
-            System.out.println(String.format("%s skipped programmatically with reason: %s", getFullMethodName(method) , e.getMessage()));            
+            System.out.println(String.format("%s skipped programmatically with reason: %s",
+                    getFullMethodName(method) , e.getMessage()));
         }
         else {
             System.out.println(getFullMethodName(method) + " FAILED with exception " + e);
