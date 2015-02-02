@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,7 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.log4j.Appender;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
@@ -87,15 +86,14 @@ public class GatewayContextResolverTest {
             File keyStoreFile = new File(classLoader.getResource("keystore.db").toURI());
 
             resolver = new GatewayContextResolver(new File(keyStoreFile.getParent()), null, null);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Assert.fail("Failed to load keystore.db, unable to init test due to exception: " + ex);
         }
     }
 
     @Before
     public void setAllowedServices()
-        throws Exception {
+            throws Exception {
 
         Set<String> serviceList = new HashSet<String>();
         serviceList.add("echo");
@@ -106,10 +104,10 @@ public class GatewayContextResolverTest {
         keyStorePasswordFile = new File(classLoader.getResource("keystore.pw").toURI());
         trustStoreFile = new File(classLoader.getResource("truststore-JCEKS.db").toURI());
     }
-    
+
     @After
     public void deleteConfigFile() {
-        if ( configFile != null ) {
+        if (configFile != null) {
             configFile.delete();
         }
     }
@@ -169,7 +167,8 @@ public class GatewayContextResolverTest {
                 }
 
                 // validate that the cross-site-constraints have lower-case host names
-                Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints = service.getCrossSiteConstraints();
+                Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+                        service.getCrossSiteConstraints();
                 for (URI key : crossSiteConstraints.keySet()) {
                     Map<String, ? extends CrossSiteConstraintContext> crossSiteConstraintsByURI = crossSiteConstraints.get(key);
                     for (CrossSiteConstraintContext crossSiteConstraint : crossSiteConstraintsByURI.values()) {
@@ -182,7 +181,7 @@ public class GatewayContextResolverTest {
                 }
             }
         } finally {
-            if ( configFile != null ) {
+            if (configFile != null) {
                 configFile.delete();
             }
         }
@@ -194,12 +193,14 @@ public class GatewayContextResolverTest {
         boolean sawExpectedEx = false;
 
         String expectedLogMessage = "Exception .* caught loading file .*keystore.db.* you may need to specify " +
-                                     "\"<type>JCEKS</type>\" in the gateway configuration file";
+                "\"<type>JCEKS</type>\" in the gateway configuration file";
         String expected = "Invalid keystore format";
         LogMessageInspector inspector = LogMessageInspector.create(Gateway.class);
 
         try {
-            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-wrong-keystore-type.xml");
+            configFile =
+                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-wrong-keystore-type" +
+                            ".xml");
             GatewayConfigDocument doc = parser.parse(configFile);
             Assert.assertNotNull(doc);
             resolver.resolve(doc);
@@ -216,7 +217,7 @@ public class GatewayContextResolverTest {
                 configFile.delete();
             }
         }
-        
+
         Assert.assertTrue(String.format("Did not see expected IOException with message '%s'", expected), sawExpectedEx);
     }
 
@@ -226,12 +227,14 @@ public class GatewayContextResolverTest {
         boolean sawExpectedEx = false;
 
         String expectedLogMessage = "Exception .* caught loading file .*truststore-JCEKS.db.* you may need to specify " +
-                                     "\"<type>JCEKS</type>\" in the gateway configuration file";
+                "\"<type>JCEKS</type>\" in the gateway configuration file";
         String expected = "Invalid keystore format";
         LogMessageInspector inspector = LogMessageInspector.create(Gateway.class);
 
         try {
-            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-wrong-truststore-type.xml");
+            configFile =
+                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-wrong-truststore" +
+                            "-type.xml");
             GatewayConfigDocument doc = parser.parse(configFile);
             Assert.assertNotNull(doc);
             resolver.resolve(doc);
@@ -249,17 +252,20 @@ public class GatewayContextResolverTest {
             }
         }
 
-        Assert.assertTrue(String.format("Did not see expected IllegalArgumentException with message '%s'", expected), sawExpectedEx);
+        Assert.assertTrue(String
+                .format("Did not see expected IllegalArgumentException with message '%s'", expected), sawExpectedEx);
     }
 
     @Test // KG-5510
     public void shouldAcceptKeyStoreFileAbsolutePath()
-        throws Exception {
+            throws Exception {
 
-        File configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security-files.xml",
-            keyStoreFile.getAbsolutePath(),
-            "keystore.pw",
-            "truststore-JCEKS.db");
+        File configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
+                                "-files.xml",
+                        keyStoreFile.getAbsolutePath(),
+                        "keystore.pw",
+                        "truststore-JCEKS.db");
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
@@ -267,12 +273,14 @@ public class GatewayContextResolverTest {
 
     @Test // KG-5510
     public void shouldAcceptKeyStorePasswordFileAbsolutePath()
-        throws Exception {
+            throws Exception {
 
-        File configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security-files.xml",
-            "keystore.db",
-            keyStorePasswordFile.getAbsolutePath(),
-            "truststore-JCEKS.db");
+        File configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
+                                "-files.xml",
+                        "keystore.db",
+                        keyStorePasswordFile.getAbsolutePath(),
+                        "truststore-JCEKS.db");
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
@@ -280,12 +288,14 @@ public class GatewayContextResolverTest {
 
     @Test // KG-5510
     public void shouldAcceptTrustStoreFileAbsolutePath()
-        throws Exception {
+            throws Exception {
 
-        File configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security-files.xml",
-            "keystore.db",
-            "keystore.pw",
-            trustStoreFile.getAbsolutePath());
+        File configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
+                                "-files.xml",
+                        "keystore.db",
+                        "keystore.pw",
+                        trustStoreFile.getAbsolutePath());
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
@@ -294,8 +304,9 @@ public class GatewayContextResolverTest {
     // See http://jira.kaazing.wan/browse/KG-7237
     @Test(expected = RuntimeException.class)
     public void shouldNotResolveDuplicateRealms()
-        throws Exception {
-        File configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-duplicate-realms.xml");
+            throws Exception {
+        File configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-duplicate-realms.xml");
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
@@ -303,8 +314,8 @@ public class GatewayContextResolverTest {
 
     // The following replaces code we used to have GatewayContextResolverTest (rev 25379) that created a log4j Hierarchy
     // and called LogManager.setRepositorySelector in an effort to force log4j to return instances of our BufferedLogger
-    // class so we can mess with message logging. This technique is not reliable because if any code that executes before 
-    // us gets hold of a logger with a particular name (e.g. by caling org.slf4j.LoggerFactory.getLogger(Gateway.class)) 
+    // class so we can mess with message logging. This technique is not reliable because if any code that executes before
+    // us gets hold of a logger with a particular name (e.g. by caling org.slf4j.LoggerFactory.getLogger(Gateway.class))
     // then that logger instance (which would not be our BufferedLogger) gets cached in org.slf4j.impl.Log4jLoggerFactory
     // and will always be used from then on, which defeats our strategy!
     public static class LogMessageInspector {
@@ -316,30 +327,32 @@ public class GatewayContextResolverTest {
             removeBufferedAppenders(logger);
             appender = new BufferedAppender();
             logger.addAppender(appender);
-        };
-        
+        }
+
+        ;
+
         public static LogMessageInspector create(String loggerName) {
             return new LogMessageInspector(loggerName);
         }
-        
+
         public static LogMessageInspector create(Class<?> claz) {
             return create(claz.getCanonicalName());
         }
-        
+
         public List<LoggingEvent> grep(org.apache.log4j.Level level, String messageRegex) {
             return appender.grep(level, messageRegex);
         }
-        
+
         private void removeBufferedAppenders(org.apache.log4j.Logger logger) {
             Enumeration<?> appenders = logger.getAllAppenders();
             while (appenders.hasMoreElements()) {
-                Appender appender = (Appender)appenders.nextElement();
+                Appender appender = (Appender) appenders.nextElement();
                 if (appender instanceof BufferedAppender) {
                     logger.removeAppender(appender);
                 }
             }
         }
-        
+
     }
 
     static class BufferedAppender extends org.apache.log4j.AppenderSkeleton {
@@ -348,7 +361,7 @@ public class GatewayContextResolverTest {
         private BufferedAppender() {
             super();
         }
-        
+
         @Override
         protected void append(LoggingEvent event) {
             events.add(event);
@@ -357,8 +370,8 @@ public class GatewayContextResolverTest {
         public List<LoggingEvent> grep(org.apache.log4j.Level level, String message) {
             List<LoggingEvent> result = new ArrayList<LoggingEvent>();
             for (LoggingEvent event : events) {
-                if ( event.getLevel() == level && event.getMessage() != null && message != null
-                        && event.getMessage().toString().matches(message) ) {
+                if (event.getLevel() == level && event.getMessage() != null && message != null
+                        && event.getMessage().toString().matches(message)) {
                     result.add(event);
                 }
             }

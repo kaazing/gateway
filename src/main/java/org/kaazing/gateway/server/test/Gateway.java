@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,10 +20,6 @@
  */
 
 package org.kaazing.gateway.server.test;
-
-import static java.beans.Introspector.getBeanInfo;
-import static java.lang.Character.isUpperCase;
-import static java.lang.Character.toLowerCase;
 
 import java.beans.BeanInfo;
 import java.beans.PropertyDescriptor;
@@ -38,9 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.management.MBeanServer;
-
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
 import org.kaazing.gateway.server.config.sep2014.AuthenticationType.AuthorizationMode;
@@ -83,6 +77,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
+import static java.beans.Introspector.getBeanInfo;
+import static java.lang.Character.isUpperCase;
+import static java.lang.Character.toLowerCase;
 
 public class Gateway {
 
@@ -95,17 +92,17 @@ public class Gateway {
 
     public void start(GatewayConfiguration configuration) throws Exception {
         switch (state) {
-        case STOPPED:
-            state = State.STARTING;
-            break;
+            case STOPPED:
+                state = State.STARTING;
+                break;
         }
 
         switch (state) {
-        case STARTING:
-            GatewayContext context = createGatewayContext(configuration);
-            launcher.init(context);
-            state = State.STARTED;
-            break;
+            case STARTING:
+                GatewayContext context = createGatewayContext(configuration);
+                launcher.init(context);
+                state = State.STARTED;
+                break;
         }
     }
 
@@ -292,15 +289,15 @@ public class Gateway {
 
     public void stop() throws Exception {
         switch (state) {
-        case STARTED:
-            state = State.STOPPING;
+            case STARTED:
+                state = State.STOPPING;
         }
 
         switch (state) {
-        case STOPPING:
-            launcher.destroy();
-            state = State.STOPPED;
-            break;
+            case STOPPING:
+                launcher.destroy();
+                state = State.STOPPED;
+                break;
         }
     }
 
@@ -424,7 +421,8 @@ public class Gateway {
         }
     }
 
-    private void appendConnectOptions(ServiceConnectOptionsType newConnectOptions, Map<String, String> connectOptions) throws Exception {
+    private void appendConnectOptions(ServiceConnectOptionsType newConnectOptions, Map<String, String> connectOptions) throws
+            Exception {
         BeanInfo connectOptionsBeanInfo = getBeanInfo(ServiceConnectOptionsType.class,
                 ServiceConnectOptionsType.class.getSuperclass());
         PropertyDescriptor[] connectOptionsPropertiesInfo = connectOptionsBeanInfo.getPropertyDescriptors();
@@ -500,7 +498,7 @@ public class Gateway {
             for (AuthorizationConstraintConfiguration constraint : constraints) {
                 AuthorizationConstraintType newConstraint = newService.addNewAuthorizationConstraint();
                 Set<String> requiredRoles = constraint.getRequiredRoles();
-                String array[] = new String[requiredRoles.size()];
+                String[] array = new String[requiredRoles.size()];
                 int i = 0;
                 for (String requiredRole : requiredRoles) {
                     array[i++] = requiredRole;

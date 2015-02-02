@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -31,10 +31,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
 
-public class Suppressibles {
+public final class Suppressibles {
 
     public static <K, V> Map<K, V> unsuppressibleMap(Map<K, Suppressible<V>> suppressibleMap) {
         return new UnsuppressibleMap<K, V>(suppressibleMap);
@@ -55,7 +54,7 @@ public class Suppressibles {
     public static <E> Iterator<E> unsuppressibleIterator(Iterator<Suppressible<E>> suppressibleIterator) {
         return new UnsuppressibleIterator<E>(suppressibleIterator);
     }
-    
+
     public static Set<Suppression> getDefaultSuppressions() {
         return EnumSet.of(Suppression.NONE);
     }
@@ -72,7 +71,7 @@ public class Suppressibles {
         // utility class
     }
 
-    private static class UnsuppressibleEntry<K, V> implements Entry<K, V> {
+    private static final class UnsuppressibleEntry<K, V> implements Entry<K, V> {
 
         private Entry<K, Suppressible<V>> suppressible;
 
@@ -102,10 +101,10 @@ public class Suppressibles {
 
     }
 
-    private static class UnsuppressibleMap<K, V> implements Map<K, V> {
+    private static final class UnsuppressibleMap<K, V> implements Map<K, V> {
 
         private final Map<K, Suppressible<V>> suppressible;
-        private Collection<V> collectionValueCache = null;
+        private Collection<V> collectionValueCache;
 
         private UnsuppressibleMap(Map<K, Suppressible<V>> suppressible) {
             this.suppressible = suppressible;
@@ -198,14 +197,13 @@ public class Suppressibles {
         // }
         // return result;
         // }
-
         @Override
         public Set<java.util.Map.Entry<K, V>> entrySet() {
             return new DelegatingEntrySet<Entry<K, V>, K, V>(suppressible.entrySet());
         }
     }
 
-    private static class DelegatingEntryIterator<E extends Entry<K, V>, K, V> implements Iterator<E>{
+    private static class DelegatingEntryIterator<E extends Entry<K, V>, K, V> implements Iterator<E> {
 
         private Iterator<Entry<K, Suppressible<V>>> suppressible;
 
@@ -227,9 +225,9 @@ public class Suppressibles {
         public void remove() {
             suppressible.remove();
         }
-        
+
     }
-    
+
     private static class DelegatingEntrySet<E extends Entry<K, V>, K, V> implements Set<E> {
 
         private Set<Entry<K, Suppressible<V>>> entrySet;
@@ -363,7 +361,7 @@ public class Suppressibles {
         }
     }
 
-    private static class UnsuppressibleSet<E> implements Set<E> {
+    private static final class UnsuppressibleSet<E> implements Set<E> {
 
         private final Set<Suppressible<E>> suppressible;
         private Collection<E> collectionCache;
@@ -449,7 +447,7 @@ public class Suppressibles {
         }
     }
 
-    private static class UnsuppressibleListIterator<E> implements ListIterator<E> {
+    private static final class UnsuppressibleListIterator<E> implements ListIterator<E> {
 
         private ListIterator<Suppressible<E>> suppressible;
 
@@ -512,7 +510,7 @@ public class Suppressibles {
 
     }
 
-    private static class UnsuppressibleIterator<E> implements Iterator<E> {
+    private static final class UnsuppressibleIterator<E> implements Iterator<E> {
 
         private final Iterator<Suppressible<E>> suppressible;
 
@@ -540,7 +538,7 @@ public class Suppressibles {
         }
     }
 
-    private static class UnsuppressibleList<E> implements List<E> {
+    private static final class UnsuppressibleList<E> implements List<E> {
 
         private final List<Suppressible<E>> suppressible;
         private Collection<E> collectionCache;
@@ -617,7 +615,7 @@ public class Suppressibles {
             for (i = 0; i < c.size(); i++) {
                 add(index + i, iter.next());
             }
-            return (i > 0);
+            return i > 0;
         }
 
         @Override
@@ -697,7 +695,7 @@ public class Suppressibles {
 
     }
 
-    private static class UnsuppressibleCollection<E> implements Collection<E> {
+    private static final class UnsuppressibleCollection<E> implements Collection<E> {
 
         private final Collection<Suppressible<E>> suppressible;
 

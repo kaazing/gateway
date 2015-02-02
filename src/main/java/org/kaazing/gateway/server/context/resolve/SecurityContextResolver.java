@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.KeyStore;
-
 import org.kaazing.gateway.server.config.sep2014.SecurityStoreType;
 import org.kaazing.gateway.server.config.sep2014.SecurityType;
 import org.slf4j.Logger;
@@ -68,7 +67,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
 
                 if (keyStorePasswordFile != null) {
                     File passwordFilePath = new File(keyStorePasswordFile);
-                    if (passwordFilePath.isAbsolute() == false) {
+                    if (!passwordFilePath.isAbsolute()) {
                         passwordFilePath = new File(configDir, keyStorePasswordFile);
                     }
 
@@ -77,7 +76,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
 
                 if (keyStoreFile != null) {
                     File keyStoreFilePath = new File(keyStoreFile);
-                    if (keyStoreFilePath.isAbsolute() == false) {
+                    if (!keyStoreFilePath.isAbsolute()) {
                         keyStoreFilePath = new File(configDir, keyStoreFile);
                     }
 
@@ -95,7 +94,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
                 String trustStorePasswordFile = trustStoreConfig.getPasswordFile();
                 if (trustStorePasswordFile != null) {
                     File trustStorePasswordFilePath = new File(trustStorePasswordFile);
-                    if (trustStorePasswordFilePath.isAbsolute() == false) {
+                    if (!trustStorePasswordFilePath.isAbsolute()) {
                         trustStorePasswordFilePath = new File(configDir, trustStorePasswordFile);
                     }
 
@@ -104,7 +103,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
 
                 if (trustStoreFile != null) {
                     trustStoreFilePath = new File(trustStoreFile);
-                    if (trustStoreFilePath.isAbsolute() == false) {
+                    if (!trustStoreFilePath.isAbsolute()) {
                         trustStoreFilePath = new File(configDir, trustStoreFile);
                     }
 
@@ -115,7 +114,7 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
 
         return new DefaultSecurityContext(keyStore, keyStoreRelativePath, keyStoreFile,
                 keyStorePassword, keyStorePasswordFile, trustStore, trustStoreFile,
-                ((trustStoreFilePath == null) ? null : trustStoreFilePath.getAbsolutePath()), trustStorePassword);
+                trustStoreFilePath == null ? null : trustStoreFilePath.getAbsolutePath(), trustStorePassword);
     }
 
     private KeyStore loadKeyStore(SecurityStoreType.Type.Enum keyStoreType, File location, char[] password)
@@ -124,12 +123,12 @@ public class SecurityContextResolver implements ContextResolver<SecurityType, De
         FileInputStream in = new FileInputStream(location);
         try {
             keyStore.load(in, password);
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             // KG-2251 (more helpful error message)
             logger.error(String.format(
-                "Exception \"%s\" caught loading file \"%s\", you may need to specify \"<type>JCEKS</type>\" in the gateway configuration file",
-                e.getLocalizedMessage(), location));
+                    "Exception \"%s\" caught loading file \"%s\", you may need to specify \"<type>JCEKS</type>\" in the " +
+                            "gateway configuration file",
+                    e.getLocalizedMessage(), location));
             throw e;
         }
         in.close();

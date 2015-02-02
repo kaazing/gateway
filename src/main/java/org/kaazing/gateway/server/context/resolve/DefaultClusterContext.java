@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,44 +20,6 @@
  */
 
 package org.kaazing.gateway.server.context.resolve;
-
-import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
-import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
-
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-
-import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
-import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
-import org.kaazing.gateway.service.cluster.BalancerMapListener;
-import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
-import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.service.cluster.ClusterMessaging;
-import org.kaazing.gateway.service.cluster.InstanceKeyListener;
-import org.kaazing.gateway.service.cluster.MemberId;
-import org.kaazing.gateway.service.cluster.MembershipEventListener;
-import org.kaazing.gateway.service.cluster.ReceiveListener;
-import org.kaazing.gateway.service.cluster.SendListener;
-import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.GL;
-import org.kaazing.gateway.util.Utils;
-import org.kaazing.gateway.util.aws.AwsUtils;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hazelcast.config.AwsConfig;
 import com.hazelcast.config.Config;
@@ -81,22 +43,48 @@ import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
 import com.hazelcast.nio.Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
+import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
+import org.kaazing.gateway.service.cluster.BalancerMapListener;
+import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
+import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.service.cluster.ClusterMessaging;
+import org.kaazing.gateway.service.cluster.InstanceKeyListener;
+import org.kaazing.gateway.service.cluster.MemberId;
+import org.kaazing.gateway.service.cluster.MembershipEventListener;
+import org.kaazing.gateway.service.cluster.ReceiveListener;
+import org.kaazing.gateway.service.cluster.SendListener;
+import org.kaazing.gateway.service.messaging.buffer.MessageBufferFactory;
+import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.util.GL;
+import org.kaazing.gateway.util.Utils;
+import org.kaazing.gateway.util.aws.AwsUtils;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
+import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
 
 /**
  * ClusterContext for KEG
- * 
- * <br>Balancer data<ol>
- * <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME:
- * <ul><li> List of balanced URIs for one member
- * <li>Key: Cluster member id
- * <li>Value: Map(key: balancerURI, value: acceptURIs)
- * </ul>
- * <li>HttpBalancerService.BALANCER_MAP_NAME
- * <ul><li> List of balanced URIs for whole cluster
- * <li>Key: balanceURI
- * <li>Value: acceptURIs
- * </ul>
- * </ol>
+ * <p/>
+ * <br>Balancer data<ol> <li> HttpBalancerService.MEMBERID_BALANCER_MAP_NAME: <ul><li> List of balanced URIs for one member
+ * <li>Key: Cluster member id <li>Value: Map(key: balancerURI, value: acceptURIs) </ul> <li>HttpBalancerService.BALANCER_MAP_NAME
+ * <ul><li> List of balanced URIs for whole cluster <li>Key: balanceURI <li>Value: acceptURIs </ul> </ol>
  */
 public class DefaultClusterContext implements ClusterContext, LogListener {
 
@@ -106,7 +94,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     // This is also used in DefaultServiceContext
     static final String CLUSTER_LOGGER_NAME = "ha";
     private final Logger logger = LoggerFactory.getLogger(CLUSTER_LOGGER_NAME);
-    
+
     private final String localInstanceKey = Utils.randomHexString(16);
 
     private MessageBufferFactory messageBufferFactory;
@@ -174,7 +162,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             throw new RuntimeException(String.format("Unable to initialize cluster due to an exception: %s", e), e);
         }
     }
-    
+
     @Override
     public void dispose() {
         // If we're in client mode, then we may not have this clusterMessaging
@@ -226,19 +214,21 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         for (MemberId localInterface : localInterfaces) {
             String protocol = localInterface.getProtocol();
             if ("udp".equalsIgnoreCase(protocol) || "aws".equalsIgnoreCase(protocol)) {
-                throw new IllegalArgumentException("Cannot accept on a multicast or aws address, use unicast address starting with tcp://");
+                throw new IllegalArgumentException("Cannot accept on a multicast or aws address, use unicast address starting " +
+                        "with tcp://");
             }
-            
-            // NOTE: The version of Hazelcast(1.9.4.8) that is being used does not support IPv6 address. The Hazelcast library 
+
+            // NOTE: The version of Hazelcast(1.9.4.8) that is being used does not support IPv6 address. The Hazelcast library
             //       throws NumberFormatException when IPv6 address is specified as an interface to bind to.
             String hostAddress = localInterface.getHost();
             InetAddress address = InetAddress.getByName(hostAddress);
             if (address instanceof Inet6Address) {
-                throw new IllegalArgumentException("ERROR: Cluster member accept url - '" + localInterface.toString() + "' consists of IPv6 address which is not supported. Use Ipv4 address instead.");
+                throw new IllegalArgumentException("ERROR: Cluster member accept url - '" + localInterface.toString() +
+                        "' consists of IPv6 address which is not supported. Use Ipv4 address instead.");
             }
-            
+
             networkConfig.getInterfaces().addInterface(localInterface.getHost());
-            
+
             if (localInterface.getPort() != clusterPort) {
                 throw new IllegalArgumentException("Port numbers on the network interfaces in <accept> do not match");
             }
@@ -258,16 +248,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         TcpIpConfig tcpIpConfig = joinConfig.getTcpIpConfig();
         List<InetSocketAddress> multicastAddresses = new ArrayList<InetSocketAddress>();
         List<InetSocketAddress> unicastAddresses = new ArrayList<InetSocketAddress>();
-        MemberId                awsMember = null;
+        MemberId awsMember = null;
 
         for (MemberId member : clusterMembers) {
             if (member.getProtocol().equals("udp")) {
                 multicastAddresses.add(new InetSocketAddress(member.getHost(), member.getPort()));
-            }
-            else if (member.getProtocol().equals("tcp")) {
+            } else if (member.getProtocol().equals("tcp")) {
                 unicastAddresses.add(new InetSocketAddress(member.getHost(), member.getPort()));
-            }
-            else if (member.getProtocol().equals("aws")) {
+            } else if (member.getProtocol().equals("aws")) {
                 awsMember = member;
 
                 // There should be only one <connect> tag when AWS is being
@@ -278,14 +266,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         if (awsMember == null) {
             // Gateway is running in an on-premise env.
-            
+
             int multicastAddressesCount = multicastAddresses.size();
-            if( multicastAddressesCount > 1) {
+            if (multicastAddressesCount > 1) {
                 throw new IllegalArgumentException("Conflicting multicast discovery addresses in cluster configuration");
-            }
-            else if (multicastAddressesCount > 0) {
-                if(AwsUtils.isDeployedToAWS()) {
-                    throw new IllegalArgumentException("Multicast cluster configuration not supported on AWS, use aws://security-group/<security-group-name> in connect tag");
+            } else if (multicastAddressesCount > 0) {
+                if (AwsUtils.isDeployedToAWS()) {
+                    throw new IllegalArgumentException("Multicast cluster configuration not supported on AWS, use " +
+                            "aws://security-group/<security-group-name> in connect tag");
                 }
                 multicastConfig.setEnabled(true);
                 InetSocketAddress multicastAddress = multicastAddresses.get(0);
@@ -293,37 +281,36 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 multicastConfig.setMulticastPort(multicastAddress.getPort());
             }
 
-            if( unicastAddresses.size() > 0) {
+            if (unicastAddresses.size() > 0) {
                 tcpIpConfig.setEnabled(!usingMulticast);
-                for(InetSocketAddress unicastAddress: unicastAddresses) {
+                for (InetSocketAddress unicastAddress : unicastAddresses) {
                     tcpIpConfig.addAddress(new Address(unicastAddress));
                 }
             }
-            
-            // Check if address specified to bind to is a wildcard address. If it is a wildcard address, 
-            // do not override the property PROP_SOCKET_BIND_ANY. If not, set the PROP_SOCKET_BIND_ANY to false so 
+
+            // Check if address specified to bind to is a wildcard address. If it is a wildcard address,
+            // do not override the property PROP_SOCKET_BIND_ANY. If not, set the PROP_SOCKET_BIND_ANY to false so
             // that Hazelcast won't discard the interface specified to bind to.
             boolean useAnyAddress = false;
-            
+
             // Check to see if the address specified is the wildcard address
             for (String networkInterface : networkConfig.getInterfaces().getInterfaces()) {
                 InetAddress address = InetAddress.getByName(networkInterface);
                 if (address.isAnyLocalAddress()) {
-                    // this will prevent PROP_SOCKET_BIND_ANY property from being overridden to false 
+                    // this will prevent PROP_SOCKET_BIND_ANY property from being overridden to false
                     // so that Hazelcast can bind to wildcard address
                     useAnyAddress = true;
                     break;
                 }
             }
-            
+
             // Override the PROP_SOCKET_BIND_ANY to false if the address to bind to is not wildcard address
             // Explicitly enable the interface so that Hazelcast will pick the one specified
             if (!useAnyAddress) {
                 networkConfig.getInterfaces().setEnabled(true);
                 hazelCastConfig.setProperty(GroupProperties.PROP_SOCKET_BIND_ANY, "false");
             }
-        }
-        else {
+        } else {
             // Gateway is running in the AWS/Cloud env.
 
             // Get rid of the leading slash "/" in the path.
@@ -350,7 +337,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             awsConfig.setSecretKey(connectOptions.getAwsSecretKey());
             awsConfig.setRegion(AwsUtils.getRegion());
             awsConfig.setSecurityGroupName(groupName);
-            
+
             // KG-7725: Hazelcast wants to bind on an interface, and if the Gateway doesn't
             // tell it which ones to pick it'll pick one on its own.  Make sure interfaces
             // are explicitly enabled, and grab the local IP address since this will be the
@@ -362,10 +349,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             String localIPv4 = AwsUtils.getLocalIPv4();
             networkConfig.getInterfaces().setEnabled(true);
             networkConfig.getInterfaces().clear();
-            
+
             networkConfig.getInterfaces().addInterface(localIPv4);
-	        
-            // KG-12825: Override the property PROP_SOCKET_BIND_ANY and set it to false so that 
+
+            // KG-12825: Override the property PROP_SOCKET_BIND_ANY and set it to false so that
             //           Hazelcast does not discard the interface explicitly specified to bind to.
             hazelCastConfig.setProperty(GroupProperties.PROP_SOCKET_BIND_ANY, "false");
         }
@@ -376,7 +363,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // The cluster instance should be shutdown by the Gateway, so there should be no need for the default
         // Hazelcast shutdown hook.
         hazelCastConfig.setProperty(GroupProperties.PROP_SHUTDOWNHOOK_ENABLED, "false");
-        
+
         return hazelCastConfig;
     }
 
@@ -401,7 +388,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // Prevent wildcards in the first part
         if (parts[0].indexOf("*") != -1 && parts[0].indexOf("-") != -1) {
             throw new IllegalArgumentException(
-                    "Invalid wildcard in the entry for cluster configuration, first part of the address cannot contain a wildcard: "
+                    "Invalid wildcard in the entry for cluster configuration, first part of the address cannot contain a " +
+                            "wildcard: "
                             + entry);
         }
 
@@ -500,23 +488,24 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             // Clean up the member's instanceKey
             Map<MemberId, String> instanceKeyMap = getCollectionsFactory().getMap(INSTANCE_KEY_MAP);
             instanceKeyMap.remove(removedMember);
-            
+
             // cleanup balancer URIs for the member that went down
-            Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
-            if( memberIdBalancerUriMap == null) {
+            Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap =
+                    getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
+            if (memberIdBalancerUriMap == null) {
                 throw new IllegalStateException("MemberId to BalancerMap is null");
             }
 
             IMap<URI, Set<URI>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
-            if( sharedBalanceUriMap == null) {
+            if (sharedBalanceUriMap == null) {
                 throw new IllegalStateException("Shared balanced URIs map is null");
             }
 
             Map<URI, List<URI>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
-            if( memberBalancedUrisMap != null) {
+            if (memberBalancedUrisMap != null) {
                 GL.debug(CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
                 try {
-                    for(URI key: memberBalancedUrisMap.keySet()) {
+                    for (URI key : memberBalancedUrisMap.keySet()) {
                         GL.debug(CLUSTER_LOGGER_NAME, "URI Key: {}", key);
                         List<URI> memberBalancedUris = memberBalancedUrisMap.get(key);
                         Set<URI> globalBalancedUris = null;
@@ -524,7 +513,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
                             newGlobalBalancedUris = new HashSet<URI>(globalBalancedUris);
-                            for( URI memberBalancedUri: memberBalancedUris) {
+                            for (URI memberBalancedUri : memberBalancedUris) {
                                 GL.debug(CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);
                             }
@@ -534,7 +523,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                                 removedMember, newGlobalBalancedUris);
                     }
                 } catch (Exception e) {
-                    throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from global map");
+                    throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from " +
+                            "global map");
                 }
             }
 
@@ -548,7 +538,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         if (memberId == localNodeId) {
             return this.localInstanceKey;  // quicker, and works with CLIENT_MODE, too.
         }
-        
+
         Map<MemberId, String> instanceKeyMap = getCollectionsFactory().getMap(INSTANCE_KEY_MAP);
         return instanceKeyMap.get(memberId);
     }
@@ -557,12 +547,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // WE're supporting the idea of 'instance keys' (i.e. random strings that are supposed
         // to be unique per instance of a gateway) solely for management to be able to tell the
         // difference between two instances of a gateway accessed through the same management URL.
-        // The Console supports displaying history, and it needs to know when reconnecting to a 
+        // The Console supports displaying history, and it needs to know when reconnecting to a
         // given management URL whether or not the configuration might have changed. Because
-        // member IDs generally don't change (for now they're based on the cluster accept URL), 
+        // member IDs generally don't change (for now they're based on the cluster accept URL),
         // they're a bad indicator of an instance stopping and being restarted. Thus the need for the
-        // instance key. When a member is added or removed, the instanceKey is also added or 
-        // removed, and we can trigger events for management to update their cluster state.         
+        // instance key. When a member is added or removed, the instanceKey is also added or
+        // removed, and we can trigger events for management to update their cluster state.
         @Override
         public void entryAdded(EntryEvent<MemberId, String> newEntryEvent) {
             fireInstanceKeyAdded(newEntryEvent.getValue());
@@ -583,11 +573,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             throw new RuntimeException("Instance keys can not be updated, only added or removed.");
         }
     };
-    
+
     private EntryListener<URI, Collection<URI>> balancerMapEntryListener = new EntryListener<URI, Collection<URI>>() {
         @Override
         public void entryAdded(EntryEvent<URI, Collection<URI>> newEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent.getValue());
+            GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
+                    .getValue());
             fireBalancerEntryAdded(newEntryEvent);
         }
 
@@ -598,13 +589,15 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         @Override
         public void entryRemoved(EntryEvent<URI, Collection<URI>> removedEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent.getKey(), removedEntryEvent.getValue());
+            GL.trace(CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
+                    .getKey(), removedEntryEvent.getValue());
             fireBalancerEntryRemoved(removedEntryEvent);
         }
 
         @Override
         public void entryUpdated(EntryEvent<URI, Collection<URI>> updatedEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent.getKey(), updatedEntryEvent.getValue());
+            GL.trace(CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
+                    .getKey(), updatedEntryEvent.getValue());
             fireBalancerEntryUpdated(updatedEntryEvent);
         }
     };
@@ -658,14 +651,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             return clusterMessaging.send(msg, member);
         }
 
-        return null; 
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object send(Object msg, String name) throws Exception {
         if (clusterMessaging != null) {
-           return clusterMessaging.send(msg, name);
+            return clusterMessaging.send(msg, name);
         }
 
         return null;
@@ -674,7 +667,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     @Override
     public <T> void setReceiver(Class<T> type, ReceiveListener<T> receiveListener) {
         if (clusterMessaging != null) {
-           clusterMessaging.setReceiver(type, receiveListener);
+            clusterMessaging.setReceiver(type, receiveListener);
         }
     }
 
@@ -937,7 +930,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             }
 
         } else if (level.equals(Level.FINER) ||
-                   level.equals(Level.FINEST)) {
+                level.equals(Level.FINEST)) {
             if (logger.isTraceEnabled()) {
                 logger.trace(String.format(CLUSTER_LOG_FORMAT, member, record.getMessage()));
             }

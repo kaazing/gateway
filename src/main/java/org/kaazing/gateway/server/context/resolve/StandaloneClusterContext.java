@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import com.hazelcast.core.IdGenerator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
@@ -43,11 +43,9 @@ import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.service.messaging.collections.MemoryCollectionsFactory;
 import org.kaazing.gateway.util.Utils;
 
-import com.hazelcast.core.IdGenerator;
-
 /**
- * This class is the standalone case where the current node is itself the master this does not have any high availability functionality. The only supported
- * method for now is the Map.
+ * This class is the standalone case where the current node is itself the master this does not have any high availability
+ * functionality. The only supported method for now is the Map.
  */
 public class StandaloneClusterContext implements ClusterContext {
 
@@ -66,12 +64,12 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public void addMembershipEventListener(MembershipEventListener eventListener) {
-    	// this is a no-op
+        // this is a no-op
     }
 
     @Override
     public void removeMembershipEventListener(MembershipEventListener eventListener) {
-    	// this is a no-op
+        // this is a no-op
     }
 
     @Override
@@ -152,7 +150,7 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public MemberId getLocalMember() {
-        return new MemberId("tcp", "standalone", 0); 
+        return new MemberId("tcp", "standalone", 0);
     }
 
     @Override

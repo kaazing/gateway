@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,9 +21,6 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,9 +30,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Map;
-
 import junit.framework.Assert;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
@@ -43,6 +38,8 @@ import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for resolving gateway-config.xml.
@@ -67,7 +64,7 @@ public class ConnectOptionsTest {
 
     @Test
     public void testSslCiphersOption() throws Exception {
-        expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO","BAR"});
+        expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
 
         expectParseFailure("ssl.ciphers", "FOO, BAR");
         expectParseFailure("ssl.ciphers", "");
@@ -75,7 +72,8 @@ public class ConnectOptionsTest {
 
     @Test
     public void testTcpTransportOption() throws Exception {
-        expectSuccess("tcp.transport", "ws://localhost:4444", TransportOptionNames.TCP_TRANSPORT, URI.create("ws://localhost:4444"));
+        expectSuccess("tcp.transport", "ws://localhost:4444", TransportOptionNames.TCP_TRANSPORT, URI
+                .create("ws://localhost:4444"));
         expectSuccess("tcp.transport", "ws://localhost", TransportOptionNames.TCP_TRANSPORT, URI.create("ws://localhost"));
 
         expectValidateFailure("tcp.transport", "//not.absolute");
@@ -96,7 +94,8 @@ public class ConnectOptionsTest {
 
     @Test
     public void testSslTransportOption() throws Exception {
-        expectSuccess("ssl.transport", "tcp://127.0.0.1:443", TransportOptionNames.SSL_TRANSPORT, URI.create("tcp://127.0.0.1:443"));
+        expectSuccess("ssl.transport", "tcp://127.0.0.1:443", TransportOptionNames.SSL_TRANSPORT, URI
+                .create("tcp://127.0.0.1:443"));
 
         expectValidateFailure("ssl.transport", "//not.absolute");
         expectValidateFailure("ssl.transport", "-1");
@@ -149,8 +148,10 @@ public class ConnectOptionsTest {
 
 
         File configFile = null;
-        configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-connect-options-template.xml",
-                optionName, optionValue);
+        configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-connect-options" +
+                                "-template.xml",
+                        optionName, optionValue);
 
         GatewayConfigDocument doc = null;
         try {
@@ -177,8 +178,8 @@ public class ConnectOptionsTest {
             }
         }
         Map<String, Object> optionsMap = connectOptionsContext.asOptionsMap();
-        if ( expectedValue instanceof Object[] ) {
-            assertArrayEquals((Object[])expectedValue,  (Object[])optionsMap.get(expectedKey));
+        if (expectedValue instanceof Object[]) {
+            assertArrayEquals((Object[]) expectedValue, (Object[]) optionsMap.get(expectedKey));
         } else {
             assertEquals(expectedValue, optionsMap.get(expectedKey));
         }
@@ -194,7 +195,8 @@ public class ConnectOptionsTest {
             }
         }
         if (expectedResult != TestResult.SUCCESS) {
-            throw new IllegalStateException("Unexpected successful valid accept/connect option " + optionName + " with value " + optionValue);
+            throw new IllegalStateException(
+                    "Unexpected successful valid accept/connect option " + optionName + " with value " + optionValue);
         }
 
     }

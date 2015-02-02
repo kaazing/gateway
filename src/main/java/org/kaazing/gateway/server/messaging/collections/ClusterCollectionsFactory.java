@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,9 +21,6 @@
 
 package org.kaazing.gateway.server.messaging.collections;
 
-import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
-import org.kaazing.gateway.util.AtomicCounter;
-
 import com.hazelcast.core.AtomicNumber;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
@@ -32,16 +29,18 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
+import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
+import org.kaazing.gateway.util.AtomicCounter;
 
 public class ClusterCollectionsFactory implements CollectionsFactory {
-    
+
 
     private HazelcastInstance cluster;
 
-    public ClusterCollectionsFactory(HazelcastInstance cluster){
+    public ClusterCollectionsFactory(HazelcastInstance cluster) {
         this.cluster = cluster;
     }
-    
+
     @Override
     public <E> IList<E> getList(String name) {
         return cluster.getList(name);
@@ -61,7 +60,7 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
     public <E> ITopic<E> getTopic(String name) {
         return cluster.getTopic(name);
     }
-    
+
     @Override
     public ILock getLock(Object obj) {
         return cluster.getLock(obj);
@@ -80,8 +79,9 @@ public class ClusterCollectionsFactory implements CollectionsFactory {
         return new ClusterAtomicCounter(cluster.getAtomicNumber(name));
     }
 
-    private class ClusterAtomicCounter implements AtomicCounter {
+    private final class ClusterAtomicCounter implements AtomicCounter {
         private AtomicNumber atomicNumber;
+
         private ClusterAtomicCounter(AtomicNumber number) {
             atomicNumber = number;
         }

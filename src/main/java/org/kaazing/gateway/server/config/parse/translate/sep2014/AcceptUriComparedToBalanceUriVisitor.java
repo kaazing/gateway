@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,8 +21,6 @@
 
 package org.kaazing.gateway.server.config.parse.translate.sep2014;
 
-import static java.lang.String.format;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,21 +28,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static java.lang.String.format;
 
 /**
- * Compares the accept URIs to the balance URIs on a service to ensure they differ by hostname only.
- * In order to ease the transition from 4.0 to 4.1, the balanceURIs must be something that can later
- * be promoted to the accept URIs and the hostnames in the accept URIs will be moved to the
- * http.hostname.aliases accept-option.  Since only the hostname is substituted as an alternate for
- * the accept URI when doing balancing in 4.1, this visitor ensures the 4.0 is in a good starting
- * point for the rest of the 4.x code line.
+ * Compares the accept URIs to the balance URIs on a service to ensure they differ by hostname only. In order to ease the
+ * transition from 4.0 to 4.1, the balanceURIs must be something that can later be promoted to the accept URIs and the hostnames
+ * in the accept URIs will be moved to the http.hostname.aliases accept-option.  Since only the hostname is substituted as an
+ * alternate for the accept URI when doing balancing in 4.1, this visitor ensures the 4.0 is in a good starting point for the
+ * rest of the 4.x code line.
  */
 public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
 
@@ -62,7 +59,8 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         uriPattern = Pattern.compile(URI_REGEX);
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public void visit(Element element) throws Exception {
         // First get the balance elements from the service element (same namespace as the service element)
         List<Element> balanceElements = element.getChildren(BALANCE_URI_ELEMENT, element.getNamespace());
@@ -83,7 +81,8 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                 String balancePort = balanceMatcher.group(6);
                 String balancePath = balanceMatcher.group(7);
 
-                ParameterizedURI pURI = new ParameterizedURI(balanceURIString, balanceScheme, balanceHost, balancePort, balancePath);
+                ParameterizedURI pURI =
+                        new ParameterizedURI(balanceURIString, balanceScheme, balanceHost, balancePort, balancePath);
                 List<ParameterizedURI> pURIsForScheme = processedBalanceElements.get(balanceScheme);
                 if (pURIsForScheme == null) {
                     pURIsForScheme = new LinkedList<ParameterizedURI>();
@@ -123,7 +122,8 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
             }
         }
 
-        // validate that each acceptURI matches the appropriate balance URIs in all but hostname (appropriate in this case means "ws"
+        // validate that each acceptURI matches the appropriate balance URIs in all but hostname (appropriate in this case
+        // means "ws"
         // compares with "ws" and "wss" compares with "wss", etc.)
         for (String balanceScheme : processedBalanceElements.keySet()) {
             List<ParameterizedURI> balanceURIs = processedBalanceElements.get(balanceScheme);
@@ -144,16 +144,20 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                             logger.debug(msg);
                         }
                     } else {
-                        throw new RuntimeException(format("Accept URI: %s does not match balance URI %s in all but hostname.  Unable to launch Gateway.",
+                        throw new RuntimeException(format("Accept URI: %s does not match balance URI %s in all but hostname.  " +
+                                        "Unable to launch Gateway.",
                                 acceptURI.getOriginalURI(), balanceURI.getOriginalURI()));
                     }
                 }
             }
         }
 
-        // validate that each balanceURI matches the appropriate acceptURIs in all but hostname (appropriate in this case means "ws"
-        // compares with "ws" and "wss" compares with "wss", etc.).  This is the second pass through as a two-way match is required.
-        // The first is to check that for each balance scheme present on the service there are matching accepts.  The second is for
+        // validate that each balanceURI matches the appropriate acceptURIs in all but hostname (appropriate in this case means
+        // "ws"
+        // compares with "ws" and "wss" compares with "wss", etc.).  This is the second pass through as a two-way match is
+        // required.
+        // The first is to check that for each balance scheme present on the service there are matching accepts.  The second is
+        // for
         // each accept scheme present on the service there are matching balance tags.
         for (String acceptScheme : processedAcceptElements.keySet()) {
             List<ParameterizedURI> acceptURIs = processedAcceptElements.get(acceptScheme);
@@ -183,7 +187,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         }
     }
 
-    private class ParameterizedURI {
+    private final class ParameterizedURI {
         private final String originalURI;
         private final String scheme;
         private final String host;

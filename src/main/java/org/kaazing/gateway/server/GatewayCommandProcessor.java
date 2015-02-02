@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.server;
 
 import java.util.Properties;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -33,25 +32,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main entry point for gateway process (at least when being called by the
- * start scripts--it's possible to call Gateway directly from other
- * Java code as well.) This generic processor is called from all three Mains.
- * 
- * As of 3.2 we support two arguments to main:
- *    --config <configFile>
- *    --help
- *    (we also support the form /config <configFile>)
- *    The value of <configFile> is considered as a path to the gateway
- *    configuration file--NOT just a file name.
- * If provided by the caller, the property is converted to a system property
- * and passed to Gateway, rather than requiring Gateway to 
- * handle a new input vector.
+ * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway directly
+ * from other Java code as well.) This generic processor is called from all three Mains.
+ * <p/>
+ * As of 3.2 we support two arguments to main: --config <configFile> --help (we also support the form /config <configFile>) The
+ * value of <configFile> is considered as a path to the gateway configuration file--NOT just a file name. If provided by the
+ * caller, the property is converted to a system property and passed to Gateway, rather than requiring Gateway to handle a new
+ * input vector.
  */
 public class GatewayCommandProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandProcessor.class);
 
     private HelpFormatter helpFormatter;
-    
+
     protected GatewayCommandProcessor(HelpFormatter helpFormatter) {
         this.helpFormatter = helpFormatter;
     }
@@ -104,8 +97,7 @@ public class GatewayCommandProcessor {
             public void run() {
                 try {
                     gateway.destroy();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -121,16 +113,16 @@ public class GatewayCommandProcessor {
             System.exit(-1);
         }
     }
-    
+
     protected void printCliHelp(String message, Options options) {
         if (message != null) {
             System.out.println(message);
         }
-        
+
         helpFormatter.printHelp("gateway.start", options, true);
         return;
     }
-    
+
     protected Options createOptions() {
         Options options = new Options();
         options.addOption(null, "config", true, "path to gateway configuration file");

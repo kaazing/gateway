@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,7 +25,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.Set;
-
 import org.kaazing.gateway.server.test.config.Configuration;
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
 
@@ -58,16 +57,16 @@ public abstract class AbstractConfigurationBuilder<C extends Configuration<?>, R
         Set<Suppression> newSuppressions = EnumSet.noneOf(Suppression.class);
         for (UnresolvedSuppression suppression : suppressions) {
             switch (suppression) {
-            case INHERITED:
-                currentSuppressions.clear();
-                newSuppressions.clear();
-                break;
-            case NONE:
-                newSuppressions.add(Suppression.NONE);
-                break;
-            case UNIFIED:
-                newSuppressions.add(Suppression.UNIFIED);
-                break;
+                case INHERITED:
+                    currentSuppressions.clear();
+                    newSuppressions.clear();
+                    break;
+                case NONE:
+                    newSuppressions.add(Suppression.NONE);
+                    break;
+                case UNIFIED:
+                    newSuppressions.add(Suppression.UNIFIED);
+                    break;
             }
         }
         if (newSuppressions.isEmpty()) {

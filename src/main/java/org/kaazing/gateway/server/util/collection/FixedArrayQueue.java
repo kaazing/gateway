@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,12 +27,11 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 
 /**
- * This is a fixed size array-based queue. It's a non-concurrent version of OneToOneConcurrentArrayQueue from the
- * Nov-2013 lock free training course, altered to enforce the initially specified capacity (see offer) and use long head
- * and tail instead of AtomicLong.
+ * This is a fixed size array-based queue. It's a non-concurrent version of OneToOneConcurrentArrayQueue from the Nov-2013 lock
+ * free training course, altered to enforce the initially specified capacity (see offer) and use long head and tail instead of
+ * AtomicLong.
  */
-public class FixedArrayQueue<E> implements Queue<E>
-{
+public class FixedArrayQueue<E> implements Queue<E> {
     private final int limit;
     private final int capacity;
     private final int mask;
@@ -42,57 +41,48 @@ public class FixedArrayQueue<E> implements Queue<E>
     private long tail;
 
     @SuppressWarnings("unchecked")
-    public FixedArrayQueue(final int capacity)
-    {
+    public FixedArrayQueue(final int capacity) {
         this.limit = capacity;
         this.capacity = findNextPositivePowerOfTwo(capacity);
         mask = this.capacity - 1;
-        buffer = (E[])new Object[this.capacity];
+        buffer = (E[]) new Object[this.capacity];
     }
 
-    public static int findNextPositivePowerOfTwo(final int size)
-    {
+    public static int findNextPositivePowerOfTwo(final int size) {
         return 1 << (32 - Integer.numberOfLeadingZeros(size - 1));
     }
 
-    public boolean add(final E e)
-    {
-        if (offer(e))
-        {
+    public boolean add(final E e) {
+        if (offer(e)) {
             return true;
         }
 
         throw new IllegalStateException("Queue is full");
     }
 
-    public boolean offer(final E e)
-    {
-        if (null == e)
-        {
+    public boolean offer(final E e) {
+        if (null == e) {
             throw new NullPointerException("item cannot be null");
         }
 
         final long currentTail = tail;
-        if (currentTail - head == limit)
-        {
+        if (currentTail - head == limit) {
             return false;
         }
 
-        buffer[(int)currentTail & mask] = e;
+        buffer[(int) currentTail & mask] = e;
         tail = currentTail + 1;
 
         return true;
     }
 
-    public E poll()
-    {
+    public E poll() {
         final long currentHead = head;
-        if (tail == currentHead)
-        {
+        if (tail == currentHead) {
             return null;
         }
 
-        final int index = (int)currentHead & mask;
+        final int index = (int) currentHead & mask;
         final E e = buffer[index];
         buffer[index] = null;
         head = currentHead + 1;
@@ -100,64 +90,52 @@ public class FixedArrayQueue<E> implements Queue<E>
         return e;
     }
 
-    public E remove()
-    {
+    public E remove() {
         final E e = poll();
-        if (null == e)
-        {
+        if (null == e) {
             throw new IllegalStateException("Queue is empty");
         }
 
         return e;
     }
 
-    public E element()
-    {
+    public E element() {
         final E e = peek();
-        if (null == e)
-        {
+        if (null == e) {
             throw new NoSuchElementException("Queue is empty");
         }
 
         return e;
     }
 
-    public E peek()
-    {
-        return buffer[(int)head & mask];
+    public E peek() {
+        return buffer[(int) head & mask];
     }
 
-    public int size()
-    {
+    public int size() {
         int size;
-        do
-        {
+        do {
             final long currentHead = head;
             final long currentTail = tail;
-            size = (int)(currentTail - currentHead);
+            size = (int) (currentTail - currentHead);
         }
         while (size > capacity);
 
         return size;
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return tail == head;
     }
 
-    public boolean contains(final Object o)
-    {
-        if (null == o)
-        {
+    public boolean contains(final Object o) {
+        if (null == o) {
             return false;
         }
 
-        for (long i = head, limit = tail; i < limit; i++)
-        {
-            final E e = buffer[(int)i & mask];
-            if (o.equals(e))
-            {
+        for (long i = head, limit = tail; i < limit; i++) {
+            final E e = buffer[(int) i & mask];
+            if (o.equals(e)) {
                 return true;
             }
         }
@@ -165,32 +143,25 @@ public class FixedArrayQueue<E> implements Queue<E>
         return false;
     }
 
-    public Iterator<E> iterator()
-    {
+    public Iterator<E> iterator() {
         throw new UnsupportedOperationException();
     }
 
-    public Object[] toArray()
-    {
+    public Object[] toArray() {
         throw new UnsupportedOperationException();
     }
 
-    public <T> T[] toArray(final T[] a)
-    {
+    public <T> T[] toArray(final T[] a) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean remove(final Object o)
-    {
+    public boolean remove(final Object o) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean containsAll(final Collection<?> c)
-    {
-        for (final Object o : c)
-        {
-            if (!contains(o))
-            {
+    public boolean containsAll(final Collection<?> c) {
+        for (final Object o : c) {
+            if (!contains(o)) {
                 return false;
             }
         }
@@ -198,28 +169,23 @@ public class FixedArrayQueue<E> implements Queue<E>
         return true;
     }
 
-    public boolean addAll(final Collection<? extends E> c)
-    {
-        for (final E o : c)
-        {
+    public boolean addAll(final Collection<? extends E> c) {
+        for (final E o : c) {
             add(o);
         }
 
         return true;
     }
 
-    public boolean removeAll(final Collection<?> c)
-    {
+    public boolean removeAll(final Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean retainAll(final Collection<?> c)
-    {
+    public boolean retainAll(final Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
-    public void clear()
-    {
+    public void clear() {
         throw new UnsupportedOperationException();
     }
 }

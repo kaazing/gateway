@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,12 +26,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.kaazing.gateway.service.ServiceProperties;
 
 public class DefaultServiceProperties implements ServiceProperties {
     private static final Map<String, String> EMPTY_SIMPLE = Collections.<String, String>emptyMap();
-    private static final Map<String, List<ServiceProperties>> EMPTY_NESTED = Collections.<String, List<ServiceProperties>>emptyMap();
+    private static final Map<String, List<ServiceProperties>> EMPTY_NESTED =
+            Collections.<String, List<ServiceProperties>>emptyMap();
     private static final List<ServiceProperties> EMPTY_LIST = Collections.<ServiceProperties>emptyList();
 
     private Map<String, String> simpleProperties = EMPTY_SIMPLE;
@@ -41,8 +41,8 @@ public class DefaultServiceProperties implements ServiceProperties {
         return simpleProperties.containsKey(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.kaazing.gateway.server.context.resolve.ServiceProperties#get(java.lang.String)
+    /**
+     * @see org.kaazing.gateway.server.context.resolve.DefaultServiceProperties#get(java.lang.String)
      */
     @Override
     public String get(String name) {
@@ -96,15 +96,21 @@ public class DefaultServiceProperties implements ServiceProperties {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DefaultServiceProperties that = (DefaultServiceProperties) o;
 
-        if (nestedProperties != null ? !nestedProperties.equals(that.nestedProperties) : that.nestedProperties != null)
+        if (nestedProperties != null ? !nestedProperties.equals(that.nestedProperties) : that.nestedProperties != null) {
             return false;
-        if (simpleProperties != null ? !simpleProperties.equals(that.simpleProperties) : that.simpleProperties != null)
+        }
+        if (simpleProperties != null ? !simpleProperties.equals(that.simpleProperties) : that.simpleProperties != null) {
             return false;
+        }
 
         return true;
     }

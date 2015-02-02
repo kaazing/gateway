@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,25 +21,16 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
-
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import static org.kaazing.gateway.service.TransportOptionNames.*;
 
 public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
@@ -58,12 +49,12 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private String udpInterface;
 
     public DefaultConnectOptionsContext() {
-    	this(ServiceConnectOptionsType.Factory.newInstance());
+        this(ServiceConnectOptionsType.Factory.newInstance());
     }
-    
+
     public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions) {
         if (connectOptions != null) {
-            
+
             wsVersion = connectOptions.getWsVersion();
             if ("rfc6455".equals(wsVersion)) {
                 webSocketWireProtocol = WebSocketWireProtocol.RFC_6455;
@@ -82,15 +73,17 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (tcpTransport != null) {
                 tcpTransportURI = URI.create(tcpTransport);
                 if (!tcpTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String.format("tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
+                    throw new IllegalArgumentException(String
+                            .format("tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
                 }
             }
-            
+
             String pipeTransport = connectOptions.getPipeTransport();
             if (pipeTransport != null) {
                 pipeTransportURI = URI.create(pipeTransport);
                 if (!pipeTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String.format("pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
+                    throw new IllegalArgumentException(String
+                            .format("pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
                 }
             }
 
@@ -98,7 +91,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (sslTransport != null) {
                 sslTransportURI = URI.create(sslTransport);
                 if (!sslTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String.format("ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
+                    throw new IllegalArgumentException(String
+                            .format("ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
                 }
             }
 
@@ -106,27 +100,29 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (httpTransport != null) {
                 httpTransportURI = URI.create(httpTransport);
                 if (!httpTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String.format("http.transport must contain an absolute URI, not \"%s\"", httpTransport));
+                    throw new IllegalArgumentException(String
+                            .format("http.transport must contain an absolute URI, not \"%s\"", httpTransport));
                 }
             }
 
             Long wsInactivityTimeout = null;
             if (connectOptions != null) {
                 String value = connectOptions.getWsInactivityTimeout();
-                if ( value != null ) {
+                if (value != null) {
                     long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
-                    if ( val > 0 ) {
+                    if (val > 0) {
                         wsInactivityTimeout = val;
                     }
                 }
             }
-            this.wsInactivityTimeoutMillis = (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
+            this.wsInactivityTimeoutMillis =
+                    (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
 
             Boolean sslEncryptionEnabled = null;
             if (connectOptions != null) {
                 ServiceConnectOptionsType.SslEncryption.Enum encrypted = connectOptions.getSslEncryption();
                 if (encrypted != null) {
-                    sslEncryptionEnabled = (encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED);
+                    sslEncryptionEnabled = encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED;
                 }
             }
 
@@ -148,7 +144,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     public String[] getSslProtocols() {
         return sslProtocols;
     }
-    
+
     @Override
     public String getWsVersion() {
         return wsVersion;
@@ -186,7 +182,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     @Override
     public Map<String, Object> asOptionsMap() {
-        Map<String,Object> result = new LinkedHashMap<String, Object>();
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
 
         result.put(SSL_CIPHERS, getSslCiphers());
         result.put(SSL_PROTOCOLS, getSslProtocols());

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,35 +25,35 @@ import org.kaazing.gateway.server.config.SchemeConfig;
 
 public class DefaultSchemeConfig implements SchemeConfig {
 
-	private String name;
-	private int defaultPort = -1;
-	private String transportName;
+    private String name;
+    private int defaultPort = -1;
+    private String transportName;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public void setDefaultPort(int defaultPort) {
-		this.defaultPort = defaultPort;
-	}
+    public void setDefaultPort(int defaultPort) {
+        this.defaultPort = defaultPort;
+    }
 
-	@Override
-	public int getDefaultPort() {
-		return defaultPort;
-	}
+    @Override
+    public int getDefaultPort() {
+        return defaultPort;
+    }
 
-	public void setTransportName(String transportName) {
-		this.transportName = transportName;
-	}
+    public void setTransportName(String transportName) {
+        this.transportName = transportName;
+    }
 
-	@Override
-	public String getTransportName() {
-		return transportName;
-	}
+    @Override
+    public String getTransportName() {
+        return transportName;
+    }
 
 }

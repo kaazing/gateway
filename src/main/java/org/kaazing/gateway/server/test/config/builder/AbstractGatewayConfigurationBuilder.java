@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,7 +23,6 @@ package org.kaazing.gateway.server.test.config.builder;
 
 import java.io.File;
 import java.util.Set;
-
 import org.kaazing.gateway.server.test.config.ClusterConfiguration;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.NetworkConfiguration;
@@ -36,7 +35,7 @@ public abstract class AbstractGatewayConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<GatewayConfiguration, R> {
 
     public AbstractGatewayConfigurationBuilder(GatewayConfiguration configuration, R result,
-            Set<Suppression> suppressions) {
+                                               Set<Suppression> suppressions) {
         super(configuration, result, suppressions);
     }
 
@@ -61,7 +60,8 @@ public abstract class AbstractGatewayConfigurationBuilder<R> extends
 
     public abstract AbstractClusterConfigurationBuilder<? extends AbstractGatewayConfigurationBuilder<R>> cluster();
 
-    public abstract AbstractServiceDefaultsConfigurationBuilder<? extends AbstractGatewayConfigurationBuilder<R>> serviceDefaults();
+    public abstract AbstractServiceDefaultsConfigurationBuilder<? extends AbstractGatewayConfigurationBuilder<R>>
+    serviceDefaults();
 
     public abstract AbstractNetworkBuilder<? extends AbstractGatewayConfigurationBuilder<R>> network();
 

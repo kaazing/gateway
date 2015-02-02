@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,12 @@
 
 package org.kaazing.gateway.server.util.collection;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.IMap;
+import com.hazelcast.monitor.LocalMapStats;
+import com.hazelcast.query.Expression;
+import com.hazelcast.query.Predicate;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -33,22 +39,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.kaazing.gateway.service.cluster.EntryListenerSupport;
-
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.IMap;
-import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.query.Expression;
-import com.hazelcast.query.Predicate;
 
 public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private final IMap<K, V> delegate;
-    private transient EntryListenerSupport<K,V> listenerSupport;
+    private transient EntryListenerSupport<K, V> listenerSupport;
 
     private transient Map<K, V> localCache;
     private transient Lock localCacheLock;
@@ -88,8 +86,7 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
         if (oldValue == null) {
             localCache.put(key, value);
             return null;
-        }
-        else {
+        } else {
             return localCache.get(key);
         }
     }
@@ -113,19 +110,19 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
     }
 
     private void init() {
-        this.listenerSupport = new EntryListenerSupport<K,V>();
+        this.listenerSupport = new EntryListenerSupport<K, V>();
 
         // support eviction and instance equality
         this.localCache = new HashMap<K, V>(delegate);
         this.localCacheLock = new ReentrantLock();
 
-        delegate.addEntryListener(new EntryListener<K,V>() {
+        delegate.addEntryListener(new EntryListener<K, V>() {
 
             @Override
             @SuppressWarnings("unchecked")
             public void entryAdded(EntryEvent<K, V> event) {
-                K key = (K)event.getKey();
-                V newValue = (V)event.getValue();
+                K key = (K) event.getKey();
+                V newValue = (V) event.getValue();
 
                 EntryEvent localEvent = event;
                 try {
@@ -133,12 +130,10 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
                     V value = localCache.get(key);
                     if (value == null) {
                         localCache.put(key, newValue);
-                    }
-                    else {
+                    } else {
                         localEvent = new EntryEvent(event.getName(), null, EntryEvent.TYPE_ADDED, key, value);
                     }
-                }
-                finally {
+                } finally {
                     localCacheLock.unlock();
                 }
 
@@ -153,7 +148,7 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
             @Override
             @SuppressWarnings("unchecked")
             public void entryRemoved(EntryEvent<K, V> event) {
-                K key = (K)event.getKey();
+                K key = (K) event.getKey();
                 V oldValue = localCache.remove(key);
                 EntryEvent localEvent = new EntryEvent(event.getName(), null, EntryEvent.TYPE_REMOVED, key, oldValue);
                 listenerSupport.entryRemoved(localEvent);
@@ -161,8 +156,8 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
 
             @Override
             public void entryUpdated(EntryEvent<K, V> event) {
-                K key = (K)event.getKey();
-                V newValue = (V)event.getValue();
+                K key = (K) event.getKey();
+                V newValue = (V) event.getValue();
                 localCache.put(key, newValue);
                 listenerSupport.entryUpdated(event);
             }
@@ -195,74 +190,74 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
         return localCache.toString();
     }
 
-	@Override
-	public void addIndex(String attribute, boolean ordered) {
+    @Override
+    public void addIndex(String attribute, boolean ordered) {
         throw new UnsupportedOperationException("addIndex");
-	}
+    }
 
-	@Override
-	public Set<java.util.Map.Entry<K, V>> entrySet(Predicate predicate) {
+    @Override
+    public Set<java.util.Map.Entry<K, V>> entrySet(Predicate predicate) {
         throw new UnsupportedOperationException("entrySet");
-	}
+    }
 
-	@Override
-	public boolean evict(Object key) {
-		if( localCache.containsKey(key) ) {
-			localCache.remove(key);
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean evict(Object key) {
+        if (localCache.containsKey(key)) {
+            localCache.remove(key);
+            return true;
+        }
+        return false;
+    }
 
-	@Override
-	public LocalMapStats getLocalMapStats() {
+    @Override
+    public LocalMapStats getLocalMapStats() {
         throw new UnsupportedOperationException("getLocalMapStats");
-	}
+    }
 
-	@Override
-	public Set<K> keySet(Predicate predicate) {
+    @Override
+    public Set<K> keySet(Predicate predicate) {
         throw new UnsupportedOperationException("keySet");
-	}
+    }
 
-	@Override
-	public Set<K> localKeySet() {
+    @Override
+    public Set<K> localKeySet() {
         throw new UnsupportedOperationException("localKeySet");
-	}
+    }
 
-	@Override
-	public Set<K> localKeySet(Predicate predicate) {
+    @Override
+    public Set<K> localKeySet(Predicate predicate) {
         throw new UnsupportedOperationException("localKeySet");
-	}
+    }
 
-	@Override
-	public boolean lockMap(long time, TimeUnit timeunit) {
+    @Override
+    public boolean lockMap(long time, TimeUnit timeunit) {
         throw new UnsupportedOperationException("lockMap");
-	}
+    }
 
-	@Override
-	public V put(K key, V value, long ttl, TimeUnit timeunit) {
+    @Override
+    public V put(K key, V value, long ttl, TimeUnit timeunit) {
         throw new UnsupportedOperationException("put");
-	}
+    }
 
-	@Override
-	public V putIfAbsent(K key, V value, long ttl, TimeUnit timeunit) {
+    @Override
+    public V putIfAbsent(K key, V value, long ttl, TimeUnit timeunit) {
         throw new UnsupportedOperationException("putIfAbsent");
-	}
+    }
 
-	@Override
-	public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
+    @Override
+    public boolean tryPut(K key, V value, long timeout, TimeUnit timeunit) {
         throw new UnsupportedOperationException("tryPut");
-	}
+    }
 
-	@Override
-	public void unlockMap() {
+    @Override
+    public void unlockMap() {
         throw new UnsupportedOperationException("unlockMap");
-	}
+    }
 
-	@Override
-	public Collection<V> values(Predicate predicate) {
+    @Override
+    public Collection<V> values(Predicate predicate) {
         throw new UnsupportedOperationException("values");
-	}
+    }
 
     @Override
     public Future<V> getAsync(K key) {

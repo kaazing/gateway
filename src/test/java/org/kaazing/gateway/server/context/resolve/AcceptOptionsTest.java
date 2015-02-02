@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,9 +20,6 @@
  */
 
 package org.kaazing.gateway.server.context.resolve;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +31,6 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,6 +41,8 @@ import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for resolving gateway-config.xml.
@@ -78,7 +76,7 @@ public class AcceptOptionsTest {
 
     @Test
     public void testSslCiphersOption() throws Exception {
-        expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[] { "FOO", "BAR" });
+        expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
         expectParseFailure("ssl.ciphers", "FOO, BAR");
     }
 
@@ -117,9 +115,10 @@ public class AcceptOptionsTest {
         expectSuccess("tcp.maximum.outbound.rate", "10MB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, 10000000L);
 
         // would overflow INT, but we are long
-        expectSuccess("tcp.maximum.outbound.rate", "214748364MiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, UNLIMITED_MAX_OUTPUT_RATE);
+        expectSuccess("tcp.maximum.outbound.rate", "214748364MiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE,
+                UNLIMITED_MAX_OUTPUT_RATE);
 
-        expectRuntimeFailure("tcp.maximum.outbound.rate", (Long.MAX_VALUE/10L)+"MiB/s");
+        expectRuntimeFailure("tcp.maximum.outbound.rate", (Long.MAX_VALUE / 10L) + "MiB/s");
         expectRuntimeFailure("tcp.maximum.outbound.rate", "0");
         expectParseFailure("tcp.maximum.outbound.rate", "-1");
         expectParseFailure("tcp.maximum.outbound.rate", "10kb");
@@ -215,7 +214,9 @@ public class AcceptOptionsTest {
     public void testNegativeHttpKeepaliveTimeout() throws Exception {
         File configFile = null;
         try {
-            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-bad-http-keepalive-timeout.xml");
+            configFile =
+                    createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-bad-http-keepalive" +
+                            "-timeout.xml");
             GatewayConfigDocument doc = parser.parse(configFile);
             Assert.assertNotNull(doc);
             resolver.resolve(doc, null);
@@ -264,8 +265,10 @@ public class AcceptOptionsTest {
                      Object... extras) throws Exception {
 
         File configFile = null;
-        configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-accept-options-template.xml",
-                optionName, optionValue);
+        configFile =
+                createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-accept-options-template" +
+                                ".xml",
+                        optionName, optionValue);
 
         GatewayConfigDocument doc = null;
         try {
@@ -287,7 +290,7 @@ public class AcceptOptionsTest {
 
         } catch (Exception e) {
             if (e instanceof RuntimeException &&
-                expectedResult == TestResult.RUNTIME_EXCEPTION) {
+                    expectedResult == TestResult.RUNTIME_EXCEPTION) {
                 return;
             }
 
@@ -301,8 +304,7 @@ public class AcceptOptionsTest {
         Map<String, Object> optionsMap = acceptOptionsContext.asOptionsMap();
         if (expectedValue instanceof String[]) {
             assertArrayEquals((String[]) expectedValue, (String[]) optionsMap.get(expectedKey));
-        }
-        else {
+        } else {
             assertEquals(expectedValue, optionsMap.get(expectedKey));
         }
         if (extras != null) {
@@ -317,7 +319,8 @@ public class AcceptOptionsTest {
             }
         }
         if (expectedResult != TestResult.SUCCESS) {
-            throw new IllegalStateException("Unexpected successful valid accept option " + optionName + " with value " + optionValue);
+            throw new IllegalStateException(
+                    "Unexpected successful valid accept option " + optionName + " with value " + optionValue);
         }
 
     }

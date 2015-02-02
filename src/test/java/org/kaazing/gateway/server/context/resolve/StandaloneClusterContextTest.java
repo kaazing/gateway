@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,12 +21,10 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import com.hazelcast.core.IdGenerator;
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-
-import com.hazelcast.core.IdGenerator;
 
 public class StandaloneClusterContextTest {
 
@@ -36,7 +34,7 @@ public class StandaloneClusterContextTest {
 
     @Test
     public void shouldGetIdGenerator()
-        throws Exception {
+            throws Exception {
 
         ClusterContext clusterContext = new StandaloneClusterContext();
 
@@ -44,10 +42,11 @@ public class StandaloneClusterContextTest {
         IdGenerator idGenerator = clusterContext.getIdGenerator(name);
         Assert.assertTrue("Expected ID generator, got null", idGenerator != null);
 
-        Assert.assertTrue(String.format("Expected ID generator name '%s', got '%s'", name, idGenerator.getName()), idGenerator.getName().equals(name));
+        Assert.assertTrue(String.format("Expected ID generator name '%s', got '%s'", name, idGenerator.getName()), idGenerator
+                .getName().equals(name));
 
         long id = idGenerator.newId();
         long expected = Long.MIN_VALUE + 1;
-        Assert.assertTrue(String.format("Expected next ID of %d, got %d", expected, id), id == expected); 
+        Assert.assertTrue(String.format("Expected next ID of %d, got %d", expected, id), id == expected);
     }
 }

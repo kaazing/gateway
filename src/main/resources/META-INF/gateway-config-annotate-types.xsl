@@ -2,7 +2,7 @@
 <!--
 
     Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
-    
+
     Licensed to the Apache Software Foundation (ASF) under one
     or more contributor license agreements.  See the NOTICE file
     distributed with this work for additional information
@@ -10,9 +10,9 @@
     to you under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
     with the License.  You may obtain a copy of the License at
-    
+
       http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
     "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,19 +22,20 @@
 
 -->
 
-<!-- 
-    Pre-parse transformation for gateway-config.xml files. 
-    Adds xsi:type to login-module and service elements. 
+<!--
+    Pre-parse transformation for gateway-config.xml files.
+    Adds xsi:type to login-module and service elements.
 -->
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
-    <xsl:output encoding="UTF-8" method="xml" omit-xml-declaration="no" />
-    
+    <xsl:output encoding="UTF-8" method="xml" omit-xml-declaration="no"/>
+
     <!--
         Copy content over unmodified except for &lt;login-module&gt; and
         &lt;service&gt; elements.
     -->
-    <xsl:template match="*[local-name()!='login-module' and local-name()!='service']|@*|text()|comment()|processing-instruction()">
+    <xsl:template
+            match="*[local-name()!='login-module' and local-name()!='service']|@*|text()|comment()|processing-instruction()">
         <xsl:copy>
             <xsl:apply-templates/>
         </xsl:copy>
@@ -46,7 +47,8 @@
             <xsl:attribute name="xsi:type" namespace="http://www.w3.org/2001/XMLSchema-instance">
                 <xsl:choose>
                     <xsl:when test="starts-with(./*[local-name()='type'],'class:')">CustomLoginModuleType</xsl:when>
-                    <xsl:otherwise><xsl:value-of select="normalize-space(./*[local-name()='type'])" />LoginModuleType</xsl:otherwise>
+                    <xsl:otherwise><xsl:value-of select="normalize-space(./*[local-name()='type'])"/>LoginModuleType
+                    </xsl:otherwise>
                 </xsl:choose>
             </xsl:attribute>
             <xsl:apply-templates/>
@@ -63,10 +65,11 @@
             <xsl:attribute name="xsi:type" namespace="http://www.w3.org/2001/XMLSchema-instance">
                 <xsl:choose>
                     <xsl:when test="starts-with(./*[local-name()='type'],'$')">InternalServiceType</xsl:when>
-                    <xsl:otherwise><xsl:value-of select="normalize-space(./*[local-name()='type'])" />ServiceType</xsl:otherwise>
+                    <xsl:otherwise><xsl:value-of select="normalize-space(./*[local-name()='type'])"/>ServiceType
+                    </xsl:otherwise>
                 </xsl:choose>
             </xsl:attribute>
-            <xsl:apply-templates />
+            <xsl:apply-templates/>
         </xsl:copy>
     </xsl:template>
 
