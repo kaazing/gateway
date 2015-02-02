@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.context.GatewayContext;
@@ -41,7 +40,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 public class DefaultGatewayContext implements GatewayContext {
 
     // private static final Logger LOG = LoggerFactory.getLogger(Gateway.class);
-	private final ClusterContext cluster;
+    private final ClusterContext cluster;
 
     private final Map<String, DefaultSchemeContext> schemes;
     private final Map<String, DefaultTransportContext> schemeTransports;
@@ -62,9 +61,9 @@ public class DefaultGatewayContext implements GatewayContext {
                                  RealmsContext realms,
                                  ServiceDefaultsContext serviceDefaults,
                                  Collection<ServiceContext> services,
-                                 ServiceRegistry servicesByURI, 
-                                 File webDir, 
-                                 File tempDir, 
+                                 ServiceRegistry servicesByURI,
+                                 File webDir,
+                                 File tempDir,
                                  ClusterContext cluster,
                                  SchedulerProvider schedulerProvider) {
 
@@ -94,7 +93,7 @@ public class DefaultGatewayContext implements GatewayContext {
     public DefaultTransportContext getTransportForScheme(String schemeName) {
         return schemeTransports.get(schemeName);
     }
-    
+
     @Override
     public ServiceRegistry getServiceRegistry() {
         return servicesByURI;
@@ -124,9 +123,9 @@ public class DefaultGatewayContext implements GatewayContext {
         for (TransportContext<?> transport : transports) {
             transport.dispose();
         }
-        
+
         cluster.dispose();
-        
+
         schedulerProvider.shutdownNow();
     }
 
@@ -139,10 +138,10 @@ public class DefaultGatewayContext implements GatewayContext {
         return webDir;
     }
 
-	@Override
-	public ClusterContext getCluster() {
-		return cluster;
-	}
+    @Override
+    public ClusterContext getCluster() {
+        return cluster;
+    }
 
     @Override
     public ServiceDefaultsContext getServiceDefaults() {

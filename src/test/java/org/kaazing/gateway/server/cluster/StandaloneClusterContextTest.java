@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,15 +21,13 @@
 
 package org.kaazing.gateway.server.cluster;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
-
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.IMap;
+import org.junit.Test;
+import org.kaazing.gateway.server.context.resolve.StandaloneClusterContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class StandaloneClusterContextTest {
 
@@ -37,7 +35,7 @@ public class StandaloneClusterContextTest {
     public void testIMapImplEntryListenerSupportPut() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        String value1 =  "value1";
+        String value1 = "value1";
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
         EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<String, String>();
         imap.addEntryListener(listener1, true);
@@ -49,20 +47,20 @@ public class StandaloneClusterContextTest {
         assertEquals(listener2.addedCount, 1);
         assertEquals(listener2.udpatedCount, 0);
         assertEquals(listener2.removedCount, 0);
-        assertEquals(imap.get("test1"),value1);
+        assertEquals(imap.get("test1"), value1);
     }
-    
+
     @Test
     public void testIMapImplEntryListenerSupportRemove() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        String value1 =  "value1";
+        String value1 = "value1";
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
         EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<String, String>();
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
         imap.put("test1", value1);
-        assertEquals(imap.get("test1"),value1);
+        assertEquals(imap.get("test1"), value1);
         imap.remove("test1");
         assertEquals(listener1.addedCount, 1);
         assertEquals(listener1.udpatedCount, 0);
@@ -76,18 +74,18 @@ public class StandaloneClusterContextTest {
     public void testIMapImplRemoveWithValue() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        String value1 =  "value1";
-        String value2 =  "value2";
+        String value1 = "value1";
+        String value2 = "value2";
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
         assertEquals(listener1.addedCount, 1);
         assertEquals(listener1.udpatedCount, 0);
-        assertEquals(imap.get("test1"),value1);
+        assertEquals(imap.get("test1"), value1);
         imap.put("test1", value2);
         assertEquals(listener1.addedCount, 1);
         assertEquals(listener1.udpatedCount, 1);
-        assertEquals(imap.get("test1"),value2);
+        assertEquals(imap.get("test1"), value2);
         imap.remove("test1", value2);
         assertEquals(listener1.removedCount, 1);
         assertEquals(false, imap.remove("test1", value1));
@@ -97,11 +95,11 @@ public class StandaloneClusterContextTest {
     public void testIMapImplEvict() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        String value1 =  "value1";
+        String value1 = "value1";
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
-        assertEquals(imap.get("test1"),value1);
+        assertEquals(imap.get("test1"), value1);
         assertEquals(listener1.addedCount, 1);
         assertEquals(listener1.evictedCount, 0);
         imap.evict("test1");
@@ -113,11 +111,11 @@ public class StandaloneClusterContextTest {
     public void testIMapImplEntryListenerSupportReplace() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        String value1 =  "value1";
+        String value1 = "value1";
         EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
-        assertEquals(imap.get("test1"),value1);
+        assertEquals(imap.get("test1"), value1);
         imap.replace("test1", "value2");
         assertEquals(listener1.addedCount, 1);
         assertEquals(listener1.udpatedCount, 1);
@@ -129,29 +127,30 @@ public class StandaloneClusterContextTest {
     public void testIMapImplEntryListenerSupportValue() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        final String value1 =  "value1";
-        final String value2 =  "value2";
-        imap.addEntryListener(new EntryListener<String,String>() {
+        final String value1 = "value1";
+        final String value2 = "value2";
+        imap.addEntryListener(new EntryListener<String, String>() {
 
             @Override
-            public void entryAdded(EntryEvent<String,String> event) {
+            public void entryAdded(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value1);
             }
 
             @Override
-            public void entryEvicted(EntryEvent<String,String> event) {
+            public void entryEvicted(EntryEvent<String, String> event) {
             }
 
             @Override
-            public void entryRemoved(EntryEvent<String,String> event) {
+            public void entryRemoved(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value2);
             }
 
             @Override
-            public void entryUpdated(EntryEvent<String,String> event) {
+            public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), value2);
-            }}, true);
-        
+            }
+        }, true);
+
         imap.put("test1", value1);
         imap.put("test1", value2);
         imap.remove("test1");
@@ -161,8 +160,8 @@ public class StandaloneClusterContextTest {
     public void testIMapImplEntryListenerNoSupportValue() {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
-        final String value1 =  "value1";
-        final String value2 =  "value2";
+        final String value1 = "value1";
+        final String value2 = "value2";
         imap.addEntryListener(new EntryListener<String, String>() {
 
             @Override
@@ -182,13 +181,14 @@ public class StandaloneClusterContextTest {
             @Override
             public void entryUpdated(EntryEvent<String, String> event) {
                 assertEquals(event.getValue(), null);
-            }}, false);
-        
+            }
+        }, false);
+
         imap.put("test1", value1);
         imap.put("test1", value2);
         imap.remove("test1");
     }
-    
+
     class EntryListenerImpl<K, V> implements EntryListener<K, V> {
 
         private int addedCount;
@@ -197,24 +197,25 @@ public class StandaloneClusterContextTest {
         private int evictedCount;
 
         @Override
-        public void entryAdded(EntryEvent<K,V> event) {
+        public void entryAdded(EntryEvent<K, V> event) {
             addedCount++;
         }
 
         @Override
-        public void entryEvicted(EntryEvent<K,V> event) {
+        public void entryEvicted(EntryEvent<K, V> event) {
             evictedCount++;
         }
 
         @Override
-        public void entryRemoved(EntryEvent<K,V> event) {
+        public void entryRemoved(EntryEvent<K, V> event) {
             removedCount++;
-            
+
         }
 
         @Override
-        public void entryUpdated(EntryEvent<K,V> event) {
+        public void entryUpdated(EntryEvent<K, V> event) {
             udpatedCount++;
-            
-        }}
+
+        }
+    }
 }

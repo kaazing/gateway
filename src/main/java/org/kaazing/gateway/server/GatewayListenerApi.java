@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,26 +25,26 @@ import org.kaazing.gateway.service.ServiceContext;
 
 public interface GatewayListenerApi {
 
-    public void initingService(ServiceContext serviceContext);
+    void initingService(ServiceContext serviceContext);
 
-    public void initedService(ServiceContext serviceContext);
+    void initedService(ServiceContext serviceContext);
 
-    public void startingService(ServiceContext serviceContext);
+    void startingService(ServiceContext serviceContext);
 
-    public void startedService(ServiceContext serviceContext);
+    void startedService(ServiceContext serviceContext);
 
-    public void stopingService(ServiceContext serviceContext);
+    void stopingService(ServiceContext serviceContext);
 
-    public void stoppedService(ServiceContext serviceContext);
+    void stoppedService(ServiceContext serviceContext);
 
-    public void quiesceingService(ServiceContext serviceContext);
+    void quiesceingService(ServiceContext serviceContext);
 
-    public void quiescedService(ServiceContext serviceContext);
+    void quiescedService(ServiceContext serviceContext);
 
-    public void destroyingService(ServiceContext serviceContext);
+    void destroyingService(ServiceContext serviceContext);
 
-    public void destroyedService(ServiceContext serviceContext);
+    void destroyedService(ServiceContext serviceContext);
 
-    public void startingGateway();
+    void startingGateway();
 
 }

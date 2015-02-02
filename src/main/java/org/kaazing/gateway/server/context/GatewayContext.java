@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,7 +24,6 @@ package org.kaazing.gateway.server.context;
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
-
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.context.resolve.DefaultTransportContext;
 import org.kaazing.gateway.server.service.ServiceRegistry;
@@ -33,26 +32,26 @@ import org.kaazing.gateway.service.cluster.ClusterContext;
 
 public interface GatewayContext {
 
-    public RealmContext getRealm(String name);
-	
-    public Collection<? extends RealmContext> getRealms();
-	
-    public SchemeContext getScheme(String name);
+    RealmContext getRealm(String name);
+
+    Collection<? extends RealmContext> getRealms();
+
+    SchemeContext getScheme(String name);
 
     DefaultTransportContext getTransportForScheme(String schemeName);
 
-    public Collection<? extends ServiceContext> getServices();
-	
-    public ServiceRegistry getServiceRegistry();
+    Collection<? extends ServiceContext> getServices();
 
-    public File getTempDirectory();
+    ServiceRegistry getServiceRegistry();
 
-    public void dispose();
+    File getTempDirectory();
 
-    public ClusterContext getCluster();
+    void dispose();
 
-    public ServiceDefaultsContext getServiceDefaults();
+    ClusterContext getCluster();
 
-    public Map<String, Object> getInjectables();
+    ServiceDefaultsContext getServiceDefaults();
+
+    Map<String, Object> getInjectables();
 
 }

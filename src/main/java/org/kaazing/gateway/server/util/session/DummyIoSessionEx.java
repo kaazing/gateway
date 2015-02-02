@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,7 +23,6 @@ package org.kaazing.gateway.server.util.session;
 
 import java.net.SocketAddress;
 import java.util.concurrent.Executor;
-
 import org.apache.mina.core.service.DefaultTransportMetadata;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.service.TransportMetadata;
@@ -36,10 +35,8 @@ import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
- * An {@link IoSession} for non-network-use of
- * the classes that depends on {@link IoSession}.
- * This is similar to Mina's DummySession class except it allows
- * a specific IoProcessor to be used.
+ * An {@link IoSession} for non-network-use of the classes that depends on {@link IoSession}. This is similar to Mina's
+ * DummySession class except it allows a specific IoProcessor to be used.
  */
 public class DummyIoSessionEx extends IoSessionAdapterEx {
 
@@ -69,16 +66,16 @@ public class DummyIoSessionEx extends IoSessionAdapterEx {
      */
     public <T extends IoSessionEx> DummyIoSessionEx(Thread ioThread, Executor ioExecutor, IoProcessorEx<T> processor) {
         super(ioThread, ioExecutor,
-            new IoServiceAdapterEx() {
-                {
-                    setHandler(new IoHandlerAdapter());
-                }
-    
-                public TransportMetadata getTransportMetadata() {
-                    return TRANSPORT_METADATA;
-                }
-            }, processor, new DefaultIoSessionDataStructureFactory());
-        
+                new IoServiceAdapterEx() {
+                    {
+                        setHandler(new IoHandlerAdapter());
+                    }
+
+                    public TransportMetadata getTransportMetadata() {
+                        return TRANSPORT_METADATA;
+                    }
+                }, processor, new DefaultIoSessionDataStructureFactory());
+
         setHandler(new IoHandlerAdapter());
         setLocalAddress(ANONYMOUS_ADDRESS);
         setRemoteAddress(ANONYMOUS_ADDRESS);

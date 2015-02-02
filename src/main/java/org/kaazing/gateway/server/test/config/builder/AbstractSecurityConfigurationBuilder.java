@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,7 +24,6 @@ package org.kaazing.gateway.server.test.config.builder;
 import java.io.File;
 import java.security.KeyStore;
 import java.util.Set;
-
 import org.kaazing.gateway.server.test.config.RealmConfiguration;
 import org.kaazing.gateway.server.test.config.SecurityConfiguration;
 import org.kaazing.gateway.server.test.config.Suppressible;
@@ -40,9 +39,9 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
     }
 
     /**
-     * @deprecated so we can get rid of all file touchpoints
      * @param keyStoreFile
      * @return
+     * @deprecated so we can get rid of all file touchpoints
      */
     @Deprecated
     public AbstractSecurityConfigurationBuilder<R> keyStoreFile(String keyStoreFile) {
@@ -51,9 +50,9 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
     }
 
     /**
-     * @deprecated so we can get rid of all file touchpoints
      * @param keyStoreFile
      * @return
+     * @deprecated so we can get rid of all file touchpoints
      */
     @Deprecated
     public AbstractSecurityConfigurationBuilder<R> trustStoreFile(String trustStoreFile) {
@@ -92,7 +91,7 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
     public abstract AbstractRealmConfigurationBuilder<? extends AbstractSecurityConfigurationBuilder<R>> realm();
 
     public AbstractSecurityConfigurationBuilder(SecurityConfiguration configuration, R result,
-            Set<Suppression> suppressions) {
+                                                Set<Suppression> suppressions) {
         super(configuration, result, suppressions);
     }
 

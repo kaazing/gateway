@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,10 +20,6 @@
  */
 
 package org.kaazing.gateway.server.context.resolve;
-
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -39,7 +35,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -49,6 +44,9 @@ import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @Ignore("KG-8712: When we sweep skipped tests, move this out of the unit tests.")
 public class DefaultClusterContextTest {
@@ -67,11 +65,11 @@ public class DefaultClusterContextTest {
     private class ClusterMemberTracker implements MembershipEventListener {
 
         public ClusterMemberTracker() {
-            this(1,0);
+            this(1, 0);
         }
 
         public ClusterMemberTracker(int expectedAddCount,
-                                     int expectedRemoveCount) {
+                                    int expectedRemoveCount) {
 
             membersAdded = new CountDownLatch(expectedAddCount);
             membersRemoved = new CountDownLatch(expectedRemoveCount);
@@ -105,22 +103,23 @@ public class DefaultClusterContextTest {
 
 
         public void assertMemberAdded(MemberId memberId) throws InterruptedException {
-            if ( !membersAdded.await(3, TimeUnit.SECONDS)) {
-                fail("Failed to detect "+memberId+" being added as expected.");
+            if (!membersAdded.await(3, TimeUnit.SECONDS)) {
+                fail("Failed to detect " + memberId + " being added as expected.");
             }
 
-            for ( MemberId id: members) {
-                if ( id.equals(memberId)) {
+            for (MemberId id : members) {
+                if (id.equals(memberId)) {
                     return;
                 }
             }
 
-            fail("Failed to detect "+memberId+" being added as expected although expected number of members being added occurred.");
+            fail("Failed to detect " + memberId +
+                    " being added as expected although expected number of members being added occurred.");
         }
 
         public void assertMemberNotAdded(MemberId memberId) throws InterruptedException {
-            if ( membersAdded.await(3, TimeUnit.SECONDS)) {
-                fail("Detected "+memberId+" being added when this was not expected.");
+            if (membersAdded.await(3, TimeUnit.SECONDS)) {
+                fail("Detected " + memberId + " being added when this was not expected.");
             }
         }
     }
@@ -152,7 +151,7 @@ public class DefaultClusterContextTest {
                     accepts,
                     connects,
                     schedulerProvider,
-                null);
+                    null);
 
             clusterContext2 = new DefaultClusterContext(clusterName,
                     connects,
@@ -300,7 +299,8 @@ public class DefaultClusterContextTest {
                 // KG-10802:  sleep for 2 seconds to ensure cluster member 1 finishes starting up and elects itself
                 //            the master node of the cluster which will allow the cluster to form as expected.
                 Thread.sleep(2000);
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+            }
 
             startClusterContext(clusterContext2);
             addToClusterState(clusterContext2.getCollectionsFactory(), clusterContext2.getLocalMember(), 2);
@@ -368,8 +368,7 @@ public class DefaultClusterContextTest {
                     clusterContext.start();
                     System.out.println("clusterContext.start has completed in thread "
                             + Thread.currentThread().getName());
-                }
-                catch (RuntimeException r) {
+                } catch (RuntimeException r) {
                     System.out.println("clusterContext.start threw " + r + " in thread "
                             + Thread.currentThread().getName());
                     r.printStackTrace();
@@ -380,16 +379,16 @@ public class DefaultClusterContextTest {
         Executors.newSingleThreadExecutor().submit(t);
         try {
             t.get(30, TimeUnit.SECONDS); // increased from 15, because sometimes get timeout on heavily loaded machine
-                                         // (see note in KG-6045)
-        }  catch (TimeoutException e) {
+            // (see note in KG-6045)
+        } catch (TimeoutException e) {
             e.printStackTrace();
-            fail("Could not start cluster context : "  + e);
+            fail("Could not start cluster context : " + e);
         } catch (InterruptedException e) {
             e.printStackTrace();
             fail("Could not start cluster context : " + e);
         } catch (ExecutionException e) {
             e.printStackTrace();
-            fail("Could not start cluster context : "  + e);
+            fail("Could not start cluster context : " + e);
         }
     }
 
@@ -428,7 +427,8 @@ public class DefaultClusterContextTest {
             } else {
                 List<URI> myBalanceTargets = new ArrayList<URI>();
                 myBalanceTargets.add(URI.create("ws://node1.example.com:8080/path"));
-                if (!validateMemberIdBalancerMap(clusterContext[0].getCollectionsFactory(), clusterContext[0].getLocalMember(), myBalanceTargets)) {
+                if (!validateMemberIdBalancerMap(clusterContext[0].getCollectionsFactory(), clusterContext[0]
+                        .getLocalMember(), myBalanceTargets)) {
                     fail("Expected ws://node1.example.com:8080/path as balance target provided by cluster member 1");
                 }
             }
@@ -439,7 +439,8 @@ public class DefaultClusterContextTest {
             } else {
                 List<URI> myBalanceTargets = new ArrayList<URI>();
                 myBalanceTargets.add(URI.create("ws://node2.example.com:8080/path"));
-                if (!validateMemberIdBalancerMap(clusterContext[1].getCollectionsFactory(), clusterContext[1].getLocalMember(), myBalanceTargets)) {
+                if (!validateMemberIdBalancerMap(clusterContext[1].getCollectionsFactory(), clusterContext[1]
+                        .getLocalMember(), myBalanceTargets)) {
                     fail("Expected ws://node2.example.com:8080/path as balance target provided by cluster member 2");
                 }
             }
@@ -449,7 +450,8 @@ public class DefaultClusterContextTest {
         } else {
             List<URI> myBalanceTargets = new ArrayList<URI>();
             myBalanceTargets.add(URI.create("ws://node3.example.com:8080/path"));
-            if (!validateMemberIdBalancerMap(clusterContext[2].getCollectionsFactory(), clusterContext[2].getLocalMember(), myBalanceTargets)) {
+            if (!validateMemberIdBalancerMap(clusterContext[2].getCollectionsFactory(), clusterContext[2]
+                    .getLocalMember(), myBalanceTargets)) {
                 fail("Expected ws://node3.example.com:8080/path as balance target provided by cluster member 3");
             }
         }
@@ -458,7 +460,8 @@ public class DefaultClusterContextTest {
         } else {
             List<URI> myBalanceTargets = new ArrayList<URI>();
             myBalanceTargets.add(URI.create("ws://node4.example.com:8080/path"));
-            if (!validateMemberIdBalancerMap(clusterContext[3].getCollectionsFactory(), clusterContext[3].getLocalMember(), myBalanceTargets)) {
+            if (!validateMemberIdBalancerMap(clusterContext[3].getCollectionsFactory(), clusterContext[3]
+                    .getLocalMember(), myBalanceTargets)) {
                 fail("Expected ws://node4.example.com:8080/path as balance target provided by cluster member 4");
             }
         }
@@ -477,12 +480,12 @@ public class DefaultClusterContextTest {
 
     private boolean validateMemberIdBalancerMap(CollectionsFactory factory, MemberId memberId, List<URI> balanceTargets) {
         Map<MemberId, Map<URI, List<URI>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
-        if (memberIdBalancerMap == null ) {
+        if (memberIdBalancerMap == null) {
             return false;
         }
 
         Map<URI, List<URI>> balancerMap = memberIdBalancerMap.get(memberId);
-        if (balancerMap == null ) {
+        if (balancerMap == null) {
             return false;
         }
 

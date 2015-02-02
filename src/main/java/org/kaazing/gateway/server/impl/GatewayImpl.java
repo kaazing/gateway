@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,14 +21,10 @@
 
 package org.kaazing.gateway.server.impl;
 
-import static java.lang.String.format;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Properties;
-
 import javax.management.MBeanServer;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.config.PropertySetter;
 import org.apache.log4j.helpers.FileWatchdog;
@@ -43,28 +39,21 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
+import static java.lang.String.format;
 
 /**
- * <p>
- * Use this class to start and stop a Gateway from Java.
- * </p>
- * 
- * <p>
- * Before creating the Gateway, ensure that the system property <strong>GATEWAY_HOME</strong> has been set and points to
- * the home directory of a Gateway installation. This can be done by specifying a -D parameter when starting on the
- * command line, or dynamically in Java with system properties. For example:
- * </p>
- * 
- * <p>
- * Example as a command line parameter:
- * </p>
- * 
+ * <p> Use this class to start and stop a Gateway from Java. </p>
+ * <p/>
+ * <p> Before creating the Gateway, ensure that the system property <strong>GATEWAY_HOME</strong> has been set and points to the
+ * home directory of a Gateway installation. This can be done by specifying a -D parameter when starting on the command line, or
+ * dynamically in Java with system properties. For example: </p>
+ * <p/>
+ * <p> Example as a command line parameter: </p>
+ * <p/>
  * <blockquote>-DGATEWAY_HOME=/home/user/gateway</blockquote>
- * 
- * <p>
- * Example using system properties in Java:
- * </p>
- * 
+ * <p/>
+ * <p> Example using system properties in Java: </p>
+ * <p/>
  * <blockquote>System.setProperty("GATEWAY_HOME", "/home/user/gateway");</blockquote>
  */
 final class GatewayImpl implements Gateway {
@@ -86,14 +75,11 @@ final class GatewayImpl implements Gateway {
     private KaazingFileWatchdog watchDog;
 
     /**
-     * <p>
-     * Create a new in-process Gateway instance.
-     * 
-     * <p>
-     * After calling this constructor the Gateway instance will be created but not yet started. Use {@link #launch()}
-     * to launch the Gateway.
-     * </p>
-     * 
+     * <p> Create a new in-process Gateway instance.
+     * <p/>
+     * <p> After calling this constructor the Gateway instance will be created but not yet started. Use {@link #launch()} to
+     * launch the Gateway. </p>
+     *
      * @throws Exception
      */
     public GatewayImpl(Gateway baseGateway) {
@@ -130,7 +116,7 @@ final class GatewayImpl implements Gateway {
 
     /**
      * Stop an in-process Gateway that was started using {@link #launch()}.
-     * 
+     *
      * @throws Exception
      */
     @Override
@@ -144,17 +130,15 @@ final class GatewayImpl implements Gateway {
             watchDog = null;
         }
 
-        if ( gateway != null ) {
+        if (gateway != null) {
             gateway.destroy();
             gateway = null;
         }
     }
 
     /**
-     * <p>
-     * Launch the in-process Gateway.
-     * </p>
-     * 
+     * <p> Launch the in-process Gateway. </p>
+     *
      * @throws Exception
      */
     @Override
@@ -164,12 +148,12 @@ final class GatewayImpl implements Gateway {
             baseGateway.launch();
         }
 
-        if ( gateway != null ) {
+        if (gateway != null) {
             throw new GatewayAlreadyRunningException("An instance of the Gateway is already running");
         }
-        
+
         Properties configuration = getProperties();
-        if ( configuration == null ) {
+        if (configuration == null) {
             // Change to a public exception once all calls to System.getProperty() throughout the entire
             // codebase have been eliminated.
             //
@@ -177,52 +161,53 @@ final class GatewayImpl implements Gateway {
         }
 
         String bypassPlatformCheckStr = configuration.getProperty(BYPASS_PLATFORM_CHECK_PROPERTY);
-        boolean bypassPlatformCheck = (bypassPlatformCheckStr != null && 
-                                       !(bypassPlatformCheckStr.equalsIgnoreCase("false")) &&
-                                       !(bypassPlatformCheckStr.equalsIgnoreCase("no")) && 
-                                       !(bypassPlatformCheckStr.equalsIgnoreCase("n")));
-        
-        if (!bypassPlatformCheck && !supportedJavaVersion(1, 7, "0_21") ) {
-            throw new RuntimeException("Unsupported JDK version, Please install Java SE 7.0 patch 21 or later and relaunch Kaazing WebSocket Gateway");
+        boolean bypassPlatformCheck = bypassPlatformCheckStr != null &&
+                !bypassPlatformCheckStr.equalsIgnoreCase("false") &&
+                !bypassPlatformCheckStr.equalsIgnoreCase("no") &&
+                !bypassPlatformCheckStr.equalsIgnoreCase("n");
+
+        if (!bypassPlatformCheck && !supportedJavaVersion(1, 7, "0_21")) {
+            throw new RuntimeException("Unsupported JDK version, Please install Java SE 7.0 patch 21 or later and relaunch " +
+                    "Kaazing WebSocket Gateway");
         }
 
         String gatewayHomeProperty = configuration.getProperty(GATEWAY_HOME_PROPERTY);
-        if ( gatewayHomeProperty == null ) {
+        if (gatewayHomeProperty == null) {
             throw new IllegalArgumentException(GATEWAY_HOME_PROPERTY + " directory was not specified");
         }
 
         File homeDir = new File(gatewayHomeProperty);
-        if ( !homeDir.isDirectory()) {
+        if (!homeDir.isDirectory()) {
             throw new IllegalArgumentException(GATEWAY_HOME_PROPERTY + " is not a valid directory: "
                     + homeDir.getAbsolutePath());
         }
 
         String gatewayConfigDirectoryProperty = configuration.getProperty(GATEWAY_CONFIG_DIRECTORY_PROPERTY);
-        File configDir = (gatewayConfigDirectoryProperty != null) 
+        File configDir = (gatewayConfigDirectoryProperty != null)
                          ? new File(gatewayConfigDirectoryProperty)
                          : new File(homeDir, DEFAULT_CONFIG_DIRECTORY);
-        if ( !configDir.isDirectory()) {
+        if (!configDir.isDirectory()) {
             throw new IllegalArgumentException(GATEWAY_CONFIG_DIRECTORY_PROPERTY + " is not a valid directory: "
                     + configDir.getAbsolutePath());
         }
 
-        // Login modules needs the CONFIG directory, put it back into the configuration properties. 
+        // Login modules needs the CONFIG directory, put it back into the configuration properties.
         configuration.setProperty(GATEWAY_CONFIG_DIRECTORY_PROPERTY, configDir.toString());
 
         String gatewayTempDirectoryProperty = configuration.getProperty(GATEWAY_TEMP_DIRECTORY_PROPERTY);
-        File tempDir = (gatewayTempDirectoryProperty != null) 
-                        ? new File(gatewayTempDirectoryProperty) 
-                        : new File(homeDir, DEFAULT_TEMP_DIRECTORY);
-        if ( !tempDir.isDirectory() ) {
+        File tempDir = (gatewayTempDirectoryProperty != null)
+                       ? new File(gatewayTempDirectoryProperty)
+                       : new File(homeDir, DEFAULT_TEMP_DIRECTORY);
+        if (!tempDir.isDirectory()) {
             throw new IllegalArgumentException(GATEWAY_TEMP_DIRECTORY_PROPERTY + " is not a valid directory: "
                     + tempDir.getAbsolutePath());
         }
 
         String gatewayLogDirectoryProperty = configuration.getProperty(GATEWAY_LOG_DIRECTORY_PROPERTY);
-        File logDir = (gatewayLogDirectoryProperty != null) 
-                        ? new File(gatewayLogDirectoryProperty) 
-                        : new File(homeDir, DEFAULT_LOG_DIRECTORY);
-        if ( !logDir.exists() ) {
+        File logDir = (gatewayLogDirectoryProperty != null)
+                      ? new File(gatewayLogDirectoryProperty)
+                      : new File(homeDir, DEFAULT_LOG_DIRECTORY);
+        if (!logDir.exists()) {
             logDir.mkdir();
         }
         if (!logDir.isDirectory()) {
@@ -230,7 +215,7 @@ final class GatewayImpl implements Gateway {
                     + " is not a valid directory or could not be created: " + logDir.getAbsolutePath());
         }
 
-        // Because we use Log4J and it contains a reference to ${GATEWAY_LOG_DIRECTORY}, 
+        // Because we use Log4J and it contains a reference to ${GATEWAY_LOG_DIRECTORY},
         // we need to make sure to put the log directory back into the configuration properties.
         configuration.setProperty(GATEWAY_LOG_DIRECTORY_PROPERTY, logDir.toString());
 
@@ -250,7 +235,7 @@ final class GatewayImpl implements Gateway {
         if (gatewayConfigProperty != null) {
             gatewayConfigFile = new File(gatewayConfigProperty);
             if (!gatewayConfigFile.isFile() || !gatewayConfigFile.canRead()) {
-                throw new IllegalArgumentException(GATEWAY_CONFIG_PROPERTY 
+                throw new IllegalArgumentException(GATEWAY_CONFIG_PROPERTY
                         + " was specified but is not a valid, readable file: "
                         + gatewayConfigFile.getAbsolutePath());
             }
@@ -260,15 +245,15 @@ final class GatewayImpl implements Gateway {
                 gatewayConfigFile = new File(configDir, DEFAULT_GATEWAY_CONFIG_MINIMAL_XML);
             }
             if (!gatewayConfigFile.isFile() || !gatewayConfigFile.canRead()) {
-                throw new IllegalArgumentException(GATEWAY_CONFIG_PROPERTY 
-                        + " was not specified, and no default readable config file" 
+                throw new IllegalArgumentException(GATEWAY_CONFIG_PROPERTY
+                        + " was not specified, and no default readable config file"
                         + " could be found in the conf/ directory");
             }
         }
 
         String gatewayWebDirectoryProperty = configuration.getProperty(GATEWAY_WEB_DIRECTORY_PROPERTY);
-        File webRootDir = (gatewayWebDirectoryProperty != null) 
-                          ? new File(gatewayWebDirectoryProperty) 
+        File webRootDir = (gatewayWebDirectoryProperty != null)
+                          ? new File(gatewayWebDirectoryProperty)
                           : new File(homeDir, DEFAULT_WEB_DIRECTORY);
         if (!webRootDir.exists()) {
             webRootDir.mkdir();
@@ -314,8 +299,8 @@ final class GatewayImpl implements Gateway {
         // Allow control over whether or not the Gateway logging external to the Gateway so that customers can configure their
         // own logging when embedding the Gateway
         String log4jConfigProperty = configuration.getProperty(GatewayImpl.LOG4J_CONFIG_PROPERTY);
-        File log4jConfigFile = (log4jConfigProperty != null) 
-                               ? new File(log4jConfigProperty) 
+        File log4jConfigFile = (log4jConfigProperty != null)
+                               ? new File(log4jConfigProperty)
                                : new File(configDir, GatewayImpl.DEFAULT_LOG4J_CONFIG_XML);
         if (!log4jConfigFile.isFile() || !log4jConfigFile.canRead()) {
             throw new IllegalArgumentException(GatewayImpl.LOG4J_CONFIG_PROPERTY + " is not a valid, readable file: "
@@ -371,10 +356,10 @@ final class GatewayImpl implements Gateway {
             if (currentMinor > minor) {
                 return true;
             } else if (currentMinor == minor) {
-                return (currentPoint.compareTo(point) >= 0);
+                return currentPoint.compareTo(point) >= 0;
             }
         }
-        
+
         return false;
     }
 
@@ -384,6 +369,7 @@ final class GatewayImpl implements Gateway {
     // from the Gateway's configured properties.
     private class KaazingDOMConfigurator extends DOMConfigurator {
         private Properties properties;
+
         KaazingDOMConfigurator(Properties properties) {
             this.properties = properties;
         }

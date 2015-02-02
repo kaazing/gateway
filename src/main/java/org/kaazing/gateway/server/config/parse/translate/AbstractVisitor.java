@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,12 +25,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
 import org.jdom.Document;
 import org.jdom.Element;
 
 public abstract class AbstractVisitor
-    implements GatewayConfigTranslator {
+        implements GatewayConfigTranslator {
 
     protected void copyText(final Element dst,
                             final Element src) {
@@ -68,7 +67,7 @@ public abstract class AbstractVisitor
 
     @Override
     public void translate(Document dom)
-        throws Exception {
+            throws Exception {
 
         Element root = dom.getRootElement();
         visit(root);

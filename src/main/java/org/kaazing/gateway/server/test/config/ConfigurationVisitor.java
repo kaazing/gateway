@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,27 +23,27 @@ package org.kaazing.gateway.server.test.config;
 
 public interface ConfigurationVisitor {
 
-    public void visit(AuthorizationConstraintConfiguration authorizationConstraintConfiguration);
+    void visit(AuthorizationConstraintConfiguration authorizationConstraintConfiguration);
 
-    public void visit(ClusterConfiguration clusterConfiguration);
+    void visit(ClusterConfiguration clusterConfiguration);
 
-    public void visit(CrossOriginConstraintConfiguration crossOriginConstraintConfiguration);
+    void visit(CrossOriginConstraintConfiguration crossOriginConstraintConfiguration);
 
-    public void visit(GatewayConfiguration gatewayConfiguration);
+    void visit(GatewayConfiguration gatewayConfiguration);
 
-    public void visit(LoginModuleConfiguration loginModuleConfiguration);
+    void visit(LoginModuleConfiguration loginModuleConfiguration);
 
-    public void visit(NetworkConfiguration networkConfiguration);
+    void visit(NetworkConfiguration networkConfiguration);
 
-    public void visit(RealmConfiguration realmConfiguration);
+    void visit(RealmConfiguration realmConfiguration);
 
-    public void visit(SecurityConfiguration securityConfiguration);
+    void visit(SecurityConfiguration securityConfiguration);
 
-    public void visit(ServiceConfiguration serviceConfiguration);
+    void visit(ServiceConfiguration serviceConfiguration);
 
-    public void visit(ServiceDefaultsConfiguration serviceDefaultsConfiguration);
+    void visit(ServiceDefaultsConfiguration serviceDefaultsConfiguration);
 
-    public void visit(NestedServicePropertiesConfiguration nestedServicePropertiesConfiguration);
+    void visit(NestedServicePropertiesConfiguration nestedServicePropertiesConfiguration);
 
     public static class Adapter implements ConfigurationVisitor {
 
@@ -99,7 +99,7 @@ public interface ConfigurationVisitor {
 
         @Override
         public void visit(NestedServicePropertiesConfiguration nestedServicePropertiesConfiguration) {
-            
+
         }
 
     }

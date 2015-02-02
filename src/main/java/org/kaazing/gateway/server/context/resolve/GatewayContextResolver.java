@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -40,13 +40,11 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
-
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -124,7 +122,6 @@ public class GatewayContextResolver {
     }
 
 
-
     // This logger logs info and above to std out by default.
     private static final Logger LOGGER = Launcher.getGatewayStartupLogger();
 
@@ -135,6 +132,7 @@ public class GatewayContextResolver {
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
     // TODO: In 4.0 we may want to remove this and require explicit settings!
     private static final Map<String, String> defaultMimeMappings = new HashMap<String, String>();
+
     static {
         defaultMimeMappings.put("html", "text/html");
         defaultMimeMappings.put("htm", "text/html");
@@ -175,12 +173,12 @@ public class GatewayContextResolver {
     }
 
     public GatewayContextResolver(ContextResolver<SecurityType, DefaultSecurityContext> securityResolver,
-            File webDir, File tempDir) {
+                                  File webDir, File tempDir) {
         this(securityResolver, webDir, tempDir, null);
     }
 
     public GatewayContextResolver(ContextResolver<SecurityType, DefaultSecurityContext> securityResolver,
-            File webDir, File tempDir, MBeanServer mbeanServer) {
+                                  File webDir, File tempDir, MBeanServer mbeanServer) {
         this.securityResolver = securityResolver;
         this.webDir = webDir;
         this.tempDir = tempDir;
@@ -215,7 +213,8 @@ public class GatewayContextResolver {
         SecurityType securityConfig = (securityConfigs.length > 0) ? securityConfigs[securityConfigs.length - 1] : null;
         ServiceType[] serviceConfigs = gatewayConfig.getServiceArray();
         ServiceDefaultsType[] serviceDefaultsArray = gatewayConfig.getServiceDefaultsArray();
-        ServiceDefaultsType serviceDefaults = (serviceDefaultsArray.length > 0) ? serviceDefaultsArray[serviceDefaultsArray.length - 1] : null;
+        ServiceDefaultsType serviceDefaults =
+                (serviceDefaultsArray.length > 0) ? serviceDefaultsArray[serviceDefaultsArray.length - 1] : null;
         ClusterType[] clusterConfigs = gatewayConfig.getClusterArray();
         ClusterType clusterConfig = (clusterConfigs.length > 0) ? clusterConfigs[clusterConfigs.length - 1] : null;
 
@@ -227,34 +226,34 @@ public class GatewayContextResolver {
         ClusterContext clusterContext = resolveCluster(clusterConfig, schedulerProvider);
         ServiceRegistry servicesByURI = new ServiceRegistry();
         Map<String, Object> dependencyContexts = resolveDependencyContext();
-        ResourceAddressFactory resourceAddressFactory  = resolveResourceAddressFactories();
-        TransportFactory transportFactory = TransportFactory.newTransportFactory((Map)configuration);
+        ResourceAddressFactory resourceAddressFactory = resolveResourceAddressFactories();
+        TransportFactory transportFactory = TransportFactory.newTransportFactory((Map) configuration);
         ServiceFactory serviceFactory = ServiceFactory.newServiceFactory();
         Collection<ServiceContext> services =
-            resolveServices(servicesByURI, webDir, tempDir, serviceConfigs, securityContext,
-                            realmsContext, clusterContext, serviceDefaults, schedulerProvider,
-                            dependencyContexts,
-                            configuration, transportFactory, serviceFactory, resourceAddressFactory);
+                resolveServices(servicesByURI, webDir, tempDir, serviceConfigs, securityContext,
+                        realmsContext, clusterContext, serviceDefaults, schedulerProvider,
+                        dependencyContexts,
+                        configuration, transportFactory, serviceFactory, resourceAddressFactory);
         resolveTransports(transportFactory);
 
         BridgeServiceFactory bridgeServiceFactory = resolveBridgeServiceFactory(transportFactory);
 
         Map<String, DefaultSchemeContext> schemeContexts =
-            resolveSchemes(services,
-                           schemeConfigs,
-                           configuration,
-                           resourceAddressFactory);
+                resolveSchemes(services,
+                        schemeConfigs,
+                        configuration,
+                        resourceAddressFactory);
 
         GatewayContext gatewayContext = new DefaultGatewayContext(schemeContexts,
-                                                                  transportContextsBySchemeName,
-                                                                  realmsContext,
-                                                                  serviceDefaultsContext,
-                                                                  services,
-                                                                  servicesByURI,
-                                                                  webDir,
-                                                                  tempDir,
-                                                                  clusterContext,
-                                                                  schedulerProvider);
+                transportContextsBySchemeName,
+                realmsContext,
+                serviceDefaultsContext,
+                services,
+                servicesByURI,
+                webDir,
+                tempDir,
+                clusterContext,
+                schedulerProvider);
 
         // create map of injectable resources
         Map<String, Object> injectables = new HashMap<String, Object>();
@@ -271,7 +270,7 @@ public class GatewayContextResolver {
         injectables.put("bridgeServiceFactory", bridgeServiceFactory);
         injectables.put("resourceAddressFactory", resourceAddressFactory);
         injectables.put("transportFactory", transportFactory);
-        gatewayContext.getInjectables().putAll(injectables);;
+        gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
                 bridgeServiceFactory,
@@ -452,7 +451,8 @@ public class GatewayContextResolver {
         }
 
         // Used by client access policy xml. This parameter is not fully initialized until after the service c
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI = new ArrayList<Map<URI, Map<String, CrossSiteConstraintContext>>>();
+        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
+                new ArrayList<Map<URI, Map<String, CrossSiteConstraintContext>>>();
 
         for (ServiceType serviceConfig : serviceConfigs) {
             String serviceName = serviceConfig.getName();
@@ -519,7 +519,8 @@ public class GatewayContextResolver {
                 mimeMappings.put(mimeMappingType.getExtension().toLowerCase(), mimeMappingType.getMimeType());
             }
 
-            Map<URI, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI = new HashMap<URI, Map<String, CrossSiteConstraintContext>>();
+            Map<URI, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
+                    new HashMap<URI, Map<String, CrossSiteConstraintContext>>();
             for (URI acceptURI : acceptURIs) {
                 int wildcardOriginCount = 0;
                 CrossSiteConstraintType[] crossSiteConstraints = serviceConfig.getCrossSiteConstraintArray();
@@ -580,10 +581,10 @@ public class GatewayContextResolver {
                         acceptConstraints = new HashMap<String, CrossSiteConstraintContext>();
                         acceptConstraintsByURI.put(acceptURI, acceptConstraints);
                     }
-                    
+
                     // add to authorityToSetOfAcceptConstraintsByURI
                     authorityToSetOfAcceptConstraintsByURI.add(acceptConstraintsByURI);
-                    
+
                     CrossSiteConstraintContext acceptConstraint = new DefaultCrossSiteConstraintContext(allowOrigin,
                             allowMethods, allowHeaders, maximumAge);
                     CrossSiteConstraintContext oldAcceptConstraint = acceptConstraints.put(allowOrigin, acceptConstraint);
@@ -612,7 +613,7 @@ public class GatewayContextResolver {
 
             RealmContext serviceRealmContext = null;
             final String realmName = serviceConfig.getRealmName();
-            if ( serviceConfig.isSetRealmName() ) {
+            if (serviceConfig.isSetRealmName()) {
                 serviceRealmContext = realmsContext.getRealmContext(realmName);
                 if (serviceRealmContext == null) {
                     throw new IllegalArgumentException("Unrecognized realm name \"" + realmName + "\".");
@@ -620,7 +621,8 @@ public class GatewayContextResolver {
             }
 
             ServiceAcceptOptionsType acceptOptions = serviceConfig.getAcceptOptions();
-            ServiceAcceptOptionsType defaultOptionsConfig = (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
+            ServiceAcceptOptionsType defaultOptionsConfig =
+                    (defaultServiceConfig != null) ? defaultServiceConfig.getAcceptOptions() : null;
             AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
 
             ServiceConnectOptionsType connectOptions = serviceConfig.getConnectOptions();
@@ -629,7 +631,7 @@ public class GatewayContextResolver {
             Key encryptionKey = null;
 
             if (serviceRealmContext == null &&
-                requireRolesCollection.size() > 0 ) {
+                    requireRolesCollection.size() > 0) {
 
                 throw new IllegalArgumentException("Authorization constraints require a " +
                         "specified realm-name for service \"" + serviceDescription + "\"");
@@ -640,7 +642,7 @@ public class GatewayContextResolver {
                             tempDir, balanceURIs, acceptURIs, connectURIs,
                             properties, requireRoles,
                             mimeMappings, acceptConstraintsByURI, clusterContext,
-                                              acceptOptionsContext, connectOptionsContext, serviceRealmContext,
+                            acceptOptionsContext, connectOptionsContext, serviceRealmContext,
                             encryptionKey, schedulerProvider,
                             supportsAccepts(serviceType),
                             supportsConnects(serviceType),
@@ -664,7 +666,7 @@ public class GatewayContextResolver {
             }
         }
 
-        for(ServiceContext ctxt: serviceContexts){
+        for (ServiceContext ctxt : serviceContexts) {
             ctxt.setListsOfAcceptConstraintsByURI(authorityToSetOfAcceptConstraintsByURI);
         }
         return serviceContexts;
@@ -686,7 +688,7 @@ public class GatewayContextResolver {
                 NodeList content = node.getChildNodes();
                 String nodeValue = "";
                 boolean isSimpleProperty = true;
-                for (int j=0; j<content.getLength(); j++) {
+                for (int j = 0; j < content.getLength(); j++) {
                     Node child = content.item(j);
                     if (child != null) {
                         if (child.getNodeType() == Node.ELEMENT_NODE) {
@@ -695,8 +697,7 @@ public class GatewayContextResolver {
                             properties.getNested(node.getLocalName(), true).add(newProperties);
                             parseProperties(node, newProperties);
                             break;
-                        }
-                        else if (child.getNodeType() == Node.TEXT_NODE) {
+                        } else if (child.getNodeType() == Node.TEXT_NODE) {
                             // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
                             // the parser coughs up text content as more than one Text node.
                             String fragment = child.getNodeValue();
@@ -730,7 +731,7 @@ public class GatewayContextResolver {
         if (uri.getPort() == -1) {
             if (defaultPort == -1) {
                 LOGGER.error("Missing port number in URI \"" + uri
-                            + "\". You must include an explicit port number in this URI in your gateway configuration file.");
+                        + "\". You must include an explicit port number in this URI in your gateway configuration file.");
                 throw new IllegalArgumentException("Missing port for URI \"" + uri + "\"");
             }
             if (defaultPort != 0) {
@@ -740,11 +741,10 @@ public class GatewayContextResolver {
                 String fragment = uri.getFragment();
                 uri = new URI(schemeName, null, host, defaultPort, path, query, fragment);
             }
-        }
-        else {
+        } else {
             if (defaultPort == 0) {
                 LOGGER.error("Port number not allowed in URI \"" + uri
-                            + "\". You must remove the port number from this URI in your gateway configuration file.");
+                        + "\". You must remove the port number from this URI in your gateway configuration file.");
                 throw new IllegalArgumentException("Port not allowed in URI \"" + uri + "\"");
             }
         }
@@ -769,6 +769,7 @@ public class GatewayContextResolver {
             public String getAwsSecretKey() {
                 return connectOptions == null ? null : connectOptions.getAwsSecretKey();
             }
+
             @Override
             public String getAwsAccessKeyId() {
                 return connectOptions == null ? null : connectOptions.getAwsAccessKeyId();
@@ -780,19 +781,20 @@ public class GatewayContextResolver {
         // The first accepts port is the port used by all network interfaces.
         int clusterPort = (accepts.size() > 0) ? accepts.get(0).getPort() : -1;
 
-        List<MemberId> connects = processClusterMembers(clusterConfig.getConnectArray(), "<connect>", connectOptions, clusterPort);
+        List<MemberId> connects =
+                processClusterMembers(clusterConfig.getConnectArray(), "<connect>", connectOptions, clusterPort);
 
         return new DefaultClusterContext(clusterConfig.getName(),
-                                         accepts,
-                                         connects,
-                                         schedulerProvider,
-                                         connectOptionsContext);
+                accepts,
+                connects,
+                schedulerProvider,
+                connectOptionsContext);
     }
 
-    private List<MemberId> processClusterMembers(String[]                  collection,
-                                                 String                    processing,
+    private List<MemberId> processClusterMembers(String[] collection,
+                                                 String processing,
                                                  ClusterConnectOptionsType connectOptions,
-                                                 int                       clusterPort) {
+                                                 int clusterPort) {
         List<MemberId> memberIds = new ArrayList<MemberId>();
         if (collection != null) {
             for (String member : collection) {
@@ -805,7 +807,7 @@ public class GatewayContextResolver {
                 }
 
                 String scheme = uri.getScheme();
-                if ( (scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
+                if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
                     int port = uri.getPort();
                     if (port == -1) {
                         GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
@@ -820,8 +822,7 @@ public class GatewayContextResolver {
                     }
 
                     memberIds.add(new MemberId(scheme, host, port, uri.getPath()));
-                }
-                else {
+                } else {
                     GL.error("ha", "Unrecognized scheme {} for {} in {}", uri.getScheme(), processing, member);
                     throw new IllegalArgumentException("Invalid scheme " + uri.getScheme() + " in the URL for " + processing
                             + " in " + member);
@@ -831,14 +832,14 @@ public class GatewayContextResolver {
         return memberIds;
     }
 
-    private void validateAwsClusterDiscovery(URI                       uri,
+    private void validateAwsClusterDiscovery(URI uri,
                                              ClusterConnectOptionsType connectOptions,
-                                             String                    processing,
-                                             int                       clusterPort,
-                                             int                       collectionLength) {
+                                             String processing,
+                                             int clusterPort,
+                                             int collectionLength) {
         if (!AwsUtils.isDeployedToAWS() || !processing.equals("<connect>")) {
             GL.error("ha", "Unrecognized scheme {} for {} in {}",
-                      uri.getScheme(), processing, uri.toString());
+                    uri.getScheme(), processing, uri.toString());
             throw new IllegalStateException("Invalid scheme " + uri.getScheme()
                     + " in the URL for " + processing + " in " + uri.toString());
         }
@@ -851,8 +852,8 @@ public class GatewayContextResolver {
 
         if (collectionLength > 1) {
             GL.error("ha",
-                     "Only one {} element should  be specified in <cluster> for auto-discovery",
-                     processing);
+                    "Only one {} element should  be specified in <cluster> for auto-discovery",
+                    processing);
             throw new IllegalStateException("Only one <connect> tag should be specified in <cluster> for auto-discovery");
         }
 
@@ -861,21 +862,22 @@ public class GatewayContextResolver {
             // <accept></accept> tag matches the one specified in
             // the <connect>aws://security-group:<port>/groupName</connect> tag.
             GL.error("ha", "Mismatch in port numbers {} and {}", clusterPort, uri.getPort());
-            throw new IllegalArgumentException("Port numbers on the network interface in <accept> and the member in <connect> do not match");
+            throw new IllegalArgumentException("Port numbers on the network interface in <accept> and the member in <connect> " +
+                    "do not match");
         }
 
         String scheme = uri.getScheme();
         if (!scheme.equalsIgnoreCase("aws")) {
             throw new IllegalStateException("Invalid scheme '" + scheme +
-                                            "' specified in the URI " + uri.toString() +
-                                            " instead of 'aws:'");
+                    "' specified in the URI " + uri.toString() +
+                    " instead of 'aws:'");
         }
 
         String host = uri.getHost();
         if (!host.equalsIgnoreCase("security-group")) {
             throw new IllegalStateException("Invalid host '" + host +
-                                            "' specified in the URI " + uri.toString() +
-                                            " instead of 'security-group'");
+                    "' specified in the URI " + uri.toString() +
+                    " instead of 'security-group'");
         }
 
         String accessKeyId = connectOptions.getAwsAccessKeyId();
@@ -911,8 +913,8 @@ public class GatewayContextResolver {
                 AuthenticationType authType = realmConfig.getAuthentication();
 
                 AuthenticationContext authenticationContext = null;
-                if ( authType != null ) {
-                        authenticationContext = new DefaultAuthenticationContext(
+                if (authType != null) {
+                    authenticationContext = new DefaultAuthenticationContext(
                             authType.getHttpChallengeScheme().toString(),
                             authType.getHttpHeaderArray(),
                             authType.getHttpQueryParameterArray(),
@@ -925,8 +927,8 @@ public class GatewayContextResolver {
                         authType == null ?
                         new LoginModuleType[0] :
                         authType.isSetLoginModules() ?
-                                authType.getLoginModules().getLoginModuleArray() :
-                                new LoginModuleType[0];
+                        authType.getLoginModules().getLoginModuleArray() :
+                        new LoginModuleType[0];
 
 
                 List<AppConfigurationEntry> configurationEntries = new LinkedList<AppConfigurationEntry>();
@@ -937,7 +939,8 @@ public class GatewayContextResolver {
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
-                    options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration.getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+                    options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
+                            .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
@@ -974,7 +977,8 @@ public class GatewayContextResolver {
                     }
                 }
 
-                updateLoginModuleConfigurationEntries(securityConfig, authType, authenticationContext, configurationEntries, configuration);
+                updateLoginModuleConfigurationEntries(securityConfig, authType, authenticationContext, configurationEntries,
+                        configuration);
 
                 realmContexts.put(name, new DefaultRealmContext(name, description, userPrincipalClasses,
                         new SingletonConfiguration(name, configurationEntries), authenticationContext));
@@ -984,8 +988,10 @@ public class GatewayContextResolver {
         return new DefaultRealmsContext(Collections.unmodifiableMap(realmContexts));
     }
 
-    private void updateLoginModuleConfigurationEntries(SecurityType securityConfig, AuthenticationType authType, AuthenticationContext authenticationContext,
-            List<AppConfigurationEntry> configurationEntries, Properties gatewayProperties) {
+    private void updateLoginModuleConfigurationEntries(SecurityType securityConfig, AuthenticationType authType,
+                                                       AuthenticationContext authenticationContext,
+                                                       List<AppConfigurationEntry> configurationEntries, Properties
+                                                               gatewayProperties) {
 
         // See KG-3362 for the logic behind injecting these configuration entries.
         final boolean authenticationContextIsPresent = authenticationContext != null;
@@ -993,12 +999,12 @@ public class GatewayContextResolver {
         if (authenticationContextIsPresent) {
 
             String httpChallengeScheme = authenticationContext.getHttpChallengeScheme();
-            if ( httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
+            if (httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
                 httpChallengeScheme = httpChallengeScheme.substring(AUTH_SCHEME_APPLICATION_PREFIX.length());
             }
 
             // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
-            if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme) ) {
+            if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
                 Map<String, String> options = new HashMap<String, String>();
                 options.put("tryFirstToken", "true");
                 configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
@@ -1007,7 +1013,7 @@ public class GatewayContextResolver {
             }
 
             // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
-            if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme) ) {
+            if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
                 Map<String, String> options = new HashMap<String, String>();
                 options.put("tryFirstToken", "true");
                 configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
@@ -1016,9 +1022,9 @@ public class GatewayContextResolver {
             }
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
-            if ( authType.isSetSessionTimeout() ) {
+            if (authType.isSetSessionTimeout()) {
                 Map<String, String> options = new HashMap<String, String>();
-                if ( authType.isSetSessionTimeout() ) {
+                if (authType.isSetSessionTimeout()) {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));
                 }
                 configurationEntries.add(0, new AppConfigurationEntry(TimeoutLoginModule.class.getName(),
@@ -1031,14 +1037,14 @@ public class GatewayContextResolver {
 
     private String resolveTimeIntervalValue(String value) {
         final long l = Utils.parseTimeInterval(value, TimeUnit.SECONDS, 0);
-        if ( l == 0 ) {
+        if (l == 0) {
             return null;
         }
         return String.valueOf(l);
     }
 
     private String resolveAuthorizationMode(AuthenticationType.AuthorizationMode.Enum authorizationMode) {
-        if ( authorizationMode == null ) {
+        if (authorizationMode == null) {
             return AUTHORIZATION_MODE_CHALLENGE;
         } else {
             return authorizationMode.toString();
@@ -1119,9 +1125,10 @@ public class GatewayContextResolver {
     }
 
     private Map<String, DefaultTransportContext> resolveTransports(TransportFactory transportFactory) throws Exception {
-        for(String transportName : transportFactory.getTransportNames()) {
+        for (String transportName : transportFactory.getTransportNames()) {
             Transport transport = transportFactory.getTransport(transportName);
-            DefaultTransportContext transportContext = new DefaultTransportContext(transportName, transport.getAcceptor(), transport.getConnector());
+            DefaultTransportContext transportContext =
+                    new DefaultTransportContext(transportName, transport.getAcceptor(), transport.getConnector());
             transportContextsByName.put(transportName, transportContext);
         }
         return transportContextsByName;
@@ -1135,41 +1142,41 @@ public class GatewayContextResolver {
 
 
     /**
-     * Gross method to tell us if a given service type supports using 'accept's.
-     * XXX This needs to be fixed later!
+     * Gross method to tell us if a given service type supports using 'accept's. XXX This needs to be fixed later!
+     *
      * @param serviceType
      * @return
      */
     private boolean supportsAccepts(String serviceType) {
-        return (!serviceType.equals("management.jmx") &&
-                !serviceType.equals("$management.jmx$"));
+        return !serviceType.equals("management.jmx") &&
+                !serviceType.equals("$management.jmx$");
     }
 
     /**
-     * Gross method to tell us if a given service type supports using 'connect's.
-     * XXX This needs to be fixed later!
+     * Gross method to tell us if a given service type supports using 'connect's. XXX This needs to be fixed later!
+     *
      * @param serviceType
      * @return
      */
     private boolean supportsConnects(String serviceType) {
-        return (!serviceType.equals("jms") &&
+        return !serviceType.equals("jms") &&
                 !serviceType.equals("echo") &&
                 !serviceType.equals("management.jmx") &&
                 !serviceType.equals("$management.jmx$") &&
                 !serviceType.equals("management.snmp") &&
                 !serviceType.equals("$management.snmp$") &&
-                !serviceType.equals("directory"));
+                !serviceType.equals("directory");
     }
 
     /**
-     * Gross method to tell us if a given service type supports using MIME mappings.
-     * For now, the only one that really does is the HttpDirectoryService.
-     * XXX This may need to be fixed later!
+     * Gross method to tell us if a given service type supports using MIME mappings. For now, the only one that really does is
+     * the HttpDirectoryService. XXX This may need to be fixed later!
+     *
      * @param serviceType
      * @return
      */
     private boolean supportsMimeMappings(String serviceType) {
-        return (serviceType.equals("directory"));
+        return serviceType.equals("directory");
     }
 
 
@@ -1179,7 +1186,7 @@ public class GatewayContextResolver {
 
         public SingletonConfiguration(String applicationName, Collection<AppConfigurationEntry> configurationEntries) {
             AppConfigurationEntry[] array = new AppConfigurationEntry[configurationEntries.size()];
-            this.configurationEntries = Collections.<String, AppConfigurationEntry[]> singletonMap(applicationName,
+            this.configurationEntries = Collections.<String, AppConfigurationEntry[]>singletonMap(applicationName,
                     configurationEntries.toArray(array));
         }
 
@@ -1251,21 +1258,20 @@ public class GatewayContextResolver {
                 try {
                     method.invoke(target, val);
                 } catch (Exception e) {
-                    LOGGER.warn("Error while injecting named "+name+" resource", e);
+                    LOGGER.warn("Error while injecting named " + name + " resource", e);
                 }
             }
         }
     }
 
     /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul>
-     * <li>the host part of the authority lower-case since URI semantics dictate that hostnames are case insensitive
-     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" if there was no path in the
-     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special
-     * handling for path throughout the server code).
-     * </ul>
-     * @param uriString         the URI to canonicalize, in string form
-     * @param canonicalizePath  if true, append trailing '/' when missing
+     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
+     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
+     * headers) the path part set to "/" if there was no path in the input URI (this conforms to the WebSocket and HTTP protocol
+     * specifications and avoids us having to do special handling for path throughout the server code). </ul>
+     *
+     * @param uriString        the URI to canonicalize, in string form
+     * @param canonicalizePath if true, append trailing '/' when missing
      * @return a URI with the host part of the authority lower-case and (optionally) trailing / added, or null if the uri is null
      * @throws IllegalArgumentException if the uriString is not valid syntax
      */
@@ -1277,15 +1283,16 @@ public class GatewayContextResolver {
     }
 
     /**
-     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul>
-     * <li>the host part of the authority lower-case since URI semantics dictate that hostnames are case insensitive
-     * <li>(optionally, NOT appropriate for Origin headers) the path part set to "/" except for tcp uris if there was no path in the
-     * input URI (this conforms to the WebSocket and HTTP protocol specifications and avoids us having to do special
-     * handling for path throughout the server code).
-     * </ul>
-     * @param uri               the URI to canonicalize
-     * @param canonicalizePath  if true, append trailing '/' when missing
-     * @return a URI with the host part of the authority lower-case and (optionally if not tcp) trailing / added, or null if the uri is null
+     * Create a canonical URI from a given URI.   A canonical URI is a URI with:<ul> <li>the host part of the authority
+     * lower-case since URI semantics dictate that hostnames are case insensitive <li>(optionally, NOT appropriate for Origin
+     * headers) the path part set to "/" except for tcp uris if there was no path in the input URI (this conforms to the
+     * WebSocket and HTTP protocol specifications and avoids us having to do special handling for path throughout the server
+     * code). </ul>
+     *
+     * @param uri              the URI to canonicalize
+     * @param canonicalizePath if true, append trailing '/' when missing
+     * @return a URI with the host part of the authority lower-case and (optionally if not tcp) trailing / added, or null if the
+     * uri is null
      * @throws IllegalArgumentException if the uri is not valid syntax
      */
     public static URI getCanonicalURI(URI uri, boolean canonicalizePath) {
@@ -1297,11 +1304,12 @@ public class GatewayContextResolver {
             final boolean noPathToCanonicalize = canonicalizePath && (path == null || emptyPath);
             final boolean trailingSlashPath = "/".equals(path);
             final String scheme = uri.getScheme();
-            final boolean pathlessScheme = "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
+            final boolean pathlessScheme =
+                    "ssl".equals(scheme) || "tcp".equals(scheme) || "pipe".equals(scheme) || "udp".equals(scheme);
             final boolean trailingSlashWithPathlessScheme = trailingSlashPath && pathlessScheme;
             String newPath = trailingSlashWithPathlessScheme ? "" :
-                    noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;
-            if ( ((host != null) && !host.equals(host.toLowerCase())) || newPath != null) {
+                             noPathToCanonicalize ? (pathlessScheme ? null : "/") : null;
+            if (((host != null) && !host.equals(host.toLowerCase())) || newPath != null) {
                 path = newPath == null ? path : newPath;
                 try {
                     canonicalURI = new URI(scheme, uri.getUserInfo(), host == null ? null : host.toLowerCase(),

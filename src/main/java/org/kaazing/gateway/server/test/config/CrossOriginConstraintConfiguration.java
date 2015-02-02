@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -48,7 +48,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public String getAllowOrigin() {
-        if(_allowOrigin == null){
+        if (_allowOrigin == null) {
             return null;
         }
         return _allowOrigin.value();
@@ -59,7 +59,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public String getAllowMethods() {
-        if(_allowMethods == null){
+        if (_allowMethods == null) {
             return null;
         }
         return _allowMethods.value();
@@ -70,7 +70,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public String getAllowHeaders() {
-        if(_allowHeaders == null){
+        if (_allowHeaders == null) {
             return null;
         }
         return _allowHeaders.value();

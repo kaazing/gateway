@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.server.util.io;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.session.IoSession;
@@ -32,7 +31,7 @@ import org.apache.mina.core.write.WriteRequestQueue;
 public class IoProcessorAdapter<T extends IoSession> implements IoProcessor<T> {
 
     private AtomicBoolean disposed;
-    
+
     public IoProcessorAdapter() {
         disposed = new AtomicBoolean();
     }
@@ -56,9 +55,9 @@ public class IoProcessorAdapter<T extends IoSession> implements IoProcessor<T> {
             if (writeRequest == null) {
                 break;
             }
-            
+
             flushInternal(session, writeRequest);
-            
+
             filterChain.fireMessageSent(writeRequest);
         }
     }
@@ -75,14 +74,14 @@ public class IoProcessorAdapter<T extends IoSession> implements IoProcessor<T> {
 
     @Override
     public void remove(T session) {
-        
+
     }
 
     @Override
     public void updateTrafficControl(T session) {
-        
+
     }
-    
+
     protected void flushInternal(T session, WriteRequest writeRequest) {
     }
 

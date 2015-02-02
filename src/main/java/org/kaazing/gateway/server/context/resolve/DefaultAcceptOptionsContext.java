@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,17 +22,6 @@
 package org.kaazing.gateway.server.context.resolve;
 
 
-import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_NEED_CLIENT_AUTH;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_WANT_CLIENT_AUTH;
-import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCOLS;
-import static org.kaazing.gateway.service.TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE;
-import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -42,11 +31,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
+import static org.kaazing.gateway.service.TransportOptionNames.*;
 
 public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
@@ -74,18 +63,18 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         DEFAULT_WEBSOCKET_EXTENSIONS = Arrays.asList(PING_PONG, null);
     }
 
-	private final boolean sslEncryptionEnabled;
-	private final String[] sslCiphers;
+    private final boolean sslEncryptionEnabled;
+    private final String[] sslCiphers;
     private final String[] sslProtocols;
-	private final boolean sslWantClientAuth;
-	private final boolean sslNeedClientAuth;
+    private final boolean sslWantClientAuth;
+    private final boolean sslNeedClientAuth;
     private final URI tcpTransportURI;
     private final URI sslTransportURI;
     private final URI httpTransportURI;
-	private final int wsMaxMessageSize;
+    private final int wsMaxMessageSize;
     private final long wsInactivityTimeout;
-	private final int httpKeepaliveTimeout;
-	private final Map<String, String> binds;
+    private final int httpKeepaliveTimeout;
+    private final Map<String, String> binds;
     private final List<String> wsProtocols;
     private final List<String> wsExtensions;
     private final long tcpMaximumOutboundRate;
@@ -93,9 +82,9 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private final URI pipeTransportURI;
 
     public DefaultAcceptOptionsContext() {
-    	this(ServiceAcceptOptionsType.Factory.newInstance(), ServiceAcceptOptionsType.Factory.newInstance());
+        this(ServiceAcceptOptionsType.Factory.newInstance(), ServiceAcceptOptionsType.Factory.newInstance());
     }
-    
+
     public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
         this.binds = new HashMap<String, String>();
 
@@ -103,7 +92,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         if (acceptOptions != null) {
             ServiceAcceptOptionsType.SslEncryption.Enum encrypted = acceptOptions.getSslEncryption();
             if (encrypted != null) {
-                sslEncryptionEnabled = (encrypted != ServiceAcceptOptionsType.SslEncryption.DISABLED);
+                sslEncryptionEnabled = encrypted != ServiceAcceptOptionsType.SslEncryption.DISABLED;
             }
         }
 
@@ -121,7 +110,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
                     wantClientAuth = true;
                     needClientAuth = false;
 
-               } else {
+                } else {
                     wantClientAuth = false;
                     needClientAuth = false;
                 }
@@ -166,9 +155,9 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         Long httpKeepaliveTimeout = null;
         if (acceptOptions != null) {
             String value = acceptOptions.getHttpKeepaliveTimeout();
-            if ( value != null ) {
+            if (value != null) {
                 long val = Utils.parseTimeInterval(value, TimeUnit.SECONDS);
-                if ( val > 0 ) {
+                if (val > 0) {
                     httpKeepaliveTimeout = val;
                 }
             }
@@ -185,18 +174,18 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         Long wsInactivityTimeout = null;
         if (acceptOptions != null) {
             String value = acceptOptions.getWsInactivityTimeout();
-            if ( value != null ) {
+            if (value != null) {
                 long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
-                if ( val > 0 ) {
+                if (val > 0) {
                     wsInactivityTimeout = val;
                 }
             }
         }
 
         Long tcpMaxOutboundRate = null;
-        if ( acceptOptions != null ) {
+        if (acceptOptions != null) {
             String tcpMax = acceptOptions.getTcpMaximumOutboundRate();
-            if ( tcpMax != null ) {
+            if (tcpMax != null) {
                 tcpMaxOutboundRate = Utils.parseDataRate(tcpMax);
             }
         }
@@ -212,11 +201,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
             if (sslEncryptionEnabled == null) {
                 ServiceAcceptOptionsType.SslEncryption.Enum encrypted = defaultOptions.getSslEncryption();
-                sslEncryptionEnabled = (encrypted != ServiceAcceptOptionsType.SslEncryption.DISABLED);
+                sslEncryptionEnabled = encrypted != ServiceAcceptOptionsType.SslEncryption.DISABLED;
             }
 
-            if (wantClientAuth == false &&
-                needClientAuth == false) {
+            if (!wantClientAuth &&
+                    !needClientAuth) {
 
                 ServiceAcceptOptionsType.SslVerifyClient.Enum verifyClient = defaultOptions.getSslVerifyClient();
                 if (verifyClient != null) {
@@ -263,7 +252,8 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
                 try {
                     httpKeepaliveTimeout = Utils.parseTimeInterval(defaultOptions.getHttpKeepaliveTimeout(), TimeUnit.SECONDS);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse http.keepalive.timeout as a time interval: \""+defaultOptions.getHttpKeepaliveTimeout()+"\".");
+                    throw new IllegalArgumentException("Cannot parse http.keepalive.timeout as a time interval: \"" +
+                            defaultOptions.getHttpKeepaliveTimeout() + "\".");
                 }
             }
 
@@ -276,9 +266,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
             if (wsInactivityTimeout == null) {
                 try {
-                    wsInactivityTimeout = Utils.parseTimeInterval(defaultOptions.getWsInactivityTimeout(), TimeUnit.MILLISECONDS);
+                    wsInactivityTimeout = Utils.parseTimeInterval(defaultOptions.getWsInactivityTimeout(),
+                            TimeUnit.MILLISECONDS);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse ws.inactivity.timeout as a time interval: \""+defaultOptions.getWsInactivityTimeout()+"\".");
+                    throw new IllegalArgumentException("Cannot parse ws.inactivity.timeout as a time interval: \"" +
+                            defaultOptions.getWsInactivityTimeout() + "\".");
                 }
             }
 
@@ -299,7 +291,8 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         if (pipeTransport != null) {
             this.pipeTransportURI = URI.create(pipeTransport);
             if (!this.pipeTransportURI.isAbsolute()) {
-                throw new IllegalArgumentException(String.format("pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
+                throw new IllegalArgumentException(String
+                        .format("pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
             }
 
         } else {
@@ -309,7 +302,8 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         if (tcpTransport != null) {
             this.tcpTransportURI = URI.create(tcpTransport);
             if (!this.tcpTransportURI.isAbsolute()) {
-                throw new IllegalArgumentException(String.format("tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
+                throw new IllegalArgumentException(String
+                        .format("tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
             }
 
         } else {
@@ -319,43 +313,43 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         if (sslTransport != null) {
             this.sslTransportURI = URI.create(sslTransport);
             if (!this.sslTransportURI.isAbsolute()) {
-                throw new IllegalArgumentException(String.format("ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
+                throw new IllegalArgumentException(String
+                        .format("ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
             }
-        }
-        else {
+        } else {
             this.sslTransportURI = null;
         }
 
         if (httpTransport != null) {
             this.httpTransportURI = URI.create(httpTransport);
             if (!this.httpTransportURI.isAbsolute()) {
-                throw new IllegalArgumentException(String.format("http.transport must contain an absolute URI, not \"%s\"", httpTransport));
+                throw new IllegalArgumentException(String
+                        .format("http.transport must contain an absolute URI, not \"%s\"", httpTransport));
             }
-        }
-        else {
+        } else {
             this.httpTransportURI = null;
         }
 
         // We are documenting that a configured outbound rate of 0 means unlimited and, and we will treat as unlimited rates
         // at or above 0xFFFFFFFF. Handle these cases here at the edge so the rest of our code doesn't need to worry.
         this.tcpMaximumOutboundRate = (tcpMaxOutboundRate == null) ? DEFAULT_TCP_MAXIMUM_OUTBOUND_RATE :
-                   (tcpMaxOutboundRate == 0 || tcpMaxOutboundRate  > UNLIMITED_MAX_OUTPUT_RATE)
-                   ? UNLIMITED_MAX_OUTPUT_RATE
-                   : tcpMaxOutboundRate;
+                                      (tcpMaxOutboundRate == 0 || tcpMaxOutboundRate > UNLIMITED_MAX_OUTPUT_RATE)
+                                      ? UNLIMITED_MAX_OUTPUT_RATE
+                                      : tcpMaxOutboundRate;
 
         this.wsMaxMessageSize = (wsMaxMessageSize == null) ? DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE : wsMaxMessageSize;
         this.wsInactivityTimeout = (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
-        this.httpKeepaliveTimeout = (httpKeepaliveTimeout == null) ? DEFAULT_HTTP_KEEPALIVE_TIMEOUT : httpKeepaliveTimeout.intValue();
+        this.httpKeepaliveTimeout =
+                (httpKeepaliveTimeout == null) ? DEFAULT_HTTP_KEEPALIVE_TIMEOUT : httpKeepaliveTimeout.intValue();
         // Hard code supported protocols and extensions.
         this.wsProtocols = DEFAULT_WEBSOCKET_PROTOCOLS;
-        
+
         //KG-9977 add x-kaazing-idle-timeout extension if configured
         if (this.wsInactivityTimeout > 0) {
             ArrayList<String> extensions = new ArrayList<String>(DEFAULT_WEBSOCKET_EXTENSIONS);
             extensions.add(IDLE_TIMEOUT);
             this.wsExtensions = extensions;
-        }
-        else {
+        } else {
             this.wsExtensions = DEFAULT_WEBSOCKET_EXTENSIONS;
         }
 
@@ -385,12 +379,12 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     @Override
     public Integer getSessionIdleTimeout(String scheme) {
         Integer ret = null;
-        if ( scheme.equals("http") || scheme.equals("https") ) {
+        if (scheme.equals("http") || scheme.equals("https")) {
             ret = httpKeepaliveTimeout;
         }
         return ret;
     }
-    
+
     @Override
     public Integer getHttpKeepaliveTimeout() {
         return httpKeepaliveTimeout;
@@ -412,16 +406,16 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     @Override
-	public List<String> getWsProtocols() {
-		return wsProtocols;
-	}
+    public List<String> getWsProtocols() {
+        return wsProtocols;
+    }
 
     @Override
-	public List<String> getWsExtensions() {
-		return wsExtensions;
-	}
+    public List<String> getWsExtensions() {
+        return wsExtensions;
+    }
 
-	@Override
+    @Override
     public URI getInternalURI(URI externalURI) {
         String authority = externalURI.getAuthority();
         String internalAuthority = binds.get(externalURI.getScheme());
@@ -429,8 +423,9 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
             if (!internalAuthority.equals(authority)) {
                 try {
                     return new URI(externalURI.getScheme(), internalAuthority, externalURI.getPath(),
-                                   externalURI.getQuery(), externalURI.getFragment());
+                            externalURI.getQuery(), externalURI.getFragment());
                 } catch (URISyntaxException e) {
+                    // ignore
                 }
             }
             return externalURI;
@@ -502,7 +497,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     public Map<String, Object> asOptionsMap() {
-        Map<String,Object> result = new LinkedHashMap<String, Object>();
+        Map<String, Object> result = new LinkedHashMap<String, Object>();
 
         result.put(SUPPORTED_PROTOCOLS, getWsProtocols().toArray(new String[getWsProtocols().size()]));
         result.put("ws.extensions", getWsExtensions());
@@ -530,7 +525,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         result.put(TCP_MAXIMUM_OUTBOUND_RATE, getTcpMaximumOutboundRate());
         result.put("udp.interface", getUdpInterface());
 
-        for (Map.Entry<String,String> entry: getBinds().entrySet() ) {
+        for (Map.Entry<String, String> entry : getBinds().entrySet()) {
             /* For lookups out of this COPY of the options, we need to
              * translate the scheme names into hierarchical transport names,
              * i.e.:
@@ -543,13 +538,13 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
              */
 
             String internalBindOptionName = resolveInternalBindOptionName(entry.getKey());
-            if ( internalBindOptionName != null ) {
+            if (internalBindOptionName != null) {
                 result.put(internalBindOptionName, entry.getValue());
             } else {
-                throw new RuntimeException("Cannot apply unknown bind option '"+entry.getKey()+"'.");
+                throw new RuntimeException("Cannot apply unknown bind option '" + entry.getKey() + "'.");
             }
-    }
-    
+        }
+
         return result;
     }
 
@@ -566,19 +561,19 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
             return "ws.http.tcp.bind";
         } else if (externalBindOptionName.equals("wss")) {
             return "ws.http.ssl.tcp.bind";
-        } else if ( externalBindOptionName.equals("wsn")) {
+        } else if (externalBindOptionName.equals("wsn")) {
             return "wsn.http.tcp.bind";
-        } else if ( externalBindOptionName.equals("wsn+ssl")) {
+        } else if (externalBindOptionName.equals("wsn+ssl")) {
             return "wsn.http.ssl.tcp.bind";
-        } else if ( externalBindOptionName.equals("wsx")) {
+        } else if (externalBindOptionName.equals("wsx")) {
             return "wsn.http.wsn.http.tcp.bind";
-        } else if ( externalBindOptionName.equals("wsx+ssl")) {
+        } else if (externalBindOptionName.equals("wsx+ssl")) {
             return "wsn.http.wsn.http.ssl.tcp.bind";
         } else if (externalBindOptionName.equals("httpxe")) {
             return "http.http.tcp.bind";
         } else if (externalBindOptionName.equals("httpxe+ssl")) {
             return "http.http.ssl.tcp.bind";
-    }
+        }
         return null;
     }
 
