@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.context;
 
 import javax.annotation.Resource;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -46,17 +45,13 @@ public class ManagementGatewayListener extends GatewayListenerFactorySpiPrototyp
     public void startingGateway() {
         managementContext.createGatewayManagementBean();
     }
-    
+
     /**
-     * Respond to a service starting by adding a management bean for it.
-     * Note that we CANNOT do this during initedService because a given
-     * service may come before the SNMP Management service, which does
-     * create the SNMP agent until its own init().
-     * Note: it is still slightly possible that someone could attempt
-     * to log in through Command Center in the second or so during
-     * service startup. If some service hasn't started yet, it won't
-     * show up in the service list. The chance of this is very slight, 
-     * though, so we should deal with it later, if at all.
+     * Respond to a service starting by adding a management bean for it. Note that we CANNOT do this during initedService because
+     * a given service may come before the SNMP Management service, which does create the SNMP agent until its own init(). Note:
+     * it is still slightly possible that someone could attempt to log in through Command Center in the second or so during
+     * service startup. If some service hasn't started yet, it won't show up in the service list. The chance of this is very
+     * slight, though, so we should deal with it later, if at all.
      */
     @Override
     public void startingService(ServiceContext serviceContext) {

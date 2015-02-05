@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,18 +26,19 @@ import org.kaazing.gateway.management.ManagementStrategyChangeListener;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 
-
 /**
- * Interface for the 'system' beans that support 'gatherStats' rather than relying
- * on external message and session events triggering things.
+ * Interface for the 'system' beans that support 'gatherStats' rather than relying on external message and session events
+ * triggering things.
  */
 public interface SystemManagementBean extends ManagementBean, ManagementStrategyChangeListener {
 
-    public GatewayManagementBean getGatewayManagementBean();
-    
-    public void enableNotifications(boolean enableNotifications);
-    public boolean areNotificationsEnabled();
-    
-    public int getSummaryDataGatherInterval();
-    public void setSummaryDataGatherInterval(int interval);
+    GatewayManagementBean getGatewayManagementBean();
+
+    void enableNotifications(boolean enableNotifications);
+
+    boolean areNotificationsEnabled();
+
+    int getSummaryDataGatherInterval();
+
+    void setSummaryDataGatherInterval(int interval);
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.impl;
 
 import java.net.URI;
-
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -42,31 +41,31 @@ public class ServiceDefaultsConfigurationBeanImplTest {
          * give us a JSON string without any mention of "ssl.ciphers".
          */
         GatewayConfigurationBuilder configBuilder = new GatewayConfigurationBuilder();
-        
-        GatewayConfiguration gatewayConfiguration = 
+
+        GatewayConfiguration gatewayConfiguration =
                 configBuilder
-                    .service()
+                        .service()
                         .name(SNMP_SERVICE_NAME)
                         .accept(SNMP_SERVICE_ACCEPT_URL)
                         .type(SNMP_SERVICE_TYPE)
                         .done()
-                    .serviceDefaults()
+                        .serviceDefaults()
                         .acceptOption("ssl.encryption", "enabled")
                         .acceptOption("ssl.verify.client", "none")
                         .done()
-                .done();
-        
+                        .done();
+
         Gateway gateway = new Gateway();
-        
+
         try {
             gateway.start(gatewayConfiguration);
-            
+
             // If we hit the bug (KG-10371) this is for, we'd get an NPE because of missing ssl.ciphers
         } finally {
             gateway.stop();
         }
     }
-    
+
     @Test
     public void testServiceDefaultsWithSslCiphers() throws Exception {
         /**
@@ -75,25 +74,25 @@ public class ServiceDefaultsConfigurationBeanImplTest {
          * give us a JSON string without any mention of "ssl.ciphers".
          */
         GatewayConfigurationBuilder configBuilder = new GatewayConfigurationBuilder();
-        
-        GatewayConfiguration gatewayConfiguration = 
+
+        GatewayConfiguration gatewayConfiguration =
                 configBuilder
-                    .service()
+                        .service()
                         .name(SNMP_SERVICE_NAME)
                         .accept(SNMP_SERVICE_ACCEPT_URL)
                         .type(SNMP_SERVICE_TYPE)
                         .done()
-                    .serviceDefaults()
+                        .serviceDefaults()
                         .acceptOption("ssl.encryption", "enabled")
                         .acceptOption("ssl.ciphers", "HIGH")
                         .done()
-                .done();
-        
+                        .done();
+
         Gateway gateway = new Gateway();
-        
+
         try {
             gateway.start(gatewayConfiguration);
-            
+
             // How do we check the management stuff here?
         } finally {
             gateway.stop();

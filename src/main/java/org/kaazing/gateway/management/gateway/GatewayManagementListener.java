@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,27 +22,25 @@
 package org.kaazing.gateway.management.gateway;
 
 
-
 /**
- * Interface to be implemented by those objects that want to act as listeners
- * for gateway-level management events on particular GateawyManagementBean instances.
- * Presumably each implementer of this interface would be protocol-specific.
+ * Interface to be implemented by those objects that want to act as listeners for gateway-level management events on particular
+ * GateawyManagementBean instances. Presumably each implementer of this interface would be protocol-specific.
  */
 public interface GatewayManagementListener {
     // Service-level event handlers, ultimately called from the service strategy object.
     // All of the following must be executed OFF a session's IO thread.
-    public void doSessionCreated(final GatewayManagementBean gatewayBean,
-                                  final long sessionId) throws Exception;
-
-    public void doSessionClosed(final GatewayManagementBean gatewayBean,
+    void doSessionCreated(final GatewayManagementBean gatewayBean,
                                  final long sessionId) throws Exception;
 
-    public void doMessageReceived(final GatewayManagementBean gatewayBean,
-                                   final long sessionId) throws Exception;
+    void doSessionClosed(final GatewayManagementBean gatewayBean,
+                                final long sessionId) throws Exception;
 
-    public void doFilterWrite(final GatewayManagementBean gatewayBean,
-                               final long sessionId) throws Exception;
+    void doMessageReceived(final GatewayManagementBean gatewayBean,
+                                  final long sessionId) throws Exception;
 
-    public void doExceptionCaught(final GatewayManagementBean gatewayBean,
-                                   final long sessionId) throws Exception;
+    void doFilterWrite(final GatewayManagementBean gatewayBean,
+                              final long sessionId) throws Exception;
+
+    void doExceptionCaught(final GatewayManagementBean gatewayBean,
+                                  final long sessionId) throws Exception;
 }

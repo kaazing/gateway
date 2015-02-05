@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.security.auth.Subject;
-
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.write.WriteRequest;
 import org.json.JSONArray;
@@ -44,12 +42,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of the management 'data' bean for a session. This just contains the
- * data. Wrappers for different management protocols define the use of those data.
+ * Implementation of the management 'data' bean for a session. This just contains the data. Wrappers for different management
+ * protocols define the use of those data.
  */
 public class SessionManagementBeanImpl extends AbstractManagementBean implements SessionManagementBean {
 
-    private static final long CLOSE_TIMEOUT_MS = 100; 
+    private static final long CLOSE_TIMEOUT_MS = 100;
 
     private static final Logger logger = LoggerFactory.getLogger(SessionManagementBeanImpl.class);
 
@@ -57,18 +55,19 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     private final IoSessionEx session;
     private final String sessionTypeName;  // descriptive string
     private final String sessionDirection;
-    
-    private Map<String, String> userPrincipals;  // value and class name for each user principal
-    
-    private boolean notificationsEnabled = false;
 
-    private long exceptionCount = 0;
-    
-    public SessionManagementBeanImpl(ServiceManagementBean serviceManagementBean, 
-                                      IoSessionEx session) {
+    private Map<String, String> userPrincipals;  // value and class name for each user principal
+
+    private boolean notificationsEnabled;
+
+    private long exceptionCount;
+
+    public SessionManagementBeanImpl(ServiceManagementBean serviceManagementBean,
+                                     IoSessionEx session) {
         super(serviceManagementBean.getGatewayManagementBean().getManagementContext(),
-              serviceManagementBean.getGatewayManagementBean().getManagementContext().getSessionSummaryDataNotificationInterval(),
-              SUMMARY_DATA_FIELD_LIST);
+                serviceManagementBean.getGatewayManagementBean().getManagementContext()
+                        .getSessionSummaryDataNotificationInterval(),
+                SUMMARY_DATA_FIELD_LIST);
 
         this.serviceManagementBean = serviceManagementBean;
         this.session = session;
@@ -80,7 +79,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     public ServiceManagementBean getServiceManagementBean() {
         return serviceManagementBean;
     }
-    
+
     private List<SessionManagementListener> getManagementListeners() {
         return managementContext.getSessionManagementListeners();
     }
@@ -94,14 +93,14 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     public Map<String, String> getUserPrincipalMap() {
         return userPrincipals;
     }
-    
+
     // The following is intended to run ON the IO thread
-    @Override 
+    @Override
     public void setUserPrincipals(Map<String, String> userPrincipals) {
         this.userPrincipals = userPrincipals;
         this.serviceManagementBean.addUserPrincipals(session, userPrincipals);
     }
-    
+
     @Override
     public void close() {
         CloseFuture future = session.close(false);
@@ -151,11 +150,11 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     // In contrast to getPrincipals, this is for sending a JSON value back.
     @Override
-    public String getUserPrincipals() {        
+    public String getUserPrincipals() {
         if (userPrincipals == null) {
             return null;
         }
-        
+
         JSONObject jsonObj = new JSONObject(userPrincipals);
 
         return jsonObj.toString();
@@ -164,17 +163,17 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     @Override
     public String getSummaryData() {
         long start = System.nanoTime();
-        
+
 //        String val = String.format("[%d,%f,%d,%f]",
 //                                   getReadBytes(),
 //                                   getReadBytesThroughput(),
 //                                   getWrittenBytes(),
 //                                   getWrittenBytesThroughput());
         JSONArray jsonArray = null;
-        
+
         try {
             Object[] vals = new Object[SUMMARY_DATA_FIELD_LIST.length];
-            
+
             vals[SUMMARY_DATA_READ_BYTES_INDEX] = getReadBytes();
             vals[SUMMARY_DATA_READ_BYTES_THPT_INDEX] = getReadBytesThroughput();
             vals[SUMMARY_DATA_WRITTEN_BYTES_INDEX] = getWrittenBytes();
@@ -186,12 +185,12 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
         }
 
         String val = jsonArray.toString();
-        
+
         long stop = System.nanoTime();
 
-//        System.out.println("### Gathering summaries for SESSION ID " + getId() + 
+//        System.out.println("### Gathering summaries for SESSION ID " + getId() +
 //                           " took " + ((stop - start) / 1000) + " us for " + val.length() + " chars [" + val + "]");
-        
+
         return val;
     }
 
@@ -220,7 +219,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
         String remoteAddress = serviceManagementBean.getSessionRemoteAddress(this.session);
         return remoteAddress;
     }
-    
+
     @Override
     public String getSessionTypeName() {
         return sessionTypeName;
@@ -230,7 +229,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     public String getSessionDirection() {
         return sessionDirection;
     }
-    
+
     //---------------------------------------------------------------
     // Implement various methods used by the management strategies
     // THESE ARE ALL CALLED ON AN IO THREAD. WE MUST NOT BLOCK!
@@ -238,13 +237,13 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     @Override
     public void doSessionCreated() throws Exception {
-        // establish the user principals. 
+        // establish the user principals.
         // XXX There's a question about what to do if they are changed on revalidate
         Set<String> userPrincipalClasses = serviceManagementBean.getUserPrincipalClasses();
 
         if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
             Map<String, String> userPrincipals = new HashMap<String, String>();
-            Subject subject = (Subject)session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);
+            Subject subject = (Subject) session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);
             if (subject != null) {
                 Set<Principal> principals = subject.getPrincipals();
                 for (Principal principal : principals) {
@@ -263,7 +262,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     /**
      * Notify the management listeners on a sessionCreated.
-     * 
+     * <p/>
      * NOTE: this starts on the IO thread, but runs a task OFF the thread.
      */
     @Override
@@ -272,10 +271,10 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
-                    for (final SessionManagementListener listener: getManagementListeners()) {
+                    for (final SessionManagementListener listener : getManagementListeners()) {
                         listener.doSessionCreated(SessionManagementBeanImpl.this);
                     }
-                    
+
                     // XXX Should we include a 'markChanged()' here?
                 } catch (Exception ex) {
                     logger.warn("Error during doSessionCreated session listener notifications:", ex);
@@ -283,7 +282,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             }
         });
     }
-    
+
     @Override
     public void doSessionClosed() throws Exception {
         serviceManagementBean.removeUserPrincipals(session);
@@ -291,7 +290,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
     /**
      * Notify the management listeners on a filterWrite.
-     * 
+     * <p/>
      * NOTE: this starts on the IO thread, but runs a task OFF the thread.
      */
     @Override
@@ -300,10 +299,10 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             public void run() {
                 try {
                     // The particular management listeners change on strategy, so get them here.
-                    for (final SessionManagementListener listener: getManagementListeners()) {
+                    for (final SessionManagementListener listener : getManagementListeners()) {
                         listener.doSessionClosed(SessionManagementBeanImpl.this);
                     }
-                    
+
                     // XXX should there be a markChanged() here because the session status is now closed?
                     // Or is that covered by the fact we generate a session-closed message?
                 } catch (Exception ex) {
@@ -314,24 +313,24 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     }
 
     @Override
-    public void doMessageReceived(final Object message) throws Exception {        
+    public void doMessageReceived(final Object message) throws Exception {
     }
-    
+
     /**
      * Notify the management listeners on a messageReceived.
-     * 
+     * <p/>
      * NOTE: this starts on the IO thread, but runs a task OFF the thread.
      */
     @Override
-    public void doMessageReceivedListeners(final Object message) {        
+    public void doMessageReceivedListeners(final Object message) {
         runManagementTask(new Runnable() {
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();
-                    for (final SessionManagementListener listener: sessionListeners) {
+                    for (final SessionManagementListener listener : sessionListeners) {
                         listener.doMessageReceived(SessionManagementBeanImpl.this, message);
                     }
-                    
+
                     markChanged();
                 } catch (Exception ex) {
                     logger.warn("Error during doMessageReceived session listener notifications:", ex);
@@ -341,29 +340,29 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     }
 
     @Override
-    public void doFilterWrite(final WriteRequest writeRequest) throws Exception {        
+    public void doFilterWrite(final WriteRequest writeRequest) throws Exception {
     }
 
     /**
      * Notify the management listeners on a messageReceived.
-     * 
+     * <p/>
      * NOTE: this starts on the IO thread, but runs a task OFF the thread.
      */
     @Override
     public void doFilterWriteListeners(final WriteRequest writeRequest) {
-        
+
         final Object message = writeRequest.getMessage();
         WriteRequest originalRequest = writeRequest.getOriginalRequest();
-        final Object originalMessage = (originalRequest != null ? originalRequest.getMessage() : null);
-        
+        final Object originalMessage = originalRequest != null ? originalRequest.getMessage() : null;
+
         runManagementTask(new Runnable() {
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();
-                    for (final SessionManagementListener listener: sessionListeners) {
+                    for (final SessionManagementListener listener : sessionListeners) {
                         listener.doFilterWrite(SessionManagementBeanImpl.this, message, originalMessage);
                     }
-                    
+
                     markChanged();
                 } catch (Exception ex) {
                     logger.warn("Error during doFilterWrite session listener notifications:", ex);
@@ -376,10 +375,10 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
     public void doExceptionCaught(final Throwable cause) throws Exception {
         incrementExceptionCount();
     }
-    
+
     /**
      * Notify the management listeners on a messageReceived.
-     * 
+     * <p/>
      * NOTE: this starts on the IO thread, but runs a task OFF the thread.
      */
     @Override
@@ -388,10 +387,10 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             public void run() {
                 try {
                     List<SessionManagementListener> sessionListeners = getManagementListeners();
-                    for (final SessionManagementListener listener: sessionListeners) {
+                    for (final SessionManagementListener listener : sessionListeners) {
                         listener.doExceptionCaught(SessionManagementBeanImpl.this, cause);
                     }
-                    
+
                     markChanged();
                 } catch (Exception ex) {
                     logger.warn("Error during doExceptionCaught session listener notifications:", ex);

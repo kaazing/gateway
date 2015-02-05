@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,72 +22,71 @@
 package org.kaazing.gateway.management;
 
 import java.util.List;
-
 import org.kaazing.gateway.management.context.ManagementContext;
 
 /**
- * Interface that all management beans must support. Initiailly, all beans 
- * must support providing a string of "summary" data at some interval, the
- * changes to the bean since the end of the previous interval.
- *
+ * Interface that all management beans must support. Initiailly, all beans must support providing a string of "summary" data at
+ * some interval, the changes to the bean since the end of the previous interval.
  */
 public interface ManagementBean {
-    
+
     /**
-     * Return a stringified version of the summary data. The precise form of 
-     * the data is implementation-dependent.
+     * Return a stringified version of the summary data. The precise form of the data is implementation-dependent.
      */
-    public String getSummaryData();
+    String getSummaryData();
 
     /**
      * Return a JSON-stringified version of the summary-data field list.
+     *
      * @return
      */
-    public String getSummaryDataFields();
-        
-    /**
-     * Return the list of listeners
-     * @return
-     */
-    public List<SummaryDataListener> getSummaryDataListeners();
+    String getSummaryDataFields();
 
     /**
-     * Add an object that will be called with the stringified summary data 
-     * whenever the summary interval expires.
+     * Return the list of listeners
+     *
+     * @return
      */
-    public void addSummaryDataListener(SummaryDataListener listener);
-    
+    List<SummaryDataListener> getSummaryDataListeners();
+
+    /**
+     * Add an object that will be called with the stringified summary data whenever the summary interval expires.
+     */
+    void addSummaryDataListener(SummaryDataListener listener);
+
     /**
      * Remove a summary-data listener.
+     *
      * @param listener
      */
-    public void removeSummaryDataListener(SummaryDataListener listener);
-    
+    void removeSummaryDataListener(SummaryDataListener listener);
+
     /**
      * Return the specific summary interval being used by this management bean.
+     *
      * @return
      */
-    public SummaryManagementInterval getSummaryInterval();
-    
+    SummaryManagementInterval getSummaryInterval();
+
     /**
-     * Return true if the object is currently considered 'dirty' (i.e., it will
-     * have data to send out during the next summary notification), else false.
+     * Return true if the object is currently considered 'dirty' (i.e., it will have data to send out during the next summary
+     * notification), else false.
+     *
      * @return
      */
-    public boolean isDirty();
-        
+    boolean isDirty();
+
     /**
-     * Return the ManagementContext that's driving management of this bean
-     * (this is primarily an optimization so all levels of management beans
-     * have fast access to the management context when possible).
+     * Return the ManagementContext that's driving management of this bean (this is primarily an optimization so all levels of
+     * management beans have fast access to the management context when possible).
      */
-    public ManagementContext getManagementContext();
-    
+    ManagementContext getManagementContext();
+
     /**
-     * Run a task on a management-specific thread (i.e., NOT on the IO threads
-     * used to process messages).
+     * Run a task on a management-specific thread (i.e., NOT on the IO threads used to process messages).
+     *
      * @param runnable
      */
-    public void runManagementTask(Runnable runnable);
+    void runManagementTask(Runnable runnable);
 
 }

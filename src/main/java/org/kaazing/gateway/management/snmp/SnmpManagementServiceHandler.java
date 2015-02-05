@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,7 +33,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.ClusterManagementListener;
@@ -166,17 +165,17 @@ import org.snmp4j.util.WorkerPool;
 
 /**
  * The Kaazing service that implements SNMP management support.
- *
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> implements VariableProvider, ManagementServiceHandler {
     private static final Logger logger = LoggerFactory.getLogger(SnmpManagementServiceHandler.class);
-    
+
     public static final String NOTIF_TARGET_PARAM_NAME = "KaazingData";
     private static final String SESSION_CLOSED_OTHER_END_MSG = "Session was closed at other end";
-                                                             // lots of simultaneous management requests.
-    
+    // lots of simultaneous management requests.
+
     // For performance, I need to pass this to the agent
     protected final ServiceContext serviceContext;
     private final ManagementContext managementContext;
@@ -186,7 +185,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     private final KaazingConfigManager agent;
     private final ScheduledExecutorService notifScheduler; // FIXME: for sending notifications... not copied from SNMPAgent yet
     private final ScheduledExecutorService summaryDataScheduler;
-    
+
 
     public SnmpManagementServiceHandler(ServiceContext serviceContext, ManagementContext managementContext) {
         this.serviceContext = serviceContext;
@@ -194,11 +193,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         this.managementContext.addGatewayManagementListener(new SNMPGatewayManagementListener());
         this.managementContext.addServiceManagementListener(new SNMPServiceManagementListener());
         this.managementContext.addSessionManagementListener(new SNMPSessionManagementListener());
-        
+
         transportMapping = new ManagementTransport(managementContext);
 
         server = new DefaultMOServer();
-        MOServer[] moServers = new MOServer[] { server };
+        MOServer[] moServers = new MOServer[]{server};
 
         final Properties props = KaazingSNMPAgentProperties.getProperties();
         MOInputFactory configurationFactory = new MOInputFactory() {
@@ -215,12 +214,13 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         messageDispatcher.addTransportMapping(new ManagementTcpTransport(serviceContext, managementContext));
         messageDispatcher.addTransportMapping(new ManagementUdpTransport(serviceContext, managementContext));
         agent = new KaazingConfigManager(new OctetString(MPv3.createLocalEngineID()),
-                                         messageDispatcher,
-                                         null,
-                                         moServers,
-                                         /*ThreadPool.create("SNMPAgent", 3)*/null /*null worker pool so that commands execute in the NIOProcessor thread handling the request, response, notification*/,
-                                         configurationFactory,
-                                         new DefaultMOPersistenceProvider(moServers, ""));
+                messageDispatcher,
+                null,
+                moServers,
+                                         /*ThreadPool.create("SNMPAgent", 3)*/null /*null worker pool so that commands execute
+                                          in the NIOProcessor thread handling the request, response, notification*/,
+                configurationFactory,
+                new DefaultMOPersistenceProvider(moServers, ""));
         notifScheduler = serviceContext.getSchedulerProvider().getScheduler("SNMPNotif", true);
         summaryDataScheduler = serviceContext.getSchedulerProvider().getScheduler("SNMPSummaryData", false);
 
@@ -228,7 +228,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         agent.configure(); // FIXME:  configuration should be through gateway-config.xml, not SampleAgent.properties
         agent.launch();
     }
-    
+
     @Override
     public ServiceContext getServiceContext() {
         return serviceContext;
@@ -253,7 +253,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         // Clean up the entry in the notification table for this session, if there is one.
         OctetString name = generateNotificationTargetAddressName(session.getId());
         agent.getSnmpTargetMIB().removeTargetAddress(name);
-        
+
         super.doSessionClosed(session);
     }
 
@@ -261,7 +261,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
         // processed on IO thread
         if (message instanceof IoBufferEx) {
-            ByteBuffer buf = ((IoBufferEx)message).buf();
+            ByteBuffer buf = ((IoBufferEx) message).buf();
             transportMapping.processMessage(new ManagementAddress((IoSessionEx) session), buf);
         }
         super.doMessageReceived(session, message);
@@ -269,12 +269,12 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
     // We don't need to implement doFilterWrite, because nothing sends from the back through
     // the management service (of course, the management service itself sends notifications).
-    
+
     @Override
     protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
         // processed on IO thread
-        
-        // there is currently an issue in WsnAcceptor when we close the session from the 
+
+        // there is currently an issue in WsnAcceptor when we close the session from the
         // client side. It throws an exception 'Session was closed at other end' that will
         // get fixed at some point, but not in 4.0.2. To avoid polluting the log, screen that
         // exception out here.
@@ -289,7 +289,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
     protected void sendNotification(final OID oid, final VariableBinding[] variableBindings) {
 //        sNotifCount++;
-        /*Future<Object> notifFuture = */notifScheduler.submit(new Callable<Object>() {
+        /*Future<Object> notifFuture = */
+        notifScheduler.submit(new Callable<Object>() {
             @Override
             public Object call() {
 //                sNotifCallCount++;
@@ -299,8 +300,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         // if we care about the response, call get
         //notifFuture.get();
     }
-    
-    public OctetString generateNotificationTargetAddressName(long sessionId) {              
+
+    public OctetString generateNotificationTargetAddressName(long sessionId) {
         OctetString targetAddressName = new OctetString(Long.toString(sessionId));
         return targetAddressName;
     }
@@ -427,10 +428,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     public void removeSessionBean(OID oid) {
         agent.removeSessionBean(oid);
     }
-    
+
     /**
      * The Kaazing SNMP 'agent'.
-     *
      */
     class KaazingConfigManager {
 
@@ -504,24 +504,24 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Creates a SNMP agent configuration which can be run by calling {@link #run()} later.
-         * 
-         * @param agentsOwnEngineID the authoritative engine ID of the agent.
-         * @param messageDispatcher the MessageDispatcher to use. The message dispatcher must be configured outside,
-         * i.e. transport mappings have to be added before this constructor is being called.
-         * @param vacm a view access control model. Typically, this parameter is set to <code>null</code> to use the
-         * default VACM associated with the <code>VacmMIB</code>.
-         * @param moServers the managed object server(s) that serve the managed objects available to this agent.
-         * @param workerPool the <code>WorkerPool</code> to be used to process incoming request.
-         * @param configurationFactory a <code>MOInputFactory</code> that creates a <code>MOInput</code> stream with
-         * containing serialized ManagedObject information with the agent's configuration or <code>null</code>
-         * otherwise.
-         * @param persistenceProvider the primary <code>MOPersistenceProvider</code> to be used to load and store
-         * persistent MOs.
-         * @param engineBootsProvider the provider of engine boots counter.
+         *
+         * @param agentsOwnEngineID    the authoritative engine ID of the agent.
+         * @param messageDispatcher    the MessageDispatcher to use. The message dispatcher must be configured outside, i.e.
+         *                             transport mappings have to be added before this constructor is being called.
+         * @param vacm                 a view access control model. Typically, this parameter is set to <code>null</code> to use
+         *                             the default VACM associated with the <code>VacmMIB</code>.
+         * @param moServers            the managed object server(s) that serve the managed objects available to this agent.
+         * @param workerPool           the <code>WorkerPool</code> to be used to process incoming request.
+         * @param configurationFactory a <code>MOInputFactory</code> that creates a <code>MOInput</code> stream with containing
+         *                             serialized ManagedObject information with the agent's configuration or <code>null</code>
+         *                             otherwise.
+         * @param persistenceProvider  the primary <code>MOPersistenceProvider</code> to be used to load and store persistent
+         *                             MOs.
+         * @param engineBootsProvider  the provider of engine boots counter.
          */
         public KaazingConfigManager(OctetString agentsOwnEngineID, MessageDispatcher messageDispatcher, VACM vacm,
-                MOServer[] moServers, WorkerPool workerPool, MOInputFactory configurationFactory,
-                MOPersistenceProvider persistenceProvider) {
+                                    MOServer[] moServers, WorkerPool workerPool, MOInputFactory configurationFactory,
+                                    MOPersistenceProvider persistenceProvider) {
             this.engineID = agentsOwnEngineID;
             this.dispatcher = messageDispatcher;
             this.vacm = vacm;
@@ -533,26 +533,26 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Creates a SNMP agent configuration which can be run by calling {@link #run()} later.
-         * 
-         * @param agentsOwnEngineID the authoritative engine ID of the agent.
-         * @param messageDispatcher the MessageDispatcher to use. The message dispatcher must be configured outside,
-         * i.e. transport mappings have to be added before this constructor is being called.
-         * @param vacm a view access control model. Typically, this parameter is set to <code>null</code> to use the
-         * default VACM associated with the <code>VacmMIB</code>.
-         * @param moServers the managed object server(s) that serve the managed objects available to this agent.
-         * @param workerPool the <code>WorkerPool</code> to be used to process incoming request.
-         * @param configurationFactory a <code>MOInputFactory</code> that creates a <code>MOInput</code> stream with
-         * containing serialized ManagedObject information with the agent's configuration or <code>null</code>
-         * otherwise.
-         * @param persistenceProvider the primary <code>MOPersistenceProvider</code> to be used to load and store
-         * persistent MOs.
-         * @param engineBootsProvider the provider of engine boots counter.
-         * @param moFactory the {@link MOFactory} to be used to create {@link ManagedObject}s created by this config
-         * manager. If <code>null</code> the {@link DefaultMOFactory} will be used.
+         *
+         * @param agentsOwnEngineID    the authoritative engine ID of the agent.
+         * @param messageDispatcher    the MessageDispatcher to use. The message dispatcher must be configured outside, i.e.
+         *                             transport mappings have to be added before this constructor is being called.
+         * @param vacm                 a view access control model. Typically, this parameter is set to <code>null</code> to use
+         *                             the default VACM associated with the <code>VacmMIB</code>.
+         * @param moServers            the managed object server(s) that serve the managed objects available to this agent.
+         * @param workerPool           the <code>WorkerPool</code> to be used to process incoming request.
+         * @param configurationFactory a <code>MOInputFactory</code> that creates a <code>MOInput</code> stream with containing
+         *                             serialized ManagedObject information with the agent's configuration or <code>null</code>
+         *                             otherwise.
+         * @param persistenceProvider  the primary <code>MOPersistenceProvider</code> to be used to load and store persistent
+         *                             MOs.
+         * @param engineBootsProvider  the provider of engine boots counter.
+         * @param moFactory            the {@link MOFactory} to be used to create {@link ManagedObject}s created by this config
+         *                             manager. If <code>null</code> the {@link DefaultMOFactory} will be used.
          */
         public KaazingConfigManager(OctetString agentsOwnEngineID, MessageDispatcher messageDispatcher, VACM vacm,
-                MOServer[] moServers, WorkerPool workerPool, MOInputFactory configurationFactory,
-                MOPersistenceProvider persistenceProvider, MOFactory moFactory) {
+                                    MOServer[] moServers, WorkerPool workerPool, MOInputFactory configurationFactory,
+                                    MOPersistenceProvider persistenceProvider, MOFactory moFactory) {
             this(agentsOwnEngineID, messageDispatcher, vacm, moServers, workerPool, configurationFactory,
                     persistenceProvider);
             this.moFactory = (moFactory == null) ? this.moFactory : moFactory;
@@ -560,6 +560,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the VACM used by this agent config manager.
+         *
          * @return the VACM instance of this agent.
          */
         public VACM getVACM() {
@@ -568,6 +569,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMPv2-MIB implementation used by this config manager.
+         *
          * @return the SNMPv2MIB instance of this agent.
          */
         public SNMPv2MIB getSNMPv2MIB() {
@@ -576,6 +578,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMP-TARGET-MIB implementation used by this config manager.
+         *
          * @return the SnmpTargetMIB instance of this agent.
          */
         public SnmpTargetMIB getSnmpTargetMIB() {
@@ -584,6 +587,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMP-NOTIFICATION-MIB implementation used by this config manager.
+         *
          * @return the SnmpNotificationMIB instance of this agent.
          */
         public SnmpNotificationMIB getSnmpNotificationMIB() {
@@ -592,6 +596,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMP-COMMUNITY-MIB implementation used by this config manager.
+         *
          * @return the SnmpCommunityMIB instance of this agent.
          */
         public SnmpCommunityMIB getSnmpCommunityMIB() {
@@ -600,6 +605,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the NOTIFICATION-LOG-MIB implementation used by this config manager.
+         *
          * @return the NotificationLogMib instance of this agent.
          */
         public NotificationLogMib getNotificationLogMIB() {
@@ -608,6 +614,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMP4J-LOG-MIB implementation used by this config manager.
+         *
          * @return the Snmp4jLogMib instance of this agent.
          */
         public Snmp4jLogMib getSnmp4jLogMIB() {
@@ -616,6 +623,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the SNMP4J-CONFIG-MIB implementation used by this config manager.
+         *
          * @return the Snmp4jConfigMib instance of this agent.
          */
         public Snmp4jConfigMib getSnmp4jConfigMIB() {
@@ -659,8 +667,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Shutdown the agent by closing the internal SNMP session - including the transport mappings provided through
-         * the configured {@link MessageDispatcher} and then store the agent state to persistent storage (if available).
+         * Shutdown the agent by closing the internal SNMP session - including the transport mappings provided through the
+         * configured {@link MessageDispatcher} and then store the agent state to persistent storage (if available).
          */
         public void shutdown() {
             try {
@@ -722,18 +730,19 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         protected void initMessageDispatcherWithMPs(MessageDispatcher mp) {
             // Notice in the following that we're overriding the standard PDUFactory.
-            // That's so we can create our own PDUs, specifically to support GetSubtree 
-            // PDU and variants. The version shown here is the same as the MPv2c 
+            // That's so we can create our own PDUs, specifically to support GetSubtree
+            // PDU and variants. The version shown here is the same as the MPv2c
             // default 'incomingPDUFactory', but with a Kaazing-specific PDU.
-            
+
             // XXX Need to fix the following so that V3 stuff works--it really
             // needs a KaazingPDUFactory that implements things for it's normal
             // case (see DefaultPDUFactory for the implementation to copy and change.)
-            PDUFactory pduFactory = 
-                new PDUFactory() {
-                    public PDU createPDU(Target target) {
-                        return new KaazingPDU();
-                    }};
+            PDUFactory pduFactory =
+                    new PDUFactory() {
+                        public PDU createPDU(Target target) {
+                            return new KaazingPDU();
+                        }
+                    };
 
             mp.addMessageProcessingModel(new MPv1());
             mp.addMessageProcessingModel(new MPv2c(pduFactory));
@@ -774,6 +783,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Closes a list of transport mappings.
+         *
          * @param transportMappings a list of {@link TransportMapping} instances.
          * @throws IOException if a transport cannot be closed.
          */
@@ -866,7 +876,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             targetMIB = new SnmpTargetMIB(dispatcher);
             targetMIB.addDefaultTDomains();
             targetMIB.addSupportedTDomain(ManagementTDomainAddressFactory.KaazingTransportDomain,
-                    new ManagementTDomainAddressFactory((DefaultServiceContext)serviceContext));
+                    new ManagementTDomainAddressFactory((DefaultServiceContext) serviceContext));
             snmpv2MIB = new SNMPv2MIB(getSysDescr(), getSysOID(), getSysServices());
             notificationMIB = new SnmpNotificationMIB();
             vacmMIB = new VacmMIB(servers);
@@ -892,9 +902,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Gets the set of security protocols supported by this agent configuration.
-         * 
-         * @return {@link SecurityProtocols#getInstance()} by default after initialization by
-         * {@link SecurityProtocols#addDefaultProtocols()}.
+         *
+         * @return {@link SecurityProtocols#getInstance()} by default after initialization by {@link
+         * SecurityProtocols#addDefaultProtocols()}.
          */
         protected SecurityProtocols getSupportedSecurityProtocols() {
             SecurityProtocols.getInstance().addDefaultProtocols();
@@ -903,17 +913,17 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Creates the USM used by this agent configuration.
-         * 
-         * @return an USM initialized by the engine boots from the <code>engineBootsProvider</code> and
-         * <code>engineID</code>.
+         *
+         * @return an USM initialized by the engine boots from the <code>engineBootsProvider</code> and <code>engineID</code>.
          */
         protected USM createUSM() {
-            return new USM(getSupportedSecurityProtocols(), engineID, 1 /* hardcoded engineBoots == 1 since we don't support restart */);
+            return new USM(getSupportedSecurityProtocols(), engineID, 1 /* hardcoded engineBoots == 1 since we don't support
+            restart */);
         }
 
         /**
          * Gets the system services ID which can be modified by altering its value.
-         * 
+         *
          * @return 72 by default.
          */
         public Integer32 getSysServices() {
@@ -922,7 +932,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Gets the system OID which can be modified by altering its value.
-         * 
+         *
          * @return an OID - by default the SNMP4J root OID is returned.
          */
         public OID getSysOID() {
@@ -931,14 +941,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the sysDescr.0 value for this agent which can be modified by altering its value.
-         * 
+         *
          * @return an OctetString describing the node of the form
-         * 
+         * <p/>
          * <pre>
          * SNMP4J-Agent version [SNMP4J-version] -
          *         <os.name> - <os.arch> - <os.version>
          * </pre>
-         * 
+         * <p/>
          * .
          */
         public OctetString getSysDescr() {
@@ -947,7 +957,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Gets the sysUpTime.0 instance for the default context.
-         * 
+         *
          * @return a <code>SysUpTime</code> instance.
          */
         public SysUpTime getSysUpTime() {
@@ -955,8 +965,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Returns the notification originator of this agent configuration. To get the (multi-threaded)
-         * {@link NotificationOriginator} of the agent, use {@link #getAgentNotificationOriginator} instead.
+         * Returns the notification originator of this agent configuration. To get the (multi-threaded) {@link
+         * NotificationOriginator} of the agent, use {@link #getAgentNotificationOriginator} instead.
+         *
          * @return a <code>NotificationOriginator</code> instance.
          */
         public NotificationOriginator getNotificationOriginator() {
@@ -964,8 +975,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Returns the notification originator of the agent. Use this method to get a {@link NotificationOriginator} for
-         * sending your notifications.
+         * Returns the notification originator of the agent. Use this method to get a {@link NotificationOriginator} for sending
+         * your notifications.
+         *
          * @return the <code>NotificationOriginator</code> instance.
          */
         public NotificationOriginator getAgentNotificationOriginator() {
@@ -974,6 +986,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Sets the notification originator of this agent configuration.
+         *
          * @param notificationOriginator a <code>NotificationOriginator</code> instance.
          */
         public void setNotificationOriginator(NotificationOriginator notificationOriginator) {
@@ -996,7 +1009,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 engineID = new OctetString(MPv3.createLocalEngineID());
             }
             agent = createCommandProcessor(engineID);
-            
+
             // agent.setWorkerPool(workerPool);
             initSecurityModels();
             initMessageDispatcherWithMPs(dispatcher);
@@ -1015,7 +1028,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             // Use CommandProcessor instead notificationOriginator to send informs non
             // blocking.
             snmpv2MIB.setNotificationOriginator(agent);
-           
+
 
             initOptionalMIBs();
 
@@ -1028,8 +1041,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Sets the table size limits for the tables in this agent. If this method is called while the agent's
-         * registration is being changed, a <code>ConcurrentModificationException</code> might be thrown.
+         * Sets the table size limits for the tables in this agent. If this method is called while the agent's registration is
+         * being changed, a <code>ConcurrentModificationException</code> might be thrown.
+         *
          * @param sizeLimits a set of properties as defined by {@link MOTableSizeLimit}.
          */
         public void setTableSizeLimits(Properties sizeLimits) {
@@ -1047,8 +1061,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Sets the table size limit for the tables in this agent. If this method is called while the agent's
-         * registration is being changed, a <code>ConcurrentModificationException</code> might be thrown.
+         * Sets the table size limit for the tables in this agent. If this method is called while the agent's registration is
+         * being changed, a <code>ConcurrentModificationException</code> might be thrown.
+         *
          * @param sizeLimit the maximum size (numer of rows) of tables allowed for this agent.
          */
         public void setTableSizeLimit(int sizeLimit) {
@@ -1074,23 +1089,23 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Returns the default context - which is the context that is used by the base agent to register its MIB
-         * objects. By default it is <code>null</code> which causes the objects to be registered virtually for all
-         * contexts. In that case, subagents for example my not register their own objects under the same subtree(s) in
-         * any context. To allow subagents to register their own instances of those MIB modules, an empty
-         * <code>OctetString</code> should be used as default context instead.
-         * @return <code>null</code> or an <code>OctetString</code> (normally the empty string) denoting the context
-         * used for registering default MIBs.
+         * Returns the default context - which is the context that is used by the base agent to register its MIB objects. By
+         * default it is <code>null</code> which causes the objects to be registered virtually for all contexts. In that case,
+         * subagents for example my not register their own objects under the same subtree(s) in any context. To allow subagents
+         * to register their own instances of those MIB modules, an empty <code>OctetString</code> should be used as default
+         * context instead.
+         *
+         * @return <code>null</code> or an <code>OctetString</code> (normally the empty string) denoting the context used for
+         * registering default MIBs.
          */
         public OctetString getDefaultContext() {
             return defaultContext;
         }
 
         /**
-         * This method can be overwritten by a subagent to specify the contexts each MIB module (group) will be
-         * registered to.
-         * 
-         * @param mibGroup a group of {@link ManagedObject}s (i.e., a MIB module).
+         * This method can be overwritten by a subagent to specify the contexts each MIB module (group) will be registered to.
+         *
+         * @param mibGroup       a group of {@link ManagedObject}s (i.e., a MIB module).
          * @param defaultContext the context to be used by default (i.e., the <code>null</code> context)
          * @return the context for which the module should be registered.
          */
@@ -1100,9 +1115,10 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Register the initialized MIB modules in the specified context of the agent.
+         *
          * @param context the context to register the internal MIB modules. This should be <code>null</code> by default.
          * @throws DuplicateRegistrationException if some of the MIB modules registration regions conflict with already
-         * registered regions.
+         *                                        registered regions.
          */
         protected void registerMIBs(OctetString context) throws DuplicateRegistrationException {
             MOServer server = agent.getServer(context);
@@ -1121,7 +1137,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             systemManagementMIB.registerMOs(server, getContext(systemManagementMIB, context));
             cpuManagementMIB.registerMOs(server, getContext(cpuManagementMIB, context));
             nicManagementMIB.registerMOs(server, getContext(nicManagementMIB, context));
-            
+
             if (snmp4jLogMIB != null) {
                 snmp4jLogMIB.registerMOs(server, getContext(snmp4jLogMIB, context));
             }
@@ -1138,6 +1154,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Unregister the initialized MIB modules from the default context of the agent.
+         *
          * @param context the context where the MIB modules have been previously registered.
          */
         protected void unregisterMIBs(OctetString context) {
@@ -1158,7 +1175,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             systemManagementMIB.unregisterMOs(server, getContext(systemManagementMIB, context));
             cpuManagementMIB.unregisterMOs(server, getContext(cpuManagementMIB, context));
             nicManagementMIB.unregisterMOs(server, getContext(nicManagementMIB, context));
-            
+
             if (snmp4jLogMIB != null) {
                 snmp4jLogMIB.unregisterMOs(server, getContext(snmp4jLogMIB, context));
             }
@@ -1183,6 +1200,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Creates and registers the default proxy forwarder application ({@link ProxyForwarderImpl}).
+         *
          * @param agent the command processor that uses the proxy forwarder.
          * @return a ProxyForwarder instance.
          */
@@ -1195,10 +1213,9 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         /**
-         * Creates the command processor.  We implement our own so that
-         * we can provide new PDUs and still invoke some of the default
-         * CommandProcessor methods.
-         * 
+         * Creates the command processor.  We implement our own so that we can provide new PDUs and still invoke some of the
+         * default CommandProcessor methods.
+         *
          * @param engineID the engine ID of the agent.
          * @return a new CommandProcessor instance.
          */
@@ -1209,7 +1226,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Creates the SNMP session to be used for this agent.
-         * 
+         *
          * @param dispatcher the message dispatcher to be associated with the session.
          * @return a SNMP session (a {@link Snmp} instance by default).
          */
@@ -1219,6 +1236,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Sets the import mode for the {@link MOPersistenceProvider}.
+         *
          * @param importMode one of the import modes defined by {@link ImportModes}.
          */
         public void setPersistenceImportMode(int importMode) {
@@ -1227,6 +1245,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         /**
          * Returns the currently active import mode for the {@link MOPersistenceProvider}.
+         *
          * @return one of the import modes defined by {@link ImportModes}.
          */
         public int getPersistenceImportMode() {
@@ -1239,7 +1258,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             // We don't have a separate call to add the productTitle info that
             // really lives in gatewayManagementBean, so we'll do it here.
             gatewayConfigurationMIB.addVersionInfo(gatewayBean);
-            
+
             return gatewayOID;
         }
 
@@ -1292,11 +1311,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         public void addServiceDefaultsConfigurationBean(ServiceDefaultsConfigurationBean serviceDefaultsConfigurationBean) {
             gatewayConfigurationMIB.addServiceDefaultsConfiguration(serviceDefaultsConfigurationBean);
         }
-                
+
         public void addVersionInfo(GatewayManagementBean gatewayManagementBean) {
             gatewayConfigurationMIB.addVersionInfo(gatewayManagementBean);
         }
-                
+
         public void addSystemManagementBean(HostManagementBean systemManagementBean) {
             systemManagementMIB.addSystemManagementBean(systemManagementBean);
         }
@@ -1320,11 +1339,10 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         public void addJvmManagementBean(JvmManagementBean jvmManagementBean) {
             jvmManagementMIB.addJvmManagementBean(jvmManagementBean);
         }
-        
+
         /**
-         * A subclass of CommandProcessor so we can both declare our own
-         * RequestHandlers and take advantage of the processNextSubRequest
-         * in the main CommandProcessor, which is where the real work happens.
+         * A subclass of CommandProcessor so we can both declare our own RequestHandlers and take advantage of the
+         * processNextSubRequest in the main CommandProcessor, which is where the real work happens.
          */
         class KaazingCommandProcessor extends CommandProcessor {
 
@@ -1336,49 +1354,52 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 addPduHandler(getSubtreeHandler);
                 addPduHandler(notifHandler);
             }
-            
+
             /**
              * Support for handling subscribe requests for Kaazing notifications.
-             *
              */
             class KaazingSubscribeNotifHandler implements RequestHandler {
-                
+
                 @Override
                 public void processPdu(Request request, MOServer server) {
-                    // if there is a valid management address, use the wrapped IoSession to create a subscription to notifications...
+                    // if there is a valid management address, use the wrapped IoSession to create a subscription to
+                    // notifications...
                     // FIXME:  add more fields to the request to so that specific notifications can be subscribed to
                     Object source = request.getSource();
                     if (source instanceof CommandResponderEvent) {
-                        CommandResponderEvent commandEvent = (CommandResponderEvent)source;
-                        
+                        CommandResponderEvent commandEvent = (CommandResponderEvent) source;
+
                         // process a Kaazing notification subscription request.
                         // XXX Is this right? Originally this was checked by
                         // addr being a ManagementAddress.
                         Address addr = commandEvent.getPeerAddress();
                         if (addr instanceof ManagementAddress) {
-                            ManagementAddress managementAddress = (ManagementAddress)addr;
+                            ManagementAddress managementAddress = (ManagementAddress) addr;
                             IoSessionEx session = managementAddress.getSession();
 
-                            OctetString name = generateNotificationTargetAddressName(session.getId());  // so we have different 'names' for each connection
+                            OctetString name = generateNotificationTargetAddressName(session
+                                    .getId());  // so we have different 'names' for each connection
                             OID transportDomain = ManagementTDomainAddressFactory.KaazingTransportDomain;
                             OctetString address = new OctetString(Long.toString(session.getId()));
                             OctetString tagList = new OctetString("notify");
-                            OctetString params = new OctetString(NOTIF_TARGET_PARAM_NAME); // N.B. this is the target param entry name, this is the key name to tie everything together
+                            OctetString params =
+                                    new OctetString(NOTIF_TARGET_PARAM_NAME); // N.B. this is the target param entry name,
+                                    // this is the key name to tie everything together
                             int storageType = 4;
-                            SnmpManagementServiceHandler.this.agent.getSnmpTargetMIB().addTargetAddress(name, transportDomain, address, 250, 1, tagList, params, storageType);
+                            SnmpManagementServiceHandler.this.agent.getSnmpTargetMIB()
+                                    .addTargetAddress(name, transportDomain, address, 250, 1, tagList, params, storageType);
                         }
                     }
                 }
-                
+
                 @Override
                 public boolean isSupported(int pduType) {
-                    return (pduType == KaazingPDU.KAAZING_NOTIFICATION_SUBSCRIPTION);
+                    return pduType == KaazingPDU.KAAZING_NOTIFICATION_SUBSCRIPTION;
                 }
             }
-            
+
             /**
-             * Support for handling 'getSubtree' requests.  This is based on the
-             * SNMP4J class GetNextHandler.
+             * Support for handling 'getSubtree' requests.  This is based on the SNMP4J class GetNextHandler.
              */
             class GetSubtreeHandler implements RequestHandler {
 
@@ -1387,29 +1408,29 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                     if (request.getPhase() == Request.PHASE_INIT) {
                         request.nextPhase();
                     }
-                    
+
                     OctetString context = request.getContext();
-                    
-                    SnmpRequest req = (SnmpRequest)request;
+
+                    SnmpRequest req = (SnmpRequest) request;
 //                    CommandResponderEvent requestEvent = req.getInitiatingEvent();
-                    
+
                     try {
                         // The subrequests are the individual OIDs in the original request.  We are
-                        // doing a separate 'getSubtree' on each.  
+                        // doing a separate 'getSubtree' on each.
                         SubRequestIterator it = (SubRequestIterator) request.iterator();
 
                         while (it.hasNext()) {
-                            SubRequest sreq =  it.nextSubRequest();
-                            
+                            SubRequest sreq = it.nextSubRequest();
+
                             // The initial set of subrequests associated with the
                             // request have been allocated ahead of time, when the
                             // request was created. The set of response VariableBinding objects
                             // were also created at that time.  We're just going to be adding
-                            // some new variable bindings to the response by faking out the processor 
+                            // some new variable bindings to the response by faking out the processor
                             // and cloning the results we get each time. Contrary to SNMP4J's normal
                             // processing, we don't have a SubRequest defined for each VarBinding.
                             if (!sreq.isComplete()) {
-                                
+
                                 // Adjust the scope so we start with the incoming OID as the
                                 // beginning of the range to return, and go to the next peer
                                 // at the same or higher level.
@@ -1419,20 +1440,20 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                 OID upperBound = lowerBound.nextPeer();
                                 scope.setUpperBound(upperBound);
                                 scope.setUpperIncluded(false); // so we don't overrun
-                                
+
                                 // 1st process the 'real' subrequest passed in.
                                 processNextSubRequest(request, server, context, sreq);
-                                
+
                                 if (sreq.getStatus().getErrorStatus() == PDU.noError) {
                                     // Copy that VariableBinding aside, because we cannot replace the
-                                    // var binding in the request, and we're going to override the 
+                                    // var binding in the request, and we're going to override the
                                     // value with new values as we get each subsequent value.
                                     VariableBinding initialVB = (VariableBinding) sreq.getVariableBinding().clone();
 
                                     // Now use that to repeatedly request the 'next' element until we get nothing.
-                                    scope.setLowerIncluded(false); 
+                                    scope.setLowerIncluded(false);
                                     boolean first = true;
-                                    
+
                                     while (!sreq.getVariableBinding().getVariable().equals(Null.endOfMibView)) {
                                         sreq.getStatus().setPhaseComplete(false);
                                         sreq.getStatus().setProcessed(false);
@@ -1448,7 +1469,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                             break;
                                         }
                                     }
-                                    
+
                                     sreq.getVariableBinding().setOid(initialVB.getOid());
                                     sreq.getVariableBinding().setVariable(initialVB.getVariable());
                                     sreq.getStatus().setPhaseComplete(true);
@@ -1456,8 +1477,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                 }
                             }
                         }
-                    }
-                    catch (NoSuchElementException nsex) {
+                    } catch (NoSuchElementException nsex) {
                         if (logger.isDebugEnabled()) {
                             logger.debug("GETSUBTREE request response PDU size limit reached");
                         }
@@ -1465,7 +1485,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 }
 
                 public boolean isSupported(int pduType) {
-                    return (pduType == KaazingPDU.GETSUBTREE);
+                    return pduType == KaazingPDU.GETSUBTREE;
                 }
             }
         }
@@ -1473,27 +1493,27 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
     @Override
     public void addGatewayManagementBean(final GatewayManagementBean gatewayManagementBean) {
-        
+
         agent.addGatewayBean(gatewayManagementBean);
         //FIXME: we should store the OID if we want to remove the gateway bean from the agent...
-        
+
         // set up the summary-data listener. This was originally pushed to the management
         // thread, but it's faster done directly.
-        OID dataOID = ((OID)MIBConstants.oidGatewayEntry.clone())
+        OID dataOID = ((OID) MIBConstants.oidGatewayEntry.clone())
                 .append(MIBConstants.colGatewaySummaryData)
                 .append(gatewayManagementBean.getId());
 
         OID notificationOID = MIBConstants.oidGatewaySummaryDataEvent;
 
         gatewayManagementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
-        
+
         gatewayManagementBean.addClusterManagementListener(new SNMPClusterListener());
     }
 
     @Override
     public void addServiceManagementBean(final ServiceManagementBean serviceManagementBean) {
         agent.addServiceBean(serviceManagementBean);
-        
+
         // set up the summary-data listener. This was originally pushed to the management
         // thread, but it's faster done directly.
         OID dataOID = ((OID) MIBConstants.oidServiceEntry.clone()).append(MIBConstants.colServiceSummaryData)
@@ -1502,7 +1522,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         OID notificationOID = MIBConstants.oidServiceSummaryDataNotification;
 
-        serviceManagementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+        serviceManagementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
     }
 
     @Override
@@ -1513,20 +1533,20 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         // thread, but it's faster done directly.
         ServiceManagementBean serviceBean = sessionManagementBean.getServiceManagementBean();
         OID dataOID = ((OID) MIBConstants.oidSessionEntry.clone()).append(MIBConstants.colSessionSummaryData)
-                .append((int)serviceBean.getGatewayManagementBean().getId())
-                .append((int)serviceBean.getId())
-                .append((int)sessionManagementBean.getId());
+                .append((int) serviceBean.getGatewayManagementBean().getId())
+                .append((int) serviceBean.getId())
+                .append((int) sessionManagementBean.getId());
 
         OID notificationOID = MIBConstants.oidSessionSummaryDataNotification;
 
-        sessionManagementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+        sessionManagementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
     }
 
     @Override
     public void removeSessionManagementBean(SessionManagementBean sessionManagementBean) {
         ServiceManagementBean serviceBean = sessionManagementBean.getServiceManagementBean();
         GatewayManagementBean gatewayBean = serviceBean.getGatewayManagementBean();
-        OID sessionIndexOID = new OID(new int[] { gatewayBean.getId(), serviceBean.getId(), (int)sessionManagementBean.getId() });
+        OID sessionIndexOID = new OID(new int[]{gatewayBean.getId(), serviceBean.getId(), (int) sessionManagementBean.getId()});
         agent.removeSessionBean(sessionIndexOID);
     }
 
@@ -1573,11 +1593,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidSystemSummaryData.clone())
-                        .append((int)managementBean.getGatewayManagementBean().getId());
+                        .append((int) managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidSystemSummaryDataNotification;
 
-                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
             }
         });
     }
@@ -1590,11 +1610,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidCpuListSummaryData.clone())
-                        .append((int)managementBean.getGatewayManagementBean().getId());
+                        .append((int) managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidCpuListSummaryDataNotification;
 
-                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
             }
         });
     }
@@ -1602,7 +1622,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     @Override
     public void addCpuManagementBean(final CpuManagementBean managementBean, String hostAndPid) {
         agent.addCpuManagementBean(managementBean);
-        
+
         // We do not directly support notifications on individual CPUs.
     }
 
@@ -1614,11 +1634,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidNicListSummaryData.clone())
-                        .append((int)managementBean.getGatewayManagementBean().getId());
+                        .append((int) managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidNicListSummaryDataNotification;
 
-                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
             }
         });
     }
@@ -1626,7 +1646,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     @Override
     public void addNicManagementBean(final NicManagementBean managementBean, String hostAndPid) {
         agent.addNicManagementBean(managementBean);
-        
+
         // We do not directly support notifications on individual NICs.
     }
 
@@ -1639,11 +1659,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidJvmSummaryData.clone())
-                        .append((int)managementBean.getGatewayManagementBean().getId());
+                        .append((int) managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidJvmSummaryDataNotification;
 
-                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));                                                         
+                managementBean.addSummaryDataListener(new SNMPSummaryDataListener(dataOID, notificationOID));
             }
         });
     }
@@ -1652,12 +1672,12 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         private final OID summaryDataOID;
         private final OID summaryDataNotificationOID;
-        
+
         public SNMPSummaryDataListener(OID summaryDataOID, OID summaryDataNotificationOID) {
             this.summaryDataOID = summaryDataOID;
             this.summaryDataNotificationOID = summaryDataNotificationOID;
         }
-        
+
         @Override
         public void sendSummaryData(String summaryData) {
             VariableBinding[] variables = new VariableBinding[1];
@@ -1665,37 +1685,37 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             sendNotification(summaryDataNotificationOID, variables);
         }
     }
-    
+
     private final class SNMPGatewayManagementListener implements GatewayManagementListener {
 
         @Override
         public void doSessionCreated(final GatewayManagementBean gatewayBean,
-                                      final long sessionId) throws Exception {
+                                     final long sessionId) throws Exception {
             // for the moment we don't sent gateway-level management notifications on sessionCreated.
         }
-        
+
 
         @Override
         public void doSessionClosed(final GatewayManagementBean gatewayBean,
-                                     final long sessionId) throws Exception {
+                                    final long sessionId) throws Exception {
             // for the moment we don't sent gateway-level management notifications on sessionClosed.
         }
 
         @Override
         public void doMessageReceived(final GatewayManagementBean gatewayBean,
-                                       final long sessionId) throws Exception {
+                                      final long sessionId) throws Exception {
             // for the moment we don't sent gateway-level management notifications on messageReceived.
         }
 
         @Override
         public void doFilterWrite(final GatewayManagementBean gatewayBean,
-                                   final long sessionId) throws Exception {
+                                  final long sessionId) throws Exception {
             // for the moment we don't sent gateway-level management notifications on filterWrite.
         }
 
         @Override
         public void doExceptionCaught(final GatewayManagementBean gatewayBean,
-                                       final long sessionId) throws Exception {
+                                      final long sessionId) throws Exception {
             // for the moment we don't sent gateway-level management notifications on exceptionCaught.
         }
     }
@@ -1704,41 +1724,41 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         @Override
         public void doSessionCreated(final ServiceManagementBean serviceBean,
-                                      final long newCurrentSessionCount, 
-                                      final long newTotalSessionCount) {
+                                     final long newCurrentSessionCount,
+                                     final long newTotalSessionCount) {
             // SNMP does its stuff in SessionManagementListener.doSessionCreated().
         }
-        
+
 
         @Override
         public void doSessionClosed(final ServiceManagementBean serviceBean,
-                                     final long sessionId,
-                                     final long newCurrentSessionCount) throws Exception {
+                                    final long sessionId,
+                                    final long newCurrentSessionCount) throws Exception {
             if (serviceBean.areNotificationsEnabled()) {
                 int gatewayId = serviceBean.getGatewayManagementBean().getId();
                 int serviceId = serviceBean.getId();
 
-                OID serviceOID = new OID(new int[] { gatewayId, serviceId });
+                OID serviceOID = new OID(new int[]{gatewayId, serviceId});
 
                 // TODO We should really design the particular set of notifications that we
                 // want to expose, and the data that go with them.
                 OID notificationOID = MIBConstants.oidServiceDisconnectionNotification;
                 VariableBinding[] variables = new VariableBinding[2];
-                
+
                 // Send the current session count (no need for total, as it didn't change.)
-                OID currSessionCountOID = ((OID)MIBConstants.oidServiceEntry.clone())
+                OID currSessionCountOID = ((OID) MIBConstants.oidServiceEntry.clone())
                         .append(MIBConstants.colServiceCurrentSessionCount)
                         .append(serviceOID);
                 variables[0] = new VariableBinding(currSessionCountOID, new Counter64(newCurrentSessionCount));
-                
+
                 // Add a variable to turn the session 'status' field to 'off'.
-                OID sessionOID = new OID(new int[] { gatewayId, serviceId, (int)sessionId});
-                
-                variables[1] = new VariableBinding(((OID)MIBConstants.oidSessionEntry.clone())
-                                                                         .append(MIBConstants.colSessionCloseSession)
-                                                                         .append(sessionOID), 
-                                                    new Integer32(0)); 
-                sendNotification(notificationOID, variables);               
+                OID sessionOID = new OID(new int[]{gatewayId, serviceId, (int) sessionId});
+
+                variables[1] = new VariableBinding(((OID) MIBConstants.oidSessionEntry.clone())
+                        .append(MIBConstants.colSessionCloseSession)
+                        .append(sessionOID),
+                        new Integer32(0));
+                sendNotification(notificationOID, variables);
 
                 // TODO Should we be sending a notification about loggedInSessions, too, as we did for JMX?
             }
@@ -1746,61 +1766,60 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         @Override
         public void doMessageReceived(final ServiceManagementBean serviceBean,
-                                       final long sessionId,
-                                       final ByteBuffer message) throws Exception {
+                                      final long sessionId,
+                                      final ByteBuffer message) throws Exception {
             // TODO:  If we are tracing messages through this service, send this message out as a notification
         }
 
         @Override
         public void doFilterWrite(final ServiceManagementBean serviceBean,
-                                   final long sessionId,
-                                   final ByteBuffer writeMessage) throws Exception {
+                                  final long sessionId,
+                                  final ByteBuffer writeMessage) throws Exception {
             // TODO:  If we are tracing messages through this service, send this message out as a notification
         }
 
         @Override
         public void doExceptionCaught(final ServiceManagementBean serviceBean,
-                                       final long sessionId,
-                                       final String exceptionMessage) throws Exception {
+                                      final long sessionId,
+                                      final String exceptionMessage) throws Exception {
         }
     }
 
     private final class SNMPSessionManagementListener implements SessionManagementListener {
 
-        /** 
-         * Send a notification about the session being opened. We set things up so that this
-         * is considered to be a service-level operation, but all the real data is in the
-         * session level, so for consistency and locality, we're going to process it in
-         * here, though we do check the SERVICE-level notifications-enabled flag.
+        /**
+         * Send a notification about the session being opened. We set things up so that this is considered to be a service-level
+         * operation, but all the real data is in the session level, so for consistency and locality, we're going to process it
+         * in here, though we do check the SERVICE-level notifications-enabled flag.
          */
         @Override
         public void doSessionCreated(final SessionManagementBean sessionBean) throws Exception {
-            
+
             ServiceManagementBean serviceBean = sessionBean.getServiceManagementBean();
-            
+
             if (serviceBean.areNotificationsEnabled()) {
-                                
+
                 // send the new session count notification for the given service.
 
                 // XXX We should really design the particular set of notifications that we
                 // want to expose, and the data that go with them.
-                            
+
                 JSONObject sessionData = new JSONObject();
-                
+
                 IoSessionEx session = sessionBean.getSession();
-                
+
                 sessionData.put("sessionId", session.getId());
                 sessionData.put("serviceId", serviceBean.getId());
                 sessionData.put("createTime", session.getCreationTime());
                 sessionData.put("localAddress", session.getLocalAddress());
                 sessionData.put("remoteAddress", serviceBean.getSessionRemoteAddress(session));
-                        
+
                 ResourceAddress address = BridgeSession.LOCAL_ADDRESS.get(session);
                 sessionData.put("sessionTypeName", Utils.getSessionTypeName(address));
                 sessionData.put("sessionDirection", Utils.getSessionDirection(session));
-                
+
                 Map<String, String> userPrincipals = sessionBean.getUserPrincipalMap();
-                
+
                 if (userPrincipals != null) {
                     sessionData.put("principals", userPrincipals);
                 }
@@ -1808,17 +1827,17 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 // Allow some protocol-specific attributes but at a known attribute name.
                 // Initially we'll only have AbstractWsBridgeSessions.
                 JSONObject protocolAttributes = null;
-                
+
                 if (session instanceof AbstractWsBridgeSession) {
-                    AbstractWsBridgeSession wsBridgeSession = (AbstractWsBridgeSession)session;
+                    AbstractWsBridgeSession wsBridgeSession = (AbstractWsBridgeSession) session;
     /*
      * We could gather a bunch of different session and parent session and other
-     * attributes here. However, there is no really obvious way to do this 
+     * attributes here. However, there is no really obvious way to do this
      * in a generic way without sending over lots of stringified object-instance
      * information that won't mean much to the client. Until we figure out a specific
      * set of attributes (like 'wsExtensions' below), we're not going to send
      * any other bridge-session attributes.
-     
+
                     IoSession parentSession = wsBridgeSession.getParent();
                     if (parentSession != null) {
                         Set<Object> parentAttrKeys = parentSession.getAttributeKeys();
@@ -1842,19 +1861,19 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                     List<WsExtension> extensions = wsBridgeSession.getWsExtensions().asList();
                     if (extensions != null && extensions.size() > 0) {
                         JSONObject jsonObj = new JSONObject();
-                        
+
                         for (WsExtension extension : extensions) {
                             String token = extension.getExtensionToken();
-                            
+
                             JSONArray paramsArray = null;
-                            
+
                             if (extension.hasParameters()) {
                                 paramsArray = new JSONArray();
-                                
+
                                 for (WsExtensionParameter param : extension.getParameters()) {
                                     String name = param.getName();
                                     String value = param.getValue();
-                                    
+
                                     // if value == null, it's a param without a name (the value
                                     // is actually in the name;
                                     if (value == null) {
@@ -1864,19 +1883,19 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                                     }
                                 }
                             }
-                            
+
                             jsonObj.put(token, paramsArray);
                         }
-                        
+
                         protocolAttributes.put("extensions", jsonObj);
                     }
 
                     if (session instanceof WsnSession) {
-                        WsnSession wsnSession = (WsnSession)session;
+                        WsnSession wsnSession = (WsnSession) session;
                         WebSocketWireProtocol protocolVersion = wsnSession.getVersion();
                         protocolAttributes.put("protocolVersion", protocolVersion.toString());
                     } else if (session instanceof WsebSession) {
-                        WsebSession wsebSession = (WsebSession)session;
+                        WsebSession wsebSession = (WsebSession) session;
                         ResourceAddress readAddr = wsebSession.getReadAddress();
                         ResourceAddress writeAddr = wsebSession.getWriteAddress();
                         if (readAddr != null) {
@@ -1886,20 +1905,20 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                             protocolAttributes.put("writeAddress", writeAddr);
                         }
                     } else if (session instanceof WsrSession) {
-                        WsrSession wsrSession = (WsrSession)session;
+                        WsrSession wsrSession = (WsrSession) session;
                         ResourceAddress rtmpAddress = wsrSession.getRtmpAddress();
                         protocolAttributes.put("rtmpAddress", rtmpAddress);
                     }
-                }  
-                
+                }
+
                 if (protocolAttributes != null) {
                     sessionData.put("protocolAttributes", protocolAttributes);
                 }
-                
+
                 OID notificationOID = MIBConstants.oidServiceConnectionNotification;
                 VariableBinding[] variables = new VariableBinding[1];
                 variables[0] = new VariableBinding(notificationOID, new OctetString(sessionData.toString()));
-                           
+
                 sendNotification(notificationOID, variables);
             }
         }
@@ -1915,21 +1934,21 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 if (message instanceof IoBufferEx) {
                     StringBuffer sb = new StringBuffer();
                     sb.append("Message Received: ");
-                    IoBufferEx buffer = (IoBufferEx)message;
+                    IoBufferEx buffer = (IoBufferEx) message;
                     byte[] bytes = buffer.array();
                     int arrayOffset = buffer.arrayOffset();
                     for (int i = buffer.position(); i < buffer.limit(); i++) {
-                        sb.append(String.format("%02X ", bytes[i+arrayOffset]));
+                        sb.append(String.format("%02X ", bytes[i + arrayOffset]));
                     }
 
                     ServiceManagementBean serviceBean = sessionBean.getServiceManagementBean();
                     GatewayManagementBean gatewayBean = serviceBean.getGatewayManagementBean();
-                    OID sessionOID = new OID(new int[] { gatewayBean.getId(), serviceBean.getId(), (int)sessionBean.getId() });
+                    OID sessionOID = new OID(new int[]{gatewayBean.getId(), serviceBean.getId(), (int) sessionBean.getId()});
 
                     OID notificationOID = MIBConstants.oidSessionMessageReceivedNotification;
 
                     VariableBinding[] variables = new VariableBinding[2];
-                    variables[0] = new VariableBinding(((OID)MIBConstants.oidSessionEntry.clone())
+                    variables[0] = new VariableBinding(((OID) MIBConstants.oidSessionEntry.clone())
                             .append(MIBConstants.colSessionId).append(sessionOID),
                             new Counter64(sessionBean.getId()));
                     variables[1] = new VariableBinding(notificationOID, new OctetString(sb.toString()));
@@ -1942,44 +1961,44 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         public void doFilterWrite(final SessionManagementBean sessionBean,
                                   final Object message,
                                   final Object originalMessage) throws Exception {
-           if (sessionBean.areNotificationsEnabled()) {
-               if (message instanceof IoBufferEx) {
-                   StringBuffer sb = new StringBuffer();
-                   sb.append("Message Sent: ");
-                   
-                   IoBufferEx buffer = null;
-                   if (originalMessage != null) {
-                       if (originalMessage instanceof IoBufferEx) {
-                           buffer = (IoBufferEx)originalMessage;
-                       } else if (originalMessage instanceof IoMessage) {
-                           buffer = ((IoMessage)originalMessage).getBuffer();
-                       }
-                   } else {
-                       buffer = (IoBufferEx)message;
-                   }
-                   
-                   byte[] bytes = buffer.array();
-                   int arrayOffset = buffer.arrayOffset();
-                   for (int i = buffer.position(); i < buffer.limit(); i++) {
-                       sb.append(String.format("%02X ", bytes[i+arrayOffset]));
-                   }
+            if (sessionBean.areNotificationsEnabled()) {
+                if (message instanceof IoBufferEx) {
+                    StringBuffer sb = new StringBuffer();
+                    sb.append("Message Sent: ");
 
-                   ServiceManagementBean serviceBean = sessionBean.getServiceManagementBean();
-                   GatewayManagementBean gatewayBean = serviceBean.getGatewayManagementBean();
-                   OID sessionOID = new OID(new int[] { gatewayBean.getId(), serviceBean.getId(), (int)sessionBean.getId() });
+                    IoBufferEx buffer = null;
+                    if (originalMessage != null) {
+                        if (originalMessage instanceof IoBufferEx) {
+                            buffer = (IoBufferEx) originalMessage;
+                        } else if (originalMessage instanceof IoMessage) {
+                            buffer = ((IoMessage) originalMessage).getBuffer();
+                        }
+                    } else {
+                        buffer = (IoBufferEx) message;
+                    }
 
-                   OID notificationOID = MIBConstants.oidSessionFilterWriteNotification;
+                    byte[] bytes = buffer.array();
+                    int arrayOffset = buffer.arrayOffset();
+                    for (int i = buffer.position(); i < buffer.limit(); i++) {
+                        sb.append(String.format("%02X ", bytes[i + arrayOffset]));
+                    }
 
-                   VariableBinding[] variables = new VariableBinding[2];
-                   variables[0] = new VariableBinding(((OID)MIBConstants.oidSessionEntry.clone())
-                           .append(MIBConstants.colSessionId).append(sessionOID),
-                           new Counter64(sessionBean.getId()));
-                   variables[1] = new VariableBinding(notificationOID, new OctetString(sb.toString()));
-                   sendNotification(notificationOID, variables);
-               };
+                    ServiceManagementBean serviceBean = sessionBean.getServiceManagementBean();
+                    GatewayManagementBean gatewayBean = serviceBean.getGatewayManagementBean();
+                    OID sessionOID = new OID(new int[]{gatewayBean.getId(), serviceBean.getId(), (int) sessionBean.getId()});
+
+                    OID notificationOID = MIBConstants.oidSessionFilterWriteNotification;
+
+                    VariableBinding[] variables = new VariableBinding[2];
+                    variables[0] = new VariableBinding(((OID) MIBConstants.oidSessionEntry.clone())
+                            .append(MIBConstants.colSessionId).append(sessionOID),
+                            new Counter64(sessionBean.getId()));
+                    variables[1] = new VariableBinding(notificationOID, new OctetString(sb.toString()));
+                    sendNotification(notificationOID, variables);
+                }
             }
         }
-        
+
         @Override
         public void doExceptionCaught(final SessionManagementBean sessionBean, Throwable cause) {
         }
@@ -1988,14 +2007,14 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     private class SNMPClusterListener implements ClusterManagementListener {
 
         private GatewayManagementBean gatewayBean;
-        
+
         public void setGatewayBean(GatewayManagementBean gatewayBean) {
             this.gatewayBean = gatewayBean;
         }
 
         @Override
         public void membershipChanged(String changeType, String instanceKey) {
-            OID gatewayOID = new OID(new int[] { 1 }); // hardcoded to 1 for now
+            OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             // Since we have no data yet on the ID that's joining or leaving, just
             // send the instanceKey of the member that's changed. Let the client-side
@@ -2003,29 +2022,29 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             // At least in the join case, no services are actually running yet.
             OID notificationOID = MIBConstants.oidClusterMembershipEvent;
             OID membershipEventTypeOID = MIBConstants.oidClusterMembershipEventType;
-            OID instanceKeyOID = ((OID)MIBConstants.oidGatewayEntry.clone())
+            OID instanceKeyOID = ((OID) MIBConstants.oidGatewayEntry.clone())
                     .append(MIBConstants.colInstanceKey)
                     .append(gatewayOID);
-            
-            
+
+
             VariableBinding[] variables = new VariableBinding[2];
             variables[0] = new VariableBinding(membershipEventTypeOID, new OctetString(changeType));
             variables[1] = new VariableBinding(instanceKeyOID, new OctetString(instanceKey));
-            
+
             sendNotification(notificationOID, variables);
         }
 
         @Override
         public void managementServicesChanged(String changeType, String instanceKey, Collection<URI> managementServiceAccepts) {
-            OID gatewayOID = new OID(new int[] { 1 }); // hardcoded to 1 for now
+            OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterManagementServiceEvent;
             OID mgmtSvcNotificationEventTypeOID = MIBConstants.oidClusterManagementServiceEventType;
             OID mgmtSvcNotificationEventURIsOID = MIBConstants.oidClusterManagementServiceEventURIs;
-            OID instanceKeyOID = ((OID)MIBConstants.oidGatewayEntry.clone())
-                                                .append(MIBConstants.colInstanceKey)
-                                                .append(gatewayOID);
-            
+            OID instanceKeyOID = ((OID) MIBConstants.oidGatewayEntry.clone())
+                    .append(MIBConstants.colInstanceKey)
+                    .append(gatewayOID);
+
             StringBuffer sb = new StringBuffer();
             String managementServiceAcceptsValue = "";
             if (managementServiceAccepts != null) {
@@ -2033,10 +2052,10 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                     sb.append(managementServiceAccept.toString() + '\n');
                 }
                 if (sb.length() > 1) {
-                    managementServiceAcceptsValue = sb.substring(0, sb.length()-1); // trim final \n char
+                    managementServiceAcceptsValue = sb.substring(0, sb.length() - 1); // trim final \n char
                 }
             }
-            
+
             VariableBinding[] variables = new VariableBinding[3];
             variables[0] = new VariableBinding(mgmtSvcNotificationEventTypeOID, new OctetString(changeType));
             variables[1] = new VariableBinding(instanceKeyOID, new OctetString(instanceKey));
@@ -2046,13 +2065,13 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         @Override
         public void balancerMapChanged(String changeType, URI balancerURI, Collection<URI> balanceeURIs) {
-            OID gatewayOID = new OID(new int[] { 1 }); // hardcoded to 1 for now
+            OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterBalancerMapEvent;
             OID balancerMapNotificationEventTypeOID = MIBConstants.oidClusterBalancerMapEventType;
             OID balancerMapNotificationBalancerUriOID = MIBConstants.oidClusterBalancerMapEventBalancerURI;
             OID balancerMapNotificationBalanceeUrisOID = MIBConstants.oidClusterBalancerMapEventBalanceeURIs;
-            
+
             StringBuffer sb = new StringBuffer();
             String balanceeURIsValue = "";
             if (balanceeURIs != null) {
@@ -2060,16 +2079,16 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                     sb.append(balanceeURI.toString() + '\n');
                 }
                 if (sb.length() > 1) {
-                    balanceeURIsValue = sb.substring(0, sb.length()-1); // trim final \n char
+                    balanceeURIsValue = sb.substring(0, sb.length() - 1); // trim final \n char
                 }
             }
-            
+
             VariableBinding[] variables = new VariableBinding[3];
             variables[0] = new VariableBinding(balancerMapNotificationEventTypeOID, new OctetString(changeType));
             variables[1] = new VariableBinding(balancerMapNotificationBalancerUriOID, new OctetString(balancerURI.toString()));
             variables[2] = new VariableBinding(balancerMapNotificationBalanceeUrisOID, new OctetString(balanceeURIsValue));
             sendNotification(notificationOID, variables);
-            
+
         }
     }
 
@@ -2155,17 +2174,20 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
             // view trees
             agentProperties.setProperty("snmp4j.agent.cfg.oid.1.3.6.1.6.3.16.1.5.2.1", "3:4");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.0", "{o}20.'unrestrictedReadView'.3.1.3.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.0", "{o}20.'unrestrictedReadView'.3.1.3.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.0.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.0.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.0.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.0.3", "{i}1");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.1", "{o}21.'unrestrictedWriteView'.3.1.3.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.1", "{o}21.'unrestrictedWriteView'.3.1.3.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.1.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.1.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.1.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.1.3", "{i}1");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.2", "{o}22.'unrestrictedNotifyView'.3.1.3.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.16.1.5.2.1.2", "{o}22.'unrestrictedNotifyView'.3.1.3.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.2.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.2.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.16.1.5.2.1.2.2", "{i}4");
@@ -2188,7 +2210,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             // USM MIB
             // -------
             agentProperties.setProperty("snmp4j.agent.cfg.oid.1.3.6.1.6.3.15.1.2.2.1", "3:14");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.0", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.6.'SHADES'");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.0", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.6.'SHADES'");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.0", "{s}SHADES");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.1", "{o}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.2", "{o}1.3.6.1.6.3.10.1.1.3");
@@ -2203,7 +2226,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.11", "{s}SHADESAuthPassword");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.12", "{s}SHADESPrivPassword");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.0.13", "");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.1", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.3.'SHA'");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.1", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.3.'SHA'");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.0", "{s}SHA");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.1", "{o}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.2", "{o}1.3.6.1.6.3.10.1.1.3");
@@ -2218,7 +2242,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.11", "{s}SHAAuthPassword");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.12", "");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.1.13", "");
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.2", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.5.'unsec'");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.15.1.2.2.1.2", "{o}$#{1.3.6.1.6.3.10.2.1.1.0}.5.'unsec'");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.2.0", "{s}unsec");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.2.1", "{o}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.15.1.2.2.1.2.2", "{o}1.3.6.1.6.3.10.1.1.1");
@@ -2302,35 +2327,40 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.3.3", "{i}1");
 
             // balancer map event
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.4", "{o}7.'kaazing'.1.3.6.1.4.1.29197.2.11");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.4", "{o}7.'kaazing'.1.3.6.1.4.1.29197.2.11");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.4.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.4.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.4.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.4.3", "{i}1");
 
             // service current sessions
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.5", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.2");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.5", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.2");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.5.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.5.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.5.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.5.3", "{i}1");
 
             // service total sessions
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.6", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.3");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.6", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.3");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.6.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.6.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.6.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.6.3", "{i}1");
 
             // service bytes received
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.7", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.4");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.7", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.7.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.7.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.7.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.7.3", "{i}1");
 
             // service bytes sent
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.8", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.5");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.8", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.1.5");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.8.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.8.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.8.2", "{i}4");
@@ -2344,63 +2374,72 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.9.3", "{i}1");
 
             // service connection (sessionOpened)
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.10", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.5");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.10", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.5");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.10.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.10.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.10.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.10.3", "{i}1");
 
             // service disconnection (sessionClosed)
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.11", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.11", "{o}7.'kaazing'.1.3.6.1.4.1.29197.3.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.11.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.11.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.11.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.11.3", "{i}1");
 
             // session summary data
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.12", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.4");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.12", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.12.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.12.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.12.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.12.3", "{i}1");
 
             // session message received notification
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.13", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.5");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.13", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.5");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.13.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.13.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.13.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.13.3", "{i}1");
 
             // session message sent notification
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.14", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.14", "{o}7.'kaazing'.1.3.6.1.4.1.29197.4.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.14.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.14.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.14.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.14.3", "{i}1");
 
             // system summary data (now split off from CPU & NIC data)
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.15", "{o}7.'kaazing'.1.3.6.1.4.1.29197.5.33");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.15", "{o}7.'kaazing'.1.3.6.1.4.1.29197.5.33");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.15.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.15.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.15.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.15.3", "{i}1");
 
             // JVM summary data, but accessed in the "system management" area
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.16", "{o}7.'kaazing'.1.3.6.1.4.1.29197.5.43");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.16", "{o}7.'kaazing'.1.3.6.1.4.1.29197.5.43");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.16.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.16.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.16.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.16.3", "{i}1");
 
             // CPU list summary data
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.17", "{o}7.'kaazing'.1.3.6.1.4.1.29197.6.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.17", "{o}7.'kaazing'.1.3.6.1.4.1.29197.6.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.17.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.17.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.17.2", "{i}4");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.17.3", "{i}1");
 
             // NIC list summary data
-            agentProperties.setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.18", "{o}7.'kaazing'.1.3.6.1.4.1.29197.7.6");
+            agentProperties
+                    .setProperty("snmp4j.agent.cfg.index.1.3.6.1.6.3.13.1.3.1.18", "{o}7.'kaazing'.1.3.6.1.4.1.29197.7.6");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.18.0", "{s}");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.18.1", "{i}1");
             agentProperties.setProperty("snmp4j.agent.cfg.value.1.3.6.1.6.3.13.1.3.1.18.2", "{i}4");

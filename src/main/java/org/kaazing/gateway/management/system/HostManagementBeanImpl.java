@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,36 +27,35 @@ import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 /**
- * Implementation of the management 'data' bean for a system (i.e. host computer). 
- * This just contains the data. Wrappers for different management protocols define 
- * the use of those data.
+ * Implementation of the management 'data' bean for a system (i.e. host computer). This just contains the data. Wrappers for
+ * different management protocols define the use of those data.
  */
 public class HostManagementBeanImpl extends AbstractSystemManagementBean implements HostManagementBean {
-    
+
     private final GatewayManagementBean gatewayManagementBean;
 
     // To avoid overload of exception messages when we somehow have an issue,
     // I'll show the error messages once, then suppress them (it's really more
     // of an issue with NICs). This flag is the suppressor.
-    private boolean errorShown = false;
+    private boolean errorShown;
 
     private String osName = "Unknown";
     private double uptimeSeconds;
-    private long totalFreeMemory;  
-    private long totalUsedMemory;  
-    private long totalMemory;     
-    private long totalFreeSwap;  
-    private long totalUsedSwap;  
-    private long totalSwap;      
-    private double cpuPercentage;  
-                                
+    private long totalFreeMemory;
+    private long totalUsedMemory;
+    private long totalMemory;
+    private long totalFreeSwap;
+    private long totalUsedSwap;
+    private long totalSwap;
+    private double cpuPercentage;
+
     public HostManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
         super(gatewayManagementBean.getManagementContext(),
-               gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
-               HostManagementBean.SUMMARY_DATA_FIELD_LIST,
-               gatewayManagementBean.getManagementContext().getSystemSummaryDataGatherInterval(),
-               "system stats", 
-               "SNMPHostSummaryData");
+                gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
+                HostManagementBean.SUMMARY_DATA_FIELD_LIST,
+                gatewayManagementBean.getManagementContext().getSystemSummaryDataGatherInterval(),
+                "system stats",
+                "SNMPHostSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
     }
 
@@ -69,12 +68,12 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
     public String getOSName() {
         return osName;
     }
-    
+
     @Override
     public double getUptimeSeconds() {
         return uptimeSeconds;
     }
-    
+
     @Override
     public long getTotalFreeMemory() {
         return totalFreeMemory;
@@ -116,8 +115,8 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
     @Override
     public void doGatherStats(JSONObject jsonObj, long readTime) throws SigarException, JSONException {
         SystemDataProvider systemDataProvider = managementContext.getSystemDataProvider();
-        
-        uptimeSeconds = systemDataProvider.getUptimeSeconds();  
+
+        uptimeSeconds = systemDataProvider.getUptimeSeconds();
 
         totalFreeMemory = systemDataProvider.getTotalFreeMemory();
         totalUsedMemory = systemDataProvider.getTotalUsedMemory();
@@ -129,9 +128,9 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
 
         // Get the 'quickie' version of the CPU percentage combined over all CPUs
         cpuPercentage = systemDataProvider.getCombinedCpuPercentage();
-        
+
         Object[] vals = new Object[summaryDataFieldList.length];
-        
+
         vals[SUMMARY_DATA_OS_NAME_INDEX] = osName;
         vals[SUMMARY_DATA_UPTIME_SECONDS_INDEX] = uptimeSeconds;
         vals[SUMMARY_DATA_TOTAL_FREE_MEMORY_INDEX] = totalFreeMemory;

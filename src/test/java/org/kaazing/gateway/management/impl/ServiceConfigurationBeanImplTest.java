@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,12 +21,8 @@
 
 package org.kaazing.gateway.management.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collections;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.json.JSONArray;
@@ -36,6 +32,8 @@ import org.kaazing.gateway.management.config.ServiceConfigurationBeanImpl;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ServiceConfigurationBeanImplTest {
 
@@ -47,11 +45,16 @@ public class ServiceConfigurationBeanImplTest {
         final GatewayManagementBean gateway = context.mock(GatewayManagementBean.class);
 
         context.checking(new Expectations() {{
-            oneOf(service).getProperties(); will(returnValue(properties));
-            oneOf(properties).simplePropertyNames(); will(returnValue(Arrays.asList("a", "b")));
-            oneOf(properties).get("a"); will(returnValue("aValue"));
-            oneOf(properties).get("b"); will(returnValue("bValue"));
-            oneOf(properties).nestedPropertyNames(); will(returnValue(Collections.<String>emptyList()));
+            oneOf(service).getProperties();
+            will(returnValue(properties));
+            oneOf(properties).simplePropertyNames();
+            will(returnValue(Arrays.asList("a", "b")));
+            oneOf(properties).get("a");
+            will(returnValue("aValue"));
+            oneOf(properties).get("b");
+            will(returnValue("bValue"));
+            oneOf(properties).nestedPropertyNames();
+            will(returnValue(Collections.<String>emptyList()));
         }});
         ServiceConfigurationBeanImpl bean = new ServiceConfigurationBeanImpl(service, gateway);
         String expected = "{\"b\":\"bValue\",\"a\":\"aValue\"}";
@@ -70,32 +73,49 @@ public class ServiceConfigurationBeanImplTest {
         final GatewayManagementBean gateway = context.mock(GatewayManagementBean.class);
 
         context.checking(new Expectations() {{
-            oneOf(service).getProperties(); will(returnValue(properties));
-            oneOf(properties).simplePropertyNames(); will(returnValue(Arrays.asList("a", "b")));
-            oneOf(properties).get("a"); will(returnValue("aValue"));
-            oneOf(properties).get("b"); will(returnValue("bValue"));
+            oneOf(service).getProperties();
+            will(returnValue(properties));
+            oneOf(properties).simplePropertyNames();
+            will(returnValue(Arrays.asList("a", "b")));
+            oneOf(properties).get("a");
+            will(returnValue("aValue"));
+            oneOf(properties).get("b");
+            will(returnValue("bValue"));
 
-            oneOf(properties).nestedPropertyNames(); will(returnValue(Arrays.asList("nested1", "nested2")));
-            oneOf(properties).getNested("nested1"); will(returnValue(Arrays.asList(nested1a, nested1b)));
-            oneOf(properties).getNested("nested2"); will(returnValue(Arrays.asList(nested2)));
+            oneOf(properties).nestedPropertyNames();
+            will(returnValue(Arrays.asList("nested1", "nested2")));
+            oneOf(properties).getNested("nested1");
+            will(returnValue(Arrays.asList(nested1a, nested1b)));
+            oneOf(properties).getNested("nested2");
+            will(returnValue(Arrays.asList(nested2)));
 
-            oneOf(nested1a).simplePropertyNames(); will(returnValue(Arrays.asList("aa", "ab")));
-            oneOf(nested1a).get("aa"); will(returnValue("aaValue"));
-            oneOf(nested1a).get("ab"); will(returnValue("abValue"));
-            oneOf(nested1a).nestedPropertyNames(); will(returnValue(Collections.<String>emptyList()));
+            oneOf(nested1a).simplePropertyNames();
+            will(returnValue(Arrays.asList("aa", "ab")));
+            oneOf(nested1a).get("aa");
+            will(returnValue("aaValue"));
+            oneOf(nested1a).get("ab");
+            will(returnValue("abValue"));
+            oneOf(nested1a).nestedPropertyNames();
+            will(returnValue(Collections.<String>emptyList()));
 
-            oneOf(nested1b).simplePropertyNames(); will(returnValue(Arrays.asList("ba", "bb")));
-            oneOf(nested1b).get("ba"); will(returnValue("baValue"));
-            oneOf(nested1b).get("bb"); will(returnValue("bbValue"));
-            oneOf(nested1b).nestedPropertyNames(); will(returnValue(Collections.<String>emptyList()));
+            oneOf(nested1b).simplePropertyNames();
+            will(returnValue(Arrays.asList("ba", "bb")));
+            oneOf(nested1b).get("ba");
+            will(returnValue("baValue"));
+            oneOf(nested1b).get("bb");
+            will(returnValue("bbValue"));
+            oneOf(nested1b).nestedPropertyNames();
+            will(returnValue(Collections.<String>emptyList()));
 
-            oneOf(nested2).simplePropertyNames(); will(returnValue(Collections.<String>emptyList()));
-            oneOf(nested2).nestedPropertyNames(); will(returnValue(Collections.<String>emptyList()));
+            oneOf(nested2).simplePropertyNames();
+            will(returnValue(Collections.<String>emptyList()));
+            oneOf(nested2).nestedPropertyNames();
+            will(returnValue(Collections.<String>emptyList()));
 
         }});
         ServiceConfigurationBeanImpl bean = new ServiceConfigurationBeanImpl(service, gateway);
-        String expected = "{\"b\":\"bValue\",\"a\":\"aValue\",\"nested1\":" 
-              + "[{\"aa\":\"aaValue\",\"ab\":\"abValue\"},{\"ba\":\"baValue\",\"bb\":\"bbValue\"}],\"nested2\":[{}]}";
+        String expected = "{\"b\":\"bValue\",\"a\":\"aValue\",\"nested1\":"
+                + "[{\"aa\":\"aaValue\",\"ab\":\"abValue\"},{\"ba\":\"baValue\",\"bb\":\"bbValue\"}],\"nested2\":[{}]}";
         String result = bean.getProperties();
         System.out.println(result);
         equalsJson(new JSONObject(expected), new JSONObject(result));
@@ -105,7 +125,7 @@ public class ServiceConfigurationBeanImplTest {
         assertEquals(obj1.length(), obj2.length());
         JSONArray names1 = obj1.names();
         for (int i = 0; i < obj1.length(); i++) {
-            String key1 = (String)names1.get(i);
+            String key1 = (String) names1.get(i);
             assertTrue(obj2.has(key1));
             equalsJson(obj1.get(key1), obj2.get(key1));
         }

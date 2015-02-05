@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,16 +22,13 @@
 package org.kaazing.gateway.management.system;
 
 
-
-
 /**
- * Do full management processing for both service and session. This is only done on
- * non-management session requests.
- * 
+ * Do full management processing for both service and session. This is only done on non-management session requests.
+ * <p/>
  * ALL REQUESTS WILL BE ON ONE OR ANOTHER OF THE IO THREADS, SO MUST NOT BLOCK!
  */
-public class FullManagementSystemStrategy extends NullManagementSystemStrategy {    
-    
+public class FullManagementSystemStrategy extends NullManagementSystemStrategy {
+
     @Override
     public void gatherStats(final AbstractSystemManagementBean dataProvider) {
         dataProvider.gatherStats();

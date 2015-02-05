@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,14 +21,11 @@
 
 package org.kaazing.gateway.management.config;
 
-import static java.util.Arrays.asList;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,10 +38,11 @@ import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.Utils;
+import static java.util.Arrays.asList;
 
 public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
-//    private static final AtomicInteger serviceConfigurationIds = new AtomicInteger(0);
+    //    private static final AtomicInteger serviceConfigurationIds = new AtomicInteger(0);
     private final ServiceContext serviceContext;
     private final GatewayManagementBean gatewayBean;
     private final int id;
@@ -73,20 +71,20 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     @Override
     public String getServiceName() {
         String name = serviceContext.getServiceName();
-        return (name == null ? "" : name);
+        return name == null ? "" : name;
     }
 
     @Override
     public String getServiceDescription() {
         String desc = serviceContext.getServiceDescription();
-        return (desc == null ? "" : desc);
+        return desc == null ? "" : desc;
     }
 
     @Override
     public String getAccepts() {
         if (serviceContext.supportsAccepts()) {
-            Collection<URI> accepts = serviceContext.getAccepts();            
-            return (accepts == null ? "" : new JSONArray(accepts).toString());
+            Collection<URI> accepts = serviceContext.getAccepts();
+            return accepts == null ? "" : new JSONArray(accepts).toString();
         } else {
             return null;
         }
@@ -111,7 +109,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         }
                         jsonOptions.put("binds", jsonObj);
                     }
-                    
+
                     String[] sslCiphers = context.getSslCiphers();
                     if (sslCiphers != null) {
                         String cipherString = Utils.asCommaSeparatedString(asList(sslCiphers));
@@ -119,10 +117,10 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                             jsonOptions.put("ssl.ciphers", cipherString);
                         }
                     }
-                    
-                    jsonOptions.put("ssl.encryption", 
-                                    (context.isSslEncryptionEnabled() ? "enabled" : "disabled"));
-                    
+
+                    jsonOptions.put("ssl.encryption",
+                            context.isSslEncryptionEnabled() ? "enabled" : "disabled");
+
                     if (context.getSslNeedClientAuth()) {
                         jsonOptions.put("ssl.verify-client", "required");
                     } else if (context.getSslWantClientAuth()) {
@@ -130,7 +128,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     } else {
                         jsonOptions.put("ssl.verify-client", "none");
                     }
-                    
+
 
                     // NOTE: we do NOT (at least in 4.0) show the WS extensions
                     // or WS protocols to users (Command Center or otherwise), so don't send them out.
@@ -151,9 +149,9 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 //                      jsonOptions.put("ws-protocols", jsonArray);
 //                  }
 
-                    
+
                     jsonOptions.put("ws.maximum.message.size", context.getWsMaxMessageSize());
-                    
+
                     Long wsInactivityTimeout = context.getWsInactivityTimeout();
                     if (wsInactivityTimeout != null) {
                         jsonOptions.put("ws.inactivity.timeout", wsInactivityTimeout);
@@ -173,17 +171,17 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
-                    
+
                     URI sslTransport = context.getSslTransport();
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
-                    
+
                     URI httpTransport = context.getHttpTransport();
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
                     }
-                    
+
                     long tcpMaxOutboundRate = context.getTcpMaximumOutboundRate();
                     jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
                 }
@@ -201,14 +199,14 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     @Override
     public String getBalances() {
         Collection<URI> balances = serviceContext.getBalances();
-        return (balances == null ? "" : new JSONArray(balances).toString());
+        return balances == null ? "" : new JSONArray(balances).toString();
     }
 
     @Override
     public String getConnects() {
         if (serviceContext.supportsConnects()) {
-            Collection<URI> connects = serviceContext.getConnects();            
-            return (connects == null ? "" : new JSONArray(connects).toString());
+            Collection<URI> connects = serviceContext.getConnects();
+            return connects == null ? "" : new JSONArray(connects).toString();
         } else {
             return null;
         }
@@ -224,7 +222,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
             try {
                 if (context != null) {
 
-                    if ( context.getSslCiphers() != null ) {
+                    if (context.getSslCiphers() != null) {
                         List<String> sslCiphers = Arrays.asList(context.getSslCiphers());
                         if (sslCiphers.size() > 0) {
                             jsonOptions.put("ssl.ciphers", sslCiphers);
@@ -235,7 +233,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     // or WS protocols to users (Command Center or otherwise), so don't send them out.
                     //WebSocketWireProtocol protocol = connectOptions.getWebSocketWireProtocol();
                     //sb.append("websocket-wire-protocol=" + protocol);
-                    
+
                     String wsVersion = context.getWsVersion();
                     if (wsVersion != null) {
                         jsonOptions.put("ws.version", wsVersion);
@@ -250,12 +248,12 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
-                    
+
                     URI sslTransport = context.getSslTransport();
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
-                    
+
                     URI httpTransport = context.getHttpTransport();
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
@@ -274,23 +272,25 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     @Override
     public String getCrossSiteConstraints() {
-        Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints = serviceContext.getCrossSiteConstraints();
-        
+        Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+                serviceContext.getCrossSiteConstraints();
+
         JSONArray jsonConstraints = new JSONArray();
-        
+
         if ((crossSiteConstraints != null) && !crossSiteConstraints.isEmpty()) {
-            Collection<? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraintsValues = crossSiteConstraints.values();
+            Collection<? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraintsValues =
+                    crossSiteConstraints.values();
             if ((crossSiteConstraintsValues != null) && !crossSiteConstraintsValues.isEmpty()) {
                 Map<String, ? extends CrossSiteConstraintContext> constraintMap = crossSiteConstraintsValues.iterator().next();
                 Collection<? extends CrossSiteConstraintContext> constraints = constraintMap.values();
                 for (CrossSiteConstraintContext constraint : constraints) {
                     JSONObject jsonObj = new JSONObject();
-                    
+
                     String allowHeaders = constraint.getAllowHeaders();
                     String allowMethods = constraint.getAllowMethods();
                     String allowOrigin = constraint.getAllowOrigin();
                     Integer maxAge = constraint.getMaximumAge();
-                    
+
                     try {
                         jsonObj.put("allow-origin", allowOrigin);
                         jsonObj.put("allow-methods", allowMethods);
@@ -310,7 +310,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                 }
             }
         }
-        
+
         return jsonConstraints.toString();
     }
 
@@ -318,12 +318,12 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     public String getMimeMappings() {
         if (serviceContext.supportsMimeMappings()) {
             Map<String, String> mimeMappings = serviceContext.getMimeMappings();
-            return (mimeMappings == null ? "" : new JSONObject(mimeMappings).toString());
+            return mimeMappings == null ? "" : new JSONObject(mimeMappings).toString();
         } else {
             return null;
         }
     }
-    
+
     @Override
     public String getProperties() {
         ServiceProperties properties = serviceContext.getProperties();
@@ -333,7 +333,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     @Override
     public String getRequiredRoles() {
         Collection<String> roles = asList(serviceContext.getRequireRoles());
-        return (roles == null ? "" : new JSONArray(roles).toString());
+        return roles == null ? "" : new JSONArray(roles).toString();
     }
 
     @Override
@@ -344,7 +344,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
         }
         return "";
     }
-    
+
     private static JSONObject asJSONObject(ServiceProperties properties) {
         JSONObject result = new JSONObject();
         try {
@@ -356,8 +356,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     result.append(name, asJSONObject(nested));
                 }
             }
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             // can't happen (unless ServiceProperties has a bug and incorrectly returns a null property name)
             throw new RuntimeException(e);
         }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,79 +22,84 @@
 package org.kaazing.gateway.management.session;
 
 import java.util.Map;
-
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.ManagementBean;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
- * Interface that defines the data and access methods that will be supported by all management 
- * protocols (e.g., JMX, SNMP) for a given session.  Various lifecycle methods are also provided, 
- * to allow things like initialization and cleanup on start/stop.
+ * Interface that defines the data and access methods that will be supported by all management protocols (e.g., JMX, SNMP) for a
+ * given session.  Various lifecycle methods are also provided, to allow things like initialization and cleanup on start/stop.
  */
 public interface SessionManagementBean extends ManagementBean {
 
-    public static String[] SUMMARY_DATA_FIELD_LIST = 
-            new String[] {"readBytes", "readBytesThroughput", 
-                          "writtenBytes", "writtenBytesThroughput"};
+    String[] SUMMARY_DATA_FIELD_LIST =
+            new String[]{"readBytes", "readBytesThroughput",
+                    "writtenBytes", "writtenBytesThroughput"};
 
-    public static int SUMMARY_DATA_READ_BYTES_INDEX = 0;
-    public static int SUMMARY_DATA_READ_BYTES_THPT_INDEX = 1;
-    public static int SUMMARY_DATA_WRITTEN_BYTES_INDEX = 2;
-    public static int SUMMARY_DATA_WRITTEN_BYTES_THPT_INDEX = 3;
+    int SUMMARY_DATA_READ_BYTES_INDEX = 0;
+    int SUMMARY_DATA_READ_BYTES_THPT_INDEX = 1;
+    int SUMMARY_DATA_WRITTEN_BYTES_INDEX = 2;
+    int SUMMARY_DATA_WRITTEN_BYTES_THPT_INDEX = 3;
 
-    public ServiceManagementBean getServiceManagementBean();
-                
-    public IoSessionEx getSession();
-    
-    public void close();
+    ServiceManagementBean getServiceManagementBean();
 
-    public void closeImmediately();
-    
-    public long getId();
+    IoSessionEx getSession();
 
-    public long getReadBytes();
-    
-    public double getReadBytesThroughput();
-    
-    public long getWrittenBytes();
+    void close();
 
-    public double getWrittenBytesThroughput();
+    void closeImmediately();
 
-    public String getUserPrincipals();  // for return via JSON
-    
-    public Map<String, String> getUserPrincipalMap();  // for use in listener beans
+    long getId();
 
-    public void setUserPrincipals(Map<String, String> userPrincipals);   // set from strategy
+    long getReadBytes();
 
-    public void enableNotifications(boolean enableNotifications);
-    public boolean areNotificationsEnabled();
+    double getReadBytesThroughput();
 
-    public long getCreateTime();
-    public String getRemoteAddress();
-    
-    public String getSessionTypeName();  // for a specific session, NOT the service bind/connect address.
+    long getWrittenBytes();
 
-    public String getSessionDirection();
-    
-    public void incrementExceptionCount();
-    
+    double getWrittenBytesThroughput();
+
+    String getUserPrincipals();  // for return via JSON
+
+    Map<String, String> getUserPrincipalMap();  // for use in listener beans
+
+    void setUserPrincipals(Map<String, String> userPrincipals);   // set from strategy
+
+    void enableNotifications(boolean enableNotifications);
+
+    boolean areNotificationsEnabled();
+
+    long getCreateTime();
+
+    String getRemoteAddress();
+
+    String getSessionTypeName();  // for a specific session, NOT the service bind/connect address.
+
+    String getSessionDirection();
+
+    void incrementExceptionCount();
+
     /*
      * Various methods used by the management strategy objects
      */
-    public void doSessionCreated() throws Exception;
-    public void doSessionCreatedListeners();
-    
-    public void doSessionClosed() throws Exception;
-    public void doSessionClosedListeners();
-    
-    public void doMessageReceived(final Object message) throws Exception;
-    public void doMessageReceivedListeners(final Object message);
+    void doSessionCreated() throws Exception;
 
-    public void doFilterWrite(final WriteRequest writeRequest) throws Exception;
-    public void doFilterWriteListeners(final WriteRequest writeRequest);
+    void doSessionCreatedListeners();
 
-    public void doExceptionCaught(final Throwable cause) throws Exception;
-    public void doExceptionCaughtListeners(final Throwable cause);
+    void doSessionClosed() throws Exception;
+
+    void doSessionClosedListeners();
+
+    void doMessageReceived(final Object message) throws Exception;
+
+    void doMessageReceivedListeners(final Object message);
+
+    void doFilterWrite(final WriteRequest writeRequest) throws Exception;
+
+    void doFilterWriteListeners(final WriteRequest writeRequest);
+
+    void doExceptionCaught(final Throwable cause) throws Exception;
+
+    void doExceptionCaughtListeners(final Throwable cause);
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.util.CopyOnWriteMap;
@@ -55,116 +54,116 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Interface that defines the data and access methods that will be supported by all management protocols (e.g., JMX,
- * SNMP) for a given service. Various lifecycle methods are also provided, to allow things like initialization and
- * cleanup on start/stop. NOTE: there are certain methods that must be publicly callable, but are not actually supposed
- * to be exposed to the users.
+ * Interface that defines the data and access methods that will be supported by all management protocols (e.g., JMX, SNMP) for a
+ * given service. Various lifecycle methods are also provided, to allow things like initialization and cleanup on start/stop.
+ * NOTE: there are certain methods that must be publicly callable, but are not actually supposed to be exposed to the users.
  */
 public interface ServiceManagementBean extends ManagementBean {
 
-    public static String[] SUMMARY_DATA_FIELD_LIST = new String[]{"serviceConnected", "totalBytesReceived",
+    String[] SUMMARY_DATA_FIELD_LIST = new String[]{"serviceConnected", "totalBytesReceived",
             "totalBytesSent", "totalCurrentSessions", "totalCurrentNativeSessions", "totalCurrentEmulatedSessions",
             "totalCumulativeSessions", "totalCumulativeNativeSessions", "totalCumulativeEmulatedSessions",
             "totalExceptionCount", "latestException", "latestExceptionTime", "lastSuccessfulConnectTime",
             "lastFailedConnectTime", "lastHeartbeatPingResult", "lastHeartbeatPingTimestamp", "heartbeatPingCount",
             "heartbeatPingSuccesses", "heartbeatPingFailures", "heartbeatRunning", "notificationsEnabled"};
 
-    public static int SUMMARY_DATA_SERVICE_CONNECTED_INDEX = 0;
-    public static int SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX = 1;
-    public static int SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX = 2;
-    public static int SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX = 3;
-    public static int SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX = 4;
-    public static int SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX = 5;
-    public static int SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX = 6;
-    public static int SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX = 7;
-    public static int SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX = 8;
-    public static int SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX = 9;
-    public static int SUMMARY_DATA_LATEST_EXCEPTION_INDEX = 10;
-    public static int SUMMARY_DATA_LATEST_EXCEPTION_TIME_INDEX = 11;
-    public static int SUMMARY_DATA_LAST_SUCCCESSFUL_CONNECT_TIME_INDEX = 12;
-    public static int SUMMARY_DATA_LAST_FAILED_CONNECT_TIME_INDEX = 13;
-    public static int SUMMARY_DATA_LAST_HEARTBEAT_PING_RESULT_INDEX = 14;
-    public static int SUMMARY_DATA_LAST_HEARTBEAT_PING_TIMESTAMP_INDEX = 15;
-    public static int SUMMARY_DATA_HEARTBEAT_PING_COUNT_INDEX = 16;
-    public static int SUMMARY_DATA_HEARTBEAT_PING_SUCCESSES_INDEX = 17;
-    public static int SUMMARY_DATA_HEARTBEAT_PING_FAILURES_INDEX = 18;
-    public static int SUMMARY_DATA_HEARTBEAT_RUNNING_INDEX = 19;
-    public static int SUMMARY_DATA_NOTIFICATIONS_ENABLED_INDEX = 20;
+    int SUMMARY_DATA_SERVICE_CONNECTED_INDEX = 0;
+    int SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX = 1;
+    int SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX = 2;
+    int SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX = 3;
+    int SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX = 4;
+    int SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX = 5;
+    int SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX = 6;
+    int SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX = 7;
+    int SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX = 8;
+    int SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX = 9;
+    int SUMMARY_DATA_LATEST_EXCEPTION_INDEX = 10;
+    int SUMMARY_DATA_LATEST_EXCEPTION_TIME_INDEX = 11;
+    int SUMMARY_DATA_LAST_SUCCCESSFUL_CONNECT_TIME_INDEX = 12;
+    int SUMMARY_DATA_LAST_FAILED_CONNECT_TIME_INDEX = 13;
+    int SUMMARY_DATA_LAST_HEARTBEAT_PING_RESULT_INDEX = 14;
+    int SUMMARY_DATA_LAST_HEARTBEAT_PING_TIMESTAMP_INDEX = 15;
+    int SUMMARY_DATA_HEARTBEAT_PING_COUNT_INDEX = 16;
+    int SUMMARY_DATA_HEARTBEAT_PING_SUCCESSES_INDEX = 17;
+    int SUMMARY_DATA_HEARTBEAT_PING_FAILURES_INDEX = 18;
+    int SUMMARY_DATA_HEARTBEAT_RUNNING_INDEX = 19;
+    int SUMMARY_DATA_NOTIFICATIONS_ENABLED_INDEX = 20;
 
-    public GatewayManagementBean getGatewayManagementBean();
+    GatewayManagementBean getGatewayManagementBean();
 
-    public int getId();
+    int getId();
 
-    public String getServiceType();
+    String getServiceType();
 
-    public long getCumulativeSessionCount();
+    long getCumulativeSessionCount();
 
-    public long getCumulativeNativeSessionCount();
+    long getCumulativeNativeSessionCount();
 
-    public long getCumulativeEmulatedSessionCount();
+    long getCumulativeEmulatedSessionCount();
 
-    public long getCurrentSessionCount();
+    long getCurrentSessionCount();
 
-    public long getCurrentNativeSessionCount();
+    long getCurrentNativeSessionCount();
 
-    public long getCurrentEmulatedSessionCount();
+    long getCurrentEmulatedSessionCount();
 
-    public long getExceptionCount();
+    long getExceptionCount();
 
-    public String getLatestException();
+    String getLatestException();
 
-    public long getLatestExceptionTime();
+    long getLatestExceptionTime();
 
-    public void clearCumulativeSessionsCount();
+    void clearCumulativeSessionsCount();
 
-    public long getTotalBytesReceivedCount();
+    long getTotalBytesReceivedCount();
 
-    public long getTotalBytesSentCount();
+    long getTotalBytesSentCount();
 
-    public long[] collectCurrentSessionCounts();
+    long[] collectCurrentSessionCounts();
 
     // A map of sessionID to user principals for the associated session
-    public Map<Long, Map<String, String>> getLoggedInSessions();
+    Map<Long, Map<String, String>> getLoggedInSessions();
 
-    public Map<String, String> getUserPrincipals(Long sessionId);
+    Map<String, String> getUserPrincipals(Long sessionId);
 
-    public IoSessionEx getSession(long sessionId);
+    IoSessionEx getSession(long sessionId);
 
-    public ServiceContext getServiceContext();
+    ServiceContext getServiceContext();
 
-    public Set<String> getUserPrincipalClasses();
+    Set<String> getUserPrincipalClasses();
 
-    public String getServiceName();
+    String getServiceName();
 
     /**
-     * Convenience routine so we can get a string value for the IP address of a session. Used both for new sessions and
-     * session open-close.
+     * Convenience routine so we can get a string value for the IP address of a session. Used both for new sessions and session
+     * open-close.
+     *
      * @param session
      * @return
      */
-    public String getSessionRemoteAddress(IoSessionEx session);
+    String getSessionRemoteAddress(IoSessionEx session);
 
     // -----------------------------------------------------------------
     // For proxy style services the following methods should return data
     // -----------------------------------------------------------------
 
-    public long getLastSuccessfulConnectTime();
+    long getLastSuccessfulConnectTime();
 
-    public long getLastFailedConnectTime();
+    long getLastFailedConnectTime();
 
-    public boolean getLastHeartbeatPingResult();
+    boolean getLastHeartbeatPingResult();
 
-    public long getLastHeartbeatPingTimestamp();
+    long getLastHeartbeatPingTimestamp();
 
-    public int getHeartbeatPingCount();
+    int getHeartbeatPingCount();
 
-    public int getHeartbeatPingSuccessesCount();
+    int getHeartbeatPingSuccessesCount();
 
-    public int getHeartbeatPingFailuresCount();
+    int getHeartbeatPingFailuresCount();
 
-    public boolean isServiceConnected();
+    boolean isServiceConnected();
 
-    public boolean isHeartbeatRunning();
+    boolean isHeartbeatRunning();
 
     // -----------------------------------------------------------------
     // end of proxy-style service data
@@ -173,53 +172,53 @@ public interface ServiceManagementBean extends ManagementBean {
     // Now some lifecycle methods, generally called from a particular
     // management interface through the beans for that protocol, for
     // example the ServiceMXBean for a given service.
-    public void start() throws Exception;
+    void start() throws Exception;
 
-    public void stop() throws Exception;
+    void stop() throws Exception;
 
-    public void restart() throws Exception;
+    void restart() throws Exception;
 
     // Methods that we expose as part of event handling at the service level to
     // allow us to modify the service management bean before it's handed to the
     // managementProcessors for protocol-specific handling.
 
-    public void doSessionCreated(long sessionId, ManagementSessionType managementSessionType) throws Exception;
+    void doSessionCreated(long sessionId, ManagementSessionType managementSessionType) throws Exception;
 
-    public void doSessionCreatedListeners(final long sessionId, final ManagementSessionType managementSessionType);
+    void doSessionCreatedListeners(final long sessionId, final ManagementSessionType managementSessionType);
 
-    public void doSessionClosed(long sessionId, ManagementSessionType managementSessionType) throws Exception;
+    void doSessionClosed(long sessionId, ManagementSessionType managementSessionType) throws Exception;
 
-    public void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType);
+    void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType);
 
-    public void doMessageReceived(long sessionId, long sessionReadBytes, Object message) throws Exception;
+    void doMessageReceived(long sessionId, long sessionReadBytes, Object message) throws Exception;
 
-    public void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message);
+    void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message);
 
-    public void doFilterWrite(long sessionId, long sessionWrittenBytes, WriteRequest writeRequest) throws Exception;
+    void doFilterWrite(long sessionId, long sessionWrittenBytes, WriteRequest writeRequest) throws Exception;
 
-    public void doFilterWriteListeners(final long sessionId,
+    void doFilterWriteListeners(final long sessionId,
                                        final long sessionWrittenBytes,
                                        final WriteRequest writeRequest);
 
-    public String doExceptionCaught(long sessionId, Throwable cause) throws Exception;
+    String doExceptionCaught(long sessionId, Throwable cause) throws Exception;
 
-    public void doExceptionCaughtListeners(final long sessionId, final Throwable cause);
+    void doExceptionCaughtListeners(final long sessionId, final Throwable cause);
 
-    public void storeSessionManagementBean(SessionManagementBean sessionBean);
+    void storeSessionManagementBean(SessionManagementBean sessionBean);
 
-    public SessionManagementBean getSessionManagementBean(long sessionId);
+    SessionManagementBean getSessionManagementBean(long sessionId);
 
-    public SessionManagementBean removeSessionManagementBean(long sessionId);
+    SessionManagementBean removeSessionManagementBean(long sessionId);
 
-    public void enableNotifications(boolean notificationsEnabled);
+    void enableNotifications(boolean notificationsEnabled);
 
-    public boolean areNotificationsEnabled();
+    boolean areNotificationsEnabled();
 
-    public void addUserPrincipals(IoSessionEx session, Map<String, String> userPrincipals);
+    void addUserPrincipals(IoSessionEx session, Map<String, String> userPrincipals);
 
-    public void removeUserPrincipals(IoSessionEx session);
+    void removeUserPrincipals(IoSessionEx session);
 
-    public static class DefaultServiceManagementBean extends AbstractManagementBean implements ServiceManagementBean {
+    static class DefaultServiceManagementBean extends AbstractManagementBean implements ServiceManagementBean {
         // Each IO worker thread gets a ThreadServiceStats object via get().
         private final ThreadLocal<ThreadServiceStats> serviceStats = new VicariousThreadLocal<ThreadServiceStats>() {
             @Override
@@ -237,7 +236,8 @@ public interface ServiceManagementBean extends ManagementBean {
         private static final Logger logger = LoggerFactory.getLogger(DefaultServiceManagementBean.class);
 
         // Map of the per-thread thread-local stats objects. Keyed on thread ID.
-        private final CopyOnWriteMap<Thread, ThreadServiceStats> serviceStatsMap = new CopyOnWriteMap<Thread, ThreadServiceStats>();
+        private final CopyOnWriteMap<Thread, ThreadServiceStats> serviceStatsMap =
+                new CopyOnWriteMap<Thread, ThreadServiceStats>();
 
         // Keep a unique index number for each service instance, as we can use
         // it in SNMP for an OID, and it might be useful elsewhere if we decide
@@ -247,7 +247,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         private final int index;
 
-        private boolean notificationsEnabled = false;
+        private boolean notificationsEnabled;
 
 
         private final GatewayManagementBean gatewayManagementBean;
@@ -265,20 +265,20 @@ public interface ServiceManagementBean extends ManagementBean {
         private Set<Long> sessionCreatedFlag = new HashSet<Long>();
 
         /**
-         * Constructor. The reason we pass in the managementProcessorList is that during sessionClosed, there are things
-         * we want to do with the various ManagementProcessors (like notifications) that use the new values of counts in
-         * the bean. The problem is that if some other session closes at roughly the same time, we'll have a race
-         * condition on reporting the 'current session count' value. The best way to fix that is to get the new value as
-         * we change the old one, then send that value to the management processors, rather than forcing them to fetch
-         * the current one later and assume that it is correct.
-         * 
+         * Constructor. The reason we pass in the managementProcessorList is that during sessionClosed, there are things we want
+         * to do with the various ManagementProcessors (like notifications) that use the new values of counts in the bean. The
+         * problem is that if some other session closes at roughly the same time, we'll have a race condition on reporting the
+         * 'current session count' value. The best way to fix that is to get the new value as we change the old one, then send
+         * that value to the management processors, rather than forcing them to fetch the current one later and assume that it is
+         * correct.
+         *
          * @param address
          * @param gatewayManagementBean
          * @param serviceContext
          * @param beanId
          */
-        public DefaultServiceManagementBean(GatewayManagementBean gatewayManagementBean,
-                ServiceContext serviceContext) {
+        DefaultServiceManagementBean(GatewayManagementBean gatewayManagementBean,
+                                            ServiceContext serviceContext) {
             super(gatewayManagementBean.getManagementContext(), gatewayManagementBean.getManagementContext()
                     .getServiceSummaryDataNotificationInterval(), SUMMARY_DATA_FIELD_LIST);
 
@@ -554,55 +554,55 @@ public interface ServiceManagementBean extends ManagementBean {
         // XXX This runs OFF the IO thread
         @Override
         public long getLastSuccessfulConnectTime() {
-            return (serviceConnectManager != null ? serviceConnectManager.getLastSuccessfulConnectTime() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getLastSuccessfulConnectTime() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public long getLastFailedConnectTime() {
-            return (serviceConnectManager != null ? serviceConnectManager.getLastFailedConnectTime() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getLastFailedConnectTime() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public boolean getLastHeartbeatPingResult() {
-            return (serviceConnectManager != null ? serviceConnectManager.getLastHeartbeatPingResult() : false);
+            return serviceConnectManager != null ? serviceConnectManager.getLastHeartbeatPingResult() : false;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public long getLastHeartbeatPingTimestamp() {
-            return (serviceConnectManager != null ? serviceConnectManager.getLastHeartbeatPingTimestamp() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getLastHeartbeatPingTimestamp() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public int getHeartbeatPingCount() {
-            return (serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingCount() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingCount() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public int getHeartbeatPingSuccessesCount() {
-            return (serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingSuccessesCount() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingSuccessesCount() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public int getHeartbeatPingFailuresCount() {
-            return (serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingFailuresCount() : 0);
+            return serviceConnectManager != null ? serviceConnectManager.getHeartbeatPingFailuresCount() : 0;
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public boolean isServiceConnected() {
-            return (serviceConnectManager != null && serviceConnectManager.isServiceConnected());
+            return serviceConnectManager != null && serviceConnectManager.isServiceConnected();
         }
 
         // XXX This runs OFF the IO thread
         @Override
         public boolean isHeartbeatRunning() {
-            return (serviceConnectManager != null && serviceConnectManager.isHeartbeatRunning());
+            return serviceConnectManager != null && serviceConnectManager.isHeartbeatRunning();
         }
 
         @Override
@@ -664,9 +664,9 @@ public interface ServiceManagementBean extends ManagementBean {
         // ALL REQUESTS WILL BE ON ONE OR ANOTHER OF THE IO THREADS, SO MUST NOT BLOCK!
 
         /**
-         * When a session is created, create the thread-local copy of ThreadServiceStats and put the same object into
-         * the serviceStatsMap so we can reference it here. Since a given session is pinned to a given worker thread and
-         * we use a CopyOnWriteMap for serviceStatsMap, this is thread-safe.
+         * When a session is created, create the thread-local copy of ThreadServiceStats and put the same object into the
+         * serviceStatsMap so we can reference it here. Since a given session is pinned to a given worker thread and we use a
+         * CopyOnWriteMap for serviceStatsMap, this is thread-safe.
          */
         // This must run ON the IO thread
         @Override
@@ -678,7 +678,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         /**
          * Notify the management listeners when a session is created.
-         * 
+         * <p/>
          * NOTE: this starts on the IO thread, but runs a task OFF the thread.
          */
         @Override
@@ -716,7 +716,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         /**
          * Notify the management listeners on a sessionClosed.
-         * 
+         * <p/>
          * NOTE: this starts on the IO thread, but runs a task OFF the thread.
          */
         @Override
@@ -749,11 +749,11 @@ public interface ServiceManagementBean extends ManagementBean {
 
         /**
          * Notify the management listeners on a messageReceived.
-         * 
+         * <p/>
          * NOTE: this starts on the IO thread, but runs a task OFF the thread.
          */
         @Override
-        public void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message) {
+        public  void doMessageReceivedListeners(final long sessionId, final long sessionReadBytes, final Object message) {
             runManagementTask(new Runnable() {
                 public void run() {
                     try {
@@ -784,7 +784,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         /**
          * Notify the management listeners on a filterWrite.
-         * 
+         * <p/>
          * NOTE: this starts on the IO thread, but runs a task OFF the thread.
          */
         @Override
@@ -828,7 +828,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         /**
          * Notify the management listeners on a doExceptionCaught
-         * 
+         * <p/>
          * NOTE: this starts on the IO thread, but runs a task OFF the thread.
          */
         @Override
@@ -886,9 +886,9 @@ public interface ServiceManagementBean extends ManagementBean {
         }
 
         /**
-         * Ongoing service statistics. There is an instance of this class per worker thread, stored as a ThreadLocal on
-         * the thread, with a reference to it in a CopyOnWriteMap stored here in DefaultServiceManagementBean so we can
-         * do insertions of stats objects into the map without locks.
+         * Ongoing service statistics. There is an instance of this class per worker thread, stored as a ThreadLocal on the
+         * thread, with a reference to it in a CopyOnWriteMap stored here in DefaultServiceManagementBean so we can do insertions
+         * of stats objects into the map without locks.
          */
         private class ThreadServiceStats {
 
@@ -918,8 +918,8 @@ public interface ServiceManagementBean extends ManagementBean {
             private long latestExceptionTime;
 
             // the following are 'assembled' values that we're calculating as we go along.
-            private long totalBytesSentCount = 0;
-            private long totalBytesReceivedCount = 0;
+            private long totalBytesSentCount;
+            private long totalBytesReceivedCount;
 
             // A map of session ID to an associated set of user principals. Note that we
             // need to convert the ID to something else (e.g. session MBean name) when
@@ -937,13 +937,14 @@ public interface ServiceManagementBean extends ManagementBean {
             private final ByteCountMap bytesReceivedCountBySession = new ByteCountMap();
 
             /**
-             * Given a session, extract relevant counts and update them locally. NOTE: because we're a singlw thread, it
-             * doesn't really help to return the new values, as other threads will be getting stuff, too.
+             * Given a session, extract relevant counts and update them locally. NOTE: because we're a singlw thread, it doesn't
+             * really help to return the new values, as other threads will be getting stuff, too.
+             *
              * @param session
              * @return
              */
             // This must only be called ON an IO thread (the one equal to this structure)
-            public void doSessionCreated(long sessionId, ManagementSessionType managementSessionType) {
+            void doSessionCreated(long sessionId, ManagementSessionType managementSessionType) {
                 currentSessionCount++;
                 cumulativeSessionCount++;
 
@@ -956,7 +957,7 @@ public interface ServiceManagementBean extends ManagementBean {
                 }
             }
 
-            public void doSessionClosed(long sessionId, ManagementSessionType managementSessionType) {
+            void doSessionClosed(long sessionId, ManagementSessionType managementSessionType) {
                 currentSessionCount--;
 
                 if (managementSessionType.equals(ManagementSessionType.NATIVE)) {
@@ -970,11 +971,11 @@ public interface ServiceManagementBean extends ManagementBean {
                 loggedInSessions.remove(sessionId);
             }
 
-            public void storeSessionManagementBean(SessionManagementBean sessionBean) {
+            void storeSessionManagementBean(SessionManagementBean sessionBean) {
                 sessionBeans.put(sessionBean.getId(), sessionBean);
             }
 
-            public SessionManagementBean getSessionManagementBean(long sessionId) {
+            SessionManagementBean getSessionManagementBean(long sessionId) {
                 SessionMapEntry entry = sessionBeans.get(sessionId);
                 if (entry != null) {
                     return entry.bean;
@@ -983,7 +984,7 @@ public interface ServiceManagementBean extends ManagementBean {
                 return null;
             }
 
-            public SessionManagementBean removeSessionManagementBean(long sessionId) {
+            SessionManagementBean removeSessionManagementBean(long sessionId) {
                 SessionMapEntry entry = sessionBeans.remove(sessionId);
                 if (entry != null) {
                     return entry.bean;
@@ -997,37 +998,37 @@ public interface ServiceManagementBean extends ManagementBean {
 
             // This runs OFF any IO worker thread.
             // See comment above about not needing a Future or Atomic.
-            public long getCurrentSessionCount() {
+            long getCurrentSessionCount() {
                 return currentSessionCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getCurrentNativeSessionCount() {
+            long getCurrentNativeSessionCount() {
                 return currentNativeSessionCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getCurrentEmulatedSessionCount() {
+            long getCurrentEmulatedSessionCount() {
                 return currentEmulatedSessionCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getCumulativeSessionCount() {
+            long getCumulativeSessionCount() {
                 return cumulativeSessionCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getCumulativeNativeSessionCount() {
+            long getCumulativeNativeSessionCount() {
                 return cumulativeNativeSessionCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getCumulativeEmulatedSessionCount() {
+            long getCumulativeEmulatedSessionCount() {
                 return cumulativeEmulatedSessionCount;
             }
 
@@ -1035,7 +1036,7 @@ public interface ServiceManagementBean extends ManagementBean {
             // XXX Should we be doing this as a Runnsble on the associated thread?
             // This is only called explicitly from JMX or SNMP--not internally by
             // the gateway for any particular reason.
-            public void clearCumulativeSessionCount() {
+            void clearCumulativeSessionCount() {
                 cumulativeSessionCount = 0;
                 cumulativeNativeSessionCount = 0;
                 cumulativeEmulatedSessionCount = 0;
@@ -1043,12 +1044,12 @@ public interface ServiceManagementBean extends ManagementBean {
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getExceptionCount() {
+            long getExceptionCount() {
                 return exceptionCount;
             }
 
             // This must run ON the stats current worker thread.
-            public void setLatestException(final String exception, final long exceptionTime) {
+            void setLatestException(final String exception, final long exceptionTime) {
                 exceptionCount++;
                 latestException = exception;
                 latestExceptionTime = exceptionTime;
@@ -1060,7 +1061,7 @@ public interface ServiceManagementBean extends ManagementBean {
             // This method is different than the 'counts' methods above, in that it assumes it is being called
             // as part of calling several consecutive stats objects and adds/updates the incoming totals with
             // its local data, rather than just returning the data. This makes it simpler for the caller.
-            public void collectLatestException(Object[] exceptionData) {
+            void collectLatestException(Object[] exceptionData) {
                 if (latestExceptionTime > ((Long) exceptionData[0])) {
                     // XXX It is possible that things change between the first and second statements below1
                     exceptionData[0] = latestExceptionTime;
@@ -1070,19 +1071,19 @@ public interface ServiceManagementBean extends ManagementBean {
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getTotalBytesSentCount() {
+            long getTotalBytesSentCount() {
                 return totalBytesSentCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public long getTotalBytesReceivedCount() {
+            long getTotalBytesReceivedCount() {
                 return totalBytesReceivedCount;
             }
 
             // This runs OFF any IO worker thread
             // See comment above about not needing a Future or Atomic.
-            public void collectLoggedInSessions(Map<Long, Map<String, String>> vals) {
+            void collectLoggedInSessions(Map<Long, Map<String, String>> vals) {
                 vals.putAll(loggedInSessions);
             }
 
@@ -1093,28 +1094,37 @@ public interface ServiceManagementBean extends ManagementBean {
             // This method is different than the 'counts' methods above, in that it assumes it is being called
             // as part of calling several consecutive stats objects and adds/updates the incoming totals with
             // its local data, rather than just returning the data. This makes it simpler for the caller.
-            public void collectSummaryValues(Object[] vals) {
+            void collectSummaryValues(Object[] vals) {
                 // 'vals' must be of size ServiceManagementBean.SUMMARY_DATA_FIELD_LIST.length;
                 // XXX it is possible that things change between accesses below. Without a global
                 // lock I'm not sure we can guarantee anything, but we'll be as close as possible.
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX])
-                        + totalBytesReceivedCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX])
-                        + totalBytesSentCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX])
-                        + currentSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX])
-                        + currentNativeSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX])
-                        + currentEmulatedSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX])
-                        + cumulativeSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX])
-                        + cumulativeNativeSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX])
-                        + cumulativeEmulatedSessionCount;
-                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX] = ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX])
-                        + exceptionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX])
+                                + totalBytesReceivedCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX])
+                                + totalBytesSentCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX])
+                                + currentSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_NATIVE_SESSIONS_INDEX])
+                                + currentNativeSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CURRENT_EMULATED_SESSIONS_INDEX])
+                                + currentEmulatedSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_SESSIONS_INDEX])
+                                + cumulativeSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_NATIVE_SESSIONS_INDEX])
+                                + cumulativeNativeSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_CUMULATIVE_EMULATED_SESSIONS_INDEX])
+                                + cumulativeEmulatedSessionCount;
+                vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX] =
+                        ((Long) vals[ServiceManagementBean.SUMMARY_DATA_TOTAL_EXCEPTION_COUNT_INDEX])
+                                + exceptionCount;
 
                 Long exceptionTime = (Long) vals[ServiceManagementBean.SUMMARY_DATA_LATEST_EXCEPTION_TIME_INDEX];
                 if (exceptionTime == null || latestExceptionTime > exceptionTime) {
@@ -1124,36 +1134,36 @@ public interface ServiceManagementBean extends ManagementBean {
             }
 
             // The following is to run ON the IO thread
-            public void addToBytesSent(long sessionId, long sessionWrittenBytes) {
+            void addToBytesSent(long sessionId, long sessionWrittenBytes) {
                 ByteCountMapEntry prevByteCount = bytesSentCountBySession.get(sessionId);
-                long delta = (prevByteCount == null ? sessionWrittenBytes : sessionWrittenBytes
-                        - prevByteCount.byteCount);
+                long delta = prevByteCount == null ? sessionWrittenBytes : sessionWrittenBytes
+                        - prevByteCount.byteCount;
                 bytesSentCountBySession.put(sessionId, sessionWrittenBytes);
                 totalBytesSentCount += delta;
             }
 
             // The following is to run ON the IO thread
-            public void addToBytesReceived(long sessionId, long sessionReadBytes) {
+            void addToBytesReceived(long sessionId, long sessionReadBytes) {
                 ByteCountMapEntry prevByteCount = bytesReceivedCountBySession.get(sessionId);
-                long delta = (prevByteCount == null ? sessionReadBytes : sessionReadBytes - prevByteCount.byteCount);
+                long delta = prevByteCount == null ? sessionReadBytes : sessionReadBytes - prevByteCount.byteCount;
                 bytesReceivedCountBySession.put(sessionId, sessionReadBytes);
                 totalBytesReceivedCount += delta;
             }
 
             // The following is to run ON the IO thread
-            public void addLoggedInSession(IoSessionEx session, Map<String, String> userPrincipals) {
+            void addLoggedInSession(IoSessionEx session, Map<String, String> userPrincipals) {
                 loggedInSessions.put(session.getId(), userPrincipals);
             }
 
             // The following is to run ON the IO thread
-            public void removeLoggedInSession(IoSessionEx session) {
+            void removeLoggedInSession(IoSessionEx session) {
                 loggedInSessions.remove(session.getId());
             }
         }
 
         // an implementation of a map that avoids auto-boxing longs to Longs and thus avoids creation of little
         // bits of garbage that then need to be garbage collected;
-        private class SessionMap {
+        private final class SessionMap {
             private int arraySize;
             private int mapSize;
             private SessionMapEntry[] data;
@@ -1263,7 +1273,7 @@ public interface ServiceManagementBean extends ManagementBean {
             }
         }
 
-        private class SessionMapEntry {
+        private final class SessionMapEntry {
             private long id;
             private SessionManagementBean bean;
             private SessionMapEntry next;
@@ -1282,7 +1292,7 @@ public interface ServiceManagementBean extends ManagementBean {
             }
         }
 
-        private class ByteCountMap {
+        private final class ByteCountMap {
             private int arraySize;
             private int mapSize;
             private ByteCountMapEntry[] data;
@@ -1392,7 +1402,7 @@ public interface ServiceManagementBean extends ManagementBean {
             }
         }
 
-        private class ByteCountMapEntry {
+        private final class ByteCountMapEntry {
             private long id;
             private long byteCount;
             private ByteCountMapEntry next;

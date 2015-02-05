@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -27,17 +27,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Do full management processing for both service and session. This is only done on
- * non-management session requests.
- * 
- * Sessions are either handled fully (collect and send notifications) or not at all 
- * (no collect, no notifications). That's really handled at the managementFilter level
- * most easily, so we really only need one ManagementSessionStrategy.
- * 
+ * Do full management processing for both service and session. This is only done on non-management session requests.
+ * <p/>
+ * Sessions are either handled fully (collect and send notifications) or not at all (no collect, no notifications). That's really
+ * handled at the managementFilter level most easily, so we really only need one ManagementSessionStrategy.
+ * <p/>
  * ALL REQUESTS WILL BE ON ONE OR ANOTHER OF THE IO THREADS, SO MUST NOT BLOCK!
  */
-public class FullManagementSessionStrategy extends CollectOnlyManagementSessionStrategy { 
-        
+public class FullManagementSessionStrategy extends CollectOnlyManagementSessionStrategy {
+
     private static final Logger logger = LoggerFactory.getLogger(FullManagementSessionStrategy.class);
 
     public FullManagementSessionStrategy() {
@@ -59,13 +57,13 @@ public class FullManagementSessionStrategy extends CollectOnlyManagementSessionS
     }
 
     @Override
-    public void doMessageReceived(final SessionManagementBean sessionBean, final Object message) throws Exception {        
+    public void doMessageReceived(final SessionManagementBean sessionBean, final Object message) throws Exception {
         super.doMessageReceived(sessionBean, message);
         sessionBean.doMessageReceivedListeners(message);
     }
 
     @Override
-    public void doFilterWrite(final SessionManagementBean sessionBean, final WriteRequest writeRequest) throws Exception {        
+    public void doFilterWrite(final SessionManagementBean sessionBean, final WriteRequest writeRequest) throws Exception {
         super.doMessageReceived(sessionBean, writeRequest);
         sessionBean.doFilterWriteListeners(writeRequest);
     }

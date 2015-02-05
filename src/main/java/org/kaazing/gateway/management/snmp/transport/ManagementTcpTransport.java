@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
@@ -52,7 +51,8 @@ public class ManagementTcpTransport extends ManagementTransport {
     public void close() throws IOException {
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public Class getSupportedAddressClass() {
         return TcpAddress.class;
     }
@@ -60,7 +60,7 @@ public class ManagementTcpTransport extends ManagementTransport {
     @Override
     public void sendMessage(Address address, final byte[] message) throws IOException {
         if (address instanceof TcpAddress) {
-            TcpAddress tcpAddress = (TcpAddress)address;
+            TcpAddress tcpAddress = (TcpAddress) address;
             try {
                 URI connectURI = new URI("tcp://" + tcpAddress.getInetAddress().getHostAddress() + ":" + tcpAddress.getPort());
 
@@ -89,7 +89,9 @@ public class ManagementTcpTransport extends ManagementTransport {
                         } else {
                             // FIXME:  log warning?  blacklist the offending address in the MIB?
                         }
-                    };
+                    }
+
+                    ;
                 });
             } catch (URISyntaxException ex) {
                 throw new IOException("Unable to send message to address: " + tcpAddress, ex);

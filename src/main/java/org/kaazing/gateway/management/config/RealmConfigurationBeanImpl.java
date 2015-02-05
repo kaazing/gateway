@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,11 +23,9 @@ package org.kaazing.gateway.management.config;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
@@ -60,12 +58,12 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
     public String getAuthorizationMode() {
         return realm.getAuthenticationContext().getAuthorizationMode();
     }
-    
+
     @Override
     public String getSessionTimeout() {
         return realm.getAuthenticationContext().getSessionTimeout();
     }
-    
+
     @Override
     public String getLoginModules() {
         Configuration configuration = realm.getConfiguration();
@@ -95,7 +93,7 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
             // This is only for JSON exceptions, but there should be no way to
             // hit this.
         }
-        
+
         return jsonArray.toString();
     }
 
@@ -133,7 +131,7 @@ public class RealmConfigurationBeanImpl implements RealmConfigurationBean {
     public String getUserPrincipalClasses() {
         return makeJSONArray(realm.getUserPrincipalClasses());
     }
-    
+
     public String makeJSONArray(String[] strArray) {
         if (strArray == null) {
             return null;

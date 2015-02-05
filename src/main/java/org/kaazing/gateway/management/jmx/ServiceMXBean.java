@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,53 +25,63 @@ import java.util.Map;
 
 public interface ServiceMXBean {
 
-    public long getNumberOfCumulativeSessions();
+    long getNumberOfCumulativeSessions();
 
-    public long getNumberOfCumulativeNativeSessions();
-    
-    public long getNumberOfCumulativeEmulatedSessions();
+    long getNumberOfCumulativeNativeSessions();
 
-    public long getNumberOfCurrentSessions();
-    
-    public long getNumberOfCurrentNativeSessions();
-    
-    public long getNumberOfCurrentEmulatedSessions();
+    long getNumberOfCumulativeEmulatedSessions();
 
-    public long getNumberOfExceptions();
-    
-    public String getLatestException();
+    long getNumberOfCurrentSessions();
 
-    public void clearCumulativeSessionsCount();
+    long getNumberOfCurrentNativeSessions();
 
-    public long getTotalBytesReceivedCount();
+    long getNumberOfCurrentEmulatedSessions();
 
-    public long getTotalBytesSentCount();
+    long getNumberOfExceptions();
 
-    public Map<String, Map<String, String>> getLoggedInSessions();
+    String getLatestException();
 
-    public Map<String, String> getUserPrincipals(Long sessionId);
-    
+    void clearCumulativeSessionsCount();
+
+    long getTotalBytesReceivedCount();
+
+    long getTotalBytesSentCount();
+
+    Map<String, Map<String, String>> getLoggedInSessions();
+
+    Map<String, String> getUserPrincipals(Long sessionId);
+
     // -----------------------------------------------------------------
     // For proxy style services the following methods should return data
     // -----------------------------------------------------------------
 
     // FIXME: Refactor this into ProxyServiceMXBean so that they only show up on relevant services?
-    public long getLastSuccessfulConnectTime();
-    public long getLastFailedConnectTime();
-    public boolean getLastHeartbeatPingResult();
-    public long getLastHeartbeatPingTimestamp();
-    public int getHeartbeatPingCount();
-    public int getHeartbeatPingSuccessesCount();
-    public int getHeartbeatPingFailuresCount();
-    public boolean isServiceConnected();
-    public boolean isHeartbeatRunning();
+    long getLastSuccessfulConnectTime();
+
+    long getLastFailedConnectTime();
+
+    boolean getLastHeartbeatPingResult();
+
+    long getLastHeartbeatPingTimestamp();
+
+    int getHeartbeatPingCount();
+
+    int getHeartbeatPingSuccessesCount();
+
+    int getHeartbeatPingFailuresCount();
+
+    boolean isServiceConnected();
+
+    boolean isHeartbeatRunning();
 
     // -----------------------------------------------------------------
     // end of proxy-style service data
     // -----------------------------------------------------------------
 
     // lifecycle methods
-    public void start() throws Exception;
-    public void stop() throws Exception;
-    public void restart() throws Exception;
+    void start() throws Exception;
+
+    void stop() throws Exception;
+
+    void restart() throws Exception;
 }

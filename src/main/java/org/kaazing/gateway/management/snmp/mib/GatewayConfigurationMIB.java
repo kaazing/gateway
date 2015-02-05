@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.snmp.mib;
 
 import java.util.List;
-
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.config.ClusterConfigurationBean;
 import org.kaazing.gateway.management.config.NetworkConfigurationBean;
@@ -51,9 +50,9 @@ import org.snmp4j.smi.Variable;
 
 /**
  * MIB support for Gateway-level configuration data.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class GatewayConfigurationMIB implements MOGroup {
 
@@ -75,13 +74,13 @@ public class GatewayConfigurationMIB implements MOGroup {
 
     private MOScalar serviceDefaultsAcceptOptions;
     private MOScalar serviceDefaultsMimeMappings;
-    
+
     // extra fields that really aren't part of the config, but are fixed
     // per gateway, so should be reported here.
     private MOScalar versionInfoProductTitle;
     private MOScalar versionInfoProductBuild;
     private MOScalar versionInfoProductEdition;
-    
+
     public GatewayConfigurationMIB(MOFactory factory) {
         createClusterConfig(factory);
         createNetworkConfig(factory);
@@ -130,187 +129,187 @@ public class GatewayConfigurationMIB implements MOGroup {
     }
 
     private void createRealmTable(MOFactory moFactory) {
-        // Index definition 
-        OID realmConfigEntryOID = ((OID)MIBConstants.oidRealmConfig.clone()).append(1);
-        OID realmConfigEntryIndexOID = ((OID)realmConfigEntryOID.clone()).append(1);
+        // Index definition
+        OID realmConfigEntryOID = ((OID) MIBConstants.oidRealmConfig.clone()).append(1);
+        OID realmConfigEntryIndexOID = ((OID) realmConfigEntryOID.clone()).append(1);
         MOTableSubIndex[] realmConfigEntryIndexes =
-          new MOTableSubIndex[] {
-                moFactory.createSubIndex(realmConfigEntryIndexOID,
-                                         SMIConstants.SYNTAX_INTEGER, 1, 1),
-            };
+                new MOTableSubIndex[]{
+                        moFactory.createSubIndex(realmConfigEntryIndexOID,
+                                SMIConstants.SYNTAX_INTEGER, 1, 1),
+                };
 
         MOTableIndex realmConfigEntryIndex =
-          moFactory.createIndex(realmConfigEntryIndexes, true);
+                moFactory.createIndex(realmConfigEntryIndexes, true);
 
         // Columns
         MOColumn[] realmConfigColumns = new MOColumn[MIBConstants.REALM_COLUMN_COUNT];
 
         // name
         realmConfigColumns[MIBConstants.realmConfigNameIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigName,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigName,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // description
         realmConfigColumns[MIBConstants.realmConfigDescriptionIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigDescription,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigDescription,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // user-principal-classes
         realmConfigColumns[MIBConstants.realmConfigUserPrincipalClassesIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigUserPrincipalClasses,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigUserPrincipalClasses,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // HTTP challenge scheme
         realmConfigColumns[MIBConstants.realmConfigHttpChallengeSchemeIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigHttpChallengeScheme,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigHttpChallengeScheme,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // HTTP headers
         realmConfigColumns[MIBConstants.realmConfigHttpHeadersIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigHttpHeaders,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigHttpHeaders,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // HTTP query params
         realmConfigColumns[MIBConstants.realmConfigQueryParamsIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigQueryParams,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigQueryParams,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // HTTP cookie names
         realmConfigColumns[MIBConstants.realmConfigCookieNamesIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigCookieNames,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigCookieNames,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // authorization mode
         realmConfigColumns[MIBConstants.realmConfigAuthorizationModeIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigAuthorizationMode,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigAuthorizationMode,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // session timeout
         realmConfigColumns[MIBConstants.realmConfigSessionTimeoutIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigSessionTimeout,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigSessionTimeout,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // login modules
         realmConfigColumns[MIBConstants.realmConfigLoginModulesIndex] =
-            new MOMutableColumn(MIBConstants.realmConfigLoginModules,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.realmConfigLoginModules,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // Table model
         realmTable = moFactory.createTable(realmConfigEntryOID,
-                                           realmConfigEntryIndex,
-                                           realmConfigColumns,
-                                           new RealmConfigurationTableModel());
+                realmConfigEntryIndex,
+                realmConfigColumns,
+                new RealmConfigurationTableModel());
     }
 
     private void createServiceTable(MOFactory moFactory) {
         // Index definition
-        OID serviceConfigEntryOID = ((OID)MIBConstants.oidServiceConfig.clone()).append(1);
-        OID serviceConfigEntryIndexOID = ((OID)serviceConfigEntryOID.clone()).append(1);
+        OID serviceConfigEntryOID = ((OID) MIBConstants.oidServiceConfig.clone()).append(1);
+        OID serviceConfigEntryIndexOID = ((OID) serviceConfigEntryOID.clone()).append(1);
         MOTableSubIndex[] serviceConfigEntryIndexes =
-          new MOTableSubIndex[] {
-                moFactory.createSubIndex(serviceConfigEntryIndexOID,
-                                         SMIConstants.SYNTAX_INTEGER, 1, 1),
-            };
+                new MOTableSubIndex[]{
+                        moFactory.createSubIndex(serviceConfigEntryIndexOID,
+                                SMIConstants.SYNTAX_INTEGER, 1, 1),
+                };
 
         MOTableIndex serviceConfigEntryIndex =
-          moFactory.createIndex(serviceConfigEntryIndexes, true);
+                moFactory.createIndex(serviceConfigEntryIndexes, true);
 
         // Columns
         MOColumn[] serviceConfigColumns = new MOColumn[MIBConstants.SERVICE_CONFIG_COLUMN_COUNT];
 
         // type
         serviceConfigColumns[MIBConstants.serviceConfigTypeIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigType,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
-        
+                new MOMutableColumn(MIBConstants.serviceConfigType,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+
         // name
         serviceConfigColumns[MIBConstants.serviceConfigNameIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigName,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigName,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // description
         serviceConfigColumns[MIBConstants.serviceConfigDescriptionIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigDescription,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigDescription,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // accepts
         serviceConfigColumns[MIBConstants.serviceConfigAcceptsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigAccepts,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigAccepts,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // accept options
         serviceConfigColumns[MIBConstants.serviceConfigAcceptOptionsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigAcceptOptions,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigAcceptOptions,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // balances
         serviceConfigColumns[MIBConstants.serviceConfigBalancesIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigBalances,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigBalances,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // connects
         serviceConfigColumns[MIBConstants.serviceConfigConnectsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigConnects,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigConnects,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // connect options
         serviceConfigColumns[MIBConstants.serviceConfigConnectOptionsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigConnectOptions,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigConnectOptions,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // cross-site-constraints
         serviceConfigColumns[MIBConstants.serviceConfigCrossSiteConstraintsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigCrossSiteConstraints,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigCrossSiteConstraints,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // properties
         serviceConfigColumns[MIBConstants.serviceConfigPropertiesIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigProperties,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigProperties,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // required roles
         serviceConfigColumns[MIBConstants.serviceConfigRequiredRolesIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigRequiredRoles,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigRequiredRoles,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // realm
         serviceConfigColumns[MIBConstants.serviceConfigRealmIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigRealm,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigRealm,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // mime mappings
         serviceConfigColumns[MIBConstants.serviceConfigMimeMappingsIndex] =
-            new MOMutableColumn(MIBConstants.serviceConfigMimeMappings,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.serviceConfigMimeMappings,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // Table model
         serviceTable = moFactory.createTable(serviceConfigEntryOID,
-                                             serviceConfigEntryIndex,
-                                             serviceConfigColumns,
-                                             new ServiceConfigurationTableModel());
+                serviceConfigEntryIndex,
+                serviceConfigColumns,
+                new ServiceConfigurationTableModel());
     }
 
     private void createServiceDefaults(MOFactory moFactory) {
@@ -333,7 +332,7 @@ public class GatewayConfigurationMIB implements MOGroup {
                 moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ),
                 new OctetString(""));
     }
-    
+
     @Override
     public void registerMOs(MOServer server, OctetString context) throws DuplicateRegistrationException {
         server.register(clusterName, context);
@@ -377,29 +376,23 @@ public class GatewayConfigurationMIB implements MOGroup {
     public OID addClusterConfiguration(ClusterConfigurationBean bean) {
         clusterName.setValue(Utils.stringToVariable(bean.getName()));
 
-        {
-            StringBuffer sb = new StringBuffer();
-            List<String> accepts = bean.getAccepts();
-            if (accepts != null) {
-                for (String accept : accepts) {
-                    sb.append(accept + '\n');
-                }
+        StringBuffer sb = new StringBuffer();
+        List<String> accepts = bean.getAccepts();
+        if (accepts != null) {
+            for (String accept : accepts) {
+                sb.append(accept + '\n');
             }
-
-            clusterAccepts.setValue(Utils.stringToVariable(sb.toString().trim()));
         }
+        clusterAccepts.setValue(Utils.stringToVariable(sb.toString().trim()));
 
-        {
-            StringBuffer sb = new StringBuffer();
-            List<String> connects = bean.getConnects();
-            if (connects != null) {
-                for (String connect : connects) {
-                    sb.append(connect + '\n');
-                }
+        sb = new StringBuffer();
+        List<String> connects = bean.getConnects();
+        if (connects != null) {
+            for (String connect : connects) {
+                sb.append(connect + '\n');
             }
-
-            clusterConnects.setValue(Utils.stringToVariable(sb.toString().trim()));
         }
+        clusterConnects.setValue(Utils.stringToVariable(sb.toString().trim()));
 
         clusterConnectOptions.setValue(Utils.stringToVariable(bean.getConnectOptions()));
 
@@ -434,7 +427,7 @@ public class GatewayConfigurationMIB implements MOGroup {
         // have a service index as the current number of rows in the table,
         // because earlier service entries may be gone.
         GatewayManagementBean gatewayBean = bean.getGatewayManagementBean();
-        OID realmConfigurationIndexOID = new OID(new int[] { gatewayBean.getId(), bean.getId() });
+        OID realmConfigurationIndexOID = new OID(new int[]{gatewayBean.getId(), bean.getId()});
         realmTable.addRow(new RealmConfigurationEntryRow(realmConfigurationIndexOID, bean));
 
         return realmConfigurationIndexOID;
@@ -449,7 +442,7 @@ public class GatewayConfigurationMIB implements MOGroup {
         // have a service index as the current number of rows in the table,
         // because earlier service entries may be gone.
         GatewayManagementBean gatewayBean = bean.getGatewayManagementBean();
-        OID serviceConfigurationIndexOID = new OID(new int[] { gatewayBean.getId(), bean.getId() });
+        OID serviceConfigurationIndexOID = new OID(new int[]{gatewayBean.getId(), bean.getId()});
         serviceTable.addRow(new ServiceConfigurationEntryRow(serviceConfigurationIndexOID, bean));
 
         return serviceConfigurationIndexOID;
@@ -471,12 +464,13 @@ public class GatewayConfigurationMIB implements MOGroup {
         versionInfoProductBuild.setValue(Utils.stringToVariable(gatewayBean.getProductBuild()));
         versionInfoProductEdition.setValue(Utils.stringToVariable(gatewayBean.getProductEdition()));
     }
-    
+
     private class RealmConfigurationTableModel extends DefaultMOMutableTableModel {
     }
 
-    private class RealmConfigurationEntryRow extends DefaultMOMutableRow2PC {
+    private final class RealmConfigurationEntryRow extends DefaultMOMutableRow2PC {
         private RealmConfigurationBean bean;
+
         private RealmConfigurationEntryRow(OID index, RealmConfigurationBean bean) {
             super(index, null);
             this.bean = bean;
@@ -489,29 +483,29 @@ public class GatewayConfigurationMIB implements MOGroup {
 
         @Override
         public Variable getValue(int column) {
-            switch(column) {
-            case MIBConstants.realmConfigNameIndex: // name
-                return Utils.stringToVariable(bean.getName());
-            case MIBConstants.realmConfigDescriptionIndex: // description
-                return Utils.stringToVariable(bean.getDescription());
-            case MIBConstants.realmConfigUserPrincipalClassesIndex: // user-principal-classes
-                return Utils.stringToVariable(bean.getUserPrincipalClasses());
-            case MIBConstants.realmConfigHttpChallengeSchemeIndex: // HTTP challenge scheme
-                return Utils.stringToVariable(bean.getHTTPChallengeScheme());
-            case MIBConstants.realmConfigHttpHeadersIndex: // HTTP headers
-                return Utils.stringToVariable(bean.getHTTPHeaders());
-            case MIBConstants.realmConfigQueryParamsIndex: // HTTP query params
-                return Utils.stringToVariable(bean.getHTTPQueryParameters());
-            case MIBConstants.realmConfigCookieNamesIndex: // HTTP cookie names
-                return Utils.stringToVariable(bean.getHTTPCookieNames());
-            case MIBConstants.realmConfigAuthorizationModeIndex: // authorization mode
-                return Utils.stringToVariable(bean.getAuthorizationMode());
-            case MIBConstants.realmConfigSessionTimeoutIndex: // session timeout
-                return Utils.stringToVariable(bean.getSessionTimeout());
-            case MIBConstants.realmConfigLoginModulesIndex: // configuration entries
-                return Utils.stringToVariable(bean.getLoginModules());
-            default:
-                throw new RuntimeException("Unknown realm table column: " + column);
+            switch (column) {
+                case MIBConstants.realmConfigNameIndex: // name
+                    return Utils.stringToVariable(bean.getName());
+                case MIBConstants.realmConfigDescriptionIndex: // description
+                    return Utils.stringToVariable(bean.getDescription());
+                case MIBConstants.realmConfigUserPrincipalClassesIndex: // user-principal-classes
+                    return Utils.stringToVariable(bean.getUserPrincipalClasses());
+                case MIBConstants.realmConfigHttpChallengeSchemeIndex: // HTTP challenge scheme
+                    return Utils.stringToVariable(bean.getHTTPChallengeScheme());
+                case MIBConstants.realmConfigHttpHeadersIndex: // HTTP headers
+                    return Utils.stringToVariable(bean.getHTTPHeaders());
+                case MIBConstants.realmConfigQueryParamsIndex: // HTTP query params
+                    return Utils.stringToVariable(bean.getHTTPQueryParameters());
+                case MIBConstants.realmConfigCookieNamesIndex: // HTTP cookie names
+                    return Utils.stringToVariable(bean.getHTTPCookieNames());
+                case MIBConstants.realmConfigAuthorizationModeIndex: // authorization mode
+                    return Utils.stringToVariable(bean.getAuthorizationMode());
+                case MIBConstants.realmConfigSessionTimeoutIndex: // session timeout
+                    return Utils.stringToVariable(bean.getSessionTimeout());
+                case MIBConstants.realmConfigLoginModulesIndex: // configuration entries
+                    return Utils.stringToVariable(bean.getLoginModules());
+                default:
+                    throw new RuntimeException("Unknown realm table column: " + column);
             }
         }
     }
@@ -519,8 +513,9 @@ public class GatewayConfigurationMIB implements MOGroup {
     private class ServiceConfigurationTableModel extends DefaultMOMutableTableModel {
     }
 
-    private class ServiceConfigurationEntryRow extends DefaultMOMutableRow2PC {
+    private final class ServiceConfigurationEntryRow extends DefaultMOMutableRow2PC {
         private ServiceConfigurationBean bean;
+
         private ServiceConfigurationEntryRow(OID index, ServiceConfigurationBean bean) {
             super(index, null);
             this.bean = bean;
@@ -533,36 +528,36 @@ public class GatewayConfigurationMIB implements MOGroup {
 
         @Override
         public Variable getValue(int column) {
-            switch(column) {
-            case MIBConstants.serviceConfigTypeIndex:
-                return Utils.stringToVariable(bean.getType());
-            case MIBConstants.serviceConfigNameIndex:
-                return Utils.stringToVariable(bean.getServiceName());
-            case MIBConstants.serviceConfigDescriptionIndex:
-                return Utils.stringToVariable(bean.getServiceDescription());
-            case MIBConstants.serviceConfigAcceptsIndex:
-                return Utils.stringToVariable(bean.getAccepts());
-            case MIBConstants.serviceConfigAcceptOptionsIndex:
-                return Utils.stringToVariable(bean.getAcceptOptions());
-            case MIBConstants.serviceConfigBalancesIndex:
-                return Utils.stringToVariable(bean.getBalances());
-            case MIBConstants.serviceConfigConnectsIndex:
-                return Utils.stringToVariable(bean.getConnects());
-            case MIBConstants.serviceConfigConnectOptionsIndex:
-                return Utils.stringToVariable(bean.getConnectOptions());
-            case MIBConstants.serviceConfigCrossSiteConstraintsIndex:
-                return Utils.stringToVariable(bean.getCrossSiteConstraints());
-            case MIBConstants.serviceConfigPropertiesIndex:
-                return Utils.stringToVariable(bean.getProperties());
-            case MIBConstants.serviceConfigRequiredRolesIndex:
-                return Utils.stringToVariable(bean.getRequiredRoles());
-            case MIBConstants.serviceConfigRealmIndex:
-                return Utils.stringToVariable(bean.getServiceRealm());
-            case MIBConstants.serviceConfigMimeMappingsIndex:
-                String mimeMappings = bean.getMimeMappings();
-                return Utils.stringToVariable(mimeMappings);
-            default:
-                throw new RuntimeException("Unknown service table column: " + column);
+            switch (column) {
+                case MIBConstants.serviceConfigTypeIndex:
+                    return Utils.stringToVariable(bean.getType());
+                case MIBConstants.serviceConfigNameIndex:
+                    return Utils.stringToVariable(bean.getServiceName());
+                case MIBConstants.serviceConfigDescriptionIndex:
+                    return Utils.stringToVariable(bean.getServiceDescription());
+                case MIBConstants.serviceConfigAcceptsIndex:
+                    return Utils.stringToVariable(bean.getAccepts());
+                case MIBConstants.serviceConfigAcceptOptionsIndex:
+                    return Utils.stringToVariable(bean.getAcceptOptions());
+                case MIBConstants.serviceConfigBalancesIndex:
+                    return Utils.stringToVariable(bean.getBalances());
+                case MIBConstants.serviceConfigConnectsIndex:
+                    return Utils.stringToVariable(bean.getConnects());
+                case MIBConstants.serviceConfigConnectOptionsIndex:
+                    return Utils.stringToVariable(bean.getConnectOptions());
+                case MIBConstants.serviceConfigCrossSiteConstraintsIndex:
+                    return Utils.stringToVariable(bean.getCrossSiteConstraints());
+                case MIBConstants.serviceConfigPropertiesIndex:
+                    return Utils.stringToVariable(bean.getProperties());
+                case MIBConstants.serviceConfigRequiredRolesIndex:
+                    return Utils.stringToVariable(bean.getRequiredRoles());
+                case MIBConstants.serviceConfigRealmIndex:
+                    return Utils.stringToVariable(bean.getServiceRealm());
+                case MIBConstants.serviceConfigMimeMappingsIndex:
+                    String mimeMappings = bean.getMimeMappings();
+                    return Utils.stringToVariable(mimeMappings);
+                default:
+                    throw new RuntimeException("Unknown service table column: " + column);
             }
         }
     }
