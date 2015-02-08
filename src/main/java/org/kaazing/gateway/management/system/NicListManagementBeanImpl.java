@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,30 +30,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of the management 'data' bean for the list of NICs for the system
- * running a given gateway. 
- * This just contains the data. Wrappers for different management protocols define 
- * the use of those data.
+ * Implementation of the management 'data' bean for the list of NICs for the system running a given gateway. This just contains
+ * the data. Wrappers for different management protocols define the use of those data.
  */
 public class NicListManagementBeanImpl extends AbstractSystemManagementBean implements NicListManagementBean {
-    
+
     private final GatewayManagementBean gatewayManagementBean;
 
     private String[] netInterfaceNames;
-    
-    private NicManagementBean[] nicManagementBeans = null;
-                
+
+    private NicManagementBean[] nicManagementBeans;
+
     private static final Logger logger = LoggerFactory.getLogger(NicListManagementBeanImpl.class);
-                    
+
     public NicListManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
         super(gatewayManagementBean.getManagementContext(),
-               gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
-               NicManagementBean.SUMMARY_DATA_FIELD_LIST,
-               gatewayManagementBean.getManagementContext().getNicListSummaryDataGatherInterval(),
-               "NIC list stats", 
-               "SNMPNicListSummaryData");
+                gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
+                NicManagementBean.SUMMARY_DATA_FIELD_LIST,
+                gatewayManagementBean.getManagementContext().getNicListSummaryDataGatherInterval(),
+                "NIC list stats",
+                "SNMPNicListSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
-        
+
         // Retrieve basic information about the NICs in the list.
         netInterfaceNames = managementContext.getSystemDataProvider().getNetInterfaceNames();
 
@@ -72,20 +70,20 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
     public NicManagementBean[] getNicManagementBeans() {
         return nicManagementBeans;
     }
-    
+
     @Override
     public String getNetInterfaceNames() {
         JSONArray jsonArray = null;
-        
+
         try {
             jsonArray = new JSONArray(netInterfaceNames);
         } catch (JSONException e) {
             // this will not do anything
         }
-        
+
         return jsonArray.toString();
     }
-            
+
     /**
      * Do the type-specific gathering of stats, called from 'gatherStats' in AbstractSummaryDataProvider.
      */
@@ -96,7 +94,7 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
 
         for (int i = 0; i < netInterfaceNames.length; i++) {
             String nicName = null;
-            
+
             nicName = netInterfaceNames[i];
 
             Long[] netInterfaceStats = managementContext.getSystemDataProvider().getNetInterfaceStats(nicName);

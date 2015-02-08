@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -32,17 +32,17 @@ import org.snmp4j.smi.Variable;
 
 /**
  * Summary data interval, in seconds, as an SNMP object.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class SummaryDataIntervalMO extends MOScalar {
     private SummaryManagementInterval interval;
 
     public SummaryDataIntervalMO(MOFactory moFactory, SummaryManagementInterval interval, OID intervalOID) {
         super(intervalOID,
-              moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE),
-              new Integer32(interval.getInterval()));
+                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE),
+                new Integer32(interval.getInterval()));
 
         this.interval = interval;
     }
@@ -55,7 +55,7 @@ public class SummaryDataIntervalMO extends MOScalar {
     @Override
     public int setValue(Variable newInterval) {
         if (newInterval instanceof Integer32) {
-            interval.setInterval(((Integer32)newInterval).getValue());
+            interval.setInterval(((Integer32) newInterval).getValue());
             return SnmpConstants.SNMP_ERROR_SUCCESS;
         }
         return SnmpConstants.SNMP_ERROR_BAD_VALUE;

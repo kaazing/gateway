@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.management.context.ManagementContext;
@@ -42,14 +41,14 @@ public class ManagementTransport implements TransportMapping {
     private static final Logger logger = LoggerFactory.getLogger(ManagementTransport.class);
     private final ManagementContext managementContext;
     private List<TransportListener> transportListeners = new ArrayList<TransportListener>();
-    
+
     // Pass in the ExecutorService used for management tasks, so we can get the management
     // requests OFF the normal IO threads before processing them.
     public ManagementTransport(ManagementContext managementContext) {
         super();
         this.managementContext = managementContext;
     }
-    
+
     @Override
     public void addMessageDispatcher(MessageDispatcher dispatcher) {
         addTransportListener(dispatcher);
@@ -75,7 +74,8 @@ public class ManagementTransport implements TransportMapping {
         return 0;
     }
 
-    @Override @SuppressWarnings("unchecked")
+    @Override
+    @SuppressWarnings("unchecked")
     public Class getSupportedAddressClass() {
         return ManagementAddress.class;
     }
@@ -102,15 +102,15 @@ public class ManagementTransport implements TransportMapping {
     @Override
     public void sendMessage(Address address, final byte[] message) throws IOException {
         if (address instanceof ManagementAddress) {
-            IoSessionEx session = ((ManagementAddress)address).getSession();
-  
+            IoSessionEx session = ((ManagementAddress) address).getSession();
+
             // According to Chris B, the following will realign with the session's IO thread,
-            // so we need not do it explicitly here. processMessage() was set up to get us OFF 
+            // so we need not do it explicitly here. processMessage() was set up to get us OFF
             // the IO threads, and here is where we get back on.
             if (logger.isTraceEnabled()) {
                 logger.trace("#### ManagementTransport sending message with " + message.length + " bytes");
             }
-            
+
             ByteBuffer b = ByteBuffer.wrap(message);
             IoBufferEx buf = session.getBufferAllocator().wrap(b);
             WriteFuture future = session.write(buf); // FIXME:  is this sufficient?
@@ -130,7 +130,7 @@ public class ManagementTransport implements TransportMapping {
     // Because requests involving service data need to avoid blocking IO threads but
     // also need to aggregate across IO threads, we need to use a new thread from the
     // management ExecutorService.
-    public void processMessage(final ManagementAddress address, final ByteBuffer message) {        
+    public void processMessage(final ManagementAddress address, final ByteBuffer message) {
         for (final TransportListener listener : transportListeners) {
             managementContext.runManagementTask(new Runnable() {
                 public void run() {

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.snmp.mib;
 
 import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.kaazing.gateway.management.Utils;
@@ -60,9 +59,9 @@ import org.snmp4j.smi.Variable;
 
 /**
  * MIB support for Service-level dynamic data.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapabilityList {
 
@@ -84,7 +83,7 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
     private MOTableIndex serviceEntryIndex;
     private MOTable serviceEntry;
     private MOTableModel serviceEntryModel;
-    
+
     private MOScalar summaryDataFields;
     private MOScalar summaryDataNotificationInterval;
 
@@ -95,15 +94,15 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
 
     private void createMO(MOFactory moFactory) {
         // Index definition
-        OID serviceConfigEntryIndexOID = ((OID)MIBConstants.oidServiceEntry.clone()).append(1);
+        OID serviceConfigEntryIndexOID = ((OID) MIBConstants.oidServiceEntry.clone()).append(1);
         serviceEntryIndexes =
-          new MOTableSubIndex[] {
-                moFactory.createSubIndex(serviceConfigEntryIndexOID,
-                                         SMIConstants.SYNTAX_INTEGER, 1, 1),
-            };
+                new MOTableSubIndex[]{
+                        moFactory.createSubIndex(serviceConfigEntryIndexOID,
+                                SMIConstants.SYNTAX_INTEGER, 1, 1),
+                };
 
         serviceEntryIndex =
-          moFactory.createIndex(serviceEntryIndexes, true);
+                moFactory.createIndex(serviceEntryIndexes, true);
 
         // Columns
         MOColumn[] serviceEntryColumns = new MOColumn[MIBConstants.SERVICE_COLUMN_COUNT];
@@ -111,19 +110,20 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
                 new MOMutableColumn(MIBConstants.colServiceIndex,
                         SMIConstants.SYNTAX_INTEGER,
                         moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
-        
+
         // state [running, stopped, stop requested, restart requested, start requested]
         serviceEntryColumns[MIBConstants.indexServiceState] =
                 new MOMutableColumn(MIBConstants.colServiceState,
                         SMIConstants.SYNTAX_INTEGER,
                         moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
-        
-        // boolean value (true == yes) whether or not the service can reach the connect (FIXME:  currently string as there is no boolean in SNMP)
+
+        // boolean value (true == yes) whether or not the service can reach the connect (FIXME:  currently string as there is
+        // no boolean in SNMP)
         serviceEntryColumns[MIBConstants.indexServiceConnected] =
                 new MOMutableColumn(MIBConstants.colServiceConnected,
                         SMIConstants.SYNTAX_INTEGER32,
                         moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
-        
+
         serviceEntryColumns[MIBConstants.indexServiceBytesReceivedCount] =
                 new MOMutableColumn(MIBConstants.colServiceBytesReceivedCount,
                         SMIConstants.SYNTAX_COUNTER64,
@@ -138,48 +138,48 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
                 new MOMutableColumn(MIBConstants.colServiceCurrentSessionCount,
                         SMIConstants.SYNTAX_COUNTER64,
                         moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
-        
+
         // number of current native websocket sessions
         serviceEntryColumns[MIBConstants.indexServiceCurrentNativeSessionCount] =
-            new MOMutableColumn(MIBConstants.colServiceCurrentNativeSessionCount,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceCurrentNativeSessionCount,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         // number of current emulated websocket sessions
         serviceEntryColumns[MIBConstants.indexServiceCurrentEmulatedSessionCount] =
-            new MOMutableColumn(MIBConstants.colServiceCurrentEmulatedSessionCount,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceCurrentEmulatedSessionCount,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         serviceEntryColumns[MIBConstants.indexServiceTotalSessionCount] =
-          new MOMutableColumn(MIBConstants.colServiceTotalSessionCount,
-                              SMIConstants.SYNTAX_COUNTER64,
-                              moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceTotalSessionCount,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // number of cumulative native websocket sessions
         serviceEntryColumns[MIBConstants.indexServiceTotalNativeSessionCount] =
-            new MOMutableColumn(MIBConstants.colServiceTotalNativeSessionCount,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceTotalNativeSessionCount,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         // number of cumulative emulated websocket sessions
         serviceEntryColumns[MIBConstants.indexServiceTotalEmulatedSessionCount] =
-            new MOMutableColumn(MIBConstants.colServiceTotalEmulatedSessionCount,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceTotalEmulatedSessionCount,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         // number of cumulative emulated websocket sessions
         serviceEntryColumns[MIBConstants.indexServiceTotalExceptionCount] =
-            new MOMutableColumn(MIBConstants.colServiceTotalExceptionCount,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceTotalExceptionCount,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         // latest exception to occur for a session in the service
         serviceEntryColumns[MIBConstants.indexServiceLatestException] =
-            new MOMutableColumn(MIBConstants.colServiceLatestException,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
-        
+                new MOMutableColumn(MIBConstants.colServiceLatestException,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+
         // time of latest exception, sent over as MS (long)
         serviceEntryColumns[MIBConstants.indexServiceLatestExceptionTime] =
                 new MOMutableColumn(MIBConstants.colServiceLatestExceptionTime,
@@ -188,87 +188,88 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
 
         // timestamp of the last successful connection
         serviceEntryColumns[MIBConstants.indexServiceLastSuccessfulConnectTime] =
-            new MOMutableColumn(MIBConstants.colServiceLastSuccessfulConnectTime,
-                                SMIConstants.SYNTAX_COUNTER64, // FIXME: date string instead of timestamp?
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceLastSuccessfulConnectTime,
+                        SMIConstants.SYNTAX_COUNTER64, // FIXME: date string instead of timestamp?
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // timestamp of the last failed connection
         serviceEntryColumns[MIBConstants.indexServiceLastFailedConnectTime] =
-            new MOMutableColumn(MIBConstants.colServiceLastFailedConnectTime,
-                                SMIConstants.SYNTAX_COUNTER64, // FIXME: date string instead of timestamp?
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceLastFailedConnectTime,
+                        SMIConstants.SYNTAX_COUNTER64, // FIXME: date string instead of timestamp?
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // boolean value (true == success) of last heartbeat ping (FIXME:  currently string as there is no boolean in SNMP)
         serviceEntryColumns[MIBConstants.indexServiceLastHeartbeatPingResult] =
-            new MOMutableColumn(MIBConstants.colServiceLastHeartbeatPingResult,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceLastHeartbeatPingResult,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // timestamp of last heartbeat ping
         serviceEntryColumns[MIBConstants.indexServiceLastHeartbeatPingTimestamp] =
-            new MOMutableColumn(MIBConstants.colServiceLastHeartbeatPingTimestamp,
-                                SMIConstants.SYNTAX_COUNTER64,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceLastHeartbeatPingTimestamp,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // number of times the heartbeat has pinged the connect
         serviceEntryColumns[MIBConstants.indexServiceHeartbeatPingCount] =
-            new MOMutableColumn(MIBConstants.colServiceHeartbeatPingCount,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceHeartbeatPingCount,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // number of times the heartbeat has successfully pinged the connect
         serviceEntryColumns[MIBConstants.indexServiceHeartbeatPingSuccessesCount] =
-            new MOMutableColumn(MIBConstants.colServiceHeartbeatPingSuccessesCount,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceHeartbeatPingSuccessesCount,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // number of times the heartbeat has failed to pinged the connect
         serviceEntryColumns[MIBConstants.indexServiceHeartbeatPingFailuresCount] =
-            new MOMutableColumn(MIBConstants.colServiceHeartbeatPingFailuresCount,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceHeartbeatPingFailuresCount,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
-        // boolean value (true == yes) whether or not the heartbeat is running (FIXME:  currently string as there is no boolean in SNMP)
+        // boolean value (true == yes) whether or not the heartbeat is running (FIXME:  currently string as there is no
+        // boolean in SNMP)
         serviceEntryColumns[MIBConstants.indexServiceHeartbeatRunning] =
-            new MOMutableColumn(MIBConstants.colServiceHeartbeatRunning,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceHeartbeatRunning,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // whether or not notifications are enabled for the service (1==yes, 0==no)
         serviceEntryColumns[MIBConstants.indexServiceEnableNotifications] =
-            new MOMutableColumn(MIBConstants.colServiceEnableNotifications,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colServiceEnableNotifications,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
 
         // logged in sessions
         serviceEntryColumns[MIBConstants.indexServiceLoggedInSessions] =
-            new MOMutableColumn(MIBConstants.colServiceLoggedInSessions,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceLoggedInSessions,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         serviceEntryColumns[MIBConstants.indexServiceSummaryData] =
-            new MOMutableColumn(MIBConstants.colServiceSummaryData,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colServiceSummaryData,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // Table model
         serviceEntryModel = new ServiceBeanTableModel();
         serviceEntry = moFactory.createTable(MIBConstants.oidServiceEntry,
-                                             serviceEntryIndex,
-                                             serviceEntryColumns,
-                                             serviceEntryModel);
+                serviceEntryIndex,
+                serviceEntryColumns,
+                serviceEntryModel);
 
         try {
             JSONArray jsonArray = new JSONArray(ServiceManagementBean.SUMMARY_DATA_FIELD_LIST);
-            summaryDataFields = new MOScalar(MIBConstants.oidServiceSummaryDataFields, 
+            summaryDataFields = new MOScalar(MIBConstants.oidServiceSummaryDataFields,
                     moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ),
                     new OctetString(jsonArray.toString()));
         } catch (JSONException ex) {
-            // Should not be possible to get here, since the list of 
-            // strings is valid and constant.            
+            // Should not be possible to get here, since the list of
+            // strings is valid and constant.
         }
-        
-        summaryDataNotificationInterval = new SummaryDataIntervalMO(moFactory, 
+
+        summaryDataNotificationInterval = new SummaryDataIntervalMO(moFactory,
                 managementContext.getServiceSummaryDataNotificationInterval(),
                 MIBConstants.oidServiceSummaryDataNotificationInterval);
     }
@@ -294,7 +295,7 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
 
     @Override
     public OID addSysOREntry(OID sysORID, OctetString sysORDescr) {
-        OID index = new OID(new int[] { sysOREntryModel.getRowCount()+1 });
+        OID index = new OID(new int[]{sysOREntryModel.getRowCount() + 1});
         Variable[] values = new Variable[sysOREntry.getColumnCount()];
         int n = 0;
         values[n++] = sysORID;
@@ -314,7 +315,7 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
         // have a service index as the current number of rows in the table,
         // because earlier service entries may be gone.
         GatewayManagementBean gatewayBean = bean.getGatewayManagementBean();
-        OID serviceIndexOID = new OID(new int[] { gatewayBean.getId(), bean.getId() });
+        OID serviceIndexOID = new OID(new int[]{gatewayBean.getId(), bean.getId()});
         serviceEntry.addRow(new ServiceEntryRow(serviceIndexOID, bean));
 
         return serviceIndexOID;
@@ -327,9 +328,10 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
     private class ServiceBeanTableModel extends DefaultMOMutableTableModel {
     }
 
-    private class ServiceEntryRow extends DefaultMOMutableRow2PC {
+    private final class ServiceEntryRow extends DefaultMOMutableRow2PC {
         private ServiceManagementBean bean;
         private int status;
+
         private ServiceEntryRow(OID index, ServiceManagementBean bean) {
             super(index, null);
             this.bean = bean;
@@ -347,137 +349,137 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
 
             try {
                 switch (column) {
-                case MIBConstants.indexServiceIndex:
-                    return new Integer32(getIndex().last());
-                case MIBConstants.indexServiceState:
-                    return new Integer32(status);
-                case MIBConstants.indexServiceConnected:
-                    return new Integer32(bean.isServiceConnected() ? 1 : 0);
-                case MIBConstants.indexServiceBytesReceivedCount:
-                    scalarValue = bean.getTotalBytesReceivedCount();
-                    break;
-                case MIBConstants.indexServiceBytesSentCount:
-                    scalarValue = bean.getTotalBytesSentCount();
-                    break;
-                case MIBConstants.indexServiceCurrentSessionCount:
-                    scalarValue = bean.getCurrentSessionCount();
-                    break;
-                case MIBConstants.indexServiceCurrentNativeSessionCount:
-                    scalarValue = bean.getCurrentNativeSessionCount();
-                    break;
-                case MIBConstants.indexServiceCurrentEmulatedSessionCount:
-                    scalarValue = bean.getCurrentEmulatedSessionCount();
-                    break;                   
-                case MIBConstants.indexServiceTotalSessionCount:
-                    scalarValue = bean.getCumulativeSessionCount();
-                    break;
-                case MIBConstants.indexServiceTotalNativeSessionCount:
-                    scalarValue = bean.getCumulativeNativeSessionCount();
-                    break;
-                case MIBConstants.indexServiceTotalEmulatedSessionCount:
-                    scalarValue = bean.getCumulativeEmulatedSessionCount();
-                    break;
-                case MIBConstants.indexServiceTotalExceptionCount:
-                    scalarValue = bean.getExceptionCount();
-                    break;
-                case MIBConstants.indexServiceLatestException:
-                    return Utils.stringToVariable(bean.getLatestException());
-                case MIBConstants.indexServiceLatestExceptionTime:
-                    scalarValue = bean.getLatestExceptionTime();
-                    break;
-                case MIBConstants.indexServiceLastSuccessfulConnectTime:
-                    scalarValue = bean.getLastSuccessfulConnectTime();
-                    break;
-                case MIBConstants.indexServiceLastFailedConnectTime:
-                    scalarValue = bean.getLastFailedConnectTime();
-                    break;
-                case MIBConstants.indexServiceLastHeartbeatPingResult:
-                    return (bean.getLastHeartbeatPingResult() 
-                            ? new OctetString("Successfully pinged service connects")
-                            : new OctetString("Failed to ping service connects"));
-                case MIBConstants.indexServiceLastHeartbeatPingTimestamp:
-                    scalarValue = bean.getLastHeartbeatPingTimestamp();
-                    break;
-                case MIBConstants.indexServiceHeartbeatPingCount:
-                    return new Integer32(bean.getHeartbeatPingCount());
-                case MIBConstants.indexServiceHeartbeatPingSuccessesCount:
-                    return new Integer32(bean.getHeartbeatPingSuccessesCount());
-                case MIBConstants.indexServiceHeartbeatPingFailuresCount:
-                    return new Integer32(bean.getHeartbeatPingFailuresCount());
-                case MIBConstants.indexServiceHeartbeatRunning:
-                    return new Integer32(bean.isHeartbeatRunning() ? 1 : 0);
-                case MIBConstants.indexServiceEnableNotifications:
-                    return new Integer32(bean.areNotificationsEnabled() ? 1 : 0);
-                case MIBConstants.indexServiceLoggedInSessions:
-                    return Utils.stringToVariable(getLoggedInSessionsData());
-                case MIBConstants.indexServiceSummaryData:
-                    return Utils.stringToVariable(bean.getSummaryData());
-                default:
-                    return super.getValue(column);
+                    case MIBConstants.indexServiceIndex:
+                        return new Integer32(getIndex().last());
+                    case MIBConstants.indexServiceState:
+                        return new Integer32(status);
+                    case MIBConstants.indexServiceConnected:
+                        return new Integer32(bean.isServiceConnected() ? 1 : 0);
+                    case MIBConstants.indexServiceBytesReceivedCount:
+                        scalarValue = bean.getTotalBytesReceivedCount();
+                        break;
+                    case MIBConstants.indexServiceBytesSentCount:
+                        scalarValue = bean.getTotalBytesSentCount();
+                        break;
+                    case MIBConstants.indexServiceCurrentSessionCount:
+                        scalarValue = bean.getCurrentSessionCount();
+                        break;
+                    case MIBConstants.indexServiceCurrentNativeSessionCount:
+                        scalarValue = bean.getCurrentNativeSessionCount();
+                        break;
+                    case MIBConstants.indexServiceCurrentEmulatedSessionCount:
+                        scalarValue = bean.getCurrentEmulatedSessionCount();
+                        break;
+                    case MIBConstants.indexServiceTotalSessionCount:
+                        scalarValue = bean.getCumulativeSessionCount();
+                        break;
+                    case MIBConstants.indexServiceTotalNativeSessionCount:
+                        scalarValue = bean.getCumulativeNativeSessionCount();
+                        break;
+                    case MIBConstants.indexServiceTotalEmulatedSessionCount:
+                        scalarValue = bean.getCumulativeEmulatedSessionCount();
+                        break;
+                    case MIBConstants.indexServiceTotalExceptionCount:
+                        scalarValue = bean.getExceptionCount();
+                        break;
+                    case MIBConstants.indexServiceLatestException:
+                        return Utils.stringToVariable(bean.getLatestException());
+                    case MIBConstants.indexServiceLatestExceptionTime:
+                        scalarValue = bean.getLatestExceptionTime();
+                        break;
+                    case MIBConstants.indexServiceLastSuccessfulConnectTime:
+                        scalarValue = bean.getLastSuccessfulConnectTime();
+                        break;
+                    case MIBConstants.indexServiceLastFailedConnectTime:
+                        scalarValue = bean.getLastFailedConnectTime();
+                        break;
+                    case MIBConstants.indexServiceLastHeartbeatPingResult:
+                        return bean.getLastHeartbeatPingResult()
+                                ? new OctetString("Successfully pinged service connects")
+                                : new OctetString("Failed to ping service connects");
+                    case MIBConstants.indexServiceLastHeartbeatPingTimestamp:
+                        scalarValue = bean.getLastHeartbeatPingTimestamp();
+                        break;
+                    case MIBConstants.indexServiceHeartbeatPingCount:
+                        return new Integer32(bean.getHeartbeatPingCount());
+                    case MIBConstants.indexServiceHeartbeatPingSuccessesCount:
+                        return new Integer32(bean.getHeartbeatPingSuccessesCount());
+                    case MIBConstants.indexServiceHeartbeatPingFailuresCount:
+                        return new Integer32(bean.getHeartbeatPingFailuresCount());
+                    case MIBConstants.indexServiceHeartbeatRunning:
+                        return new Integer32(bean.isHeartbeatRunning() ? 1 : 0);
+                    case MIBConstants.indexServiceEnableNotifications:
+                        return new Integer32(bean.areNotificationsEnabled() ? 1 : 0);
+                    case MIBConstants.indexServiceLoggedInSessions:
+                        return Utils.stringToVariable(getLoggedInSessionsData());
+                    case MIBConstants.indexServiceSummaryData:
+                        return Utils.stringToVariable(bean.getSummaryData());
+                    default:
+                        return super.getValue(column);
                 }
             } catch (Exception ex) {
                 // FIXME:  handle errors
             }
-            return new Counter64((Long)scalarValue);
+            return new Counter64((Long) scalarValue);
         }
 
         @Override
         public void commit(SubRequest subRequest, MOTableRow changeSet, int column) {
-            setValue(column, (Variable)subRequest.getVariableBinding().getVariable().clone());
+            setValue(column, (Variable) subRequest.getVariableBinding().getVariable().clone());
             subRequest.completed();
         }
 
         @Override
         public void setValue(int column, Variable newValue) {
             switch (column) {
-            case MIBConstants.indexServiceState:
-                if (newValue instanceof Integer32) {
-                    int newState = ((Integer32)newValue).getValue();
+                case MIBConstants.indexServiceState:
+                    if (newValue instanceof Integer32) {
+                        int newState = ((Integer32) newValue).getValue();
 
-                    // FIXME:  We need a real state machine here where we listen for some
-                    //         kind of event when the service stops/starts/quiesces/etc.
-                    //         The value of the STATUS column should be updated by this state
-                    //         machine and the next phase should be validated based on current
-                    //         state.
-                    try {
-                        switch (newState) {
-                        case STATE_START_REQUESTED:
-                            bean.start();
-                            status = STATE_RUNNING;
-                            break;
-                        case STATE_STOP_REQUESTED:
-                            bean.stop();
-                            status = STATE_STOPPED;
-                            break;
-                        case STATE_RESTART_REQUESTED:
-                            bean.restart();
-                            status = STATE_RUNNING;
-                            break;
+                        // FIXME:  We need a real state machine here where we listen for some
+                        //         kind of event when the service stops/starts/quiesces/etc.
+                        //         The value of the STATUS column should be updated by this state
+                        //         machine and the next phase should be validated based on current
+                        //         state.
+                        try {
+                            switch (newState) {
+                                case STATE_START_REQUESTED:
+                                    bean.start();
+                                    status = STATE_RUNNING;
+                                    break;
+                                case STATE_STOP_REQUESTED:
+                                    bean.stop();
+                                    status = STATE_STOPPED;
+                                    break;
+                                case STATE_RESTART_REQUESTED:
+                                    bean.restart();
+                                    status = STATE_RUNNING;
+                                    break;
+                            }
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
                         }
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
                     }
-                }
-                break;
-            case MIBConstants.indexServiceEnableNotifications:
-                if (newValue instanceof Integer32) {
-                    bean.enableNotifications(((Integer32)newValue).getValue() == 1);
-                }
-                break;
+                    break;
+                case MIBConstants.indexServiceEnableNotifications:
+                    if (newValue instanceof Integer32) {
+                        bean.enableNotifications(((Integer32) newValue).getValue() == 1);
+                    }
+                    break;
 //            case idxSummaryDataInterval:
 //                if ((newValue instanceof Integer32) && (((Integer32)newValue).getValue() > 0)) {
 //                    bean.setSummaryDataInterval(((Integer32)newValue).getValue());
 //                }
 //                break;
-            default:
-                super.setValue(column, newValue);
-                break;
+                default:
+                    super.setValue(column, newValue);
+                    break;
             }
         }
 
         private String getLoggedInSessionsData() {
             Map<Long, Map<String, String>> loggedInSessionMap = bean.getLoggedInSessions();
-                        
+
             StringBuffer sb = new StringBuffer();
             sb.append("{ ");
             for (Long sessionId : loggedInSessionMap.keySet()) {

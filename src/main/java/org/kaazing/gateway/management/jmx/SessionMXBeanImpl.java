@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.jmx;
 
 import javax.management.ObjectName;
-
 import org.kaazing.gateway.management.session.SessionManagementBean;
 
 /**
@@ -40,8 +39,8 @@ public class SessionMXBeanImpl implements SessionMXBean {
      */
     private final ObjectName objectName;
 
-    public SessionMXBeanImpl(ObjectName objectName, 
-                              SessionManagementBean sessionManagementBean) {
+    public SessionMXBeanImpl(ObjectName objectName,
+                             SessionManagementBean sessionManagementBean) {
         this.objectName = objectName;
         this.sessionManagementBean = sessionManagementBean;
     }
@@ -90,24 +89,24 @@ public class SessionMXBeanImpl implements SessionMXBean {
     public String getPrincipals() {
         return sessionManagementBean.getUserPrincipals();
     }
-    
-    @Override    
+
+    @Override
     public long getCreateTime() {
         return sessionManagementBean.getCreateTime();
     }
-    
-    @Override    
+
+    @Override
     public String getRemoteAddress() {
         return sessionManagementBean.getRemoteAddress();
-        
+
     }
-    
-    @Override    
+
+    @Override
     public String getSessionTypeName() {
         return sessionManagementBean.getSessionTypeName();
     }
-    
-    @Override    
+
+    @Override
     public String getSessionDirection() {
         return sessionManagementBean.getSessionDirection();
     }

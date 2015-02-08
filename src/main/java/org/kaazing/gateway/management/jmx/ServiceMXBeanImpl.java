@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -23,9 +23,7 @@ package org.kaazing.gateway.management.jmx;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.management.ObjectName;
-
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 
@@ -36,7 +34,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
     private ServiceManagementBean serviceManagementBean;
 
     /*
-     * The JMX-specific management service handler that created this bean, 
+     * The JMX-specific management service handler that created this bean,
      * just so we can fix loggedInSessions when requested.
      */
     private JmxManagementServiceHandler managementServiceHandler;
@@ -47,7 +45,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
      */
     private final ObjectName objectName;
 
-    /* 
+    /*
      * Various bundles (e.g. Stomp JMS and perhaps AMQP or another one) that need
      * to do authentication handling can potentially get in a situation where they
      * first having called 'sessionCreated', or b) Somehow call 'sessionClosed'
@@ -55,19 +53,21 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
      * a flag that is set during sessionCreated, then cleared after the first time
      * through sessionClosed.
      */
-    public static final TypedAttributeKey<Boolean> SESSION_CREATED_FLAG_KEY = 
-        new TypedAttributeKey<Boolean>(ServiceMXBeanImpl.class, "sessionCreatedFlag");
+    public static final TypedAttributeKey<Boolean> SESSION_CREATED_FLAG_KEY =
+            new TypedAttributeKey<Boolean>(ServiceMXBeanImpl.class, "sessionCreatedFlag");
 
     /**
      * Constructor.
-     * @param managementServiceHandler The ONLY reason this is here is because (a) the only place
-     *        that calls this method is in the JMXManagementProcessor, and (b) to return
-     *        the list of loggedInSessions, we have to convert from a map with session IDs
-     *        to a map with session mbean names, and that's where they are stored.
+     *
+     * @param managementServiceHandler The ONLY reason this is here is because (a) the only place that calls this method is in
+     *                                 the JMXManagementProcessor, and (b) to return the list of loggedInSessions, we have to
+     *                                 convert from a map with session IDs to a map with session mbean names, and that's where
+     *                                 they are stored.
      * @param objectName
      * @param serviceManagementBean
      */
-    public ServiceMXBeanImpl(JmxManagementServiceHandler managementServiceHandler, ObjectName objectName, ServiceManagementBean serviceManagementBean) {
+    public ServiceMXBeanImpl(JmxManagementServiceHandler managementServiceHandler, ObjectName objectName,
+                             ServiceManagementBean serviceManagementBean) {
         super();
         this.managementServiceHandler = managementServiceHandler;
         this.objectName = objectName;
@@ -138,10 +138,9 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
     }
 
     /**
-     * Return a map of session mbean names to the user principals for those sessions.
-     * The serviceManagementBean stores them as session ID to user principals, and
-     * we have to convert the session ID to mbean name here.  Gross, but it's the
-     * only way to not have JMX-specific stuff in the ServiceManagementBean.
+     * Return a map of session mbean names to the user principals for those sessions. The serviceManagementBean stores them as
+     * session ID to user principals, and we have to convert the session ID to mbean name here.  Gross, but it's the only way to
+     * not have JMX-specific stuff in the ServiceManagementBean.
      */
     @Override
     public Map<String, Map<String, String>> getLoggedInSessions() {

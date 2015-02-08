@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,17 +24,17 @@ package org.kaazing.gateway.management.system;
 import org.kaazing.gateway.management.ManagementStrategy;
 
 /**
- * "Strategy" object to implement management processing. This particular one
- * implements the 'gather' strategy (basically, "do everything" or "do nothing").
+ * "Strategy" object to implement management processing. This particular one implements the 'gather' strategy (basically, "do
+ * everything" or "do nothing").
  */
 public interface ManagementSystemStrategy extends ManagementStrategy {
-    
+
     // Do the task to gather stats now (i.e. run.execute()
-    public void gatherStats(AbstractSystemManagementBean dataProvider);
-    
+    void gatherStats(AbstractSystemManagementBean dataProvider);
+
     // schedule the next round of gathering stats
-    public void continueGatherStats(AbstractSystemManagementBean dataProvider);
+    void continueGatherStats(AbstractSystemManagementBean dataProvider);
 
     // Cancel any pending task to gather stats
-    public void stopGatherStats(AbstractSystemManagementBean dataProvider);
+    void stopGatherStats(AbstractSystemManagementBean dataProvider);
 }

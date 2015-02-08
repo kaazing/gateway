@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,11 +25,15 @@ import org.snmp4j.smi.OID;
 
 /**
  * Constants referenced in other parts of the SNMP management service.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class MIBConstants {
+
+    protected MIBConstants() {
+    }
+
     public static int KAAZING_ENTERPRISE_ID = 29197;
 
     // OID hierarchy
@@ -46,38 +50,38 @@ public class MIBConstants {
 
     // Gateway config root
     public static final OID oidGatewayConfiguration =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1});
 
     public static final OID oidClusterConfig =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 1});
     public static final OID oidClusterName =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,1,1,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 1, 1, 0});
     public static final OID oidClusterAccepts =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,1,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 1, 2, 0});
     public static final OID oidClusterConnects =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,1,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 1, 3, 0});
     public static final OID oidClusterConnectOptions =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,1,4,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 1, 4, 0});
 
     public static final OID oidNetworkConfig =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,2 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 2});
     public static final OID oidNetworkConfigAddressMappings =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,2,1,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 2, 1, 0});
 
     public static final OID oidSecurityConfig =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3});
     public static final OID oidSecurityKeystoreType =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3,1,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3, 1, 0});
     public static final OID oidSecurityKeystoreCertificateInfo =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3, 2, 0});
     public static final OID oidSecurityTruststoreType =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3, 3, 0});
     public static final OID oidSecurityTruststoreCertificateInfo =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3,4,0 });
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3, 4, 0});
+
     public static final OID oidRealmConfig =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,3,5 });
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 3, 5});
+
     public static final int REALM_COLUMN_COUNT = 10;
     // columns
     public static final int realmConfigName = 1;
@@ -104,7 +108,7 @@ public class MIBConstants {
     public static final int realmConfigLoginModulesIndex = 9;
 
     public static final OID oidServiceConfig =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,4 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 4});
 
     public static final int SERVICE_CONFIG_COLUMN_COUNT = 13;
 
@@ -139,20 +143,20 @@ public class MIBConstants {
     public static final int serviceConfigMimeMappingsIndex = 12; // mime mappings
 
     public static final OID oidServiceDefaults =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,5 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5});
     public static final OID oidServiceDefaultsAcceptOptions =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,5,1,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5, 1, 0});
     public static final OID oidServiceDefaultsMimeMappings =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,5,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5, 2, 0});
 
     public static final OID oidVersionInfo =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,6 });
-    public static final OID oidVersionInfoProductTitle = 
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,6,1,0 });
-    public static final OID oidVersionInfoProductBuild = 
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,6,2,0 });
-    public static final OID oidVersionInfoProductEdition = 
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,1,6,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 6});
+    public static final OID oidVersionInfoProductTitle =
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 6, 1, 0});
+    public static final OID oidVersionInfoProductBuild =
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 6, 2, 0});
+    public static final OID oidVersionInfoProductEdition =
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 6, 3, 0});
 
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
@@ -161,7 +165,7 @@ public class MIBConstants {
     //                        .1 --- gateway entry
     // Tables
     public static final OID oidGatewayEntry =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 1});
 
     public static final int GATEWAY_COLUMN_COUNT = 14;
 
@@ -198,31 +202,31 @@ public class MIBConstants {
     public static final int indexForceUpdateVersionCheck = 13;
 
     public static final OID oidGatewaySummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 2, 0});
     public static final OID oidGatewaySummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 3, 0});
     public static final OID oidGatewaySummaryDataEvent =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,4 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 4});
     public static final OID oidClusterMembershipEvent =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,5 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 5});
     public static final OID oidClusterMembershipEventType =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,6,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 6, 0});
     public static final OID oidClusterMembershipEventInstanceKey =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,7,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 7, 0});
     public static final OID oidClusterManagementServiceEvent =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,8 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 8});
     public static final OID oidClusterManagementServiceEventType =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,9,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 9, 0});
     public static final OID oidClusterManagementServiceEventURIs =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,10,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 10, 0});
     public static final OID oidClusterBalancerMapEvent =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,11 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 11});
     public static final OID oidClusterBalancerMapEventType =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,12,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 12, 0});
     public static final OID oidClusterBalancerMapEventBalancerURI =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,13,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 13, 0});
     public static final OID oidClusterBalancerMapEventBalanceeURIs =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,2,14,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 2, 14, 0});
 
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
@@ -232,7 +236,7 @@ public class MIBConstants {
 
     // Tables
     public static final OID oidServiceEntry =
-      new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 1});
 
     public static final int STATE_RUNNING = 1;
     public static final int STATE_STOPPED = 2;
@@ -245,7 +249,8 @@ public class MIBConstants {
     // Column sub-identifer definitions for serviceEntry:
     public static final int colServiceIndex = 1;  // service index
     public static final int colServiceState = 2; // state [running, stopped, stop requested, restart requested, start requested]
-    public static final int colServiceConnected = 3; // boolean value (true == yes) whether or not the service can reach the connect
+    public static final int colServiceConnected = 3;
+            // boolean value (true == yes) whether or not the service can reach the connect
     public static final int colServiceBytesReceivedCount = 4;  // total bytes received count
     public static final int colServiceBytesSentCount = 5;  // total bytes sent count
     public static final int colServiceCurrentSessionCount = 6;  // number of current sessions
@@ -262,17 +267,23 @@ public class MIBConstants {
     public static final int colServiceLastHeartbeatPingResult = 17; // boolean value (true == success) of last heartbeat ping
     public static final int colServiceLastHeartbeatPingTimestamp = 18; // timestamp of last heartbeat ping
     public static final int colServiceHeartbeatPingCount = 19; // number of times the heartbeat has pinged the connect
-    public static final int colServiceHeartbeatPingSuccessesCount = 20; // number of times the heartbeat has successfully pinged the connect
-    public static final int colServiceHeartbeatPingFailuresCount = 21; // number of times the heartbeat has failed to ping the connect
-    public static final int colServiceHeartbeatRunning = 22; // boolean value (true == yes) whether or not the heartbeat is running
-    public static final int colServiceEnableNotifications = 23; // whether or not notifications are enabled for the service (1==yes, 0==no)
+    public static final int colServiceHeartbeatPingSuccessesCount = 20;
+            // number of times the heartbeat has successfully pinged the connect
+    public static final int colServiceHeartbeatPingFailuresCount = 21;
+            // number of times the heartbeat has failed to ping the connect
+    public static final int colServiceHeartbeatRunning = 22;
+            // boolean value (true == yes) whether or not the heartbeat is running
+    public static final int colServiceEnableNotifications = 23;
+            // whether or not notifications are enabled for the service (1==yes, 0==no)
     public static final int colServiceLoggedInSessions = 24; // logged in sessions
     public static final int colServiceSummaryData = 25;
 
     // index sub-identifer definitions for serviceEntry:
     public static final int indexServiceIndex = 0;  // service index
-    public static final int indexServiceState = 1; // state [running, stopped, stop requested, restart requested, start requested]
-    public static final int indexServiceConnected = 2; // boolean value (true == yes) whether or not the service can reach the connect
+    public static final int indexServiceState = 1;
+            // state [running, stopped, stop requested, restart requested, start requested]
+    public static final int indexServiceConnected = 2;
+            // boolean value (true == yes) whether or not the service can reach the connect
     public static final int indexServiceBytesReceivedCount = 3;  // total bytes received count
     public static final int indexServiceBytesSentCount = 4;  // total bytes sent count
     public static final int indexServiceCurrentSessionCount = 5;  // number of current sessions
@@ -283,29 +294,34 @@ public class MIBConstants {
     public static final int indexServiceTotalEmulatedSessionCount = 10;  // number of cumulative native websocket sessions
     public static final int indexServiceTotalExceptionCount = 11; // total count of exceptions on the service
     public static final int indexServiceLatestException = 12; // latest exception to occur for a session in the service
-    public static final int indexServiceLatestExceptionTime = 13; // time of latest exception to occur for a session in the service
+    public static final int indexServiceLatestExceptionTime = 13;
+            // time of latest exception to occur for a session in the service
     public static final int indexServiceLastSuccessfulConnectTime = 14;  // timestamp of the last successful connection
     public static final int indexServiceLastFailedConnectTime = 15;  // timestamp of the last failed connection
     public static final int indexServiceLastHeartbeatPingResult = 16; // boolean value (true == success) of last heartbeat ping
     public static final int indexServiceLastHeartbeatPingTimestamp = 17; // timestamp of last heartbeat ping
     public static final int indexServiceHeartbeatPingCount = 18; // number of times the heartbeat has pinged the connect
-    public static final int indexServiceHeartbeatPingSuccessesCount = 19; // number of times the heartbeat has successfully pinged the connect
-    public static final int indexServiceHeartbeatPingFailuresCount = 20; // number of times the heartbeat has failed to ping the connect
-    public static final int indexServiceHeartbeatRunning = 21; // boolean value (true == yes) whether or not the heartbeat is running
-    public static final int indexServiceEnableNotifications = 22; // whether or not notifications are enabled for the service (1==yes, 0==no)
+    public static final int indexServiceHeartbeatPingSuccessesCount = 19;
+            // number of times the heartbeat has successfully pinged the connect
+    public static final int indexServiceHeartbeatPingFailuresCount = 20;
+            // number of times the heartbeat has failed to ping the connect
+    public static final int indexServiceHeartbeatRunning = 21;
+            // boolean value (true == yes) whether or not the heartbeat is running
+    public static final int indexServiceEnableNotifications = 22;
+            // whether or not notifications are enabled for the service (1==yes, 0==no)
     public static final int indexServiceLoggedInSessions = 23; // logged in sessions
     public static final int indexServiceSummaryData = 24;
 
     public static final OID oidServiceSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 2, 0});
     public static final OID oidServiceSummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 3, 0});
     public static final OID oidServiceSummaryDataNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,4 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 4});
     public static final OID oidServiceConnectionNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,5 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 5});
     public static final OID oidServiceDisconnectionNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,3,6 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 3, 6});
 
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
@@ -315,11 +331,11 @@ public class MIBConstants {
     // Tables
 
     public static final OID oidSessionEntry =
-      new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 1});
 
     // Index OID definitions
     public static final OID oidSessionEntryIndex1 =
-      new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,1,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 1, 1});
 
     public static final int SESSION_COLUMN_COUNT = 14;
 
@@ -356,72 +372,70 @@ public class MIBConstants {
     public static final int indexSessionSummaryData = 13;
 
     public static final OID oidSessionSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 2, 0});
     public static final OID oidSessionSummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 3, 0});
     public static final OID oidSessionSummaryDataNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,4 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 4});
     public static final OID oidSessionMessageReceivedNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,5 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 5});
     public static final OID oidSessionFilterWriteNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,4,6 });
-    
-    
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 4, 6});
+
+
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
     //                .29197 --- the real Kaazing Enterprise ID
     //                      .5 --- System (no tables, no index needed)
 
     public static final OID oidSystemEntry =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5});
 
     public static final OID oidSystemOsName =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,1,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 1, 0});
     public static final OID oidSystemUptimeSeconds =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 2, 0});
     public static final OID oidSystemTotalFreeMemory =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 3, 0});
     public static final OID oidSystemTotalUsedMemory =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,4,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 4, 0});
     public static final OID oidSystemTotalMemory =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,5,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 5, 0});
     public static final OID oidSystemTotalFreeSwap =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,6,0 });
-        public static final OID oidSystemTotalUsedSwap =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,7,0 });
-        public static final OID oidSystemTotalSwap =
-                new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,8,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 6, 0});
+    public static final OID oidSystemTotalUsedSwap =
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 7, 0});
+    public static final OID oidSystemTotalSwap =
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 8, 0});
     public static final OID oidSystemCpuPercentage =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,9,0 });
-    
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 9, 0});
+
+
     public static final OID oidSystemSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,30,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 30, 0});
     public static final OID oidSystemSummaryData =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,31,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 31, 0});
     public static final OID oidSystemSummaryDataNotificationInterval =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,32,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 32, 0});
     public static final OID oidSystemSummaryDataNotification =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,33 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 33});
     public static final OID oidSystemSummaryDataGatherInterval =
-        new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,34,0 });
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 34, 0});
+
     // Because we don't want to mess with the JVM MIB's OIDs, we'll declare
     // OIDs for the JVM summary information in the system MIB
     public static final OID oidJvmSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,40,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 40, 0});
     public static final OID oidJvmSummaryData =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,41,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 41, 0});
     public static final OID oidJvmSummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,42,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 42, 0});
     public static final OID oidJvmSummaryDataNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,43 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 43});
     public static final OID oidJvmSummaryDataGatherInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,5,44,0 });
-    
-    
-    
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 5, 44, 0});
+
+
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
     //                .29197 --- the real Kaazing Enterprise ID
@@ -438,23 +452,23 @@ public class MIBConstants {
     // Tables
 
     public static final OID oidCpuListEntry =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 1});
     public static final OID oidCpuListNumCpus =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 2, 0});
     public static final OID oidCpuListSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 3, 0});
     public static final OID oidCpuListSummaryData =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,4,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 4, 0});
     public static final OID oidCpuListSummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,5,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 5, 0});
     public static final OID oidCpuListSummaryDataNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,6 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 6});
     public static final OID oidCpuListSummaryDataGatherInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,7,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 7, 0});
 
     // Index OID definitions
     public static final OID oidCpuListEntryIndex1 =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,6,1,1 });   
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 6, 1, 1});
 
     public static final int CPU_COLUMN_COUNT = 12;
 
@@ -475,17 +489,17 @@ public class MIBConstants {
     // index sub-identifier definitions for sessionEntry:
     public static final int indexCpuIndex = 0;
     public static final int indexCpuId = 1;
-    public static final int indexCpuCombined = 2; 
-    public static final int indexCpuIdle = 3; 
-    public static final int indexCpuIrq = 4; 
-    public static final int indexCpuNice = 5; 
-    public static final int indexCpuSoftIrq = 6; 
-    public static final int indexCpuStolen = 7; 
-    public static final int indexCpuSys = 8; 
-    public static final int indexCpuUser = 9; 
-    public static final int indexCpuWait = 10; 
-    public static final int indexCpuSummaryData = 11; 
-    
+    public static final int indexCpuCombined = 2;
+    public static final int indexCpuIdle = 3;
+    public static final int indexCpuIrq = 4;
+    public static final int indexCpuNice = 5;
+    public static final int indexCpuSoftIrq = 6;
+    public static final int indexCpuStolen = 7;
+    public static final int indexCpuSys = 8;
+    public static final int indexCpuUser = 9;
+    public static final int indexCpuWait = 10;
+    public static final int indexCpuSummaryData = 11;
+
     // OID hierarchy
     //     1.3.6.1.4.1 --- iso.identified_organization.dod.internet.private.enterprise
     //                .29197 --- the real Kaazing Enterprise ID
@@ -501,52 +515,52 @@ public class MIBConstants {
     //                        .7 --- summary data gather interval
 
     public static final OID oidNicListEntry =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 1});
     public static final OID oidNicListNetInterfaceNames =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,2,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 2, 0});
     public static final OID oidNicListSummaryDataFields =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,3,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 3, 0});
     public static final OID oidNicListSummaryData =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,4,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 4, 0});
     public static final OID oidNicListSummaryDataNotificationInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,5,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 5, 0});
     public static final OID oidNicListSummaryDataNotification =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,6 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 6});
     public static final OID oidNicListSummaryDataGatherInterval =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,7,0 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 7, 0});
 
     // Index OID definitions
     public static final OID oidNicListEntryIndex1 =
-            new OID(new int[] { 1,3,6,1,4,1,KAAZING_ENTERPRISE_ID,7,1,1 });
+            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 7, 1, 1});
 
     public static final int NIC_COLUMN_COUNT = 12;
 
     // Column sub-identifier definitions for sessionEntry:
     public static final int colNicIndex = 1; // index
     public static final int colNicId = 2; // id
-    public static final int colNicName = 3; 
-    public static final int colNicRxBytes = 4; 
-    public static final int colNicRxBytesPerSecond = 5; 
-    public static final int colNicRxDropped = 6; 
+    public static final int colNicName = 3;
+    public static final int colNicRxBytes = 4;
+    public static final int colNicRxBytesPerSecond = 5;
+    public static final int colNicRxDropped = 6;
     public static final int colNicRxErrors = 7;
     public static final int colNicTxBytes = 8;
     public static final int colNicTxBytesPerSecond = 9;
     public static final int colNicTxDropped = 10;
     public static final int colNicTxErrors = 11;
-    public static final int colNicSummaryData = 12; 
+    public static final int colNicSummaryData = 12;
 
     // index sub-identifier definitions for sessionEntry:
     public static final int indexNicIndex = 0;
     public static final int indexNicId = 1;
-    public static final int indexNicName = 2; 
-    public static final int indexNicRxBytes = 3; 
-    public static final int indexNicRxBytesPerSecond = 4; 
-    public static final int indexNicRxDropped = 5; 
-    public static final int indexNicRxErrors = 6; 
-    public static final int indexNicTxBytes = 7; 
-    public static final int indexNicTxBytesPerSecond = 8; 
-    public static final int indexNicTxDropped = 9; 
-    public static final int indexNicTxErrors = 10; 
-    public static final int indexNicSummaryData = 11; 
+    public static final int indexNicName = 2;
+    public static final int indexNicRxBytes = 3;
+    public static final int indexNicRxBytesPerSecond = 4;
+    public static final int indexNicRxDropped = 5;
+    public static final int indexNicRxErrors = 6;
+    public static final int indexNicTxBytes = 7;
+    public static final int indexNicTxBytesPerSecond = 8;
+    public static final int indexNicTxDropped = 9;
+    public static final int indexNicTxErrors = 10;
+    public static final int indexNicSummaryData = 11;
 
 }

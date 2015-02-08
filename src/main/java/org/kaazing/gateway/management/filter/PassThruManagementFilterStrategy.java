@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,11 +28,10 @@ import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
- * "Strategy" object to implement management processing. This is only done on
- * non-management session requests. 
- * 
+ * "Strategy" object to implement management processing. This is only done on non-management session requests.
+ * <p/>
  * This highest level just does nothing.
- * 
+ * <p/>
  * ALL REQUESTS WILL BE ON ONE OR ANOTHER OF THE IO THREADS, SO MUST NOT BLOCK!
  */
 public class PassThruManagementFilterStrategy implements ManagementFilterStrategy {
@@ -78,8 +77,8 @@ public class PassThruManagementFilterStrategy implements ManagementFilterStrateg
                                   Throwable cause) throws Exception {
         // This version explicitly does nothing.
     }
-        
-    
+
+
     public String toString() {
         return "PASS_THRU_FILTER_STRATEGY";
     }

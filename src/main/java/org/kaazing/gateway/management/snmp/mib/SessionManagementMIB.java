@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -60,9 +60,9 @@ import org.snmp4j.smi.Variable;
 
 /**
  * MIB support for Kaazing-session-level dynamic data.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapabilityList {
     private final ManagementContext managementContext;
@@ -92,93 +92,93 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
 
     private void createMO(MOFactory moFactory) {
         // Index definition
-        OID serviceConfigEntryIndexOID = ((OID)MIBConstants.oidSessionEntry.clone()).append(1);
+        OID serviceConfigEntryIndexOID = ((OID) MIBConstants.oidSessionEntry.clone()).append(1);
         sessionEntryIndexes =
-          new MOTableSubIndex[] {
-          moFactory.createSubIndex(serviceConfigEntryIndexOID,
-                                   SMIConstants.SYNTAX_INTEGER, 1, 1),
-        };
+                new MOTableSubIndex[]{
+                        moFactory.createSubIndex(serviceConfigEntryIndexOID,
+                                SMIConstants.SYNTAX_INTEGER, 1, 1),
+                };
 
         sessionEntryIndex =
-          moFactory.createIndex(sessionEntryIndexes, true);
+                moFactory.createIndex(sessionEntryIndexes, true);
 
         // Columns
         MOColumn[] sessionEntryColumns = new MOColumn[MIBConstants.SESSION_COLUMN_COUNT];
         sessionEntryColumns[MIBConstants.indexSessionIndex] =
-            new MOMutableColumn(MIBConstants.colSessionIndex,
-                                SMIConstants.SYNTAX_INTEGER32,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionIndex,
+                        SMIConstants.SYNTAX_INTEGER32,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionId] =
-            new MOMutableColumn(MIBConstants.colSessionId,
-                                SMIConstants.SYNTAX_COUNTER64,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionId,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionReadBytes] =
-          new MOMutableColumn(MIBConstants.colSessionReadBytes,
-                              SMIConstants.SYNTAX_COUNTER64,
-                              moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionReadBytes,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionReadBytesThroughput] =
-          new MOMutableColumn(MIBConstants.colSessionReadBytesThroughput,
-                              SMIConstants.SYNTAX_COUNTER64,
-                              moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionReadBytesThroughput,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionWrittenBytes] =
-            new MOMutableColumn(MIBConstants.colSessionWrittenBytes,
-                                SMIConstants.SYNTAX_COUNTER64,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionWrittenBytes,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionWrittenBytesThroughput] =
-            new MOMutableColumn(MIBConstants.colSessionWrittenBytesThroughput,
-                                SMIConstants.SYNTAX_COUNTER64,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionWrittenBytesThroughput,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionCloseSession] =
-            new MOMutableColumn(MIBConstants.colSessionCloseSession,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colSessionCloseSession,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
         sessionEntryColumns[MIBConstants.indexSessionEnableNotifications] =
-            new MOMutableColumn(MIBConstants.colSessionEnableNotifications,
-                                SMIConstants.SYNTAX_INTEGER,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
+                new MOMutableColumn(MIBConstants.colSessionEnableNotifications,
+                        SMIConstants.SYNTAX_INTEGER,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ_WRITE));
         sessionEntryColumns[MIBConstants.indexSessionCreateTime] =
-            new MOMutableColumn(MIBConstants.colSessionCreateTime,
-                                SMIConstants.SYNTAX_COUNTER64,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionCreateTime,
+                        SMIConstants.SYNTAX_COUNTER64,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionRemoteAddress] =
-            new MOMutableColumn(MIBConstants.colSessionRemoteAddress,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionRemoteAddress,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionPrincipals] =
-            new MOMutableColumn(MIBConstants.colSessionPrincipals,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionPrincipals,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionSessionTypeName] =
                 new MOMutableColumn(MIBConstants.colSessionSessionTypeName,
-                                    SMIConstants.SYNTAX_OCTET_STRING,
-                                    moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionSessionDirection] =
                 new MOMutableColumn(MIBConstants.colSessionSessionDirection,
-                                    SMIConstants.SYNTAX_OCTET_STRING,
-                                    moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
         sessionEntryColumns[MIBConstants.indexSessionSummaryData] =
-            new MOMutableColumn(MIBConstants.colSessionSummaryData,
-                                SMIConstants.SYNTAX_OCTET_STRING,
-                                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
+                new MOMutableColumn(MIBConstants.colSessionSummaryData,
+                        SMIConstants.SYNTAX_OCTET_STRING,
+                        moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ));
 
         // Table model
         sessionEntryModel = new SessionManagementTableModel();
         sessionEntry = moFactory.createTable(MIBConstants.oidSessionEntry,
-                                             sessionEntryIndex,
-                                             sessionEntryColumns,
-                                             sessionEntryModel);
-        
+                sessionEntryIndex,
+                sessionEntryColumns,
+                sessionEntryModel);
+
         try {
             JSONArray jsonArray = new JSONArray(SessionManagementBean.SUMMARY_DATA_FIELD_LIST);
-            summaryDataFields = new MOScalar(MIBConstants.oidSessionSummaryDataFields, 
+            summaryDataFields = new MOScalar(MIBConstants.oidSessionSummaryDataFields,
                     moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ),
                     new OctetString(jsonArray.toString()));
         } catch (JSONException ex) {
-            // Should not be possible to get here, since the list of 
-            // strings is valid and constant.            
+            // Should not be possible to get here, since the list of
+            // strings is valid and constant.
         }
-        
-        summaryDataNotificationInterval = new SummaryDataIntervalMO(moFactory, 
+
+        summaryDataNotificationInterval = new SummaryDataIntervalMO(moFactory,
                 managementContext.getSessionSummaryDataNotificationInterval(),
                 MIBConstants.oidSessionSummaryDataNotificationInterval);
     }
@@ -204,7 +204,7 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
 
     @Override
     public OID addSysOREntry(OID sysORID, OctetString sysORDescr) {
-        OID index = new OID(new int[] { sysOREntryModel.getRowCount()+1 });
+        OID index = new OID(new int[]{sysOREntryModel.getRowCount() + 1});
         Variable[] values = new Variable[sysOREntry.getColumnCount()];
         int n = 0;
         values[n++] = sysORID;
@@ -223,7 +223,7 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
         ServiceManagementBean serviceBean = bean.getServiceManagementBean();
         GatewayManagementBean gatewayBean = serviceBean.getGatewayManagementBean();
 
-        OID sessionIndexOID = new OID(new int[] { gatewayBean.getId(), serviceBean.getId(), (int)bean.getId() });
+        OID sessionIndexOID = new OID(new int[]{gatewayBean.getId(), serviceBean.getId(), (int) bean.getId()});
         sessionEntry.addRow(new SessionEntryRow(sessionIndexOID, bean));
 
         return sessionIndexOID;
@@ -236,8 +236,9 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
     private class SessionManagementTableModel extends DefaultMOMutableTableModel {
     }
 
-    private class SessionEntryRow extends DefaultMOMutableRow2PC {
+    private final class SessionEntryRow extends DefaultMOMutableRow2PC {
         private SessionManagementBean bean;
+
         private SessionEntryRow(OID index, SessionManagementBean bean) {
             super(index, null);
             this.bean = bean;
@@ -253,42 +254,42 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
             Object scalarValue = null;
             try {
                 switch (column) {
-                case MIBConstants.indexSessionIndex:
-                    return new Integer32(getIndex().last());
-                case MIBConstants.indexSessionId:
-                    scalarValue = bean.getId();
-                    break;
-                case MIBConstants.indexSessionReadBytes:
-                    scalarValue = bean.getReadBytes();
-                    break;
-                case MIBConstants.indexSessionReadBytesThroughput:
-                    scalarValue = bean.getReadBytesThroughput();
-                    break;
-                case MIBConstants.indexSessionWrittenBytes:
-                    scalarValue = bean.getWrittenBytes();
-                    break;
-                case MIBConstants.indexSessionWrittenBytesThroughput:
-                    scalarValue = bean.getWrittenBytesThroughput();
-                    break;
-                case MIBConstants.indexSessionCloseSession:
-                    return new Integer32(1);
-                case MIBConstants.indexSessionEnableNotifications:
-                    return new Integer32(bean.areNotificationsEnabled() ? 1 : 0);
-                case MIBConstants.indexSessionCreateTime:
-                    scalarValue = bean.getCreateTime();
-                    break;
-                case MIBConstants.indexSessionRemoteAddress:
-                    return Utils.stringToVariable(bean.getRemoteAddress());
-                case MIBConstants.indexSessionPrincipals:
-                    return Utils.stringToVariable(bean.getUserPrincipals());
-                case MIBConstants.indexSessionSessionTypeName:
-                    return Utils.stringToVariable(bean.getSessionTypeName());
-                case MIBConstants.indexSessionSessionDirection:
-                    return Utils.stringToVariable(bean.getSessionDirection());
-                case MIBConstants.indexSessionSummaryData:
-                    return Utils.stringToVariable(bean.getSummaryData());
-                default:
-                    return super.getValue(column);
+                    case MIBConstants.indexSessionIndex:
+                        return new Integer32(getIndex().last());
+                    case MIBConstants.indexSessionId:
+                        scalarValue = bean.getId();
+                        break;
+                    case MIBConstants.indexSessionReadBytes:
+                        scalarValue = bean.getReadBytes();
+                        break;
+                    case MIBConstants.indexSessionReadBytesThroughput:
+                        scalarValue = bean.getReadBytesThroughput();
+                        break;
+                    case MIBConstants.indexSessionWrittenBytes:
+                        scalarValue = bean.getWrittenBytes();
+                        break;
+                    case MIBConstants.indexSessionWrittenBytesThroughput:
+                        scalarValue = bean.getWrittenBytesThroughput();
+                        break;
+                    case MIBConstants.indexSessionCloseSession:
+                        return new Integer32(1);
+                    case MIBConstants.indexSessionEnableNotifications:
+                        return new Integer32(bean.areNotificationsEnabled() ? 1 : 0);
+                    case MIBConstants.indexSessionCreateTime:
+                        scalarValue = bean.getCreateTime();
+                        break;
+                    case MIBConstants.indexSessionRemoteAddress:
+                        return Utils.stringToVariable(bean.getRemoteAddress());
+                    case MIBConstants.indexSessionPrincipals:
+                        return Utils.stringToVariable(bean.getUserPrincipals());
+                    case MIBConstants.indexSessionSessionTypeName:
+                        return Utils.stringToVariable(bean.getSessionTypeName());
+                    case MIBConstants.indexSessionSessionDirection:
+                        return Utils.stringToVariable(bean.getSessionDirection());
+                    case MIBConstants.indexSessionSummaryData:
+                        return Utils.stringToVariable(bean.getSummaryData());
+                    default:
+                        return super.getValue(column);
                 }
             } catch (Exception ex) {
                 // XXX FIXME handle errors
@@ -300,11 +301,11 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
 
             long counterValue = 0;
             if (scalarValue instanceof Double) {
-                counterValue = (long)(((Double)scalarValue).doubleValue() * 1000);
+                counterValue = (long) (((Double) scalarValue).doubleValue() * 1000);
             } else if (scalarValue instanceof Float) {
-                counterValue = (long)(((Float)scalarValue).floatValue() * 1000);
+                counterValue = (long) (((Float) scalarValue).floatValue() * 1000);
             } else {
-                counterValue = ((Number)scalarValue).longValue();
+                counterValue = ((Number) scalarValue).longValue();
             }
 
             return new Counter64(counterValue);
@@ -312,32 +313,32 @@ public class SessionManagementMIB implements MOGroup, CounterListener, AgentCapa
 
         @Override
         public void commit(SubRequest subRequest, MOTableRow changeSet, int column) {
-            setValue(column, (Variable)subRequest.getVariableBinding().getVariable().clone());
+            setValue(column, (Variable) subRequest.getVariableBinding().getVariable().clone());
             subRequest.completed();
         }
 
         @Override
         public void setValue(int column, Variable newValue) {
             switch (column) {
-            case MIBConstants.indexSessionCloseSession:
-                if ((newValue instanceof Integer32) && (((Integer32)newValue).getValue() == 0)) {
-                    bean.close();
-                    removeSessionBean(getIndex());
-                }
-                break;
-            case MIBConstants.indexSessionEnableNotifications:
-                if (newValue instanceof Integer32) {
-                    bean.enableNotifications(((Integer32)newValue).getValue() == 1);
-                }
-                break;
+                case MIBConstants.indexSessionCloseSession:
+                    if ((newValue instanceof Integer32) && (((Integer32) newValue).getValue() == 0)) {
+                        bean.close();
+                        removeSessionBean(getIndex());
+                    }
+                    break;
+                case MIBConstants.indexSessionEnableNotifications:
+                    if (newValue instanceof Integer32) {
+                        bean.enableNotifications(((Integer32) newValue).getValue() == 1);
+                    }
+                    break;
 //            case MIBConstants.indexSessionSummaryDataInterval:
 //                if ((newValue instanceof Integer32) && (((Integer32)newValue).getValue() > 0)) {
 //                    bean.setSummaryDataInterval(((Integer32)newValue).getValue());
 //                }
 //                break;
-            default:
-                super.setValue(column, newValue);
-                break;
+                default:
+                    super.setValue(column, newValue);
+                    break;
             }
         }
     }

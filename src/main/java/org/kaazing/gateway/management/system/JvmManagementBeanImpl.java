@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,23 +26,20 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
-
 import org.hyperic.sigar.SigarException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 
 /**
- * Implementation of the management 'data' bean for a gateway's JVM summary data
- * (if the caller wants individual JVM items, they can access them through the 
- * JVM MIB if using SNMP or JConsole, though we might want to change this).
- * This just contains the data. Wrappers for different management protocols define 
- * the use of those data.
+ * Implementation of the management 'data' bean for a gateway's JVM summary data (if the caller wants individual JVM items, they
+ * can access them through the JVM MIB if using SNMP or JConsole, though we might want to change this). This just contains the
+ * data. Wrappers for different management protocols define the use of those data.
  */
 public class JvmManagementBeanImpl extends AbstractSystemManagementBean implements JvmManagementBean {
-    
+
     private final GatewayManagementBean gatewayManagementBean;
-        
+
     private long classesLoaded;
     private long totalClassesLoaded;
     private long totalClassesUnloaded;
@@ -57,15 +54,20 @@ public class JvmManagementBeanImpl extends AbstractSystemManagementBean implemen
     private long threadingLiveThreads;
     private long threadingPeakThreads;
     private long threadingTotalThreads;
-                        
+
     public JvmManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
         super(gatewayManagementBean.getManagementContext(),
-               gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
-               JvmManagementBean.SUMMARY_DATA_FIELD_LIST,
-               gatewayManagementBean.getManagementContext().getJvmSummaryDataGatherInterval(),
-               "JVM stats", 
-               "SNMPJvmSummaryData");
+                gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
+                JvmManagementBean.SUMMARY_DATA_FIELD_LIST,
+                gatewayManagementBean.getManagementContext().getJvmSummaryDataGatherInterval(),
+                "JVM stats",
+                "SNMPJvmSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
+    }
+
+    @Override
+    public void init() {
+        // no-op
     }
 
     @Override
@@ -89,7 +91,7 @@ public class JvmManagementBeanImpl extends AbstractSystemManagementBean implemen
         memHeapUsed = memoryUsage.getUsed();
         memHeapCommitted = memoryUsage.getCommitted();
         memHeapMaxSize = memoryUsage.getMax();
-        
+
         memoryUsage = memoryBean.getNonHeapMemoryUsage();
         memNonHeapInitSize = memoryUsage.getInit();
         memNonHeapUsed = memoryUsage.getUsed();
@@ -100,10 +102,10 @@ public class JvmManagementBeanImpl extends AbstractSystemManagementBean implemen
         threadingLiveThreads = threadingBean.getThreadCount();
         threadingPeakThreads = threadingBean.getPeakThreadCount();
         threadingTotalThreads = threadingBean.getTotalStartedThreadCount();
-        
-        
+
+
         Number[] vals = new Number[summaryDataFieldList.length];
-        
+
         vals[SUMMARY_DATA_CLASSES_LOADED_INDEX] = classesLoaded;
         vals[SUMMARY_DATA_TOTAL_CLASSES_LOADED_INDEX] = totalClassesLoaded;
         vals[SUMMARY_DATA_TOTAL_CLASSES_UNLOADED_INDEX] = totalClassesUnloaded;

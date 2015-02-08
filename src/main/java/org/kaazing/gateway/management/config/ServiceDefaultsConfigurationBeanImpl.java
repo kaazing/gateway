@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,17 +21,15 @@
 
 package org.kaazing.gateway.management.config;
 
-import static java.util.Arrays.asList;
-
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
+import static java.util.Arrays.asList;
 
 public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConfigurationBean {
 
@@ -40,7 +38,8 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
     private final GatewayManagementBean gatewayBean;
     private final int id;
 
-    public ServiceDefaultsConfigurationBeanImpl(ServiceDefaultsContext serviceDefaultsContext, GatewayManagementBean gatewayBean) {
+    public ServiceDefaultsConfigurationBeanImpl(ServiceDefaultsContext serviceDefaultsContext, GatewayManagementBean
+            gatewayBean) {
         this.serviceDefaultsContext = serviceDefaultsContext;
         this.gatewayBean = gatewayBean;
         this.id = serviceDefaultsIds.incrementAndGet();
@@ -79,8 +78,8 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
                     jsonOptions.put("ssl.ciphers", Utils.asCommaSeparatedString(asList(sslCiphers)));
                 }
 
-                jsonOptions.put("ssl.encryption", 
-                        (context.isSslEncryptionEnabled() ? "enabled" : "disabled"));
+                jsonOptions.put("ssl.encryption",
+                        context.isSslEncryptionEnabled() ? "enabled" : "disabled");
 
                 if (context.getSslNeedClientAuth()) {
                     jsonOptions.put("ssl.verify-client", "required");

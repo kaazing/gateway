@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,31 +25,32 @@ import javax.management.ObjectName;
 
 public interface HostMXBean {
 
-    public ObjectName getObjectName();
+    ObjectName getObjectName();
 
-    public String getOSName();
-    
-    public double getUptimeSeconds();
+    String getOSName();
 
-    public long getTotalFreeMemory();
-    
-    public long getTotalUsedMemory();
-        
-    public long getTotalMemory();
-    
-    public long getTotalFreeSwap();
-    
-    public long getTotalUsedSwap();
-        
-    public long getTotalSwap();
-    
-    public double getCpuPercentage();
-        
+    double getUptimeSeconds();
 
-    public String getSummaryDataFields();
-    
-    public String getSummaryData();
-    
-    public int getSummaryDataGatherInterval();
-    public void setSummaryDataGatherInterval(int interval);
+    long getTotalFreeMemory();
+
+    long getTotalUsedMemory();
+
+    long getTotalMemory();
+
+    long getTotalFreeSwap();
+
+    long getTotalUsedSwap();
+
+    long getTotalSwap();
+
+    double getCpuPercentage();
+
+
+    String getSummaryDataFields();
+
+    String getSummaryData();
+
+    int getSummaryDataGatherInterval();
+
+    void setSummaryDataGatherInterval(int interval);
 }

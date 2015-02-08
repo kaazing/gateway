@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,9 +25,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
-
 import javax.annotation.Resource;
-
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.Uptime;
 import org.kaazing.gateway.management.ManagementService;
@@ -46,9 +44,9 @@ import org.snmp4j.smi.VariableBinding;
 
 /**
  * The service for managing SNMP connections.
- * 
- * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license.
- * To see the full text of the license, please see the Kaazing third-party licenses file.
+ * <p/>
+ * Kaazing's SNMP support is based on the SNMP4J open-source library under the Apache 2.0 license. To see the full text of the
+ * license, please see the Kaazing third-party licenses file.
  */
 public class SnmpManagementService implements ManagementService {
 
@@ -67,6 +65,11 @@ public class SnmpManagementService implements ManagementService {
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public String getType() {
         return "management.snmp";
     }
@@ -76,12 +79,12 @@ public class SnmpManagementService implements ManagementService {
         this.configuration = configuration;
     }
 
-    @Resource(name="securityContext")
+    @Resource(name = "securityContext")
     public void setSecurityContext(DefaultSecurityContext securityContext) {
         this.securityContext = securityContext;
     }
 
-    @Resource(name="managementContext")
+    @Resource(name = "managementContext")
     public void setManagementContext(ManagementContext managementContext) {
         this.managementContext = managementContext;
     }
@@ -90,7 +93,7 @@ public class SnmpManagementService implements ManagementService {
     public void init(ServiceContext serviceContext) throws Exception {
         try {
             Sigar sigar = new Sigar();
-            Uptime uptime = sigar.getUptime();  
+            Uptime uptime = sigar.getUptime();
         } catch (Throwable t) {
             logger.info("SNMP management service: Unable to access system-level management statistics");
             logger.info("  (CPU, NIC, System data). Management will continue without them.");
@@ -99,10 +102,11 @@ public class SnmpManagementService implements ManagementService {
 
         this.serviceContext = serviceContext;
         handler = new SnmpManagementServiceHandler(serviceContext, managementContext);
-        managementContext.setManagementSessionThreshold(InternalSystemProperty.MANAGEMENT_SESSION_THRESHOLD.getIntProperty(configuration));
+        managementContext.setManagementSessionThreshold(InternalSystemProperty.MANAGEMENT_SESSION_THRESHOLD
+                .getIntProperty(configuration));
         managementContext.addManagementServiceHandler(handler);
         managementContext.setActive(true);
-   }
+    }
 
     @Override
     public void quiesce() throws Exception {
@@ -111,7 +115,7 @@ public class SnmpManagementService implements ManagementService {
 
     @Override
     public void start() throws Exception {
-        // update the management context with service, license, security, cluster, network, 
+        // update the management context with service, license, security, cluster, network,
         // and realm config info before starting the service
         managementContext.updateManagementContext(securityContext);
 

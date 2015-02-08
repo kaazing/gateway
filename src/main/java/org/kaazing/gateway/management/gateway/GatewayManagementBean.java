@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -29,73 +29,88 @@ import org.kaazing.gateway.management.update.check.ManagementUpdateCheck;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 
 /**
- * Interface that defines the data and access methods that will be supported by all management 
- * protocols (e.g., JMX, SNMP) for a single gateway instance.  Various lifecycle methods are also provided, 
- * to allow things like initialization and cleanup on start/stop.
- * NOTE: there are certain methods that must be publicly callable, but are not actually supposed
- * to be exposed to the users.
+ * Interface that defines the data and access methods that will be supported by all management protocols (e.g., JMX, SNMP) for a
+ * single gateway instance.  Various lifecycle methods are also provided, to allow things like initialization and cleanup on
+ * start/stop. NOTE: there are certain methods that must be publicly callable, but are not actually supposed to be exposed to the
+ * users.
  */
 public interface GatewayManagementBean extends ManagementBean {
 
-    public static String[] SUMMARY_DATA_FIELD_LIST =
-            new String[] {"totalCurrentSessions", 
-                          "totalBytesReceived", 
-                          "totalBytesSent",
-                          "totalExceptions",
-                          "latestUpdateableGatewayVersion"};
+    String[] SUMMARY_DATA_FIELD_LIST =
+            new String[]{"totalCurrentSessions",
+                    "totalBytesReceived",
+                    "totalBytesSent",
+                    "totalExceptions",
+                    "latestUpdateableGatewayVersion"};
 
-    public static int SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX = 0;
-    public static int SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX = 1;
-    public static int SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX = 2;
-    public static int SUMMARY_DATA_TOTAL_EXCEPTIONS_INDEX = 3;
-    public static int SUMMARY_DATA_LATEST_UPDATEABLE_GATEWAY_VERSION_INDEX = 4;
-    
-    public int getId();
-    
-    public String getHostAndPid();
+    int SUMMARY_DATA_TOTAL_CURRENT_SESSIONS_INDEX = 0;
+    int SUMMARY_DATA_TOTAL_BYTES_RECEIVED_INDEX = 1;
+    int SUMMARY_DATA_TOTAL_BYTES_SENT_INDEX = 2;
+    int SUMMARY_DATA_TOTAL_EXCEPTIONS_INDEX = 3;
+    int SUMMARY_DATA_LATEST_UPDATEABLE_GATEWAY_VERSION_INDEX = 4;
 
-    public String getProductTitle();
-    public String getProductBuild();
-    public String getProductEdition();
+    int getId();
 
-    public long getTotalCurrentSessions();
-    public long getTotalBytesReceived();
-    public long getTotalBytesSent();
-    public long getTotalExceptions();
+    String getHostAndPid();
 
-    public long getUptime();
-    public long getStartTime();
-    public String getInstanceKey();
+    String getProductTitle();
 
-    public void setClusterContext(ClusterContext clusterContext);
+    String getProductBuild();
 
-    public String getClusterMembers();
-    public String getClusterBalancerMap();
-    public String getManagementServiceMap();
+    String getProductEdition();
 
-    public void addClusterManagementListener(ClusterManagementListener listener);
-    
+    long getTotalCurrentSessions();
+
+    long getTotalBytesReceived();
+
+    long getTotalBytesSent();
+
+    long getTotalExceptions();
+
+    long getUptime();
+
+    long getStartTime();
+
+    String getInstanceKey();
+
+    void setClusterContext(ClusterContext clusterContext);
+
+    String getClusterMembers();
+
+    String getClusterBalancerMap();
+
+    String getManagementServiceMap();
+
+    void addClusterManagementListener(ClusterManagementListener listener);
+
     // Various methods needed by the strategy objects
-    public void doSessionCreated(final long sessionId, final ManagementSessionType managementSessionType) throws Exception;
-    public void doSessionCreatedListeners(final long sessionId, final ManagementSessionType managementSessionType);
-    
-    public void doSessionClosed(final long sessionId, final ManagementSessionType managementSessionType) throws Exception;      
-    public void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType);      
-    
-    public void doMessageReceived(final long sessionId, final long sessioReadBytes, final Object message) throws Exception;
-    public void doMessageReceivedListeners(final long sessionId, final long sessioReadBytes, final Object message);
+    void doSessionCreated(final long sessionId, final ManagementSessionType managementSessionType) throws Exception;
 
-    public void doFilterWrite(final long sessionId, final long sessioWrittenBytes, final WriteRequest writeRequest) throws Exception;
-    public void doFilterWriteListeners(final long sessionId, final long sessioWrittenBytes, final WriteRequest writeRequest);
+    void doSessionCreatedListeners(final long sessionId, final ManagementSessionType managementSessionType);
 
-    public void doExceptionCaught(final long sessionId, final Throwable cause) throws Exception;
-    public void doExceptionCaughtListeners(final long sessionId, final Throwable cause);
+    void doSessionClosed(final long sessionId, final ManagementSessionType managementSessionType) throws Exception;
 
-    public String getAvailableUpdateVersion();
+    void doSessionClosedListeners(final long sessionId, final ManagementSessionType managementSessionType);
+
+    void doMessageReceived(final long sessionId, final long sessioReadBytes, final Object message) throws Exception;
+
+    void doMessageReceivedListeners(final long sessionId, final long sessioReadBytes, final Object message);
+
+    void doFilterWrite(final long sessionId, final long sessioWrittenBytes, final WriteRequest writeRequest) throws
+            Exception;
+
+    void doFilterWriteListeners(final long sessionId, final long sessioWrittenBytes, final WriteRequest writeRequest);
+
+    void doExceptionCaught(final long sessionId, final Throwable cause) throws Exception;
+
+    void doExceptionCaughtListeners(final long sessionId, final Throwable cause);
+
+    String getAvailableUpdateVersion();
 
     /**
      * Forces a check an update check
      */
-    public void forceUpdateVersionCheck();
-    public ManagementUpdateCheck getUpdateCheck();
+    void forceUpdateVersionCheck();
+
+    ManagementUpdateCheck getUpdateCheck();
 }
