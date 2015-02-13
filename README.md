@@ -2,8 +2,8 @@
 
 [![Build Status][build-status-image]][build-status]
 
-[build-status-image]: https://travis-ci.org/kaazing/test.util-1.svg?branch=develop
-[build-status]: https://travis-ci.org/kaazing/test.util-1
+[build-status-image]: https://travis-ci.org/kaazing/test.util.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/test.util
 
 # About this Project
 
