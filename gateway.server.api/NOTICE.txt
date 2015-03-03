@@ -1,0 +1,15 @@
+This product depends on Apache Log4j 1.2
+
+	License:	http://www.apache.org/licenses/LICENSE-2.0.txt (The Apache Software License, Version 2.0)
+	Homepage:	http://logging.apache.org/log4j/1.2/
+
+This product depends on SLF4J API Module 1.7
+
+	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
+	Homepage:	http://www.slf4j.org
+
+This product depends on SLF4J LOG4J-12 Binding 1.7
+
+	License:	http://www.opensource.org/licenses/mit-license.php (MIT License)
+	Homepage:	http://www.slf4j.org
+
