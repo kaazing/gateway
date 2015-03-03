@@ -3,13 +3,11 @@
 
     <parent>
         <groupId>org.kaazing</groupId>
-        <artifactId>common</artifactId>
-        <version>2.1.0.3</version>
+        <artifactId>gateway</artifactId>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.server.demo</artifactId>
-    <version>5.0.0.180-SNAPSHOT</version>
     <name>Kaazing WebSocket Gateway - Server Demo</name>
 
     <url>https://github.com/kaazing/gateway.server.demo.git</url>

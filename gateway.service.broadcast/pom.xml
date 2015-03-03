@@ -7,17 +7,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
+      <parent>
         <groupId>org.kaazing</groupId>
-        <artifactId>common</artifactId>
-        <version>2.1.0.3</version>
+        <artifactId>gateway</artifactId>
+        <version>develop-SNAPSHOT</version>
     </parent>
-
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.service.broadcast</artifactId>
     <name>Broadcast Service</name>
     <description>Broadcast service that relays any data from back end service to all clients</description>
-    <version>1.0.0.19-SNAPSHOT</version>
 
     <url>https://github.com/kaazing/gateway.service.broadcast.git</url>
     <scm>
