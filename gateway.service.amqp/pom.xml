@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>common</artifactId>
+        <version>2.1.0.3</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.kaazing</groupId>
+    <artifactId>gateway.service.amqp</artifactId>
+    <name>Kaazing WebSocket Gateway - AMQP Service</name>
+    <description>WebSocket Gateway AMQP Service</description>
+    <version>5.0.0.13-SNAPSHOT</version>
+
+    <url>https://github.com/kaazing/amqp.server.git</url>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing/amqp.server.git</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.server</artifactId>
+            <version>[5.0.0.3,5.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.proxy</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.util</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.security</artifactId>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.management</artifactId>
+            <version>[5.0.0.7,5.1.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlbeans</groupId>
+            <artifactId>xmlbeans</artifactId>
+            <version>${xmlbeans.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-legacy</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xmlbeans-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xmlbeans</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <inherited>true</inherited>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Project hints go here -->
+                    <projectHints>
+                        <projectDescription>
+                            <projectName>cglib</projectName>
+                            <licenseName>APACHE 2</licenseName>
+                            <licenseUrl>https://github.com/kaazing/gateway.service.amqp/blob/develop/LICENSE.txt</licenseUrl>
+                        </projectDescription>
+                        <projectDescription>
+                            <projectName>JDOM</projectName>
+                            <licenseName>JDOM License</licenseName>
+                            <licenseUrl>https://github.com/hunterhacker/jdom/blob/master/LICENSE.txt</licenseUrl>
+                            <homePage>http://jdom.org</homePage>
+                            <version>1.1</version>
+                        </projectDescription>
+                        <projectDescription>
+                            <projectName>Java Native Access</projectName>
+                            <licenseName>LGPL</licenseName>
+                            <licenseUrl>http://www.gnu.org/licenses/licenses.html</licenseUrl>
+                            <homePage>https://github.com/twall/jna</homePage>
+                            <version>2.1</version>
+                        </projectDescription>
+                    </projectHints>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <properties>
+        <xmlbeans.version>2.4.0</xmlbeans.version>
+        <release.level>production</release.level>
+    </properties>
+</project>
