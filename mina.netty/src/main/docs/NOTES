@@ -1,0 +1,28 @@
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] OPEN
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] BIND: 0.0.0.0/0.0.0.0:8000
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] BOUND: /0:0:0:0:0:0:0:0:8000
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] CHILD_OPEN: 546587857
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 => /127.0.0.1:8000] OPEN
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 => /127.0.0.1:8000] BOUND: /127.0.0.1:8000
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 => /127.0.0.1:8000] CONNECTED: /127.0.0.1:59368
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 :> /127.0.0.1:8000] DISCONNECTED
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 :> /127.0.0.1:8000] UNBOUND
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x209444d1, /127.0.0.1:59368 :> /127.0.0.1:8000] CLOSED
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] CHILD_CLOSED: 546587857
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] UNBIND
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] UNBOUND
+Mar 24, 2011 5:45:23 PM org.jboss.netty.handler.logging.LoggingHandler
+INFO: [id: 0x33e228bc] CLOSED
