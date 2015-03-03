@@ -1,0 +1,5 @@
+org.kaazing.gateway.transport.MockSslTransportFactorySpi
+org.kaazing.gateway.transport.MockTcpTransportFactorySpi
+org.kaazing.gateway.transport.MockWsTransportFactorySpi
+org.kaazing.gateway.transport.MockWsnTransportFactorySpi
+org.kaazing.gateway.transport.MockHttpTransportFactorySpi

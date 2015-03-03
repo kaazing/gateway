@@ -1,0 +1,40 @@
+How to replace the localhost certificate: 
+
+* Remove the existing localhost keypair
+keytool -delete -alias localhost -keystore keystore.db -storetype JCEKS -storepass `cat keystore.pw` 
+
+* Generate a new keypair into the keystore
+keytool -genkeypair \
+-alias localhost -keyalg RSA -dname "CN=localhost, OU=Engineering, O=Kaazing, L=Mountain View, ST=California, C=US" \
+-keystore keystore.db -storetype JCEKS -storepass `cat keystore.pw` -validity 3600
+
+* Extract the keypair certificate
+keytool -exportcert -alias localhost -file localhost.cer \
+-keystore keystore.db -storetype JCEKS -storepass `cat keystore.pw` 
+
+* Import the keypair certificate into a truststore as a trusted CA
+keytool -importcert -alias localhost -file localhost.cer
+-keystore truststore-JCEKS.db -storepass changeit -storetype JCEKS
+
+----------------------------------------------------------------
+
+How to (re)generate the keystore-vhost-*.db files:
+
+  # keytool -genkey -keyalg RSA -alias 'jira.kaazing.wan' -keystore src/test/resources/keystore-vhost-nowildcard.db -storetype JCEKS -storepass ab987c -validity 3600 -keysize 2048
+
+In the prompts, make sure that the "What is your first and last name?" question
+is answered using the same name as that of the alias, i.e.:
+
+  What is your first and last name?
+    [Unknown]:  jira.kaazing.wan
+
+The answer to this prompt becomes part of the "server name" in the generated
+cert, via the Subject Alternative Name (SAN) attribute.
+
+  # keytool -genkey -keyalg RSA -alias 'vpn.kaazing.wan' -keystore src/test/resources/keystore-vhost-nowildcard.db -storetype JCEKS -storepass ab987c -validity 3600 -keysize 2048
+
+Then, to create the keystore which also contains a wilcard cert, do:
+
+  # cp src/test/resources/keystore-vhost-nowildcard.db src/test/resources/keystore-vhost-wildcard.db
+  # keytool -genkey -keyalg RSA -alias '*.kaazing.wan' -keystore src/test/resources/keystore-vhost-wildcard.db -storetype JCEKS -storepass ab987c -validity 3600 -keysize 2048
+
