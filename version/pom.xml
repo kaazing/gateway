@@ -58,6 +58,31 @@
                 </configuration>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>xmlbeans-maven-plugin</artifactId>
+                    <version>2.3.3</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <!-- turn off warnings about file lengths > 100 chars -->
+                    <configuration>
+                        <tarLongFileMode>gnu</tarLongFileMode>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <reporting>
@@ -68,4 +93,16 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <properties>
+        <keywords>HTML5,Kaazing,WebSocket,Gateway,Installer</keywords>
+        <comments>(c) 2007-2014 Kaazing Corporation</comments>
+        <edition>Community Edition Gateway</edition>
+
+        <!-- gateway.feature.version supplies a 2-digit version of the
+             major/minor version of the Gateway. -->
+        <gateway.feature.version>${project.version.minor}</gateway.feature.version>
+        <gateway.edition.directory>kaazing-gateway-community-${project.version.patch}</gateway.edition.directory>
+        <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
+    </properties>
 </project>
