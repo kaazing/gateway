@@ -138,6 +138,7 @@ public class Sslv3Test {
     // Gateway doesn't enable SSLv3 by default. But client is configured to use *only* SSLv3,
     // so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
+    @Ignore
     public void acceptFailsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         SSLSocket socket = null;
@@ -178,6 +179,7 @@ public class Sslv3Test {
 
     // 8567 (only SSLv3 by config) -> 8658 (only SSLv3 by config), so we expect SSL handshake to go through
     @Test(timeout = 5000)
+    @Ignore
     public void connectSucceedsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -231,6 +233,7 @@ public class Sslv3Test {
     // 9557 (no SSLv3 by default) -> 9588 (no SSLv3 by default), so we expect SSL handshake to go through
     // using some protocol other than SSLv3
     @Test(timeout = 5000)
+    @Ignore
     public void connectSucceedsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -281,6 +284,7 @@ public class Sslv3Test {
 
     // 8567 (only SSLv3) -> 8658 (no SSLv3 by defalut), so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
+    @Ignore
     public void connectFailsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -332,6 +336,7 @@ public class Sslv3Test {
 
     // 9567 (no SSLv3 by default) -> 9658 (only SSLv3 by config), so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
+    @Ignore
     public void connectFailsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
