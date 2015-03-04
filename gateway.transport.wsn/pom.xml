@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved.
-
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-      <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>gateway.transport.wsn</artifactId>
     <description>Native WebSocket (RFC 6455) transport</description>
@@ -27,12 +24,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsn</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.ws</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -43,7 +40,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxe</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -55,31 +52,31 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxdraft</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsx</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsxdraft</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.pipe</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.ssl</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -89,7 +86,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>test.util</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -99,19 +96,19 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server</artifactId>
-            <version>[5.0.0.3, 5.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.echo</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.proxy</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

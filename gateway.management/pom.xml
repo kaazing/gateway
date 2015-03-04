@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.3.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.management</artifactId>
@@ -20,42 +21,42 @@
     </scm>
 
     <dependencies>
-        <!-- Because we depend on gateway.server, a ton of other
-             dependencies come in transitively -->
+        <!-- Because we depend on gateway.server, a ton of other dependencies 
+            come in transitively -->
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server</artifactId>
-            <version>[5.0.0.3,5.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.proxy</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.http.balancer</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.wsn</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.wseb</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.wsr</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
@@ -70,36 +71,36 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.update.check</artifactId>
-            <version>[1.0.0.0,1.1.0.0]</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxe</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsxdraft</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxdraft</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsx</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpx</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -113,7 +114,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>1.0.0.0</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -129,7 +130,8 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <!-- TODO: update version in core.common and remove following line -->
+            <!-- TODO: update version in core.common and remove following 
+                line -->
             <version>[4.10,5.0)</version>
             <scope>provided</scope>
         </dependency>
@@ -189,8 +191,8 @@
                         <phase>validate</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <!-- checkstyle doesn't like lambdas and·
-                                 exceptions and bails -->
+                            <!-- checkstyle doesn't like lambdas and· exceptions 
+                                and bails -->
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
@@ -233,8 +235,8 @@
         </plugins>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only.
-                    It has no influence on the Maven build itself.-->
+                <!--This plugin's configuration is used to store Eclipse 
+                    m2e settings only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>

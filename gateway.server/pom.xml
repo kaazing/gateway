@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-       <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
@@ -22,7 +23,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -157,7 +158,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.echo</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -166,12 +167,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.api</artifactId>
-            <version>[5.0.0.0,5.1.0.0)</version>
+           <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.spi</artifactId>
-            <version>[5.0.0.0,5.1.0.0)</version>
+          <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
@@ -288,8 +289,10 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <!-- Enforce java 1.7 as minimum for compiling -->
-                                    <!-- This is needed because of java.util.zip.Deflater and NIO UDP multicast-->
+                                    <!-- Enforce java 1.7 as minimum for 
+                                        compiling -->
+                                    <!-- This is needed because of java.util.zip.Deflater 
+                                        and NIO UDP multicast -->
                                     <version>[1.7.0,)</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
@@ -310,8 +313,8 @@
                         <phase>validate</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <!-- checkstyle doesn't like lambdas and·
-                                 exceptions and bails -->
+                            <!-- checkstyle doesn't like lambdas and· exceptions 
+                                and bails -->
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
@@ -385,10 +388,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!--
-                        <disableXmlReport>true</disableXmlReport>
-                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    -->
+                    <!-- <disableXmlReport>true</disableXmlReport> <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
                 </configuration>
             </plugin>
             <plugin>
@@ -416,8 +416,8 @@
         </plugins>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only.
-                    It has no influence on the Maven build itself.-->
+                <!--This plugin's configuration is used to store Eclipse 
+                    m2e settings only. It has no influence on the Maven build itself. -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
@@ -464,45 +464,43 @@
     </reporting>
 
     <properties>
-        <address.version>[1.0.0.0,1.1.0.0)</address.version>
-        <transport.version>[1.0.0.0,1.1.0.0)</transport.version>
-        <security.version>[1.0.0.0, 1.1.0.0)</security.version>
-        <util.version>[1.0.0.0,1.1.0.0)</util.version>
+        <address.version>${project.version}</address.version>
+        <transport.version>${project.version}</transport.version>
+        <security.version>${project.version}</security.version>
+        <util.version>${project.version}</util.version>
 
         <!-- transport versions -->
-        <ssl.transport.version>[1.0.0.0,1.1.0.0)</ssl.transport.version>
-        <wsr.transport.version>[1.0.0.0,1.1.0.0)</wsr.transport.version>
-        <wseb.transport.version>[1.0.0.0,1.1.0.0)</wseb.transport.version>
-        <wsn.transport.version>[1.0.0.0,1.1.0.0)</wsn.transport.version>
-        <ws.transport.version>[1.0.0.0,1.1.0.0)</ws.transport.version>
-        <sse.transport.version>[1.0.0.0,1.1.0.0)</sse.transport.version>
-        <http.transport.version>[1.0.0.0,1.1.0.0)</http.transport.version>
-        <nio.transport.version>[1.0.0.0,1.1.0.0)</nio.transport.version>
-        <bio.transport.version>[1.0.0.0,1.1.0.0)</bio.transport.version>
-        <proxy.transport.version>[1.0.0.0,1.1.0.0)</proxy.transport.version>
+        <ssl.transport.version>${project.version}</ssl.transport.version>
+        <wsr.transport.version>${project.version}</wsr.transport.version>
+        <wseb.transport.version>${project.version}</wseb.transport.version>
+        <wsn.transport.version>${project.version}</wsn.transport.version>
+        <ws.transport.version>${project.version}</ws.transport.version>
+        <sse.transport.version>${project.version}</sse.transport.version>
+        <http.transport.version>${project.version}</http.transport.version>
+        <nio.transport.version>${project.version}</nio.transport.version>
+        <bio.transport.version>${project.version}</bio.transport.version>
+        <proxy.transport.version>${project.version}</proxy.transport.version>
 
         <!-- resource address versions -->
-        <sse.address.version>[1.0.0.0,1.1.0.0)</sse.address.version>
-        <ssl.address.version>[1.0.0.0,1.1.0.0)</ssl.address.version>
-        <tcp.address.version>[1.0.0.0,1.1.0.0)</tcp.address.version>
-        <http.address.version>[1.0.0.0,1.1.0.0)</http.address.version>
-        <udp.address.version>[1.0.0.0,1.1.0.0)</udp.address.version>
-        <httpx.address.version>[1.0.0.0,1.1.0.0)</httpx.address.version>
-        <httpxdraft.address.version>[1.0.0.0,1.1.0.0)</httpxdraft.address.version>
-        <httpxe.address.version>[1.0.0.0,1.1.0.0)</httpxe.address.version>
-        <ws.address.version>[1.0.0.0,1.1.0.0)</ws.address.version>
-        <wsx.address.version>[1.0.0.0,1.1.0.0)</wsx.address.version>
-        <wse.address.version>[1.0.0.0,1.1.0.0)</wse.address.version>
-        <wsn.address.version>[1.0.0.0,1.1.0.0)</wsn.address.version>
-        <wsr.address.version>[1.0.0.0,1.1.0.0)</wsr.address.version>
-        <wsdraft.address.version>[1.0.0.0,1.1.0.0)</wsdraft.address.version>
-        <wsxdraft.address.version>[1.0.0.0,1.1.0.0)</wsxdraft.address.version>
-        <rtmp.address.version>[1.0.0.0,1.1.0.0)</rtmp.address.version>
-        <pipe.address.version>[1.0.0.0,1.1.0.0)</pipe.address.version>
-        <proxy.address.version>[1.0.0.0,1.1.0.0)</proxy.address.version>
+        <sse.address.version>${project.version}</sse.address.version>
+        <ssl.address.version>${project.version}</ssl.address.version>
+        <tcp.address.version>${project.version}</tcp.address.version>
+        <http.address.version>${project.version}</http.address.version>
+        <udp.address.version>${project.version}</udp.address.version>
+        <httpx.address.version>${project.version}</httpx.address.version>
+        <httpxdraft.address.version>${project.version}</httpxdraft.address.version>
+        <httpxe.address.version>${project.version}</httpxe.address.version>
+        <ws.address.version>${project.version}</ws.address.version>
+        <wsx.address.version>${project.version}</wsx.address.version>
+        <wse.address.version>${project.version}</wse.address.version>
+        <wsn.address.version>${project.version}</wsn.address.version>
+        <wsr.address.version>${project.version}</wsr.address.version>
+        <wsdraft.address.version>${project.version}</wsdraft.address.version>
+        <wsxdraft.address.version>${project.version}</wsxdraft.address.version>
+        <rtmp.address.version>${project.version}</rtmp.address.version>
+        <pipe.address.version>${project.version}</pipe.address.version>
+        <proxy.address.version>${project.version}</proxy.address.version>
 
-        <kaazing.mina.version>2.0.0-RC1k</kaazing.mina.version>
-        <apache.mina.version>2.0.0-RC1</apache.mina.version>
         <hazelcast.version>1.9.4.8</hazelcast.version>
         <jdom.version>1.1</jdom.version>
         <xmlbeans.version>2.4.0</xmlbeans.version>
@@ -511,7 +509,8 @@
         <commons-cli.version>1.2</commons-cli.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
 
-        <!-- temporarily override license.version until we can move to core.common latest -->
+        <!-- temporarily override license.version until we can move to core.common 
+            latest -->
         <license.version>24</license.version>
 
 

@@ -1,5 +1,0 @@
-This product depends on Kaazing WebSocket Gateway - Truststore 1.0
-
-	License:	http://www.apache.org/licenses/LICENSE-2.0 (Apache License, Version 2.0)
-	Homepage:	https://github.com/kaazing/gateway.truststore.git
-

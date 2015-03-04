@@ -10,7 +10,7 @@
       <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>gateway.service</artifactId>
     <name>Gateway Service</name>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>test.util</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+       <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

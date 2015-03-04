@@ -277,7 +277,7 @@ public interface ServiceManagementBean extends ManagementBean {
          * @param serviceContext
          * @param beanId
          */
-        DefaultServiceManagementBean(GatewayManagementBean gatewayManagementBean,
+        protected DefaultServiceManagementBean(GatewayManagementBean gatewayManagementBean,
                                             ServiceContext serviceContext) {
             super(gatewayManagementBean.getManagementContext(), gatewayManagementBean.getManagementContext()
                     .getServiceSummaryDataNotificationInterval(), SUMMARY_DATA_FIELD_LIST);

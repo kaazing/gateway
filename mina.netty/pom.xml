@@ -5,7 +5,7 @@
       <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>5.3.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -328,7 +328,7 @@
     </profiles>
 
     <properties>
-        <kaazing.mina.version>2.1.0.0</kaazing.mina.version>
+        <kaazing.mina.version>${project.version}</kaazing.mina.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipTests>true</skipTests>

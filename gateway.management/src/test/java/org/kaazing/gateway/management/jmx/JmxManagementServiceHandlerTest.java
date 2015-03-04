@@ -22,7 +22,9 @@
 package org.kaazing.gateway.management.jmx;
 
 import java.net.URI;
+
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -55,6 +57,7 @@ public class JmxManagementServiceHandlerTest {
         }
     }
 
+    @Ignore
     @Test
     public void testNoJMXBindingNameConflictsOnMultiServicesUsingSameAccept() throws Exception {
         /**

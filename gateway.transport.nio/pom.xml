@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved.
-
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-       <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>develop-SNAPSHOT</version>
-    </parent>    <groupId>org.kaazing</groupId>
+        <version>5.3.0.1-SNAPSHOT</version>
+    </parent>
+    <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
     <description>Nonblocking i/o transport</description>
@@ -27,26 +25,28 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.tcp</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
 
-        <!-- TODO, remove: here for support udp://239.255.0.1:7400 in the NioDatagramAcceptor / NioDatagramConnector delegating to MulticastAcceptor / MulticastConnector automatically, making "mcp" unnecessary. -->
+        <!-- TODO, remove: here for support udp://239.255.0.1:7400 in the 
+            NioDatagramAcceptor / NioDatagramConnector delegating to MulticastAcceptor 
+            / MulticastConnector automatically, making "mcp" unnecessary. -->
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.bio</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- test dependencies -->
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>test.util</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

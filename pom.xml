@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>common</artifactId>
+        <version>2.1.0.3</version>
+    </parent>
+
+    <artifactId>gateway</artifactId>
+    <name>Kaazing Gateway</name>
+    <version>5.3.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>gateway.bridge</module>
+        <module>gateway.distribution.base</module>
+        <module>gateway.distribution.version</module>
+        <module>gateway.management</module>
+        <module>gateway.resource.address</module>
+        <module>gateway.resource.address.http</module>
+        <module>gateway.resource.address.httpx</module>
+        <module>gateway.resource.address.httpxdraft</module>
+        <module>gateway.resource.address.httpxe</module>
+        <module>gateway.resource.address.pipe</module>
+        <module>gateway.resource.address.rtmp</module>
+        <module>gateway.resource.address.sse</module>
+        <module>gateway.resource.address.ssl</module>
+        <module>gateway.resource.address.tcp</module>
+        <module>gateway.resource.address.udp</module>
+        <module>gateway.resource.address.ws</module>
+        <module>gateway.resource.address.wsdraft</module>
+        <module>gateway.resource.address.wse</module>
+        <module>gateway.resource.address.wsn</module>
+        <module>gateway.resource.address.wsr</module>
+        <module>gateway.resource.address.wsx</module>
+        <module>gateway.resource.address.wsxdraft</module>
+        <module>gateway.security</module>
+        <module>gateway.server</module>
+        <module>gateway.server.api</module>
+        <module>gateway.server.demo</module>
+        <module>gateway.server.spi</module>
+        <module>gateway.service</module>
+        <module>gateway.service.amqp</module>
+        <module>gateway.service.broadcast</module>
+        <module>gateway.service.echo</module>
+        <module>gateway.service.http.balancer</module>
+        <module>gateway.service.http.directory</module>
+        <module>gateway.service.proxy</module>
+        <module>gateway.service.update.check</module>
+        <module>gateway.service.update.check.management</module>
+        <module>gateway.transport</module>
+        <module>gateway.transport.bio</module>
+        <module>gateway.transport.http</module>
+        <module>gateway.transport.nio</module>
+        <module>gateway.transport.pipe</module>
+        <module>gateway.transport.sse</module>
+        <module>gateway.transport.ssl</module>
+        <module>gateway.transport.ws</module>
+        <module>gateway.transport.wseb</module>
+        <module>gateway.transport.wsn</module>
+        <module>gateway.transport.wsr</module>
+        <module>gateway.truststore</module>
+        <module>gateway.util</module>
+        <module>mina.core</module>
+        <module>mina.netty</module>
+        <module>test.util</module>
+    </modules>
+
+</project>
