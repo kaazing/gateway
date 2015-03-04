@@ -2,4 +2,5 @@ language: Java
 jdk:
   - oraclejdk7
   - openjdk7
-script: mvn clean verify
+install: mvn -DskipTests -DskipITs verify
+script: mvn verify
