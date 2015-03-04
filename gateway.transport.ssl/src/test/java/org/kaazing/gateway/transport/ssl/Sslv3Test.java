@@ -27,6 +27,7 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.net.SocketFactory;
@@ -35,6 +36,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -87,6 +89,7 @@ public class Sslv3Test {
     // using ssl.protocols option. Client is also configured to use *only* SSLv3, so we expect
     // SSL handshake go through
     @Test(timeout = 5000)
+    @Ignore
     public void acceptSucceedsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         SSLSocket socket = null;
