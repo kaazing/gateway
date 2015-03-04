@@ -1,6 +1,0 @@
-{
-    "name": "kaazing-community-gateway",
-    "dependencies": {
-        "commandcenter": "https://github.com/kaazing/bower-kaazing-command-center.git#>=5.0.0-1 <5.1.0"
-    }
-}

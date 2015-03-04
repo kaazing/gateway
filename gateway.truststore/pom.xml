@@ -28,7 +28,7 @@
     <build>
         <resources>
             <resource>
-                <directory>target/truststore</directory>
+                <directory>${basedir}/target/truststore</directory>
             </resource>
         </resources>
 
@@ -50,6 +50,6 @@
     </build>
 
     <properties>
-        <truststore.file>target/truststore/truststore.db</truststore.file>
+        <truststore.file>${basedir}/target/truststore/truststore.db</truststore.file>
     </properties>
 </project>
