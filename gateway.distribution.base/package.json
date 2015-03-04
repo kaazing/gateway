@@ -1,7 +1,0 @@
-{
-    "name": "kaazing-community-gateway",
-    "description": "Community Edition of Kaazing Gateway",
-    "devDependencies": {
-        "bower": "^1.3.8"
-    }
-}
