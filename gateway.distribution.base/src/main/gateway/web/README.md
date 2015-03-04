@@ -1,1 +1,0 @@
-The default gateway-config.xml includes a directory service, which serves requests to "/" (for example, http://localhost:8000/) from the "base" directory located next to this README.txt file. To ensure your files will be properly served by the directory service, place them in the "base" directory. You are free to configure the "base" directory contents as you desire.
