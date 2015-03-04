@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway</artifactId>
+        <version>5.3.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>gateway.distribution.version</artifactId>
+    <name>Kaazing Gateway Distribution Version Provider</name>
+    <description>Gateway distribution version provider</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.google.code.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Title>Kaazing Gateway</Implementation-Title>
+                            <Implementation-Version>${project.version.implementation}</Implementation-Version>
+                            <Kaazing-Product>Community.Gateway</Kaazing-Product>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>xmlbeans-maven-plugin</artifactId>
+                    <version>2.3.3</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.5.1</version>
+                    <!-- turn off warnings about file lengths > 100 chars -->
+                    <configuration>
+                        <tarLongFileMode>gnu</tarLongFileMode>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <addMavenDescriptor>false</addMavenDescriptor>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <properties>
+        <keywords>HTML5,Kaazing,WebSocket,Gateway,Installer</keywords>
+        <comments>(c) 2007-2014 Kaazing Corporation</comments>
+        <edition>Community Edition Gateway</edition>
+
+        <!-- gateway.feature.version supplies a 2-digit version of the
+             major/minor version of the Gateway. -->
+        <gateway.feature.version>${project.version.minor}</gateway.feature.version>
+        <gateway.edition.directory>kaazing-gateway-community-${project.version.patch}</gateway.edition.directory>
+        <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
+    </properties>
+</project>
