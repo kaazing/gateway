@@ -1,10 +1,10 @@
-# Gateway Distribution
+# Gateway
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kaazing/gateway.distribution?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kaazing/gateway?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status][build-status-image]][build-status]
 
-[build-status-image]: https://travis-ci.org/kaazing/gateway.distribution.svg?branch=develop
-[build-status]: https://travis-ci.org/kaazing/gateway.distribution
+[build-status-image]: https://travis-ci.org/kaazing/gateway.svg?branch=develop
+[build-status]: https://travis-ci.org/kaazing/gateway
 
 # About this Project
 
