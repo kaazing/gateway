@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>1.0.2</version>
                 <executions>
                     <execution>
                         <goals>
