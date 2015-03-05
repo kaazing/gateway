@@ -110,17 +110,6 @@
       </includes>
     </dependencySet>
 
-    <!-- Overlay the Version JAR -->
-    <dependencySet>
-      <outputDirectory>lib</outputDirectory>
-      <useStrictFiltering>true</useStrictFiltering>
-      <includes>
-        <include>org.kaazing:gateway.distribution.version</include>
-      </includes>
-      <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-        
     <!-- Overlay the truststore DB.  It is binary, and so does not change
          line endings as above. -->
     <dependencySet>

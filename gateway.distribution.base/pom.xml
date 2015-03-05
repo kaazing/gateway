@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.0.1-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.distribution.base</artifactId>
@@ -69,11 +69,6 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.distribution.version</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
             <classifier>distribution</classifier>
             <type>zip</type>
@@ -108,7 +103,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.update.check</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -177,7 +172,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.ws</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -310,7 +305,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -390,8 +385,8 @@
 
         <!-- gateway.feature.version supplies a 2-digit version of the major/minor 
             version of the Gateway. -->
-        <gateway.feature.version>${project.version.minor}</gateway.feature.version>
-        <gateway.edition.directory>kaazing-gateway-community-${project.version.patch}</gateway.edition.directory>
+        <gateway.feature.version>${project.version}</gateway.feature.version>
+        <gateway.edition.directory>kaazing-gateway-community-${project.version}</gateway.edition.directory>
         <minimum.java.version>Java 7 (version 1.7.0_21)</minimum.java.version>
     </properties>
 </project>
