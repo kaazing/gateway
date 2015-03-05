@@ -31,12 +31,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class SseSameOriginIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -57,21 +57,21 @@ public class SseSameOriginIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "sse.connect.via.dotnet.emulated")
+    @Specification("sse.connect.via.dotnet.emulated")
     @Test(timeout = 3000)
     public void sseEmulatedConnect() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "sse.connect.via.ie8.httpxe")
+    @Specification("sse.connect.via.ie8.httpxe")
     @Test(timeout = 3000)
     public void sseIe8HttpxeConnect() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "sse.connect.and.get.data.via.ie8.httpxe")
+    @Specification("sse.connect.and.get.data.via.ie8.httpxe")
     @Test(timeout = 3000)
     public void sseIe8HttpxeConnectAndGetData() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

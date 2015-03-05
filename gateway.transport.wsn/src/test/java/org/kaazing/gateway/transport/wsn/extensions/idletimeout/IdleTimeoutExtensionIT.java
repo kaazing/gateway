@@ -33,13 +33,13 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 // Note: further testing of this extension is done in WsnInactivityTimeoutIT
 public class IdleTimeoutExtensionIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
     @BeforeClass
@@ -80,16 +80,16 @@ public class IdleTimeoutExtensionIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "shouldGetValueFromIdleTimeoutExtension")
+    @Specification("shouldGetValueFromIdleTimeoutExtension")
     @Test(timeout = 8 * 1000) 
     public void shouldGetWsInactivityTimeoutInMillisFromIdleTimeoutExtension() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldNotNegotiateIdleTimeoutExtension")
+    @Specification("shouldNotNegotiateIdleTimeoutExtension")
     @Test(timeout = 8 * 1000) 
     public void shouldNotNegotiateIdleTimeoutExtensionWhenWsInactivityTimeoutIsUnset() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

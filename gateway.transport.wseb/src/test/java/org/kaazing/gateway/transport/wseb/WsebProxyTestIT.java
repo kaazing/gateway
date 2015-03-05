@@ -23,7 +23,6 @@ package org.kaazing.gateway.transport.wseb;
 
 import static org.junit.rules.RuleChain.outerRule;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.security.KeyStore;
@@ -36,12 +35,12 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebProxyTestIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
     KeyStore keyStore = null;
     char[] password = "ab987c".toCharArray();
 
@@ -91,36 +90,36 @@ public class WsebProxyTestIT {
     public TestRule chain = outerRule(robot).around(gateway);
 
     
-    @Robotic("VerifyProxyModeFallbackFromInsecureToSecureInWseb")
+    @Specification("VerifyProxyModeFallbackFromInsecureToSecureInWseb")
     @Test(timeout = 1500)
     @Ignore("KG-11239")
     public void VerifyProxyModeFallbackFromInsecureToSecureInWseb() throws Exception {
-        robot.join();
+        robot.finish();
     }
    
-    @Robotic("BluecoatHeaderDetectionAndFallbackToProxyMode")
+    @Specification("BluecoatHeaderDetectionAndFallbackToProxyMode")
     @Test(timeout = 1500)
     @Ignore("KG-11239")
     public void BluecoatHeaderDetectionAndFallbackToProxyMode() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("wsebLongPolling")
+    @Specification("wsebLongPolling")
     @Test(timeout = 7500)
     public void wsebLongPolling() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("wsebSecureLongPolling")
+    @Specification("wsebSecureLongPolling")
     @Test(timeout = 7500)
     public void wsebSecureLongPolling() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("wsebLongPollingByHeader")
+    @Specification("wsebLongPollingByHeader")
     @Test(timeout = 7500)
     public void wsebLongPollingTriggeredByHeader() throws Exception {
-        robot.join();
+        robot.finish();
     }
        
 }

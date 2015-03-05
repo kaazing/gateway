@@ -32,11 +32,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class ReservedBitsIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -54,47 +54,47 @@ public class ReservedBitsIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "sendCloseWithRSVEquals7")
+    @Specification("sendCloseWithRSVEquals7")
     @Test(timeout = 1500)
     public void sendCloseWithRSVEquals() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageWithRSVEquals1")
+    @Specification("sendSmallTextMessageWithRSVEquals1")
     @Test(timeout = 1500)
     public void sendSmallTextMessageWithRSVEquals1() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing")
+    @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops")
+    @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     @Ignore("KG-12368")
-    @Robotic(script = "sendSmallTextMessageThenSmallTextMessageWithRSVEquals4ThenSendPingInOctetWiseChops")
+    @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals4ThenSendPingInOctetWiseChops")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallBinaryMessageWithRSVEquals5")
+    @Specification("sendSmallBinaryMessageWithRSVEquals5")
     @Test(timeout = 1500)
     public void sendSmallBinaryMessageWithRSVEquals5() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingWithRSVEquals6")
+    @Specification("sendPingWithRSVEquals6")
     @Test(timeout = 1500)
     public void sendPingWithRSVEquals6() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
 }

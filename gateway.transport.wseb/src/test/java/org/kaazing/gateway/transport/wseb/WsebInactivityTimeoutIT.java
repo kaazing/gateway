@@ -32,12 +32,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebInactivityTimeoutIT {
 
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -68,16 +68,16 @@ public class WsebInactivityTimeoutIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic("echo.inactivity.timeout.should.close")
+    @Specification("echo.inactivity.timeout.should.close")
     @Test(timeout = 15000)
     public void testEchoInactiveTimeoutShouldCloseConnection() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("echo.inactivity.timeout.should.not.ping.old.client")
+    @Specification("echo.inactivity.timeout.should.not.ping.old.client")
     @Test(timeout = 15000)
     public void testEchoInactiveTimeoutShouldNotPingOldClient() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

@@ -33,13 +33,13 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 //Note: further testing of this extension is done in WsnInactivityTimeoutIT
 public class PingPongExtensionIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
     @BeforeClass
@@ -70,34 +70,34 @@ public class PingPongExtensionIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "pingPongExtensionShouldNotEscapeBinary")
+    @Specification("pingPongExtensionShouldNotEscapeBinary")
     @Test(timeout = 8 * 1000) 
     public void pingPongExtensionShouldNotEscapeBinary() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "pingPongExtensionShouldEscapeText")
+    @Specification("pingPongExtensionShouldEscapeText")
     @Test(timeout = 8 * 1000) 
     public void pingPongExtensionShouldEscapeText() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldNotEchoEscapeFrame")
+    @Specification("shouldNotEchoEscapeFrame")
     @Test(timeout = 8 * 1000) 
     public void shouldNotEchoEscapeFrame() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldReplyToExtendedPingWithExtendedPong")
+    @Specification("shouldReplyToExtendedPingWithExtendedPong")
     @Test(timeout = 8 * 1000) //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     public void shouldReplyToExtendedPingWithExtendedPong() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldEchoEscapedFrameWithPingPongControlBytes")
+    @Specification("shouldEchoEscapedFrameWithPingPongControlBytes")
     @Test(timeout = 800 * 1000) 
     public void shouldEchoEscapedFrameWithPingPongControlBytes() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

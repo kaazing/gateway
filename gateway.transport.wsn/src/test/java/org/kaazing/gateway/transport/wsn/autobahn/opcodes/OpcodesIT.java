@@ -31,11 +31,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class OpcodesIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -53,63 +53,63 @@ public class OpcodesIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "sendFrameWithReservedNonControlOpcodeEquals3")
+    @Specification("sendFrameWithReservedNonControlOpcodeEquals3")
     @Test(timeout = 1500)
     public void sendFrameWithReservedNonControlOpcodeEquals3() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendFrameWithReservedNonControlOpcodeEquals4AndNonEmptyPayload")
+    @Specification("sendFrameWithReservedNonControlOpcodeEquals4AndNonEmptyPayload")
     @Test(timeout = 1500)
     public void sendFrameWithReservedNonControlOpcodeEquals4AndNonEmptyPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals5ThenPing")
+    @Specification("sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals5ThenPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals5ThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals6AndNonEmptyPayloadThenPing")
+    @Specification("sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals6AndNonEmptyPayloadThenPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals6AndNonEmptyPayloadThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals7AndNonEmptyPayloadThenPing")
+    @Specification("sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals7AndNonEmptyPayloadThenPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenFrameWithReservedNonControlOpcodeEquals7AndNonEmptyPayloadThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendFrameWithReservedControlOpcodeEquals11")
+    @Specification("sendFrameWithReservedControlOpcodeEquals11")
     @Test(timeout = 1500)
     public void sendFrameWithReservedControlOpcodeEquals11() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendFrameWithReservedControlOpcodeEquals12AndNonEmptyPayload")
+    @Specification("sendFrameWithReservedControlOpcodeEquals12AndNonEmptyPayload")
     @Test(timeout = 1500)
     public void sendFrameWithReservedControlOpcodeEquals12AndNonEmptyPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendFrameWithReservedControlOpcodeEquals13ThenPing")
+    @Specification("sendFrameWithReservedControlOpcodeEquals13ThenPing")
     @Test(timeout = 1500)
     public void sendFrameWithReservedNonControlOpcodeEquals13ThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals14AndNonEmptyPayloadThenPing")
+    @Specification("sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals14AndNonEmptyPayloadThenPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals14AndNonEmptyPayloadThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals15AndNonEmptyPayloadThenPing")
+    @Specification("sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals15AndNonEmptyPayloadThenPing")
     @Test(timeout = 1500)
     public void sendSmallTextMessageThenFrameWithReservedControlOpcodeEquals15AndNonEmptyPayloadThenPing() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

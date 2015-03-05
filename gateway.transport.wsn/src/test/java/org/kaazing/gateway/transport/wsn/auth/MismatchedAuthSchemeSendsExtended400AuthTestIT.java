@@ -33,12 +33,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 	KeyStore keyStore = null;
 	char[] password = "ab987c".toCharArray();
 
@@ -82,15 +82,15 @@ public class MismatchedAuthSchemeSendsExtended400AuthTestIT {
 	@Rule
 	public TestRule chain = outerRule(robot).around(gateway);
 
-	@Robotic(script = "shouldFailDueToMismatchedAuthSchemes")
+	@Specification("shouldFailDueToMismatchedAuthSchemes")
 	@Test(timeout = 1500)
 	public void shouldFailDueToMismatchedAuthSchemes() throws Exception {
-		robot.join();
+		robot.finish();
 	}
 
-	@Robotic(script = "shouldNotFailDueToMatchingAuthScheme")
+	@Specification("shouldNotFailDueToMatchingAuthScheme")
 	@Test(timeout = 1500)
 	public void shouldNotFailDueToMatchingAuthScheme() throws Exception {
-		robot.join();
+		robot.finish();
 	}
 }

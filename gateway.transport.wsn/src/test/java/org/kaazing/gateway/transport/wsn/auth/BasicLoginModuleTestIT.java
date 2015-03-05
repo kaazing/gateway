@@ -31,12 +31,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class BasicLoginModuleTestIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -69,28 +69,28 @@ public class BasicLoginModuleTestIT {
 	@Rule
 	public TestRule chain = outerRule(robot).around(gateway);
 
-	@Robotic(script = "basicLoginModuleFirstRequestSuccess")
+	@Specification("basicLoginModuleFirstRequestSuccess")
 	@Test(timeout = 5000)
 	public void basicLoginModuleFirstRequestSuccess() throws Exception {
-		robot.join();
+		robot.finish();
 	}
 
-    @Robotic(script = "basicLoginModuleSecondRequestSuccess")
+    @Specification("basicLoginModuleSecondRequestSuccess")
     @Test(timeout = 5000)
     public void basicLoginModuleSecondRequestSuccess() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "basicLoginModuleThirdRequestSuccess")
+    @Specification("basicLoginModuleThirdRequestSuccess")
     @Test(timeout = 5000)
     public void basicLoginModuleThirdRequestSuccess() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "basicLoginModuleFailure")
+    @Specification("basicLoginModuleFailure")
     @Test(timeout = 5000)
     public void basicLoginModuleFailure() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

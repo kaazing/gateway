@@ -31,12 +31,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebAsyncAuthIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -70,10 +70,10 @@ public class WsebAsyncAuthIT {
 	@Rule
 	public TestRule chain = outerRule(robot).around(gateway);
 
-	@Robotic("asyncAuthWsebSuccess")
+	@Specification("asyncAuthWsebSuccess")
     @Test(timeout = 5000)
 	public void asyncAuthWsebSuccess() throws Exception {
-		robot.join();
+		robot.finish();
 	}
 
 }

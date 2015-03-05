@@ -32,11 +32,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class FramingTextMessagesIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -55,52 +55,52 @@ public class FramingTextMessagesIT {
     public TestRule chain = outerRule(robot).around(gateway);
     
     
-    @Robotic(script = "sendTextMessageWithPayloadLength125")
+    @Specification("sendTextMessageWithPayloadLength125")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength125() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength126")
+    @Specification("sendTextMessageWithPayloadLength126")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength126() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength127")
+    @Specification("sendTextMessageWithPayloadLength127")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength127() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength128")
+    @Specification("sendTextMessageWithPayloadLength128")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength128() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength65535")
+    @Specification("sendTextMessageWithPayloadLength65535")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength65535() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength65536")
+    @Specification("sendTextMessageWithPayloadLength65536")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength65536() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageWithPayloadLength65536InChopsOf997Octets")
+    @Specification("sendTextMessageWithPayloadLength65536InChopsOf997Octets")
     @Test(timeout = 1500)
     public void sendTextMessageWithPayloadLength65536InChopsOf997Octets() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     @Ignore("KG-12366")
-    @Robotic(script = "sendTextMessageWithEmptyPayload")
+    @Specification("sendTextMessageWithEmptyPayload")
     @Test(timeout = 1500)
     public void sendTextMessageWithEmptyPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

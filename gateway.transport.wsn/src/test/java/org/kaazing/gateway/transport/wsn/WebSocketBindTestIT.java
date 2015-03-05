@@ -31,12 +31,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WebSocketBindTestIT {
 
-	private final RobotRule robot = new RobotRule();
+	private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -60,46 +60,46 @@ public class WebSocketBindTestIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "canConnectUsingNormalWebSocketURI")
+    @Specification("canConnectUsingNormalWebSocketURI")
     @Test(timeout = 8000)
     public void canConnectUsingNormalWebSocketURI() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "canConnectUsingNormalWebSocketURIWithExtraSlashAfterEcho")
+    @Specification("canConnectUsingNormalWebSocketURIWithExtraSlashAfterEcho")
     @Test(timeout = 8000)
     public void canConnectUsingNormalWebSocketURIWithExtraSlash() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "canConnectUsingNormalWebSocketURIWithoutLoadBalancing")
+    @Specification("canConnectUsingNormalWebSocketURIWithoutLoadBalancing")
     @Test(timeout = 8000)
     //TODO:KG-8523
     public void canConnectUsingNormalWebSocketURIWithoutLoadBalancing() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "cannotConnectUsingWebSocketURIWithExtraPathElement")
+    @Specification("cannotConnectUsingWebSocketURIWithExtraPathElement")
     @Test(timeout = 1500)
     public void cannotConnectUsingWebSocketURIWithExtraPathElement() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "canConnectUsingPathlessWebSocketURI")
+    @Specification("canConnectUsingPathlessWebSocketURI")
     @Test(timeout = 8000)
     public void canConnectUsingPathlessWebSocketURI() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "canConnectUsingPathlessWebSocketURIWithExtraSlash")
+    @Specification("canConnectUsingPathlessWebSocketURIWithExtraSlash")
     @Test(timeout = 8000)
     public void canConnectUsingPathlessWebSocketURIWithExtraSlash() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "cannotConnectToPathlessWebSocketURIWithExtraPathElement")
+    @Specification("cannotConnectToPathlessWebSocketURIWithExtraPathElement")
     @Test(timeout = 8000)
     public void cannotConnectToPathlessWebSocketURIWithExtraPathElement() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

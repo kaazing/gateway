@@ -21,21 +21,10 @@
 
 package org.kaazing.gateway.transport.ssl;
 
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
-import org.apache.log4j.BasicConfigurator;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.rules.RuleChain.outerRule;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -48,9 +37,21 @@ import java.net.URI;
 import java.security.KeyStore;
 import java.security.Security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.rules.RuleChain.outerRule;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.apache.log4j.BasicConfigurator;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.test.GatewayRule;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class OcspIT {
 
@@ -75,7 +76,7 @@ public class OcspIT {
         }
     }
 
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -117,7 +118,7 @@ public class OcspIT {
      * OCSP responder would say that the client certificate is good, hence the SSL handshake
      * goes through
      */
-    @Robotic(script = "ocspGoodCertificate")
+    @Specification("ocspGoodCertificate")
     @Test(timeout = 17000)
     public void testGoodCertificate() throws Exception {
         KeyStore clientStore = KeyStore.getInstance("JCEKS");
@@ -159,7 +160,7 @@ public class OcspIT {
             }
         }
 
-        robot.join();
+        robot.finish();
     }
 
 
@@ -168,7 +169,7 @@ public class OcspIT {
      * OCSP responder would say that the client certificate is revoked, hence the failed
      * SSL handshake.
      */
-    @Robotic(script = "ocspRevokedCertificate")
+    @Specification("ocspRevokedCertificate")
     @Test(timeout = 17000)
     public void testRevokedCertificate() throws Exception {
         KeyStore clientStore = KeyStore.getInstance("JCEKS");
@@ -203,7 +204,7 @@ public class OcspIT {
             }
         }
 
-        robot.join();
+        robot.finish();
     }
 
 }

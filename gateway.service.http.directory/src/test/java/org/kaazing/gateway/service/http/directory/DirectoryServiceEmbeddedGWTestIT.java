@@ -32,15 +32,15 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class DirectoryServiceEmbeddedGWTestIT {
 
     private static String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/"; 
     private static String AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8008/auth";
     
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
     private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
@@ -86,9 +86,9 @@ public class DirectoryServiceEmbeddedGWTestIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "get.content.type.xsj")
+    @Specification("get.content.type.xsj")
     @Test(timeout = 5000)
     public void testGetContentTypeXSJ() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

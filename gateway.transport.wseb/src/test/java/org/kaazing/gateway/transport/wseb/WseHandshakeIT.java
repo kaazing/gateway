@@ -33,14 +33,14 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WseHandshakeIT {
 
     private static String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
 
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -62,16 +62,16 @@ public class WseHandshakeIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic("wse.handshake.send.receive.3_5")
+    @Specification("wse.handshake.send.receive.3_5")
     @Test(timeout = 5000)
     public void testHandshakeSendReceiveVersion3_5() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("wse.handshake.send.receive")
+    @Specification("wse.handshake.send.receive")
     @Test(timeout = 5000)
     public void testHandshakeSendReceive() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

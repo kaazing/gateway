@@ -32,7 +32,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
- * after it. The rule can be chained with a RobotRule for use with robot (this causes Robot to be started before the gateway and
+ * after it. The rule can be chained with a K3poRule for use with robot (this causes Robot to be started before the gateway and
  * stopped after it).
  */
 public class GatewayRule implements TestRule {

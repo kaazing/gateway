@@ -35,12 +35,12 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebTransportIT {
 
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -72,22 +72,22 @@ public class WsebTransportIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway).around(timeout);
 
-    @Robotic("echo.aligned.downstream")
+    @Specification("echo.aligned.downstream")
     @Test
     public void testEchoAlignedDownstream() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("echo.no.kaazing.handshake.protocol.negotiated")
+    @Specification("echo.no.kaazing.handshake.protocol.negotiated")
     @Test
     public void testXKaazingHandshakeMustNOTBeNegotiatedForWseHandhakeRequests() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic("propagate.create.query.params")
+    @Specification("propagate.create.query.params")
     @Test
     public void shouldPropagateQueryParametersFromCreateToUpstreamAndDownstream() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }
