@@ -54,7 +54,7 @@ public class UpdateCheckServiceTest {
         try {
             this.service = new UpdateCheckService();
         } catch (RuntimeException e) {
-            Assert.fail("There is a jar in ./src/test/resources/gateway.distribution.version-5.0.0.8.jar that needs to be on the class path, fix your test runner settings");
+            Assert.fail("There is a jar in ./src/test/resources/gateway.server-5.0.0.8.jar that needs to be on the class path, fix your test runner settings");
             throw e;
         }
         this.listener = new MockUpdateCheckListener();
@@ -107,7 +107,7 @@ public class UpdateCheckServiceTest {
         service.addListener(listener);
 
         // trigger event
-        GatewayVersion latestVersion = new GatewayVersion(4, 0, 12);
+        GatewayVersion latestVersion = new GatewayVersion(-1, 0, 12);
         service.setLatestGatewayVersion(latestVersion);
 
         assertTrue("Listener notified of newest Version", listener.notifiedEvents.size() == 0);

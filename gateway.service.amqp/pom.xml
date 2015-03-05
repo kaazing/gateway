@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.0.1-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>gateway.service.amqp</artifactId>
@@ -152,6 +152,5 @@
 
     <properties>
         <xmlbeans.version>2.4.0</xmlbeans.version>
-        <release.level>production</release.level>
     </properties>
 </project>

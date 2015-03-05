@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.3.0.1-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
     <artifactId>gateway.service.update.check</artifactId>
     <name>Update Check Service</name>
@@ -83,9 +83,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <additionalClasspathElements>
-                        <!-- gateway.distribution.version is used for testing 
-                            parsing of versions with 5.0.0.8 -->
-                        <additionalClasspathElement>${basedir}/src/test/resources/gateway.distribution.version-5.0.0.8.jar</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/src/test/resources/gateway.server-5.0.0.8.jar</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>

@@ -24,12 +24,12 @@
   <parent>
     <groupId>org.kaazing</groupId>
     <artifactId>mina-parent</artifactId>
-    <version>5.3.0.1-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <relativePath>../parent</relativePath>
   </parent>
   <artifactId>mina-integration-ognl</artifactId>
   <name>Apache MINA OGNL Integration</name>
-  <packaging>bundle</packaging>  
+  <packaging>jar</packaging>
   <properties>
     <exportedPackage>org.apache.mina.integration.ognl</exportedPackage>
   </properties>

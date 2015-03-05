@@ -23,7 +23,6 @@ package org.kaazing.gateway.service.update.check;
 
 import static java.lang.String.format;
 
-import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,16 +74,20 @@ public class GatewayVersion implements Comparable<GatewayVersion> {
      * @throws Exception
      */
     public static GatewayVersion parseGatewayVersion(String version) throws Exception {
-        String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(version);
-        if (matcher.matches()) {
-            int major = Integer.parseInt(matcher.group("major"));
-            int minor = Integer.parseInt(matcher.group("minor"));
-            int patch = Integer.parseInt(matcher.group("patch"));
-            return new GatewayVersion(major, minor, patch);
+        if ("develop-SNAPSHOT".equals(version)) {
+            return new GatewayVersion(0, 0, 0);
         } else {
-            throw new IllegalArgumentException(String.format("version String is not of form %s", regex));
+            String regex = "(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.(?<patch>[0-9]+)";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(version);
+            if (matcher.matches()) {
+                int major = Integer.parseInt(matcher.group("major"));
+                int minor = Integer.parseInt(matcher.group("minor"));
+                int patch = Integer.parseInt(matcher.group("patch"));
+                return new GatewayVersion(major, minor, patch);
+            } else {
+                throw new IllegalArgumentException(String.format("version String is not of form %s", regex));
+            }
         }
     }
 
