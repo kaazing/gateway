@@ -77,27 +77,25 @@ public class IdleTimeoutExtensionPongsIT {
     @Specification("shouldGetPongsFromidleTimeoutExtension")
     @Test(timeout = 8 * 1000) 
     public void shouldGetPongsFromidleTimeoutExtensionWhenWriterIdle() throws Exception {
-        try {
-            System.out.println("### Creating server socket and listening");
-            ServerSocket listen = new ServerSocket();
-            listen.setReuseAddress(true);
-            listen.bind(new InetSocketAddress("localhost", 61234));
+        System.out.println("### Creating server socket and listening");
+        ServerSocket listen = new ServerSocket();
+        listen.setReuseAddress(true);
+        listen.bind(new InetSocketAddress("localhost", 61234));
 
-            // port is bound, start the robot
-            robot.start();
+        // port is bound, start the robot
+        robot.start();
 
-            System.out.println("### Accepting connection");
-            Socket socket = listen.accept();
-            System.out.println("### Connection accepted");
-            for(int i=1; i<=8; i++) { // There are 8 sleeps in the robot scripts that need to be controlled, 300 ms apart
-                Thread.sleep(300); // 8*300 = 2400ms, just to cover the "ws.inactivityTimeout" = 2000ms
-                System.out.println("### Writing data to connection");
-                socket.getOutputStream().write(("WakeUp" + i).getBytes());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        System.out.println("### Accepting connection");
+        Socket socket = listen.accept();
+        System.out.println("### Connection accepted");
+        for(int i=1; i<=8; i++) { // There are 8 sleeps in the robot scripts that need to be controlled, 300 ms apart
+            Thread.sleep(300); // 8*300 = 2400ms, just to cover the "ws.inactivityTimeout" = 2000ms
+            System.out.println("### Writing data to connection");
+            socket.getOutputStream().write(("WakeUp" + i).getBytes());
         }
+
         robot.finish();
+        listen.close();
     }
 
 }
