@@ -31,11 +31,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class FragmentationIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -53,123 +53,123 @@ public class FragmentationIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "sendContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
+    @Specification("sendContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
     @Test(timeout = 6500)
     public void sendContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice() throws Exception {
-        robot.join();
+        robot.finish();
     }
    
-    @Robotic(script = "sendContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
+    @Specification("sendContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
     @Test(timeout = 6500)
     public void sendContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingInTwoFragments")
+    @Specification("sendPingInTwoFragments")
     @Test(timeout = 6500)
     public void sendPingInTwoFragments() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPongInTwoFragments")
+    @Specification("sendPongInTwoFragments")
     @Test(timeout = 6500)
     public void sendPongInTwoFragments() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueInFrameWiseChops")
+    @Specification("sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueInFrameWiseChops")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueInFrameWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueSentInOctetWiseChops")
+    @Specification("sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueSentInOctetWiseChops")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueSentInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueSentInOneChop")
+    @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueSentInOneChop")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueSentInOneChop() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenNothingToContinueSentInFrameWiseChops")
+    @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenNothingToContinueSentInFrameWiseChops")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenNothingToContinueSentInFrameWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOctetWiseChops")
+    @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOctetWiseChops")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOneChop")
+    @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOneChop")
     @Test(timeout = 6500)
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOneChop() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetween")
+    @Specification("sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetween")
     @Test(timeout = 1500)
     public void sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetween() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetweenAndAllFramesWithSYNCEqualsTrue")
+    @Specification("sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetweenAndAllFramesWithSYNCEqualsTrue")
     @Test(timeout = 1500)
     public void sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetweenAndAllFramesWithSYNCEqualsTrue() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragments")
+    @Specification("sendTextMessageInTwoFragments")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragments() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsInFrameWiseChops")
+    @Specification("sendTextMessageInTwoFragmentsInFrameWiseChops")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsInFrameWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsInOctetWiseChops")
+    @Specification("sendTextMessageInTwoFragmentsInOctetWiseChops")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsThenContinuationWithFINEqualsFalseAndNothingToContinueThenUnfragmentedTextMessage")
+    @Specification("sendTextMessageInTwoFragmentsThenContinuationWithFINEqualsFalseAndNothingToContinueThenUnfragmentedTextMessage")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsThenContinuationWithFINEqualsFalseAndNothingToContinueThenUnfragmentedTextMessage() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsWithBothFrameOpcodesSetToText")
+    @Specification("sendTextMessageInTwoFragmentsWithBothFrameOpcodesSetToText")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsWithBothFrameOpcodesSetToText() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetween")
+    @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetween")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetween() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInFrameWiseChops")
+    @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInFrameWiseChops")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInFrameWiseChopss() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInOctetWiseChops")
+    @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInOctetWiseChops")
     @Test(timeout = 1500)
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

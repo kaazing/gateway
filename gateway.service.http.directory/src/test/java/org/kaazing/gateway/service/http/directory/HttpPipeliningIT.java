@@ -32,8 +32,8 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpPipeliningIT {
 
@@ -42,7 +42,7 @@ public class HttpPipeliningIT {
 	private static String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
 	private static String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
 
-	private final RobotRule robot = new RobotRule();
+	private final K3poRule robot = new K3poRule();
 
 	private final GatewayRule gateway = new GatewayRule() {
 		{
@@ -89,9 +89,9 @@ public class HttpPipeliningIT {
 	public TestRule chain = outerRule(robot).around(gateway);
 
 	// KG-6739
-	@Robotic(script = "request1.request2.response1.response2")
+	@Specification("request1.request2.response1.response2")
 	@Test(timeout = 8000)
 	public void twoRequestsBeforeReponseOK() throws Exception {
-		robot.join();
+		robot.finish();
 	}
 }

@@ -57,9 +57,9 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
 
 public class SseAcceptorIT {
 
@@ -67,7 +67,7 @@ public class SseAcceptorIT {
     private ResourceAddress sseAddress;
 
     @Rule
-    public RobotRule robot = new RobotRule();
+    public K3poRule robot = new K3poRule();
 
     @Rule
     public JUnitRuleMockery mockery = new JUnitRuleMockery() { {
@@ -128,7 +128,7 @@ public class SseAcceptorIT {
         }
     }
 
-    @Robotic(script="should.receive.location.and.message.event")
+    @Specification("should.receive.location.and.message.event")
     @Test(timeout=5000)
     public void shouldReceiveLocationAndMessageEvent() throws Exception {
 
@@ -173,6 +173,6 @@ public class SseAcceptorIT {
         // bind the address behavior
         sseAcceptor.bind(sseAddress, handler, null);
 
-        robot.join();
+        robot.finish();
     }
 }

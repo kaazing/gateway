@@ -31,12 +31,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class ClientAccessPolicyIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -121,40 +121,40 @@ public class ClientAccessPolicyIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "client.access.policy.resource.path.starred.constraints")
+    @Specification("client.access.policy.resource.path.starred.constraints")
     @Test(timeout = 3000)
     public void clientAccessPolicyStarredAllowOriginTest() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "client.access.policy.resource.path.specific.origin.constraints")
+    @Specification("client.access.policy.resource.path.specific.origin.constraints")
     @Test(timeout = 3000)
     public void clientAccessPolicySpecificAllowOriginTest() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "client.access.policy.resource.path.overlapping.constraints")
+    @Specification("client.access.policy.resource.path.overlapping.constraints")
     @Test(timeout = 3000)
     public void clientAccessPolicyOverlappingAllowOriginTest() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     //@Ignore("Test is not deterministic because the policies can appear in any order, but keeping it in case we make it deterministic, or get robot feature to improve")
-    @Robotic(script = "client.access.policy.multiple.constraints")
+    @Specification("client.access.policy.multiple.constraints")
     @Test(timeout = 3000)
     public void clientAccessPolicyOverMultipleOriginTest() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "client.access.policy.no.constraints")
+    @Specification("client.access.policy.no.constraints")
     @Test(timeout = 3000)
     public void clientAccessPolicyNoConstraintTest() throws Exception {
-    	robot.join();
+    	robot.finish();
     }
     
-    @Robotic(script = "client.access.policy.test.cache")
+    @Specification("client.access.policy.test.cache")
     @Test(timeout = 10000)
     public void clientAccessPolicyTestCache() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

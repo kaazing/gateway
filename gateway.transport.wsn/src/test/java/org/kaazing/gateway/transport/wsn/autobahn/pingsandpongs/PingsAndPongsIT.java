@@ -32,11 +32,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class PingsAndPongsIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -54,70 +54,70 @@ public class PingsAndPongsIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "sendPingWithoutPayload")
+    @Specification("sendPingWithoutPayload")
     @Test(timeout = 1500)
     public void sendPingWithoutPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingWithSmallTextPayload")
+    @Specification("sendPingWithSmallTextPayload")
     @Test(timeout = 1500)
     public void sendPingWithSmallTextPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingWithSmallBinaryPayload")
+    @Specification("sendPingWithSmallBinaryPayload")
     @Test(timeout = 1500)
     public void sendPingWithSmallBinaryPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingWithBinaryPayloadOf125Octets")
+    @Specification("sendPingWithBinaryPayloadOf125Octets")
     @Test(timeout = 1500)
     public void sendPingWithBinaryPayloadOf125Octets() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendPingWithBinaryPayloadOf125OctetsInOctetWiseChops")
+    @Specification("sendPingWithBinaryPayloadOf125OctetsInOctetWiseChops")
     @Test(timeout = 1500)
     public void sendPingWithBinaryPayloadOf125OctetsInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendUnsolicitedPongWithoutPayload")
+    @Specification("sendUnsolicitedPongWithoutPayload")
     @Test(timeout = 1500)
     public void sendUnsolicitedPongWithoutPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendUnsolicitedPongWithPayload")
+    @Specification("sendUnsolicitedPongWithPayload")
     @Test(timeout = 1500)
     public void sendUnsolicitedPongWithPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendUnsolicitedPongWithPayloadThenPingWithPayload")
+    @Specification("sendUnsolicitedPongWithPayloadThenPingWithPayload")
     @Test(timeout = 1500)
     public void sendUnsolicitedPongWithPayloadThenPingWithPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTenPingsWithPayload")
+    @Specification("sendTenPingsWithPayload")
     @Test(timeout = 1500)
     public void sendTenPingsWithPayload() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendTenPingsWithPayloadInOctetWiseChops")
+    @Specification("sendTenPingsWithPayloadInOctetWiseChops")
     @Test(timeout = 1500)
     public void sendTenPingsWithPayloadInOctetWiseChops() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
     @Ignore("KG-12367")
-    @Robotic(script = "sendPingWithBinaryPayloadOf126Octets")
+    @Specification("sendPingWithBinaryPayloadOf126Octets")
     @Test(timeout = 1500)
     public void sendPingWithBinaryPayloadOf126Octets() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

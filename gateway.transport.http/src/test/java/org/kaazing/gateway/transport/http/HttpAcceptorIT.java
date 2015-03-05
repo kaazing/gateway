@@ -53,8 +53,8 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.util.Expectations;
 import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpAcceptorIT {
 
@@ -62,7 +62,7 @@ public class HttpAcceptorIT {
     private ResourceAddress httpAddress;
 
     @Rule
-    public RobotRule robot = new RobotRule();
+    public K3poRule robot = new K3poRule();
 
     @Rule
     public JUnitRuleMockery mockery = new JUnitRuleMockery() { {
@@ -112,7 +112,7 @@ public class HttpAcceptorIT {
         }
     }
 
-    @Robotic(script="should.receive.echoed.post.body.in.response.body")
+    @Specification("should.receive.echoed.post.body.in.response.body")
     @Test(timeout=5000)
     public void shouldEchoHttpPostBodyinHttpResponseBody() throws Exception {
 
@@ -149,6 +149,6 @@ public class HttpAcceptorIT {
         // bind the address behavior
         httpAcceptor.bind(httpAddress, handler, null);
 
-        robot.join();
+        robot.finish();
     }
 }

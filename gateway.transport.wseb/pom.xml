@@ -79,8 +79,7 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>robot.junit</artifactId>
-            <version>2.0.0-alpha-1</version>
+            <artifactId>k3po.junit</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
@@ -105,8 +104,7 @@
         <plugins>
             <plugin>
                 <groupId>org.kaazing</groupId>
-                <artifactId>robot-maven-plugin</artifactId>
-                <version>2.0.0-alpha-5</version>
+                <artifactId>k3po-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>

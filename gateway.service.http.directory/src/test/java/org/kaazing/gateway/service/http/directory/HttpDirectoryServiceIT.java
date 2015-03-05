@@ -33,8 +33,8 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpDirectoryServiceIT {
 
@@ -43,7 +43,7 @@ public class HttpDirectoryServiceIT {
     private static String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
     private static String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
 
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -89,255 +89,255 @@ public class HttpDirectoryServiceIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "get.index.check.status.code.200")
+    @Specification("get.index.check.status.code.200")
     @Test(timeout = 8000)
     public void testGetIndexAndStatusCode200() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "get.nonexistent.page.check.status.code.404")
+    @Specification("get.nonexistent.page.check.status.code.404")
     @Test(timeout = 8000)
     public void testGetNonexistantPageCheckStatusCode404() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "get.nonexistent.page.check.http.keepalive.timeout")
+    @Specification("get.nonexistent.page.check.http.keepalive.timeout")
     @Test(timeout = 8000)
     // keepalive timeout is set at 3 secs so this should suffice to see the server disconnect
     public void testGetNonexistantPageCheckConnectionTimesOut() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "tcp.connect.and.close.to.directory.service")
+    @Specification("tcp.connect.and.close.to.directory.service")
     @Test(timeout = 8000)
     public void testTcpConnectAndClose() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     /**
      * BUG for KG-7642 TODO @Ignore particular test in JIRA
      */
     @Ignore
-    @Robotic(script = "tcp.connect.and.wait.for.close.to.directory.service")
+    @Specification("tcp.connect.and.wait.for.close.to.directory.service")
     @Test(timeout = 35000)
     public void testTcpConnectAndWaitForClose() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "get.index.check.whole.response")
+    @Specification("get.index.check.whole.response")
     @Test(timeout = 8000)
     public void testGetIndexCheckWholeResponse() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "post.large.data")
+    @Specification("post.large.data")
     @Test(timeout = 25000)
     public void testPostLargeData() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "get.forbidden.file.exists")
+    @Specification("get.forbidden.file.exists")
     @Test(timeout = 5000)
     public void testGetForbiddenFileExists() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     // /////////////////// HOST HEADER ///////////////////////
-    @Robotic(script = "host/host.empty.header.with.absolute.uri")
+    @Specification("host/host.empty.header.with.absolute.uri")
     @Test(timeout = 5000)
     public void testEmptyHostHeaderWithAbsoluteUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.empty.header.with.relative.uri")
+    @Specification("host/host.empty.header.with.relative.uri")
     @Test(timeout = 5000)
     public void testEmptyHostHeaderWithRelativeUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.header.invalid")
+    @Specification("host/host.header.invalid")
     @Test(timeout = 5000)
     public void testInvalidHostHeader() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.header.not.present")
+    @Specification("host/host.header.not.present")
     @Test(timeout = 5000)
     public void testAbsentHostHeader() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.header.port.not.set")
+    @Specification("host/host.header.port.not.set")
     @Test(timeout = 5000)
     public void testAbsentPortInHostHeader() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.valid.header.with.absolute.uri")
+    @Specification("host/host.valid.header.with.absolute.uri")
     @Test(timeout = 5000)
     public void testValidHostHeaderWithAbsoluteUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "host/host.no.header.with.absolute.uri")
+    @Specification("host/host.no.header.with.absolute.uri")
     @Test(timeout = 5000)
     public void testNoHostHeaderWithAbsoluteUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     // ///////////////////// METHOD //////////////////////
-    @Robotic(script = "method/method.connect")
+    @Specification("method/method.connect")
     @Test(timeout = 5000)
     public void testConnectMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "method/method.delete")
+    @Specification("method/method.delete")
     @Test(timeout = 5000)
     public void testDeleteMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "method/method.head")
+    @Specification("method/method.head")
     @Test(timeout = 5000)
     public void testHeadMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "method/method.options")
+    @Specification("method/method.options")
     @Test(timeout = 5000)
     public void testOptionsMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "method/method.bogus")
+    @Specification("method/method.bogus")
     @Test(timeout = 5000)
     public void testBogusMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "method/method.post")
+    @Specification("method/method.post")
     @Test(timeout = 5000)
     public void testPostMethod() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     // //////////////// URI ////////////////////////
-    @Robotic(script = "uri.hex.encoded")
+    @Specification("uri.hex.encoded")
     @Test(timeout = 5000)
     public void testHexEncodedUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "uri.too.long")
+    @Specification("uri.too.long")
     @Test(timeout = 5000)
     public void testUriTooLong() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "invalid.uri.with.space")
+    @Specification("invalid.uri.with.space")
     @Test(timeout = 5000)
     public void testInvalidUri() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "uri.with.params")
+    @Specification("uri.with.params")
     @Test(timeout = 5000)
     public void testUriWithParams() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
     // ////////////////// CROSS-ORIGIN ACCESS ////////////////////
 
-    @Robotic(script = "origin/same.origin.constraint.not.set")
+    @Specification("origin/same.origin.constraint.not.set")
     @Test(timeout = 5000)
     public void testSameOriginConstraintNotSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/different.origin.constraint.not.set")
+    @Specification("origin/different.origin.constraint.not.set")
     @Test(timeout = 5000)
     public void testDifferentOriginConstraintNotSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/missing.origin.header.constraint.not.set")
+    @Specification("origin/missing.origin.header.constraint.not.set")
     @Test(timeout = 5000)
     public void testMissingOriginHeaderConstraintNotSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/wrong.host.constraint.set")
+    @Specification("origin/wrong.host.constraint.set")
     @Test(timeout = 5000)
     public void testWrongHostConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/wrong.port.constraint.set")
+    @Specification("origin/wrong.port.constraint.set")
     @Test(timeout = 5000)
     public void testWrongPortConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/missing.origin.header.constraint.set")
+    @Specification("origin/missing.origin.header.constraint.set")
     @Test(timeout = 5000)
     public void testMissingOriginHeaderConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/empty.origin.header.constraint.set")
+    @Specification("origin/empty.origin.header.constraint.set")
     @Test(timeout = 5000)
     public void testEmptyOriginHeaderConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/empty.origin.header.constraint.not.set")
+    @Specification("origin/empty.origin.header.constraint.not.set")
     @Test(timeout = 5000)
     public void testEmptyOriginHeaderConstraintNotSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/different.origin.constraint.asterisk")
+    @Specification("origin/different.origin.constraint.asterisk")
     @Test(timeout = 5000)
     public void testDifferentOriginConstraintAsterisk() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/empty.origin.header.constraint.asterisk")
+    @Specification("origin/empty.origin.header.constraint.asterisk")
     @Test(timeout = 5000)
     public void testEmptyOriginHeaderConstraintAsterisk() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/missing.origin.header.constraint.asterisk")
+    @Specification("origin/missing.origin.header.constraint.asterisk")
     @Test(timeout = 5000)
     public void testMissingOriginHeaderConstraintAsterisk() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 
-    @Robotic(script = "origin/not.allowed.method")
+    @Specification("origin/not.allowed.method")
     @Test(timeout = 5000)
     public void testNotAllowedMethodConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/not.allowed.header")
+    @Specification("origin/not.allowed.header")
     @Test(timeout = 5000)
     public void testNotAllowedHeaderConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/allowed.method")
+    @Specification("origin/allowed.method")
     @Test(timeout = 5000)
     public void testAllowedMethodConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "origin/allowed.header")
+    @Specification("origin/allowed.header")
     @Test(timeout = 5000)
     public void testAllowedHeaderConstraintSet() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
 }

@@ -35,8 +35,8 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpDirectoryServiceAuthorizationIT {
 
@@ -45,7 +45,7 @@ public class HttpDirectoryServiceAuthorizationIT {
     private static String APP_BASIC_AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8009/auth";
     private static String TOKEN_AUTH_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8010/auth";
     
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -148,57 +148,57 @@ public class HttpDirectoryServiceAuthorizationIT {
     public TestRule chain = outerRule(robot).around(gateway);
 
     // //////////////////////// AUTHORIZATION //////////////////
-    @Robotic(script = "auth/app.basic.authorized.access.with.valid.credentials")
+    @Specification("auth/app.basic.authorized.access.with.valid.credentials")
     @Test(timeout = 500000)
     public void testAppBasicAuthorizedWithValidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/app.basic.authorized.access.with.invalid.credentials")
+    @Specification("auth/app.basic.authorized.access.with.invalid.credentials")
     @Test(timeout = 5000)
     public void testAppBasicAuthorizedWithInvalidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/app.basic.authorized.directory.access.no.credentials")
+    @Specification("auth/app.basic.authorized.directory.access.no.credentials")
     @Test(timeout = 5000)
     public void testAppBasicAuthorizedWithoutCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "auth/basic.authorized.access.with.valid.credentials")
+    @Specification("auth/basic.authorized.access.with.valid.credentials")
     @Test(timeout = 5000)
     public void testBasicAuthorizedWithValidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/basic.authorized.access.with.invalid.credentials")
+    @Specification("auth/basic.authorized.access.with.invalid.credentials")
     @Test(timeout = 5000)
     public void testBasicAuthorizedWithInvalidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/basic.authorized.directory.access.no.credentials")
+    @Specification("auth/basic.authorized.directory.access.no.credentials")
     @Test(timeout = 5000)
     public void testBasicAuthorizedWithoutCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/token.authorized.access.with.valid.credentials")
+    @Specification("auth/token.authorized.access.with.valid.credentials")
     @Test(timeout = 5000)
     public void testTokenAuthorizedWithValidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/token.authorized.access.with.invalid.credentials")
+    @Specification("auth/token.authorized.access.with.invalid.credentials")
     @Test(timeout = 5000)
     public void testTokenAuthorizedWithInValidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "auth/token.authorized.directory.access.no.credentials")
+    @Specification("auth/token.authorized.directory.access.no.credentials")
     @Test(timeout = 5000)
     public void testTokenAuthorizedWithoutCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

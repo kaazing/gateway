@@ -19,11 +19,13 @@
 # under the License.
 #
 
+
 connect http://localhost:8000/echo/;e/ct
 connected
 
 write method "GET"
 write parameter "param" "value"
+write header host
 write header "X-Origin" "http://localhost:8000"
 write header "X-WebSocket-Version" "wseb-1.0"
 write header content-length

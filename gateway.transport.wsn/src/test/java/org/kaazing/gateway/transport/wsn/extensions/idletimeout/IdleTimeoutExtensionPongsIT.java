@@ -36,12 +36,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class IdleTimeoutExtensionPongsIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
     @BeforeClass
@@ -74,32 +74,28 @@ public class IdleTimeoutExtensionPongsIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "shouldGetPongsFromidleTimeoutExtension")
+    @Specification("shouldGetPongsFromidleTimeoutExtension")
     @Test(timeout = 8 * 1000) 
     public void shouldGetPongsFromidleTimeoutExtensionWhenWriterIdle() throws Exception {
-        Thread sleepingSocketRunner = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    System.out.println("### Creating server socket and listening");
-                    ServerSocket listen = new ServerSocket();
-                    listen.setReuseAddress(true);
-                    listen.bind(new InetSocketAddress("localhost", 61234));
-                    System.out.println("### Accepting connection");
-                    Socket socket = listen.accept();
-                    System.out.println("### Connection accepted");
-                    for(int i=1; i<=8; i++) { // There are 8 sleeps in the robot scripts that need to be controlled, 300 ms apart
-                        Thread.sleep(300); // 8*300 = 2400ms, just to cover the "ws.inactivityTimeout" = 2000ms
-                        System.out.println("### Writing data to connection");
-                        socket.getOutputStream().write(("WakeUp" + i).getBytes());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            };
-        });
-        sleepingSocketRunner.start();
-        robot.join();
+        System.out.println("### Creating server socket and listening");
+        ServerSocket listen = new ServerSocket();
+        listen.setReuseAddress(true);
+        listen.bind(new InetSocketAddress("localhost", 61234));
+
+        // port is bound, start the robot
+        robot.start();
+
+        System.out.println("### Accepting connection");
+        Socket socket = listen.accept();
+        System.out.println("### Connection accepted");
+        for(int i=1; i<=8; i++) { // There are 8 sleeps in the robot scripts that need to be controlled, 300 ms apart
+            Thread.sleep(300); // 8*300 = 2400ms, just to cover the "ws.inactivityTimeout" = 2000ms
+            System.out.println("### Writing data to connection");
+            socket.getOutputStream().write(("WakeUp" + i).getBytes());
+        }
+
+        robot.finish();
+        listen.close();
     }
 
 }

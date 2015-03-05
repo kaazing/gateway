@@ -35,8 +35,8 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class EchoServiceAuthorizationIT {
 
@@ -44,7 +44,7 @@ public class EchoServiceAuthorizationIT {
     private static final String APP_BASIC_AUTH_ECHO_SERVICE_ACCEPT = "ws://localhost:8008/echo";
     private static final String APP_TOKEN_AUTH_ECHO_SERVICE_ACCEPT = "ws://localhost:8009/echo";
     
-    private final RobotRule robot = new RobotRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -125,27 +125,27 @@ public class EchoServiceAuthorizationIT {
     public TestRule chain = outerRule(robot).around(gateway);
 
     // //////////////////////// AUTHORIZATION //////////////////
-    @Robotic(script = "app.basic.authorized.access.with.valid.credentials")
+    @Specification("app.basic.authorized.access.with.valid.credentials")
     @Test(timeout = 5000)
     public void testAuthorizedWithValidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "app.basic.authorized.access.with.invalid.credentials")
+    @Specification("app.basic.authorized.access.with.invalid.credentials")
     @Test(timeout = 5000)
     public void testAppBasicAuthorizedWithInvalidCredentials() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "app.token.three.attempts.failure")
+    @Specification("app.token.three.attempts.failure")
     @Test(timeout = 5000)
     public void testAppTokenThreeAttemptsThenFailure() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "app.token.success")
+    @Specification("app.token.success")
     @Test(timeout = 5000)
     public void testAppTokenSuccess() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

@@ -32,11 +32,11 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class FramingBinaryMessagesIT {
-	private RobotRule robot = new RobotRule();
+	private K3poRule robot = new K3poRule();
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -54,52 +54,52 @@ public class FramingBinaryMessagesIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength125")
+    @Specification("sendBinaryMessageWithPayloadLength125")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength125() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength126")
+    @Specification("sendBinaryMessageWithPayloadLength126")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength126() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength127")
+    @Specification("sendBinaryMessageWithPayloadLength127")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength127() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength128")
+    @Specification("sendBinaryMessageWithPayloadLength128")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength128() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength65535")
+    @Specification("sendBinaryMessageWithPayloadLength65535")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength65535() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength65536")
+    @Specification("sendBinaryMessageWithPayloadLength65536")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength65536() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
-    @Robotic(script = "sendBinaryMessageWithPayloadLength65536InChopsOf997Octets")
+    @Specification("sendBinaryMessageWithPayloadLength65536InChopsOf997Octets")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLength65536InChopsOf997Octets() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
     @Ignore("KG-12366")
-    @Robotic(script = "sendBinaryMessageWithPayloadLengthZero")
+    @Specification("sendBinaryMessageWithPayloadLengthZero")
     @Test(timeout = 1500)
     public void sendBinaryMessageWithPayloadLengthZero() throws Exception {
-        robot.join();
+        robot.finish();
     }
 }

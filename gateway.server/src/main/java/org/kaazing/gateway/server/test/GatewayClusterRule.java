@@ -37,7 +37,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 /**
  * Declaring an instance of this class as a @Rule causes a Gateway cluster to be started in process before each test method and
  * stopped after it. An array of Gateway objects is passed to the inner rule which is assumed to be the test rule. This array can
- * be used to kill bounce Gateways while the test is running. The rule can be chained with a RobotRule for use with robot (this
+ * be used to kill bounce Gateways while the test is running. The rule can be chained with a K3poRule for use with robot (this
  * causes Robot to be started before the gateway and stopped after it).
  */
 public class GatewayClusterRule implements TestRule {

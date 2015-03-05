@@ -30,8 +30,8 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class UpdateCheckTaskIT {
 
@@ -40,7 +40,7 @@ public class UpdateCheckTaskIT {
     private UpdateCheckTask task;
 
     @Rule
-    public RobotRule robot = new RobotRule();
+    public K3poRule robot = new K3poRule();
 
     @Before
     public void init() {
@@ -55,7 +55,7 @@ public class UpdateCheckTaskIT {
         task = new UpdateCheckTask(updateCheckService, "http://localhost:8080", "notARealProduct");
     }
 
-    @Robotic(script = "testUpdateCheckTask")
+    @Specification("testUpdateCheckTask")
     @Test(timeout = 3000)
     public void testRequestInCorrectFormat() throws Exception {
         context.checking(new Expectations() {
@@ -64,23 +64,23 @@ public class UpdateCheckTaskIT {
             }
         });
         task.run();
-        robot.join();
+        robot.finish();
         context.assertIsSatisfied();
     }
 
-    @Robotic(script = "testUpdateCheckTaskWithFailedRequests")
+    @Specification("testUpdateCheckTaskWithFailedRequests")
     @Test(timeout = 3000)
     public void testTaskFunctioningEvenAfterFailedRequests() throws Exception {
         task.run();
-        robot.join();
+        robot.finish();
         context.assertIsSatisfied();
     }
 
-    @Robotic(script = "testUpdateCheckTaskWithFailedRequestsResponseCode")
+    @Specification("testUpdateCheckTaskWithFailedRequestsResponseCode")
     @Test(timeout = 3000)
     public void testUpdateCheckTaskWithFailedRequestsResponseCode() throws Exception {
         task.run();
-        robot.join();
+        robot.finish();
         context.assertIsSatisfied();
     }
 }

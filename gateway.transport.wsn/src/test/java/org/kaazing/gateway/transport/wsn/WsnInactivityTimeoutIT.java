@@ -33,12 +33,12 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.robot.junit.annotation.Robotic;
-import org.kaazing.robot.junit.rules.RobotRule;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsnInactivityTimeoutIT {
 
-    private RobotRule robot = new RobotRule();
+    private K3poRule robot = new K3poRule();
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
     @BeforeClass
@@ -78,38 +78,38 @@ public class WsnInactivityTimeoutIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Robotic(script = "shouldInactivityTimeout")
+    @Specification("shouldInactivityTimeout")
     @Test(timeout = 8 * 1000) //2s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     public void shouldInactivityTimeout() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldInactivityTimeoutWithPingPongExtension")
+    @Specification("shouldInactivityTimeoutWithPingPongExtension")
     @Test(timeout = 8 * 1000) //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     public void shouldInactivityTimeoutWithPingPongExtension() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshake")
+    @Specification("shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshake")
     @Test(timeout = 8 * 1000) //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     public void shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshake() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80")
+    @Specification("shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80")
     @Test(timeout = 8 * 1000) //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     // Test case for KG-10384
     // This test originally was required to run against port 80, however that was FUBAR because failsafe doesn't
     // have permission to run against port 80 mac or linux.  So we have used a tcp.bind to 8080 and this was shown
     // to be sufficient to run the test and reproduce the issue
     public void shouldInactivityTimeoutWithPingPongExtensionAndExtendedHandshakePort80() throws Exception {
-        robot.join();
+        robot.finish();
     }
 
-    @Robotic(script = "shouldInactivityTimeoutWhenNetworkFailsDuringExtendedHandshake")
+    @Specification("shouldInactivityTimeoutWhenNetworkFailsDuringExtendedHandshake")
     @Test(timeout = 8 * 1000) //4s should suffice (twice the expected 2 second timeout), but leave a margin just in case
     public void shouldInactivityTimeoutWhenNetworkFailsDuringExtendedHandshake() throws Exception {
-        robot.join();
+        robot.finish();
     }
     
 }
