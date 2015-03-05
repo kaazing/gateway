@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway.bridge.parent</artifactId>
-        <version>5.3.0.1-SNAPSHOT</version>
+        <version>develop-SNAPSHOT</version>
     </parent>
 
     <artifactId>gateway.client.javascript.bridge</artifactId>
@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>unpack-bower-dependency-maven-plugin</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.2-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <goals>

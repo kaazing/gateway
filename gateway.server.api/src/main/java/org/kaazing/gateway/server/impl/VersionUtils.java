@@ -81,6 +81,13 @@ public final class VersionUtils {
     public static String getGatewayProductVersionPatch() {
         String v = getGatewayProductVersion();
 
+        // Non SNAPSHOT versions will be 3 digits in value.
+        // develop-SNAPSHOT will always be considered the lowest version
+        // available
+        if ("develop-SNAPSHOT".equals(v)) {
+            return "0.0.0";
+        }
+
         if (v == null || v.length() == 0) {
             return null;
         }
@@ -162,7 +169,7 @@ public final class VersionUtils {
         HashMap<String, Attributes> products = new HashMap<>(7);
         HashSet<String> removals = new HashSet<>(7);
         for (String pathEntry : pathEntries) {
-            if (pathEntry.contains("distribution.version")) {
+            if (pathEntry.contains("gateway.server")) {
                 try {
                     JarFile jar = new JarFile(pathEntry);
                     Manifest mf = jar.getManifest();
@@ -172,7 +179,7 @@ public final class VersionUtils {
                         String version = attrs.getValue("Implementation-Version");
                         String product = attrs.getValue("Kaazing-Product");
                         String dependencies = attrs.getValue("Kaazing-Dependencies");
-                        if (title != null && version != null) {
+                        if (product != null && title != null && version != null) {
                             foundJar = true;
 
                             // Store the list of products found, but remove any products

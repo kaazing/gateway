@@ -12,13 +12,16 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.3.0.1-SNAPSHOT</version>
+    <version>develop-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <properties>
+        <release.level>beta</release.level>
+    </properties>
 
     <modules>
         <module>gateway.bridge</module>
         <module>gateway.distribution.base</module>
-        <module>gateway.distribution.version</module>
         <module>gateway.management</module>
         <module>gateway.resource.address</module>
         <module>gateway.resource.address.http</module>
@@ -72,18 +75,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.kaazing</groupId>
-                <artifactId>version-properties-maven-plugin</artifactId>
-                <version>2.0.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>version</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>license-maven-plugin</artifactId>
