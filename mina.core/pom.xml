@@ -9,27 +9,18 @@
         <artifactId>gateway</artifactId>
         <version>develop-SNAPSHOT</version>
     </parent>
-    <organization>
-        <name>Apache MINA Project</name>
-        <url>http://mina.apache.org/</url>
-    </organization>
+
     <artifactId>mina-build</artifactId>
     <name>Apache MINA</name>
     <packaging>pom</packaging>
 
     <inceptionYear>2004</inceptionYear>
 
-    <issueManagement>
-        <system>jira</system>
-        <url>http://issues.apache.org/jira/browse/DIRMINA</url>
-    </issueManagement>
+    <url>https://github.com/kaazing/gateway/mina.core</url>
 
-    <url>https://github.com/kaazing/mina.core.git</url>
     <scm>
-        <connection>scm:git:${project.scm.url}</connection>
-        <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <url>git@github.com:kaazing/mina.core.git</url>
-        <tag>HEAD</tag>
+        <url>https://github.com/kaazing/gateway/mina.core</url>
+        <connection>scm:git:https://github.com/gateway/mina.core.git</connection>
     </scm>
 
     <description>Apache MINA is a network application framework which helps users develop high performance and highly scalable network applications easily.    It provides an abstract event-driven asynchronous API over various transports such as TCP/IP and UDP/IP via Java NIO.</description>

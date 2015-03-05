@@ -167,12 +167,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.api</artifactId>
-           <version>${project.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.server.spi</artifactId>
-          <version>${project.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>

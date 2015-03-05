@@ -9,7 +9,14 @@
 
     <artifactId>gateway.client.javascript.bridge</artifactId>
     <packaging>jar</packaging>
+    
     <name>Kaazing Gateway Client Javascript Bridge Packaging</name>
+    <url>https://github.com/kaazing/gateway/bridge/gateway.client.javascript.bridge</url>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/bridge/gateway.client.javascript.bridge</url>
+        <connection>scm:git:https://github.com/kaazing/gateway.git</connection>
+    </scm>
 
     <build>
         <plugins>

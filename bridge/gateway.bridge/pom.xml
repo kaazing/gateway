@@ -11,6 +11,12 @@
     <packaging>jar</packaging>
 
     <name>Kaazing Gateway Bridge</name>
+    <url>https://github.com/kaazing/gateway/bridge/gateway.bridge</url>
+
+    <scm>
+        <url>https://github.com/kaazing/gateway/bridge/gateway.bridge</url>
+        <connection>scm:git:https://github.com/kaazing/gateway.git</connection>
+    </scm>
 
     <dependencies>
         <!-- This dependency is needed for core assemblies, but could be 
