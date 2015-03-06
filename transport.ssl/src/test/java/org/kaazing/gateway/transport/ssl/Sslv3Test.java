@@ -63,6 +63,7 @@ public class Sslv3Test {
     public static void initClass() throws Exception {
         BasicConfigurator.configure();
 		// SSLv3 is part of disabled algorithms, reset for SSLv3 to work
+        // But before JSSE initialized (so run the tests in separate jvm)
         Security.setProperty("jdk.tls.disabledAlgorithms", "true");
     }
 
