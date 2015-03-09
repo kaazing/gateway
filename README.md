@@ -32,14 +32,14 @@ A set of client APIs are provided in the following repos.
 0. `cd distribution/target`
 1. Unpack the appropriate distribution
    
-   Mac/Linux: `tar -xvf kaazing-gateway-community-5.0.0-unix.tar.gz`
+   Mac/Linux: `tar -xvf kaazing-gateway-community-develop-SNAPSHOT.tar.gz`
    
-   Windows: `unzip kaazing-gateway-community-5.0.0-windows.zip`
+   Windows: `unzip kaazing-gateway-community-develop-SNAPSHOT.zip`
 2. Start the Gateway 
    
-   Mac/Linux: `./kaazing-gateway-community-5.0.0/bin/gateway.start`
+   Mac/Linux: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start`
    
-   Windows: `./kaazing-gateway-community-5.0.0/bin/gateway.start.bat`
+   Windows: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start.bat`
 
 # Running a Prebuilt Project
 

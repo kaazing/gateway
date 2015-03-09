@@ -60,16 +60,10 @@
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>org.kaazing</groupId>
-                                        <artifactId>
-                                            truststore-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [2.0.0.2,)
-                                        </versionRange>
+                                        <artifactId>truststore-maven-plugin</artifactId>
+                                        <versionRange>[2.0,)</versionRange>
                                         <goals>
-                                            <goal>
-                                                generate-truststore
-                                            </goal>
+                                            <goal>generate-truststore</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
