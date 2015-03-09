@@ -8,7 +8,7 @@
 
 # About this Project
 
-The Gateway is a network gateway created to provide a single access point for real-time web based protocol elevation load balancing, clustering, and security.  It is designed to be the to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.    
+The Gateway is a network gateway created to provide a single access point for real-time web based protocol elevation that supports load balancing, clustering, and security management.  It is designed to be the to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.    
 
 A set of client APIs are provided in the following repos. 
 
