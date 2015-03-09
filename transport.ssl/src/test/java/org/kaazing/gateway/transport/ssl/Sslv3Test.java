@@ -27,7 +27,6 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.net.SocketFactory;
@@ -46,6 +45,7 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.security.KeyStore;
+import java.security.Security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -62,6 +62,9 @@ public class Sslv3Test {
     @BeforeClass
     public static void initClass() throws Exception {
         BasicConfigurator.configure();
+        // SSLv3 is part of disabled algorithms, reset for SSLv3 to work
+        // But before JSSE initialized (so run the tests in separate jvm)
+        Security.setProperty("jdk.tls.disabledAlgorithms", "true");
     }
 
     @Before
@@ -89,7 +92,6 @@ public class Sslv3Test {
     // using ssl.protocols option. Client is also configured to use *only* SSLv3, so we expect
     // SSL handshake go through
     @Test(timeout = 5000)
-    @Ignore
     public void acceptSucceedsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         SSLSocket socket = null;
@@ -138,7 +140,6 @@ public class Sslv3Test {
     // Gateway doesn't enable SSLv3 by default. But client is configured to use *only* SSLv3,
     // so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
-    @Ignore
     public void acceptFailsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         SSLSocket socket = null;
@@ -179,7 +180,6 @@ public class Sslv3Test {
 
     // 8567 (only SSLv3 by config) -> 8658 (only SSLv3 by config), so we expect SSL handshake to go through
     @Test(timeout = 5000)
-    @Ignore
     public void connectSucceedsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -233,7 +233,6 @@ public class Sslv3Test {
     // 9557 (no SSLv3 by default) -> 9588 (no SSLv3 by default), so we expect SSL handshake to go through
     // using some protocol other than SSLv3
     @Test(timeout = 5000)
-    @Ignore
     public void connectSucceedsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -284,7 +283,6 @@ public class Sslv3Test {
 
     // 8567 (only SSLv3) -> 8658 (no SSLv3 by defalut), so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
-    @Ignore
     public void connectFailsWithSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
@@ -336,7 +334,6 @@ public class Sslv3Test {
 
     // 9567 (no SSLv3 by default) -> 9658 (only SSLv3 by config), so we expect SSL handshake to *not* go through
     @Test(timeout = 5000)
-    @Ignore
     public void connectFailsWithoutSslv3() throws Exception {
         Gateway gateway = new Gateway();
         Socket socket = null;
