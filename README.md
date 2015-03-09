@@ -51,7 +51,7 @@ To learn how to develop client applications using the distribution, see the docu
 
 # View a Running Demo
 
-To view a demo, see http://kaazing.org.
+Live demos are hosted at [kaazing.org/demos](http://kaazing.org/demos/)
 
 # Contact
 
