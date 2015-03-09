@@ -25,6 +25,8 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoHandler;
@@ -53,7 +55,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         // when payload is empty, proactively send the request start
         // as there will be no subsequent writes to trigger the send
         boolean isChunked = "chunked".equals(session.getWriteHeader("Transfer-Encoding"));
-        if (session.getMethod() == HttpMethod.GET || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
+        if (session.getMethod() == HttpMethod.GET || session.getMethod() == HttpMethod.HEAD || "0".equals(session.getWriteHeader(HEADER_CONTENT_LENGTH)) || isChunked) {
             URI resource = session.getRemoteAddress().getResource();
 
             // create HttpRequestMessage
@@ -61,12 +63,20 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             httpRequest.setMethod(session.getMethod());
             httpRequest.setRequestURI(session.getRequestURI());
             httpRequest.setVersion(session.getVersion());
-            httpRequest.setParameters(session.getParameters());
+            Map<String, List<String>> parameters = session.getParameters();
+            if (!parameters.isEmpty()) {
+                httpRequest.setParameters(session.getParameters());
+            }
 
             // default headers
-            httpRequest.setHeader("User-Agent", "Kaazing Gateway");
-            // TODO: strip port if default
-            httpRequest.setHeader("Host", resource.getAuthority());
+            if (session.getWriteHeader(HttpHeaders.HEADER_USER_AGENT) == null) {
+                httpRequest.setHeader("User-Agent", "Kaazing Gateway");
+            }
+
+            if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
+                // TODO: strip port if default
+                httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
+            }
 
             // override headers
             httpRequest.putHeaders(session.getWriteHeaders());
@@ -132,7 +142,9 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
                         // override headers
                         httpRequest.putHeaders(session.getWriteHeaders());
-                        httpRequest.setHeader("Host", session.getRemoteAddress().getResource().getAuthority());
+                        if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
+                            httpRequest.setHeader(HttpHeaders.HEADER_HOST, session.getRemoteAddress().getResource().getAuthority());
+                        }
 
                         httpRequest.setCookies(session.getWriteCookies());
 

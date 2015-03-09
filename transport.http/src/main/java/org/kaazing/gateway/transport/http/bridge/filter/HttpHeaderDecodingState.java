@@ -26,7 +26,9 @@ import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
@@ -41,7 +43,37 @@ import org.kaazing.mina.filter.codec.statemachine.ConsumeToCrLfDecodingState;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState;
 
 public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
+    private static final Set<String> COMMA_SEPARATED_HEADERS = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    static {
+        COMMA_SEPARATED_HEADERS.add("Accept-Ranges");
+        COMMA_SEPARATED_HEADERS.add("Accept");
+        COMMA_SEPARATED_HEADERS.add("Accept-Charset");
+        COMMA_SEPARATED_HEADERS.add("Accept-Encoding");
+        COMMA_SEPARATED_HEADERS.add("Accept-Language");
+        COMMA_SEPARATED_HEADERS.add("Allow");
 
+        COMMA_SEPARATED_HEADERS.add("Connection");
+        COMMA_SEPARATED_HEADERS.add("Content-Encoding");
+        COMMA_SEPARATED_HEADERS.add("Content-Language");
+        COMMA_SEPARATED_HEADERS.add("If-Match");
+        COMMA_SEPARATED_HEADERS.add("If-None-Match");
+        COMMA_SEPARATED_HEADERS.add("Cache-Control");
+        COMMA_SEPARATED_HEADERS.add("Pragma");
+        COMMA_SEPARATED_HEADERS.add("Proxy-Authenticate");
+
+        COMMA_SEPARATED_HEADERS.add("Sec-WebSocket-Protocol");
+        COMMA_SEPARATED_HEADERS.add("Sec-WebSocket-Extensions");
+        COMMA_SEPARATED_HEADERS.add("Sec-WebSocket-Version");
+
+        COMMA_SEPARATED_HEADERS.add("TE");
+        COMMA_SEPARATED_HEADERS.add("Transfer-Encoding");
+        COMMA_SEPARATED_HEADERS.add("Upgrade");
+        COMMA_SEPARATED_HEADERS.add("Vary");
+        COMMA_SEPARATED_HEADERS.add("Via");
+        COMMA_SEPARATED_HEADERS.add("Warning");
+        COMMA_SEPARATED_HEADERS.add("WWW-Authenticate");
+    }
+    
 	private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");
@@ -88,32 +120,30 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
 		}
 	};
 
-	private final DecodingState READ_HEADER_VALUE = new ConsumeToCrLfDecodingState(allocator) {
-		@Override
-		protected DecodingState finishDecode(IoBuffer buffer,
-				ProtocolDecoderOutput out) throws Exception {
-			String value = buffer.getString(utf8Decoder);
-			List<String> values = headers.get(lastHeaderName);
-			if (values == null) {
-				values = new ArrayList<String>();
-				headers.put(lastHeaderName, values);
-			}
+    private final DecodingState READ_HEADER_VALUE = new ConsumeToCrLfDecodingState(allocator) {
+        @Override
+        protected DecodingState finishDecode(IoBuffer buffer,
+                                             ProtocolDecoderOutput out) throws Exception {
+            String value = buffer.getString(utf8Decoder);
+            List<String> values = headers.get(lastHeaderName);
+            if (values == null) {
+                values = new ArrayList<String>();
+                headers.put(lastHeaderName, values);
+            }
 
-			// multiple values for the same header has comma separator
-			// WebSocket upgrade for Draft 76 fails if the value is split
-			if (value.indexOf(',') == -1 || lastHeaderName.startsWith(HEADER_WEBSOCKET_KEY_PREFIX)) {
-				values.add(value);
-			}
-			else {
-				String[] separatedValues = value.split(",");
-				for (String separatedValue : separatedValues) {
-					values.add(separatedValue.trim());
-				}
-			}
-			
-			return AFTER_READ_HEADER_VALUE;
-		}
-	};
+            if (COMMA_SEPARATED_HEADERS.contains(lastHeaderName)) {
+                // multiple values for the same header has comma separator
+                String[] separatedValues = value.split(",");
+                for (String separatedValue : separatedValues) {
+                    values.add(separatedValue.trim());
+                }
+            } else {
+                values.add(value);
+            }
+
+            return AFTER_READ_HEADER_VALUE;
+        }
+    };
 
 	private final DecodingState AFTER_READ_HEADER_VALUE = new LinearWhitespaceSkippingState() {
 		@Override

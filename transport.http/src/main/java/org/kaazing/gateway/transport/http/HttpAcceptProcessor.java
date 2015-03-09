@@ -118,7 +118,7 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
         IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
         HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
         httpResponse.setContent(new HttpContentMessage(unsharedEmpty, complete));
-        if (session.getMethod() == HttpMethod.HEAD && session.getStatus() == HttpStatus.CLIENT_NOT_FOUND) {
+        if (session.getMethod() == HttpMethod.HEAD) {
             httpResponse.setContentExcluded(true);
         }
 

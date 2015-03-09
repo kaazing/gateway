@@ -30,6 +30,7 @@ import org.apache.mina.filter.codec.ProtocolEncoderException;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.HttpVersion;
@@ -140,7 +141,9 @@ public final class HttpResponseEncoder extends HttpMessageEncoder<HttpResponseMe
         case REDIRECT_NOT_MODIFIED:
             break;
         default:
-            super.encodeContentLength(session, httpResponse, buf);
+            if (httpResponse.getHeader(HttpHeaders.HEADER_CONTENT_LENGTH) == null && httpResponse.getHeader(HttpHeaders.HEADER_TRANSFER_ENCODING) == null ) {
+                super.encodeContentLength(session, httpResponse, buf);
+            }
             break;
         }
     }
