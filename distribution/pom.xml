@@ -9,11 +9,11 @@
         <version>develop-SNAPSHOT</version>
     </parent>
 
-    <artifactId>gateway.distribution.base</artifactId>
+    <artifactId>gateway.distribution</artifactId>
     <packaging>pom</packaging>
 
-    <name>Kaazing Gateway Distribution Base</name>
-    <description>Gateway base distribution</description>
+    <name>Kaazing Gateway Distribution</name>
+    <description>A packaged and runnable .tar/.zip of the gateway</description>
 
     <dependencies>
         <dependency>

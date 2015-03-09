@@ -322,7 +322,8 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>2.0.0-alpha-8</version>
+<!--                 <version>2.0.0-alpha-8</version> -->
+                <version>develop-SNAPSHOT</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>
