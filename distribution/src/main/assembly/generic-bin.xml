@@ -75,6 +75,7 @@
         <include>org.kaazing:gateway.service.proxy</include>
         <include>org.kaazing:gateway.service.http.balancer</include>
         <include>org.kaazing:gateway.service.http.directory</include>
+        <include>org.kaazing:gateway.service.http.proxy</include>
         <include>org.kaazing:gateway.service.amqp</include>
         <include>org.kaazing:gateway.service.update.check</include>
 
