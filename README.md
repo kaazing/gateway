@@ -43,7 +43,7 @@ A set of client APIs are provided in the following repos.
 
 # Running a Prebuilt Project
 
-You can also download and run this project by downloading the full distribution from kaazing.org
+You can also download and run this project from [kaazing.org/download](http://kaazing.org/download/)
 
 # Learning How to Develop Client Applications
 
