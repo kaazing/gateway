@@ -47,7 +47,7 @@ You can also download and run this project from [kaazing.org/download](http://ka
 
 # Learning How to Develop Client Applications
 
-To learn how to develop client applications using the distribution, see the documentation on http://kaazing.org.
+To learn how to develop client applications using the distribution, see the documentation on [kaazing.org](http://kaazing.org).
 
 # View a Running Demo
 
