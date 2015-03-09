@@ -8,21 +8,28 @@
 
 # About this Project
 
-The gateway.distribution packages together all the dependencies that are incorporated in a
-KAAZING Gateway and generates an executable.
+The Gateway is a network gateway created to provide a single access point for real-time web based protocol elevation load balancing, clustering, and security.  It is designed to be the to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.    
+
+A set of client APIs are provided in the following repos. 
+
+- [JavaScript SDK for WebSocket](https://github.com/kaazing/kaazing-client-javascript)
+- [Objective-C SDK for WebSocket](https://github.com/kaazing/gateway.client.ios)
+- [Android and Java SDK for WebSocket](https://github.com/kaazing/gateway.client.java)
+- [JavaScript SDK for AMQP 0-9-1](https://github.com/kaazing/kaazing-amqp-0-9-1-client-javascript)
+- [Java SDK for AMQP 0-9-1](https://github.com/kaazing/amqp.client.java)
 
 # Building this Project
 
-## Minimum requirements for building the project
-* Java Developer Kit (JDK) or Java Runtime Environment (JRE) Java 7 (version 1.7.0_21) or higher
-* Apache Maven 3.0.5 or higher
+## Requirements for building the project
+* Java 7 JDK (version 1.7.0_21) or higher
+* Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
 
 ## Steps for building this project
 0. mvn clean install
 
 # Running this Project
 
-0. cd base/target
+0. cd distribution/target
 1. Unpack the appropriate distribution (Mac/Linux tar -xvf kaazing-gateway-community-5.0.0-unix.tar.gz,
 Windows unzip kaazing-gateway-community-5.0.0-windows.zip)
 2. Start the Gateway (on Mac/Linux ./kaazing-gateway-community-5.0.0/bin/gateway.start, on Windows ./kaazing-gateway-community-5.0.0/bin/gateway.start.bat)
@@ -38,3 +45,7 @@ To learn how to develop client applications using the distribution, see the docu
 # View a Running Demo
 
 To view a demo, see http://kaazing.org.
+
+# Contact
+
+The [Gateway gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project 
