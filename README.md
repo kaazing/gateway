@@ -25,14 +25,21 @@ A set of client APIs are provided in the following repos.
 * Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
 
 ## Steps for building this project
-0. mvn clean install
+0. `mvn clean install`
 
 # Running this Project
 
-0. cd distribution/target
-1. Unpack the appropriate distribution (Mac/Linux tar -xvf kaazing-gateway-community-5.0.0-unix.tar.gz,
-Windows unzip kaazing-gateway-community-5.0.0-windows.zip)
-2. Start the Gateway (on Mac/Linux ./kaazing-gateway-community-5.0.0/bin/gateway.start, on Windows ./kaazing-gateway-community-5.0.0/bin/gateway.start.bat)
+0. `cd distribution/target`
+1. Unpack the appropriate distribution
+   
+   Mac/Linux: `tar -xvf kaazing-gateway-community-5.0.0-unix.tar.gz`
+   
+   Windows: `unzip kaazing-gateway-community-5.0.0-windows.zip`
+2. Start the Gateway 
+   
+   Mac/Linux: `./kaazing-gateway-community-5.0.0/bin/gateway.start`
+   
+   Windows: `./kaazing-gateway-community-5.0.0/bin/gateway.start.bat`
 
 # Running a Prebuilt Project
 
