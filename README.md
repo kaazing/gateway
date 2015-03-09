@@ -37,9 +37,9 @@ A set of client APIs are provided in the following repos.
    Windows: `unzip kaazing-gateway-community-5.0.0-windows.zip`
 2. Start the Gateway 
    
-   Mac/Linux: `./kaazing-gateway-community-5.0.0/bin/gateway.start`
+   Mac/Linux: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start`
    
-   Windows: `./kaazing-gateway-community-5.0.0/bin/gateway.start.bat`
+   Windows: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start.bat`
 
 # Running a Prebuilt Project
 
