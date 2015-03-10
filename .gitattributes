@@ -3,4 +3,4 @@
 *.xml text
 
 # These files should always use lf (for test predictability)
-**/src/test/*/*.html text eol=lf
+**/src/test/**/*.html text eol=lf
