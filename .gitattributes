@@ -1,0 +1,6 @@
+# These files are text and should be normalized (convert crlf to lf on commit)
+*.java text
+*.xml text
+
+# These files should always use lf (for test predictability)
+**/src/test/**/*.html text eol=lf
