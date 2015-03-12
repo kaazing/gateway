@@ -343,8 +343,13 @@ final class GatewayImpl implements Gateway {
         }
     }
 
-    private boolean supportedJavaVersion(int major, int minor, String point) {
-        String javaVersion = System.getProperty("java.version");
+    private static boolean supportedJavaVersion(int major, int minor, String point) {
+        return supportedJavaVersion(System.getProperty("java.version"), System.getProperty("java.vendor"), major,
+                minor, point);
+    }
+
+    // package access for unit test
+    static boolean supportedJavaVersion(String javaVersion, String javaVendor, int major, int minor, String point) {
         String[] versionParts = javaVersion.split("\\.");
         int currentMajor = Integer.parseInt(versionParts[0]);
         int currentMinor = Integer.parseInt(versionParts[1]);
@@ -356,7 +361,10 @@ final class GatewayImpl implements Gateway {
             if (currentMinor > minor) {
                 return true;
             } else if (currentMinor == minor) {
-                return currentPoint.compareTo(point) >= 0;
+                // java.version point version is not a version number and for Azul (zing) it does not follow the
+                // the number_number... format used by Oracle and Open JDK (e.g. 1.7.0-zing_5.10.1.0). So just
+                // allow any zing version that starts with major.minor.
+                return javaVendor.startsWith("Azul") || currentPoint.compareTo(point) >= 0;
             }
         }
 
