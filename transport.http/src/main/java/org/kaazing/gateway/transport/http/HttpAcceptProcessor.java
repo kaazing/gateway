@@ -113,6 +113,7 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
         httpResponse.setHeaders(session.getWriteHeaders());
         httpResponse.setInjectableHeaders(session.getLocalAddress().getOption(INJECTABLE_HEADERS));
         httpResponse.setCookies(session.getWriteCookies());
+        httpResponse.setBlockPadding(session.getParameter(".kbp") != null);
         // KG-5615: committed response cannot be complete if a write request is still pending in the write request queue
         boolean complete = (session.getCurrentWriteRequest() == null) && session.getWriteRequestQueue().isEmpty(session) && session.isClosing();
         IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();

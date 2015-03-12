@@ -42,8 +42,9 @@ public class HttpResponseMessage extends HttpStartMessage {
 	private Set<HttpInjectableHeader> injectableHeaders = EMPTY_INJECTABLE_HEADERS;
 
 	private boolean contentExcluded;
-	
-	public HttpResponseMessage() {
+    private boolean blockPadding;
+
+    public HttpResponseMessage() {
 	}
 	
 	@Override
@@ -100,6 +101,14 @@ public class HttpResponseMessage extends HttpStartMessage {
 	
     public void setContentExcluded(boolean value) {
         contentExcluded = value;
+    }
+
+    public void setBlockPadding(boolean blockPadding) {
+        this.blockPadding = blockPadding;
+    }
+    
+    public boolean isBlockPadding() {
+        return blockPadding;
     }
 
     @Override

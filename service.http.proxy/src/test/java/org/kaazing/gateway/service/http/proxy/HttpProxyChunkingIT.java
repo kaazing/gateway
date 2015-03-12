@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -66,7 +65,6 @@ public class HttpProxyChunkingIT {
 
     @Specification("http.proxy.gzip.chunked.encoding")
     @Test(timeout = 8000)
-    @Ignore
     public void gzipChunkedEncoding() throws Exception {
         robot.finish();
     }
