@@ -23,10 +23,13 @@ package org.apache.mina.transport.socket.nio;
 
 import java.util.concurrent.Executor;
 
+import javax.security.auth.Subject;
+
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.core.session.SubjectChangeListener;
 
 /**
  * An extended version of NioSession which implements IoSessionEx.
@@ -73,6 +76,21 @@ public abstract class NioSessionEx extends NioSession implements IoSessionEx {
     @Override
     public boolean isIoRegistered() {
         return true;
+    }
+
+    @Override
+    public Subject getSubject() {
+        throw new UnsupportedOperationException("not supported");
+    }
+
+    @Override
+    public void addSubjectChangeListener(SubjectChangeListener listener) {
+        throw new UnsupportedOperationException("not supported");
+    }
+
+    @Override
+    public void removeSubjectChangeListener(SubjectChangeListener listener) {
+        throw new UnsupportedOperationException("not supported");
     }
 
 }

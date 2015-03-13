@@ -24,7 +24,12 @@ package org.kaazing.mina.core.session;
 import static java.lang.Thread.currentThread;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 
@@ -51,6 +56,9 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
     private volatile Thread ioThread;
     private volatile Executor ioExecutor;
     private volatile boolean ioRegistered;
+
+    private Subject subject;
+    private final List<SubjectChangeListener> subjectChangeListeneres;
 
     protected AbstractIoSessionEx(int ioLayer, Thread ioThread, Executor ioExecutor,
                                   ThreadLocal<WriteRequestEx> ioWriteRequest) {
@@ -87,6 +95,9 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
                 resumeRead1();
             }
         };
+
+        subjectChangeListeneres = ioAligned ? new ArrayList<SubjectChangeListener>()
+                : new CopyOnWriteArrayList<SubjectChangeListener>();
     }
 
     @Override
@@ -219,4 +230,48 @@ public abstract class AbstractIoSessionEx extends AbstractIoSession implements I
             getProcessor().flush(AbstractIoSessionEx.this);
         }
     };
+
+    @Override
+    public Subject getSubject() {
+        return subject;
+    }
+
+    /**
+     * Memorizes the Subject representing the current logged on user and fires any
+     * currently registered SubjectChangeListeners
+     */
+    protected void setSubject(Subject subject) {
+        Subject currentSubject = this.subject;
+        if (!(currentSubject == null && subject == null)) {
+            this.subject = subject;
+            if (currentThread() == ioThread) {
+                notifySubjectChanged(subject);
+            }
+            else {
+                final Subject changedSubject = subject;
+                ioExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifySubjectChanged(changedSubject);
+                    }
+                });
+            }
+        }
+    }
+
+    private void notifySubjectChanged(Subject subject) {
+        for (SubjectChangeListener listener : subjectChangeListeneres) {
+            listener.subjectChanged(subject);
+        }
+    }
+
+    @Override
+    public void addSubjectChangeListener(SubjectChangeListener listener) {
+        subjectChangeListeneres.add(listener);
+    }
+
+    @Override
+    public void removeSubjectChangeListener(SubjectChangeListener listener) {
+        subjectChangeListeneres.remove(listener);
+    }
 }
