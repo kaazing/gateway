@@ -35,6 +35,11 @@
 
         <!-- test dependencies -->
         <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.ssl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-legacy</artifactId>
             <scope>test</scope>
