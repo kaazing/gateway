@@ -66,8 +66,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
     public static final String SESSION_COOKIE_NAME = "KSESSIONID";
 
-    public static final AttributeKey SUBJECT_KEY = HttpBaseSecurityFilter.SUBJECT_KEY;
-
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 

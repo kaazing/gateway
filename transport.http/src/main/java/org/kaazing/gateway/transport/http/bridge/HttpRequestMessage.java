@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.security.auth.Subject;
+
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpRequestProfile;
@@ -41,14 +43,15 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpRequestProfile;
 public class HttpRequestMessage extends HttpStartMessage {
 
     private static enum QueryUpdate { DECODE, ENCODE };
-	
+
 	private static final Map<String, List<String>> EMPTY_PARAMETERS = Collections.emptyMap();
-	
+
 	private boolean secure;
 	private Map<String, List<String>> parameters;
 	private URI requestURI;
 	private HttpMethod method;
 	private ResourceAddress localAddress;
+	private Subject subject;
 	private URI externalURI;
 
 	private QueryUpdate queryUpdate;
@@ -59,6 +62,14 @@ public class HttpRequestMessage extends HttpStartMessage {
 		return Kind.REQUEST;
 	}
 
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
     @Deprecated // See {@link HttpRequestProfile} for when to remove this.
     public HttpRequestProfile getProfile() {
         return HttpRequestProfile.valueOf(this);
@@ -67,7 +78,7 @@ public class HttpRequestMessage extends HttpStartMessage {
     public void setLocalAddress(ResourceAddress localAddress) {
         this.localAddress = localAddress;
     }
-    
+
     public ResourceAddress getLocalAddress() {
         return localAddress;
     }
@@ -154,7 +165,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 		if (parameters != null) {
 			parameters.clear();
 		}
-		
+
 		// schedule query decode if necessary
 		if (requestURI != null && requestURI.getQuery() != null) {
 			queryUpdate = QueryUpdate.DECODE;
@@ -165,7 +176,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 	public URI getRequestURI() {
 		if (queryUpdate == QueryUpdate.ENCODE) {
 			queryUpdate = null;
-			
+
 			Map<String, List<String>> parameters = getParameters(false);
 			if (parameters != null && !parameters.isEmpty()) {
 				StringBuilder sb = new StringBuilder();
@@ -190,7 +201,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 						}
 					}
 				}
-				
+
 				if (sb.length() > 1) {
 					URI relativeURI = URI.create(sb.toString());
 					requestURI = (requestURI != null) ? requestURI.resolve(relativeURI) : relativeURI;
@@ -202,7 +213,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 		}
 		return requestURI;
 	}
-	
+
 	public void setMethod(HttpMethod method) {
 		this.method = method;
 	}
@@ -218,15 +229,15 @@ public class HttpRequestMessage extends HttpStartMessage {
 	public boolean isSecure() {
 		return secure;
 	}
-	
+
     @Override
     public String toString() {
-        return String.format("%s: %s %s %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getContent(), (isComplete() ? "" : " [...]")); 
+        return String.format("%s: %s %s %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getContent(), (isComplete() ? "" : " [...]"));
     }
 
     @Override
     public String toVerboseString() {
-        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getHeaders(), getContent(), (isComplete() ? "" : " [...]")); 
+        return String.format("%s: %s %s %s HEADERS: %s %s %s", getKind(), getVersion(), getMethod(), getRequestURI(), getHeaders(), getContent(), (isComplete() ? "" : " [...]"));
     }
 
     @Override
@@ -252,16 +263,16 @@ public class HttpRequestMessage extends HttpStartMessage {
         }
         return hashCode;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof HttpRequestMessage)) {
             return false;
         }
-        
+
         return equals((HttpRequestMessage)o);
     }
-    
+
     protected boolean equals(HttpRequestMessage that) {
 
         // canonicalize requestURI and query parameters
@@ -281,25 +292,25 @@ public class HttpRequestMessage extends HttpStartMessage {
                 sameOrEquals(this.requestURI, that.requestURI) &&
                 sameOrEquals(this.parameters, that.parameters));
     }
-    
+
 	protected Map<String, List<String>> createHeaders() {
 		return new TreeMap<String, List<String>>(HttpHeaderNameComparator.INSTANCE);
 	}
 
 	@SuppressWarnings("deprecation")
 	private Map<String, List<String>> getParameters(boolean createIfNull) {
-		
+
 		// lazily create parameters
 		if (parameters == null && (createIfNull || queryUpdate == QueryUpdate.DECODE)) {
 		    // maintain original parameter ordering
 			parameters = new LinkedHashMap<String, List<String>>();
 		}
-		
+
 		// re-validate parameters if necessary
 		if (queryUpdate == QueryUpdate.DECODE) {
 			// avoid recursive decode
 			queryUpdate = null;
-			
+
 			String query = requestURI.getRawQuery();
 			if (query != null) {
 				String[] nvPairs = query.split("&");
@@ -319,15 +330,15 @@ public class HttpRequestMessage extends HttpStartMessage {
 			// fully decoded, avoid encoding next time
 			queryUpdate = null;
 		}
-		
+
 		// detect parameter mutation, schedule query encode
 		if (createIfNull) {
 			queryUpdate = QueryUpdate.ENCODE;
 		}
-		
+
 		return parameters;
 	}
-	
+
 	private List<String> getParameterValues(String parameterName, boolean createIfNull) {
 		Map<String, List<String>> parameters = getParameters(createIfNull);
 		if (parameters == null) {

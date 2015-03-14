@@ -104,6 +104,7 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
+import org.kaazing.mina.core.session.AbstractIoSessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -442,16 +443,16 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 final ResourceAddress remoteAddress = addressFactory.newResourceAddress(httpRequest.getExternalURI(), options);
 
                 // percolate subject
-                final Subject subject = (Subject) session.removeAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);
+                final Subject subject = httpRequest.getSubject();
+                httpRequest.setSubject(null);
 
                 // percolate login context
                 final ResultAwareLoginContext loginContext = HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.remove(session);
-
                 // create new http session and store it in this io session
                 httpSession = newSession(new IoSessionInitializer<IoFuture>() {
                     @Override
                     public void initializeSession(IoSession httpSession, IoFuture future) {
-                        httpSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, subject);
+                        ((DefaultHttpSession)httpSession).setSubject(subject);
                         httpSession.setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, loginContext);
                     }
                 }, new Callable<DefaultHttpSession>() {

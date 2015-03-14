@@ -261,7 +261,7 @@ public class HttpSubjectSecurityFilterTest {
         };
         context.setThreadingPolicy(new Synchroniser());
         final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSession session = context.mock(IoSession.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
         final ResourceAddress address = context.mock(ResourceAddress.class);
 
         final HttpRequestMessage message = new HttpRequestMessage();
@@ -289,8 +289,8 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"ADMINISTRATOR"}));
 
-                oneOf(session).getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY,null);
-                will(returnValue(null));
+                oneOf(session).getSubject();
+
 
                 // writes a 400
                 oneOf(nextFilter).filterWrite(with(same(session)),
@@ -315,7 +315,7 @@ public class HttpSubjectSecurityFilterTest {
         };
         context.setThreadingPolicy(new Synchroniser());
         final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSession session = context.mock(IoSession.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
         final HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(HttpMethod.GET);
         message.setVersion(HttpVersion.HTTP_1_1);
@@ -344,8 +344,7 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{"ADMINISTRATOR"}));
 
-                oneOf(session).getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY,null);
-                will(returnValue(null));
+                oneOf(session).getSubject();
 
                 // KG-3232, KG-3267: we should never leave the login context unset
                 oneOf(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpSubjectSecurityFilter.LOGIN_CONTEXT_OK);
@@ -413,8 +412,8 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue("challenge"));
 
                 // not already logged in
-                oneOf(session).getAttribute(HttpBaseSecurityFilter.SUBJECT_KEY, null);
-                will(returnValue(null));
+                oneOf(session).getSubject();
+
 
                 // login() method itself
                 allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
@@ -453,8 +452,7 @@ public class HttpSubjectSecurityFilterTest {
 
                 oneOf(session).setAttribute(with(same(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY)),
                         with(any(LoginContext.class)));
-                oneOf(session).setAttribute(with(same(HttpLoginSecurityFilter.SUBJECT_KEY)),
-                        with(any(Subject.class)));
+
                 oneOf(nextFilter).messageReceived(session, message);
 
                 oneOf(session).getIoExecutor();
@@ -512,8 +510,9 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue("challenge"));
 
                 // not already logged in
-                oneOf(session).getAttribute(HttpBaseSecurityFilter.SUBJECT_KEY, null);
-                will(returnValue(null));
+                oneOf(session).getSubject(); will(returnValue(null));
+
+                
 
                 // login() method itself
                 oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
@@ -603,8 +602,8 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue("Application Token"));
 
                 // not already logged in
-                oneOf(session).getAttribute(HttpBaseSecurityFilter.SUBJECT_KEY, null);
-                will(returnValue(null));
+                oneOf(session).getSubject(); will(returnValue(null));
+
 
                 // login() method itself
                 oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
