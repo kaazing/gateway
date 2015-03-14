@@ -455,7 +455,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                                 IoFuture future) {
                             wsSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                            wsSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                            ((AbstractWsBridgeSession)wsSession).setSubject(session.getSubject());
                             wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                             wsExtensions0.set(wsSession);
                         }

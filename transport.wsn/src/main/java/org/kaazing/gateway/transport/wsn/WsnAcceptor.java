@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -51,6 +51,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -138,6 +139,8 @@ import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
+    private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY = new TypedAttributeKey<Subject>(WsnAcceptor.class, "subject_transfer");
+
     static final String CHECK_ALIVE_FILTER = WsnProtocol.NAME + "#checkalive";
 	        static final String CODEC_FILTER = WsnProtocol.NAME + "#codec";
 	private static final String UTF8_FILTER = WsnProtocol.NAME + "#utf8";
@@ -154,7 +157,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
     private static final TypedAttributeKey<String[]> SUPPORTED_PROTOCOLS
             = new TypedAttributeKey<String[]>(WsnAcceptor.class, "supportedProtocols");
-            
+
     private static final String HEADER_ORIGIN = "Origin";
     private static final String HEADER_CONNECTION = "Connection";
     private static final String HEADER_UPGRADE = "Upgrade";
@@ -406,7 +409,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     System.arraycopy(supportedProtocols, 0, allSupportedProtocols, 0, supportedProtocols.length);
                     allSupportedProtocols[supportedProtocols.length] = nextProtocol;
                 }
-                
+
                 // Store the next over-the-top of-websocket protocols the server supports for this address on session.
                 SUPPORTED_PROTOCOLS.set(session, allSupportedProtocols);
             }
@@ -473,7 +476,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                                wsVersion == WebSocketWireProtocol.HIXIE_75);
 
             addBridgeFilters(filterChain, localAddress);
-            
+
             session.resumeRead();
 
             //
@@ -496,7 +499,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             //
             // Create the re-validation address to bind to, and re-validation uri to associate with the WsnSession.
             //
-            final boolean isLightweightWsnSession = localAddress.getOption(WsResourceAddress.LIGHTWEIGHT); 
+            final boolean isLightweightWsnSession = localAddress.getOption(WsResourceAddress.LIGHTWEIGHT);
             String sessionId = HttpUtils.newSessionId();
 
             final ActiveWsExtensions wsExtensions = ActiveWsExtensions.get(session);
@@ -509,7 +512,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 public void initializeSession(IoSession wsnSession, IoFuture future) {
                     wsnSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                               .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
-                    wsnSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                    WsnSession typedWsnSession = (WsnSession) wsnSession;
+                    typedWsnSession.setSubject(SUBJECT_TRANSFER_KEY.remove(session));
                     wsnSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, session.getAttribute(BridgeSession.NEXT_PROTOCOL_KEY));
                     ActiveWsExtensions.get(session).set(wsnSession);
                     HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.set(wsnSession, HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session));
@@ -762,8 +766,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     }
                 }
             }
-            
-            // Set the extensions only once all the extensions have been negotiated. 
+
+            // Set the extensions only once all the extensions have been negotiated.
             if (!lightWeightWsnSession) {
                 ActiveWsExtensions extensions = ActiveWsExtensions.get(session);
                 IoSession codecSession = session;
@@ -905,27 +909,27 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     wsLocalAddressLocation, options);
 
             Binding binding = bindings.getBinding(candidate);
-            
+
             if (binding == null) {
                 if ( logger.isDebugEnabled() ) {
-                    logger.debug("\n***Did NOT find local address for WS session:" + 
-                                 "\n***using candidate:\n" + 
-                                 candidate + 
-                                 "\n***with bindings " + 
+                    logger.debug("\n***Did NOT find local address for WS session:" +
+                                 "\n***using candidate:\n" +
+                                 candidate +
+                                 "\n***with bindings " +
                                  bindings);
                 }
                 return null;
             }
 
             if (logger.isTraceEnabled()) {
-                logger.trace("\n***Found local address for WS session:\n" + 
-                             binding.bindAddress() + 
-                             "\n***via candidate:\n" + 
-                             candidate + 
-                             "\n***with bindings " + 
+                logger.trace("\n***Found local address for WS session:\n" +
+                             binding.bindAddress() +
+                             "\n***via candidate:\n" +
+                             candidate +
+                             "\n***with bindings " +
                              bindings);
             }
-            
+
             return binding.bindAddress();
         }
 
@@ -1070,7 +1074,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     // find (based on this http session) the local address for the WS session
                     // we are about to upgrade to.
                     ResourceAddress localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, chosenProtocol);
-                    
+
                     // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
                     // This is safe as we guard this logic via negotiateWebSocketProtocol function
                     // If the client send any bogus protocol that is not in the list of supported protocols, we will fail fast before getting here
@@ -1078,7 +1082,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         chosenProtocol = null;
                         localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, null);
                     }
-                    
+
                     final ResourceAddress wsLocalAddress = localAddress;
 
 
@@ -1130,7 +1134,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             parent.setAttribute(WEB_SOCKET_VERSION_KEY, wsVersion);
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                             parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
-                            parent.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                            parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                             parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY, session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
                             parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                         }
@@ -1297,11 +1301,11 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     if (!verifyApplicationChallengeSchemeSecurity(session)) {
                         return;
                     }
-                    
+
                     // find (based on this http session) the local address for the WS session
                     // we are about to upgrade to.
                     ResourceAddress localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
-                    
+
                     // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
                     // This is safe as we guard this logic via negotiateWebSocketProtocol function
                     // If the client send any bogus protocol that is not in the list of supported protocols, we will fail fast before getting here
@@ -1309,7 +1313,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         wsProtocol = null;
                         localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, null);
                     }
-                    
+
                     final ResourceAddress wsLocalAddress = localAddress;
 
                     WsExtensionNegotiationResult extNegotiationResult =
@@ -1378,8 +1382,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                 parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                                 parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                                         .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
-                                parent.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session
-                                        .getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                                parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                                 parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                                 parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
                                                     session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
@@ -1493,7 +1496,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                    // find (based on this http session) the local address for the WS session
                    // we are about to upgrade to.
                    ResourceAddress localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
-                   
+
                    // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
                    // This is safe as we guard this logic via negotiateWebSocketProtocol function
                    // If the client send any bogus protocol that is not in the list of supported protocols, we will fail fast before getting here
@@ -1501,7 +1504,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                        wsProtocol = null;
                        localAddress = getWsLocalAddress(session, WsnResourceAddressFactorySpi.SCHEME_NAME, null);
                    }
-                   
+
                    final ResourceAddress wsLocalAddress = localAddress;
 
                    WsExtensionNegotiationResult extNegotiationResult =
@@ -1553,8 +1556,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                            parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
                            parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                                    .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
-                           parent.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY,
-                                               session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                           parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                            parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                            parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
                                                session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));

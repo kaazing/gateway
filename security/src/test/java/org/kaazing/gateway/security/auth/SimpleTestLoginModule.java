@@ -30,7 +30,7 @@ import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 
 public class SimpleTestLoginModule extends BaseStateDrivenLoginModule {
 
-    String[] validUserPasswords = {"joe", "welcome"};
+    String[] validUserPasswords = {"joe", "welcome", "jane", "welcome"};
 
     @Override
     protected boolean doLogin() {

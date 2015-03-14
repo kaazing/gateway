@@ -298,11 +298,11 @@ public class WsnConnectorTest {
         };
 
         ConnectFuture connectFuture = wsnConnector.connect(address, connectHandler, null);
-        connectFuture.await(3000, TimeUnit.SECONDS);
+        connectFuture.await(3000, TimeUnit.MILLISECONDS);
         assert connectFuture.isConnected();
 
-        acceptHandler.await(3000, TimeUnit.SECONDS);
-        connectHandler.await(3000, TimeUnit.SECONDS);
+        acceptHandler.await(3000, TimeUnit.MILLISECONDS);
+        connectHandler.await(3000, TimeUnit.MILLISECONDS);
 
     }
 

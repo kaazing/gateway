@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -95,6 +95,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
+import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -110,6 +111,7 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
@@ -161,7 +163,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     private static final TypedAttributeKey<String[]> SUPPORTED_PROTOCOLS =
             new TypedAttributeKey<String[]>(WsebAcceptor.class, "supportedProtocols");
-    
+
     // used to deal with fragmented wseb-create-message content
     private static final TypedAttributeKey<Integer> CREATE_CONTENT_LENGTH_READ =
             new TypedAttributeKey<Integer>(WsebAcceptor.class, "createContentLengthRead");
@@ -176,7 +178,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
-    
+
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionInactivityTracker
@@ -202,7 +204,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
     }
-    
+
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
         this.bridgeServiceFactory = bridgeServiceFactory;
@@ -285,7 +287,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                         System.arraycopy(supportedProtocols, 0, allSupportedProtocols, 0, supportedProtocols.length);
                         allSupportedProtocols[supportedProtocols.length] = nextProtocol;
                     }
-                    
+
                     // Store the next over-the-top of-websocket protocols the server supports for this address on session.
                     SUPPORTED_PROTOCOLS.set(session, allSupportedProtocols);
                 }
@@ -313,7 +315,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             transportAcceptor.bind(createTextEscapedAddress,
                     selectCreateHandler(createTextEscapedAddress),
                     wrapperHttpInitializer);
-            
+
             transportAcceptor.bind(createMixedAddress,
                     selectCreateHandler(createMixedAddress),
                     wrapperHttpInitializer
@@ -384,7 +386,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler,
             BridgeSessionInitializer<? extends IoFuture> initializer) {
-        
+
         final ResourceAddress transportAddress = address.getTransport();
         URI transportURI = transportAddress.getExternalURI();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
@@ -399,7 +401,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
         final ResourceAddress createTextEscapedAddress =
                 transportAddress.resolve(createResolvePath(transportURI,CREATE_TEXT_ESCAPED_SUFFIX));
-        
+
         final ResourceAddress createMixedAddress =
                 transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_SUFFIX));
 
@@ -437,7 +439,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         private final String createSuffix;
         private final String downstreamSuffix;
         private final String upstreamSuffix;
-		
+
         public WsebCreateHandler(String createSuffix,
                                  String downstreamSuffix,
                                  String upstreamSuffix) {
@@ -522,23 +524,23 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             } catch (WsHandshakeNegotiationException e) {
                 return;
             }
-            
+
 
             ResourceAddress wseLocalAddress = getWseLocalAddress(session, wsProtocol);
-            
+
             // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
             // This is safe as we guard this logic via negotiateWebSocketProtocol function
-            // If the client send any bogus protocol that is not in the list of supported protocols, 
+            // If the client send any bogus protocol that is not in the list of supported protocols,
             // we will fail fast before getting here
             if (wseLocalAddress == null) {
                 wsProtocol = null;
                 wseLocalAddress = getWseLocalAddress(session, wsProtocol);
             }
-            
+
             final ResourceAddress localAddress = wseLocalAddress;
 
             assert localAddress != null;
-            
+
             final String wsProtocol0 = wsProtocol;
             List<String> clientRequestedWsExtensions =  session.getReadHeaders(WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS);
 
@@ -619,7 +621,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // We can only honor inactivity timeout if the client supports PING
             String acceptCommands = session.getReadHeader(HEADER_X_ACCEPT_COMMANDS);
             long configuredInactivityTimeout = localAddress.getOption(INACTIVITY_TIMEOUT);
-            final long inactivityTimeout = 
+            final long inactivityTimeout =
                     // TODO: parse acceptCommands properly in case we need to support multiple commands (comma separated)
                     (acceptCommands != null && acceptCommands.equals("ping")) ? configuredInactivityTimeout : DISABLE_INACTIVITY_TIMEOUT;
 
@@ -639,7 +641,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     wsSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                             .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                     wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                    wsSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                    ((AbstractWsBridgeSession<?, ?>) wsSession).setSubject(((IoSessionEx) session).getSubject());
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                     wsExtensions0.set(wsSession);
                     HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.set(wsSession,
@@ -828,7 +830,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             ResourceAddress transportAddress = address.getTransport();
             final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource());
             if (protocol instanceof HttpProtocol) {
-                IoSessionIdleTracker inactivityTracker = 
+                IoSessionIdleTracker inactivityTracker =
                              wsebSession.getInactivityTimeout() > 0 ?  currentSessionInactivityTracker.get() : null;
                 if ( DOWNSTREAM_SUFFIX.equals(downstreamSuffix) ) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler,
@@ -916,28 +918,28 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     wseLocalAddressLocation, options);
 
             Binding binding = bindings.getBinding(candidate);
-            
+
             if (binding == null) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("\n" +
-                                 "***FAILED to find local address via candidate:\n" + 
-                                 candidate + 
-                                 "\n***with bindings [\n" + 
-                                 bindings + 
+                                 "***FAILED to find local address via candidate:\n" +
+                                 candidate +
+                                 "\n***with bindings [\n" +
+                                 bindings +
                                  "]");
                 }
-                return null; 
+                return null;
             }
 
             if (logger.isTraceEnabled() && binding != null) {
-                logger.trace("\n***Found local address for WSE session:\n" + 
-                             binding.bindAddress() + 
-                             "\n***via candidate:\n" + 
-                             candidate + 
-                             "\n***with bindings " + 
+                logger.trace("\n***Found local address for WSE session:\n" +
+                             binding.bindAddress() +
+                             "\n***via candidate:\n" +
+                             candidate +
+                             "\n***with bindings " +
                              bindings);
             }
-            
+
             return binding.bindAddress();
         }
 
@@ -1032,7 +1034,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
         }
     };
-    
+
     private final IoHandler createHandler = new WsebCreateHandler(CREATE_SUFFIX, DOWNSTREAM_SUFFIX, UPSTREAM_SUFFIX);
 
     private final IoHandler createTextHandler = new WsebCreateHandler(CREATE_TEXT_SUFFIX, DOWNSTREAM_TEXT_SUFFIX, UPSTREAM_TEXT_SUFFIX);
@@ -1044,5 +1046,5 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private final IoHandler createMixedTextHandler = new WsebCreateHandler(CREATE_MIXED_TEXT_SUFFIX, DOWNSTREAM_MIXED_TEXT_SUFFIX, UPSTREAM_MIXED_TEXT_SUFFIX);
 
     private final IoHandler createMixedTextEscapedHandler = new WsebCreateHandler(CREATE_MIXED_TEXT_ESCAPED_SUFFIX, DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX, UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX);
-    
+
 }
