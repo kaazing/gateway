@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,15 +21,12 @@
 
 package org.kaazing.gateway.service.proxy;
 
-import javax.security.auth.Subject;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +50,6 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
     @Override
     public void sessionOpened(final IoSession acceptSession) {
         if (!acceptSession.isClosing()) {
-            final Subject subject = (Subject) acceptSession.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);
             final Object serviceRegistration = acceptSession.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY);
             final String nextProtocol = BridgeSession.NEXT_PROTOCOL_KEY.get(acceptSession);
 
@@ -67,7 +63,6 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
                     if (acceptSession.isClosing()) {
                         connectSession.close(true);
                     } else {
-                        connectSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, subject);
                         connectSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, serviceRegistration);
                         BridgeSession.NEXT_PROTOCOL_KEY.set(connectSession, nextProtocol);
 
