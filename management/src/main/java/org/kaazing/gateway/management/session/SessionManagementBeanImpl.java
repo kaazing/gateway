@@ -243,7 +243,7 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
 
         if (userPrincipalClasses != null && !userPrincipalClasses.isEmpty()) {
             Map<String, String> userPrincipals = new HashMap<String, String>();
-            Subject subject = (Subject) session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY);
+            Subject subject = session.getSubject();
             if (subject != null) {
                 Set<Principal> principals = subject.getPrincipals();
                 for (Principal principal : principals) {

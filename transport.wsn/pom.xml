@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpx</artifactId>
-            <version>[1.0.0.0, 1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
