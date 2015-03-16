@@ -399,6 +399,7 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
+                oneOf(session).getSubject(); will(returnValue(null));
                 allowing(address).getOption(HttpResourceAddress.REALM_NAME);
                 will(returnValue("demo"));
 

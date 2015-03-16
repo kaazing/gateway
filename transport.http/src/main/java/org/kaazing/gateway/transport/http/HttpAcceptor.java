@@ -444,7 +444,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
                 // percolate subject
                 final Subject subject = httpRequest.getSubject();
-                httpRequest.setSubject(null);
 
                 // percolate login context
                 final ResultAwareLoginContext loginContext = HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.remove(session);

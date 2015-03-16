@@ -272,7 +272,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // Try to establish a subject and the required and authorized roles from the login cache.
         //
 
-        Subject subject = null;
+        // Make sure we start with the subject from the underlying transport session (set into the request in 
+        // HttpSubjectSecurityFilter.doMessageReceived)
+        Subject subject = httpRequest.getSubject();
 
         Collection<String> requireRoles = asList(requiredRolesArray);
         Collection<String> authorizedRoles = Collections.<String>emptySet();
@@ -405,7 +407,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 LOGIN_CONTEXT_KEY.set(session, loginContext);
 
                 // remember subject
-                httpRequest.setSubject((loginContext == null) ? subject : loginContext.getSubject());
+                httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
             } catch (Exception e) {
                 if (loggerEnabled()) {
                     logger.trace("Login failed.", e);

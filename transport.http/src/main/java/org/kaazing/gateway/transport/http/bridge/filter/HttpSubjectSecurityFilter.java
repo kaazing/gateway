@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -34,6 +34,7 @@ import javax.security.auth.Subject;
 
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
@@ -87,7 +88,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public HttpSubjectSecurityFilter() {
         this(null);
     }
-    
+
     public HttpSubjectSecurityFilter(Logger logger) {
         super(logger);
         // Each filter has it's own map.  There's only one filter though.
@@ -111,6 +112,13 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         if (! httpRequestMessageReceived(nextFilter, session, message)) return;
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
+
+        // Make sure we start with the subject from the underlying transport session in case it already has an authenticated subject
+        // (e.g. we are httpxe and our transport is http or transport is SSL with a client certificate)
+        if (httpRequest.getSubject() == null) {
+            httpRequest.setSubject( ((IoSessionEx)session).getSubject() );
+        }
+
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
         String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
@@ -249,6 +257,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             if (sessionCookie != null) {
                 httpResponse.addCookie(sessionCookie);
             }
+            break;
+        default:
             break;
         }
 
