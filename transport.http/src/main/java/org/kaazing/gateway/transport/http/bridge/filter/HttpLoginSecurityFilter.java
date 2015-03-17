@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static java.util.Arrays.asList;
 
 import java.util.Collection;
@@ -232,6 +234,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
         // No matter what happens, we know that the roles currently present
         // are not sufficient for logging in, so return false.
+        ResourceAddress localAddress = LOCAL_ADDRESS.get(session);
+        String nextProtocol = localAddress.getOption(NEXT_PROTOCOL);
+        if ("http/1.1".equals(nextProtocol)) {
+        	HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
+        }
         return false;
     }
 
@@ -272,7 +279,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // Try to establish a subject and the required and authorized roles from the login cache.
         //
 
-        // Make sure we start with the subject from the underlying transport session (set into the request in 
+        // Make sure we start with the subject from the underlying transport session (set into the request in
         // HttpSubjectSecurityFilter.doMessageReceived)
         Subject subject = httpRequest.getSubject();
 
