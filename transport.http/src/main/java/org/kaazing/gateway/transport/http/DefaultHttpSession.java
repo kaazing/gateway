@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.security.auth.Subject;
+
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -177,6 +179,11 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         servicePath = null;
         pathInfo = null;
+    }
+
+    @Override
+    public void setSubject(Subject subject) {
+        super.setSubject(subject);
     }
 
     @Override
