@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static java.util.Arrays.asList;
 
 import java.util.Collection;
@@ -49,6 +51,7 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.security.auth.challenge.HttpChallengeFactories;
 import org.kaazing.gateway.transport.http.security.auth.challenge.HttpChallengeFactory;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
@@ -72,7 +75,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     public HttpLoginSecurityFilter() {
         super();
     }
-    
+
     public HttpLoginSecurityFilter(Logger logger) {
         super(logger);
     }
@@ -93,7 +96,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         if  (requiredRoles == null || requiredRoles.size() == 0) {
             return true;
         }
-        Subject subject = (Subject) session.getAttribute(SUBJECT_KEY, null);
+        Subject subject = ((IoSessionEx)session).getSubject();
         if (subject != null ) {
             Collection<String> authorizedRoles = getAuthorizedRoles(subject);
             return authorizedRoles.containsAll(requiredRoles);
@@ -103,7 +106,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     public static void cleanup(IoSession session) {
         LOGIN_CONTEXT_KEY.remove(session);
-        session.removeAttribute(SUBJECT_KEY);
     }
 
     /**
@@ -125,7 +127,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     static final ResultAwareLoginContext LOGIN_CONTEXT_OK;
 
 
-    
+
     static {
         try {
             LOGIN_CONTEXT_OK = new ResultAwareLoginContext("LOGIN_CONTEXT_OK", new Subject(), null,
@@ -210,7 +212,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             return false;
         }
 
-        loginResult = (DefaultLoginResult) loginContext.getLoginResult();
+        loginResult = loginContext.getLoginResult();
         final LoginResult.Type resultType = loginResult.getType();
 
         // Now check to see if any of the login modules added any challenge
@@ -232,6 +234,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
         // No matter what happens, we know that the roles currently present
         // are not sufficient for logging in, so return false.
+        ResourceAddress localAddress = LOCAL_ADDRESS.get(session);
+        String nextProtocol = localAddress.getOption(NEXT_PROTOCOL);
+        if ("http/1.1".equals(nextProtocol)) {
+        	HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session);
+        }
         return false;
     }
 
@@ -272,7 +279,9 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         // Try to establish a subject and the required and authorized roles from the login cache.
         //
 
-        Subject subject = null;
+        // Make sure we start with the subject from the underlying transport session (set into the request in
+        // HttpSubjectSecurityFilter.doMessageReceived)
+        Subject subject = httpRequest.getSubject();
 
         Collection<String> requireRoles = asList(requiredRolesArray);
         Collection<String> authorizedRoles = Collections.<String>emptySet();
@@ -327,7 +336,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 }
 
                 loginContext.login();
-                loginResult = (DefaultLoginResult) loginContext.getLoginResult();
+                loginResult = loginContext.getLoginResult();
                 final LoginResult.Type resultType = loginResult.getType();
                 if (resultType == LoginResult.Type.FAILURE) {
                     if ( loginResult.getLoginException() != null) {
@@ -405,8 +414,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 LOGIN_CONTEXT_KEY.set(session, loginContext);
 
                 // remember subject
-                session.setAttribute(SUBJECT_KEY, loginContext == null? subject : loginContext.getSubject());
-                
+                httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
             } catch (Exception e) {
                 if (loggerEnabled()) {
                     logger.trace("Login failed.", e);
@@ -469,14 +477,12 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     @Override
     public void filterClose(NextFilter nextFilter, IoSession session) throws Exception {
         LOGIN_CONTEXT_KEY.remove(session);
-        session.removeAttribute(SUBJECT_KEY);
         super.filterClose(nextFilter, session);
     }
 
     @Override
     public void doSessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
         LOGIN_CONTEXT_KEY.remove(session);
-        session.removeAttribute(SUBJECT_KEY);
         super.doSessionClosed(nextFilter, session);
     }
 

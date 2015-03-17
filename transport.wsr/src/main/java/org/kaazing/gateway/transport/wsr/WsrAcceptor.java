@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -85,6 +85,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
+import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
 import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
 import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
@@ -362,16 +363,16 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
             // find (based on this http session) the local address for the WS session
             // we are about to upgrade to.
             ResourceAddress resourceAddress = getWsrLocalAddress(session, WsrResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
-            
+
             // fallback to null protocol as a workaround until we properly inject next protocol from service during bind
             // This is safe as we guard this logic via negotiateWebSocketProtocol function
-            // If the client send any bogus protocol that is not in the list of supported protocols, 
+            // If the client send any bogus protocol that is not in the list of supported protocols,
             // we will fail fast before getting here
             if (resourceAddress == null) {
                 wsProtocol = null;
                 resourceAddress = getWsrLocalAddress(session, WsrResourceAddressFactorySpi.SCHEME_NAME, wsProtocol);
             }
-            
+
             final String wsProtocol0 = wsProtocol;
             final ResourceAddress wsrLocalAddress = resourceAddress;
 
@@ -439,7 +440,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
             final ResourceAddress localAddress =
                     resourceAddressFactory.newResourceAddress(
                             wsrLocalAddress.getResource());
-                                                    
+
             ResourceAddress httpCreateAddress = session.getLocalAddress();
             URI httpCreateURI = httpCreateAddress.getResource();
 
@@ -455,7 +456,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                                 IoFuture future) {
                             wsSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                            wsSession.setAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY, session.getAttribute(HttpSubjectSecurityFilter.SUBJECT_KEY));
+                            ((AbstractWsBridgeSession)wsSession).setSubject(session.getSubject());
                             wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                             wsExtensions0.set(wsSession);
                         }
@@ -542,28 +543,28 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                     wsLocalAddressLocation, options);
 
             Bindings.Binding binding = bindings.getBinding(candidate);
-            
+
             if (binding == null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("\n***Did NOT find local address for WSR session:" + 
-                                 "\n***using candidate:\n" + 
-                                 candidate + 
-                                 "\n***with bindings " + 
+                    logger.debug("\n***Did NOT find local address for WSR session:" +
+                                 "\n***using candidate:\n" +
+                                 candidate +
+                                 "\n***with bindings " +
                                  bindings);
                 }
                 return null;
             }
 
             if (logger.isTraceEnabled()) {
-                logger.trace("\n***Found local address for WSR session:\n" + 
-                             binding.bindAddress() + 
-                             "\n***via candidate:\n" + 
-                             candidate + 
-                             "\n***with bindings " + 
+                logger.trace("\n***Found local address for WSR session:\n" +
+                             binding.bindAddress() +
+                             "\n***via candidate:\n" +
+                             candidate +
+                             "\n***with bindings " +
                              bindings);
             }
-            
-            return (ResourceAddress) binding.bindAddress();
+
+            return binding.bindAddress();
         }
     }
 

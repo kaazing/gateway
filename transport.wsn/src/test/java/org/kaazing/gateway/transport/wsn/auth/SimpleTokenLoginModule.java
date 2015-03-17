@@ -298,12 +298,17 @@ public class SimpleTokenLoginModule implements LoginModule {
     private boolean isTokenValid(String token) throws Exception {
 
         String parts[] = token.split(":");
+        System.out.println("XXXXXXXXXX parts=" + parts + "    token=" + token);
         if(parts.length != 3){
             return false;
         }
         
         // Connect to the token provider using HTTP which will validate the token.
         if("joe".equals(parts[1]) && "welcome".equals(parts[2])){
+            return true;
+        }
+
+        if("jane".equals(parts[1]) && "welcome".equals(parts[2])){
             return true;
         }
         
