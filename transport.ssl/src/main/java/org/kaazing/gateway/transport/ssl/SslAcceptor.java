@@ -519,11 +519,11 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                 session.setAttribute(SESSION_KEY, newSslSession);
             }
             else if (message == SslFilter.SESSION_UNSECURED) {
-                // close tcp session, this will trigger SslSession.close in doSessionClosed
-                // let scheduled writes complete, then close on flush
-                // TODO: the following causes doSessionClosed to fire which does a reset (causing an ugly
-                // stack trace if debug log level is set). We should call SslAcceptProcessor.remove instead.
-                session.close(false);
+                SslSession sslSession = (SslSession) session.removeAttribute(SESSION_KEY);
+                
+                if (sslSession != null && !sslSession.isClosing()) {
+                    sslSession.getProcessor().remove(sslSession);
+                }
             }
             else {
                 IoSession sslSession = (IoSession) session.getAttribute(SESSION_KEY);
@@ -579,9 +579,13 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             SslSession sslSession = (SslSession) session.removeAttribute(SESSION_KEY);
-            if (sslSession != null && !sslSession.isClosing()) {
-                // behave similarly to connection reset by peer at NIO layer
-                sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+            if (sslSession != null) {
+                if (!sslSession.isClosing()) {
+                    // behave similarly to connection reset by peer at NIO layer
+                    sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                } else {
+                    sslSession.getProcessor().remove(sslSession);
+                }
             }
         }
 
