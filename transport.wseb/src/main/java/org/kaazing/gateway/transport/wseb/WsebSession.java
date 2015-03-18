@@ -261,7 +261,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    boolean detachWriter(HttpSession oldWriter) {
+    boolean detachWriter(final HttpSession oldWriter) {
         boolean detached = compareAndSetParent(oldWriter, null);
 
         if (detached && Long.valueOf(0L).equals(oldWriter.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY))) {
@@ -270,9 +270,37 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             oldWriter.resumeWrite();
         }
 
-        oldWriter.close(false);
+        if (Thread.currentThread() == getIoThread()) {
+            detachWriter0(oldWriter);
+        } else {
+            if (ALIGN_DOWNSTREAM) {
+                final Executor ioExecutor = getIoExecutor();
+                ioExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        detachWriter0(oldWriter);
+                    }
+                });
+            } else {
+                detachWriter0(oldWriter);
+            }
+        }
 
         return detached;
+    }
+
+    private void detachWriter0(final HttpSession oldWriter) {
+        if (oldWriter.getIoThread() == getIoThread()) {
+            oldWriter.close(false);
+        } else {
+            final Executor ioExecutor = getIoExecutor();
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    detachWriter0(oldWriter);
+                }
+            });
+        }
     }
 
     public void attachPendingWriter() {

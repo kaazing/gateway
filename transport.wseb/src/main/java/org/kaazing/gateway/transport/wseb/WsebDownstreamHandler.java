@@ -382,7 +382,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
                 // Note: a reference to the HTTP downstream session is pinned by this listener
                 //       and must be removed to avoid a memory leak (see below)
-                session.close(false);
+                wsebSession.detachWriter(session);
             }
         };
         // detect when emulated session is closed to force downstream to close
