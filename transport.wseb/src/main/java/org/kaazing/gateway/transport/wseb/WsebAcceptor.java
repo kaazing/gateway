@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
-import com.kaazing.gateway.server.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -95,7 +95,6 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;

@@ -56,6 +56,7 @@ write "\r\n"
 
 # Enveloped HTTP response
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
 read "Content-Length: 200\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 # Example: read "Date: Fri, 19 Dec 2014 05:01:28 GMT\r\n"
