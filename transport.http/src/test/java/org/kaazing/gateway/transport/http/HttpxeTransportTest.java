@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -120,11 +120,11 @@ public class HttpxeTransportTest {
 
         httpxeAddress = addressFactory.newResourceAddress(location, options);
         pipeAddress = addressFactory.newResourceAddress(transportURI);
-        
+
         httpxeAcceptor = (AbstractBridgeAcceptor) serviceFactory.newBridgeAcceptor(httpxeAddress);
         this.pipeConnector = serviceFactory.newBridgeConnector(pipeAddress);
     }
-    
+
     @Before
     public void setupDefaultExpectations() throws Exception {
         context.checking(new Expectations() { {
@@ -166,6 +166,7 @@ public class HttpxeTransportTest {
     public void encodeEmulatedHttpResponse() throws Exception {
 
         final byte[] array = ("HTTP/1.1 200 OK\r\n" +
+                              "Cache-Control: no-cache\r\n" +
                               "Content-Length: 69\r\n" +
                               "Content-Type: text/plain;charset=UTF-8\r\n" +
                               "Set-Cookie: KSSOID=12345;\r\n" +
@@ -174,14 +175,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 302 Cross-Origin Redirect\r\n" +
                               "Location: https://www.w3.org/\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -195,7 +196,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteCookies(Collections.<HttpCookie>singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")));
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -211,7 +212,7 @@ public class HttpxeTransportTest {
         		"\r\n" +
         		"GET / HTTP/1.1\r\n" +
         		"\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -225,14 +226,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "Content-Type: text/plain\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -243,7 +244,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteHeader("Content-Type", "text/plain");
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -259,10 +260,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedTextHttpResponse() throws Exception {
 
@@ -273,14 +274,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "Content-Type: text/xyz;charset=windows-1252\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -291,7 +292,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteHeader("Content-Type", "text/xyz;charset=windows-1252");
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -307,10 +308,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedCORSResponse() throws Exception {
 
@@ -322,14 +323,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "Content-Type: text/xyz;charset=windows-1252\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -341,7 +342,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteHeader("Content-Type", "text/xyz;charset=windows-1252");
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -357,10 +358,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedGzippedTextResponse() throws Exception {
 
@@ -377,14 +378,14 @@ public class HttpxeTransportTest {
                       "Content-Type: text/xyz;charset=windows-1252\r\n" +
                       "\r\n").getBytes());
         expected.flip();
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(expected)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -413,10 +414,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedHttpResponseWithCacheControl() throws Exception {
 
@@ -428,14 +429,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 302 Cross-Origin Redirect\r\n" +
                               "Location: https://www.w3.org/\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -448,7 +449,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteHeader("Location", "https://www.w3.org/");
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -464,10 +465,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedBinaryHttpResponse() throws Exception {
 
@@ -478,14 +479,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "Content-Type: application/octet-stream\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -496,7 +497,7 @@ public class HttpxeTransportTest {
                 httpSession.setWriteHeader("Content-Type", "application/octet-stream");
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -512,10 +513,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedHttpResponseIncomplete() throws Exception {
 
@@ -526,14 +527,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "\r\n" +
                               "Hello, world").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -545,7 +546,7 @@ public class HttpxeTransportTest {
                 httpSession.write(wrap("Hello, world".getBytes(UTF_8)));
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -561,15 +562,15 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedHttpResponseChunked() throws Exception {
 
         // note: httpxe layer needs to behave as if Content-Length is implicitly present (implied by outer http layer, even if chunked or connection:close)
-        
+
         final byte[] array = ("HTTP/1.1 200 OK\r\n" +
                               "Content-Type: text/plain;charset=UTF-8\r\n" +
                               "Transfer-Encoding: chunked\r\n" +
@@ -583,14 +584,14 @@ public class HttpxeTransportTest {
                               "\r\n" +
                               "0\r\n" +
                               "\r\n").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -601,7 +602,7 @@ public class HttpxeTransportTest {
                 httpSession.write(wrap("Hello, world".getBytes(UTF_8)));
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -617,10 +618,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedHttpResponseComplete() throws Exception {
 
@@ -631,14 +632,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "\r\n" +
                               "Hello, world").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -657,7 +658,7 @@ public class HttpxeTransportTest {
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
                 httpSession.resumeWrite();
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -673,10 +674,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedHttpResponseWithContentLength() throws Exception {
 
@@ -687,14 +688,14 @@ public class HttpxeTransportTest {
                               "HTTP/1.1 200 OK\r\n" +
                               "\r\n" +
                               "Hello, world").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -706,7 +707,7 @@ public class HttpxeTransportTest {
                 httpSession.write(wrap("Hello, world".getBytes(UTF_8)));
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -722,10 +723,10 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void encodeEmulatedNotFoundHttpResponse() throws Exception {
 
@@ -737,14 +738,14 @@ public class HttpxeTransportTest {
                               "Content-Type: text/html\r\n" +
                               "\r\n" +
                               "<html><head></head><body><h1>404 Not Found</h1></body></html>").getBytes(UTF_8);
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -754,7 +755,7 @@ public class HttpxeTransportTest {
                 httpSession.setStatus(CLIENT_NOT_FOUND);
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
-            
+
         }, null);
 
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
@@ -770,13 +771,13 @@ public class HttpxeTransportTest {
                 "\r\n" +
                 "GET / HTTP/1.1\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void decodeEnvelopedHttpRequest() throws Exception {
-        
+
         final byte[] array = ("retry:2500\r\n" +
                               "event:TCPSend\r\n" +
                               "id:24\r\n" +
@@ -789,9 +790,9 @@ public class HttpxeTransportTest {
 
             oneOf(handler).messageReceived(with(any(IoSession.class)), with(equal(wrap(array))));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, handler, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, new IoHandlerAdapter(), null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -800,7 +801,7 @@ public class HttpxeTransportTest {
                 "Content-Type: application/x-message-http\r\n" +
                 "Content-Length: 160\r\n" +
                 "\r\n" +
-                "POST / HTTP/1.1\r\n" + 
+                "POST / HTTP/1.1\r\n" +
                 "Authorization: restricted-usage\r\n" +
                 "Content-Type: text/event-stream\r\n" +
                 "Content-Length: 55\r\n" +
@@ -810,29 +811,29 @@ public class HttpxeTransportTest {
                 "id:24\r\n" +
                 "data:Hello, world\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void decodeEnvelopedHttpPostRequest() throws Exception {
-        
+
         final byte[] array = (">|<").getBytes(UTF_8);
 
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
             public void messageReceived(IoSession session, Object message) throws Exception {
                 assertEquals(wrap(array), message);
             }
-            
+
         }, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -852,18 +853,18 @@ public class HttpxeTransportTest {
                 "Content-type: text/plain\r\n" +
                 "\r\n" +
                 ">|<").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void decodeEnvelopedGetHttpRequest() throws Exception {
-        
+
         context.checking(new Expectations() { {
             allowing(handler).sessionCreated(with(any(IoSession.class)));
             allowing(handler).sessionOpened(with(any(IoSession.class)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, new IoHandlerAdapter() {
 
             @Override
@@ -874,9 +875,9 @@ public class HttpxeTransportTest {
                 assertNull(httpSession.getReadHeader("Content-Type"));
                 assertEquals("value", httpSession.getReadHeader("X-Header"));
             }
-            
+
         }, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, handler, null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -888,7 +889,7 @@ public class HttpxeTransportTest {
                 "GET / HTTP/1.1\r\n" +
                 "Authorization: restricted-usage\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -899,9 +900,9 @@ public class HttpxeTransportTest {
             never(handler).sessionCreated(with(any(IoSession.class)));
             never(handler).sessionOpened(with(any(IoSession.class)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, handler, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, new IoHandlerAdapter(), null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -914,7 +915,7 @@ public class HttpxeTransportTest {
                 "GET /different/path HTTP/1.1\r\n" +
                 "Authorization: restricted-usage\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -925,9 +926,9 @@ public class HttpxeTransportTest {
             never(handler).sessionCreated(with(any(IoSession.class)));
             never(handler).sessionOpened(with(any(IoSession.class)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, handler, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, new IoHandlerAdapter(), null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -940,7 +941,7 @@ public class HttpxeTransportTest {
                 "GET / HTTP/1.0\r\n" +
                 "Authorization: restricted-usage\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -951,9 +952,9 @@ public class HttpxeTransportTest {
             never(handler).sessionCreated(with(any(IoSession.class)));
             never(handler).sessionOpened(with(any(IoSession.class)));
         } });
-        
+
         httpxeAcceptor.bind(httpxeAddress, handler, null);
-        
+
         ConnectFuture future = pipeConnector.connect(pipeAddress, new IoHandlerAdapter(), null);
         IoSession session = future.await().getSession();
         session.write(wrap((
@@ -966,7 +967,7 @@ public class HttpxeTransportTest {
                 "Accept-Charset: value\r\n" +
                 "Authorization: restricted-usage\r\n" +
                 "\r\n").getBytes(UTF_8))).await();
-        
+
         context.assertIsSatisfied();
     }
 
@@ -993,12 +994,12 @@ public class HttpxeTransportTest {
     private BridgeConnector pipeConnector;
 
     private final class IoBufferMergeFilter extends IoFilterAdapter<IoSessionEx> {
-        
+
         private volatile IoBufferEx mergedBuffers;
 
         @Override
         public void doMessageReceived(IoFilter.NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
-            
+
             IoBufferEx buffer = (IoBufferEx) message;
             logger.messageReceived(session, message);
             if (mergedBuffers == null) {

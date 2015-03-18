@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,6 +26,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.CONTENT_LENGTH_ADJUSTMENT;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CACHE_CONTROL;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpMethod.POST;
 import static org.kaazing.gateway.transport.http.HttpStatus.SUCCESS_OK;
@@ -69,7 +70,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
     private static final String CONTENT_TYPE_PREFIX_TEXT = "text/";
 
     private static final SortedSet<String> RESTRICTED_ENVELOPE_HEADERS;
-    
+
     static {
         // note: restricted headers are case-insensitive (!)
         // see: http://www.w3.org/TR/XMLHttpRequest/#dom-xmlhttprequest-setrequestheader
@@ -79,17 +80,17 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
                                                 "TE", "Trailer", "Transfer-Encoding", "Upgrade", "User-Agent", "Via"));
         RESTRICTED_ENVELOPE_HEADERS = restrictedEnvelopeHeaders;
     }
-    
+
     private static final Collection<String> ASCII_COMPATIBLE = Arrays.asList("charset=ascii", "charset=utf-8", "charset=windows-1252");
-    
+
     private static enum Mode { CLIENT, SERVER };
 
     private final Mode mode;
-    
+
     public HttpxeProtocolFilter(boolean client) {
         this.mode = client ? Mode.CLIENT : Mode.SERVER;
     }
-    
+
     @Override
     protected void filterWriteHttpRequest(NextFilter nextFilter, IoSession session, WriteRequest writeRequest,
             HttpRequestMessage httpRequest) throws Exception {
@@ -103,9 +104,9 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
             super.filterWriteHttpRequest(nextFilter, session, writeRequest, httpRequest);
             break;
         }
-        
+
     }
-    
+
     @Override
     protected void httpRequestReceived(NextFilter nextFilter, IoSession session, HttpRequestMessage httpRequest)
             throws Exception {
@@ -120,7 +121,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
             super.httpRequestReceived(nextFilter, session, httpRequest);
             break;
         }
-        
+
     }
 
     @Override
@@ -167,17 +168,17 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         // inject requestURI
         URI requestURI = httpRequest.getRequestURI();
         session.setRequestURI(requestURI);
-        
+
         // inject content-type
         String contentType = httpRequest.getHeader("Content-Type");
         String newContentType = calculateContentType(contentType);
         session.setWriteHeader("Content-Type", newContentType);
-        
+
         // inject headers
         for (Iterator<String> iterator = httpRequest.iterateHeaderNames(); iterator.hasNext(); ) {
-            
+
             String headerName = iterator.next();
-            
+
             // skip headers that must not be inserted
             switch (headerName.charAt(0)) {
             case 'a':
@@ -204,7 +205,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
             session.setWriteHeader(headerName, headerValue);
             iterator.remove();
         }
-        
+
         // inject cookies
         if (httpRequest.hasCookies()) {
             Set<HttpCookie> writeCookies = session.getWriteCookies();
@@ -231,12 +232,12 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         if (session.getMethod() != HttpMethod.POST) {
             throw new ProtocolDecoderException("Unexpected HTTP method");
         }
-        
+
         // validate request URI
         if (!URLDecoder.decode(session.getRequestURI().toString(), "UTF-8").equals(URLDecoder.decode(httpRequest.getRequestURI().toString(), "UTF-8"))) {
             throw new ProtocolDecoderException("HTTP request URI mismatch");
         }
-        
+
         // validate content type
         String contentType = session.getReadHeader("Content-Type");
         if (contentType == null) {
@@ -245,17 +246,17 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         else if (!CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP.equals(contentType)) {
             throw new ProtocolDecoderException("Unexpected HTTP content-type");
         }
-        
+
         // validate enveloped header names
         for (String headerName : httpRequest.getHeaderNames()) {
             if (RESTRICTED_ENVELOPE_HEADERS.contains(headerName)) {
                 throw new ProtocolDecoderException("Unsupported HTTP header(s)");
             }
         }
-        
+
         // extract read headers
         for (String readHeaderName : session.getReadHeaderNames()) {
-            
+
             // skip headers that must not be extracted
             switch (readHeaderName.charAt(0)) {
             case 'a':
@@ -307,7 +308,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         for (HttpCookie readCookie : session.getReadCookies()) {
             httpRequest.addCookie(readCookie);
         }
-        
+
         // propagate message
         nextFilter.messageReceived(session, httpRequest);
     }
@@ -319,7 +320,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         // inject version
         HttpVersion version = httpResponse.getVersion();
         session.setVersion(version);
-        
+
         // inject status
         HttpStatus status = httpResponse.getStatus();
         switch (status) {
@@ -336,10 +337,10 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
 
         // note: this logic appears duplicated/derived from HttpMessageEncoder.encodeContentLength(...)
         boolean adjustContentLength = httpResponse.hasHeader(HEADER_CONTENT_LENGTH) ||
-                                     (httpResponse.isComplete() && 
-                                      !"gzip".equals(httpResponse.getHeader("Content-Encoding")) && 
+                                     (httpResponse.isComplete() &&
+                                      !"gzip".equals(httpResponse.getHeader("Content-Encoding")) &&
                                       !"chunked".equals(httpResponse.getHeader("Transfer-Encoding")));
-        
+
         // inject headers
         for (Iterator<String> iterator = httpResponse.iterateHeaderNames(); iterator.hasNext(); ) {
             String headerName = iterator.next();
@@ -470,14 +471,19 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
                     continue;
                 }
             }
-            
+
             // inject header
             List<String> headerValues = httpResponse.getHeaderValues(headerName);
 
             session.setWriteHeaders(headerName, headerValues);
             iterator.remove();
         }
-        
+
+        if (session.getStatus() == HttpStatus.SUCCESS_OK && httpResponse.getStatus() != HttpStatus.SUCCESS_OK
+                && session.getWriteHeader(HEADER_CACHE_CONTROL) == null) {
+            session.setWriteHeader(HEADER_CACHE_CONTROL, "no-cache");
+        }
+
         // inject cookies
         if (httpResponse.hasCookies()) {
             Set<HttpCookie> writeCookies = session.getWriteCookies();
@@ -521,10 +527,10 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         default:
             throw new ProtocolDecoderException("HTTP status mismatch");
         }
-        
+
         // extract read headers
         for (String readHeaderName : session.getReadHeaderNames()) {
-            
+
             // skip headers that must not be extracted
             switch (readHeaderName.charAt(0)) {
             case 'c':
@@ -586,7 +592,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         for (HttpCookie readCookie : session.getReadCookies()) {
             httpResponse.addCookie(readCookie);
         }
-        
+
         // propagate message
         nextFilter.messageReceived(session, httpResponse);
     }
@@ -596,7 +602,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
         if (contentType == null) {
             return CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8;
         }
-        
+
         // text/???[;charset=???] => text/plain[;charset=???]
         if (contentType.startsWith(CONTENT_TYPE_PREFIX_TEXT)) {
             int charsetAt = contentType.indexOf(';');
