@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import com.kaazing.gateway.server.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -751,6 +752,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //
             // write response that session was created and pass redirect urls
             session.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain;charset=UTF-8");
+            session.setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             session.setStatus(HttpStatus.SUCCESS_CREATED);
 
             IoBufferAllocatorEx<?> httpAllocator = session.getBufferAllocator();

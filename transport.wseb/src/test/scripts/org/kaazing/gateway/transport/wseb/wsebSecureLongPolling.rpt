@@ -39,6 +39,7 @@ write "\r\n"
 
 
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
 read /Content-Length: .*/ "\r\n"
 read /Content-Type: .*/ "\r\n"
 read /Date: .*/ "\r\n"

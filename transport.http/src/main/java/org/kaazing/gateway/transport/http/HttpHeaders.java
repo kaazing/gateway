@@ -35,5 +35,7 @@ public interface HttpHeaders {
     public static final String HEADER_X_ORIGIN = "X-Origin";
     public static final String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
     public static final String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+
 
 }
