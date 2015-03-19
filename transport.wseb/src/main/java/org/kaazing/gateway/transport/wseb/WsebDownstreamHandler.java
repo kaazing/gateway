@@ -64,8 +64,6 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebDownstreamHandler.class);
 
-    static final AttributeKey TIMEOUT_FUTURE_KEY = new AttributeKey(WsebDownstreamHandler.class, "timeoutFuture");
-
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String ENCODING_FILTER = WsebProtocol.NAME + "#escape";
     private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
@@ -221,12 +219,6 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
     private void reconnectSession(final HttpAcceptSession session, final WsebSession wsebSession) throws Exception {
-        // cancel the timeout future if it is found
-        ScheduledFuture<?> timeoutFuture = (ScheduledFuture<?>)wsebSession.removeAttribute(TIMEOUT_FUTURE_KEY);
-        if (timeoutFuture != null && !timeoutFuture.isDone()) {
-            timeoutFuture.cancel(false);
-        }
-
         // KG-10590 (Nascar) For backwards compatibility with Flash client from HTML5 release 3.5.1.19 when running on IE 11,
         // we pretend downstream url parameter contains ".kp=2048&.kcc=private&.kf=200"
         String userAgent = session.getReadHeader("User-Agent");
@@ -348,54 +340,6 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             session.close(false);
             return;
         }
-
-        session.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
-            @Override
-            public void operationComplete(CloseFuture future) {
-                // schedule timeout monitor for this wsfSession
-                if (!wsebSession.isClosing()) {
-                    // Note: proactively detach the writer to support long-polling
-                    //       however, when session is closing, make sure to leave
-                    //       writer intact so that parent TCP or SSL session can be closed
-                    if (wsebSession.detachWriter(session)) {
-                        ScheduledFuture<?> timeoutFuture = scheduler.schedule(wsebSession.getTimeoutCommand(), TIME_TO_TIMEOUT_RECONNECT_MILLIS, TimeUnit.MILLISECONDS);
-                        wsebSession.setAttribute(TIMEOUT_FUTURE_KEY, timeoutFuture);
-                    }
-                }
-            }
-        });
-
-        final CloseFuture wsebCloseFuture = wsebSession.getCloseFuture();
-        final IoFutureListener<CloseFuture> listener = new IoFutureListener<CloseFuture>() {
-            @Override
-            public void operationComplete(CloseFuture future) {
-                // clean up scheduler reference to emulated session to avoid memory leak
-                ScheduledFuture<?> timeoutFuture = (ScheduledFuture<?>)wsebSession.removeAttribute(TIMEOUT_FUTURE_KEY);
-                if (timeoutFuture != null && !timeoutFuture.isDone()) {
-                    timeoutFuture.cancel(false);
-                }
-
-                // Note: this pro-active removal of the session reference from the timeout task
-                //       prevents build up of session objects until the scheduler performs
-                //       cleanup of canceled tasks, otherwise a temporary memory leak can occur
-                wsebSession.clearTimeoutCommand();
-
-                // Note: a reference to the HTTP downstream session is pinned by this listener
-                //       and must be removed to avoid a memory leak (see below)
-                wsebSession.detachWriter(session);
-            }
-        };
-        // detect when emulated session is closed to force downstream to close
-        wsebCloseFuture.addListener(listener);
-        // detect when downstream is closed to remove downstream reference from emulated session
-        session.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
-            @Override
-            public void operationComplete(CloseFuture future) {
-                // Note: a reference to the HTTP downstream session was pinned by the listener
-                //       and must be removed to avoid a memory leak (see above)
-                wsebCloseFuture.removeListener(listener);
-            }
-        });
 
         // attach now or attach after commit if header flush is required
         if (!longPoll) {

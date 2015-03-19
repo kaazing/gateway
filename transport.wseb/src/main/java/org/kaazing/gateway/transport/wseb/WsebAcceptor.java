@@ -197,7 +197,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebAcceptProcessor();
+        return new WsebAcceptProcessor(scheduler);
     }
 
     @Resource(name = "configuration")
@@ -775,12 +775,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             SESSION_KEY.set(session, wsebSession);
 
             // timeout session if downstream is never attached
-            ScheduledFuture<?> timeoutFuture =
-                    scheduler.schedule(wsebSession.getTimeoutCommand(),
-                                       WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS,
-                                       TimeUnit.MILLISECONDS);
-
-            wsebSession.setAttribute(WsebDownstreamHandler.TIMEOUT_FUTURE_KEY, timeoutFuture);
+            wsebSession.scheduleTimeout(scheduler);
         }
 
         private boolean validWsebVersion(HttpAcceptSession session) {

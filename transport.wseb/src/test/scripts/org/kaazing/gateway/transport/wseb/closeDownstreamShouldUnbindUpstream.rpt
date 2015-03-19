@@ -106,12 +106,10 @@ read [0x01 0x30 0x30 0xFF 0x80 0x11]
 read "Hello, WebSocket!"
 read notify DOWNSTREAM_HELLO_RECEIVED
 
-#TIME SEQ: 6.1 + x - Hip hip hooray! we can now close the downstream TCP connection no.-1
-read await UPSTREAM_CLOSE_SENT
-## expect close followed by reconnect (reconnect just indicates end of stream)
-read [0x01 0x30 0x32 0xff]
-read [0x01 0x30 0x31 0xff]
+#TIME SEQ: 6.1 + x - aggressively close the downstream TCP connection (unclean close)
+close
 closed
+read notify DOWNSTREAM_CLOSED
 #####################################END-TCP-CONNECTION-1-SCRIPT####################################################
 
 
@@ -162,7 +160,7 @@ read notify UPSTREAM_HELLO_RESPONDED
 
 
 #TIME SEQ: 7 - We will now send the upstream-close request through our upstream TCP connection no.-2
-write await DOWNSTREAM_HELLO_RECEIVED
+write await DOWNSTREAM_CLOSED
 write "POST /echo/;e/utm/"
 write ${sessionId}
 write "&.krn=0.859290034044534 HTTP/1.1\r\n"
@@ -185,18 +183,13 @@ write [0x01 0x30 0x32 0xC3 0xBF]
 write [0x01 0x30 0x31 0xC3 0xBF]
 write notify UPSTREAM_CLOSE_SENT
 
-#TIME SEQ: 8 - We will now receive the upstream-close OK response through our upstream TCP connection no.-2
+#TIME SEQ: 8 - upstream should be unbound
 read await UPSTREAM_CLOSE_SENT
-read "HTTP/1.1 200 OK\r\n"
+read "HTTP/1.1 404 Not Found\r\n"
+read "Content-Type: text/html\r\n"
 read /Content-Length: .*/ "\r\n"
-read "Content-Type: text/plain;charset=UTF-8\r\n"
-read /Date: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
 read "\r\n"
-read "HTTP/1.1 200 OK\r\n"
-read "\r\n"
-read notify UPSTREAM_CLOSE_SENT_OK
-
+read "<html><head></head><body><h1>404 Not Found</h1></body></html>"
 
 #TIME SEQ: 9 : Yep.. Done! we can now close the downstream TCP connection no.-2
 close

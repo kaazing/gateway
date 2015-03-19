@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,12 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
+
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,6 +42,7 @@ import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
+import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
@@ -54,7 +60,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private static final boolean ALIGN_DOWNSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_DOWNSTREAM", "true"));
     private static final boolean ALIGN_UPSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_UPSTREAM", "true"));
-    
+
     static final CachingMessageEncoder WSEB_MESSAGE_ENCODER = new CachingMessageEncoder() {
 
         @Override
@@ -72,7 +78,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
 
     };
-    
+
     static final CachingMessageEncoder WSEB_MESSAGE_ESCAPE_ZERO_AND_NEWLINE_ENCODER = new CachingMessageEncoder() {
 
         @Override
@@ -81,7 +87,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
 
     };
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebSession.class);
     private static final WriteRequest PING_REQUEST = new DefaultWriteRequestEx(new Object());
     private static final WriteRequest PONG_REQUEST = new DefaultWriteRequestEx(new Object());
@@ -99,23 +105,24 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     private ResourceAddress writeAddress;
 
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
-    
+
     private final Runnable enqueueReconnectAndFlushTask = new Runnable() {
         @Override public void run() {
             enqueueReconnectAndFlush0();
         }
     };
+    private ScheduledFuture<?> timeoutFuture;
 
     public WsebSession(int ioLayer,
-                       Thread ioThread, 
-                       Executor ioExecutor, 
+                       Thread ioThread,
+                       Executor ioExecutor,
                        IoServiceEx service,
-                       IoProcessorEx<WsebSession> processor, 
-                       ResourceAddress localAddress, 
-                       ResourceAddress remoteAddress, 
-                       IoBufferAllocatorEx<WsBuffer> allocator, 
+                       IoProcessorEx<WsebSession> processor,
+                       ResourceAddress localAddress,
+                       ResourceAddress remoteAddress,
+                       IoBufferAllocatorEx<WsBuffer> allocator,
                        DefaultLoginResult loginResult,
-                       ActiveWsExtensions wsExtensions, 
+                       ActiveWsExtensions wsExtensions,
                        int clientIdleTimeout,
                        long inactivityTimeout) {
         super(ioLayer,
@@ -147,14 +154,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         default:
             return WSEB_MESSAGE_ENCODER;
         }
-    }
-
-    public Runnable getTimeoutCommand() {
-        return timeout;
-    }
-
-    public void clearTimeoutCommand() {
-        timeout.clear();
     }
 
     public void setReadAddress(ResourceAddress readAddress) {
@@ -218,6 +217,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         reconnecting.set(false);
         if (!isClosing()) {
             if (!compareAndSetParent(null, newWriter)) {
+                cancelTimeout();
+
                 // There's an existing parent (writer). Enqueue a request to switch to new writer.
                 IoSessionEx oldPending = pendingNewWriter.getAndSet(newWriter);
                 if (oldPending != null) {
@@ -291,6 +292,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private void detachWriter0(final HttpSession oldWriter) {
         if (oldWriter.getIoThread() == getIoThread()) {
+            oldWriter.write(WsCommandMessage.RECONNECT);
             oldWriter.close(false);
         } else {
             final Executor ioExecutor = getIoExecutor();
@@ -303,12 +305,28 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    public void attachPendingWriter() {
+    public boolean attachPendingWriter() {
         IoSessionEx pendingWriter = pendingNewWriter.getAndSet(null);
         if (pendingWriter != null) {
             attachWriter(pendingWriter);
+            return true;
+        }
+        return false;
+    }
+
+    void scheduleTimeout(ScheduledExecutorService scheduler) {
+        if (timeoutFuture == null || timeoutFuture.cancel(false)) {
+            timeoutFuture = scheduler.schedule(timeout, TIME_TO_TIMEOUT_RECONNECT_MILLIS, MILLISECONDS);
         }
     }
+
+    void cancelTimeout() {
+        if (timeoutFuture != null) {
+            timeoutFuture.cancel(false);
+            timeoutFuture = null;
+        }
+    }
+
 
     public void attachReader(final IoSessionEx newReader) {
         // The attachReader processing should be done in this WsebSession's IO thread so we can do
@@ -340,7 +358,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 });
             }
         }
-        
+
     }
 
     private void attachReader0(final IoSessionEx newReader) {
@@ -352,7 +370,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             newReader.suspendRead();
         }
     }
-    
+
     public void enqueueReconnectAndFlush() {
         // The processing must be done in this WsebSession's IO thread so we can do getProcessor().flush().
         if (Thread.currentThread() == getIoThread()) {
@@ -381,8 +399,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return readSession.get();
     }
 
-    public IoSessionEx getWriter() {
-        return getParent();
+    public HttpSession getWriter() {
+        return (HttpSession)getParent();
     }
 
     @Override
@@ -403,7 +421,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             readSession.suspendRead();
         }
     }
-    
+
     @Override
     protected void resumeRead1() {
         // call super first to trigger processor.consume()
@@ -472,7 +490,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     public long getInactivityTimeout() {
         return inactivityTimeout;
     }
-    
+
     // close session if reconnect timer elapses and no parent has been attached
     private static class TimeoutCommand implements Runnable {
 
@@ -496,15 +514,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 }
             }
         }
-
-        public void clear() {
-            session = null;
-        }
     }
 
     public void setEncodeEscapeType(WsebEncodingCodecFilter.EscapeTypes escape) {
         this.encodeEscapeType  = escape;
-        
+
     }
 
 

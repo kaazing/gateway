@@ -170,4 +170,8 @@ read [0x05]
 read "Hello"
 read notify ECHOED_MESSAGE_READ
 read await CLOSE_SENT
+# close command
+read [0x01 0x30 0x32 0xff]
+# reconnect command
+read [0x01 0x30 0x31 0xff]
 closed

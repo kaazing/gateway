@@ -135,5 +135,11 @@ read [0x89 0x00]  # ping
 read notify PING_RECEIVED
 read await PONG_REPLY_SENT
 read [0x89 0x00]  # ping
+
+# close command
+read [0x01 0x30 0x32 0xff]
+# reconnect command
+read [0x01 0x30 0x31 0xff]
+
 # server should close connection due to inactivity timeout
 closed

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,10 +21,10 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
@@ -43,19 +43,26 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ScheduledExecutorService;
+
+
 public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebAcceptProcessor.class);
     private static final CheckInitialPadding CHECK_INITIAL_PADDING = new CheckInitialPadding();
+    private final ScheduledExecutorService scheduler;
+
+    public WsebAcceptProcessor(ScheduledExecutorService scheduler) {
+        this.scheduler = scheduler;
+    }
 
     @Override
     protected void removeInternal(WsebSession session) {
-        IoSession parent = session.getParent();
-        if (parent == null || parent.isClosing()) {
-            // TODO: throw write to close session exception
-            return;
+        HttpSession writer = session.getWriter();
+        if (writer != null) {
+            writer.write(WsCommandMessage.CLOSE);
+            session.detachWriter(writer);
         }
-
-        super.removeInternal(session);
+        session.cancelTimeout();
     }
 
     @Override
@@ -81,7 +88,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         if (currentWriteRequest != null) {
             session.setCurrentWriteRequest(null);
         }
-        
+
         // get write request queue and process it
         final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
         Long clientBuffer = (Long) writer.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY);
@@ -122,20 +129,15 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
-                try {
-                    if (!session.isClosing()) {
-                        writer.write(WsCommandMessage.RECONNECT);
-                    }
-                }
-                finally {
-                    // explicitly null the parent reference because
-                    // parent not closing until flush completes
+                // detaching the writer nulls the parent reference
                     session.detachWriter(writer);
-                    session.attachPendingWriter();
+                boolean attached = session.attachPendingWriter();
+                if (!attached) {
+                    session.scheduleTimeout(scheduler);
                 }
                 break;
             }
-            
+
             // get message and compare to types we can process
             Object message = request.getMessage();
             if (message instanceof IoBufferEx) {
@@ -154,7 +156,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     if (remaining == 0) {
                         throw new IllegalStateException("Unexpected empty buffer");
                     }
-                    
+
 
                     // TODO: thread safety
                     // reconnect parent.close(false) above triggers flush of pending
@@ -179,7 +181,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                             else {
                                 newWsebMessage = new WsBinaryMessage(buf);
                             }
-                            
+
                             if (wsBuffer.isAutoCache()) {
                                 // buffer is cached on parent, continue with derived caching
                                 newWsebMessage.initCache();
@@ -323,6 +325,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
             }
         }
     }
-     
-   
+
+
 }

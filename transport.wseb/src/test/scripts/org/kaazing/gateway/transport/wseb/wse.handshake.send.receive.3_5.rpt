@@ -106,7 +106,10 @@ read "Hello, WebSocket!"
 read notify DOWNSTREAM_HELLO_RECEIVED
 
 #TIME SEQ: 6.1 + x - Hip hip hooray! we can now close the downstream TCP connection no.-1
-close
+read await UPSTREAM_CLOSE_SENT
+## expect close and reconnect commands (reconnect just indicates end of stream)
+read [0x01 0x30 0x32 0xff]
+read [0x01 0x30 0x31 0xff]
 closed
 #####################################END-TCP-CONNECTION-1-SCRIPT####################################################
 
