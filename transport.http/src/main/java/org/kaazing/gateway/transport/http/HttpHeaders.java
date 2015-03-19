@@ -26,6 +26,8 @@ public interface HttpHeaders {
     public static final String HEADER_AUTHORIZATION = "Authorization";
     public static final String HEADER_CONTENT_LENGTH = "Content-Length";
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_DATE = "Date";
+
     public static final String HEADER_HOST = "Host";
     public static final String HEADER_MAX_AGE = "Max-Age";
     public static final String HEADER_USER_AGENT = "User-Agent";
@@ -35,5 +37,11 @@ public interface HttpHeaders {
     public static final String HEADER_X_ORIGIN = "X-Origin";
     public static final String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
     public static final String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
+
+    public static final String HEADER_UPGRADE = "Upgrade";
+    public static final String HEADER_VIA= "Via";
+    public static final String HEADER_CONNECTION = "Connection";
+    public static final String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
+
 
 }

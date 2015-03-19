@@ -454,7 +454,7 @@ public class HttpUtils {
 	}
 	
     public static boolean isGzipped(HttpResponseMessage response) {
-        return "gzip".equals(response.getHeader("Content-Encoding"));
+        return response.isBlockPadding();
     }
     
     /**

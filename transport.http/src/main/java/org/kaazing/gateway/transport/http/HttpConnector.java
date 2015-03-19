@@ -448,7 +448,12 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                     httpSession.close(false);
                     break;
                 default:
-                    fireContentReceived(httpSession, httpResponse.getContent());
+                    HttpContentMessage httpContent = httpResponse.getContent();
+                    if (httpContent == null) {
+                        IoBufferAllocatorEx<? extends HttpBuffer> allocator = httpSession.getBufferAllocator();
+                        httpContent = new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true);
+                    }
+                    fireContentReceived(httpSession, httpContent);
                     break;
                 }
                 break;

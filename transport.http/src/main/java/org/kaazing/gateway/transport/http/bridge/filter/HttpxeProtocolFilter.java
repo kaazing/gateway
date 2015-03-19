@@ -315,6 +315,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
     private HttpResponseMessage filterWriteAndInjectHttpResponse(NextFilter nextFilter, HttpAcceptSession session, WriteRequest writeRequest, HttpResponseMessage httpResponse) throws ProtocolEncoderException {
         // set implicit content length
         httpResponse.setContentLengthImplicit(true);
+        httpResponse.setBlockPadding(false);
 
         // inject version
         HttpVersion version = httpResponse.getVersion();

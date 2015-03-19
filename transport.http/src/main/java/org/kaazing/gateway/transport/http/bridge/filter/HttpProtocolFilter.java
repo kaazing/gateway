@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.http.HttpInjectableHeader;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 
 public class HttpProtocolFilter extends HttpFilterAdapter {
@@ -47,9 +48,9 @@ public class HttpProtocolFilter extends HttpFilterAdapter {
         if (injectableHeaders.contains(SERVER)) {
             httpResponse.setHeader("Server", "Kaazing Gateway");
         }
-        
-        if (injectableHeaders.contains(DATE)) {
-            httpResponse.setHeader("Date", formatDateHeader(currentTimeMillis()));
+
+        if (injectableHeaders.contains(DATE) && !httpResponse.hasHeader(HttpHeaders.HEADER_DATE)) {
+            httpResponse.setHeader(HttpHeaders.HEADER_DATE, formatDateHeader(currentTimeMillis()));
         }
         
         super.filterWriteHttpResponse(nextFilter, session, writeRequest, httpResponse);

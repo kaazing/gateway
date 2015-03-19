@@ -102,6 +102,11 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.http.proxy</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.update.check</artifactId>
             <version>${project.version}</version>
         </dependency>

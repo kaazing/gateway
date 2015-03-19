@@ -1,0 +1,54 @@
+#
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+#
+
+# curl 7.37.1 <---> Gateway <---> tomcat 8.0.1
+
+connect tcp://localhost:8110
+connected
+
+write "GET /examples/jsp/num/numguess.jsp?guess=7 HTTP/1.1\r\n"
+write "User-Agent: curl/7.37.1\r\n"
+write "Host: localhost:8110\r\n"
+write "Accept: */*\r\n"
+write "\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Length: 17\r\n"
+read "Content-Type: text/html;charset=ISO-8859-1\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "Set-Cookie: JSESSIONID=A2DA686DD40F58A3344B63CE81146785; Path=/examples/; HttpOnly\r\n"
+read "\r\n"
+read "<html>nope</html>"
+
+close
+closed
+
+#
+# tomcat server
+#
+
+accept tcp://localhost:8080
+accepted
+connected
+
+read "GET /examples/jsp/num/numguess.jsp?guess=7 HTTP/1.1\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "User-Agent: curl/7.37.1\r\n"
+read "Host: localhost:8110\r\n"
+read "Connection: close\r\n"
+read "Accept: */*\r\n"
+read "\r\n"
+
+write "HTTP/1.1 200 OK\r\n"
+write "Server: Apache-Coyote/1.1\r\n"
+write "Set-Cookie: JSESSIONID=A2DA686DD40F58A3344B63CE81146785; Path=/examples/; HttpOnly\r\n"
+write "Content-Type: text/html;charset=ISO-8859-1\r\n"
+write "Content-Length: 17\r\n"
+write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
+write "\r\n"
+write "<html>nope</html>"
+
+close
+closed
