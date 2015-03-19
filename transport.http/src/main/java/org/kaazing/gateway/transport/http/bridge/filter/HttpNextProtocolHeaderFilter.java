@@ -43,14 +43,25 @@ public class HttpNextProtocolHeaderFilter extends HttpFilterAdapter<IoSession> {
 
         String upgrade = httpRequest.getHeader("Upgrade");
 
-        if (upgrade != null &&
-                WEB_SOCKET.equalsIgnoreCase(upgrade)) {
+        if (upgrade != null) { 
+            if (upgrade.equalsIgnoreCase(WEB_SOCKET)) {
+                if (httpRequest.getHeader(HEADER_WEBSOCKET_KEY) != null) {
+                    httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, "ws/rfc6455");
+                } else {
+                    httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, "ws/draft-7x");
+                }
+            }
+        } else {
+            // Non-compliant to specs. But some proxies remove Upgrade header,
+            // see if there is Sec-WebSocket-Key. This would fail ultimately in 
+            // websocket layer with 400 status code. But at least route(find binding)
+            // to websocket layer by setting the next protocol.
             if (httpRequest.getHeader(HEADER_WEBSOCKET_KEY) != null) {
                 httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, "ws/rfc6455");
-            }  else if ( httpRequest.getHeader(HEADER_WEBSOCKET_KEY) == null) {
-                httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, "ws/draft-7x");
             }
         }
+
+        
         String nextProtocolHeader = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
         if (nextProtocolHeader == null) {
             // allow use of next-protocol query parameter for IFrame streaming (no custom HTTP headers possible)

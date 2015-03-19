@@ -28,6 +28,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
@@ -65,18 +66,28 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
     }
 
     @Override
-    protected void removeInternal(DefaultHttpSession session) {
+    protected void removeInternal(final DefaultHttpSession session) {
+        CommitFuture future = session.commit();
+        if (future.isCommitted()) {
+            removeInternal0(session);
+        } else {
+            future.addListener(new IoFutureListener<CommitFuture>() {
+                @Override
+                public void operationComplete(CommitFuture future) {
+                    if (future.isCommitted()) {
+                        removeInternal0(session);
+                    }
+                }
+            });
+        }
+    }
+
+    private void removeInternal0(DefaultHttpSession session) {
         IoSession parent = session.getParent();
         if (parent == null || parent.isClosing()) {
             return;
         }
 
-        if (!session.isCommitting()) {
-            // trigger upgrader if necessary
-            session.commit();
-        }
-        // write final response
-        else {
             boolean connectionClose = session.isConnectionClose();
             if (connectionClose) {
                 // close TCP connection when write complete
@@ -90,7 +101,6 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
                 parent.write(completeMessage);
             }
         }
-    }
 
     public void commit(final DefaultHttpSession session) {
         // get and verify we have a parent that is open

@@ -35,6 +35,7 @@ write "\r\n"
 # Enveloped HTTP response (challenge)
 # Packet length 142 bytes
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
 read "Content-Length: 194\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 # Was: "Date: Tue, 06 Jan 2015 05:57:18 GMT\r\n"
@@ -69,6 +70,7 @@ write "\r\n"
 # Enveloped HTTP response
 # Packet length 142 bytes
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
 read "Content-Length: 206\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 # Was: read "Date: Tue, 06 Jan 2015 05:57:24 GMT\r\n"
@@ -200,6 +202,11 @@ read "00000000000000000000000000000000000000000000000000000000000000000000000000
 read "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 read "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 read [0xFF]
+
+# close command
+read [0x01 0x30 0x32 0xff]
+# reconnect command
+read [0x01 0x30 0x31 0xff]
 
 closed
 

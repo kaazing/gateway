@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -53,6 +53,7 @@ import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
@@ -71,10 +72,10 @@ public class HttpxeProtocolFilterTest {
     private Set<HttpCookie> writeCookies = context.mock(Set.class);
     private IoFilterChain filterChain = context.mock(IoFilterChain.class);
     private NextFilter nextFilter = context.mock(NextFilter.class);
-    
+
     @Test
     public void shouldWriteResponseWithInsertedStatusNotFound() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(CLIENT_NOT_FOUND);
@@ -83,25 +84,27 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(CLIENT_NOT_FOUND);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
-
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue(null));
+            oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(CLIENT_NOT_FOUND);
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithoutInsertingStatusClientUnauthorized() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(CLIENT_UNAUTHORIZED);
@@ -111,12 +114,15 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue(null));
+            oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
 
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(CLIENT_UNAUTHORIZED);
@@ -124,13 +130,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithoutInsertingStatusRedirectFound() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_FOUND);
@@ -140,12 +146,14 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
-
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue(null));
+            oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(REDIRECT_FOUND);
@@ -153,7 +161,7 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
@@ -166,7 +174,7 @@ public class HttpxeProtocolFilterTest {
 
     @Test
     public void shouldWriteResponseWithoutInsertingStatusRedirectMultipleChoices() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_MULTIPLE_CHOICES);
@@ -181,12 +189,15 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue(null));
+            oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
 
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(REDIRECT_MULTIPLE_CHOICES);
@@ -197,13 +208,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
 	@Test
 	public void shouldWriteResponseWithInsertedCookies() throws Exception {
-	    
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_FOUND);
@@ -213,16 +224,19 @@ public class HttpxeProtocolFilterTest {
 	    context.checking(new Expectations() { {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue(null));
+            oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Set-Cookie")), with(stringListMatching("KSSOID=12345;")));
             oneOf(serverSession).getWriteCookies(); will(returnValue(writeCookies));
             oneOf(writeCookies).add(with(equal(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"))));
-            
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
 	        oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-	    
+
 	    HttpResponseMessage httpResponse = new HttpResponseMessage();
 	    httpResponse.setVersion(HTTP_1_1);
 	    httpResponse.setStatus(REDIRECT_FOUND);
@@ -233,13 +247,13 @@ public class HttpxeProtocolFilterTest {
 
 	    HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-	    
+
 	    context.assertIsSatisfied();
 	}
 
     @Test
     public void shouldWriteResponseWithInsertedTextPlainContentType() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -249,12 +263,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -262,13 +277,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithTextContentTypeInsertedAsTextPlain() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -278,12 +293,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=windows-1252");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -291,13 +307,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithInsertedAccessControlAllowHeaders() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -308,12 +324,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=windows-1252");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Access-Control-Allow-Headers")), with(stringListMatching("x-websocket-extensions")));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -322,13 +339,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithInsertedContentEncoding() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -339,10 +356,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=windows-1252");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Content-Encoding")), with(stringListMatching("gzip")));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -351,13 +369,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithInsertedCacheControl() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_FOUND);
@@ -369,12 +387,14 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Cache-Control")), with(stringListMatching("private")));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+            oneOf(serverSession).getWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL); will(returnValue("private"));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(HttpStatus.REDIRECT_FOUND);
@@ -384,13 +404,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithInsertedContentTypeApplicationOctetStream() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -400,12 +420,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "application/octet-stream");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -413,13 +434,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithIncompleteContent() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -436,10 +457,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -450,13 +472,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithInsertedTransferEncodingChunked() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -474,10 +496,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Transfer-Encoding")), with(stringListMatching("chunked")));
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -489,13 +512,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseWithCompleteContent() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -512,12 +535,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -528,13 +552,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteResponseAfterPrependingContentLengthFilter() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -550,12 +574,13 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Content-Length")), with(stringListMatching("12")));
             allowing(serverSession).getWriteHeader("Content-Length"); will(returnValue("12"));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -566,14 +591,14 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
-        
+
         context.assertIsSatisfied();
     }
 
-    
+
     @Test
     public void shouldReceivePostRequestWithExtractedHeadersAndContent() throws Exception {
-        
+
         byte[] array = ">|<".getBytes(UTF_8);
 
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
@@ -606,10 +631,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaders(with("X-Origin")); will(returnValue(asList("http://gateway.kzng.net:8000")));
             oneOf(serverSession).getReadHeaders(with("x-flash-version")); will(returnValue(asList("9,0,124,0")));
             oneOf(serverSession).getReadCookies(); will(returnValue(emptyList()));
-            
+
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -620,13 +645,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveGetRequestWithExtractedHeadersIncludingMultiValuedHeaderAndCookie() throws Exception {
-        
+
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
         expectedRequest.setVersion(HTTP_1_1);
         expectedRequest.setMethod(GET);
@@ -645,10 +670,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
             oneOf(serverSession).getReadHeaders(with("X-Header")); will(returnValue(asList("value1","value2")));
             oneOf(serverSession).getReadCookies(); will(returnValue(asList(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"))));
-            
+
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(GET);
@@ -658,7 +683,7 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
@@ -677,10 +702,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Content-Length", "Content-Type")));
             oneOf(serverSession).getReadHeader(with("Content-Length")); will(returnValue("102"));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(GET);
@@ -689,10 +715,10 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test (expected = ProtocolCodecException.class)
     public void shouldRejectReceivedRequestWithInconsistentVersion() throws Exception {
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
@@ -708,10 +734,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Content-Length", "Content-Type")));
             oneOf(serverSession).getReadHeader(with("Content-Length")); will(returnValue("102"));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_0);
         httpRequest.setMethod(GET);
@@ -720,10 +747,10 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test (expected = ProtocolCodecException.class)
     public void shouldRejectReceivedRequestWithInvalidHeader() throws Exception {
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
@@ -739,10 +766,11 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Content-Length", "Content-Type")));
             oneOf(serverSession).getReadHeader(with("Content-Length")); will(returnValue("102"));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
-            
+            oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
+
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(GET);
@@ -752,13 +780,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.messageReceived(nextFilter, serverSession, httpRequest);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithStatusRedirectNotModified() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_NOT_MODIFIED);
@@ -771,20 +799,20 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(REDIRECT_NOT_MODIFIED);
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithStatusClientUnauthorized() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(CLIENT_UNAUTHORIZED);
@@ -798,7 +826,7 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(CLIENT_UNAUTHORIZED);
@@ -806,17 +834,17 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedCookies() throws Exception {
-        
-        final List<HttpCookie> expectedCookies = 
+
+        final List<HttpCookie> expectedCookies =
                 Arrays.<HttpCookie>asList(new DefaultHttpCookie("KSSOID", "12345"),
                                           new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_FOUND);
@@ -828,12 +856,12 @@ public class HttpxeProtocolFilterTest {
             allowing(clientSession).getVersion(); will(returnValue(HTTP_1_1));
             allowing(clientSession).getStatus(); will(returnValue(SUCCESS_OK));
             allowing(clientSession).getReadHeaderNames(); will(returnValue(Collections.<String>emptySet()));
-            
+
             oneOf(clientSession).getReadCookies(); will(returnValue(expectedCookies));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(REDIRECT_FOUND);
@@ -842,13 +870,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
-    @Test 
+    @Test
     public void shouldReceiveResponseWithContentTypeTextPlain() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -861,10 +889,10 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -872,13 +900,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
-    @Test 
+    @Test
     public void shouldReceiveResponseWithTextContentTypeInsertedAsTextPlain() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -891,10 +919,10 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=windows-1252"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -902,13 +930,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test (expected = ProtocolCodecException.class)
     public void shouldRejectReceivedResponseWithIncompatibleTextContentType() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -922,7 +950,7 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/pdf"));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -930,13 +958,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedAccessControlAllowHeaders() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -951,10 +979,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type", "Access-Control-Allow-Headers")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=windows-1252"));
             oneOf(clientSession).getReadHeader("Access-Control-Allow-Headers"); will(returnValue("x-websocket-extensions"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -962,13 +990,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedContentEncoding() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -983,10 +1011,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type", "Content-Encoding")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=windows-1252"));
             oneOf(clientSession).getReadHeader("Content-Encoding"); will(returnValue("gzip"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -994,13 +1022,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedCacheControl() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(REDIRECT_FOUND);
@@ -1015,10 +1043,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type", "Cache-Control")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=windows-1252"));
             oneOf(clientSession).getReadHeader("Cache-Control"); will(returnValue("private"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(REDIRECT_FOUND);
@@ -1026,13 +1054,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedContentTypeApplicationOctetStream() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -1046,10 +1074,10 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type", "Content-Length")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("application/octet-stream"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -1058,13 +1086,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithIncompleteContent() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -1081,7 +1109,7 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(emptyList()));
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -1091,13 +1119,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithExtractedTransferEncodingChunked() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -1116,10 +1144,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Transfer-Encoding", "Content-Type")));
             oneOf(clientSession).getReadHeader("Transfer-Encoding"); will(returnValue("chunked"));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=UTF-8"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -1130,13 +1158,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldReceiveResponseWithCompleteContent() throws Exception {
-        
+
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
         expectedResponse.setStatus(SUCCESS_OK);
@@ -1153,10 +1181,10 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(clientSession).getReadHeaderNames(); will(returnValue(asList("Content-Type")));
             oneOf(clientSession).getReadHeader("Content-Type"); will(returnValue("text/plain;charset=UTF-8"));
-            
+
             oneOf(nextFilter).messageReceived(with(clientSession), with(equal(expectedResponse)));
         } });
-        
+
         HttpResponseMessage httpResponse = new HttpResponseMessage();
         httpResponse.setVersion(HTTP_1_1);
         httpResponse.setStatus(SUCCESS_OK);
@@ -1167,13 +1195,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.messageReceived(nextFilter, clientSession, httpResponse);
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteRequestAfterPrependingContentLengthFilter() throws Exception {
-        
+
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
         expectedRequest.setVersion(HTTP_1_1);
         expectedRequest.setMethod(POST);
@@ -1190,12 +1218,12 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).setRequestURI(URI.create("/"));
             oneOf(clientSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(clientSession).setWriteHeader("Content-Length", "12");
-            
+
             oneOf(clientSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with("http#content-length"), with(any(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(clientSession), with(hasMessage(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -1207,13 +1235,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.filterWrite(nextFilter, clientSession, new DefaultWriteRequest(httpRequest));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWritePostRequestWithInsertedHeadersAndContent() throws Exception {
-        
+
         byte[] array = ">|<".getBytes(UTF_8);
 
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
@@ -1236,12 +1264,12 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).setWriteHeader("User-Agent", "Shockwave Flash");
             oneOf(clientSession).setWriteHeader("X-Origin", "http://gateway.kzng.net:8000");
             oneOf(clientSession).setWriteHeader("x-flash-version", "9,0,124,0");
-            
+
             oneOf(clientSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with("http#content-length"), with(any(HttpContentLengthAdjustmentFilter.class)));
             oneOf(nextFilter).filterWrite(with(clientSession), with(hasMessage(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(POST);
@@ -1259,13 +1287,13 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.filterWrite(nextFilter, clientSession, new DefaultWriteRequest(httpRequest));
-        
+
         context.assertIsSatisfied();
     }
 
     @Test
     public void shouldWriteGetRequestWithInsertedHeadersAndCookies() throws Exception {
-        
+
         final HttpRequestMessage expectedRequest = new HttpRequestMessage();
         expectedRequest.setVersion(HTTP_1_1);
         expectedRequest.setMethod(GET);
@@ -1280,10 +1308,10 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(clientSession).setWriteHeader("X-Header", "value");
             oneOf(clientSession).getWriteCookies().add(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
-            
+
             oneOf(nextFilter).filterWrite(with(clientSession), with(hasMessage(expectedRequest)));
         } });
-        
+
         HttpRequestMessage httpRequest = new HttpRequestMessage();
         httpRequest.setVersion(HTTP_1_1);
         httpRequest.setMethod(GET);
@@ -1295,7 +1323,7 @@ public class HttpxeProtocolFilterTest {
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);
         filter.filterWrite(nextFilter, clientSession, new DefaultWriteRequest(httpRequest));
-        
+
         context.assertIsSatisfied();
     }
 

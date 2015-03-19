@@ -55,6 +55,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -94,7 +95,6 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
@@ -197,7 +197,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebAcceptProcessor();
+        return new WsebAcceptProcessor(scheduler);
     }
 
     @Resource(name = "configuration")
@@ -751,6 +751,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //
             // write response that session was created and pass redirect urls
             session.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain;charset=UTF-8");
+            session.setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             session.setStatus(HttpStatus.SUCCESS_CREATED);
 
             IoBufferAllocatorEx<?> httpAllocator = session.getBufferAllocator();
@@ -774,12 +775,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             SESSION_KEY.set(session, wsebSession);
 
             // timeout session if downstream is never attached
-            ScheduledFuture<?> timeoutFuture =
-                    scheduler.schedule(wsebSession.getTimeoutCommand(),
-                                       WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS,
-                                       TimeUnit.MILLISECONDS);
-
-            wsebSession.setAttribute(WsebDownstreamHandler.TIMEOUT_FUTURE_KEY, timeoutFuture);
+            wsebSession.scheduleTimeout(scheduler);
         }
 
         private boolean validWsebVersion(HttpAcceptSession session) {

@@ -41,6 +41,7 @@ write notify CREATE_REQUESTED
 read await CREATE_REQUESTED
 
 read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
 read "Content-Length: 196\r\n"
 read "Content-Type: text/plain;charset=UTF-8\r\n"
 read "Date: " /.*/ "\r\n"
@@ -104,6 +105,11 @@ read await WRITE_COMPLETE_B
 
 read [0x80 0x11]
 read "Hello, WebSocket!"
+
+# close command
+read [0x01 0x30 0x32 0xff]
+# reconnect command
+read [0x01 0x30 0x31 0xff]
 
 closed
 

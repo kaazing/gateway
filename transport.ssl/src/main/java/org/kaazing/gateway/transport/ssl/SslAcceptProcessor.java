@@ -38,24 +38,6 @@ public class SslAcceptProcessor extends BridgeAcceptProcessor<SslSession> {
 
     @Override
     protected void removeInternal(SslSession session) {
-        try {
-            IoSession parent = session.getParent();
-            IoFilterChain filterChain = parent.getFilterChain();
-            Entry entry = filterChain.getEntry(SslFilter.class);
-            if ( entry != null ) {
-                SslFilter sslFilter = (SslFilter) entry.getFilter();
-                if ( parent.getWrittenBytes() > 0L && sslFilter.isSslStarted(parent) ) {
-                    // unsecuring the session will trigger
-                    // parent close from SslConnector
-                    sslFilter.stopSsl(parent);
-                    return;
-                }
-            }
-        }
-        catch (SSLException e) {
-            logger.debug("Ignoring message during SSL shutdown due to closing session", e);
-        }
-
         super.removeInternal(session);
     }
 }
