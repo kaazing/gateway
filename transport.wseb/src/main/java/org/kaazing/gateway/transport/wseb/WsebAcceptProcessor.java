@@ -116,6 +116,8 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                         // should send padding preemptively
                         checkInitialPadding(writer);
                     }
+                    // See if the http layer (for e.g. revalidate) data needs to be flushed
+                    checkBuffer(writer, session);
                     break;
                 }
             }
@@ -316,7 +318,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         Long clientBuffer = (Long)parent.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY);
         if (clientBuffer != null) {
             long bytesWritten = parent.getWrittenBytes()+parent.getScheduledWriteBytes();
-            if (bytesWritten >= clientBuffer) {
+            if (bytesWritten != 0 && bytesWritten >= clientBuffer) {
                 // TODO: thread safety
                 // multiple threads can trigger a reconnect on the same WsfSession
                 if (wsebSession.compareAndSetReconnecting(false, true)) {
