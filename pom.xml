@@ -415,6 +415,12 @@
                     <maxmem>256m</maxmem>
                     <!-- aggregated reports for multi-module projects -->
                     <aggregate>true</aggregate>
+                    <instrumentation>
+                        <ignores>
+                            <ignore>org.apache.xmlbeans.*</ignore>
+                            <ignore>schemaorg_apache_xmlbeans.system.*</ignore>
+                        </ignores>
+                    </instrumentation>
                 </configuration>
             </plugin>
         </plugins>
