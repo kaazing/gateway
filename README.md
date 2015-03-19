@@ -2,7 +2,7 @@
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kaazing/gateway?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status][build-status-image]][build-status]
-[![Coverage Status](https://coveralls.io/repos/kaazing/gateway/badge.svg)](https://coveralls.io/r/kaazing/gateway) 
+[![Coverage Status](https://coveralls.io/repos/kaazing/gateway/badge.svg)](https://coveralls.io/r/kaazing/gateway)
 
 [build-status-image]: https://travis-ci.org/kaazing/gateway.svg?branch=develop
 [build-status]: https://travis-ci.org/kaazing/gateway
