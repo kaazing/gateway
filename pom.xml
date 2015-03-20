@@ -416,11 +416,10 @@
                     <!-- aggregated reports for multi-module projects -->
                     <aggregate>true</aggregate>
                     <instrumentation>
-                        <ignores>
-                            <ignore>schemaorg_apache_xmlbeans.system.*</ignore>
-                        </ignores>
                         <excludes>
                             <exclude>schemaorg_apache_xmlbeans/system/**/*.class</exclude>
+                            <exclude>org/kaazing/gateway/server/config/sep2014/**/*.class</exclude>
+                            <exclude>org/kaazing/xmlns/**/*.class</exclude>
                         </excludes>
                     </instrumentation>
                 </configuration>
