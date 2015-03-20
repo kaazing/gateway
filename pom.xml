@@ -417,7 +417,6 @@
                     <aggregate>true</aggregate>
                     <instrumentation>
                         <ignores>
-                            <ignore>org.apache.xmlbeans.*</ignore>
                             <ignore>schemaorg_apache_xmlbeans.system.*</ignore>
                         </ignores>
                         <excludes>
