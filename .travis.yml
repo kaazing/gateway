@@ -2,5 +2,8 @@ language: Java
 jdk:
   - oraclejdk7
   - openjdk7
-install: mvn clean -DskipTests -DskipITs verify
+install: mvn clean -DskipTests -DskipITs install
+script: mvn clean verify
 script: mvn clean verify cobertura:cobertura-integration-test coveralls:report
+after_success:
+  - mvn clean cobertura:cobertura-integration-test coveralls:report
