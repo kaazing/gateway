@@ -23,7 +23,12 @@ package org.kaazing.gateway.server;
 
 import org.kaazing.gateway.service.ServiceContext;
 
-public abstract class GatewayListenerFactorySpiPrototype extends GatewayListenerFactorySpi {
+/**
+ * This is a convenience class that can be extended to minimalize method Overrides in implementations of the the
+ * GatewayObserverAPI
+ *
+ */
+public abstract class GatewayObserverFactorySpiPrototype extends GatewayObserverFactorySpi {
 
     @Override
     public void initingService(ServiceContext serviceContext) {

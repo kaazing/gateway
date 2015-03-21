@@ -24,15 +24,12 @@ package org.kaazing.gateway.server;
 import org.apache.commons.cli.HelpFormatter;
 
 /**
- * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway directly
- * from other Java code as well.) This particular version is for Windows, where the directories are set up to be directly under
- * GATEWAY_HOME, and we preprocess the argument list to 'canonicalize' it so it looks like the standard command line, but also so
- * we specialize help messages.
+ * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway
+ * directly from other Java code as well.) This particular version is for Windows, where the directories are set up to
+ * be directly under GATEWAY_HOME, and we process the argument list to 'canonicalize' it so it looks like the standard
+ * command line, but also so we specialize help messages.
  * <p/>
- * As of 3.2 we support two arguments to main: /config=<configFile> /help (we also support the form /config:configFile and
- * -config=configFile and -config:configFile The value of <configFile> is considered as a path to the gateway configuration
- * file--NOT just a file name. If provided by the caller, the property is converted to a system property and passed to Gateway,
- * rather than requiring Gateway to handle a new input vector.
+ * For supported command line arguments @see {@link GatewayCLI}
  */
 public class WindowsMain extends Main {
 
@@ -42,8 +39,8 @@ public class WindowsMain extends Main {
     public static void main(String... args) throws Exception {
         // Rather than writing a completely separate parser, we're going to
         // transform the arguments that we have so they appear to be in the
-        // right format.  Specifically, if we get an argument of the form
-        // '/xxx=yyy', we'll substitute '--' for '/'.  It turns out that .bat
+        // right format. Specifically, if we get an argument of the form
+        // '/xxx=yyy', we'll substitute '--' for '/'. It turns out that .bat
         // files actually replace '=' with space, which is what we want.
         // Unfortunately we can't easily handle the ':' case quite so easily,
         // (though product management has said they're okay with that.)
@@ -64,7 +61,7 @@ public class WindowsMain extends Main {
             args[i] = arg;
         }
 
-        GatewayCommandProcessor commandProcessor = new GatewayCommandProcessor(formatter);
+        GatewayCLI commandProcessor = new GatewayCLI(formatter);
         commandProcessor.launchGateway(args);
     }
 }

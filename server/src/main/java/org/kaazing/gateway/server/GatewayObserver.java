@@ -34,33 +34,33 @@ import static java.util.Collections.synchronizedSet;
 import static java.util.Collections.unmodifiableList;
 import static java.util.ServiceLoader.load;
 
-public final class GatewayListener implements GatewayListenerApi {
-    private final List<GatewayListenerFactorySpi> gatewayListenerSpi;
+public final class GatewayObserver implements GatewayObserverApi {
+    private final List<GatewayObserverFactorySpi> gatewayListenerSpi;
 
-    private GatewayListener(Set<GatewayListenerFactorySpi> gatewayListenerSpis) {
-        List<GatewayListenerFactorySpi> list = new ArrayList<>(gatewayListenerSpis);
+    private GatewayObserver(Set<GatewayObserverFactorySpi> gatewayListenerSpis) {
+        List<GatewayObserverFactorySpi> list = new ArrayList<>(gatewayListenerSpis);
         this.gatewayListenerSpi = unmodifiableList(list);
     }
 
-    public static GatewayListener newInstance(Map<String, Object> injectables) {
-        return newInstance(load(GatewayListenerFactorySpi.class), injectables);
+    public static GatewayObserver newInstance(Map<String, Object> injectables) {
+        return newInstance(load(GatewayObserverFactorySpi.class), injectables);
     }
 
-    public static GatewayListener newInstance(ClassLoader loader, Map<String, Object> injectables) {
-        return newInstance(load(GatewayListenerFactorySpi.class, loader), injectables);
+    public static GatewayObserver newInstance(ClassLoader loader, Map<String, Object> injectables) {
+        return newInstance(load(GatewayObserverFactorySpi.class, loader), injectables);
     }
 
-    private static GatewayListener newInstance(ServiceLoader<GatewayListenerFactorySpi> gatewayListenerSpis,
+    private static GatewayObserver newInstance(ServiceLoader<GatewayObserverFactorySpi> gatewayListenerSpis,
                                                Map<String, Object> injectables) {
-        Set<GatewayListenerFactorySpi> gatewayListenerSpiList = synchronizedSet(new HashSet<GatewayListenerFactorySpi>());
-        for (GatewayListenerFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
+        Set<GatewayObserverFactorySpi> gatewayListenerSpiList = synchronizedSet(new HashSet<GatewayObserverFactorySpi>());
+        for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
             gatewayListenerSpiList.add(gatewayListenerSpi);
         }
 
-        for (GatewayListenerFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
+        for (GatewayObserverFactorySpi gatewayListenerSpi : gatewayListenerSpis) {
             injectResources(gatewayListenerSpi, injectables);
         }
-        return new GatewayListener(gatewayListenerSpiList);
+        return new GatewayObserver(gatewayListenerSpiList);
     }
 
     private static void injectResources(Object target, Map<String, Object> values) {
@@ -86,77 +86,77 @@ public final class GatewayListener implements GatewayListenerApi {
 
     @Override
     public void initingService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.initingService(serviceContext);
         }
     }
 
     @Override
     public void initedService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.initedService(serviceContext);
         }
     }
 
     @Override
     public void startingService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.startingService(serviceContext);
         }
     }
 
     @Override
     public void startedService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.startedService(serviceContext);
         }
     }
 
     @Override
     public void stopingService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.stopingService(serviceContext);
         }
     }
 
     @Override
     public void stoppedService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.stoppedService(serviceContext);
         }
     }
 
     @Override
     public void quiesceingService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.quiesceingService(serviceContext);
         }
     }
 
     @Override
     public void quiescedService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.quiescedService(serviceContext);
         }
     }
 
     @Override
     public void destroyingService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.destroyingService(serviceContext);
         }
     }
 
     @Override
     public void destroyedService(ServiceContext serviceContext) {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.destroyedService(serviceContext);
         }
     }
 
     @Override
     public void startingGateway() {
-        for (GatewayListenerApi gatewayListener : gatewayListenerSpi) {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
             gatewayListener.startingGateway();
         }
     }
