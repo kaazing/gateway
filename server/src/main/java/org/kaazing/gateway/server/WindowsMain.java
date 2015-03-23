@@ -29,7 +29,7 @@ import org.apache.commons.cli.HelpFormatter;
  * be directly under GATEWAY_HOME, and we process the argument list to 'canonicalize' it so it looks like the standard
  * command line, but also so we specialize help messages.
  * <p/>
- * For supported command line arguments @see {@link GatewayCLI}
+ * For supported command line arguments @see {@link GatewayCommandLineProcessor}
  */
 public class WindowsMain extends Main {
 
@@ -61,7 +61,7 @@ public class WindowsMain extends Main {
             args[i] = arg;
         }
 
-        GatewayCLI commandProcessor = new GatewayCLI(formatter);
-        commandProcessor.launchGateway(args);
+        GatewayCommandLineProcessor gatewayCommandLineProcessor = new GatewayCommandLineProcessor(formatter);
+        gatewayCommandLineProcessor.launchGateway(args);
     }
 }

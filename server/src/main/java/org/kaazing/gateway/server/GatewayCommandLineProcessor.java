@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory;
  * path to the gateway configuration file--NOT just a file name. If provided by the caller, the property is converted to
  * a system property and passed to Gateway, rather than requiring Gateway to handle a new input vector.
  */
-public class GatewayCLI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCLI.class);
+public class GatewayCommandLineProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandLineProcessor.class);
 
     private HelpFormatter helpFormatter;
 
-    protected GatewayCLI(HelpFormatter helpFormatter) {
+    protected GatewayCommandLineProcessor(HelpFormatter helpFormatter) {
         this.helpFormatter = helpFormatter;
     }
 
