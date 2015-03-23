@@ -24,14 +24,11 @@ package org.kaazing.gateway.server;
 import org.apache.commons.cli.HelpFormatter;
 
 /**
- * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway directly
- * from other Java code as well.) This particular version is for the standalone Linux installation, where the directories are set
- * up to be directly under GATEWAY_HOME and we use Posix-style command parsing.
+ * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway
+ * directly from other Java code as well.) This particular version is for the standalone Linux installation, where the
+ * directories are set up to be directly under GATEWAY_HOME and we use Posix-style command parsing.
  * <p/>
- * As of 3.2 we support two arguments to main: --config <configFile> --help (we also support the form /config <configFile>) The
- * value of <configFile> is considered as a path to the gateway configuration file--NOT just a file name. If provided by the
- * caller, the property is converted to a system property and passed to Gateway, rather than requiring Gateway to handle a new
- * input vector.
+ * For supported command line arguments @see {@link GatewayCommandLineProcessor}
  */
 public class Main {
 
@@ -42,8 +39,7 @@ public class Main {
      * @param args
      */
     public static void main(String... args) throws Exception {
-        GatewayCommandProcessor commandProcessor =
-                new GatewayCommandProcessor(new HelpFormatter());
-        commandProcessor.launchGateway(args);
+        GatewayCommandLineProcessor gatewayCommandLineProcessor = new GatewayCommandLineProcessor(new HelpFormatter());
+        gatewayCommandLineProcessor.launchGateway(args);
     }
 }

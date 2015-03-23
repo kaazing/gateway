@@ -41,14 +41,14 @@ public class Launcher {
 
     private GatewayContext context;
 
-    private GatewayListener gatewayListener;
+    private GatewayObserver gatewayListener;
 
     public Launcher() {
 
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayListener.newInstance(context.getInjectables());
+        gatewayListener = GatewayObserver.newInstance(context.getInjectables());
         gatewayListener.startingGateway();
         try {
             initInternal(context);

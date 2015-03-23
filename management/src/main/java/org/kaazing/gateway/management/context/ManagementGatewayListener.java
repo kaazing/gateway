@@ -27,12 +27,12 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.filter.ManagementFilter;
-import org.kaazing.gateway.server.GatewayListenerFactorySpiPrototype;
+import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public class ManagementGatewayListener extends GatewayListenerFactorySpiPrototype {
+public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototype {
 
     private ManagementContext managementContext;
 

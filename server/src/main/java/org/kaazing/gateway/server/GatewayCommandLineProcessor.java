@@ -32,20 +32,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main entry point for gateway process (at least when being called by the start scripts--it's possible to call Gateway directly
- * from other Java code as well.) This generic processor is called from all three Mains.
+ * Main entry point for gateway process when started by the command line.
  * <p/>
- * As of 3.2 we support two arguments to main: --config <configFile> --help (we also support the form /config <configFile>) The
- * value of <configFile> is considered as a path to the gateway configuration file--NOT just a file name. If provided by the
- * caller, the property is converted to a system property and passed to Gateway, rather than requiring Gateway to handle a new
- * input vector.
+ * Supported command line arguments are --config <configFile> and --help. The value of <configFile> is considered as a
+ * path to the gateway configuration file--NOT just a file name. If provided by the caller, the property is converted to
+ * a system property and passed to Gateway, rather than requiring Gateway to handle a new input vector.
  */
-public class GatewayCommandProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandProcessor.class);
+public class GatewayCommandLineProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayCommandLineProcessor.class);
 
     private HelpFormatter helpFormatter;
 
-    protected GatewayCommandProcessor(HelpFormatter helpFormatter) {
+    protected GatewayCommandLineProcessor(HelpFormatter helpFormatter) {
         this.helpFormatter = helpFormatter;
     }
 
@@ -53,7 +51,7 @@ public class GatewayCommandProcessor {
         launchGateway(args, System.getProperties());
     }
 
-    public void launchGateway(String[] args, Properties properties) {
+    private void launchGateway(String[] args, Properties properties) {
         CommandLine cmd = null;
         Options options = createOptions();
 
@@ -106,7 +104,7 @@ public class GatewayCommandProcessor {
         try {
             gateway.launch();
         } catch (Exception ex) {
-            // Log the exception then exit.  It's possible log4j won't be initialized by the time
+            // Log the exception then exit. It's possible log4j won't be initialized by the time
             // the exception occurred, so log and print stacktrace (to System.err)
             LOGGER.error("Gateway failed to launch", ex);
             ex.printStackTrace();
@@ -114,7 +112,7 @@ public class GatewayCommandProcessor {
         }
     }
 
-    protected void printCliHelp(String message, Options options) {
+    private void printCliHelp(String message, Options options) {
         if (message != null) {
             System.out.println(message);
         }
@@ -123,7 +121,7 @@ public class GatewayCommandProcessor {
         return;
     }
 
-    protected Options createOptions() {
+    private Options createOptions() {
         Options options = new Options();
         options.addOption(null, "config", true, "path to gateway configuration file");
         options.addOption(null, "help", false, "print the help text");
