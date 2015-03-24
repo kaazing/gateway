@@ -1079,7 +1079,7 @@
     </complexType>
 
     <complexType name="ServiceAcceptOptionsType">
-        <all>
+        <sequence>
             <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
                 <annotation>
                     <documentation>A comma-separated list of
@@ -1170,11 +1170,11 @@
                     </documentation>
                 </annotation>
             </element>
-        </all>
+        </sequence>
     </complexType>
 
     <complexType name="ServiceConnectOptionsType">
-        <all>
+        <sequence>
             <element name="ssl.ciphers" maxOccurs="1" minOccurs="0" type="gateway:CSVType">
                 <annotation>
                     <documentation>A comma-separated list of
@@ -1230,7 +1230,7 @@
                     </documentation>
                 </annotation>
             </element>
-        </all>
+        </sequence>
     </complexType>
 
     <complexType name="ClusterConnectOptionsType">
