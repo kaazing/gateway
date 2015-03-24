@@ -58,7 +58,7 @@ public class HttpDirectoryService implements Service {
         ServiceProperties properties = serviceContext.getProperties();
 
         Collection<URI> accepts = serviceContext.getAccepts();
-        Collection<URI> failedAccepts = new HashSet<URI>();
+        Collection<URI> failedAccepts = new HashSet<>();
         for (URI accept : accepts) {
             String path = accept.getPath();
             if (path == null || path.isEmpty()) {

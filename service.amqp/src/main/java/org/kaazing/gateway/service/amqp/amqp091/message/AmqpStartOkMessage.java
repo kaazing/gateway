@@ -75,7 +75,7 @@ public class AmqpStartOkMessage extends AmqpConnectionMessage {
         AmqpTable            table = new AmqpTable();
         List<AmqpTableEntry> tableEntries = clientProperties.getEntries();
 
-        List<AmqpTableEntry> entries = new ArrayList<AmqpTableEntry>();
+        List<AmqpTableEntry> entries = new ArrayList<>();
         entries.addAll(tableEntries);
         
         table.setEntries(entries);

@@ -69,17 +69,17 @@ public class VirtualHostKeySelector
 
     // Set of certificate aliases that can be delivered for SSL connections
     // for a given host.
-    private Map<String, Collection<String>> hostnameToCertAliases = new HashMap<String, Collection<String>>();
+    private Map<String, Collection<String>> hostnameToCertAliases = new HashMap<>();
 
     // Set of certificate aliases that can be delivered for SSL connections
     // for a given ssl://[hostname]:[port] address.
-    private Map<ResourceAddress, Collection<String>> transportAddressToCertAliases = new TreeMap<ResourceAddress, Collection<String>>(compareResourceOriginPathAlternatesAndProtocolStack());
+    private Map<ResourceAddress, Collection<String>> transportAddressToCertAliases = new TreeMap<>(compareResourceOriginPathAlternatesAndProtocolStack());
 
     // Set of ResourceAddresses bound to a given physical host/port.
-    private Map<ResourceAddress, List<ResourceAddress>> transportAddressToResourceAddresses = new TreeMap<ResourceAddress, List<ResourceAddress>>(compareResourceOriginAndProtocolStack());
+    private Map<ResourceAddress, List<ResourceAddress>> transportAddressToResourceAddresses = new TreeMap<>(compareResourceOriginAndProtocolStack());
 
     // Certificate Common Names (CNs) for a given hostname
-    private Map<String, String> aliasToCertCN = new HashMap<String, String>();
+    private Map<String, String> aliasToCertCN = new HashMap<>();
 
     @Override
     public ResourceAddress getAvailableCertAliasesKey(boolean clientMode) {
@@ -123,7 +123,7 @@ public class VirtualHostKeySelector
     private Collection<String> getCertServerNames(X509Certificate x509)
         throws CertificateParsingException {
 
-        Collection<String> serverNames = new LinkedHashSet<String>();
+        Collection<String> serverNames = new LinkedHashSet<>();
 
         /* Add CN for the certificate */
         String certCN = getCertCN(x509);
@@ -210,7 +210,7 @@ public class VirtualHostKeySelector
                             // including wildcards (e.g. "*.kaazing.com")
                             Collection<String> serverCertAliases = hostnameToCertAliases.get(serverName);
                             if (serverCertAliases == null) {
-                                serverCertAliases = new HashSet<String>();
+                                serverCertAliases = new HashSet<>();
                                 hostnameToCertAliases.put(serverName, serverCertAliases);
                             }
 
@@ -248,7 +248,7 @@ public class VirtualHostKeySelector
         // address.
         Collection<String> hostnameCertAliases = hostnameToCertAliases.get(serverName);
         if (hostnameCertAliases == null) {
-            hostnameCertAliases = new HashSet<String>();
+            hostnameCertAliases = new HashSet<>();
         }
 
         if (serverName.contains(".")) {
@@ -272,14 +272,14 @@ public class VirtualHostKeySelector
         Collection<String> transportAddressCertAliases = transportAddressToCertAliases.get(transport);
         if (transportAddressCertAliases == null) {
             // First case
-            transportAddressCertAliases = (new HashSet<String>(hostnameCertAliases));
+            transportAddressCertAliases = (new HashSet<>(hostnameCertAliases));
             transportAddressToCertAliases.put(transport, transportAddressCertAliases);
 
         } else {
             // Subsequent cases: Find intersection of possible aliases for
             //  currently bound certificate aliases.
             if (!hostnameCertAliases.containsAll(transportAddressCertAliases)) {
-                Collection<String> conflictingAliases = new HashSet<String>(hostnameCertAliases);
+                Collection<String> conflictingAliases = new HashSet<>(hostnameCertAliases);
                 conflictingAliases.removeAll(transportAddressCertAliases);
                 for (String conflictingAlias : conflictingAliases) {
                     String certCN = aliasToCertCN.get(conflictingAlias);
@@ -290,7 +290,7 @@ public class VirtualHostKeySelector
             }
 
             if (!transportAddressCertAliases.containsAll(hostnameCertAliases)) {
-                Collection<String> conflictingAliases = new HashSet<String>(transportAddressCertAliases);
+                Collection<String> conflictingAliases = new HashSet<>(transportAddressCertAliases);
                 conflictingAliases.removeAll(hostnameCertAliases);
                 for (String conflictingAlias : conflictingAliases) {
                     String certCN = aliasToCertCN.get(conflictingAlias);
@@ -314,7 +314,7 @@ public class VirtualHostKeySelector
         List<ResourceAddress> transportAddressResourceAddresses = transportAddressToResourceAddresses.get(transport);
         if (transportAddressResourceAddresses == null) {
             // First case
-            transportAddressResourceAddresses = new LinkedList<ResourceAddress>();
+            transportAddressResourceAddresses = new LinkedList<>();
             transportAddressResourceAddresses.add(resourceAddress);
             transportAddressToResourceAddresses.put(transport, transportAddressResourceAddresses);
 

@@ -28,7 +28,7 @@ public class AuthorizationConstraintConfiguration implements
         Configuration<SuppressibleAuthorizationConstraintConfiguration> {
 
     private final SuppressibleAuthorizationConstraintConfiguration _configuration;
-    private final Set<Suppressible<String>> requiredRoles = new HashSet<Suppressible<String>>();
+    private final Set<Suppressible<String>> requiredRoles = new HashSet<>();
     private final Set<String> unsuppressibleRequiredRoles = Suppressibles.unsuppressibleSet(requiredRoles);
 
     public AuthorizationConstraintConfiguration() {

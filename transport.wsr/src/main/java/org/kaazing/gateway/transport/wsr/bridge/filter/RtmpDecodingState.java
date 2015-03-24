@@ -49,7 +49,7 @@ public class RtmpDecodingState extends DecodingStateMachine {
     
     public RtmpDecodingState(IoBufferAllocatorEx<?> allocator) {
         super(allocator);
-        this.readStreams = new HashMap<Integer, WsrStreamMessageDecodingState>();
+        this.readStreams = new HashMap<>();
         this.READ_CHUNK_HEADER = new ReadChunkHeaderDecodingStateImpl(allocator);
         this.commandStream = new WsrStreamMessageDecodingState(allocator, COMMAND_STREAM_ID) {
             @Override
@@ -84,7 +84,7 @@ public class RtmpDecodingState extends DecodingStateMachine {
         @Override
         protected DecodingState finishDecode() {
             return READ_CHUNK_HEADER;
-        };
+        }
     };
     
     private final DecodingState READ_CHUNK_HEADER;

@@ -30,7 +30,7 @@ public class SecurityConfiguration implements Configuration<SuppressibleSecurity
 
     private final SuppressibleSecurityConfiguration _configuration;
 
-    private final List<RealmConfiguration> realms = new ArrayList<RealmConfiguration>();
+    private final List<RealmConfiguration> realms = new ArrayList<>();
 
     private Suppressible<KeyStore> _keyStore;
     private Suppressible<char[]> _keyStorePassword;
@@ -74,7 +74,7 @@ public class SecurityConfiguration implements Configuration<SuppressibleSecurity
     }
 
     public void setKeyStore(KeyStore keyStore) {
-        this._keyStore = new Suppressible<KeyStore>(keyStore);
+        this._keyStore = new Suppressible<>(keyStore);
     }
 
     // keyStore password
@@ -86,7 +86,7 @@ public class SecurityConfiguration implements Configuration<SuppressibleSecurity
     }
 
     public void setKeyStorePassword(char[] keyStorePassword) {
-        this._keyStorePassword = new Suppressible<char[]>(keyStorePassword);
+        this._keyStorePassword = new Suppressible<>(keyStorePassword);
     }
 
     // trust store
@@ -98,7 +98,7 @@ public class SecurityConfiguration implements Configuration<SuppressibleSecurity
     }
 
     public void setTrustStore(KeyStore trustStore) {
-        this._trustStore = new Suppressible<KeyStore>(trustStore);
+        this._trustStore = new Suppressible<>(trustStore);
     }
 
     // keystore file
@@ -137,7 +137,7 @@ public class SecurityConfiguration implements Configuration<SuppressibleSecurity
 
     public void setTrustStorePassword(char[] trustStorePassword) {
 
-        this._trustStorePassword = new Suppressible<char[]>(trustStorePassword);
+        this._trustStorePassword = new Suppressible<>(trustStorePassword);
     }
 
     // trust store password file

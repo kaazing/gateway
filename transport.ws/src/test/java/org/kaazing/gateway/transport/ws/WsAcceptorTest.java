@@ -230,7 +230,7 @@ public class WsAcceptorTest {
         final ResourceAddress address = resourceAddressFactory.newResourceAddress(uri);
         final IoHandlerAdapter<IoSession> acceptHandler = new IoHandlerAdapter<IoSession>() {};
         final BridgeSessionInitializer<? extends IoFuture> initializer =
-                new BridgeSessionInitializerAdapter<IoFuture>();
+                new BridgeSessionInitializerAdapter<>();
 
         // Set up top level REAL WS acceptor
         final WsAcceptor wsAcceptor = new WsAcceptor();

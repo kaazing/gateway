@@ -149,7 +149,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
 
             // SIGAR does not know how to handle sub-interfaces (e.g. of form eth0:1),
             // so explicitly exclude those from the list, if any.
-            List<String> netInterfaceNames = new ArrayList<String>();
+            List<String> netInterfaceNames = new ArrayList<>();
 
             for (int i = 0; i < names.length; i++) {
                 String nicName = names[i];

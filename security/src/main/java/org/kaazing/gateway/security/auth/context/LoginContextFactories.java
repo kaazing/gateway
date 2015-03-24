@@ -45,7 +45,7 @@ public final class LoginContextFactories {
      * Cache login factories on a per realm/configuration basis.
      */
     private static Map<String, LoginContextFactory> CACHE =
-            new ConcurrentHashMap<String, LoginContextFactory>();
+            new ConcurrentHashMap<>();
 
     public static LoginContextFactory create(String name, Configuration configuration) {
         LoginContextFactory defaultProvider;

@@ -99,8 +99,8 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         }
     }
 
-    static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<NioWorker>();
-    private static final ThreadLocal<Executor> CURRENT_EXECUTOR = new VicariousThreadLocal<Executor>();
+    static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
+    private static final ThreadLocal<Executor> CURRENT_EXECUTOR = new VicariousThreadLocal<>();
 
     private static final class SetCurrentWorkerTask implements Callable<NioWorker> {
 
@@ -123,9 +123,9 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
             return worker;
         }
 
-    };
+    }
 
-    private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<DistributedNioWorkerPool>();
+    private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
     public NioSocketAcceptor(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
     }
@@ -264,7 +264,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         	if (isDebug) {
         		System.out.println("NioWorkerPool.DEBUG=true");
         	}
-        	final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<NioWorker, Thread>();
+        	final ConcurrentMap<NioWorker, Thread> threadsByWorker = new ConcurrentHashMap<>();
         	workerPool = new DistributedNioWorkerPool(newCachedThreadPool(), workerCount) {
 	        	@Override
 	        	public NioWorker nextWorker() {
@@ -340,7 +340,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
 				// we cannot allow shutdown on idle, otherwise worker may end up running on a different thread
 				DistributedNioWorker worker = new DistributedNioWorker(workerExecutor);
 				// we must set the current worker in the right thread local before any in-bound connections
-				FutureTask<NioWorker> future = new FutureTask<NioWorker>(new SetCurrentWorkerTask(worker));
+				FutureTask<NioWorker> future = new FutureTask<>(new SetCurrentWorkerTask(worker));
 				worker.executeInIoThread(future, /*alwaysAsync*/ true);
 				try {
 					NioWorker workerFromTask = future.get();

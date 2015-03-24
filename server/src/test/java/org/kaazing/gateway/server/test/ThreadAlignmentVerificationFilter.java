@@ -35,7 +35,7 @@ public class ThreadAlignmentVerificationFilter extends IoFilterAdapter {
 
     private AtomicInteger alignmentSuccesses = new AtomicInteger(0);
     private AtomicInteger alignmentViolations = new AtomicInteger(0);
-    private AtomicReference<Thread> expectedThread = new AtomicReference<Thread>(null);
+    private AtomicReference<Thread> expectedThread = new AtomicReference<>(null);
 
     /**
      * Verify all operations occur on the specified thread

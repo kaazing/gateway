@@ -111,7 +111,7 @@ public class DefaultGatewayContext implements GatewayContext {
 
     @Override
     public void dispose() {
-        HashSet<TransportContext<ResourceAddress>> transports = new HashSet<TransportContext<ResourceAddress>>();
+        HashSet<TransportContext<ResourceAddress>> transports = new HashSet<>();
 
         for (SchemeContext scheme : schemes.values()) {
             TransportContext<ResourceAddress> transport = getTransportForScheme(scheme.getName());

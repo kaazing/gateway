@@ -61,7 +61,7 @@ public class UdpResourceAddressFactorySpiTest {
     public void before() {
         factory = new UdpResourceAddressFactorySpi();
         addressURI = URI.create("udp://localhost:2020");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("udp.nextProtocol", "custom");
         options.put("udp.maximumOutboundRate", 534L);
         options.put("udp.qualifier", "random");
@@ -104,7 +104,7 @@ public class UdpResourceAddressFactorySpiTest {
 
     @Test
     public void shouldResolveIPv6Address() {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("resolver", new NameResolver() {
 
             @Override
@@ -123,7 +123,7 @@ public class UdpResourceAddressFactorySpiTest {
 
     @Test
     public void shouldCreateIPv6Address() throws Exception {
-        Set<URI> expectedURI = new HashSet<URI>();
+        Set<URI> expectedURI = new HashSet<>();
         InetAddress[] addresses = InetAddress.getAllByName("::1");
         for(InetAddress address : addresses) {
             expectedURI.add( URI.create(format("udp://[%s]:2020", address.getHostAddress())));
@@ -133,7 +133,7 @@ public class UdpResourceAddressFactorySpiTest {
 
         URI addressURI = URI.create("udp://[::1]:2020");
         ResourceAddress resourceAddress = factory.newResourceAddress(addressURI);
-        Set<URI> gotURI = new HashSet<URI>();
+        Set<URI> gotURI = new HashSet<>();
         while(resourceAddress != null) {
             gotURI.add(resourceAddress.getResource());
             resourceAddress = resourceAddress.getOption(ALTERNATE);
@@ -144,7 +144,7 @@ public class UdpResourceAddressFactorySpiTest {
 
     @Test
     public void shouldCreateAddressWithAlternates() {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("resolver", new NameResolver() {
 
             @Override

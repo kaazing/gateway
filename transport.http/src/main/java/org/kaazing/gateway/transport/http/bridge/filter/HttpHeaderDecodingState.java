@@ -43,7 +43,7 @@ import org.kaazing.mina.filter.codec.statemachine.ConsumeToCrLfDecodingState;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState;
 
 public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
-    private static final Set<String> COMMA_SEPARATED_HEADERS = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    private static final Set<String> COMMA_SEPARATED_HEADERS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     static {
         COMMA_SEPARATED_HEADERS.add("Accept-Ranges");
         COMMA_SEPARATED_HEADERS.add("Accept");
@@ -127,7 +127,7 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
             String value = buffer.getString(utf8Decoder);
             List<String> values = headers.get(lastHeaderName);
             if (values == null) {
-                values = new ArrayList<String>();
+                values = new ArrayList<>();
                 headers.put(lastHeaderName, values);
             }
 
@@ -171,6 +171,6 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
 	}
 
     private void initHeaders() {
-        headers = new TreeMap<String, List<String>>(HttpHeaderNameComparator.INSTANCE);
+        headers = new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
     }
 }

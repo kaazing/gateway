@@ -33,12 +33,12 @@ public class ServiceConfigurationBuilder extends AbstractServiceConfigurationBui
 
     @Override
     public AddCrossOriginConstraintBuilder<ServiceConfigurationBuilder> crossOrigin() {
-        return new AddCrossOriginConstraintBuilder<ServiceConfigurationBuilder>(this, getCurrentSuppressions());
+        return new AddCrossOriginConstraintBuilder<>(this, getCurrentSuppressions());
     }
 
     @Override
     public AddAuthorizationConstraintBuilder<ServiceConfigurationBuilder> authorization() {
-        return new AddAuthorizationConstraintBuilder<ServiceConfigurationBuilder>(this, getCurrentSuppressions());
+        return new AddAuthorizationConstraintBuilder<>(this, getCurrentSuppressions());
     }
 
     private ServiceConfigurationBuilder(ServiceConfiguration configuration, Set<Suppression> suppressions) {
@@ -47,7 +47,7 @@ public class ServiceConfigurationBuilder extends AbstractServiceConfigurationBui
 
     @Override
     public AddNestedPropertyBuilder<ServiceConfigurationBuilder> nestedProperty(String propertyName) {
-        return new AddNestedPropertyBuilder<ServiceConfigurationBuilder>(propertyName, this, getCurrentSuppressions());
+        return new AddNestedPropertyBuilder<>(propertyName, this, getCurrentSuppressions());
     }
 
 }

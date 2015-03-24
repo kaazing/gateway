@@ -66,9 +66,9 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     private static final String CLASS_NAME = AmqpMessageDecoder.class.getName();
     private static final String SERVICE_AMQP_PROXY_LOGGER = "service.amqp.proxy";
     private static final Map<Character, AmqpType> typeIdentifierMap = 
-                                             new HashMap<Character, AmqpType>();
+                                             new HashMap<>();
     private static final Map<AmqpType, String> typeMap = 
-                                             new HashMap<AmqpType, String>();
+                                             new HashMap<>();
 
     static enum DecoderState {
         READ_PROTOCOL_HEADER, READ_FRAME, AFTER_CONNECTION
@@ -730,7 +730,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     }
 
     private static Map<String,Object> getFieldTable(IoBufferEx buffer) {
-        Map<String,Object> t = new HashMap<String,Object>();
+        Map<String,Object> t = new HashMap<>();
         int len = (int)getUnsignedInt(buffer);
         int initial = buffer.position();
         while (len > (buffer.position()-initial)) {
@@ -745,7 +745,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         long len = (long)getUnsignedInt(buffer);     
         long end = buffer.position() + len;  
 
-        ArrayList<AmqpTableEntry> entries = new ArrayList<AmqpTableEntry>();
+        ArrayList<AmqpTableEntry> entries = new ArrayList<>();
         while (buffer.position() < end) {
             String   key = getShortString(buffer);
             AmqpType type = getType(buffer);
@@ -937,7 +937,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         
         int packedPropertyFlags = getUnsignedShort(buffer);
         
-        Map<AmqpProperty, Object> contentProperties = new TreeMap<AmqpProperty, Object>();
+        Map<AmqpProperty, Object> contentProperties = new TreeMap<>();
         for (int offset = 0, bitmask = packedPropertyFlags; bitmask != 0; offset++, bitmask >>= 1) {
             if ((bitmask & 0x01) != 0x00) {
                 AmqpProperty property = PROPERTY_VALUES[offset];

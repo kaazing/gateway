@@ -78,7 +78,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
             };
 
     // Map of the per-thread thread-local stats objects. Keyed on thread ID.
-    private final CopyOnWriteMap<Thread, ThreadGatewayStats> gatewayStatsMap = new CopyOnWriteMap<Thread, ThreadGatewayStats>();
+    private final CopyOnWriteMap<Thread, ThreadGatewayStats> gatewayStatsMap = new CopyOnWriteMap<>();
 
     // A dynamic Gateway "id".  For customer usefulness, we'll make this
     // the string <hostname>:<pid>, where <hostname> is the hostname of the
@@ -118,7 +118,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         this.id = maxGatewayIndex.getAndIncrement();  // may use in various wrappers
         this.hostAndPid = hostAndPid;
         this.startTime = System.currentTimeMillis();
-        this.clusterManagementListeners = new ArrayList<ClusterManagementListener>();
+        this.clusterManagementListeners = new ArrayList<>();
         this.gatewayContext = gatewayContext;
 
         this.productTitle = VersionUtils.getGatewayProductTitle();

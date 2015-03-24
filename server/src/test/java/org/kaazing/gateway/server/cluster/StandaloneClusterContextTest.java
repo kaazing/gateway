@@ -36,8 +36,8 @@ public class StandaloneClusterContextTest {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         String value1 = "value1";
-        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
-        EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<String, String>();
+        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
+        EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
         imap.put("test1", value1);
@@ -55,8 +55,8 @@ public class StandaloneClusterContextTest {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         String value1 = "value1";
-        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
-        EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<String, String>();
+        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
+        EntryListenerImpl<String, String> listener2 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.addEntryListener(listener2, true);
         imap.put("test1", value1);
@@ -76,7 +76,7 @@ public class StandaloneClusterContextTest {
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         String value1 = "value1";
         String value2 = "value2";
-        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
+        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
         assertEquals(listener1.addedCount, 1);
@@ -96,7 +96,7 @@ public class StandaloneClusterContextTest {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         String value1 = "value1";
-        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
+        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
         assertEquals(imap.get("test1"), value1);
@@ -112,7 +112,7 @@ public class StandaloneClusterContextTest {
         StandaloneClusterContext context = new StandaloneClusterContext();
         IMap<String, String> imap = context.getCollectionsFactory().getMap("test");
         String value1 = "value1";
-        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<String, String>();
+        EntryListenerImpl<String, String> listener1 = new EntryListenerImpl<>();
         imap.addEntryListener(listener1, true);
         imap.put("test1", value1);
         assertEquals(imap.get("test1"), value1);

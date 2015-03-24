@@ -48,7 +48,7 @@ public final class JmxSessionManagementListener extends NotificationBroadcasterS
 
         // Send a notification for the principals for the logged-in session.
         if (userPrincipals != null) {
-            Map<String, Map<String, String>> userData = new HashMap<String, Map<String, String>>();
+            Map<String, Map<String, String>> userData = new HashMap<>();
             userData.put(sessionMxBean.getObjectName().toString(), userPrincipals);
 
             Notification n2 = new Notification(SESSION_CREATED,
@@ -69,7 +69,7 @@ public final class JmxSessionManagementListener extends NotificationBroadcasterS
 
         // Send a notification for the principals for the no-longer-logged-in session.
         if (userPrincipals != null) {
-            Map<String, Map<String, String>> userData = new HashMap<String, Map<String, String>>();
+            Map<String, Map<String, String>> userData = new HashMap<>();
             userData.put(sessionMxBean.getObjectName().toString(), userPrincipals);
 
             Notification n2 = new Notification(SESSION_CLOSED,

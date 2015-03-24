@@ -43,8 +43,8 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 public class GatewayClusterRule implements TestRule {
 
     private List<GatewayConfiguration> configurations;
-    private List<Gateway> gateways = new ArrayList<Gateway>();
-    private Map<GatewayConfiguration, Gateway> gatewaysByConfiguration = new HashMap<GatewayConfiguration, Gateway>();
+    private List<Gateway> gateways = new ArrayList<>();
+    private Map<GatewayConfiguration, Gateway> gatewaysByConfiguration = new HashMap<>();
 
     private String log4jPropertiesResourceName;
 

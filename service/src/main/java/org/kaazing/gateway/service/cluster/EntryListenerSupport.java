@@ -31,11 +31,11 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
     private List<EntryListenerEntry<K,V>> listenerEntries;
 
     public EntryListenerSupport() {
-    	listenerEntries = new CopyOnWriteArrayList<EntryListenerEntry<K,V>>();
+    	listenerEntries = new CopyOnWriteArrayList<>();
     }
     
     public void addEntryListener(EntryListener<K, V> listener, K key, boolean includeValue) {
-        listenerEntries.add(new EntryListenerEntry<K, V>(listener, key, includeValue));
+        listenerEntries.add(new EntryListenerEntry<>(listener, key, includeValue));
     }
 
     public void removeEntryListener(EntryListener<K, V> listener, Object key) {
@@ -45,7 +45,7 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
     }
 
     public void addEntryListener(EntryListener<K, V> listener, boolean includeValue) {
-        listenerEntries.add(new EntryListenerEntry<K, V>(listener, includeValue));
+        listenerEntries.add(new EntryListenerEntry<>(listener, includeValue));
     }
 
     public void removeEntryListener(EntryListener<K, V> listener) {
@@ -74,7 +74,7 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
 
     private void entryMethod(EntryEvent<K, V> event, Method method) {
     	//TODO MEMBER
-        EntryEvent<K,V> copyNoValue = new EntryEvent<K,V>(event.getName(), null, event.getEventType().hashCode(), event.getKey(), null);
+        EntryEvent<K,V> copyNoValue = new EntryEvent<>(event.getName(), null, event.getEventType().hashCode(), event.getKey(), null);
         for (EntryListenerEntry<K, V> listenerEntry : listenerEntries) {
             if (listenerEntry.key == null || (event.getKey() != null && listenerEntry.key.equals(event.getKey()))) {
                 switch (method) {
@@ -106,7 +106,7 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
 
     private static enum Method {
         ADDED, REMOVED, UPDATED, EVICTED,
-    };
+    }
 
     private static class EntryListenerEntry<K, V> {
         private EntryListener<K, V> listener;

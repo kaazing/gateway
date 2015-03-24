@@ -250,7 +250,7 @@ public class WsrBindingsTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "wsr://localhost:8000/echo";
         final ResourceAddress bindAddress =
@@ -279,7 +279,7 @@ public class WsrBindingsTest {
     @Test
     public void shouldBindAndUnbindSecureAddressesLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "wsr+ssl://localhost:8000/echo";
         final ResourceAddress bindAddress =

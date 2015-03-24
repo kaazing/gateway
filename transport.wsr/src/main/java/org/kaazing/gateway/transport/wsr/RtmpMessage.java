@@ -26,8 +26,8 @@ import org.kaazing.gateway.transport.bridge.Message;
 public abstract class RtmpMessage extends Message {
 
     public static enum Kind {
-        VERSION, HANDSHAKE_REQUEST, HANDSHAKE_RESPONSE, STREAM, CONTROL;
-    };
-    
+        VERSION, HANDSHAKE_REQUEST, HANDSHAKE_RESPONSE, STREAM, CONTROL
+    }
+
     public abstract Kind getKind();
 }

@@ -50,7 +50,7 @@ public class SslCertificateSelectionFilter
         private ConcurrentMap<ResourceAddress, Collection<String>> certAliases;
 
         public AvailableCertInfo() {
-            certAliases = new ConcurrentSkipListMap<ResourceAddress, Collection<String>>(compareResourceOriginAndProtocolStack());
+            certAliases = new ConcurrentSkipListMap<>(compareResourceOriginAndProtocolStack());
         }
 
         public IoSession getSession() {

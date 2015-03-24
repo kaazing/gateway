@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SchedulerProvider {
 
-    private final List<ManagedScheduledExecutorService> schedulers = new ArrayList<ManagedScheduledExecutorService>(10);
+    private final List<ManagedScheduledExecutorService> schedulers = new ArrayList<>(10);
     private final ManagedScheduledExecutorService sharedScheduler;
-    private final List<String> sharedUsages = new ArrayList<String>(10);
+    private final List<String> sharedUsages = new ArrayList<>(10);
 
     public SchedulerProvider() {
         this(new Properties());

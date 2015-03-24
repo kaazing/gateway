@@ -137,8 +137,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               loginResult,
               wsExtensions);
         this.attachingWrite = new AtomicBoolean(false);
-        this.readSession = new AtomicReference<IoSessionEx>();
-        this.pendingNewWriter = new AtomicReference<IoSessionEx>();
+        this.readSession = new AtomicReference<>();
+        this.pendingNewWriter = new AtomicReference<>();
         this.timeout = new TimeoutCommand(this);
         this.clientIdleTimeout = clientIdleTimeout;
         this.inactivityTimeout = inactivityTimeout;

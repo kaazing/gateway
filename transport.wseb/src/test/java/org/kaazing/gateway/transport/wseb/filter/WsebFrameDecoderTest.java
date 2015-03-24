@@ -521,7 +521,7 @@ public class WsebFrameDecoderTest {
         StringBuffer data = new StringBuffer(dataSize);
         for ( int i=0; i<(dataSize); i++ ) {
             data.append((i%10));
-        };
+        }
         IoBufferEx in = allocator.wrap(allocator.allocate(dataSize+1))
                                  .put((byte)0x00)
                                  .putString(data.toString(), UTF_8.newEncoder())
@@ -542,7 +542,7 @@ public class WsebFrameDecoderTest {
         StringBuffer data = new StringBuffer(dataSize);
         for ( int i=0; i<(dataSize); i++ ) {
             data.append((i%10));
-        };
+        }
         IoBufferEx in = allocator.wrap(allocator.allocate(dataSize+1))
                                  .put((byte)0x00)
                                  .putString(data.toString(), UTF_8.newEncoder())

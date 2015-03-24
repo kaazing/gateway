@@ -127,8 +127,8 @@ public class NextProtocolBindings extends Bindings<NextProtocolBinding> {
 
         NextProtocolBinding(ResourceAddress bindAddress) {
             super(bindAddress);
-            nextProtocols = new ConcurrentSkipListMap<String, Binding>();
-            nullNextProtocol = new AtomicReference<Binding>();
+            nextProtocols = new ConcurrentSkipListMap<>();
+            nullNextProtocol = new AtomicReference<>();
         }
 
         public Binding addBinding(Binding newBinding) {

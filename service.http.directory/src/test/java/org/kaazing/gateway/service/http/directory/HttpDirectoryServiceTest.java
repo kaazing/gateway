@@ -170,8 +170,8 @@ public class HttpDirectoryServiceTest {
     }
 
     private class TestServiceProperties implements ServiceProperties {
-        private Map<String, List<ServiceProperties>> nestedProperties = new HashMap<String, List<ServiceProperties>>();
-        private Map<String, String> properties = new HashMap<String, String>();
+        private Map<String, List<ServiceProperties>> nestedProperties = new HashMap<>();
+        private Map<String, String> properties = new HashMap<>();
 
         @Override
         public String get(String name) {
@@ -187,7 +187,7 @@ public class HttpDirectoryServiceTest {
         public List<ServiceProperties> getNested(String name, boolean create) {
             List<ServiceProperties> nestedPropertyList = nestedProperties.get(name);
             if (create && (nestedPropertyList == null)) {
-                nestedPropertyList = new ArrayList<ServiceProperties>();
+                nestedPropertyList = new ArrayList<>();
                 nestedProperties.put(name, nestedPropertyList);
             }
             return nestedPropertyList;

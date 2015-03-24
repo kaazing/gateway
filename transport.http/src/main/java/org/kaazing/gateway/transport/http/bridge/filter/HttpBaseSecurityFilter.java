@@ -129,7 +129,7 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
 
     protected Collection<String> getAuthorizedRoles(Subject subject) {
         Set<Principal> principals = subject.getPrincipals();
-        Collection<String> authorizedRoles = new HashSet<String>();
+        Collection<String> authorizedRoles = new HashSet<>();
         for (Principal principal : principals) {
             authorizedRoles.add(principal.getName());
         }

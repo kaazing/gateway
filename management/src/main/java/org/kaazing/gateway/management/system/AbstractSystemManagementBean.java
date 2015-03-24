@@ -68,7 +68,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
                                         String schedulerName) {
         super(managementContext, summaryInterval, summaryDataFields);
         this.dataTypeStr = dataTypeStr;
-        this.summaryDataList = new AtomicReference<JSONArray>(new JSONArray());
+        this.summaryDataList = new AtomicReference<>(new JSONArray());
         this.schedulerName = schedulerName;
         this.gatherInterval = gatherInterval;
 

@@ -140,7 +140,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
         // ensure that DNS name is resolved in transport address
         NameResolver resolver = options.getOption(RESOLVER);
         assert (resolver != null);
-        List<TcpResourceAddress> tcpAddresses = new LinkedList<TcpResourceAddress>();
+        List<TcpResourceAddress> tcpAddresses = new LinkedList<>();
         try {
             String host = location.getHost();
             Matcher matcher = PATTERN_IPV6_HOST.matcher(host);
@@ -152,8 +152,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             assert (!inetAddresses.isEmpty());
 
             // The returned collection appears to be unmodifiable, so first clone the list (ugh!)
-            Collection<InetAddress> unsortedInetAddresses = new LinkedList<InetAddress>(inetAddresses);
-            Collection<InetAddress> sortedInetAddresses = new LinkedList<InetAddress>();
+            Collection<InetAddress> unsortedInetAddresses = new LinkedList<>(inetAddresses);
+            Collection<InetAddress> sortedInetAddresses = new LinkedList<>();
             // Make a pass through the collection and pick the IPv4 addresses first, then add the rest of the addresses
             Iterator<InetAddress> inetAddressIter = unsortedInetAddresses.iterator();
             while (inetAddressIter.hasNext()) {

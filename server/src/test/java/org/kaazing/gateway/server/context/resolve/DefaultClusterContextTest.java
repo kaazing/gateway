@@ -79,7 +79,7 @@ public class DefaultClusterContextTest {
         CountDownLatch membersAdded;
         CountDownLatch membersRemoved;
 
-        List<MemberId> members = new ArrayList<MemberId>();
+        List<MemberId> members = new ArrayList<>();
 
         @Override
         public void memberAdded(MemberId newMember) {
@@ -360,7 +360,7 @@ public class DefaultClusterContextTest {
     }
 
     private void startClusterContext(final DefaultClusterContext clusterContext) {
-        FutureTask<Boolean> t = new FutureTask<Boolean>(new Runnable() {
+        FutureTask<Boolean> t = new FutureTask<>(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -399,20 +399,20 @@ public class DefaultClusterContextTest {
         URI targetURI = URI.create(format("ws://node%d.example.com:8080/path", nodeId));
         Set<URI> currentTargets = sharedBalancerMap.get(balanceURI);
         if (currentTargets == null) {
-            currentTargets = new HashSet<URI>();
+            currentTargets = new HashSet<>();
         }
         currentTargets.add(targetURI);
         sharedBalancerMap.put(balanceURI, currentTargets);
 
-        List<URI> myTargets = new ArrayList<URI>();
+        List<URI> myTargets = new ArrayList<>();
         myTargets.add(targetURI);
-        Map<URI, List<URI>> myBalanceTargets = new HashMap<URI, List<URI>>();
+        Map<URI, List<URI>> myBalanceTargets = new HashMap<>();
         myBalanceTargets.put(balanceURI, myTargets);
         memberIdBalancerMap.put(memberId, myBalanceTargets);
     }
 
     private void validateClusterState(ClusterContext... clusterContext) {
-        Set<URI> balanceTargets = new HashSet<URI>();
+        Set<URI> balanceTargets = new HashSet<>();
         if (clusterContext[0] != null) {
             balanceTargets.add(URI.create("ws://node1.example.com:8080/path"));
         }
@@ -425,7 +425,7 @@ public class DefaultClusterContextTest {
             if (!validateSharedBalancer(clusterContext[0].getCollectionsFactory(), balanceTargets)) {
                 fail("Expected 4 URIs as balance targets in cluster member 1's memory");
             } else {
-                List<URI> myBalanceTargets = new ArrayList<URI>();
+                List<URI> myBalanceTargets = new ArrayList<>();
                 myBalanceTargets.add(URI.create("ws://node1.example.com:8080/path"));
                 if (!validateMemberIdBalancerMap(clusterContext[0].getCollectionsFactory(), clusterContext[0]
                         .getLocalMember(), myBalanceTargets)) {
@@ -437,7 +437,7 @@ public class DefaultClusterContextTest {
             if (!validateSharedBalancer(clusterContext[1].getCollectionsFactory(), balanceTargets)) {
                 fail("Expected 4 URIs as balance targets in cluster member 2's memory");
             } else {
-                List<URI> myBalanceTargets = new ArrayList<URI>();
+                List<URI> myBalanceTargets = new ArrayList<>();
                 myBalanceTargets.add(URI.create("ws://node2.example.com:8080/path"));
                 if (!validateMemberIdBalancerMap(clusterContext[1].getCollectionsFactory(), clusterContext[1]
                         .getLocalMember(), myBalanceTargets)) {
@@ -448,7 +448,7 @@ public class DefaultClusterContextTest {
         if (!validateSharedBalancer(clusterContext[2].getCollectionsFactory(), balanceTargets)) {
             fail("Expected 4 URIs as balance targets in cluster member 3's memory");
         } else {
-            List<URI> myBalanceTargets = new ArrayList<URI>();
+            List<URI> myBalanceTargets = new ArrayList<>();
             myBalanceTargets.add(URI.create("ws://node3.example.com:8080/path"));
             if (!validateMemberIdBalancerMap(clusterContext[2].getCollectionsFactory(), clusterContext[2]
                     .getLocalMember(), myBalanceTargets)) {
@@ -458,7 +458,7 @@ public class DefaultClusterContextTest {
         if (!validateSharedBalancer(clusterContext[3].getCollectionsFactory(), balanceTargets)) {
             fail("Expected 4 URIs as balance targets in cluster member 4's memory");
         } else {
-            List<URI> myBalanceTargets = new ArrayList<URI>();
+            List<URI> myBalanceTargets = new ArrayList<>();
             myBalanceTargets.add(URI.create("ws://node4.example.com:8080/path"));
             if (!validateMemberIdBalancerMap(clusterContext[3].getCollectionsFactory(), clusterContext[3]
                     .getLocalMember(), myBalanceTargets)) {

@@ -94,7 +94,7 @@ public class AmqpTable {
         }
     }
 
-    public List<AmqpTableEntry> tableEntries = new ArrayList<AmqpTableEntry>();
+    public List<AmqpTableEntry> tableEntries = new ArrayList<>();
     
     /**
      * Returns the string/JSON representation of the table of entries.
@@ -120,7 +120,7 @@ public class AmqpTable {
         AmqpTableEntry table = new AmqpTableEntry(key, value, type);
  
         if (tableEntries == null) {
-            tableEntries = new ArrayList<AmqpTableEntry>();
+            tableEntries = new ArrayList<>();
         }
         
         this.tableEntries.add(table);
@@ -163,7 +163,7 @@ public class AmqpTable {
             return null;
         }
         
-        List<AmqpTableEntry> entries = new ArrayList<AmqpTableEntry>();
+        List<AmqpTableEntry> entries = new ArrayList<>();
         for (AmqpTableEntry entry : tableEntries) {
             if (entry.key.equals(key)) {
                 entries.add(entry);
@@ -173,7 +173,7 @@ public class AmqpTable {
     }
 
     public List<AmqpTableEntry> getEntries() {
-        List<AmqpTableEntry> entries = new ArrayList<AmqpTableEntry>();
+        List<AmqpTableEntry> entries = new ArrayList<>();
         entries.addAll(tableEntries);
         return entries;
     }

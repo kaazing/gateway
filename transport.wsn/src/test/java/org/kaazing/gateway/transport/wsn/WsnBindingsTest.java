@@ -231,7 +231,7 @@ public class WsnBindingsTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "wsn://localhost:8000/echo";
         final ResourceAddress bindAddress =
@@ -261,7 +261,7 @@ public class WsnBindingsTest {
     @Test
     public void shouldBindAndUnbindSecureAddressesLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "wsn+ssl://localhost:8000/echo";
         final ResourceAddress bindAddress =

@@ -54,7 +54,7 @@ public class ResolveResourceAddressTest {
 
     private ResourceAddress createTestAddress() {
         URI addressURI = URI.create("test://opaque/path");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("test://transport/path"));
         return addressFactory.newResourceAddress(addressURI, options);
     }

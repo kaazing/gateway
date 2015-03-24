@@ -176,7 +176,7 @@ public class HttpOperationFilterTest {
         });
 
         ServiceProperties properties = new ServiceProperties() {
-            private Map<String, String> properties = new HashMap<String, String>();
+            private Map<String, String> properties = new HashMap<>();
 
             @Override
             public String get(String key) {

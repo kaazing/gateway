@@ -25,7 +25,7 @@ public class WsExtensionValidation {
 
     static enum Status {
         INVALID,
-        VALID;
+        VALID
     }
 
     private final Status status;

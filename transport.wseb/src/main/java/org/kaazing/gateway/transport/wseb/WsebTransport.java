@@ -36,7 +36,7 @@ final class WsebTransport extends Transport {
 
     private static final Map<String, Protocol> WSEB_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("wseb", WsebProtocol.WSEB);
         map.put("wse", WsebProtocol.WSEB);
         map.put("wse+ssl", WsebProtocol.WSEB_SSL);

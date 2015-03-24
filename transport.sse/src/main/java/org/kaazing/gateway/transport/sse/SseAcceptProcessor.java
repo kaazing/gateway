@@ -251,7 +251,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
             HttpAcceptSession session = (HttpAcceptSession)future.getSession();
             checkInitialPadding(session);
         }
-    };
+    }
 
     private static final void checkBlockPadding(HttpAcceptSession session) {
         // TODO: Verify if counting bytes is really necessary
@@ -277,7 +277,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
 
             super.operationComplete(future);
         }
-    };
+    }
 
     private static class CheckBuffer implements IoFutureListener<WriteFuture> {
 
@@ -310,6 +310,6 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
                 }
             }
         }
-    };
+    }
 
 }

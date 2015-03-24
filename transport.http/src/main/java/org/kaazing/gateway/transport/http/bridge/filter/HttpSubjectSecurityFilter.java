@@ -351,8 +351,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
      */
     public static class AuthorizationMap {
 
-        private Map<String, TimedCredential> keyToTimedCredentialMap = new ConcurrentHashMap<String, TimedCredential>();
-        private Map<Subject, String> subjectToKeyMap = new ConcurrentHashMap<Subject, String>();
+        private Map<String, TimedCredential> keyToTimedCredentialMap = new ConcurrentHashMap<>();
+        private Map<Subject, String> subjectToKeyMap = new ConcurrentHashMap<>();
 
 
         // For testing

@@ -81,7 +81,7 @@ public abstract class AbstractProxyHandler extends IoHandlerAdapter {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("[" + session.getId() + "] session created (" + session + ")");
         }
-        Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
+        Queue<Object> messageQueue = new ConcurrentLinkedQueue<>();
         session.setAttribute(QUEUED_MESSAGES_KEY, messageQueue);
     }
 

@@ -39,7 +39,7 @@ final class HttpTransport extends Transport {
     private static final Map<Proxy.Type, ProxyHandler> HTTP_PROXY_HANDLERS;
 
     static {
-        Map<Proxy.Type, ProxyHandler> map = new HashMap<Proxy.Type, ProxyHandler>();
+        Map<Proxy.Type, ProxyHandler> map = new HashMap<>();
         map.put(Proxy.Type.HTTP, new HttpProxyHandler());
         HTTP_PROXY_HANDLERS = Collections.unmodifiableMap(map);
     }
@@ -47,7 +47,7 @@ final class HttpTransport extends Transport {
     private static final Map<String, Protocol> HTTP_PROTOCOLS;
 
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("http", HttpProtocol.HTTP);
         map.put("https", HttpProtocol.HTTPS);
         map.put("httpx", HttpProtocol.HTTP);
@@ -65,7 +65,7 @@ final class HttpTransport extends Transport {
 
     static {
         HttpProtocolDispatcher dispatcher = new HttpProtocolDispatcher();
-        Map<String, ProtocolDispatcher> map = new HashMap<String, ProtocolDispatcher>();
+        Map<String, ProtocolDispatcher> map = new HashMap<>();
         map.put(dispatcher.getProtocolName(), dispatcher);
         HTTP_PROTOCOL_DISPATCHERS = Collections.unmodifiableMap(map);
     }

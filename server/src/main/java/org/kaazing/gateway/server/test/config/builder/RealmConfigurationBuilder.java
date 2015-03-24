@@ -32,7 +32,7 @@ public class RealmConfigurationBuilder extends AbstractRealmConfigurationBuilder
     }
 
     public AddLoginModuleBuilder<RealmConfigurationBuilder> loginModule() {
-        return new AddLoginModuleBuilder<RealmConfigurationBuilder>(this, getCurrentSuppressions());
+        return new AddLoginModuleBuilder<>(this, getCurrentSuppressions());
     }
 
     private RealmConfigurationBuilder(RealmConfiguration configuration, Set<Suppression> suppressions) {

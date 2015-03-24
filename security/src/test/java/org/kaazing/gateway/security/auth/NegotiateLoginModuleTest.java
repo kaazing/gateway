@@ -76,7 +76,7 @@ public class NegotiateLoginModuleTest {
             {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
                 final String loginModuleName = "org.kaazing.gateway.security.auth.NegotiateLoginModule";
-                final HashMap<String, Object> options = new HashMap<String, Object>();
+                final HashMap<String, Object> options = new HashMap<>();
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                         REQUIRED, options);
                 will(returnValue(new AppConfigurationEntry[]{entry}));

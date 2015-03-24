@@ -37,7 +37,7 @@ public class DefaultMessagingMessage implements MessagingMessage, Serializable {
     public DefaultMessagingMessage(MessagingMessage toCopy) {
         this.id = toCopy.getId();
         this.payload = toCopy.getPayload();
-        Map<String, Object> attributes = new HashMap<String, Object>();
+        Map<String, Object> attributes = new HashMap<>();
         for (Map.Entry<String, Object> entry : toCopy.attributes()) {
             attributes.put(entry.getKey(), entry.getValue());
         }
@@ -45,7 +45,7 @@ public class DefaultMessagingMessage implements MessagingMessage, Serializable {
     }
 
     public DefaultMessagingMessage() {
-        this.attributes = new HashMap<String, Object>();
+        this.attributes = new HashMap<>();
     }
 
     public void setId(String id) {

@@ -68,7 +68,7 @@ public final class GatewayObserver implements GatewayObserverApi {
             return;
         }
 
-        Class<? extends Object> clazz = target.getClass();
+        Class<?> clazz = target.getClass();
 
         for (Method method : clazz.getMethods()) {
             Resource resource = method.getAnnotation(Resource.class);

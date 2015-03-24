@@ -71,7 +71,7 @@ import org.slf4j.Logger;
 public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
 
     public static final TypedAttributeKey<IoBufferEx> DRAFT76_KEY3_BUFFER_KEY
-            = new TypedAttributeKey<IoBufferEx>(HttpMergeRequestFilter.class, "draft76Key3Buffer");
+            = new TypedAttributeKey<>(HttpMergeRequestFilter.class, "draft76Key3Buffer");
 
     public static final String HEADER_X_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
     public static final String HEADER_WEBSOCKET_EXTENSIONS = "WebSocket-Extensions";
@@ -105,7 +105,7 @@ public class HttpMergeRequestFilter extends HttpFilterAdapter<IoSessionEx> {
      * The initial WebSocket Upgrade request.
      */
     public static final TypedAttributeKey<HttpRequestMessage> INITIAL_HTTP_REQUEST_KEY =
-            new TypedAttributeKey<HttpRequestMessage>(HttpMergeRequestFilter.class, "initialHttpRequest");
+            new TypedAttributeKey<>(HttpMergeRequestFilter.class, "initialHttpRequest");
 
 
     /**

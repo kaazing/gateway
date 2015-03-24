@@ -41,7 +41,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 public class ActiveWsExtensions {
     public static final ActiveWsExtensions EMPTY = new ActiveWsExtensions(new ArrayList<WsExtension>(0), WsExtension.EndpointKind.SERVER);
     private static final TypedAttributeKey<ActiveWsExtensions> WS_EXTENSIONS_KEY 
-           = new TypedAttributeKey<ActiveWsExtensions>(ActiveWsExtensions.class, "activeWsExtensions");
+           = new TypedAttributeKey<>(ActiveWsExtensions.class, "activeWsExtensions");
 
     
     private final List<WsExtension> extensions;
@@ -57,8 +57,8 @@ public class ActiveWsExtensions {
     private WsExtension escapedDecodingExtension = null;
 
     public ActiveWsExtensions(List<WsExtension> negotiatedExtensions, WsExtension.EndpointKind endpointKind) {
-        extensions = new ArrayList<WsExtension>(negotiatedExtensions.size());
-        SortedSet<WsExtension> sorted = new TreeSet<WsExtension>(new Comparator<WsExtension>(){
+        extensions = new ArrayList<>(negotiatedExtensions.size());
+        SortedSet<WsExtension> sorted = new TreeSet<>(new Comparator<WsExtension>(){
 
             @Override
             public int compare(WsExtension o1, WsExtension o2) {
@@ -69,10 +69,10 @@ public class ActiveWsExtensions {
         });
         sorted.addAll(negotiatedExtensions);
         extensions.addAll(sorted);
-        binaryDecodingExtensions = new ArrayList<WsExtension>(extensions.size());
-        textDecodingExtensions = new ArrayList<WsExtension>(extensions.size());
-        binaryEncodingExtensions = new ArrayList<WsExtension>(extensions.size());
-        textEncodingExtensions = new ArrayList<WsExtension>(extensions.size());
+        binaryDecodingExtensions = new ArrayList<>(extensions.size());
+        textDecodingExtensions = new ArrayList<>(extensions.size());
+        binaryEncodingExtensions = new ArrayList<>(extensions.size());
+        textEncodingExtensions = new ArrayList<>(extensions.size());
         byte[] commonBytes = new byte[0];
         int commonCount = 0;
         for (WsExtension extension : negotiatedExtensions) {
@@ -198,7 +198,7 @@ public class ActiveWsExtensions {
         if (extensions2 == EMPTY) {
             return extensions1;
         }
-        List<WsExtension> merged = new ArrayList<WsExtension>(extensions1.extensions.size() + extensions2.extensions.size());
+        List<WsExtension> merged = new ArrayList<>(extensions1.extensions.size() + extensions2.extensions.size());
         merged.addAll(extensions1.extensions);
         merged.addAll(extensions2.extensions);
         return new ActiveWsExtensions(merged, endpointKind);

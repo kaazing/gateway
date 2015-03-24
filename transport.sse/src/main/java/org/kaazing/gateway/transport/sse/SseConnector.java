@@ -65,9 +65,9 @@ import org.slf4j.LoggerFactory;
 
 public class SseConnector extends AbstractBridgeConnector<SseSession> {
 
-    private static final TypedAttributeKey<Callable<SseSession>> SSE_SESSION_FACTORY_KEY = new TypedAttributeKey<Callable<SseSession>>(SseConnector.class, "sseSessionFactory");
-    private static final TypedAttributeKey<ConnectFuture> SSE_CONNECT_FUTURE_KEY = new TypedAttributeKey<ConnectFuture>(SseConnector.class, "sseConnectFuture");
-    private static final TypedAttributeKey<SseSession> SSE_SESSION_KEY = new TypedAttributeKey<SseSession>(SseConnector.class, "sseSession");
+    private static final TypedAttributeKey<Callable<SseSession>> SSE_SESSION_FACTORY_KEY = new TypedAttributeKey<>(SseConnector.class, "sseSessionFactory");
+    private static final TypedAttributeKey<ConnectFuture> SSE_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(SseConnector.class, "sseConnectFuture");
+    private static final TypedAttributeKey<SseSession> SSE_SESSION_KEY = new TypedAttributeKey<>(SseConnector.class, "sseSession");
 
     private static final String CODEC_FILTER = SseProtocol.NAME + "#codec";
     private static final String FAULT_LOGGING_FILTER = SseProtocol.NAME + "#fault";

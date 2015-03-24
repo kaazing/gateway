@@ -34,7 +34,7 @@ public class DefaultRoleConfig implements RoleConfig {
     private Collection<String> roleNames;
 
     public DefaultRoleConfig() {
-        roleNames = new HashSet<String>();
+        roleNames = new HashSet<>();
     }
 
     public Collection<String> getRoleNames() {

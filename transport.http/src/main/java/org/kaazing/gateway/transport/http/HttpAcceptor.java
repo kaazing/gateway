@@ -116,7 +116,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 	
-    private static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<DefaultHttpSession>(HttpAcceptor.class, "session");
+    private static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
     private static final String TRACE_LOGGING_FILTER = HttpProtocol.NAME + "#logging";
@@ -145,7 +145,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         // note: empty packet filter is added dynamically for httpx/1.1, and not needed by httpxe/1.1 nor http/1.1
         // note: serialize request filter only needed for http , not httpxe nor httpx
 
-        Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol = new HashMap<String, Set<HttpAcceptFilter>>();
+        Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol = new HashMap<>();
         acceptFiltersByProtocol.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT,
                                                                        PROTOCOL_HTTPXE,
                                                                        ELEVATE_EMULATED_REQUEST,

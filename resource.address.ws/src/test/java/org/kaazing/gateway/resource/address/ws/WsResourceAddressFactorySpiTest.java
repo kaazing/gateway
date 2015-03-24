@@ -74,7 +74,7 @@ public class WsResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new WsResourceAddressFactorySpi();
         addressURI = URI.create("ws://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);
@@ -257,17 +257,17 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress addr2 = makeResourceAddress(new URI("wsr://localhost:8001/echo"));
         assertEquals(0, cmp.compare(addr1, addr2));
 
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("http.nextProtocol", "wse/1.0");
         ResourceAddress addr3 = addressFactory.newResourceAddress(new URI("wse://localhost:8001/echo"), options);
         assertEquals(0, cmp.compare(addr1, addr3));
 
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("http.nextProtocol", "xxx/1.0");
         ResourceAddress addr4 = addressFactory.newResourceAddress(new URI("wse://localhost:8001/echo"), options);
         assertNotEquals(0, cmp.compare(addr1, addr4));
 
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("http.transport", new URI("tcp://localhost:8002"));
         ResourceAddress addr5 = addressFactory.newResourceAddress(new URI("ws://localhost:8001/echo"), options);
         assertNotEquals(0, cmp.compare(addr1, addr5));
@@ -280,8 +280,8 @@ public class WsResourceAddressFactorySpiTest {
         List<Integer> ports = Arrays.asList(30, 40, 50, 60, 61, 62, 63, 70, 1024, 2045, 235, 345, 123, 456,
                 3276, 9000, 3489, 9234, 765, 4567, 3490, 12890, 6780, 9001, 9002);
 
-        ArrayList<ResourceAddress> list = new ArrayList<ResourceAddress>(ports.size());
-        Map<ResourceAddress, ResourceAddress> map = new ConcurrentSkipListMap<ResourceAddress, ResourceAddress>(cmp);
+        ArrayList<ResourceAddress> list = new ArrayList<>(ports.size());
+        Map<ResourceAddress, ResourceAddress> map = new ConcurrentSkipListMap<>(cmp);
 
         for(int port : ports) {
             ResourceAddress addr = makeLayeredResourceAddress(port);
@@ -306,7 +306,7 @@ public class WsResourceAddressFactorySpiTest {
 
 
     private ResourceAddress makeLayeredResourceAddress(int port) throws Exception {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("tcp.nextProtocol", "http/1.1");
         options.put("tcp.transport", URI.create("tcp://localhost:"+port));
         ResourceAddress tcp = addressFactory.newResourceAddress(new URI("tcp://localhost:8005"), options);

@@ -69,9 +69,9 @@ class SslHandler {
     private final SslFilter parent;
     private final SSLContext sslContext;
     private final IoSessionEx session;
-    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
-    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<IoFilterEvent>();
+    private final Queue<IoFilterEvent> preHandshakeEventQueue = new CircularQueue<>();
+    private final Queue<IoFilterEvent> filterWriteEventQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<IoFilterEvent> messageReceivedEventQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger messageReceivedEventQueueConcurrentGuard = new AtomicInteger(0);
     private final Logger logger;
     private SSLEngine sslEngine;
@@ -806,7 +806,7 @@ class SslHandler {
             return null;
         }
 
-        List<String> list = new ArrayList<String>(names.length);
+        List<String> list = new ArrayList<>(names.length);
         for (int i = 0; i < names.length; i++) {
             list.add(names[i]);
         }
@@ -830,7 +830,7 @@ class SslHandler {
     }
 
     private String[] removeSslProtocols(String[] protocols) {
-        List<String> protocolList = new ArrayList<String>();
+        List<String> protocolList = new ArrayList<>();
         for(String protocol : protocols) {
             // JSSE doesn't enable SSLv2, but allows SSLv3/TLSv1 hellos encapsulated in SSLv2Hello format
             // Should we also disable SSLv2Hello ?

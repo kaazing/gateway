@@ -94,7 +94,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             new DefaultTransportMetadata(SseProtocol.NAME, SseSessionConfig.class);
 
     private static final TypedAttributeKey<ResourceAddress> NEXT_PROTOCOL_RESOURCE_ADDRESS =
-             new TypedAttributeKey<ResourceAddress>(SseAcceptor.class, "nextProtocolResourceAddress");
+             new TypedAttributeKey<>(SseAcceptor.class, "nextProtocolResourceAddress");
 
     private static final String CODEC_FILTER = SseProtocol.NAME + "#codec";
     private static final String FAULT_LOGGING_FILTER = SseProtocol.NAME + "#fault";
@@ -244,7 +244,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
     }
     private IoHandler bridgeHandler = new IoHandlerAdapter<HttpAcceptSession>() {
 
-        private final TypedAttributeKey<SseSession> SSE_SESSION_KEY = new TypedAttributeKey<SseSession>(SseAcceptor.class, "sseSession");
+        private final TypedAttributeKey<SseSession> SSE_SESSION_KEY = new TypedAttributeKey<>(SseAcceptor.class, "sseSession");
         @Override
         protected void doSessionOpened(HttpAcceptSession httpSession) throws Exception {
             IoFilterChain filterChain = httpSession.getFilterChain();

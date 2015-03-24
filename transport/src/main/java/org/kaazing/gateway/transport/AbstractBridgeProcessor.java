@@ -51,7 +51,7 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
     private static final Logger logger = LoggerFactory.getLogger(AbstractBridgeProcessor.class);
 
 	public AbstractBridgeProcessor() {
-		this.sessionMap = new ConcurrentHashMap<SocketAddress, IoSession>();
+		this.sessionMap = new ConcurrentHashMap<>();
 		this.disposed = new AtomicBoolean();
 	}
 
@@ -127,7 +127,7 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
                     // drain the unwritten write requests to ensure that session.close(false)
                     // still triggers the session close future
                     if (parent.isClosing()) {
-                        Collection<WriteRequest> unwritten = new LinkedList<WriteRequest>();
+                        Collection<WriteRequest> unwritten = new LinkedList<>();
                         while (request != null) {
                             unwritten.add(request);
                             request = writeRequestQueue.poll(session);

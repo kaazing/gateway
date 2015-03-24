@@ -52,12 +52,12 @@ public class ResourceAddressFactory {
         ServiceLoader<ResourceAddressFactorySpi> loader = loadResourceAddressFactorySpi(classLoader);
 
         // scheme name -> factory, for e.g { "ws" -> ws factory, "http" -> http factory, ... }
-        Map<String, ResourceAddressFactorySpi<?>> addressFactories = new HashMap<String, ResourceAddressFactorySpi<?>>();
+        Map<String, ResourceAddressFactorySpi<?>> addressFactories = new HashMap<>();
 
         // scheme name -> { alternate scheme name1 -> factory1, alternate scheme name2 -> factory2,...}
         // "ws" -> { "wse" -> wse factory, "wsr" -> wsr factory, ...}
         Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories =
-                new HashMap<String, Map<String, ResourceAddressFactorySpi<?>>>();
+                new HashMap<>();
 
         for (ResourceAddressFactorySpi<?> resourceAddressFactorySpi : loader) {
             String schemeName = resourceAddressFactorySpi.getSchemeName();
@@ -70,7 +70,7 @@ public class ResourceAddressFactory {
             if (alternateToScheme != null) {
                 Map<String, ResourceAddressFactorySpi<?>> alternates = alternateAddressFactories.get(alternateToScheme);
                 if (alternates == null) {
-                    alternates = new HashMap<String, ResourceAddressFactorySpi<?>>();
+                    alternates = new HashMap<>();
                     alternateAddressFactories.put(alternateToScheme, alternates);
                 }
                 alternates.put(schemeName, resourceAddressFactorySpi);

@@ -60,30 +60,30 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         _configuration = new SuppressibleServiceConfigurationImpl();
         _configuration.setSuppression(Suppressibles.getDefaultSuppressions());
 
-        balances = new HashSet<Suppressible<URI>>();
+        balances = new HashSet<>();
         unsuppressibleBalances = Suppressibles.unsuppressibleSet(balances);
 
-        accepts = new HashSet<Suppressible<URI>>();
+        accepts = new HashSet<>();
         unsuppressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
 
-        acceptOptions = new HashMap<String, Suppressible<String>>();
+        acceptOptions = new HashMap<>();
         unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
 
-        connects = new HashSet<Suppressible<URI>>();
+        connects = new HashSet<>();
         unsuppressibleConnects = Suppressibles.unsuppressibleSet(connects);
 
-        connectOptions = new HashMap<String, Suppressible<String>>();
+        connectOptions = new HashMap<>();
         unsuppressibleConnectOptions = Suppressibles.unsuppressibleMap(connectOptions);
 
-        mimeMappings = new HashMap<String, Suppressible<String>>();
+        mimeMappings = new HashMap<>();
         unsuppressibleMimeMappings = Suppressibles.unsuppressibleMap(mimeMappings);
 
-        properties = new HashMap<String, Suppressible<String>>();
+        properties = new HashMap<>();
         unsuppressibleProperties = Suppressibles.unsuppressibleMap(properties);
 
-        authorizationConstraints = new LinkedList<AuthorizationConstraintConfiguration>();
-        crossOriginConstraints = new LinkedList<CrossOriginConstraintConfiguration>();
-        nestedProperties = new LinkedList<NestedServicePropertiesConfiguration>();
+        authorizationConstraints = new LinkedList<>();
+        crossOriginConstraints = new LinkedList<>();
+        nestedProperties = new LinkedList<>();
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     // description
     public void setDescription(String description) {
-        this._description = new Suppressible<String>(description);
+        this._description = new Suppressible<>(description);
     }
 
     public String getDescription() {
@@ -172,7 +172,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     // name
     public void setName(String name) {
-        this._name = new Suppressible<String>(name);
+        this._name = new Suppressible<>(name);
     }
 
     public String getName() {
@@ -184,7 +184,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     // realm name
     public void setRealmName(String realmName) {
-        this._realmName = new Suppressible<String>(realmName);
+        this._realmName = new Suppressible<>(realmName);
     }
 
     public String getRealmName() {
@@ -196,7 +196,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     // type
     public void setType(String type) {
-        this._type = new Suppressible<String>(type);
+        this._type = new Suppressible<>(type);
     }
 
     public String getType() {

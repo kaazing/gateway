@@ -75,7 +75,7 @@ public class EncodingFilter extends WriteRequestFilterEx {
     
     private static class SessionDecodingState implements DecodingState {
         static TypedAttributeKey<Object> DECODING_STATE =
-                new TypedAttributeKey<Object>(EncodingFilter.class,
+                new TypedAttributeKey<>(EncodingFilter.class,
                         "decodingState");
         
         private IoSession session;

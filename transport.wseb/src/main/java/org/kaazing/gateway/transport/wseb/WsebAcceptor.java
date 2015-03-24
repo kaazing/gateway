@@ -159,14 +159,14 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     protected static final byte LINEFEED_BYTE = "\n".getBytes()[0];
 
     private static final TypedAttributeKey<WsebSession> SESSION_KEY =
-            new TypedAttributeKey<WsebSession>(WsebAcceptor.class, "wseSession");
+            new TypedAttributeKey<>(WsebAcceptor.class, "wseSession");
 
     private static final TypedAttributeKey<String[]> SUPPORTED_PROTOCOLS =
-            new TypedAttributeKey<String[]>(WsebAcceptor.class, "supportedProtocols");
+            new TypedAttributeKey<>(WsebAcceptor.class, "supportedProtocols");
 
     // used to deal with fragmented wseb-create-message content
     private static final TypedAttributeKey<Integer> CREATE_CONTENT_LENGTH_READ =
-            new TypedAttributeKey<Integer>(WsebAcceptor.class, "createContentLengthRead");
+            new TypedAttributeKey<>(WsebAcceptor.class, "createContentLengthRead");
 
     private static final String FAULT_LOGGING_FILTER = WsebProtocol.NAME + "#fault";
     private static final String TRACE_LOGGING_FILTER = WsebProtocol.NAME + "#logging";

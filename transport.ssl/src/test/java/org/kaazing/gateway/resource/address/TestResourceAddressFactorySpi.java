@@ -99,7 +99,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
                                                                   URI location,
                                                                   ResourceOptions options) {
 
-            List<TestResourceAddress> addresses = new ArrayList<TestResourceAddress>();
+            List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             String path = location.getPath();
             if (path == null || "".equals(path)) {
@@ -124,7 +124,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
                                                         URI location,
                                                         ResourceOptions options) {
 
-            List<TestResourceAddress> addresses = new ArrayList<TestResourceAddress>();
+            List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
@@ -144,7 +144,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
                                                         URI location,
                                                         ResourceOptions options) {
 
-            List<TestResourceAddress> addresses = new ArrayList<TestResourceAddress>();
+            List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,

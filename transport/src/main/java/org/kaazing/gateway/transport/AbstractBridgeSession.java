@@ -130,7 +130,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         
         this.service = service;
         this.processor = processor;
-        this.parent = new AtomicReference<IoSessionEx>(parent);
+        this.parent = new AtomicReference<>(parent);
         this.allocator = allocator;
 
         this.metadata = service.getTransportMetadata();
@@ -412,7 +412,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         @Override
         protected void doSetAll(IoSessionConfigEx config) {
         }
-    };
+    }
 
     private static IoSessionEx checkParentNotNull(IoSessionEx parent) {
         if (parent == null) {

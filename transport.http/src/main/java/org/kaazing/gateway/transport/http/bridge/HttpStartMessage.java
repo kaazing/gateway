@@ -222,7 +222,7 @@ public abstract class HttpStartMessage extends HttpMessage {
 
 	private Set<HttpCookie> getCookies(boolean createIfNull) {
 		if (cookies == null && createIfNull) {
-			cookies = new TreeSet<HttpCookie>(HttpCookieComparator.INSTANCE);
+			cookies = new TreeSet<>(HttpCookieComparator.INSTANCE);
 		}
 		return cookies;
 	}
@@ -244,7 +244,7 @@ public abstract class HttpStartMessage extends HttpMessage {
 		
 		List<String> headerValues = headers.get(headerName);
 		if (headerValues == null && createIfNull) {
-			headerValues = new LinkedList<String>();
+			headerValues = new LinkedList<>();
 			headers.put(headerName, headerValues);
 		}
 		return headerValues;

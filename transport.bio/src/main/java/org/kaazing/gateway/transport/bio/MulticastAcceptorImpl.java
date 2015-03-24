@@ -81,7 +81,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
     public MulticastAcceptorImpl(IoSessionConfigEx sessionConfig, Executor executor) {
 		super(sessionConfig, executor);
 		
-		boundHandles = new ConcurrentHashMap<SocketAddress, Handle>();
+		boundHandles = new ConcurrentHashMap<>();
 		processor = new MulticastProcessor();
 	}
 
@@ -120,8 +120,8 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 	protected Set<SocketAddress> bindInternal(
 			List<? extends SocketAddress> localAddresses) throws Exception {
 		
-		Set<SocketAddress> boundAddresses = new HashSet<SocketAddress>();
-        List<SocketAddress> failedAddresses = new LinkedList<SocketAddress>();
+		Set<SocketAddress> boundAddresses = new HashSet<>();
+        List<SocketAddress> failedAddresses = new LinkedList<>();
 		
 		for (SocketAddress localAddress : localAddresses) {
 			MulticastAddress multicastAddress = (MulticastAddress)localAddress;
@@ -177,7 +177,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 		
 		// close all recycled sessions that have not yet timed out
 		// this triggers the sessionClosed event for the filter chain
-		Set<IoSession> managedSessions = new HashSet<IoSession>(getManagedSessions().values());
+		Set<IoSession> managedSessions = new HashSet<>(getManagedSessions().values());
 		for (IoSession managedSession : managedSessions) {
 			managedSession.close(true);
 		}
@@ -309,7 +309,7 @@ public class MulticastAcceptorImpl extends AbstractIoAcceptorEx {
 				catch (IOException e) {
 					if (socket.isClosed()) {
 						// socket closed, so close sessions for this local address
-						Set<IoSession> managedSessions = new HashSet<IoSession>(getManagedSessions().values());
+						Set<IoSession> managedSessions = new HashSet<>(getManagedSessions().values());
 						for (IoSession managedSession : managedSessions) {
 							if (localAddress.equals(managedSession.getLocalAddress())) {
 								managedSession.close(true);

@@ -35,7 +35,7 @@ final class SseTransport extends Transport {
 
     private static final Map<String, Protocol> SSE_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("sse", SseProtocol.SSE);
         map.put("sse+ssl", SseProtocol.SSE_SSL);
         SSE_PROTOCOLS = Collections.unmodifiableMap(map);

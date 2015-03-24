@@ -439,12 +439,12 @@ public class WsCloseTransportTest {
         };
 
         final URI uri = URI.create("wsn://localhost:4444/echo");
-        final List<URI> accepts = new ArrayList<URI>(1);
+        final List<URI> accepts = new ArrayList<>(1);
         accepts.add(uri);
 
 //        final Map<URI, ? extends CrossSiteConstraintContext> crossSiteConstraints = new HashMap<URI, DefaultCrossSiteConstraintContext>();
 
-        final List<String> requiredRoles = new ArrayList<String>(1);
+        final List<String> requiredRoles = new ArrayList<>(1);
         requiredRoles.add("*");
 
         final ResourceAddress resourceAddress =

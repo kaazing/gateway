@@ -47,10 +47,10 @@ public class WsExtensionUtilsTest {
 
         String headerName = "Sec-WebSocket-Extensions";
 
-        List<String> requestedExts = new ArrayList<String>();
+        List<String> requestedExts = new ArrayList<>();
         requestedExts.add("x-kaazing-ping-pong");
 
-        List<String> supportedExts = new ArrayList<String>();
+        List<String> supportedExts = new ArrayList<>();
         supportedExts.add("x-kaazing-ping-pong");
  
         HttpRequestMessage request = new HttpRequestMessage();
@@ -73,7 +73,7 @@ public class WsExtensionUtilsTest {
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
         List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
 
-        List<WsExtension> expectedExts = new ArrayList<WsExtension>();
+        List<WsExtension> expectedExts = new ArrayList<>();
         WsExtensionBuilder web = new WsExtensionBuilder("x-kaazing-ping-pong");
         web.appendParameter("01010102");
         expectedExts.add(web.toWsExtension());
@@ -85,7 +85,7 @@ public class WsExtensionUtilsTest {
     public void shouldNegotiateEmptyWsExtensions() throws Exception {
         List<String> requestedExts = null;
 
-        List<String> supportedExts = new ArrayList<String>();
+        List<String> supportedExts = new ArrayList<>();
         supportedExts.add("x-kaazing-foo");
  
         HttpRequestMessage request = new HttpRequestMessage();
@@ -110,10 +110,10 @@ public class WsExtensionUtilsTest {
 
     @Test
     public void shouldNegotiateNoCommonWsExtensions() throws Exception {
-        List<String> requestedExts = new ArrayList<String>();
+        List<String> requestedExts = new ArrayList<>();
         requestedExts.add("x-kaazing-foo-bar");
 
-        List<String> supportedExts = new ArrayList<String>();
+        List<String> supportedExts = new ArrayList<>();
         supportedExts.add("x-kaazing-ping-pong");
         supportedExts.add(null);
  
@@ -143,10 +143,10 @@ public class WsExtensionUtilsTest {
 
         String headerName = "Sec-WebSocket-Extensions";
 
-        List<String> requestedExts = new ArrayList<String>();
+        List<String> requestedExts = new ArrayList<>();
         requestedExts.add("x-kaazing-ping-pong");
 
-        List<String> supportedExts = new ArrayList<String>();
+        List<String> supportedExts = new ArrayList<>();
         supportedExts.add("x-kaazing-ping-pong");
         supportedExts.add(null);
  
@@ -171,7 +171,7 @@ public class WsExtensionUtilsTest {
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
         List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
 
-        List<WsExtension> expectedExts = new ArrayList<WsExtension>();
+        List<WsExtension> expectedExts = new ArrayList<>();
         WsExtensionBuilder web = new WsExtensionBuilder("x-kaazing-ping-pong");
         expectedExts.add(web.toWsExtension());
 

@@ -46,7 +46,7 @@ public abstract class Bindings<B extends Binding> {
     private final ConcurrentNavigableMap<ResourceAddress, B> bindings;
 
     protected Bindings(Comparator<ResourceAddress> comparator) {
-        bindings = new ConcurrentSkipListMap<ResourceAddress, B>(comparator);
+        bindings = new ConcurrentSkipListMap<>(comparator);
     }
 
     public boolean isEmpty() {

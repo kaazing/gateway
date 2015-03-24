@@ -69,7 +69,7 @@ public class AcceptOptionsTest {
 
     @Before
     public void setAllowedServices() {
-        Set<String> serviceList = new HashSet<String>();
+        Set<String> serviceList = new HashSet<>();
         serviceList.add("echo");
         serviceList.add("directory");
     }

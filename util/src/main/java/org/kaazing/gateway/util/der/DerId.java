@@ -31,15 +31,15 @@ public class DerId {
      * Tag classes in a DER identifier.
      */
     public enum TagClass {
-        UNIVERSAL, APPLICATION, CONTEXT_SPECIFIC, PRIVATE;
-    };
+        UNIVERSAL, APPLICATION, CONTEXT_SPECIFIC, PRIVATE
+    }
 
     /**
      * Encoding types in a DER identifier.
      */
     public enum EncodingType {
-        PRIMITIVE, CONSTRUCTED;
-    };
+        PRIMITIVE, CONSTRUCTED
+    }
 
     private TagClass tagClass;
     private EncodingType encodingType;

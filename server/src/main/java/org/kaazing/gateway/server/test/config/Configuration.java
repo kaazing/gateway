@@ -26,7 +26,7 @@ public interface Configuration<T extends SuppressibleConfiguration> {
 
     public enum ConfigurationType {
         AUTHORIZATION_CONSTRAINT, CLUSTER, CROSS_ORIGIN, GATEWAY, LOGIN_MODULE, NETWORK, REALM, SECURITY, SERVICE,
-        SERVICE_DEFAULTS, SERVICE_PROPERTIES;
+        SERVICE_DEFAULTS, SERVICE_PROPERTIES
     }
 
     T getSuppressibleConfiguration();

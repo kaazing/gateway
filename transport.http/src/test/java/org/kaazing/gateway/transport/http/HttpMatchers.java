@@ -31,19 +31,19 @@ import org.hamcrest.Matcher;
 public class HttpMatchers {
 
     public static <T extends HttpAcceptSession>  Matcher<T> hasMethod(HttpMethod method) {
-        return new HasMethod<T>(method);
+        return new HasMethod<>(method);
     }
 
     public static <T extends HttpAcceptSession>  Matcher<T> hasMethod(Matcher<HttpMethod> matcher) {
-        return new HasMethod<T>(matcher);
+        return new HasMethod<>(matcher);
     }
 
     public static <T extends HttpSession>  Matcher<T> hasReadHeader(String headerName, String headerValue) {
-        return new HasReadHeader<T>(headerName, headerValue);
+        return new HasReadHeader<>(headerName, headerValue);
     }
 
     public static <T extends HttpSession>  Matcher<T> hasReadHeader(String headerName, Matcher<String> headerValue) {
-        return new HasReadHeader<T>(headerName, headerValue);
+        return new HasReadHeader<>(headerName, headerValue);
     }
 
     private HttpMatchers() {

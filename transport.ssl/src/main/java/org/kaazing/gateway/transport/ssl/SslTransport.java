@@ -35,7 +35,7 @@ final class SslTransport extends Transport {
 
     private static final Map<String, Protocol> SSL_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("ssl", SslProtocol.SSL);
         SSL_PROTOCOLS = Collections.unmodifiableMap(map);
     }

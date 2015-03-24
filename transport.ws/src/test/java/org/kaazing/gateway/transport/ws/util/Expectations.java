@@ -44,7 +44,7 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 
 public class Expectations extends org.jmock.Expectations {
 
-    private Map<String, Object> variables = new HashMap<String, Object>();
+    private Map<String, Object> variables = new HashMap<>();
     
     public Matcher<AttributeKey> attributeKeyMatching(String regex) {
         return new AttributeKeyMatching(regex);
@@ -110,7 +110,7 @@ public class Expectations extends org.jmock.Expectations {
     }
     
     public <T> Matcher<T> variable(String variableName, Class<T> clazz) {
-        return new VariableMatcher<T>(variableName, clazz, this);
+        return new VariableMatcher<>(variableName, clazz, this);
     }
     
     public Matcher<WriteRequest> hasMessage(Object message) {
@@ -204,7 +204,7 @@ public class Expectations extends org.jmock.Expectations {
         private final Matcher<Object> message;
         
         private HasMessage(Object message) {
-            this(new IsEqual<Object>(message));
+            this(new IsEqual<>(message));
         }
         
         private HasMessage(Matcher<Object> message) {

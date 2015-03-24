@@ -56,7 +56,7 @@ public final class ServiceFactory {
     }
 
     private static ServiceFactory newServiceFactory(ServiceLoader<ServiceFactorySpi> serviceFactories) {
-        ConcurrentMap<String, ServiceFactorySpi> serviceFactoriesByType = new ConcurrentHashMap<String, ServiceFactorySpi>();
+        ConcurrentMap<String, ServiceFactorySpi> serviceFactoriesByType = new ConcurrentHashMap<>();
         for (ServiceFactorySpi serviceFactory : serviceFactories) {
             Collection<String> serviceTypes = serviceFactory.getServiceTypes();
             for (String serviceType : serviceTypes) {

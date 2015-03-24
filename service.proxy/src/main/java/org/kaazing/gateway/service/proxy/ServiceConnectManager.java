@@ -93,7 +93,7 @@ public final class ServiceConnectManager {
     private AtomicInteger heartbeatPingSuccesses = new AtomicInteger(0);
     private AtomicInteger heartbeatPingFailures = new AtomicInteger(0);
 
-    private final ThreadLocal<ConnectionPool> connectionPool = new VicariousThreadLocal<ConnectionPool>();
+    private final ThreadLocal<ConnectionPool> connectionPool = new VicariousThreadLocal<>();
 
     public ServiceConnectManager(ServiceContext service,
                                  AbstractProxyHandler connectHandler,
@@ -172,7 +172,7 @@ public final class ServiceConnectManager {
         int remainder = preparedConnectionCount % workers.length;
         for (Worker worker : workers) {
             final int count = remainder-- > 0 ? minCountPerThread + 1 : minCountPerThread;
-            FutureTask<ConnectionPool> startConnectionPoolTask = new FutureTask<ConnectionPool>(new Callable<ConnectionPool>() {
+            FutureTask<ConnectionPool> startConnectionPoolTask = new FutureTask<>(new Callable<ConnectionPool>() {
 
                 @Override
                 public ConnectionPool call() {
@@ -196,7 +196,7 @@ public final class ServiceConnectManager {
     public ConnectFuture getNextConnectFuture(final IoSessionInitializer<ConnectFuture> connectInitializer) {
         ConnectionPool pool = connectionPool.get();
         if (pool == null) {
-            FutureTask<ConnectFuture> delegateGetConnectFuture = new FutureTask<ConnectFuture>(new Callable<ConnectFuture>() {
+            FutureTask<ConnectFuture> delegateGetConnectFuture = new FutureTask<>(new Callable<ConnectFuture>() {
 
                 @Override
                 public ConnectFuture call() {
@@ -359,7 +359,7 @@ public final class ServiceConnectManager {
         private ServiceHeartbeat(int interval) {
             this.interval = interval;
             handler = new HeartbeatHandler();
-            heartbeatTask = new AtomicReference<ScheduledFuture<?>>();
+            heartbeatTask = new AtomicReference<>();
             nextDelay = new AtomicInteger(interval);
             executor = ServiceConnectManager.this.schedulerProvider.getScheduler("ServiceHeartbeat", false);
         }

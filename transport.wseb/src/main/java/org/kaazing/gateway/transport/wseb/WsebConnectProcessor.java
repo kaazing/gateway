@@ -374,7 +374,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 }
             }
         }
-    };
+    }
 
     private final IoHandlerAdapter<HttpSession> writeHandler = new IoHandlerAdapter<HttpSession>() {
         @Override

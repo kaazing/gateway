@@ -115,7 +115,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
 
     private final RtmpChunkCodecFilter codec;
 
-    private static final TypedAttributeKey<WsrSession> SESSION_KEY = new TypedAttributeKey<WsrSession>(WsrAcceptor.class, "session");
+    private static final TypedAttributeKey<WsrSession> SESSION_KEY = new TypedAttributeKey<>(WsrAcceptor.class, "session");
     private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsrAcceptor.class, "httpRequestURI");
 
     private static final int COMMAND_STREAM_ID = 3;
@@ -134,7 +134,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
 
     public WsrAcceptor() {
         super(new DefaultIoSessionConfigEx());
-        sessionMap = new ConcurrentHashMap<URI, WsrSession>();
+        sessionMap = new ConcurrentHashMap<>();
         codec = new RtmpChunkCodecFilter();
     }
 
@@ -328,7 +328,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
     }
 
     private static final TypedAttributeKey<String[]> SUPPORTED_PROTOCOLS
-            = new TypedAttributeKey<String[]>(WsrAcceptor.class, "supportedProtocols");
+            = new TypedAttributeKey<>(WsrAcceptor.class, "supportedProtocols");
 
     private final WsrCreateHandler wsrCreateHandler = new WsrCreateHandler();
 
@@ -836,7 +836,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
         filterChain.addLast("rtmp", codec);
         // filterChain.addLast("rtmp.window", windowFilter);
         //filterChain.addLast("rtmp.crossOrigin", crossOriginFilter);
-    };
+    }
 
     @Override
     public void removeBridgeFilters(IoFilterChain filterChain) {

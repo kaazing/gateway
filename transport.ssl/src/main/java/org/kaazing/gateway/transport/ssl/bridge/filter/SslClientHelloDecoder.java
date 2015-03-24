@@ -146,7 +146,7 @@ public class SslClientHelloDecoder
             return true;
         }
 
-        List<String> appletCiphers = new ArrayList<String>(2);
+        List<String> appletCiphers = new ArrayList<>(2);
 
         if (contentType == HANDSHAKE_CONTENT_TYPE) {
             // If we're not an SSLv2 ClientHello, then skip the ClientHello

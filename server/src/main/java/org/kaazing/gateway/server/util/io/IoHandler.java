@@ -25,7 +25,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
 
-public interface IoHandler<S extends IoSession, M extends Object> {
+public interface IoHandler<S extends IoSession, M> {
 
     void sessionCreated(S session) throws Exception;
 
@@ -42,7 +42,7 @@ public interface IoHandler<S extends IoSession, M extends Object> {
     void messageSent(S session, M message) throws Exception;
 
     @SuppressWarnings("unchecked")
-    public class Adapter<S extends IoSession, M extends Object, H extends IoHandler<S, M>>
+    public class Adapter<S extends IoSession, M, H extends IoHandler<S, M>>
             implements org.apache.mina.core.service.IoHandler {
 
         protected final H handler;
@@ -92,5 +92,4 @@ public interface IoHandler<S extends IoSession, M extends Object> {
 
     }
 
-    ;
 }

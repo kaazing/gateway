@@ -118,7 +118,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue(format("Expected null key, got '%s'", availAliasesKey), availAliasesKey == null);
 
         URI location = URI.create("ssl://localhost:9001");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("test://transport"));
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -132,7 +132,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue("Expected key, got null", availAliasesKey != null);
 
         
-        Map<String, Object> testTranportOptions = new HashMap<String, Object>();
+        Map<String, Object> testTranportOptions = new HashMap<>();
         testTranportOptions.put(NEXT_PROTOCOL.name(), "ssl");
         ResourceAddress testAddress = addressFactory.newResourceAddress(URI.create("test://transport"), testTranportOptions);
         ResourceAddress expectedKey = testAddress;
@@ -163,7 +163,7 @@ public class VirtualHostKeySelectorTest {
 
         // ssl accept URI with tcp.bind uses wildcard address
         URI location = URI.create("ssl://localhost:9001");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ssl.tcp.bind", "0.0.0.0:9001");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
         keySelector.bind(address);
@@ -199,7 +199,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue(format("Expected null aliases, got '%s'", availAliases), availAliases == null);
 
         URI location = URI.create("ssl://localhost:9001");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("test://transport"));
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -209,7 +209,7 @@ public class VirtualHostKeySelectorTest {
 
         keySelector.bind(address);
 
-        Collection<String> expectedAliases = new HashSet<String>();
+        Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("localhost");
  
         availAliases = keySelector.getAvailableCertAliases(false);
@@ -234,7 +234,7 @@ public class VirtualHostKeySelectorTest {
             assertTrue(format("Expected null key, got '%s'", availAliasesKey), availAliasesKey == null);
 
             URI location = URI.create("ssl://www.kaazing.com:9001");
-            Map<String, Object> options = new HashMap<String, Object>();
+            Map<String, Object> options = new HashMap<>();
             options.put(TRANSPORT.name(), URI.create("test://transport"));
             ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -266,7 +266,7 @@ public class VirtualHostKeySelectorTest {
         // So even with our 'ssl.bind' value pointing to localhost, that a certificate for www.kaazing.com
         // should not be found.
         URI uri = URI.create("ssl://www.kaazing.com:9001");
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put("ssl.tcp.bind", "localhost:9001");
         ResourceAddress address = addressFactory.newResourceAddress(uri, opts);
 
@@ -293,7 +293,7 @@ public class VirtualHostKeySelectorTest {
         // The keystore contains a certificate for localhost, but our <accept> hostname here is unknown.kaazing.com.
         // So with our 'ssl.bind' value pointing to port-only 0.0.0.0:443, a certificate for 0.0.0.0:443 should be found.
         URI location = URI.create("ssl://unknown.kaazing.test:9001");
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put("ssl.tcp.bind", "0.0.0.0:443");
         ResourceAddress address = addressFactory.newResourceAddress(location, opts);
 
@@ -306,7 +306,7 @@ public class VirtualHostKeySelectorTest {
         availAliasesKey = keySelector.getAvailableCertAliasesKey(false);
         assertTrue(format("Expected not null key, got '%s'", availAliasesKey), availAliasesKey != null);
 
-        List<URI> tcpURIList = new ArrayList<URI>();
+        List<URI> tcpURIList = new ArrayList<>();
         ResourceAddress cursor = availAliasesKey;
         do {
             tcpURIList.add(cursor.getResource());
@@ -332,7 +332,7 @@ public class VirtualHostKeySelectorTest {
         // The keystore contains a certificate for localhost, but our <accept> hostname here is unknown.kaazing.com.
         // So with our 'ssl.bind' value pointing to port-only 0.0.0.0:443, a certificate for 0.0.0.0:443 should be found.
         URI uri = URI.create("ssl://unknown.kaazing.test:9001");
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put("ssl.tcp.bind", "0.0.0.0:443");
         ResourceAddress address = addressFactory.newResourceAddress(uri, opts);
 
@@ -364,7 +364,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue(format("Expected null key, got '%s'", availAliasesKey), availAliasesKey == null);
 
         URI location = URI.create("ssl://one.kaazing.test:443");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("tcp://10.0.67.19:443"));
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -377,14 +377,14 @@ public class VirtualHostKeySelectorTest {
         availAliasesKey = keySelector.getAvailableCertAliasesKey(false);
         assertTrue("Expected key, got null", availAliasesKey != null);
 
-        Map<String, Object> tcpOptions = new HashMap<String, Object>();
+        Map<String, Object> tcpOptions = new HashMap<>();
         tcpOptions.put(NEXT_PROTOCOL.name(), "ssl");
         ResourceAddress tcpAddress = addressFactory.newResourceAddress(URI.create("tcp://10.0.67.19:443"), tcpOptions);
         ResourceAddress expectedKey = tcpAddress;
 
         assertTrue(format("Expected alias '%s', got '%s'", expectedKey, availAliasesKey), availAliasesKey.equals(expectedKey));
 
-        Collection<String> expectedAliases = new HashSet<String>();
+        Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("one.kaazing.test");
         expectedAliases.add(".kaazing.test");
  
@@ -409,7 +409,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue(format("Expected null key, got '%s'", availAliasesKey), availAliasesKey == null);
 
         URI location = URI.create("ssl://two.kaazing.test:443");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("tcp://10.0.66.10:443"));
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -422,13 +422,13 @@ public class VirtualHostKeySelectorTest {
         availAliasesKey = keySelector.getAvailableCertAliasesKey(false);
         assertTrue("Expected key, got null", availAliasesKey != null);
 
-        Map<String, Object> tcpOptions = new HashMap<String, Object>();
+        Map<String, Object> tcpOptions = new HashMap<>();
         tcpOptions.put(NEXT_PROTOCOL.name(), "ssl");
         ResourceAddress tcpAddress = addressFactory.newResourceAddress(URI.create("tcp://10.0.66.10:443"), tcpOptions);
         ResourceAddress expectedKey = tcpAddress;
         assertTrue(format("Expected alias '%s', got '%s'", expectedKey, availAliasesKey), availAliasesKey.equals(expectedKey));
 
-        Collection<String> expectedAliases = new HashSet<String>();
+        Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add("two.kaazing.test");
         expectedAliases.add(".kaazing.test");
  
@@ -453,7 +453,7 @@ public class VirtualHostKeySelectorTest {
         assertTrue(format("Expected null key, got '%s'", availAliasesKey), availAliasesKey == null);
 
         URI location = URI.create("ssl://three.kaazing.test:443");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("tcp://192.168.4.8:443"));
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
@@ -466,13 +466,13 @@ public class VirtualHostKeySelectorTest {
         availAliasesKey = keySelector.getAvailableCertAliasesKey(false);
         assertTrue("Expected key, got null", availAliasesKey != null);
 
-        Map<String, Object> tcpOptions = new HashMap<String, Object>();
+        Map<String, Object> tcpOptions = new HashMap<>();
         tcpOptions.put(NEXT_PROTOCOL.name(), "ssl");
         ResourceAddress tcpAddress = addressFactory.newResourceAddress(URI.create("tcp://192.168.4.8:443"), tcpOptions);
         ResourceAddress expectedKey = tcpAddress;
         assertTrue(format("Expected alias '%s', got '%s'", expectedKey, availAliasesKey), availAliasesKey.equals(expectedKey));
 
-        Collection<String> expectedAliases = new HashSet<String>();
+        Collection<String> expectedAliases = new HashSet<>();
         expectedAliases.add(".kaazing.test");
  
         Collection<String> availAliases = keySelector.getAvailableCertAliases(false);

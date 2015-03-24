@@ -35,12 +35,12 @@ public class DispatchHttpChallengeFactory implements HttpChallengeFactory {
 
     // public until unit test is moved
     public static Map<String, HttpChallengeFactory> challengeFactoriesByAuthScheme =
-            new ConcurrentHashMap<String, HttpChallengeFactory>(5);
+            new ConcurrentHashMap<>(5);
 
     // public until unit test is moved
     public static void clear() {
         challengeFactoriesByAuthScheme =
-                new ConcurrentHashMap<String, HttpChallengeFactory>(5);
+                new ConcurrentHashMap<>(5);
     }
 
     public void register(String authScheme, HttpChallengeFactory factory) {

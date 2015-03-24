@@ -64,7 +64,7 @@ public interface TransportMetadata {
      * Returns the set of the allowed message type when you write to an
      * {@link IoSession} that is managed by the service.
      */
-    Set<Class<? extends Object>> getEnvelopeTypes();
+    Set<Class<?>> getEnvelopeTypes();
 
     /**
      * Returns the type of the {@link IoSessionConfig} of the service

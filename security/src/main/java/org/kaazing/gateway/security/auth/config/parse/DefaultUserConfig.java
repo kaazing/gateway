@@ -34,7 +34,7 @@ public class DefaultUserConfig implements UserConfig {
     private Collection<String> roleNames;
 
     public DefaultUserConfig() {
-        roleNames = new HashSet<String>();
+        roleNames = new HashSet<>();
     }
 
     public void setName(String name) {

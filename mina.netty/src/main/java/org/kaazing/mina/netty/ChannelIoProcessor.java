@@ -76,7 +76,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
                 return new DownstreamMessageEventEx();
             }
         };
-    };
+    }
 
     @Override
     protected void add0(ChannelIoSession<? extends ChannelConfig> session) {

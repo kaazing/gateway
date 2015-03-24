@@ -42,7 +42,7 @@ public final class ServiceManagementBeanFactory {
     private static ServiceManagementBeanFactory newServiceManagmentBeanFactory(ServiceLoader<ServiceManagementBeanFactorySpi>
                                                                                        serviceFactories) {
         ConcurrentMap<String, ServiceManagementBeanFactorySpi> serviceMgmtFactoriesByType =
-                new ConcurrentHashMap<String, ServiceManagementBeanFactorySpi>();
+                new ConcurrentHashMap<>();
         for (ServiceManagementBeanFactorySpi ServiceManagmentBeanFactory : serviceFactories) {
             Collection<String> serviceTypes = ServiceManagmentBeanFactory.getServiceTypes();
             for (String serviceType : serviceTypes) {

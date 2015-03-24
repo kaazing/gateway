@@ -96,7 +96,7 @@ public class NamedPipeConnectorImplTest {
         NamedPipeAddress localAddress = new NamedPipeAddress("accept");
         acceptor.bind(localAddress);
 
-        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<IoBuffer>();
+        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<>();
         
         NamedPipeConnectorImpl connector = new NamedPipeConnectorImpl();
         connector.setNamedPipeAcceptor(acceptor);
@@ -270,7 +270,7 @@ public class NamedPipeConnectorImplTest {
         NamedPipeAddress localAddress = new NamedPipeAddress("accept");
         acceptor.bind(localAddress);
 
-        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<IoBuffer>();
+        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<>();
         
         NamedPipeConnectorImpl connector = new NamedPipeConnectorImpl();
         connector.setNamedPipeAcceptor(acceptor);
@@ -314,7 +314,7 @@ public class NamedPipeConnectorImplTest {
         NamedPipeAddress localAddress = new NamedPipeAddress("accept");
         acceptor.bind(localAddress);
 
-        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<IoBuffer>();
+        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<>();
         
         NamedPipeConnectorImpl connector = new NamedPipeConnectorImpl();
         connector.setNamedPipeAcceptor(acceptor);
@@ -358,7 +358,7 @@ public class NamedPipeConnectorImplTest {
         NamedPipeAddress localAddress = new NamedPipeAddress("accept");
         acceptor.bind(localAddress);
 
-        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<IoBuffer>();
+        final AtomicReference<IoBuffer> connectorMessageReceived = new AtomicReference<>();
         
         NamedPipeConnectorImpl connector = new NamedPipeConnectorImpl();
         connector.setNamedPipeAcceptor(acceptor);
@@ -391,7 +391,7 @@ public class NamedPipeConnectorImplTest {
     @Test
     public void readSuspendedAcceptedSessionShouldNotReceiveIoBuffersFromRemote() throws Throwable { 
         NamedPipeAcceptorImpl acceptor = new NamedPipeAcceptorImpl();
-        final AtomicReference<IoBuffer> acceptorMessageReceived = new AtomicReference<IoBuffer>();
+        final AtomicReference<IoBuffer> acceptorMessageReceived = new AtomicReference<>();
         
         acceptor.setHandler(new IoHandlerAdapter() {
             @Override

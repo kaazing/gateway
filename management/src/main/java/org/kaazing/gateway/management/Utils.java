@@ -48,10 +48,8 @@ public class Utils {
 
     // For letting management decide if a session is a WS type or something else.
     public static enum ManagementSessionType {
-        NATIVE, EMULATED, OTHER;
+        NATIVE, EMULATED, OTHER
     }
-
-    ;
 
     public static final String QUOTE = "\"";
     public static final String COMMA = ",";

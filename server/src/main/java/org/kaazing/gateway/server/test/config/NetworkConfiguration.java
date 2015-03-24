@@ -28,7 +28,7 @@ import java.util.Set;
 public class NetworkConfiguration implements Configuration<SuppressibleNetworkConfiguration> {
 
     private final SuppressibleNetworkConfiguration _configuration;
-    private final Map<String, Suppressible<String[]>> mappings = new HashMap<String, Suppressible<String[]>>();
+    private final Map<String, Suppressible<String[]>> mappings = new HashMap<>();
     private final Map<String, String[]> unsuppressibleMappings = Suppressibles.unsuppressibleMap(mappings);
 
     public NetworkConfiguration() {

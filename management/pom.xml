@@ -128,18 +128,6 @@
             <version>1.4.3</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- TODO: update version in core.common and remove following 
-                line -->
-            <version>[4.10,5.0)</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-legacy</artifactId>
         </dependency>

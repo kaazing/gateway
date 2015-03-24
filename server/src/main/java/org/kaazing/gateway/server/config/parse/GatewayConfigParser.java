@@ -263,7 +263,7 @@ public class GatewayConfigParser {
             }
         }
 
-        List<String> xmlParseErrors = new ArrayList<String>();
+        List<String> xmlParseErrors = new ArrayList<>();
         try {
             config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
 
@@ -278,7 +278,7 @@ public class GatewayConfigParser {
             // and should be injected after an initial parse
             GatewayConfigDocument.GatewayConfig gatewayConfig = config.getGatewayConfig();
             PropertiesType properties = gatewayConfig.getProperties();
-            Map<String, String> propertiesMap = new HashMap<String, String>();
+            Map<String, String> propertiesMap = new HashMap<>();
             if (properties != null) {
                 for (PropertyType propertyType : properties.getPropertyArray()) {
                     propertiesMap.put(propertyType.getName(), propertyType.getValue());
@@ -347,7 +347,7 @@ public class GatewayConfigParser {
      * @param configDoc the XmlObject representing the gateway-config document
      */
     private void validateGatewayConfig(GatewayConfigDocument configDoc, List<String> preProcessErrors) {
-        List<XmlError> errorList = new ArrayList<XmlError>();
+        List<XmlError> errorList = new ArrayList<>();
         for (String preProcessError : preProcessErrors) {
             errorList.add(XmlError.forMessage(preProcessError, XmlError.SEVERITY_ERROR));
         }
@@ -363,7 +363,7 @@ public class GatewayConfigParser {
 
                 ServiceType[] services = config.getServiceArray();
                 if (services != null && services.length > 0) {
-                    List<String> serviceNames = new ArrayList<String>();
+                    List<String> serviceNames = new ArrayList<>();
                     for (ServiceType service : services) {
                         String name = service.getName();
                         if (name == null || name.length() == 0) {
@@ -469,7 +469,7 @@ public class GatewayConfigParser {
      * @return
      */
     private static Throwable getRootCause(Throwable throwable) {
-        List<Throwable> list = new ArrayList<Throwable>();
+        List<Throwable> list = new ArrayList<>();
         while (throwable != null && !list.contains(throwable)) {
             list.add(throwable);
             throwable = throwable.getCause();

@@ -61,7 +61,7 @@ public class BindingsTest {
     public void canAddABindingAndSeeItIsAddedProperly() throws Exception {
 
         IoHandler handler = new IoHandlerAdapter();
-        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
 
         URI location = URI.create("tcp://localhost:8000");
         ResourceAddress bindAddress = makeResourceAddress(location);
@@ -88,7 +88,7 @@ public class BindingsTest {
         Set<Map.Entry<ResourceAddress, Bindings.Binding>> entries = bindings.entrySet();
 
         IoHandler handler = new IoHandlerAdapter();
-        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
         URI location = URI.create("tcp://localhost:8000");
 
         // Add binding
@@ -112,7 +112,7 @@ public class BindingsTest {
     public void testReferenceCountIncreasesThenDecreasesWithMultipleBindsAndUnbindsOfEqualAddresses() throws Exception {
 
         IoHandler handler = new IoHandlerAdapter();
-        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializer<? extends IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
         URI location = URI.create("tcp://localhost:8000");
         Set<Map.Entry<ResourceAddress, Bindings.Binding>> entries = bindings.entrySet();
 
@@ -155,7 +155,7 @@ public class BindingsTest {
         for (int i = 0; i < 10; i++) {
             URI location = URI.create(String.format("tcp://localhost:%d", findFreePort()));
             testBindings[i] = new Bindings.Binding(makeResourceAddress(location),
-                    new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<IoFuture>());
+                    new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<>());
         }
 
         // choose random bind counts

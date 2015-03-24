@@ -349,5 +349,5 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
                 });
             }
         }
-    };
+    }
 }

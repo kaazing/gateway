@@ -78,7 +78,7 @@ public class ServiceConnectManagerTest {
         // The following executors represent the worker threads
         final CompletionService<Throwable>[] executors = new CompletionService[IO_THREADS];
         for (int i = 0; i < IO_THREADS; i++) {
-            executors[i] = new ExecutorCompletionService<Throwable>(Executors.newFixedThreadPool(1)); // single thread
+            executors[i] = new ExecutorCompletionService<>(Executors.newFixedThreadPool(1)); // single thread
         }
 
         final int maxConnectionsPerThread = PREPARED_CONNECTION_COUNT/IO_THREADS + 1;
@@ -223,7 +223,7 @@ public class ServiceConnectManagerTest {
         final Worker worker = context.mock(Worker.class, "worker");
 
         // The following executors represent the worker threads
-        final CompletionService<Throwable> executor = new ExecutorCompletionService<Throwable>(Executors.newFixedThreadPool(1)); // single thread
+        final CompletionService<Throwable> executor = new ExecutorCompletionService<>(Executors.newFixedThreadPool(1)); // single thread
 
         final URI CONNECT_URI = new URI("http://localhost:8051");
         final Object threadAttributeKey = new Object();
@@ -313,7 +313,7 @@ public class ServiceConnectManagerTest {
         final Worker worker = context.mock(Worker.class, "worker");
 
         // The following executors represent the worker threads
-        final CompletionService<Throwable> executor = new ExecutorCompletionService<Throwable>(Executors.newFixedThreadPool(1)); // single thread
+        final CompletionService<Throwable> executor = new ExecutorCompletionService<>(Executors.newFixedThreadPool(1)); // single thread
 
         final URI CONNECT_URI = new URI("http://localhost:8051");
         final Object threadAttributeKey = new Object();
@@ -427,6 +427,6 @@ public class ServiceConnectManagerTest {
             completionService.submit((Runnable)invocation.getParameter(0), null);
             return null;
         }
-    };
+    }
 
 }

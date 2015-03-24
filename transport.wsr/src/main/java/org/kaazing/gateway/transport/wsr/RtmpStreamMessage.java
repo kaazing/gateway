@@ -64,8 +64,8 @@ public abstract class RtmpStreamMessage extends RtmpMessage {
                 throw new IllegalArgumentException("Unexcepted code: " + code);
             }
         }
-    };
-    
+    }
+
     private int timestamp;
     private int messageStreamId;
     private int chunkStreamId;

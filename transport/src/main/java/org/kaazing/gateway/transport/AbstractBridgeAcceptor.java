@@ -81,7 +81,7 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
     }
 
     protected IoProcessorEx<T> initProcessor() {
-        return new BridgeAcceptProcessor<T>();
+        return new BridgeAcceptProcessor<>();
     }
 
     @Override

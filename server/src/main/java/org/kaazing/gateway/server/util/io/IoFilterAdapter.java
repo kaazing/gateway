@@ -27,7 +27,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
-public class IoFilterAdapter<S extends IoSession, M extends Object> implements IoFilter<S, M> {
+public class IoFilterAdapter<S extends IoSession, M> implements IoFilter<S, M> {
 
     @Override
     public void init() throws Exception {

@@ -76,7 +76,7 @@ public enum HttpStatus {
     SERVER_VERSION_NOT_SUPPORTED(505, "Version Not Supported");
 
     // status code string --> HttpStatus (for e.g. "200" -> SUCCESS_OK)
-    private static final Map<String, HttpStatus> HTTP_STATUS_MAP = new HashMap<String, HttpStatus>();
+    private static final Map<String, HttpStatus> HTTP_STATUS_MAP = new HashMap<>();
     static {
         for(HttpStatus httpStatus : HttpStatus.values()) {
             HTTP_STATUS_MAP.put(String.valueOf(httpStatus.code), httpStatus);

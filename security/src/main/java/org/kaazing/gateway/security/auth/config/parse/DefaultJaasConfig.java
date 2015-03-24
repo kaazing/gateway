@@ -35,8 +35,8 @@ public class DefaultJaasConfig implements JaasConfig {
     private Map<String, RoleConfig> roles;
 
     public DefaultJaasConfig() {
-        users = new HashMap<String, UserConfig>();
-        roles = new HashMap<String, RoleConfig>();
+        users = new HashMap<>();
+        roles = new HashMap<>();
     }
 
     public Map<String, RoleConfig> getRoles() {

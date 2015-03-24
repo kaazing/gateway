@@ -68,7 +68,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
 
         @Override
         protected ConcurrentMap<String, CachedResult> initialValue() {
-            return new ConcurrentHashMap<String, CachedResult>();
+            return new ConcurrentHashMap<>();
         }
     };
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClientAccessPolicyXml.class);
@@ -122,7 +122,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
 
         boolean createdPolicy = false;
 
-        HashSet<String> alreadyVisited = new HashSet<String>();
+        HashSet<String> alreadyVisited = new HashSet<>();
         // for all the services
         for (Map<URI, Map<String, CrossSiteConstraintContext>> servicesAcceptsToCrossSiteConstraints : listOfAcceptConstraintsByURI) {
             // for each accept on the service

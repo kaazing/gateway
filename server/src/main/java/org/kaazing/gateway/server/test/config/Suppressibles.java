@@ -36,23 +36,23 @@ import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppress
 public final class Suppressibles {
 
     public static <K, V> Map<K, V> unsuppressibleMap(Map<K, Suppressible<V>> suppressibleMap) {
-        return new UnsuppressibleMap<K, V>(suppressibleMap);
+        return new UnsuppressibleMap<>(suppressibleMap);
     }
 
     public static <E> Set<E> unsuppressibleSet(Set<Suppressible<E>> suppressibleCollection) {
-        return new UnsuppressibleSet<E>(suppressibleCollection);
+        return new UnsuppressibleSet<>(suppressibleCollection);
     }
 
     public static <E> Collection<E> unsuppressibleCollection(Collection<Suppressible<E>> suppressibleCollection) {
-        return new UnsuppressibleCollection<E>(suppressibleCollection);
+        return new UnsuppressibleCollection<>(suppressibleCollection);
     }
 
     public static <K, V> Entry<K, V> unsuppressibleEntry(Entry<K, Suppressible<V>> suppressibleEntry) {
-        return new UnsuppressibleEntry<K, V>(suppressibleEntry);
+        return new UnsuppressibleEntry<>(suppressibleEntry);
     }
 
     public static <E> Iterator<E> unsuppressibleIterator(Iterator<Suppressible<E>> suppressibleIterator) {
-        return new UnsuppressibleIterator<E>(suppressibleIterator);
+        return new UnsuppressibleIterator<>(suppressibleIterator);
     }
 
     public static Set<Suppression> getDefaultSuppressions() {
@@ -60,11 +60,11 @@ public final class Suppressibles {
     }
 
     public static <E> List<E> unsuppressibleList(List<Suppressible<E>> suppressibleList) {
-        return new UnsuppressibleList<E>(suppressibleList);
+        return new UnsuppressibleList<>(suppressibleList);
     }
 
     public static <E> ListIterator<E> unsuppressibleListIterator(ListIterator<Suppressible<E>> suppressibleIterator) {
-        return new UnsuppressibleListIterator<E>(suppressibleIterator);
+        return new UnsuppressibleListIterator<>(suppressibleIterator);
     }
 
     private Suppressibles() {
@@ -95,7 +95,7 @@ public final class Suppressibles {
 
         @Override
         public V setValue(V value) {
-            suppressible.setValue(new Suppressible<V>(value));
+            suppressible.setValue(new Suppressible<>(value));
             return getValue();
         }
 
@@ -144,7 +144,7 @@ public final class Suppressibles {
 
         @Override
         public V put(K key, V value) {
-            Suppressible<V> returnValue = suppressible.put(key, new Suppressible<V>(value));
+            Suppressible<V> returnValue = suppressible.put(key, new Suppressible<>(value));
             if (returnValue == null) {
                 return null;
             }
@@ -199,7 +199,7 @@ public final class Suppressibles {
         // }
         @Override
         public Set<java.util.Map.Entry<K, V>> entrySet() {
-            return new DelegatingEntrySet<Entry<K, V>, K, V>(suppressible.entrySet());
+            return new DelegatingEntrySet<>(suppressible.entrySet());
         }
     }
 
@@ -270,7 +270,7 @@ public final class Suppressibles {
 
         @Override
         public Object[] toArray() {
-            List<Object> result = new ArrayList<Object>();
+            List<Object> result = new ArrayList<>();
             for (Entry<K, Suppressible<V>> entry : entrySet) {
                 result.add(Suppressibles.unsuppressibleEntry(entry));
             }
@@ -279,7 +279,7 @@ public final class Suppressibles {
 
         @Override
         public <T> T[] toArray(T[] a) {
-            List<Object> result = new ArrayList<Object>();
+            List<Object> result = new ArrayList<>();
             for (Entry<K, Suppressible<V>> entry : entrySet) {
                 result.add(Suppressibles.unsuppressibleEntry(entry));
             }
@@ -409,7 +409,7 @@ public final class Suppressibles {
 
         @Override
         public boolean add(E e) {
-            return suppressible.add(new Suppressible<E>(e));
+            return suppressible.add(new Suppressible<>(e));
         }
 
         @Override
@@ -500,12 +500,12 @@ public final class Suppressibles {
 
         @Override
         public void set(E e) {
-            suppressible.set(new Suppressible<E>(e, Suppression.NONE));
+            suppressible.set(new Suppressible<>(e, Suppression.NONE));
         }
 
         @Override
         public void add(E e) {
-            suppressible.add(new Suppressible<E>(e, Suppression.NONE));
+            suppressible.add(new Suppressible<>(e, Suppression.NONE));
         }
 
     }
@@ -586,7 +586,7 @@ public final class Suppressibles {
 
         @Override
         public boolean add(E e) {
-            return suppressible.add(new Suppressible<E>(e, Suppression.NONE));
+            return suppressible.add(new Suppressible<>(e, Suppression.NONE));
         }
 
         @Override
@@ -640,12 +640,12 @@ public final class Suppressibles {
 
         @Override
         public E set(int index, E element) {
-            return suppressible.set(index, new Suppressible<E>(element, Suppression.NONE)).value();
+            return suppressible.set(index, new Suppressible<>(element, Suppression.NONE)).value();
         }
 
         @Override
         public void add(int index, E element) {
-            suppressible.add(index, new Suppressible<E>(element, Suppression.NONE));
+            suppressible.add(index, new Suppressible<>(element, Suppression.NONE));
         }
 
         @Override
@@ -730,7 +730,7 @@ public final class Suppressibles {
 
         @Override
         public Object[] toArray() {
-            List<Object> result = new ArrayList<Object>();
+            List<Object> result = new ArrayList<>();
             for (Suppressible<E> suppressedEntry : suppressible) {
                 result.add(suppressedEntry.value());
             }
@@ -760,7 +760,7 @@ public final class Suppressibles {
 
         @Override
         public boolean add(E e) {
-            return suppressible.add(new Suppressible<E>(e));
+            return suppressible.add(new Suppressible<>(e));
         }
 
         @Override

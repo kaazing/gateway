@@ -84,9 +84,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    private static final TypedAttributeKey<Callable<WsebSession>> WSE_SESSION_FACTORY_KEY = new TypedAttributeKey<Callable<WsebSession>>(WsebConnector.class, "wseSessionFactory");
-    private static final TypedAttributeKey<ConnectFuture> WSE_CONNECT_FUTURE_KEY = new TypedAttributeKey<ConnectFuture>(WsebConnector.class, "wseConnectFuture");
-    private static final TypedAttributeKey<WsebSession> WSE_SESSION_KEY = new TypedAttributeKey<WsebSession>(WsebConnector.class, "wseSession");
+    private static final TypedAttributeKey<Callable<WsebSession>> WSE_SESSION_FACTORY_KEY = new TypedAttributeKey<>(WsebConnector.class, "wseSessionFactory");
+    private static final TypedAttributeKey<ConnectFuture> WSE_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(WsebConnector.class, "wseConnectFuture");
+    private static final TypedAttributeKey<WsebSession> WSE_SESSION_KEY = new TypedAttributeKey<>(WsebConnector.class, "wseSession");
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
 
@@ -115,7 +115,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     public WsebConnector() {
         super(new DefaultIoSessionConfigEx());
-        sessionMap = new ConcurrentHashMap<ResourceAddress, WsebSession>();
+        sessionMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -286,7 +286,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     }
 
 
-    private static final TypedAttributeKey<IoBufferEx> CREATE_RESPONSE_KEY = new TypedAttributeKey<IoBufferEx>(WsebConnector.class, "createResponse");
+    private static final TypedAttributeKey<IoBufferEx> CREATE_RESPONSE_KEY = new TypedAttributeKey<>(WsebConnector.class, "createResponse");
 
     private IoHandler createHandler = new IoHandlerAdapter<HttpSession>() {
 

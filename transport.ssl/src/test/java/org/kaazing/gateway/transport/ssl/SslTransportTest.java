@@ -222,7 +222,7 @@ public class SslTransportTest {
 
 
         final URI uri = URI.create("ssl://localhost:4444");
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
         opts.put(NEXT_PROTOCOL, "test-protocol");
@@ -448,7 +448,7 @@ public class SslTransportTest {
 //        sslConnector.init();
 
         URI serverURI = URI.create("ssl://localhost:4445");
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.TRUE);
         opts.put(NEXT_PROTOCOL, "test-protocol");
@@ -459,7 +459,7 @@ public class SslTransportTest {
         sslAcceptor.bind(serverAddress, acceptHandler, null);
 
         URI clientURI = URI.create("ssl://localhost:4445");
-        opts = new HashMap<String, Object>();
+        opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
 

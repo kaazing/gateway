@@ -56,7 +56,7 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
      * {@link #setAttribute(String, Object)} and {@link #setAttributes(Map)}.
      */
     public SessionAttributeInitializingFilter(
-            Map<String, ? extends Object> attributes) {
+            Map<String, ?> attributes) {
         setAttributes(attributes);
     }
 
@@ -126,7 +126,7 @@ public class SessionAttributeInitializingFilter extends IoFilterAdapter {
      * underlying map, so modifying the specified attributes parameter after
      * the call won't change the internal state.
      */
-    public void setAttributes(Map<String, ? extends Object> attributes) {
+    public void setAttributes(Map<String, ?> attributes) {
         if (attributes == null) {
             attributes = new HashMap<String, Object>();
         }

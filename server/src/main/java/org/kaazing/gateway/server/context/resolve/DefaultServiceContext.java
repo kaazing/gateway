@@ -243,9 +243,9 @@ public class DefaultServiceContext implements ServiceContext {
         this.requireRoles = requireRoles;
         this.mimeMappings = mimeMappings;
         this.acceptConstraintsByURI = crossSiteConstraints;
-        this.bindings = new HashMap<URI, ResourceAddress>();
-        this.activeSessions = new ConcurrentHashMap<Long, IoSessionEx>();
-        this.bindHandlers = new HashMap<URI, IoHandler>(4);
+        this.bindings = new HashMap<>();
+        this.activeSessions = new ConcurrentHashMap<>();
+        this.bindHandlers = new HashMap<>(4);
         this.clusterContext = clusterContext;
         this.acceptOptionsContext = acceptOptionsContext;
         this.serviceRealmContext = serviceRealmContext;
@@ -553,10 +553,10 @@ public class DefaultServiceContext implements ServiceContext {
                 MemberId localMember = clusterContext.getLocalMember();
                 Map<URI, List<URI>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
                 if (memberBalanceUriMap == null) {
-                    memberBalanceUriMap = new HashMap<URI, List<URI>>();
+                    memberBalanceUriMap = new HashMap<>();
                 }
 
-                List<URI> acceptUris = new ArrayList<URI>();
+                List<URI> acceptUris = new ArrayList<>();
                 if (accepts != null) {
                     acceptUris.addAll(accepts);
                 }
@@ -573,7 +573,7 @@ public class DefaultServiceContext implements ServiceContext {
                         do {
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris == null) {
-                                newBalanceUris = new HashSet<URI>();
+                                newBalanceUris = new HashSet<>();
                                 newBalanceUris.addAll(accepts);
                                 balanceUris = sharedBalanceUriMap.putIfAbsent(balanceURI, newBalanceUris);
                                 if (balanceUris == null) {
@@ -581,7 +581,7 @@ public class DefaultServiceContext implements ServiceContext {
                                 }
                             }
 
-                            newBalanceUris = new HashSet<URI>(balanceUris);
+                            newBalanceUris = new HashSet<>(balanceUris);
                             newBalanceUris.addAll(accepts);
                             if (newBalanceUris.equals(balanceUris)) {
                                 break;
@@ -757,7 +757,7 @@ public class DefaultServiceContext implements ServiceContext {
             return balances;
         }
 
-        List<URI> result = new ArrayList<URI>(balances.size());
+        List<URI> result = new ArrayList<>(balances.size());
         for (URI uri : balances) {
             if (uri != null) {
                 try {
@@ -819,7 +819,7 @@ public class DefaultServiceContext implements ServiceContext {
      * @return
      */
     private Map<Transport, List<URI>> getURIsByTransport(Collection<URI> uris) {
-        Map<Transport, List<URI>> urisByTransport = new HashMap<Transport, List<URI>>();
+        Map<Transport, List<URI>> urisByTransport = new HashMap<>();
 
         // iterate over URIs and group them by transport
         for (URI uri : uris) {
@@ -827,7 +827,7 @@ public class DefaultServiceContext implements ServiceContext {
             Transport transport = transportFactory.getTransportForScheme(uriScheme);
             List<URI> list = urisByTransport.get(transport);
             if (list == null) {
-                list = new ArrayList<URI>();
+                list = new ArrayList<>();
                 urisByTransport.put(transport, list);
             }
             list.add(uri);
@@ -887,7 +887,7 @@ public class DefaultServiceContext implements ServiceContext {
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {
-                                newBalanceUris = new HashSet<URI>(balanceUris);
+                                newBalanceUris = new HashSet<>(balanceUris);
                                 for (URI acceptUri : accepts) {
                                     didRemove = didRemove || newBalanceUris.remove(acceptUri);
                                 }

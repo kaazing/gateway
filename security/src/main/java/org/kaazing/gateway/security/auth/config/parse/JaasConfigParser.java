@@ -50,7 +50,7 @@ public class JaasConfigParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(JaasConfigParser.class);
 
     public JaasConfig parse(URL resource) throws Exception {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         JaasConfig result = parse0(resource, new JaasConfigHandler(errors));
         if  (!errors.isEmpty()) {
             throw new ParserConfigurationException(errors.get(0));
@@ -97,7 +97,7 @@ public class JaasConfigParser {
         private static final String DESCRIPTION_ELEMENT = "description";
         private static final String ROLE_NAME_ELEMENT = "role-name";
         private static final Properties EMPTY_PROPERTIES = new Properties();
-        private static  List<String> errors = new ArrayList<String>();
+        private static  List<String> errors = new ArrayList<>();
 
         private final File configFile;
         private HandlerState handlerState;
@@ -109,7 +109,7 @@ public class JaasConfigParser {
         }
 
         public JaasConfigHandler(File configFile, List<String> errors) {
-            handlerStack = new ArrayDeque<Object>(4);
+            handlerStack = new ArrayDeque<>(4);
             this.configFile = configFile;
         }
 

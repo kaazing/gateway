@@ -37,7 +37,7 @@ public class HttpOriginSecurity {
             throw new NullPointerException("acceptConstraints");
         }
 
-        HashMap<String, HttpOriginConstraint> constraints = new HashMap<String, HttpOriginConstraint>();
+        HashMap<String, HttpOriginConstraint> constraints = new HashMap<>();
             for (Map.Entry<String, ? extends CrossSiteConstraintContext> entry : acceptConstraints.entrySet()) {
                 String sourceOrigin = entry.getKey();
                 CrossSiteConstraintContext originConstraint = entry.getValue();

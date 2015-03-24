@@ -58,8 +58,8 @@ public class StandaloneClusterContext implements ClusterContext {
     public StandaloneClusterContext() {
         this.messageBufferFactory = new MemoryMessageBufferFactory();
         this.collectionsFactory = new MemoryCollectionsFactory();
-        this.locks = new ConcurrentHashMap<Object, Lock>();
-        this.idGenerators = new ConcurrentHashMap<String, IdGeneratorImpl>();
+        this.locks = new ConcurrentHashMap<>();
+        this.idGenerators = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public List<MemberId> getMemberIds() {
-        List<MemberId> list = new ArrayList<MemberId>();
+        List<MemberId> list = new ArrayList<>();
         list.add(getLocalMember());
         return list;
     }

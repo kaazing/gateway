@@ -51,7 +51,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
     void setAccepts(Collection<URI> accepts) {
-        this.accepts = new ArrayList<URI>(accepts);
+        this.accepts = new ArrayList<>(accepts);
     }
 
     ClusterContext getClusterContext() {
@@ -115,7 +115,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
     }
 
     List<URI> getBalanceeURIs(boolean secure) {
-        List<URI> balanceeURIs = new ArrayList<URI>();
+        List<URI> balanceeURIs = new ArrayList<>();
 
         CollectionsFactory collectionsFactory = null;
         if (clusterContext != null) {

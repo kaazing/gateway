@@ -55,8 +55,8 @@ public class ClusterMessaging {
 
         localTopicName = getLocalTopicName(clusterContext);
         nonce = new AtomicInteger(1);
-        receiveListeners = new HashMap<Class<?>, ReceiveListener<?>>();
-        sendListeners = new HashMap<Integer, SendListener>();
+        receiveListeners = new HashMap<>();
+        sendListeners = new HashMap<>();
 
         scheduler = schedulerProvider.getScheduler("clusterMessaging", true);
 

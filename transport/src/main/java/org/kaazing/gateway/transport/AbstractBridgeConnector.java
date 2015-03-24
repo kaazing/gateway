@@ -45,7 +45,7 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
     }
 
     protected IoProcessorEx<S> initProcessor() {
-        return new BridgeConnectProcessor<S>();
+        return new BridgeConnectProcessor<>();
     }
     
     @Override

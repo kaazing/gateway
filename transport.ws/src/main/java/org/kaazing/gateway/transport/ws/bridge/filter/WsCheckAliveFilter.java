@@ -63,7 +63,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private static enum NextAction {
         PONG, // ping has been written, awaiting pong
         PING  // need to write ping
-    };
+    }
+
     private NextAction nextAction = NextAction.PING;
 
     private long pingSentTime = 0;
@@ -161,7 +162,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 break;
             case PING:
                 writePing(nextFilter, session);
-            };
+            }
         }
         super.doSessionIdle(nextFilter, session, status);
     }

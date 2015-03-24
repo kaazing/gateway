@@ -55,7 +55,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public void setAllowOrigin(String allowOrigin) {
-        this._allowOrigin = new Suppressible<String>(allowOrigin);
+        this._allowOrigin = new Suppressible<>(allowOrigin);
     }
 
     public String getAllowMethods() {
@@ -66,7 +66,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public void setAllowMethods(String allowMethods) {
-        this._allowOrigin = new Suppressible<String>(allowMethods);
+        this._allowOrigin = new Suppressible<>(allowMethods);
     }
 
     public String getAllowHeaders() {
@@ -77,7 +77,7 @@ public class CrossOriginConstraintConfiguration implements
     }
 
     public void setAllowHeaders(String allowHeaders) {
-        this._allowOrigin = new Suppressible<String>(allowHeaders);
+        this._allowOrigin = new Suppressible<>(allowHeaders);
     }
 
     private class SuppressibleCrossOriginConstraintConfigurationImpl extends

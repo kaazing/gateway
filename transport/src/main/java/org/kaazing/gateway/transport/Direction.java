@@ -22,5 +22,5 @@
 package org.kaazing.gateway.transport;
 
 public enum Direction {
-	READ, WRITE, BOTH;
+	READ, WRITE, BOTH
 }

@@ -289,7 +289,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
             HttpAcceptSession session = (HttpAcceptSession)future.getSession();
             checkInitialPadding(session);
         }
-    };
+    }
 
     private static final void checkBlockPadding(HttpAcceptSession session) {
         // TODO: Verify if counting bytes is really necessary

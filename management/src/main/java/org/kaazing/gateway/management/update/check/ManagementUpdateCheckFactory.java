@@ -56,7 +56,7 @@ public final class ManagementUpdateCheckFactory {
     private static ManagementUpdateCheckFactory newManagementUpdateCheckFactory(ServiceLoader<ManagementUpdateCheckFactorySpi>
                                                                                         serviceFactories) {
         ConcurrentMap<String, ManagementUpdateCheckFactorySpi> serviceFactoriesByType =
-                new ConcurrentHashMap<String, ManagementUpdateCheckFactorySpi>();
+                new ConcurrentHashMap<>();
         for (ManagementUpdateCheckFactorySpi managementUpdateCheckFactory : serviceFactories) {
             Collection<String> serviceTypes = managementUpdateCheckFactory.getSupportedProtocols();
             for (String protocol : serviceTypes) {

@@ -130,7 +130,7 @@ public class WsResourceAddress extends ResourceAddress {
                                      INACTIVITY_TIMEOUT, SUPPORTED_PROTOCOLS,
                                      REQUIRED_PROTOCOLS }
         
-        private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<String, ResourceOption<?>>();
+        private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
         private final Kind kind;
         

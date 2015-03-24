@@ -39,8 +39,8 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHER
 public class SslCipherSelectionFilter
     extends IoFilterAdapter {
 
-    static final TypedAttributeKey<SslVersion> SSL_PROTOCOL_VERSION = new TypedAttributeKey<SslVersion>(SslCipherSelectionFilter.class, "sslProtocolVersion");
-    static final TypedAttributeKey<List<String>> SSL_APPLET_CIPHERS = new TypedAttributeKey<List<String>>(SslCipherSelectionFilter.class, "sslAppletCiphers");
+    static final TypedAttributeKey<SslVersion> SSL_PROTOCOL_VERSION = new TypedAttributeKey<>(SslCipherSelectionFilter.class, "sslProtocolVersion");
+    static final TypedAttributeKey<List<String>> SSL_APPLET_CIPHERS = new TypedAttributeKey<>(SslCipherSelectionFilter.class, "sslAppletCiphers");
 
     // The blessed/magic ciphersuites which are approved -- for purposes
     // of jar validation -- by the Java Plugin.  Determined experimentally.
@@ -182,7 +182,7 @@ public class SslCipherSelectionFilter
             return null;
         }
 
-        List<String> list = new ArrayList<String>(names.length);
+        List<String> list = new ArrayList<>(names.length);
         for (int i = 0; i < names.length; i++) {
             list.add(names[i]);
         }

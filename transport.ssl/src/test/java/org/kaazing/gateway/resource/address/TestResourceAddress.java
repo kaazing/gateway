@@ -28,7 +28,7 @@ import java.util.Map;
 final class TestResourceAddress extends ResourceAddress {
     private static final long serialVersionUID = 1L;
 
-    static final TestResourceOption<String> OPTION = new TestResourceOption<String>("option");
+    static final TestResourceOption<String> OPTION = new TestResourceOption<>("option");
 
     private String option;
 
@@ -57,7 +57,7 @@ final class TestResourceAddress extends ResourceAddress {
 
     static final class TestResourceOption<V> extends ResourceOption<V> {
 
-        private static final Map<String, ResourceOption<?>> OPTION_NAMES =  new HashMap<String, ResourceOption<?>>();
+        private static final Map<String, ResourceOption<?>> OPTION_NAMES =  new HashMap<>();
 
         public TestResourceOption(String name) {
             super(OPTION_NAMES, name);

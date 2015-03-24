@@ -67,7 +67,7 @@ public class SseResourceAddressFactorySpiTest {
         httpxeTransportAddress = addressFactory.newResourceAddress(HTTPXE_ADDRESS_URI);
         optionsTransportAddress = addressFactory.newResourceAddress(OPTIONS_ADDRESS_URI);
 
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("sse.nextProtocol", "custom");
         options.put("sse.qualifier", "random");
         options.put("sse.transport", OPTIONS_ADDRESS_URI);

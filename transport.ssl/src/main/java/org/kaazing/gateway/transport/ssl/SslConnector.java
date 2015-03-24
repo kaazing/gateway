@@ -79,9 +79,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
-    private static final TypedAttributeKey<Callable<SslSession>> SSL_SESSION_FACTORY_KEY = new TypedAttributeKey<Callable<SslSession>>(SslConnector.class, "sslSessionFactory");
-    private static final TypedAttributeKey<ConnectFuture> SSL_CONNECT_FUTURE_KEY = new TypedAttributeKey<ConnectFuture>(SslConnector.class, "sslConnectFuture");
-    private static final TypedAttributeKey<SslSession> SSL_SESSION_KEY = new TypedAttributeKey<SslSession>(SslConnector.class, "sslSession");
+    private static final TypedAttributeKey<Callable<SslSession>> SSL_SESSION_FACTORY_KEY = new TypedAttributeKey<>(SslConnector.class, "sslSessionFactory");
+    private static final TypedAttributeKey<ConnectFuture> SSL_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(SslConnector.class, "sslConnectFuture");
+    private static final TypedAttributeKey<SslSession> SSL_SESSION_KEY = new TypedAttributeKey<>(SslConnector.class, "sslSession");
 
     private static final String CODEC_FILTER = SslProtocol.NAME + "#codec";
     private static final String CERTIFICATE_SELECTION_FILTER = SslProtocol.NAME + "#certificate_selection";
@@ -226,7 +226,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
             return null;
         }
 
-        List<String> list = new ArrayList<String>(names.length);
+        List<String> list = new ArrayList<>(names.length);
         for (int i = 0; i < names.length; i++) {
             list.add(names[i]);
         }

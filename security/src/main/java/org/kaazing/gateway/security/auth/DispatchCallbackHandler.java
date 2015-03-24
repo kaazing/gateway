@@ -42,7 +42,7 @@ import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 public class DispatchCallbackHandler implements CallbackHandler {
 
     private Map<Class<? extends Callback>, CallbackHandler> dispatchMap =
-            new ConcurrentHashMap<Class<? extends Callback>, CallbackHandler>();
+            new ConcurrentHashMap<>();
 
     public DispatchCallbackHandler register(Class<? extends Callback> callbackClass, CallbackHandler callbackHandler) {
         if (callbackClass == null) {

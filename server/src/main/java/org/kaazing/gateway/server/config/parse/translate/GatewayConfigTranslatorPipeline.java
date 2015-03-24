@@ -36,7 +36,7 @@ class GatewayConfigTranslatorPipeline
     private List<GatewayConfigTranslator> translators;
 
     GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<GatewayConfigTranslator>(1);
+        translators = new ArrayList<>(1);
     }
 
     GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {

@@ -38,22 +38,22 @@ public class GatewayConfigurationBuilder extends AbstractGatewayConfigurationBui
 
     @Override
     public SetSecurityBuilder<GatewayConfigurationBuilder> security() {
-        return new SetSecurityBuilder<GatewayConfigurationBuilder>(this, getCurrentSuppressions());
+        return new SetSecurityBuilder<>(this, getCurrentSuppressions());
     }
 
     @Override
     public AddServiceBuilder<GatewayConfigurationBuilder> service() {
-        return new AddServiceBuilder<GatewayConfigurationBuilder>(this, getCurrentSuppressions());
+        return new AddServiceBuilder<>(this, getCurrentSuppressions());
     }
 
     @Override
     public AbstractClusterConfigurationBuilder<GatewayConfigurationBuilder> cluster() {
-        return new SetClusterBuilder<GatewayConfigurationBuilder>(this, getCurrentSuppressions());
+        return new SetClusterBuilder<>(this, getCurrentSuppressions());
     }
 
     @Override
     public AbstractServiceDefaultsConfigurationBuilder<GatewayConfigurationBuilder> serviceDefaults() {
-        return new SetServiceDefaultsBuilder<GatewayConfigurationBuilder>(this, getCurrentSuppressions());
+        return new SetServiceDefaultsBuilder<>(this, getCurrentSuppressions());
     }
 
     /**
@@ -62,7 +62,7 @@ public class GatewayConfigurationBuilder extends AbstractGatewayConfigurationBui
     @Deprecated
     @Override
     public AbstractNetworkBuilder<GatewayConfigurationBuilder> network() {
-        return new AddNetworkBuilder<GatewayConfigurationBuilder>(this);
+        return new AddNetworkBuilder<>(this);
     }
 
     private GatewayConfigurationBuilder(GatewayConfiguration configuration, Set<Suppression> suppressions) {

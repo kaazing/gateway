@@ -70,7 +70,7 @@ public abstract class AbstractNioConnector implements BridgeConnector {
     private static final String FAULT_LOGGING_FILTER = "#fault";
     private static final String TRACE_LOGGING_FILTER = "#logging";
 
-    private AtomicReference<IoConnectorEx> connector = new AtomicReference<IoConnectorEx>();
+    private AtomicReference<IoConnectorEx> connector = new AtomicReference<>();
     private final AtomicBoolean started;
     protected final Properties configuration;
     protected final Logger logger;

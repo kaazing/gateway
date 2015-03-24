@@ -46,9 +46,9 @@ import org.slf4j.Logger;
  */
 public class WsebInactivityTracker implements IoSessionIdleTracker {
     private static final String CHECK_ALIVE_FILTER = WsebProtocol.NAME + "#checkalive";
-    private static final TypedAttributeKey<IoSessionEx> INACTIVITY_SESSION_KEY = new TypedAttributeKey<IoSessionEx>(
+    private static final TypedAttributeKey<IoSessionEx> INACTIVITY_SESSION_KEY = new TypedAttributeKey<>(
             WsebInactivityTracker.class, "inactivitySession");
-    private static final TypedAttributeKey<WsebSession> WSEB_SESSION_KEY = new TypedAttributeKey<WsebSession>(
+    private static final TypedAttributeKey<WsebSession> WSEB_SESSION_KEY = new TypedAttributeKey<>(
             WsebInactivityTracker.class, "wsebSession");
     
     private final Logger logger;
@@ -63,8 +63,8 @@ public class WsebInactivityTracker implements IoSessionIdleTracker {
             assert writeRequest.getMessage() instanceof WsPingMessage;
             WsebSession wsebSession = WSEB_SESSION_KEY.get(dummySession);
             wsebSession.issuePingRequest();
-        };
-        
+        }
+
         @Override
         protected void doFilterClose(NextFilter nextFilter, IoSessionEx dummySession) throws Exception {
             // Handle session close requests from WsCheckaliveFilter

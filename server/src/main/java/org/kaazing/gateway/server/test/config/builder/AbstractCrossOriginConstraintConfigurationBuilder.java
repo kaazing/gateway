@@ -31,19 +31,19 @@ public abstract class AbstractCrossOriginConstraintConfigurationBuilder<R> exten
 
     public AbstractCrossOriginConstraintConfigurationBuilder<R> allowOrigin(String allowOrigin) {
         configuration.getSuppressibleConfiguration().setAllowOrigin(
-                new Suppressible<String>(allowOrigin, getCurrentSuppressions()));
+                new Suppressible<>(allowOrigin, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractCrossOriginConstraintConfigurationBuilder<R> allowMethods(String allowMethods) {
         configuration.getSuppressibleConfiguration().setAllowMethods(
-                new Suppressible<String>(allowMethods, getCurrentSuppressions()));
+                new Suppressible<>(allowMethods, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractCrossOriginConstraintConfigurationBuilder<R> allowHeaders(String allowHeaders) {
         configuration.getSuppressibleConfiguration().setAllowHeaders(
-                new Suppressible<String>(allowHeaders, getCurrentSuppressions()));
+                new Suppressible<>(allowHeaders, getCurrentSuppressions()));
         return this;
     }
 

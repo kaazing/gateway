@@ -43,7 +43,7 @@ import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
-    public static final TypedAttributeKey<WsnSession> SESSION_KEY = new TypedAttributeKey<WsnSession>(WsnSession.class, "session");
+    public static final TypedAttributeKey<WsnSession> SESSION_KEY = new TypedAttributeKey<>(WsnSession.class, "session");
 
     private static final CachingMessageEncoder WS_RFC6455_MESSAGE_ENCODER = new CachingMessageEncoder() {
 

@@ -35,7 +35,7 @@ final class NamedPipeTransport extends Transport {
 
     private static final Map<String, Protocol> PIPE_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("pipe", NamedPipeProtocol.PIPE);
         PIPE_PROTOCOLS = Collections.unmodifiableMap(map);
     }

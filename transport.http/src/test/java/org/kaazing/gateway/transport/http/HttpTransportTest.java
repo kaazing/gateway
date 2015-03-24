@@ -82,7 +82,7 @@ public class HttpTransportTest {
     HttpConnector httpConnector;
     NamedPipeConnector pipeConnector;
     
-    Set<Exception> failures = new ConcurrentHashSet<Exception>();
+    Set<Exception> failures = new ConcurrentHashSet<>();
 
     @Before
     public void before() {
@@ -98,7 +98,7 @@ public class HttpTransportTest {
 
         initBridgeServices();
         
-        failures = new ConcurrentHashSet<Exception>();
+        failures = new ConcurrentHashSet<>();
     }
 
     @After
@@ -160,9 +160,9 @@ public class HttpTransportTest {
             }
         };
 
-        Map<String, Object> bindOptions = new HashMap<String, Object>();
+        Map<String, Object> bindOptions = new HashMap<>();
         bindOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
-        final Map<String, Object> connectOptions = new HashMap<String, Object>();
+        final Map<String, Object> connectOptions = new HashMap<>();
         connectOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
 
         httpConnectorToAcceptor("http://localhost:8000/path",
@@ -182,7 +182,7 @@ public class HttpTransportTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
         acceptOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
 
         final String connectURIString = "http://localhost:8000/path";

@@ -85,9 +85,9 @@ public class NioSocketAcceptorBindingsTest {
     @Test
     public void referenceCountingWorksForOneOrMoreBindsWithDistinctAddresses() throws Exception {
 
-        Map<String,Object> opts = new HashMap<String,Object>();
+        Map<String,Object> opts = new HashMap<>();
         IoHandlerAdapter handler = new IoHandlerAdapter();
-        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
         int[] bindPorts = new int[NUMBER_DISTINCT_ADDRESSES];
         URI[] bindURIs = new URI[NUMBER_DISTINCT_ADDRESSES];
         ResourceAddress[] bindAddresses = new ResourceAddress[NUMBER_DISTINCT_ADDRESSES];
@@ -154,10 +154,10 @@ public class NioSocketAcceptorBindingsTest {
 
         int bindPort = findFreePort();
         URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
-        Map<String,Object> opts = new HashMap<String,Object>();
+        Map<String,Object> opts = new HashMap<>();
         IoHandlerAdapter handler = new IoHandlerAdapter();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, opts);
-        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
 
         int bindCount = 0;
 
@@ -198,10 +198,10 @@ public class NioSocketAcceptorBindingsTest {
 
         int bindPort = findFreePort();
         URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
-        Map<String,Object> opts = new HashMap<String,Object>();
+        Map<String,Object> opts = new HashMap<>();
         IoHandlerAdapter handler = new IoHandlerAdapter();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, opts);
-        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
 
         // bind #1
         tcpAcceptor.bind(bindAddress, handler, initializer);
@@ -242,7 +242,7 @@ public class NioSocketAcceptorBindingsTest {
     public void referenceCountingWorksForOneOrMoreBindsWithDistinctNextProtocols() throws Exception {
 
         IoHandlerAdapter handler = new IoHandlerAdapter();
-        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        BridgeSessionInitializerAdapter<IoFuture> initializer = new BridgeSessionInitializerAdapter<>();
         URI[] bindURIs = new URI[NUMBER_DISTINCT_ADDRESSES];
         ResourceAddress[] bindAddresses = new ResourceAddress[NUMBER_DISTINCT_ADDRESSES];
 

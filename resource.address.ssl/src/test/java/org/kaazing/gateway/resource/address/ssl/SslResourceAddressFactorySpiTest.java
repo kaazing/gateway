@@ -56,7 +56,7 @@ public class SslResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new SslResourceAddressFactorySpi();
         addressURI = URI.create("ssl://localhost:2020");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("ssl.nextProtocol", "custom");
         options.put("ssl.qualifier", "random");
         options.put("ssl.encryptionEnabled", Boolean.FALSE);

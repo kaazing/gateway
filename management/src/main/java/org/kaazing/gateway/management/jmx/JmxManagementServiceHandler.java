@@ -101,8 +101,8 @@ class JmxManagementServiceHandler implements ManagementServiceHandler {
         this.serviceContext = serviceContext;
         this.managementContext = managementContext;
         this.mbeanServer = mbeanServer;
-        serviceBeanMap = new HashMap<Integer, ServiceMXBean>();
-        sessionBeanMap = new HashMap<Long, SessionMXBean>();
+        serviceBeanMap = new HashMap<>();
+        sessionBeanMap = new HashMap<>();
 
         managementContext.addGatewayManagementListener(new JmxGatewayManagementListener(this));
         managementContext.addServiceManagementListener(new JmxServiceManagementListener(this));
