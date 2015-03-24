@@ -27,7 +27,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 
-public interface IoFilter<S extends IoSession, M extends Object> {
+public interface IoFilter<S extends IoSession, M> {
 
     void init() throws Exception;
 
@@ -71,7 +71,7 @@ public interface IoFilter<S extends IoSession, M extends Object> {
                                 Throwable cause) throws Exception;
 
     @SuppressWarnings("unchecked")
-    public class Adapter<S extends IoSession, M extends Object, F extends IoFilter<S, M>> implements
+    public class Adapter<S extends IoSession, M, F extends IoFilter<S, M>> implements
             org.apache.mina.core.filterchain.IoFilter {
 
         protected final F filter;

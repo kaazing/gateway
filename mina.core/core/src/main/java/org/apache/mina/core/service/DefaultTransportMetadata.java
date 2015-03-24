@@ -40,7 +40,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
     private final boolean fragmentation;
     private final Class<? extends SocketAddress> addressType;
     private final Class<? extends IoSessionConfig> sessionConfigType;
-    private final Set<Class<? extends Object>> envelopeTypes;
+    private final Set<Class<?>> envelopeTypes;
 
     public DefaultTransportMetadata(
             String providerName,
@@ -90,9 +90,9 @@ public class DefaultTransportMetadata implements TransportMetadata {
         this.addressType = addressType;
         this.sessionConfigType = sessionConfigType;
 
-        Set<Class<? extends Object>> newEnvelopeTypes =
-            new IdentityHashSet<Class<? extends Object>>();
-        for (Class<? extends Object> c: envelopeTypes) {
+        Set<Class<?>> newEnvelopeTypes =
+            new IdentityHashSet<Class<?>>();
+        for (Class<?> c: envelopeTypes) {
             newEnvelopeTypes.add(c);
         }
         this.envelopeTypes = Collections.unmodifiableSet(newEnvelopeTypes);
@@ -102,7 +102,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
         return addressType;
     }
 
-    public Set<Class<? extends Object>> getEnvelopeTypes() {
+    public Set<Class<?>> getEnvelopeTypes() {
         return envelopeTypes;
     }
 

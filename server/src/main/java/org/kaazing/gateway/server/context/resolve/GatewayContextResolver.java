@@ -1248,7 +1248,7 @@ public class GatewayContextResolver {
             return;
         }
 
-        Class<? extends Object> clazz = target.getClass();
+        Class<?> clazz = target.getClass();
 
         for (Method method : clazz.getMethods()) {
             Resource resource = method.getAnnotation(Resource.class);
