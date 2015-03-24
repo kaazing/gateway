@@ -836,7 +836,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
         filterChain.addLast("rtmp", codec);
         // filterChain.addLast("rtmp.window", windowFilter);
         //filterChain.addLast("rtmp.crossOrigin", crossOriginFilter);
-    };
+    }
 
     @Override
     public void removeBridgeFilters(IoFilterChain filterChain) {

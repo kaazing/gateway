@@ -84,7 +84,7 @@ public class RtmpDecodingState extends DecodingStateMachine {
         @Override
         protected DecodingState finishDecode() {
             return READ_CHUNK_HEADER;
-        };
+        }
     };
     
     private final DecodingState READ_CHUNK_HEADER;

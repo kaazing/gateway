@@ -92,5 +92,4 @@ public interface IoHandler<S extends IoSession, M extends Object> {
 
     }
 
-    ;
 }

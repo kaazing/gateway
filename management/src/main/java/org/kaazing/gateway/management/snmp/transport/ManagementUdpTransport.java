@@ -99,7 +99,6 @@ public class ManagementUdpTransport extends ManagementTransport {
                         }
                     }
 
-                    ;
                 });
             } catch (URISyntaxException ex) {
                 throw new IOException("Unable to send message to address: " + udpAddress, ex);

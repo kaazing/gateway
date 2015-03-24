@@ -412,6 +412,5 @@ public class HttpProtocolCompatibilityFilterTest {
         exp.allowing(filterChain).addBefore(exp.with(Expectations.any(String.class)),
                                          exp.with(Expectations.any(String.class)),
                                          exp.with(Expectations.any(org.apache.mina.core.filterchain.IoFilter.class)));
-        ;
     }
 }

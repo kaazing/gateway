@@ -316,7 +316,7 @@ public class WsrConnector extends AbstractBridgeConnector<WsrSession> {
 
         filterChain.addLast("rtmp", codec);
         filterChain.addLast("log", new LoggingFilter("transport.rtmp"));
-    };
+    }
 
     @Override
     public TransportMetadata getTransportMetadata() {

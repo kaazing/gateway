@@ -43,7 +43,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * </pre>
  */
 public interface WsExtension {
-    public static enum EndpointKind { CLIENT, SERVER };
+    public static enum EndpointKind { CLIENT, SERVER }
 
     public String getExtensionToken();
 

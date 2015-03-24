@@ -213,6 +213,6 @@ public class AbstractIoSessionExTest {
             return null;
         }
 
-    };
+    }
 
 }

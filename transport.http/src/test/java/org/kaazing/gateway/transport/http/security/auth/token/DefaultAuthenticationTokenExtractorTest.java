@@ -40,8 +40,7 @@ import org.kaazing.gateway.transport.http.util.Expectations;
 
 public class DefaultAuthenticationTokenExtractorTest {
     private AuthenticationToken token;
-    private AuthenticationTokenExtractor extractor = DefaultAuthenticationTokenExtractor.INSTANCE;;
-
+    private AuthenticationTokenExtractor extractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 
 
     // see http://jira.kaazing.wan/browse/KG-4635

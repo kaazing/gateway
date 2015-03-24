@@ -59,12 +59,12 @@ public abstract class ConfigParameter {
         ParameterRegex(int index) {
             this.index = index;
         }
-    };
+    }
 
     private enum ParameterResolutionStrategy {
         PARAMETER_DEFINITION_DEFAULT, PARAMETER_PROPERTIES_FILE, SYSTEM_PROPERTIES, ENVIRONMENT_VARIABLES,
         ESCAPED_PARAMETER_DEFINITION, UNRESOLVED_PARAMETER_DEFINITION, CLOUD_RESOLUTION_STRATEGY
-    };
+    }
 
     /**
      * Resolve and replace parameters with their value from within {@code chars}.<br>

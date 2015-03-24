@@ -412,7 +412,7 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
         @Override
         protected void doSetAll(IoSessionConfigEx config) {
         }
-    };
+    }
 
     private static IoSessionEx checkParentNotNull(IoSessionEx parent) {
         if (parent == null) {

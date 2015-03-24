@@ -63,8 +63,8 @@ public class WsebInactivityTracker implements IoSessionIdleTracker {
             assert writeRequest.getMessage() instanceof WsPingMessage;
             WsebSession wsebSession = WSEB_SESSION_KEY.get(dummySession);
             wsebSession.issuePingRequest();
-        };
-        
+        }
+
         @Override
         protected void doFilterClose(NextFilter nextFilter, IoSessionEx dummySession) throws Exception {
             // Handle session close requests from WsCheckaliveFilter

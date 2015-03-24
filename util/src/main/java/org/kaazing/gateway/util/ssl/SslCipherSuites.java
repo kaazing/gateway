@@ -294,7 +294,7 @@ public class SslCipherSuites {
       ADD,        // default
       KILL,        // '!' prefix
       RIGHT_SHIFT,    // '+' prefix
-      REMOVE;        // '-' prefix
+      REMOVE        // '-' prefix
     }
 
     // These mappings are based on the groupings used by OpenSSL; see

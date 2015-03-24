@@ -269,7 +269,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         wsnConnectFuture.addListener(wsnConnectListener);
         return connectFuture;
-    };
+    }
 
     protected <T extends ConnectFuture> ConnectFuture wsnConnectInternal(ResourceAddress connectAddress,
                                                                          IoHandler handler,

@@ -329,8 +329,6 @@ public class GatewayContextResolverTest {
             logger.addAppender(appender);
         }
 
-        ;
-
         public static LogMessageInspector create(String loggerName) {
             return new LogMessageInspector(loggerName);
         }

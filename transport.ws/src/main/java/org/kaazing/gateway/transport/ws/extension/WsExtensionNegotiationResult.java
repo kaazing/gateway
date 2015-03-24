@@ -32,7 +32,7 @@ public final class WsExtensionNegotiationResult {
 
     static enum Status {
         FAILURE,
-        OK;
+        OK
     }
 
     private final Status status;

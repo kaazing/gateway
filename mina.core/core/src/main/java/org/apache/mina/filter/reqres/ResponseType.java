@@ -25,5 +25,5 @@ package org.apache.mina.filter.reqres;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 public enum ResponseType {
-    WHOLE, PARTIAL, PARTIAL_LAST;
+    WHOLE, PARTIAL, PARTIAL_LAST
 }

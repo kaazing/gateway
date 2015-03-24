@@ -427,6 +427,6 @@ public class ServiceConnectManagerTest {
             completionService.submit((Runnable)invocation.getParameter(0), null);
             return null;
         }
-    };
+    }
 
 }

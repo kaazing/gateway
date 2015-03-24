@@ -123,7 +123,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
             return worker;
         }
 
-    };
+    }
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
     public NioSocketAcceptor(Properties configuration) {

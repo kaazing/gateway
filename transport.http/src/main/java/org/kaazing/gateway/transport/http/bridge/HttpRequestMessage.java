@@ -42,9 +42,9 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpRequestProfile;
 
 public class HttpRequestMessage extends HttpStartMessage {
 
-    private static enum QueryUpdate { DECODE, ENCODE };
+    private static enum QueryUpdate { DECODE, ENCODE }
 
-	private static final Map<String, List<String>> EMPTY_PARAMETERS = Collections.emptyMap();
+    private static final Map<String, List<String>> EMPTY_PARAMETERS = Collections.emptyMap();
 
 	private boolean secure;
 	private Map<String, List<String>> parameters;

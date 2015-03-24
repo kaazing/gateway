@@ -46,7 +46,7 @@ public class SseDecodingState extends DecodingStateMachine {
     private static final byte LINEFEED_BYTE = "\n".getBytes(UTF_8)[0];
 
     private enum Type {
-        UNKNOWN, EVENT, DATA, ID, RETRY, COMMENT;
+        UNKNOWN, EVENT, DATA, ID, RETRY, COMMENT
     }
 
     private static Map<String, Type> types = new HashMap<>();
