@@ -102,7 +102,7 @@ public class SseAcceptorIT {
         tcpAcceptor.setBridgeServiceFactory(serviceFactory);
 
         URI location = URI.create("sse://localhost:8000/path");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(format("http.%s", INJECTABLE_HEADERS.name()), emptySet());
         ResourceAddress sseAddress = addressFactory.newResourceAddress(location, options);
 

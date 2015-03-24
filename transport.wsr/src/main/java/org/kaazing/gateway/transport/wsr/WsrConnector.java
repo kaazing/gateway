@@ -70,11 +70,11 @@ import org.slf4j.LoggerFactory;
 public class WsrConnector extends AbstractBridgeConnector<WsrSession> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
-    private static final TypedAttributeKey<IoBufferEx> CREATE_RESPONSE_KEY = new TypedAttributeKey<IoBufferEx>(
+    private static final TypedAttributeKey<IoBufferEx> CREATE_RESPONSE_KEY = new TypedAttributeKey<>(
             WsrConnector.class, "createResponse");
     private static final String CREATE_SUFFIX = "/;e/cr";
-    private static final TypedAttributeKey<WsrSession> WSR_SESSION_KEY = new TypedAttributeKey<WsrSession>(WsrConnector.class, "rtmp.session");
-    private static final TypedAttributeKey<ConnectRequest<?>> CONNECT_REQUEST_KEY = new TypedAttributeKey<ConnectRequest<?>>(WsrConnector.class, "createSession");
+    private static final TypedAttributeKey<WsrSession> WSR_SESSION_KEY = new TypedAttributeKey<>(WsrConnector.class, "rtmp.session");
+    private static final TypedAttributeKey<ConnectRequest<?>> CONNECT_REQUEST_KEY = new TypedAttributeKey<>(WsrConnector.class, "createSession");
 
 
     private final RtmpChunkCodecFilter codec;
@@ -187,7 +187,7 @@ public class WsrConnector extends AbstractBridgeConnector<WsrSession> {
                     }
                 };
 
-                parent.setAttribute(CONNECT_REQUEST_KEY, new ConnectRequest<T>(connectAddress, bridgeConnectFuture, bridgeSessionInitializer));
+                parent.setAttribute(CONNECT_REQUEST_KEY, new ConnectRequest<>(connectAddress, bridgeConnectFuture, bridgeSessionInitializer));
 
                 // WebSocket-Version required by WsrAcceptor
                 HttpSession httpParent = (HttpSession)parent;

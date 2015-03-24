@@ -45,7 +45,7 @@ public class ResourceAddressFactoryTest {
     @Before
     public void setup() throws Exception {
         addressURI = URI.create("test://opaque");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("test://transport"));
     }
 
@@ -91,7 +91,7 @@ public class ResourceAddressFactoryTest {
     
     @Test
     public void shouldConsumeOptionMatchingProtocolFilter() {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("test[testable].option", "testable");
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);
@@ -101,7 +101,7 @@ public class ResourceAddressFactoryTest {
     
     @Test
     public void shouldNotConsumeOptionNotMatchingProtocolFilter() {
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("test[untestable].option", "testable");
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);

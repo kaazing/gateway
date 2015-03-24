@@ -527,7 +527,7 @@ public final class AwsUtils {
     private static String getV1StringToSign(Map<String, String> paramMap) {
         assert paramMap != null;
 
-        Set<String> sortedKeys = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> sortedKeys = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         sortedKeys.addAll(paramMap.keySet());
 
         // Don't include "Signature" in the string to sign.
@@ -545,7 +545,7 @@ public final class AwsUtils {
     private static String getV2CanonicalizedQueryString(Map<String, String> params) {
         assert params != null && !params.isEmpty();
 
-        SortedMap<String, String> sortedMap = new TreeMap<String, String>(params);
+        SortedMap<String, String> sortedMap = new TreeMap<>(params);
 
         // Remove "Signature" parameter, if added.
         sortedMap.remove("Signature");

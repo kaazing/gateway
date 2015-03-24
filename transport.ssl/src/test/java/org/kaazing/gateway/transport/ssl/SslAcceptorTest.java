@@ -304,7 +304,7 @@ public class SslAcceptorTest {
     }
 
     private Map<String, Object> buildSslOptionsMap() {
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
         opts.put(NEXT_PROTOCOL, "test-protocol");
@@ -353,7 +353,7 @@ public class SslAcceptorTest {
             }
         };
 
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
         opts.put(NEXT_PROTOCOL, "test-protocol");
@@ -378,7 +378,7 @@ public class SslAcceptorTest {
             resourceAddressFactory.newResourceAddress(firstURI, opts);
         sslAcceptor.bind(firstAccept, acceptHandler, null);
 
-        opts = new HashMap<String, Object>();
+        opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
         opts.put(NEXT_PROTOCOL, "test-protocol");

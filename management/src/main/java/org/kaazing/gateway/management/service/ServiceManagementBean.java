@@ -237,7 +237,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
         // Map of the per-thread thread-local stats objects. Keyed on thread ID.
         private final CopyOnWriteMap<Thread, ThreadServiceStats> serviceStatsMap =
-                new CopyOnWriteMap<Thread, ThreadServiceStats>();
+                new CopyOnWriteMap<>();
 
         // Keep a unique index number for each service instance, as we can use
         // it in SNMP for an OID, and it might be useful elsewhere if we decide
@@ -262,7 +262,7 @@ public interface ServiceManagementBean extends ManagementBean {
          * 'sessionClosed' more than once. We want to prevent both scenarios, so to do so we'll have a flag that is set
          * during sessionCreated, then cleared after the first time through sessionClosed.
          */
-        private Set<Long> sessionCreatedFlag = new HashSet<Long>();
+        private Set<Long> sessionCreatedFlag = new HashSet<>();
 
         /**
          * Constructor. The reason we pass in the managementProcessorList is that during sessionClosed, there are things we want
@@ -295,7 +295,7 @@ public interface ServiceManagementBean extends ManagementBean {
                 this.serviceConnectManager = null;
             }
 
-            userPrincipalClasses = new HashSet<String>();
+            userPrincipalClasses = new HashSet<>();
             RealmContext realmContext = serviceContext.getServiceRealm();
             if (realmContext != null) {
                 String[] upc = realmContext.getUserPrincipalClasses();
@@ -534,7 +534,7 @@ public interface ServiceManagementBean extends ManagementBean {
         // XXX This runs OFF the IO thread
         @Override
         public Map<Long, Map<String, String>> getLoggedInSessions() {
-            Map<Long, Map<String, String>> sessions = new HashMap<Long, Map<String, String>>();
+            Map<Long, Map<String, String>> sessions = new HashMap<>();
 
             for (ThreadServiceStats stats : serviceStatsMap.values()) {
                 stats.collectLoggedInSessions(sessions);
@@ -924,7 +924,7 @@ public interface ServiceManagementBean extends ManagementBean {
             // A map of session ID to an associated set of user principals. Note that we
             // need to convert the ID to something else (e.g. session MBean name) when
             // returned to the user from a call through the service protocol-specific object.
-            private final Map<Long, Map<String, String>> loggedInSessions = new HashMap<Long, Map<String, String>>();
+            private final Map<Long, Map<String, String>> loggedInSessions = new HashMap<>();
 
             // Optimization to keep track on a per-session basis (within the thread), of the total
             // bytes sent and received so we can report a total sent and received for the service.

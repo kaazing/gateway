@@ -34,7 +34,7 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
 
     public AbstractSecurityConfigurationBuilder<R> keyStore(KeyStore keyStore) {
         configuration.getSuppressibleConfiguration().setKeyStore(
-                new Suppressible<KeyStore>(keyStore, getCurrentSuppressions()));
+                new Suppressible<>(keyStore, getCurrentSuppressions()));
         return this;
     }
 
@@ -84,7 +84,7 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
 
     public AbstractSecurityConfigurationBuilder<R> trustStore(KeyStore trustStore) {
         configuration.getSuppressibleConfiguration().setTrustStore(
-                new Suppressible<KeyStore>(trustStore, getCurrentSuppressions()));
+                new Suppressible<>(trustStore, getCurrentSuppressions()));
         return this;
     }
 
@@ -103,7 +103,7 @@ public abstract class AbstractSecurityConfigurationBuilder<R> extends
 
         @Override
         public AddLoginModuleBuilder<AddRealmBuilder<R>> loginModule() {
-            return new AddLoginModuleBuilder<AddRealmBuilder<R>>(this, getCurrentSuppressions());
+            return new AddLoginModuleBuilder<>(this, getCurrentSuppressions());
         }
 
         @Override

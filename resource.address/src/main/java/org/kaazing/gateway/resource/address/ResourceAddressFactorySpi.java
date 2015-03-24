@@ -66,7 +66,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     public abstract String getSchemeName();
 
     public final T newResourceAddress(URI location) {
-        return newResourceAddress(location, new HashMap<String,Object>(EMPTY_OPTIONS));
+        return newResourceAddress(location, new HashMap<>(EMPTY_OPTIONS));
     }
     
     public final T newResourceAddress(URI location, Map<String, Object> optionsByName) {
@@ -179,7 +179,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         // TODO: scheme-prefixed option names?
         // strip off current transport prefix for option names
         for (String prefix : prefixes) {
-            Collection<String> prefixedOptionNames = new HashSet<String>();
+            Collection<String> prefixedOptionNames = new HashSet<>();
             final Set<Map.Entry<String,Object>> entrySet = optionsByName.entrySet();
             for (Map.Entry<String, Object> entry : entrySet) {
                 String optionName = entry.getKey();
@@ -394,7 +394,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (transportURI != null && addressFactory != null) {
             String protocolName = getProtocolName();
             if (optionsByName == Collections.<String,Object>emptyMap()) {
-                optionsByName = new HashMap<String, Object>();
+                optionsByName = new HashMap<>();
             }
             optionsByName.put(TRANSPORTED_URI.name(), location);
             transport = addressFactory.newResourceAddress(transportURI, optionsByName, protocolName);
@@ -426,7 +426,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
     @SuppressWarnings("JavadocReference")
     protected Map<String, Object> getNewOptionsByName(ResourceOptions options, Map<String, Object> optionsByName) {
-        Map<String,Object> clonedOptionsByName = new HashMap<String, Object>(optionsByName);
+        Map<String,Object> clonedOptionsByName = new HashMap<>(optionsByName);
         clonedOptionsByName.put(NEXT_PROTOCOL.name(), options.getOption(NEXT_PROTOCOL));
         clonedOptionsByName.put(QUALIFIER.name(), options.getOption(QUALIFIER));
         clonedOptionsByName.put(TRANSPORT_URI.name(), options.getOption(TRANSPORT_URI));

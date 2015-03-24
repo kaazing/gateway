@@ -91,11 +91,11 @@ public class FileLoginModuleTest {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
 
                 final String basicLoginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> basicOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> basicOptions = new HashMap<>();
                 final AppConfigurationEntry basicEntry = new AppConfigurationEntry(basicLoginModuleName, OPTIONAL, basicOptions);
 
                 final String fileLoginModuleName = "org.kaazing.gateway.security.auth.FileLoginModule";
-                final HashMap<String, Object> fileOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> fileOptions = new HashMap<>();
                 fileOptions.put("file", "src/test/resources/jaas-config.xml");
 
                 final AppConfigurationEntry fileEntry = new AppConfigurationEntry(fileLoginModuleName, REQUIRED, fileOptions);
@@ -146,11 +146,11 @@ public class FileLoginModuleTest {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
 
                 final String basicLoginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> basicOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> basicOptions = new HashMap<>();
                 final AppConfigurationEntry basicEntry = new AppConfigurationEntry(basicLoginModuleName, OPTIONAL, basicOptions);
 
                 final String fileLoginModuleName = "org.kaazing.gateway.security.auth.FileLoginModule";
-                final HashMap<String, Object> fileOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> fileOptions = new HashMap<>();
                 fileOptions.put("file", "src/test/jaas-config.xml");
 
                 final AppConfigurationEntry fileEntry = new AppConfigurationEntry(fileLoginModuleName, REQUIRED, fileOptions);
@@ -183,11 +183,11 @@ public class FileLoginModuleTest {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
 
                 final String basicLoginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> basicOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> basicOptions = new HashMap<>();
                 final AppConfigurationEntry basicEntry = new AppConfigurationEntry(basicLoginModuleName, OPTIONAL, basicOptions);
 
                 final String fileLoginModuleName = "org.kaazing.gateway.security.auth.FileLoginModule";
-                final HashMap<String, Object> fileOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> fileOptions = new HashMap<>();
                 fileOptions.put("file", "src/test/resources/jaas-config.xml");
 
                 final AppConfigurationEntry fileEntry = new AppConfigurationEntry(fileLoginModuleName, REQUIRED, fileOptions);
@@ -220,11 +220,11 @@ public class FileLoginModuleTest {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
 
                 final String basicLoginModuleName = "org.kaazing.gateway.security.auth.BasicLoginModule";
-                final HashMap<String, Object> basicOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> basicOptions = new HashMap<>();
                 final AppConfigurationEntry basicEntry = new AppConfigurationEntry(basicLoginModuleName, OPTIONAL, basicOptions);
 
                 final String fileLoginModuleName = "org.kaazing.gateway.security.auth.FileLoginModule";
-                final HashMap<String, Object> fileOptions = new HashMap<String, Object>();
+                final HashMap<String, Object> fileOptions = new HashMap<>();
                 fileOptions.put("file", "src/test/resources/jaas-config.xml");
 
                 final AppConfigurationEntry fileEntry = new AppConfigurationEntry(fileLoginModuleName, REQUIRED, fileOptions);

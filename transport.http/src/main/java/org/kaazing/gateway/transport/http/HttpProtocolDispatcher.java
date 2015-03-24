@@ -37,7 +37,7 @@ class HttpProtocolDispatcher implements ProtocolDispatcher {
     private static final Collection<byte[]> HTTP_DISCRIMINATORS;
     static {
         HttpMethod[] httpMethods = HttpMethod.values();
-        List<byte[]> byteArrays = new ArrayList<byte[]>(httpMethods.length * 2);
+        List<byte[]> byteArrays = new ArrayList<>(httpMethods.length * 2);
         for (HttpMethod httpMethod : httpMethods) {
             String methodName = httpMethod.name();
             char initialChar = methodName.charAt(0);

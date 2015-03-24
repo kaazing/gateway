@@ -113,7 +113,7 @@ public class MemoryCollectionsFactoryTest {
         String v3 = "3";
         map.put(k3, v3);
 
-        Set<String> expected = new HashSet<String>();
+        Set<String> expected = new HashSet<>();
         expected.add(k1);
         expected.add(k2);
         expected.add(k3);
@@ -143,7 +143,7 @@ public class MemoryCollectionsFactoryTest {
         String v3 = "3";
         map.put(k3, new TestObject(v3));
 
-        Set<String> expected = new HashSet<String>();
+        Set<String> expected = new HashSet<>();
         expected.add(k1);
         expected.add(k2);
 
@@ -173,7 +173,7 @@ public class MemoryCollectionsFactoryTest {
         String v3 = "3";
         map.put(k3, new TestObject(v3));
 
-        Set<String> expected = new HashSet<String>();
+        Set<String> expected = new HashSet<>();
         expected.add(k1);
         expected.add(k2);
 
@@ -203,7 +203,7 @@ public class MemoryCollectionsFactoryTest {
         TestObject v3 = new TestObject("3");
         map.put(k3, v3);
 
-        Collection<TestObject> expected = new HashSet<TestObject>();
+        Collection<TestObject> expected = new HashSet<>();
         expected.add(v1);
         expected.add(v2);
 

@@ -103,11 +103,11 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     // chosen key from RFC 6455
     private static final String STATIC_WEBSOCKET_KEY = "dGhlIHNhbXBsZSBub25jZQ==";
 
-    private static final TypedAttributeKey<Callable<WsnSession>> WSN_SESSION_FACTORY_KEY = new TypedAttributeKey<Callable<WsnSession>>(WsnConnector.class, "wsnSessionFactory");
+    private static final TypedAttributeKey<Callable<WsnSession>> WSN_SESSION_FACTORY_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionFactory");
     private static final AttributeKey ENCODING_KEY = new AttributeKey(WsnConnector.class, "encoding");
-    private static final TypedAttributeKey<IoSessionInitializer<?>> WSN_SESSION_INITIALIZER_KEY = new TypedAttributeKey<IoSessionInitializer<?>>(WsnConnector.class, "wsnSessionInitializer");
-    private static final TypedAttributeKey<ConnectFuture> WSN_CONNECT_FUTURE_KEY = new TypedAttributeKey<ConnectFuture>(WsnConnector.class, "wsnConnectFuture");
-    private static final TypedAttributeKey<ResourceAddress> WSN_CONNECT_ADDRESS_KEY = new TypedAttributeKey<ResourceAddress>(WsnConnector.class, "wsnConnectAddress");
+    private static final TypedAttributeKey<IoSessionInitializer<?>> WSN_SESSION_INITIALIZER_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionInitializer");
+    private static final TypedAttributeKey<ConnectFuture> WSN_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectFuture");
+    private static final TypedAttributeKey<ResourceAddress> WSN_CONNECT_ADDRESS_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectAddress");
 
     private static final String LOGGER_NAME = String.format("transport.%s.connect", WsnProtocol.NAME);
 
@@ -449,7 +449,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 // include next-protocol (if specified) with supported protocols
                 String wsNextProtocol = wsnConnectAddress.getOption(NEXT_PROTOCOL);
                 if (wsNextProtocol != null) {
-                    List<String> allProtocols = new ArrayList<String>(protocols);
+                    List<String> allProtocols = new ArrayList<>(protocols);
                     allProtocols.add(wsNextProtocol);
                     protocols = allProtocols;
                 }

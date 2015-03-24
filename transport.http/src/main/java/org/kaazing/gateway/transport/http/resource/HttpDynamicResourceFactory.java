@@ -41,7 +41,7 @@ public abstract class HttpDynamicResourceFactory {
         ServiceLoader<HttpDynamicResourceFactorySpi> loader = loadHttpDynamicResourceFactorySpi(classLoader);
         
         // load HttpDynamicResourceFactorySpi instances
-        ConcurrentMap<String, HttpDynamicResourceFactorySpi> dynamicResourceFactories = new ConcurrentHashMap<String, HttpDynamicResourceFactorySpi>();
+        ConcurrentMap<String, HttpDynamicResourceFactorySpi> dynamicResourceFactories = new ConcurrentHashMap<>();
         for (HttpDynamicResourceFactorySpi dynamicResourceFactorySpi : loader) {
             Collection<String> resourceNames = dynamicResourceFactorySpi.getResourceNames();
             for (String resourceName : resourceNames) {

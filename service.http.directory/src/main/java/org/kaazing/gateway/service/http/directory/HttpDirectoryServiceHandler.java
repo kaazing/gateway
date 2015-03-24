@@ -315,8 +315,8 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 return null;
             }
 
-            TreeMap<String, File> subDirMap = new TreeMap<String, File>();
-            TreeMap<String, File> fileMap = new TreeMap<String, File>();
+            TreeMap<String, File> subDirMap = new TreeMap<>();
+            TreeMap<String, File> fileMap = new TreeMap<>();
 
             // When creating a listing, directories are grouped first, then
             // files.  Each group is sorted separately.

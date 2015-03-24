@@ -241,7 +241,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 					.get(0);
 
 			// parse cookies
-			Set<HttpCookie> cookies = new HashSet<HttpCookie>();
+			Set<HttpCookie> cookies = new HashSet<>();
 			List<String> cookieHeaderValues = headers.get("Set-Cookie");
 			if (cookieHeaderValues != null && !cookieHeaderValues.isEmpty()) {
 				String cookieHeaderValue = cookieHeaderValues.get(0);

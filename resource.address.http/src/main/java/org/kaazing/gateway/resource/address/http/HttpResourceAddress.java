@@ -214,7 +214,7 @@ public final class HttpResourceAddress extends ResourceAddress {
             AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN
         }
 	    
-		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<String, ResourceOption<?>>();
+		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
 		private final Kind kind;
 		

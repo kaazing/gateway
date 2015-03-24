@@ -294,7 +294,7 @@ public class HttpRequestMessage extends HttpStartMessage {
     }
 
 	protected Map<String, List<String>> createHeaders() {
-		return new TreeMap<String, List<String>>(HttpHeaderNameComparator.INSTANCE);
+		return new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -303,7 +303,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 		// lazily create parameters
 		if (parameters == null && (createIfNull || queryUpdate == QueryUpdate.DECODE)) {
 		    // maintain original parameter ordering
-			parameters = new LinkedHashMap<String, List<String>>();
+			parameters = new LinkedHashMap<>();
 		}
 
 		// re-validate parameters if necessary
@@ -346,7 +346,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 		}
 		List<String> parameterValues = parameters.get(parameterName);
 		if (parameterValues == null && createIfNull) {
-			parameterValues = new ArrayList<String>();
+			parameterValues = new ArrayList<>();
 			parameters.put(parameterName, parameterValues);
 		}
 		return parameterValues;

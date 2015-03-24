@@ -62,7 +62,7 @@ public class WsnSslResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new WsnSslResourceAddressFactorySpi();
         addressURI = URI.create("wsn+ssl://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);

@@ -84,7 +84,7 @@ public class HttpBindingsTest {
         };
 
         handler = new IoHandlerAdapter();
-        initializer = new BridgeSessionInitializerAdapter<IoFuture>();
+        initializer = new BridgeSessionInitializerAdapter<>();
     }
 
 
@@ -324,7 +324,7 @@ public class HttpBindingsTest {
     }
 
     private Map<String, Object> makeOpts(String nextProtocol) {
-        Map<String, Object> opts = new HashMap<String, Object>();
+        Map<String, Object> opts = new HashMap<>();
         opts.put("tcp.resolver", nameResolver);
         if ( nextProtocol != null ) {
             opts.put("nextProtocol", nextProtocol);

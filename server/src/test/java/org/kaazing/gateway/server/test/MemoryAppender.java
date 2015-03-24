@@ -41,7 +41,7 @@ import org.apache.log4j.spi.LoggingEvent;
 public class MemoryAppender extends ConsoleAppender {
     private static final boolean DEBUG = false;
 
-    private static Queue<LoggingEvent> eventsList = new LinkedBlockingQueue<LoggingEvent>();
+    private static Queue<LoggingEvent> eventsList = new LinkedBlockingQueue<>();
     private static MemoryAppender lastInstance;
     private static int MAX_MESSAGES = 30000;
     private static AtomicInteger messageCount = new AtomicInteger(0);

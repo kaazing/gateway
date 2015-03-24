@@ -137,7 +137,7 @@ public class NamedPipeProcessor extends AbstractIoProcessor<NamedPipeSession> {
                             if (writableBytes != 0) {
 
                                 if (session.isClosing()) {
-                                    Collection<WriteRequest> unwritten = new LinkedList<WriteRequest>();
+                                    Collection<WriteRequest> unwritten = new LinkedList<>();
                                     while (request != null) {
                                         unwritten.add(request);
                                         request = writeRequestQueue.poll(session);

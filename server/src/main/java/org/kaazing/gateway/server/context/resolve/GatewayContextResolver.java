@@ -131,7 +131,7 @@ public class GatewayContextResolver {
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
     // TODO: In 4.0 we may want to remove this and require explicit settings!
-    private static final Map<String, String> defaultMimeMappings = new HashMap<String, String>();
+    private static final Map<String, String> defaultMimeMappings = new HashMap<>();
 
     static {
         defaultMimeMappings.put("html", "text/html");
@@ -183,19 +183,19 @@ public class GatewayContextResolver {
         this.webDir = webDir;
         this.tempDir = tempDir;
         this.jmxMBeanServer = mbeanServer;
-        this.loginModuleClassNames = new HashMap<String, String>();
+        this.loginModuleClassNames = new HashMap<>();
 
-        Map<String, LoginModuleControlFlag> loginModuleControlFlags = new HashMap<String, LoginModuleControlFlag>();
+        Map<String, LoginModuleControlFlag> loginModuleControlFlags = new HashMap<>();
         loginModuleControlFlags.put("optional", LoginModuleControlFlag.OPTIONAL);
         loginModuleControlFlags.put("required", LoginModuleControlFlag.REQUIRED);
         loginModuleControlFlags.put("requisite", LoginModuleControlFlag.REQUISITE);
         loginModuleControlFlags.put("sufficient", LoginModuleControlFlag.SUFFICIENT);
         this.loginModuleControlFlags = loginModuleControlFlags;
 
-        this.schemeConfigsByName = new HashMap<String, SchemeConfig>();
+        this.schemeConfigsByName = new HashMap<>();
 
-        this.transportContextsBySchemeName = new HashMap<String, DefaultTransportContext>();
-        this.transportContextsByName = new HashMap<String, DefaultTransportContext>();
+        this.transportContextsBySchemeName = new HashMap<>();
+        this.transportContextsByName = new HashMap<>();
 
         // Initialize the SslCipherSuites (pertains to KG-7059)
         SslCipherSuites.init();
@@ -208,7 +208,7 @@ public class GatewayContextResolver {
 
     public GatewayContext resolve(GatewayConfigDocument gatewayConfigDoc, Properties configuration) throws Exception {
         GatewayConfigDocument.GatewayConfig gatewayConfig = gatewayConfigDoc.getGatewayConfig();
-        Collection<? extends SchemeConfig> schemeConfigs = new LinkedList<DefaultSchemeConfig>();
+        Collection<? extends SchemeConfig> schemeConfigs = new LinkedList<>();
         SecurityType[] securityConfigs = gatewayConfig.getSecurityArray();
         SecurityType securityConfig = (securityConfigs.length > 0) ? securityConfigs[securityConfigs.length - 1] : null;
         ServiceType[] serviceConfigs = gatewayConfig.getServiceArray();
@@ -256,7 +256,7 @@ public class GatewayContextResolver {
                 schedulerProvider);
 
         // create map of injectable resources
-        Map<String, Object> injectables = new HashMap<String, Object>();
+        Map<String, Object> injectables = new HashMap<>();
         injectables.putAll(dependencyContexts);
         injectables.put("serviceRegistry", servicesByURI);
         injectables.put("realmsContext", realmsContext);
@@ -295,7 +295,7 @@ public class GatewayContextResolver {
             throws Exception {
 
         // load the default scheme information based on service accepts
-        Set<String> schemeNames = new HashSet<String>();
+        Set<String> schemeNames = new HashSet<>();
         for (ServiceContext serviceContext : serviceContexts) {
             for (URI acceptURI : serviceContext.getAccepts()) {
                 String schemeName = acceptURI.getScheme();
@@ -354,7 +354,7 @@ public class GatewayContextResolver {
         }
 
         // resolve schemes
-        Map<String, DefaultSchemeContext> schemeContexts = new HashMap<String, DefaultSchemeContext>();
+        Map<String, DefaultSchemeContext> schemeContexts = new HashMap<>();
         for (String schemeName : schemeNames) {
             DefaultSchemeContext schemeContext = schemeContexts.get(schemeName);
             if (schemeContext == null) {
@@ -409,7 +409,7 @@ public class GatewayContextResolver {
 
         MimeMappingType[] mimeMappingTypes = serviceDefaults.getMimeMappingArray();
         if (mimeMappingTypes != null) {
-            mimeMappings = new HashMap<String, String>();
+            mimeMappings = new HashMap<>();
             for (MimeMappingType mmt : mimeMappingTypes) {
                 mimeMappings.put(mmt.getExtension(), mmt.getMimeType());
             }
@@ -436,11 +436,11 @@ public class GatewayContextResolver {
             throws Exception {
 
 //        Map<String, Class<? extends Service>> serviceClasses = new HashMap<String, Class<? extends Service>>();
-        Collection<ServiceContext> serviceContexts = new HashSet<ServiceContext>();
+        Collection<ServiceContext> serviceContexts = new HashSet<>();
 
         // The list of mime mappings for a given service is a combination of the defaults we hardcoded,
         // any <mime-mapping> blocks from <service-defaults>, and any from <service>.
-        Map<String, String> serviceDefaultsMimeMappings = new HashMap<String, String>();
+        Map<String, String> serviceDefaultsMimeMappings = new HashMap<>();
         serviceDefaultsMimeMappings.putAll(defaultMimeMappings);
 
         if (defaultServiceConfig != null) {
@@ -452,7 +452,7 @@ public class GatewayContextResolver {
 
         // Used by client access policy xml. This parameter is not fully initialized until after the service c
         List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
-                new ArrayList<Map<URI, Map<String, CrossSiteConstraintContext>>>();
+                new ArrayList<>();
 
         for (ServiceType serviceConfig : serviceConfigs) {
             String serviceName = serviceConfig.getName();
@@ -505,14 +505,14 @@ public class GatewayContextResolver {
                 connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)));
             }
 
-            Collection<String> requireRolesCollection = new LinkedList<String>();
+            Collection<String> requireRolesCollection = new LinkedList<>();
             for (AuthorizationConstraintType authConstraint : serviceConfig.getAuthorizationConstraintArray()) {
                 Collections.addAll(requireRolesCollection, authConstraint.getRequireRoleArray());
             }
             String[] requireRoles = requireRolesCollection.toArray(new String[requireRolesCollection.size()]);
 
             // Add the service-specific mime mappings on top of the service-defaults+hardcoded.
-            Map<String, String> mimeMappings = new HashMap<String, String>();
+            Map<String, String> mimeMappings = new HashMap<>();
             mimeMappings.putAll(serviceDefaultsMimeMappings);
 
             for (MimeMappingType mimeMappingType : serviceConfig.getMimeMappingArray()) {
@@ -520,7 +520,7 @@ public class GatewayContextResolver {
             }
 
             Map<URI, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
-                    new HashMap<URI, Map<String, CrossSiteConstraintContext>>();
+                    new HashMap<>();
             for (URI acceptURI : acceptURIs) {
                 int wildcardOriginCount = 0;
                 CrossSiteConstraintType[] crossSiteConstraints = serviceConfig.getCrossSiteConstraintArray();
@@ -578,7 +578,7 @@ public class GatewayContextResolver {
 
                     Map<String, CrossSiteConstraintContext> acceptConstraints = acceptConstraintsByURI.get(acceptURI);
                     if (acceptConstraints == null) {
-                        acceptConstraints = new HashMap<String, CrossSiteConstraintContext>();
+                        acceptConstraints = new HashMap<>();
                         acceptConstraintsByURI.put(acceptURI, acceptConstraints);
                     }
 
@@ -716,7 +716,7 @@ public class GatewayContextResolver {
     }
 
     private Collection<URI> resolveURIs(String[] acceptURIs) throws URISyntaxException {
-        Collection<URI> urisWithPort = new HashSet<URI>();
+        Collection<URI> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
             URI resolvedURI = resolveURI(getCanonicalURI(uri, true));
             urisWithPort.add(resolvedURI);
@@ -795,7 +795,7 @@ public class GatewayContextResolver {
                                                  String processing,
                                                  ClusterConnectOptionsType connectOptions,
                                                  int clusterPort) {
-        List<MemberId> memberIds = new ArrayList<MemberId>();
+        List<MemberId> memberIds = new ArrayList<>();
         if (collection != null) {
             for (String member : collection) {
                 URI uri;
@@ -895,7 +895,7 @@ public class GatewayContextResolver {
 
 
     private RealmsContext resolveRealms(SecurityType securityConfig, SecurityContext securityContext, Properties configuration) {
-        Map<String, DefaultRealmContext> realmContexts = new HashMap<String, DefaultRealmContext>();
+        Map<String, DefaultRealmContext> realmContexts = new HashMap<>();
 
         if (securityConfig != null) {
             for (RealmType realmConfig : securityConfig.getRealmArray()) {
@@ -931,11 +931,11 @@ public class GatewayContextResolver {
                         new LoginModuleType[0];
 
 
-                List<AppConfigurationEntry> configurationEntries = new LinkedList<AppConfigurationEntry>();
+                List<AppConfigurationEntry> configurationEntries = new LinkedList<>();
                 for (LoginModuleType loginModule : loginModulesArray) {
                     String type = loginModule.getType();
                     String success = loginModule.getSuccess().toString();
-                    Map<String, String> options = new HashMap<String, String>();
+                    Map<String, String> options = new HashMap<>();
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
@@ -1005,7 +1005,7 @@ public class GatewayContextResolver {
 
             // Login Module Inject Rule 1: Inject Basic Login Module At Front of Chain
             if (AUTH_SCHEME_BASIC.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<String, String>();
+                Map<String, String> options = new HashMap<>();
                 options.put("tryFirstToken", "true");
                 configurationEntries.add(0, new AppConfigurationEntry(BasicLoginModule.class.getName(),
                         LoginModuleControlFlag.OPTIONAL,
@@ -1014,7 +1014,7 @@ public class GatewayContextResolver {
 
             // Login Module Inject Rule 2: Inject Negotiate Login Module at Front of Chain
             if (AUTH_SCHEME_NEGOTIATE.equals(httpChallengeScheme)) {
-                Map<String, String> options = new HashMap<String, String>();
+                Map<String, String> options = new HashMap<>();
                 options.put("tryFirstToken", "true");
                 configurationEntries.add(0, new AppConfigurationEntry(NegotiateLoginModule.class.getName(),
                         LoginModuleControlFlag.OPTIONAL,
@@ -1023,7 +1023,7 @@ public class GatewayContextResolver {
 
             //Login Module Inject Rule 4: Inject Timeout Module at Front of Chain
             if (authType.isSetSessionTimeout()) {
-                Map<String, String> options = new HashMap<String, String>();
+                Map<String, String> options = new HashMap<>();
                 if (authType.isSetSessionTimeout()) {
                     options.put("session-timeout", resolveTimeIntervalValue(authType.getSessionTimeout()));
                 }
@@ -1055,7 +1055,7 @@ public class GatewayContextResolver {
     //       (any changes pulled in from merges should be applied to that class)
 
     private Map<String, Object> resolveDependencyContext() {
-        Map<String, Object> dependencyContextMap = new HashMap<String, Object>();
+        Map<String, Object> dependencyContextMap = new HashMap<>();
 
         ServiceLoader<DependencyContext> dependencyContextLoader = ServiceLoader.load(DependencyContext.class);
         for (DependencyContext context : dependencyContextLoader) {

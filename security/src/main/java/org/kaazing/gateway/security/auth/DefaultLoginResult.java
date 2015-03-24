@@ -46,7 +46,7 @@ public class DefaultLoginResult extends LoginResult {
     /**
      * The challenge data to be sent back to the client when login fails and a challenge is necessary
      */
-    Set<Object> loginChallengeData = new HashSet<Object>();
+    Set<Object> loginChallengeData = new HashSet<>();
 
     /**
      * The authorization data to be made available to the gateway when login succeeds.

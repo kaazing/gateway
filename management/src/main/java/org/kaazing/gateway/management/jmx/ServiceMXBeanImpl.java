@@ -54,7 +54,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
      * through sessionClosed.
      */
     public static final TypedAttributeKey<Boolean> SESSION_CREATED_FLAG_KEY =
-            new TypedAttributeKey<Boolean>(ServiceMXBeanImpl.class, "sessionCreatedFlag");
+            new TypedAttributeKey<>(ServiceMXBeanImpl.class, "sessionCreatedFlag");
 
     /**
      * Constructor.
@@ -147,7 +147,7 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
         // First, get the map of session ID to user principals for that session.
         Map<Long, Map<String, String>> sessionPrincipalMap = serviceManagementBean.getLoggedInSessions();
 
-        Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> result = new HashMap<>();
 
         for (Map.Entry<Long, Map<String, String>> entry : sessionPrincipalMap.entrySet()) {
             long sessionId = entry.getKey();

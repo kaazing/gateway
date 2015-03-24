@@ -86,7 +86,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {
-        this.binds = new HashMap<String, String>();
+        this.binds = new HashMap<>();
 
         Boolean sslEncryptionEnabled = null;
         if (acceptOptions != null) {
@@ -346,7 +346,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
         //KG-9977 add x-kaazing-idle-timeout extension if configured
         if (this.wsInactivityTimeout > 0) {
-            ArrayList<String> extensions = new ArrayList<String>(DEFAULT_WEBSOCKET_EXTENSIONS);
+            ArrayList<String> extensions = new ArrayList<>(DEFAULT_WEBSOCKET_EXTENSIONS);
             extensions.add(IDLE_TIMEOUT);
             this.wsExtensions = extensions;
         } else {
@@ -497,7 +497,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     public Map<String, Object> asOptionsMap() {
-        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         result.put(SUPPORTED_PROTOCOLS, getWsProtocols().toArray(new String[getWsProtocols().size()]));
         result.put("ws.extensions", getWsExtensions());

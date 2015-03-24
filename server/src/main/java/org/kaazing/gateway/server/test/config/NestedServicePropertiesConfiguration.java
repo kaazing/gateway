@@ -32,10 +32,10 @@ public class NestedServicePropertiesConfiguration implements
 
     private String configElementName;
     private final SuppressibleNestedServicePropertiesConfiguration _configuration;
-    private final Map<String, Suppressible<String>> suppressibleSimpleProperties = new HashMap<String, Suppressible<String>>();
+    private final Map<String, Suppressible<String>> suppressibleSimpleProperties = new HashMap<>();
     private final Map<String, String> simpleProperties = Suppressibles.unsuppressibleMap(suppressibleSimpleProperties);
     private final Stack<NestedServicePropertiesConfiguration> nestedServiceProperties =
-            new Stack<NestedServicePropertiesConfiguration>();
+            new Stack<>();
 
     public NestedServicePropertiesConfiguration(String configElementName) {
         this.configElementName = configElementName;

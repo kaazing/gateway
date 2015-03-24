@@ -73,7 +73,7 @@ public abstract class AbstractGatewayConfigurationBuilder<R> extends
 
         @Override
         public AddRealmBuilder<SetSecurityBuilder<R>> realm() {
-            return new AddRealmBuilder<SetSecurityBuilder<R>>(this, getCurrentSuppressions());
+            return new AddRealmBuilder<>(this, getCurrentSuppressions());
         }
 
         @Override
@@ -91,17 +91,17 @@ public abstract class AbstractGatewayConfigurationBuilder<R> extends
 
         @Override
         public AddCrossOriginConstraintBuilder<AddServiceBuilder<R>> crossOrigin() {
-            return new AddCrossOriginConstraintBuilder<AddServiceBuilder<R>>(this, getCurrentSuppressions());
+            return new AddCrossOriginConstraintBuilder<>(this, getCurrentSuppressions());
         }
 
         @Override
         public AddAuthorizationConstraintBuilder<AddServiceBuilder<R>> authorization() {
-            return new AddAuthorizationConstraintBuilder<AddServiceBuilder<R>>(this, getCurrentSuppressions());
+            return new AddAuthorizationConstraintBuilder<>(this, getCurrentSuppressions());
         }
 
         @Override
         public AddNestedPropertyBuilder<AddServiceBuilder<R>> nestedProperty(String propertyName) {
-            return new AddNestedPropertyBuilder<AddServiceBuilder<R>>(propertyName, this, getCurrentSuppressions());
+            return new AddNestedPropertyBuilder<>(propertyName, this, getCurrentSuppressions());
         }
 
         @Override

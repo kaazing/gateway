@@ -110,10 +110,10 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
     }
 
     private void init() {
-        this.listenerSupport = new EntryListenerSupport<K, V>();
+        this.listenerSupport = new EntryListenerSupport<>();
 
         // support eviction and instance equality
-        this.localCache = new HashMap<K, V>(delegate);
+        this.localCache = new HashMap<>(delegate);
         this.localCacheLock = new ReentrantLock();
 
         delegate.addEntryListener(new EntryListener<K, V>() {

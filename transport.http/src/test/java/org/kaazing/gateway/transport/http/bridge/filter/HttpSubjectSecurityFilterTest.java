@@ -388,7 +388,7 @@ public class HttpSubjectSecurityFilterTest {
         final LoginContextFactory loginContextFactory = context.mock(DefaultLoginContextFactory.class);
         final DefaultLoginResult loginResult  = context.mock(DefaultLoginResult.class);
 
-        final Set<Principal> principals = new HashSet<Principal>();
+        final Set<Principal> principals = new HashSet<>();
         principals.add(AUTHORIZED_PRINCIPAL);
         final Subject subject = new Subject(false, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
 
@@ -580,7 +580,7 @@ public class HttpSubjectSecurityFilterTest {
         final DefaultLoginResult loginResult = context.mock(DefaultLoginResult.class);
         final LoginContextFactory loginContextFactory = context.mock(DefaultLoginContextFactory.class);
 
-        final Set<Principal> principals = new HashSet<Principal>();
+        final Set<Principal> principals = new HashSet<>();
         principals.add(AUTHORIZED_PRINCIPAL);
         final Subject subject = new Subject(false, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
         final Matcher<WriteRequest> writeRequestMatcher =

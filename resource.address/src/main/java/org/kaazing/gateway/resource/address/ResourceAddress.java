@@ -405,7 +405,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                            TRANSPORTED_URI,
                            CONNECT_REQUIRES_INIT }
         
-        static final Map<String, ResourceOption<?>> OPTIONS = new HashMap<String, ResourceOption<?>>();
+        static final Map<String, ResourceOption<?>> OPTIONS = new HashMap<>();
 
         private final Kind kind;
         
@@ -455,7 +455,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     @Override
                     public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
                         try {
-                            Set<InetAddress> inetAddresses = new HashSet<InetAddress>();
+                            Set<InetAddress> inetAddresses = new HashSet<>();
                             for (NetworkInterface iface : list(getNetworkInterfaces())) {
                                 List<InetAddress> ifaceAddresses = list(iface.getInetAddresses());
                                 inetAddresses.addAll(ifaceAddresses);
@@ -477,7 +477,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 }
                 
                 {
-                    Map<String, NameResolver> wildcards = new HashMap<String, NameResolver>();
+                    Map<String, NameResolver> wildcards = new HashMap<>();
                     wildcards.put("0.0.0.0", new WildcardNameResolver() {
 
                         @Override

@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 
 public class HttpSerializeRequestsFilter extends HttpFilterAdapter<IoSessionEx> {
 
-    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
+    private final Queue<Object> messageQueue = new ConcurrentLinkedQueue<>();
     private final Logger logger;
 
     private final AtomicInteger requestsCompleted = new AtomicInteger();

@@ -55,7 +55,7 @@ public abstract class DecodingStateMachine implements DecodingState {
     /*
      * This is the single change from the original Apache source, used to be private scope.
      */
-    protected final List<Object> childProducts = new ArrayList<Object>();
+    protected final List<Object> childProducts = new ArrayList<>();
 
     private volatile DecodingState currentState;
     private boolean initialized;

@@ -81,7 +81,7 @@ public final class Comparators {
     }
 
     public static <T> Comparator<T> compareNonNull(Comparator<T> comparator) {
-        return new NonNullComparator<T>(comparator);
+        return new NonNullComparator<>(comparator);
     }
 
     public static <T extends Comparable<T>> Comparator<T> compareComparable(Class<T> clazz) {
@@ -243,9 +243,9 @@ public final class Comparators {
         static ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
         private List<ResourceAddress> asResourceAddressList(ResourceAddress addr) {
-            List<ResourceAddress> result = new ArrayList<ResourceAddress>();
+            List<ResourceAddress> result = new ArrayList<>();
 
-            List<ResourceAddress> topLevelAddresses = new ArrayList<ResourceAddress>();
+            List<ResourceAddress> topLevelAddresses = new ArrayList<>();
 
             ResourceAddress cursor = addr;
             do {

@@ -120,7 +120,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
 
     private static final Collection<String> PATH_ENCODED_METHODS;
     static {
-        HashSet<String> pathEncodedMethods = new HashSet<String>();
+        HashSet<String> pathEncodedMethods = new HashSet<>();
         for (HttpMethod httpMethod : HttpMethod.values()) {
             pathEncodedMethods.add(httpMethod.name().toLowerCase());
         }
@@ -130,7 +130,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     
     private static final Map<String, String> CREATE_ENCODINGS;
     static {
-        Map<String, String> createEncodings = new HashMap<String, String>();
+        Map<String, String> createEncodings = new HashMap<>();
         createEncodings.put("ct", "text");
         createEncodings.put("cte", "text-escaped");
         createEncodings.put("cb", "binary");
@@ -546,7 +546,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             req.setCookies(session.getReadCookies());
 
             // establish all the headers (mutable) and then restrict to just the ones we want.
-            Map<String,List<String>> requestHeaders = new HashMap<String, List<String>>(session.getReadHeaders());
+            Map<String,List<String>> requestHeaders = new HashMap<>(session.getReadHeaders());
             req.setHeaders(requestHeaders);
             HttpUtils.restrictHeaders(req, HTTPXE_ENVELOPE_HEADERS);
 
@@ -554,7 +554,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             // that will be handled at the httpxe-filter-chain's protocol compat filter.
             // for now, make sure the outer content type is valid httpxe value
             DefaultHttpSession httpSession = (DefaultHttpSession) session;
-            Map<String,List<String>> sessionHeaders = new HashMap<String, List<String>>(httpSession.getReadHeaders());
+            Map<String,List<String>> sessionHeaders = new HashMap<>(httpSession.getReadHeaders());
             sessionHeaders.put(HEADER_CONTENT_TYPE, asList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
             httpSession.setReadHeaders(sessionHeaders);
 
@@ -679,14 +679,14 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                     for (String headerName: writeHeaders.keySet()) {
                         List<String> possiblyDuplicateStrings = writeHeaders.get(headerName);
                         if ( possiblyDuplicateStrings != null ) {
-                            List<String> values = new ArrayList<String>(new HashSet<String>(possiblyDuplicateStrings));
+                            List<String> values = new ArrayList<>(new HashSet<>(possiblyDuplicateStrings));
                             writeHeaders.put(headerName, values);
                         }
                     }
                 }
 
                 // take care to add httpxe-level cookies
-                HashSet<HttpCookie> httpxeAndSessionCookies = new HashSet<HttpCookie>(httpSession.getWriteCookies());
+                HashSet<HttpCookie> httpxeAndSessionCookies = new HashSet<>(httpSession.getWriteCookies());
                 httpxeAndSessionCookies.addAll(httpResponse.getCookies());
                 httpSession.setWriteCookies(httpxeAndSessionCookies);
 

@@ -30,7 +30,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 
 public class BridgeAcceptHandler extends AbstractBridgeHandler {
 
-    public static final TypedAttributeKey<IoHandler> DELEGATE_KEY = new TypedAttributeKey<IoHandler>(BridgeAcceptHandler.class, "delegate");
+    public static final TypedAttributeKey<IoHandler> DELEGATE_KEY = new TypedAttributeKey<>(BridgeAcceptHandler.class, "delegate");
 
     private final BridgeAcceptor acceptor;
 

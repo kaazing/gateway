@@ -76,7 +76,7 @@ public class TimeoutLoginModuleTest {
             {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
                 final String loginModuleName = "org.kaazing.gateway.security.auth.TimeoutLoginModule";
-                final HashMap<String, Object> options = new HashMap<String, Object>();
+                final HashMap<String, Object> options = new HashMap<>();
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                         REQUIRED, options);
                 will(returnValue(new AppConfigurationEntry[]{entry}));
@@ -102,7 +102,7 @@ public class TimeoutLoginModuleTest {
         context.checking(new Expectations() {
             {
                 final String loginModuleName = "org.kaazing.gateway.security.auth.TimeoutLoginModule";
-                final HashMap<String, Object> options = new HashMap<String, Object>();
+                final HashMap<String, Object> options = new HashMap<>();
                 options.put("session-timeout", "-1");
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                         REQUIRED, options);
@@ -129,7 +129,7 @@ public class TimeoutLoginModuleTest {
         context.checking(new Expectations() {
             {
                 final String loginModuleName = "org.kaazing.gateway.security.auth.TimeoutLoginModule";
-                final HashMap<String, Object> options = new HashMap<String, Object>();
+                final HashMap<String, Object> options = new HashMap<>();
                 options.put("session-timeout", "30 minutes");
                 options.put("force-failure", "true");
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
@@ -158,7 +158,7 @@ public class TimeoutLoginModuleTest {
         context.checking(new Expectations() {
             {
                 final String loginModuleName = "org.kaazing.gateway.security.auth.TimeoutLoginModule";
-                final HashMap<String, Object> options = new HashMap<String, Object>();
+                final HashMap<String, Object> options = new HashMap<>();
                 options.put("session-timeout", "10 minutes");
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                         REQUIRED, options);

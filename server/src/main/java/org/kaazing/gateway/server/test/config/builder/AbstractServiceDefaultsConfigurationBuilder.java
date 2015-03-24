@@ -36,13 +36,13 @@ public class AbstractServiceDefaultsConfigurationBuilder<R> extends
 
     public AbstractServiceDefaultsConfigurationBuilder<R> mimeMapping(String extension, String type) {
         configuration.getSuppressibleConfiguration().addMimeMapping(extension,
-                new Suppressible<String>(type, getCurrentSuppressions()));
+                new Suppressible<>(type, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceDefaultsConfigurationBuilder<R> acceptOption(String option, String version) {
         configuration.getSuppressibleConfiguration().addAcceptOption(option,
-                new Suppressible<String>(version, getCurrentSuppressions()));
+                new Suppressible<>(version, getCurrentSuppressions()));
         return this;
     }
 

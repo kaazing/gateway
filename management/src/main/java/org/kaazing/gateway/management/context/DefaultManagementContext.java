@@ -186,27 +186,27 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private final List<ManagementServiceHandler> managementServiceHandlers;
 
     private final ConcurrentHashMap<ServiceContext, ManagementFilter> managementFilters =
-            new ConcurrentHashMap<ServiceContext, ManagementFilter>();
+            new ConcurrentHashMap<>();
 
     // The list of GatewayManagementListeners, one per management service type, for gateway
     // events. The particular listeners for each management service type are currently fixed,
     // so the list doesn't change for that, but we do want it to change for full/collect-only management.
     private final List<GatewayManagementListener> gatewayManagementListeners =
-            new CopyOnWriteArrayList<GatewayManagementListener>();
+            new CopyOnWriteArrayList<>();
 
     // Similar set of listeners, but for service events.
     private final List<ServiceManagementListener> serviceManagementListeners =
-            new CopyOnWriteArrayList<ServiceManagementListener>();
+            new CopyOnWriteArrayList<>();
 
     // Similar set of listeners, but for session events.
     private final List<SessionManagementListener> sessionManagementListeners =
-            new CopyOnWriteArrayList<SessionManagementListener>();
+            new CopyOnWriteArrayList<>();
 
     // List of objects to be notified when the managemment strategy changes. Generally this
     // is only used by AbstractSummaryDataProviders, as they need to be notified specifically
     // to start or stop gathering. But it can be used elsewhere, too
     private List<ManagementStrategyChangeListener> managementStrategyChangeListeners =
-            new ArrayList<ManagementStrategyChangeListener>();
+            new ArrayList<>();
 
     // injected at startup
     private SchedulerProvider schedulerProvider;
@@ -225,22 +225,22 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     // NOTE: we do not want to expose this to the ManagementProcessors--they should
     // be processing based on the gateway management bean, not the address.
     private final ConcurrentHashMap<String, GatewayManagementBean> gatewayManagementBeans =
-            new ConcurrentHashMap<String, GatewayManagementBean>();
+            new ConcurrentHashMap<>();
 
     // The service management beans, keyed by the address of the service's transport
     // that they contain.
     // NOTE: we do not want to expose this to the ManagementProcessors--they should
     // be processing based on the service management bean, not the address.
     private final ConcurrentHashMap<ServiceContext, ServiceManagementBean> serviceManagementBeans =
-            new ConcurrentHashMap<ServiceContext, ServiceManagementBean>();
+            new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<ServiceContext, ServiceConfigurationBean> serviceConfigBeans =
-            new ConcurrentHashMap<ServiceContext, ServiceConfigurationBean>();
+            new ConcurrentHashMap<>();
 
     private final ServiceManagementBeanFactory serviceManagmentBeanFactory = newServiceManagementBeanFactory();
 
     public DefaultManagementContext() {
-        this.managementServiceHandlers = new ArrayList<ManagementServiceHandler>();
+        this.managementServiceHandlers = new ArrayList<>();
 
         // The map of GatewayManagementBeans is keyed on the hostname and process ID of the
         // gateway process.  Compute that here so we can create a GatewayManagementBean for

@@ -112,7 +112,7 @@ public class WsConnector implements BridgeConnector {
     }
 
     private void initwsBridgeConnectorMap() {
-        wsBridgeConnectorMap = new HashMap<String, BridgeConnector>();
+        wsBridgeConnectorMap = new HashMap<>();
         wsBridgeConnectorMap.put(WSR_PROTOCOL_NAME, wsrConnector);
         wsBridgeConnectorMap.put(WSE_PROTOCOL_NAME, wsebConnector);
         wsBridgeConnectorMap.put(WS_DRAFT_PROTOCOL_NAME, wsnConnector);

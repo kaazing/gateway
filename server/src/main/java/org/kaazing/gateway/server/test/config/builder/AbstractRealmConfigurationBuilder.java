@@ -30,13 +30,13 @@ import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppress
 public abstract class AbstractRealmConfigurationBuilder<R> extends AbstractConfigurationBuilder<RealmConfiguration, R> {
 
     public AbstractRealmConfigurationBuilder<R> name(String name) {
-        configuration.getSuppressibleConfiguration().setName(new Suppressible<String>(name, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().setName(new Suppressible<>(name, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> description(String description) {
         configuration.getSuppressibleConfiguration().setDescription(
-                new Suppressible<String>(description, getCurrentSuppressions()));
+                new Suppressible<>(description, getCurrentSuppressions()));
         return this;
     }
 
@@ -63,37 +63,37 @@ public abstract class AbstractRealmConfigurationBuilder<R> extends AbstractConfi
 
     public AbstractRealmConfigurationBuilder<R> httpChallengeScheme(String httpChallengeScheme) {
         configuration.getSuppressibleConfiguration().setHttpChallengeScheme(
-                new Suppressible<String>(httpChallengeScheme, getCurrentSuppressions()));
+                new Suppressible<>(httpChallengeScheme, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> httpHeader(String header) {
         configuration.getSuppressibleConfiguration().addHttpHeader(
-                new Suppressible<String>(header, getCurrentSuppressions()));
+                new Suppressible<>(header, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> httpQueryParameter(String queryParameter) {
         configuration.getSuppressibleConfiguration().addHttpQueryParameter(
-                new Suppressible<String>(queryParameter, getCurrentSuppressions()));
+                new Suppressible<>(queryParameter, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> httpCookie(String cookie) {
         configuration.getSuppressibleConfiguration().addHttpCookie(
-                new Suppressible<String>(cookie, getCurrentSuppressions()));
+                new Suppressible<>(cookie, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> authorizationMode(String chars) {
         configuration.getSuppressibleConfiguration().setAuthorizationMode(
-                new Suppressible<String>(chars, getCurrentSuppressions()));
+                new Suppressible<>(chars, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractRealmConfigurationBuilder<R> sessionTimeout(String chars) {
         configuration.getSuppressibleConfiguration().setSessionTimeout(
-                new Suppressible<String>(chars, getCurrentSuppressions()));
+                new Suppressible<>(chars, getCurrentSuppressions()));
         return this;
     }
 

@@ -32,7 +32,7 @@ import org.apache.mina.core.write.WriteRequest;
 public abstract class AbstractInboundEventFilter extends IoFilterAdapter {
 
     private final TypedAttributeKey<Queue<InboundEvent>> inboundEventsKey = 
-                        new TypedAttributeKey<Queue<InboundEvent>>(getClass(), "inboundEvents");
+                        new TypedAttributeKey<>(getClass(), "inboundEvents");
 
     @Override
     public void sessionCreated(NextFilter nextFilter, IoSession session) throws Exception {
@@ -104,7 +104,7 @@ public abstract class AbstractInboundEventFilter extends IoFilterAdapter {
     protected Queue<InboundEvent> suspendInboundEvents(NextFilter nextFilter, IoSession session) throws Exception {
         Queue<InboundEvent> inboundEvents = inboundEventsKey.get(session);
         if (inboundEvents == null) {
-            Queue<InboundEvent> newInboundEvents = new ConcurrentLinkedQueue<InboundEvent>();
+            Queue<InboundEvent> newInboundEvents = new ConcurrentLinkedQueue<>();
             inboundEvents = inboundEventsKey.setIfAbsent(session, newInboundEvents);
             if (inboundEvents == null) {
                 inboundEvents = newInboundEvents;

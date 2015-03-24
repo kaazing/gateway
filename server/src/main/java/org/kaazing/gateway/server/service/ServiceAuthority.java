@@ -37,8 +37,8 @@ public class ServiceAuthority {
     private final SortedMap<String, ServiceRegistration> entries;
 
     ServiceAuthority() {
-        index = new ArrayList<String>();
-        entries = new TreeMap<String, ServiceRegistration>();
+        index = new ArrayList<>();
+        entries = new TreeMap<>();
     }
 
     ServiceRegistration register(URI serviceURI, ServiceContext serviceContext) {

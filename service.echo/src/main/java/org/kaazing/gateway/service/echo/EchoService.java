@@ -72,7 +72,7 @@ public class EchoService implements Service {
                 if ( supportedProtocols == null ) {
                     result = echoProtocols;
                 } else {
-                    result = new ArrayList<String>(supportedProtocols);
+                    result = new ArrayList<>(supportedProtocols);
                     result.addAll(echoProtocols);
                 }
 

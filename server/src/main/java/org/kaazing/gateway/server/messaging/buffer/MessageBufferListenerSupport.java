@@ -32,7 +32,7 @@ public class MessageBufferListenerSupport implements MessageBufferListener {
     private final Map<MessageBufferListener, MessageBufferListener> listeners;
 
     public MessageBufferListenerSupport() {
-        listeners = new ConcurrentHashMap<MessageBufferListener, MessageBufferListener>();
+        listeners = new ConcurrentHashMap<>();
     }
 
     public void addMessageBufferListener(MessageBufferListener listener) {

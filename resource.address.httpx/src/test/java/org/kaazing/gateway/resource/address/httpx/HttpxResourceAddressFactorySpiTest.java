@@ -52,7 +52,7 @@ public class HttpxResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new HttpxResourceAddressFactorySpi();
         addressURI = URI.create("httpx://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));

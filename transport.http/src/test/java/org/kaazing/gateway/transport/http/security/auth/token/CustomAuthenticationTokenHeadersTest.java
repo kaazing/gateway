@@ -109,8 +109,8 @@ public class CustomAuthenticationTokenHeadersTest {
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
-        Map<String, List<String>> newHeaders = new HashMap<String, List<String>>();
-        List<String> newHeaderValues = new ArrayList<String>();
+        Map<String, List<String>> newHeaders = new HashMap<>();
+        List<String> newHeaderValues = new ArrayList<>();
         newHeaderValues.add("bar");
         newHeaderValues.add("baz");
         newHeaders.put("foo", newHeaderValues);

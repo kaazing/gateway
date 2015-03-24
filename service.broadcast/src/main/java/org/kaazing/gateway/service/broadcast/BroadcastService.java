@@ -193,7 +193,7 @@ public class BroadcastService implements Service {
         private final AtomicReference<IoSession> session;
 
         public ConnectTask() {
-            session = new AtomicReference<IoSession>();
+            session = new AtomicReference<>();
         }
 
         public void stop() {

@@ -231,7 +231,7 @@ public class WsUtils {
                                                     List<String> serverWsProtocols) throws WsHandshakeNegotiationException {
 
         if (clientRequestedWsProtocols != null) {
-            List<String> wsCandidateProtocols = new ArrayList<String>(serverWsProtocols);
+            List<String> wsCandidateProtocols = new ArrayList<>(serverWsProtocols);
             wsCandidateProtocols.retainAll(clientRequestedWsProtocols);
             if (wsCandidateProtocols.isEmpty()) {
                 if (!serverWsProtocols.contains(null)) {

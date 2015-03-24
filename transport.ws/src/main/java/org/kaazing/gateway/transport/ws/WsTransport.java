@@ -36,7 +36,7 @@ final class WsTransport extends Transport {
 
     private static final Map<String, Protocol> WS_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("ws", WsProtocol.WS);
         map.put("wss", WsProtocol.WSS);
         WS_PROTOCOLS = Collections.unmodifiableMap(map);

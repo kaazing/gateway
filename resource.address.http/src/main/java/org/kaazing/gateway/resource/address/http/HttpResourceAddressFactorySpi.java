@@ -72,7 +72,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
     private static final String PROTOCOL_NAME = "http/1.1";
 
     private static final Map<String, List<ResourceFactory>> RESOURCE_FACTORIES_BY_KEY
-            = new HashMap<String, List<ResourceFactory>>();
+            = new HashMap<>();
 
     static {
         // go backwards so we can set alternate addresses correctly

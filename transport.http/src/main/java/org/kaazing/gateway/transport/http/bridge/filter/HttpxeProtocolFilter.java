@@ -74,7 +74,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
     static {
         // note: restricted headers are case-insensitive (!)
         // see: http://www.w3.org/TR/XMLHttpRequest/#dom-xmlhttprequest-setrequestheader
-        SortedSet<String> restrictedEnvelopeHeaders = new TreeSet<String>(HttpHeaderNameComparator.INSTANCE);
+        SortedSet<String> restrictedEnvelopeHeaders = new TreeSet<>(HttpHeaderNameComparator.INSTANCE);
         restrictedEnvelopeHeaders.addAll(asList("Accept-Charset", "Accept-Encoding", "Access-Control-Request-Headers", "Access-Control-Request-Method",
                                                 "Connection", "Cookie", "Cookie2", "Date", "DNT", "Expect", "Host", "Keep-Alive", "Origin", "Referer",
                                                 "TE", "Trailer", "Transfer-Encoding", "Upgrade", "User-Agent", "Via"));

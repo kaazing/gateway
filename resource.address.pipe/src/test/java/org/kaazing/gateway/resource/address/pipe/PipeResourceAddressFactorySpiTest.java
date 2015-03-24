@@ -47,7 +47,7 @@ public class PipeResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new PipeResourceAddressFactorySpi();
         addressURI = URI.create("pipe://authority/path");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("pipe.nextProtocol", "custom");
         options.put("pipe.qualifier", "random");
         options.put("pipe.transport", URI.create("socks://localhost:2121"));

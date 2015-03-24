@@ -29,7 +29,7 @@ public class MessagingHints {
     private Map<Class<? extends MessagingHint>, MessagingHint> hints;
 
     public MessagingHints(MessagingHint... hints) {
-        this.hints = new HashMap<Class<? extends MessagingHint>, MessagingHint>();
+        this.hints = new HashMap<>();
         for (MessagingHint hint : hints) {
             this.hints.put(hint.getClass(), hint);
         }

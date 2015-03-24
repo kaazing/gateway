@@ -57,7 +57,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
         super(new NamedPipeSessionConfig(), executor);
         
         this.processor = new NamedPipeProcessor();
-        this.bindings = new ConcurrentHashMap<NamedPipeAddress, IoHandler>();
+        this.bindings = new ConcurrentHashMap<>();
     }
     
     public TransportMetadata getTransportMetadata() {
@@ -97,7 +97,7 @@ public class NamedPipeAcceptorImpl extends AbstractIoAcceptorEx implements Named
 
     @Override
     protected Set<SocketAddress> bindInternal(List<? extends SocketAddress> localAddresses) throws IOException {
-        Set<SocketAddress> newLocalAddresses = new HashSet<SocketAddress>();
+        Set<SocketAddress> newLocalAddresses = new HashSet<>();
         
         for (SocketAddress localAddress: localAddresses) {
             NamedPipeAddress localPipeAddress = (NamedPipeAddress)localAddress;

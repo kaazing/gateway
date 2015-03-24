@@ -33,7 +33,7 @@ public class ServiceRegistry {
     private final Map<String, ServiceAuthority> entries;
 
     public ServiceRegistry() {
-        entries = new HashMap<String, ServiceAuthority>();
+        entries = new HashMap<>();
     }
 
     public ServiceAuthority register(String authority, ServiceAuthority value) {

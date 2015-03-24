@@ -334,22 +334,22 @@ public class SslCipherSuites {
 
     private static void initStrengthGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // HIGH
-        List<SslCipher> highs = new LinkedList<SslCipher>();
+        List<SslCipher> highs = new LinkedList<>();
 
         // MEDIUM
-        List<SslCipher> mediums = new LinkedList<SslCipher>();
+        List<SslCipher> mediums = new LinkedList<>();
 
         // LOW
-        List<SslCipher> lows = new LinkedList<SslCipher>();
+        List<SslCipher> lows = new LinkedList<>();
 
         // EXPORT40
-        List<SslCipher> export40s = new LinkedList<SslCipher>();
+        List<SslCipher> export40s = new LinkedList<>();
 
         // EXPORT56
-        List<SslCipher> export56s = new LinkedList<SslCipher>();
+        List<SslCipher> export56s = new LinkedList<>();
 
         // NONE
-        List<SslCipher> nones = new LinkedList<SslCipher>();
+        List<SslCipher> nones = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getStrength()) {
@@ -389,25 +389,25 @@ public class SslCipherSuites {
 
     private static void initKeyExchangeGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // RSA
-        List<SslCipher> rsas = new LinkedList<SslCipher>();
+        List<SslCipher> rsas = new LinkedList<>();
 
         // DH
-        List<SslCipher> dhs = new LinkedList<SslCipher>();
+        List<SslCipher> dhs = new LinkedList<>();
 
         // DHE
-        List<SslCipher> dhes = new LinkedList<SslCipher>();
+        List<SslCipher> dhes = new LinkedList<>();
 
         // ECDH_ECDSA
-        List<SslCipher> ecdhEcdsas = new LinkedList<SslCipher>();
+        List<SslCipher> ecdhEcdsas = new LinkedList<>();
 
         // ECDH_RSA
-        List<SslCipher> ecdhRsas = new LinkedList<SslCipher>();
+        List<SslCipher> ecdhRsas = new LinkedList<>();
 
         // ECDHE
-        List<SslCipher> ecdhes = new LinkedList<SslCipher>();
+        List<SslCipher> ecdhes = new LinkedList<>();
 
         // KRB5
-        List<SslCipher> krb5s = new LinkedList<SslCipher>();
+        List<SslCipher> krb5s = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getKeyExchange()) {
@@ -452,22 +452,22 @@ public class SslCipherSuites {
 
     private static void initAuthenticationGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // RSA
-        List<SslCipher> rsas = new LinkedList<SslCipher>();
+        List<SslCipher> rsas = new LinkedList<>();
 
         // DSS
-        List<SslCipher> dsss = new LinkedList<SslCipher>();
+        List<SslCipher> dsss = new LinkedList<>();
 
         // ECDH
-        List<SslCipher> ecdhs = new LinkedList<SslCipher>();
+        List<SslCipher> ecdhs = new LinkedList<>();
 
         // ECDSA
-        List<SslCipher> ecdsas = new LinkedList<SslCipher>();
+        List<SslCipher> ecdsas = new LinkedList<>();
 
         // KRB5
-        List<SslCipher> krb5s = new LinkedList<SslCipher>();
+        List<SslCipher> krb5s = new LinkedList<>();
 
         // NULL
-        List<SslCipher> nulls = new LinkedList<SslCipher>();
+        List<SslCipher> nulls = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getAuthentication()) {
@@ -507,22 +507,22 @@ public class SslCipherSuites {
 
     private static void initEncryptionGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // RC4
-        List<SslCipher> rc4s = new LinkedList<SslCipher>();
+        List<SslCipher> rc4s = new LinkedList<>();
 
         // AES128
-        List<SslCipher> aes128s = new LinkedList<SslCipher>();
+        List<SslCipher> aes128s = new LinkedList<>();
 
         // AES256
-        List<SslCipher> aes256s = new LinkedList<SslCipher>();
+        List<SslCipher> aes256s = new LinkedList<>();
 
         // 3DES
-        List<SslCipher> tripleDess = new LinkedList<SslCipher>();
+        List<SslCipher> tripleDess = new LinkedList<>();
 
         // DES
-        List<SslCipher> dess = new LinkedList<SslCipher>();
+        List<SslCipher> dess = new LinkedList<>();
 
         // NULL
-        List<SslCipher> nulls = new LinkedList<SslCipher>();
+        List<SslCipher> nulls = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getEncryption()) {
@@ -562,16 +562,16 @@ public class SslCipherSuites {
 
     private static void initMACGroups(ConcurrentMap<String, List<SslCipher>> groups) {
         // MD5
-        List<SslCipher> md5s = new LinkedList<SslCipher>();
+        List<SslCipher> md5s = new LinkedList<>();
 
         // SHA1
-        List<SslCipher> sha1s = new LinkedList<SslCipher>();
+        List<SslCipher> sha1s = new LinkedList<>();
 
         // SHA256
-        List<SslCipher> sha256s = new LinkedList<SslCipher>();
+        List<SslCipher> sha256s = new LinkedList<>();
 
         // SHA384
-        List<SslCipher> sha384s = new LinkedList<SslCipher>();
+        List<SslCipher> sha384s = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getMAC()) {
@@ -602,16 +602,16 @@ public class SslCipherSuites {
     private static void initProtocolGroups(ConcurrentMap<String, List<SslCipher>> groups) {
 
         // SSLv3
-        List<SslCipher> sslv3s = new LinkedList<SslCipher>();
+        List<SslCipher> sslv3s = new LinkedList<>();
 
         // TLSv1
-        List<SslCipher> tlsv1s = new LinkedList<SslCipher>();
+        List<SslCipher> tlsv1s = new LinkedList<>();
 
         // TLSv1.1
-        List<SslCipher> tlsv11s = new LinkedList<SslCipher>();
+        List<SslCipher> tlsv11s = new LinkedList<>();
 
         // TLSv1.2
-        List<SslCipher> tlsv12s = new LinkedList<SslCipher>();
+        List<SslCipher> tlsv12s = new LinkedList<>();
 
         for (SslCipher cipher : CIPHERS.values()) {
             switch (cipher.getProtocolVersion()) {
@@ -1761,14 +1761,14 @@ public class SslCipherSuites {
 
         SslCipher cipher = CIPHERS.get(token);
         if (cipher != null) {
-            ciphers = new ArrayList<SslCipher>(1);
+            ciphers = new ArrayList<>(1);
             ciphers.add(cipher);
             return ciphers;
         }
 
         cipher = CIPHER_NICKNAMES.get(token);
         if (cipher != null) {
-            ciphers = new ArrayList<SslCipher>(1);
+            ciphers = new ArrayList<>(1);
             ciphers.add(cipher);
             return ciphers;
         }
@@ -1812,18 +1812,18 @@ public class SslCipherSuites {
         // JSSE provider, so we leave it alone.
 
         cipher = new OtherSslCipher(token);
-        ciphers = new ArrayList<SslCipher>(1);
+        ciphers = new ArrayList<>(1);
         ciphers.add(cipher);
         return ciphers;
     }
 
     private static List<SslCipher> resolveCiphers(List<String> tokens) {
-        List<SslCipher> resolvedCiphers = new LinkedList<SslCipher>();
-        List<SslCipher> killedCiphers = new LinkedList<SslCipher>();
+        List<SslCipher> resolvedCiphers = new LinkedList<>();
+        List<SslCipher> killedCiphers = new LinkedList<>();
 
         for (String token : tokens) {
             CipherOp op = CipherOp.ADD;
-            List<SslCipher> ciphers = new LinkedList<SslCipher>();
+            List<SslCipher> ciphers = new LinkedList<>();
 
             // Handle prefaces: '!', '-', and '+'.
             if (token.startsWith("!")) {
@@ -1908,7 +1908,7 @@ public class SslCipherSuites {
                     break;
 
                 case RIGHT_SHIFT:
-                    List<SslCipher> removedCiphers = new LinkedList<SslCipher>();
+                    List<SslCipher> removedCiphers = new LinkedList<>();
                     ListIterator<SslCipher> iter = resolvedCiphers.listIterator();
                     while (iter.hasNext()) {
                         SslCipher c = iter.next();
@@ -2072,7 +2072,7 @@ public class SslCipherSuites {
     }
 
     private static List<String> resolveAlias(String alias) {
-        List<String> aliases = new ArrayList<String>(1);
+        List<String> aliases = new ArrayList<>(1);
         aliases.add(alias);
         return resolveAlias(aliases);
     }
@@ -2084,7 +2084,7 @@ public class SslCipherSuites {
         if (tokens == null ||
             tokens.isEmpty()) {
 
-            List<String> defaults = new ArrayList<String>(2);
+            List<String> defaults = new ArrayList<>(2);
             defaults.add("HIGH");
             defaults.add("MEDIUM");
 
@@ -2105,7 +2105,7 @@ public class SslCipherSuites {
             throw new IllegalArgumentException("No ciphersuites matching configured <ssl.ciphers> found");
         }
 
-        List<String> resolvedNames = new ArrayList<String>(resolvedCiphers.size());
+        List<String> resolvedNames = new ArrayList<>(resolvedCiphers.size());
         for (SslCipher c : resolvedCiphers) {
             resolvedNames.add(c.getName());
         }
@@ -2123,7 +2123,7 @@ public class SslCipherSuites {
         if (csv != null &&
                 ! csv.equals("")) {
             String[] elts = csv.split(",");
-            List<String> tokens = new ArrayList<String>(elts.length);
+            List<String> tokens = new ArrayList<>(elts.length);
             for (String elt : elts) {
                 tokens.add(elt.trim());
             }

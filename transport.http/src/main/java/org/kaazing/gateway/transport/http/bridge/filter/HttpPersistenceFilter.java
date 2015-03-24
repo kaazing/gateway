@@ -49,7 +49,7 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 
 	private static final AttributeKey CONNECTION_CLOSE_KEY = new AttributeKey(HttpPersistenceFilter.class, "connectionClose");
     private static final TypedAttributeKey<Integer> SESSION_IDLE_TIMEOUT_KEY =
-        new TypedAttributeKey<Integer>(HttpPersistenceFilter.class, "sessionIdleTimeout");
+        new TypedAttributeKey<>(HttpPersistenceFilter.class, "sessionIdleTimeout");
 
     private static final Logger logger = LoggerFactory.getLogger(HttpPersistenceFilter.class);
 

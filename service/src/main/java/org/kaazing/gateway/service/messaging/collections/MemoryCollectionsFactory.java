@@ -70,10 +70,10 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
     public MemoryCollectionsFactory() {
         // TODO: avoid memory leak
-        maps = new ConcurrentHashMap<String, IMapImpl<?, ?>>();
-        lists = new ConcurrentHashMap<String, IListImpl<?>>();
+        maps = new ConcurrentHashMap<>();
+        lists = new ConcurrentHashMap<>();
         locks = Collections.synchronizedMap(new WeakHashMap<Object, ILockImpl>());
-        atomicCounters = new ConcurrentHashMap<String, AtomicCounter>();
+        atomicCounters = new ConcurrentHashMap<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -81,7 +81,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     public <E> IList<E> getList(String name) {
         IListImpl<E> list = (IListImpl<E>)lists.get(name);
         if (list == null) {
-            IListImpl<E> newList = new IListImpl<E>(name);
+            IListImpl<E> newList = new IListImpl<>(name);
             list = (IListImpl<E>)lists.putIfAbsent(name, newList);
             if (list == null) {
                 list = newList;
@@ -93,7 +93,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     @Override
     public <E> IQueue<E> getQueue(String name) {
         // TODO: what should be the queue size
-        return new IQueueImpl<E>(name, 100);
+        return new IQueueImpl<>(name, 100);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
     public <K, V> IMap<K, V> getMap(String name) {
         IMapImpl<K, V> map = (IMapImpl<K, V>)maps.get(name);
         if (map == null) {
-            IMapImpl<K, V> newMap = new IMapImpl<K, V>(name);
+            IMapImpl<K, V> newMap = new IMapImpl<>(name);
             map = (IMapImpl<K, V>)maps.putIfAbsent(name, newMap);
             if (map == null) {
                 map = newMap;
@@ -296,9 +296,9 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         public IMapImpl(String name) {
             this.name = name;
-            this.map = new ConcurrentHashMap<K, V>();
-            this.listenerSupport = new EntryListenerSupport<K,V>();
-            this.locks = new ConcurrentHashMap<Object, Lock>();
+            this.map = new ConcurrentHashMap<>();
+            this.listenerSupport = new EntryListenerSupport<>();
+            this.locks = new ConcurrentHashMap<>();
         }
 
         @Override
@@ -315,7 +315,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public MapEntry<K, V> getMapEntry(K key) {
             V value = map.get(key);
-            return new MapEntryImpl<K, V>(key, value);
+            return new MapEntryImpl<>(key, value);
         }
 
         @Override
@@ -363,11 +363,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V putIfAbsent(K key, V value) {
             V oldValue = map.putIfAbsent(key, value);
             if (oldValue == null) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             return oldValue;
@@ -378,7 +378,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean remove(Object key, Object value) {
             boolean wasRemoved = map.remove(key, value);
             if (wasRemoved) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V)value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V)value);
                 listenerSupport.entryRemoved(event);
             }
             return wasRemoved;
@@ -388,11 +388,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V replace(K key, V value) {
             V oldValue = map.replace(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -402,7 +402,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public boolean replace(K key, V oldValue, V newValue) {
             boolean wasReplaced = map.replace(key, oldValue, newValue);
             if (wasReplaced) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_UPDATED, key, newValue);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, newValue);
                 listenerSupport.entryUpdated(event);
             }
             return wasReplaced;
@@ -455,11 +455,11 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public V put(K key, V value) {
             V oldValue = map.put(key, value);
             if (oldValue != null) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_UPDATED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_UPDATED, key, value);
                 listenerSupport.entryUpdated(event);
             }
             else {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_ADDED, key, value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_ADDED, key, value);
                 listenerSupport.entryAdded(event);
             }
             return oldValue;
@@ -519,7 +519,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public Set<Map.Entry<K, V>> entrySet(Predicate predicate) {
-            Set<Map.Entry<K, V>> entrySet = new LinkedHashSet<Map.Entry<K, V>>();
+            Set<Map.Entry<K, V>> entrySet = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 MapEntry me = getMapEntry(entry.getKey());
                 if (predicate.apply(me)) {
@@ -536,7 +536,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             Object value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_EVICTED, (K)key, (V) value);
                 listenerSupport.entryEvicted(event);
             }
             return removed;
@@ -549,7 +549,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public Set<K> keySet(Predicate predicate) {
-            Set<K> keySet = new LinkedHashSet<K>();
+            Set<K> keySet = new LinkedHashSet<>();
             for (K key : map.keySet()) {
                 MapEntry me = getMapEntry(key);
                 if (predicate.apply(me)) {
@@ -597,7 +597,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         @Override
         public Collection<V> values(Predicate predicate) {
-            Set<V> values = new LinkedHashSet<V>();
+            Set<V> values = new LinkedHashSet<>();
             for (Map.Entry<K, V> entry : map.entrySet()) {
                 MapEntry me = getMapEntry(entry.getKey());
                 if (predicate.apply(me)) {
@@ -614,7 +614,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<K,V>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V) value);
                 listenerSupport.entryRemoved(event);
             }
             return value;
@@ -764,7 +764,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         public ICollectionImpl(String name) {
             this.name = name;
-            this.listenerSupport = new ItemListenerSupport<E>();
+            this.listenerSupport = new ItemListenerSupport<>();
         }
 
         @Override
@@ -789,7 +789,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
         public IListImpl(String name) {
             super(name);
-            list = new LinkedList<E>();
+            list = new LinkedList<>();
         }
 
         @Override
@@ -822,7 +822,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public void clear() {
             Iterator<E> iterator = list.iterator();
             listenerSupport.fireItemRemoved(iterator);
-            list = new LinkedList<E>();
+            list = new LinkedList<>();
         }
 
         @Override
@@ -944,8 +944,8 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         public IQueueImpl(String name, int capacity) {
             this.name = name;
             this.capacity = capacity;
-            this.queue = new ArrayBlockingQueue<E>(capacity);
-            this.itemListenerSupport = new ItemListenerSupport<E>();
+            this.queue = new ArrayBlockingQueue<>(capacity);
+            this.itemListenerSupport = new ItemListenerSupport<>();
         }
 
         @Override
@@ -988,7 +988,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public void clear() {
             ArrayBlockingQueue<E> oldQueue = queue;
-            queue = new ArrayBlockingQueue<E>(capacity);
+            queue = new ArrayBlockingQueue<>(capacity);
             itemListenerSupport.fireItemRemoved(oldQueue.iterator());
             oldQueue.clear();
         }
@@ -1140,7 +1140,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
 
     private class ItemListenerSupport<E> {
 
-        private ConcurrentHashMap<ItemListener<E>, Boolean> listenersMap = new ConcurrentHashMap<ItemListener<E>, Boolean>();
+        private ConcurrentHashMap<ItemListener<E>, Boolean> listenersMap = new ConcurrentHashMap<>();
 
         public void addItemListener(ItemListener<E> listener, boolean includeValue) {
             listenersMap.put(listener, includeValue);

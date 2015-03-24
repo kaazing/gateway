@@ -221,7 +221,7 @@ public class WsebBindingsTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "ws://localhost:8000/echo";
         final ResourceAddress bindAddress =
@@ -251,7 +251,7 @@ public class WsebBindingsTest {
     @Test
     public void shouldBindAndUnbindSecureAddressesLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "wss://localhost:8000/echo";
         final ResourceAddress bindAddress =

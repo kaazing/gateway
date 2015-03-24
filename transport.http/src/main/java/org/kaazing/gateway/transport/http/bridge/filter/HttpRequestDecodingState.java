@@ -122,7 +122,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
                 if (hostHeaderValues != null) {
                     hostHeaderValues.clear();
                 } else {
-                    hostHeaderValues = new ArrayList<String>(1);
+                    hostHeaderValues = new ArrayList<>(1);
                 }   
                 hostHeaderValues.add(requestURI.getHost()
                         + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort()));
@@ -320,7 +320,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 
 	public HttpRequestDecodingState(IoBufferAllocatorEx<?> allocator, boolean secure) {
 	    super(allocator);
-        this.NULL_ORIGIN = new ArrayList<String>(1);
+        this.NULL_ORIGIN = new ArrayList<>(1);
         this.NULL_ORIGIN.add("null"); 
 		this.secure = secure;
 	}
@@ -380,7 +380,7 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 
     private Set<HttpCookie> parseCookies(List<String> cookieHeaderValues) {
         // parse cookies
-        Set<HttpCookie> cookies = new HashSet<HttpCookie>();
+        Set<HttpCookie> cookies = new HashSet<>();
         if (cookieHeaderValues != null && !cookieHeaderValues.isEmpty()) {
 
         	String cookieHeaderValue = cookieHeaderValues.get(0);

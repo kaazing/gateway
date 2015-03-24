@@ -114,7 +114,7 @@ public class HttpxeTransportTest {
 
         URI transportURI = URI.create("pipe://integrate");
         URI location = URI.create("httpxe://localhost:8000/");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("http[http/1.1].injectableHeaders", noneOf(HttpInjectableHeader.class));
         options.put("http[http/1.1].transport", transportURI);
 
@@ -138,7 +138,7 @@ public class HttpxeTransportTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
         acceptOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
 
         final String connectURIString = "httpxe://localhost:8000/path";

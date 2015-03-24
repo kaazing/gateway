@@ -36,18 +36,18 @@ public abstract class AbstractClusterConfigurationBuilder<R> extends
     }
 
     public AbstractClusterConfigurationBuilder<R> name(String name) {
-        configuration.getSuppressibleConfiguration().setName(new Suppressible<String>(name, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().setName(new Suppressible<>(name, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractClusterConfigurationBuilder<R> accept(URI accept) {
-        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<URI>(accept, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractClusterConfigurationBuilder<R> connect(URI connect) {
         configuration.getSuppressibleConfiguration().addConnect(
-                new Suppressible<URI>(connect, getCurrentSuppressions()));
+                new Suppressible<>(connect, getCurrentSuppressions()));
         return this;
     }
 

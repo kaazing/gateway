@@ -36,8 +36,8 @@ public class EscapeSequencer {
     private static byte[] EMPTY_BYTES = new byte[0];
     private static final int ESCAPE_SEQUENCE_LENGTH_IN_BYTES = 4;
 
-    private List<byte[]> escapeSequences = new ArrayList<byte[]>(3);
-    private List<Integer> escapeSequenceNumbers = new ArrayList<Integer>(3);
+    private List<byte[]> escapeSequences = new ArrayList<>(3);
+    private List<Integer> escapeSequenceNumbers = new ArrayList<>(3);
     private Integer mask;
 
     public EscapeSequencer(List<byte[]> escapeSequences) {
@@ -89,7 +89,7 @@ public class EscapeSequencer {
     }
 
     private static List<Integer> from(List<byte[]> sequences) {
-        List<Integer> result = new ArrayList<Integer>(sequences.size());
+        List<Integer> result = new ArrayList<>(sequences.size());
         for ( byte[] bytes: sequences) {
             result.add(bytesToInteger(bytes));
         }

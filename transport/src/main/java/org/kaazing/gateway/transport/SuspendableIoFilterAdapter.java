@@ -35,7 +35,7 @@ import java.util.Queue;
  * resumed.
  */
 public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
-    private final Queue<SuspendableEvent>  queue = new ArrayDeque<SuspendableEvent>();
+    private final Queue<SuspendableEvent>  queue = new ArrayDeque<>();
 
     // Used only in I/O thread, hence not using AtomicInteger
     private int suspendCount = 0;

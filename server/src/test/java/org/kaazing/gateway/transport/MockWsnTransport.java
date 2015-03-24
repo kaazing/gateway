@@ -32,7 +32,7 @@ final class MockWsnTransport extends Transport {
     private static final Map<String, Protocol> WSN_PROTOCOLS;
 
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("wsn", null);
         WSN_PROTOCOLS = Collections.unmodifiableMap(map);
     }

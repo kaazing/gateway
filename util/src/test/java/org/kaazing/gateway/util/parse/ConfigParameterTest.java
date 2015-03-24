@@ -51,7 +51,7 @@ public class ConfigParameterTest {
         }
     };
 
-    private final static Map<String, String> properties = new HashMap<String, String>();
+    private final static Map<String, String> properties = new HashMap<>();
 
     @BeforeClass
     public static void setProperties() {
@@ -73,7 +73,7 @@ public class ConfigParameterTest {
 
     private static void testResolveAndReplaceParameter(String input, String output, String prefixBuffer,
             String postfixBuffer, boolean erorrsExpected) {
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         Assert.assertEquals(output, ConfigParameter.resolveAndReplace(
                 (prefixBuffer + input + postfixBuffer).toCharArray(), prefixBuffer.length(), input.length(),
                 properties, System.getProperties(), errors));

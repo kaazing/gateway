@@ -31,7 +31,7 @@ public abstract class AbstractAuthorizationConstraintConfigurationBuilder<R> ext
 
     public AbstractAuthorizationConstraintConfigurationBuilder<R> requireRole(String requireRole) {
         configuration.getSuppressibleConfiguration().addRequiredRole(
-                new Suppressible<String>(requireRole, getCurrentSuppressions()));
+                new Suppressible<>(requireRole, getCurrentSuppressions()));
         return this;
     }
 

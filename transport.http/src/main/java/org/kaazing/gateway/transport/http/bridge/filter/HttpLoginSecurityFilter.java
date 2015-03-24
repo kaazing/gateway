@@ -62,7 +62,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * Session key used for communicating the login context to higher level sessions.
      */
     public static final TypedAttributeKey<ResultAwareLoginContext> LOGIN_CONTEXT_KEY =
-            new TypedAttributeKey<ResultAwareLoginContext>(HttpLoginSecurityFilter.class, "loginContext");
+            new TypedAttributeKey<>(HttpLoginSecurityFilter.class, "loginContext");
 
 
     /**

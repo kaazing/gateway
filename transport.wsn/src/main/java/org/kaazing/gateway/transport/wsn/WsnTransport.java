@@ -36,7 +36,7 @@ final class WsnTransport extends Transport {
 
     private static final Map<String, Protocol> WSN_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("wsn", WsnProtocol.WSN);
         map.put("wsn+ssl", WsnProtocol.WSN_SSL);
         map.put("wsx", WsnProtocol.WSN);

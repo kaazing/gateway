@@ -58,7 +58,7 @@ public class WsExtensionBuilder implements WsExtension {
     //private static int nextControlBytes = 0;
     
     private String extensionToken;
-    private Map<String, WsExtensionParameter> parametersByName = new LinkedHashMap<String, WsExtensionParameter>();
+    private Map<String, WsExtensionParameter> parametersByName = new LinkedHashMap<>();
 
     public WsExtensionBuilder(String extensionToken) {
         if (extensionToken == null) {
@@ -105,7 +105,7 @@ public class WsExtensionBuilder implements WsExtension {
     }
 
     public List<WsExtensionParameter> getParameters() {
-        return Collections.unmodifiableList(new ArrayList<WsExtensionParameter>(parametersByName.values()));
+        return Collections.unmodifiableList(new ArrayList<>(parametersByName.values()));
     }
 
     @Override

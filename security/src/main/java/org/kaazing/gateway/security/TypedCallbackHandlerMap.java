@@ -29,7 +29,7 @@ import javax.security.auth.callback.CallbackHandler;
 
 public class TypedCallbackHandlerMap {
 
-    Map<Class<? extends Callback>, CallbackHandler> map = new HashMap<Class<? extends Callback>, CallbackHandler>();
+    Map<Class<? extends Callback>, CallbackHandler> map = new HashMap<>();
 
 
     public <T extends CallbackHandler> void put(Class<? extends Callback> clazz, T callbackHandler) {

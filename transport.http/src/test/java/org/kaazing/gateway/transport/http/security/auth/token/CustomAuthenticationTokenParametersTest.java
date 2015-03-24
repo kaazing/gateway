@@ -85,8 +85,8 @@ public class CustomAuthenticationTokenParametersTest {
 
         HttpRequestMessage requestMessage = new HttpRequestMessage();
         requestMessage.setLocalAddress(address);
-        Map<String, List<String>> newParams = new HashMap<String, List<String>>();
-        List<String> newParamValues = new ArrayList<String>();
+        Map<String, List<String>> newParams = new HashMap<>();
+        List<String> newParamValues = new ArrayList<>();
         newParamValues.add("bar");
         newParamValues.add("baz");
         newParams.put("foo", newParamValues);

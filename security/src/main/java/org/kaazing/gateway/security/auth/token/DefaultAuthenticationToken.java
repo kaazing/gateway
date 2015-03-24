@@ -64,8 +64,8 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
      * @param initialCapacity a positive integer denoting the number of token components.
      */
     public DefaultAuthenticationToken(int initialCapacity) {
-        this.components = new ArrayList<String>(initialCapacity);
-        this.namedComponents = new LinkedHashMap<String, String>(initialCapacity);
+        this.components = new ArrayList<>(initialCapacity);
+        this.namedComponents = new LinkedHashMap<>(initialCapacity);
     }
 
     public DefaultAuthenticationToken(String component) {
@@ -125,7 +125,7 @@ public class DefaultAuthenticationToken extends AuthenticationToken {
 
         if (index >= components.size() && index < components.size() + namedComponents.size()) {
             int namedIndex = index - components.size();
-            List<String> namedValues = new ArrayList<String>(namedComponents.values());
+            List<String> namedValues = new ArrayList<>(namedComponents.values());
             return namedValues.get(namedIndex);
         }
 

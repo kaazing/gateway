@@ -35,13 +35,13 @@ public abstract class MessageBuffer<T extends Message> extends AbstractIoBufferE
     protected MessageBuffer(ByteBuffer buf) {
         super(buf.capacity());
         this.buf = buf;
-        this.message = new AtomicReference<T>();
+        this.message = new AtomicReference<>();
     }
 
     protected MessageBuffer(MessageBuffer<T> parent, ByteBuffer buf) {
         super(parent);
         this.buf = buf;
-        this.message = new AtomicReference<T>();
+        this.message = new AtomicReference<>();
     }
 
     public boolean setMessage(T newMessage) {

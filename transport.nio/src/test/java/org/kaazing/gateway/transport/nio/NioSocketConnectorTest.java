@@ -72,7 +72,7 @@ public class NioSocketConnectorTest {
         context.setThreadingPolicy(new Synchroniser());
         final IoHandler handler = context.mock(IoHandler.class);
         final RuntimeException[] exception = new RuntimeException[1];
-        final Set<Thread> workerThreadsUsed = new ConcurrentHashSet<Thread>();
+        final Set<Thread> workerThreadsUsed = new ConcurrentHashSet<>();
         final int NB_WORKERS = 7; // = size of worker pool
 
         context.checking(new Expectations() {

@@ -313,7 +313,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
             return null;
         }
 
-        List<String> list = new ArrayList<String>(names.length);
+        List<String> list = new ArrayList<>(names.length);
         for (int i = 0; i < names.length; i++) {
             list.add(names[i]);
         }
@@ -457,7 +457,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
     private BridgeHandler unsecureBridgeHandler = new BridgeHandler(false);
 
     @Deprecated // HOWTO get the requested server name / port from the SSL handshake (even without SNI)?
-    public static final TypedAttributeKey<ResourceAddress> SSL_RESOURCE_ADDRESS = new TypedAttributeKey<ResourceAddress>(SslFilter.class, "sslResourceAddress");
+    public static final TypedAttributeKey<ResourceAddress> SSL_RESOURCE_ADDRESS = new TypedAttributeKey<>(SslFilter.class, "sslResourceAddress");
 
 
     // When SSL encryption is disabled, this filter is used to create SslSession.

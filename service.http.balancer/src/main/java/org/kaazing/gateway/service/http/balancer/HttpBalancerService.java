@@ -109,7 +109,7 @@ public class HttpBalancerService implements Service {
                         selectedBalanceeURIs = Collections.<URI> emptyList();
                     } else {
                         URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
-                        selectedBalanceeURIs = new ArrayList<URI>(1);
+                        selectedBalanceeURIs = new ArrayList<>(1);
                         selectedBalanceeURIs.add(selectedBalanceeURI);
                     }
                     IoSession parent = httpSession.getParent();
@@ -173,7 +173,7 @@ public class HttpBalancerService implements Service {
     private static Collection<URI> toWsBalancerURIs(Collection<URI> uris,
                                                     AcceptOptionsContext acceptOptionsCtx,
                                                     TransportFactory transportFactory) throws Exception {
-        List<URI> httpURIs = new ArrayList<URI>(uris.size());
+        List<URI> httpURIs = new ArrayList<>(uris.size());
         for (URI uri : uris) {
             Protocol protocol = transportFactory.getProtocol(uri);
             if( WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
@@ -211,7 +211,7 @@ public class HttpBalancerService implements Service {
     private static Collection<URI> toHttpBalancerURIs(Collection<URI> uris,
                                                       AcceptOptionsContext acceptOptionsCtx,
                                                       TransportFactory transportFactory) throws Exception {
-        List<URI> httpURIs = new ArrayList<URI>(uris.size());
+        List<URI> httpURIs = new ArrayList<>(uris.size());
         for (URI uri : uris) {
             Protocol protocol = transportFactory.getProtocol(uri);
             boolean secure = protocol.isSecure();

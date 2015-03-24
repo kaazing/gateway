@@ -62,7 +62,7 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
     private static final Logger logger = LoggerFactory.getLogger("transport.http.accept");
 
     static {
-        Map<String, HttpOperation> operations = new HashMap<String, HttpOperation>();
+        Map<String, HttpOperation> operations = new HashMap<>();
         operations.put("set-cookies", new HttpSetCookiesOperation());
         operations.put("get-cookies", new HttpGetCookiesOperation());
         operations.put("delete-cookies", new HttpDeleteCookiesOperation());
@@ -144,7 +144,7 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
 
     static class HttpSetCookiesOperation extends HttpOperation {
 
-        private static final TypedAttributeKey<IoBufferEx> BUFFER_KEY = new TypedAttributeKey<IoBufferEx>(HttpSetCookiesOperation.class, "buffer");
+        private static final TypedAttributeKey<IoBufferEx> BUFFER_KEY = new TypedAttributeKey<>(HttpSetCookiesOperation.class, "buffer");
 
         @Override
         protected void httpRequestReceived(NextFilter nextFilter, IoSessionEx session, HttpRequestMessage httpRequest)
@@ -261,7 +261,7 @@ public class HttpOperationFilter extends HttpFilterAdapter<IoSessionEx> {
 
     static class HttpDeleteCookiesOperation extends HttpOperation {
 
-        private static final TypedAttributeKey<IoBufferEx> BUFFER_KEY = new TypedAttributeKey<IoBufferEx>(HttpDeleteCookiesOperation.class, "buffer");
+        private static final TypedAttributeKey<IoBufferEx> BUFFER_KEY = new TypedAttributeKey<>(HttpDeleteCookiesOperation.class, "buffer");
 
         @Override
         protected void httpRequestReceived(NextFilter nextFilter, IoSessionEx session, HttpRequestMessage httpRequest)

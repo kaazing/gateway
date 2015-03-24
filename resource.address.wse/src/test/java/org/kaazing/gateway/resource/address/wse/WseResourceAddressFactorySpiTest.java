@@ -62,7 +62,7 @@ public class WseResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new WseResourceAddressFactorySpi();
         addressURI = URI.create("wse://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);

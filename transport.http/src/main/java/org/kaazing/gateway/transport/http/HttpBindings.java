@@ -243,7 +243,7 @@ public class HttpBindings extends Bindings<HttpBinding> {
 
         HttpBinding(ResourceAddress bindAddress) {
             super(bindAddress);
-            bindingsByPath = new ConcurrentSkipListMap<String, Binding>(PATH_ASCENDING);
+            bindingsByPath = new ConcurrentSkipListMap<>(PATH_ASCENDING);
         }
         
         boolean isEmpty() {

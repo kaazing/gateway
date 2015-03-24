@@ -73,7 +73,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
         super(new DefaultDatagramSessionConfigEx(), null);
         this.resourceAddressFactory = resourceAddressFactory;
         processor = new MulticastProcessor();
-		boundHandles = new ConcurrentHashMap<SocketAddress, Handle>();
+		boundHandles = new ConcurrentHashMap<>();
 		this.nextId = new AtomicInteger();
 	}
 
@@ -146,7 +146,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
 			this.socket = new MulticastSocket(new InetSocketAddress(remoteAddress.getGroupAddress(), remoteAddress.getBindPort()));
 			this.groupAddress = new InetSocketAddress(remoteAddress.getGroupAddress(), 0);
 			this.device = remoteAddress.getDevice();
-			this.dispatchSessions = new ConcurrentHashSet<IoSessionEx>();
+			this.dispatchSessions = new ConcurrentHashSet<>();
 		}
 
 		@Override

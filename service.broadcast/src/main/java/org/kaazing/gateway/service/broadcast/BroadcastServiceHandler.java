@@ -44,7 +44,7 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
 
     BroadcastServiceHandler(boolean disconnectClientsOnReconnect, long maximumScheduledWriteBytes, Logger logger)
             throws Exception {
-        this.clients = new ConcurrentHashSet<IoSession>();
+        this.clients = new ConcurrentHashSet<>();
         this.handler = new BroadcastListenHandler(Collections.unmodifiableCollection(clients),
                 disconnectClientsOnReconnect, maximumScheduledWriteBytes, logger);
         this.codec = new IoMessageCodecFilter();

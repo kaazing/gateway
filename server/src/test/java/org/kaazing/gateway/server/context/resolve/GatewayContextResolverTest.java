@@ -95,7 +95,7 @@ public class GatewayContextResolverTest {
     public void setAllowedServices()
             throws Exception {
 
-        Set<String> serviceList = new HashSet<String>();
+        Set<String> serviceList = new HashSet<>();
         serviceList.add("echo");
         serviceList.add("balancer");
 
@@ -356,7 +356,7 @@ public class GatewayContextResolverTest {
     }
 
     static class BufferedAppender extends org.apache.log4j.AppenderSkeleton {
-        private List<LoggingEvent> events = new ArrayList<LoggingEvent>();
+        private List<LoggingEvent> events = new ArrayList<>();
 
         private BufferedAppender() {
             super();
@@ -368,7 +368,7 @@ public class GatewayContextResolverTest {
         }
 
         public List<LoggingEvent> grep(org.apache.log4j.Level level, String message) {
-            List<LoggingEvent> result = new ArrayList<LoggingEvent>();
+            List<LoggingEvent> result = new ArrayList<>();
             for (LoggingEvent event : events) {
                 if (event.getLevel() == level && event.getMessage() != null && message != null
                         && event.getMessage().toString().matches(message)) {

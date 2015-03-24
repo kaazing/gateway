@@ -61,11 +61,11 @@ public class DefaultServiceProperties implements ServiceProperties {
             return getNested(name);
         }
         if (nestedProperties == EMPTY_NESTED) {
-            nestedProperties = new HashMap<String, List<ServiceProperties>>();
+            nestedProperties = new HashMap<>();
         }
         List<ServiceProperties> result = nestedProperties.get(name);
         if (result == null) {
-            result = new LinkedList<ServiceProperties>();
+            result = new LinkedList<>();
             nestedProperties.put(name, result);
         }
         return result;
@@ -89,7 +89,7 @@ public class DefaultServiceProperties implements ServiceProperties {
     @Override
     public void put(String name, String value) {
         if (simpleProperties == EMPTY_SIMPLE) {
-            simpleProperties = new HashMap<String, String>();
+            simpleProperties = new HashMap<>();
         }
         simpleProperties.put(name, value);
     }

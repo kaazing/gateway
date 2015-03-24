@@ -122,7 +122,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         this.logger = logger;
         started = new AtomicBoolean(false);
         bindings = new NextProtocolBindings();
-        boundAuthorities = new ConcurrentSkipListSet<ResourceAddress>(Comparators.compareResourceOrigin());
+        boundAuthorities = new ConcurrentSkipListSet<>(Comparators.compareResourceOrigin());
 
         String preferIPv4NetworkStack = System.getProperty("java.net.preferIPv4Stack");
         if ("true".equalsIgnoreCase(preferIPv4NetworkStack)) {
@@ -380,7 +380,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         // a hang when there's a race with Gateway.destroy().
         if (!unbindScheduler.isShutdown()) {
             final UnbindFuture future = new DefaultUnbindFuture();
-            unbindScheduler.submit(new FutureTask<Boolean>(new Runnable() {
+            unbindScheduler.submit(new FutureTask<>(new Runnable() {
                 @Override
                 public void run() {
                     try {

@@ -31,7 +31,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 
 public abstract class HttpBuffer extends MessageBuffer<HttpMessage> {
 
-    private final ConcurrentMap<String, HttpMessage> messages = new ConcurrentHashMap<String, HttpMessage>();
+    private final ConcurrentMap<String, HttpMessage> messages = new ConcurrentHashMap<>();
 
 	HttpBuffer(MessageBuffer<HttpMessage> parent, ByteBuffer buf) {
         super(parent, buf);

@@ -154,7 +154,7 @@ public class HttpResponseMessage extends HttpStartMessage {
     }
 
 	protected Map<String, List<String>> createHeaders() {
-        return new TreeMap<String, List<String>>(COMPARE_IGNORE_CASE);
+        return new TreeMap<>(COMPARE_IGNORE_CASE);
 	}
 	
 	private static Comparator<String> COMPARE_IGNORE_CASE = new Comparator<String>() {

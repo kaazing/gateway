@@ -213,7 +213,7 @@ public class HttpTransportOptionsTest {
 
 
 
-        Map<String, Object> bindOptions = new HashMap<String, Object>();
+        Map<String, Object> bindOptions = new HashMap<>();
         final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
 
 
@@ -289,7 +289,7 @@ public class HttpTransportOptionsTest {
 
 
 
-        Map<String, Object> bindOptions = new HashMap<String, Object>();
+        Map<String, Object> bindOptions = new HashMap<>();
         final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
 
 
@@ -337,7 +337,7 @@ public class HttpTransportOptionsTest {
             }
         };
 
-        Map<String, Object> bindOptions = new HashMap<String, Object>();
+        Map<String, Object> bindOptions = new HashMap<>();
         final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
 
         httpConnectorToAcceptor(uri,

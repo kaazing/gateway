@@ -71,9 +71,9 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
     private static final String SERVICE_AMQP_PROXY_LOGGER = "service.amqp.proxy";
 
     private static final Map<Character, AmqpType> typeIdentifierMap = 
-                                             new HashMap<Character, AmqpType>();
+                                             new HashMap<>();
     private static final Map<AmqpType, String> typeMap = 
-                                             new HashMap<AmqpType, String>();
+                                             new HashMap<>();
 
     static {            
         typeIdentifierMap.put('F', AmqpType.FIELDTABLE);

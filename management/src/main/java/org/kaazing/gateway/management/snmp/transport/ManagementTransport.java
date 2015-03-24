@@ -40,7 +40,7 @@ import org.snmp4j.transport.TransportListener;
 public class ManagementTransport implements TransportMapping {
     private static final Logger logger = LoggerFactory.getLogger(ManagementTransport.class);
     private final ManagementContext managementContext;
-    private List<TransportListener> transportListeners = new ArrayList<TransportListener>();
+    private List<TransportListener> transportListeners = new ArrayList<>();
 
     // Pass in the ExecutorService used for management tasks, so we can get the management
     // requests OFF the normal IO threads before processing them.

@@ -46,7 +46,7 @@ public class WsHandshakeValidator {
     protected final Logger logger = LoggerFactory.getLogger("websocket.handshake.validator");
 
     public static Map<WebSocketWireProtocol, WsHandshakeValidator> handshakeValidatorsByWireProtocolVersion
-            = new ConcurrentHashMap<WebSocketWireProtocol, WsHandshakeValidator>(10);
+            = new ConcurrentHashMap<>(10);
 
     private static boolean initialized;
 

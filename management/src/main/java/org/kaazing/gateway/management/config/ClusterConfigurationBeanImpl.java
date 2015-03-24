@@ -59,7 +59,7 @@ public class ClusterConfigurationBeanImpl implements ClusterConfigurationBean {
     public List<String> getAccepts() {
         List<MemberId> accepts = clusterContext.getAccepts();
 
-        List<String> acceptList = new ArrayList<String>();
+        List<String> acceptList = new ArrayList<>();
         if ((accepts != null) && !accepts.isEmpty()) {
             for (MemberId member : accepts) {
                 acceptList.add(member.getId());
@@ -72,7 +72,7 @@ public class ClusterConfigurationBeanImpl implements ClusterConfigurationBean {
     public List<String> getConnects() {
         List<MemberId> connects = clusterContext.getConnects();
 
-        List<String> connectList = new ArrayList<String>();
+        List<String> connectList = new ArrayList<>();
         if ((connects != null) && !connects.isEmpty()) {
             for (MemberId member : connects) {
                 connectList.add(member.getId());

@@ -617,7 +617,7 @@ public class HttpUtils {
         return false;
     }
 
-    public static Map<String,List<String>> EMPTY_HEADERS = new HashMap<String, List<String>>(0);
+    public static Map<String,List<String>> EMPTY_HEADERS = new HashMap<>(0);
 
     public static void excludeHeaders(HttpRequestMessage request, String[] exclusions) {
         if ( request == null ) {
@@ -634,9 +634,9 @@ public class HttpUtils {
         }
 
         // Get a mutable map
-        headers = new HashMap<String, List<String>>(headers);
+        headers = new HashMap<>(headers);
 
-        final Set<String> headerNames = new HashSet<String>(headers.keySet());
+        final Set<String> headerNames = new HashSet<>(headers.keySet());
 
         for ( String header: headerNames) {
 
@@ -678,9 +678,9 @@ public class HttpUtils {
         }
 
         // Get a mutable map
-        headers = new HashMap<String, List<String>>(headers);
+        headers = new HashMap<>(headers);
 
-        final Set<String> headerNames = new HashSet<String>(headers.keySet());
+        final Set<String> headerNames = new HashSet<>(headers.keySet());
 
         for ( String header: headerNames) {
 
@@ -724,8 +724,8 @@ public class HttpUtils {
         }
 
         // Get mutable headers
-        fromHeaders = new HashMap<String, List<String>>(fromHeaders);
-        final Map<String, List<String>> toHeaders = new HashMap<String, List<String>>(to.getHeaders());
+        fromHeaders = new HashMap<>(fromHeaders);
+        final Map<String, List<String>> toHeaders = new HashMap<>(to.getHeaders());
 
         for (String ignoreHeader: ignoreHeaders) {
             fromHeaders.remove(ignoreHeader);
@@ -740,9 +740,9 @@ public class HttpUtils {
                 if ( fromValues == null || toValues == null ) {
                     throw new IllegalArgumentException("Illegal null header values from header: "+fromHeader);
                 }
-                Set<String> result = new LinkedHashSet<String>(fromValues);
+                Set<String> result = new LinkedHashSet<>(fromValues);
                 result.addAll(toValues);
-                toHeaders.put(fromHeader, new ArrayList<String>(result));
+                toHeaders.put(fromHeader, new ArrayList<>(result));
             }
         }
 
@@ -770,7 +770,7 @@ public class HttpUtils {
         }
 
         // Get mutable requestHeaders
-        requestHeaders = new HashMap<String, List<String>>(requestHeaders);
+        requestHeaders = new HashMap<>(requestHeaders);
 
         // Remove the value to remove
         for (String header: headerNames) {
@@ -781,7 +781,7 @@ public class HttpUtils {
             //
             // make sure we have a mutable list; remove the value; install updated values
             //
-            values = new ArrayList<String>(values);
+            values = new ArrayList<>(values);
             values.remove(valueToRemove);
             requestHeaders.put(header, values);
         }
@@ -807,8 +807,8 @@ public class HttpUtils {
         }
 
         // Get mutable parameters
-        fromParameters = new HashMap<String, List<String>>(fromParameters);
-        final Map<String, List<String>> toParameters = new HashMap<String, List<String>>(to.getParameters());
+        fromParameters = new HashMap<>(fromParameters);
+        final Map<String, List<String>> toParameters = new HashMap<>(to.getParameters());
 
         for (String fromParameter: fromParameters.keySet()) {
             if ( !toParameters.containsKey(fromParameter) ) {
@@ -816,11 +816,11 @@ public class HttpUtils {
             } else {
                 List<String> fromValues = fromParameters.get(fromParameter);
                 List<String> toValues = toParameters.get(fromParameter);
-                if ( fromValues == null ) { fromValues = new ArrayList<String>();}
-                if ( toValues == null ) { toValues = new ArrayList<String>();}
-                Set<String> result = new LinkedHashSet<String>(fromValues);
+                if ( fromValues == null ) { fromValues = new ArrayList<>();}
+                if ( toValues == null ) { toValues = new ArrayList<>();}
+                Set<String> result = new LinkedHashSet<>(fromValues);
                 result.addAll(toValues);
-                toParameters.put(fromParameter, new ArrayList<String>(result));
+                toParameters.put(fromParameter, new ArrayList<>(result));
             }
         }
 
@@ -839,10 +839,10 @@ public class HttpUtils {
         }
 
         if ( to.getCookies() == null ) {
-            HashSet<HttpCookie> cookies = new HashSet<HttpCookie>(fromCookies);
+            HashSet<HttpCookie> cookies = new HashSet<>(fromCookies);
             to.setCookies(cookies);
         } else {
-            Set<HttpCookie> toCookies = new HashSet<HttpCookie>(to.getCookies());
+            Set<HttpCookie> toCookies = new HashSet<>(to.getCookies());
 
             // add all the cookies in the from RequestMessage
             toCookies.addAll(fromCookies);

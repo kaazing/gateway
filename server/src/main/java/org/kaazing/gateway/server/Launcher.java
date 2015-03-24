@@ -69,7 +69,7 @@ public class Launcher {
             cluster.start();
         }
 
-        Set<String> mappedURIs = new TreeSet<String>();
+        Set<String> mappedURIs = new TreeSet<>();
 
         // Initialize all services (so we're in a known state), then start
         // all services.
@@ -118,7 +118,7 @@ public class Launcher {
     public void destroy() throws Exception {
         long stopAt = System.currentTimeMillis();
 
-        Set<URI> boundURIs = new TreeSet<URI>();
+        Set<URI> boundURIs = new TreeSet<>();
         for (ServiceContext serviceContext : context.getServices()) {
             boundURIs.addAll(serviceContext.getAccepts());
             try {

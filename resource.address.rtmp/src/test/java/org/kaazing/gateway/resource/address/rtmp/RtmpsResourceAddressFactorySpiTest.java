@@ -47,7 +47,7 @@ public class RtmpsResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new RtmpsResourceAddressFactorySpi();
         addressURI = URI.create("rtmps://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
         options.put("rtmp.transport", URI.create("ssl://localhost:2121"));

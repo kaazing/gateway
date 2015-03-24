@@ -752,7 +752,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         @SuppressWarnings("unchecked")
         protected void registerTransportMappings() {
-            ArrayList<TransportMapping> l = new ArrayList<TransportMapping>(dispatcher.getTransportMappings());
+            ArrayList<TransportMapping> l = new ArrayList<>(dispatcher.getTransportMappings());
             for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
                 TransportMapping tm = it.next();
                 tm.removeTransportListener(dispatcher);
@@ -788,7 +788,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
          * @throws IOException if a transport cannot be closed.
          */
         protected void stopTransportMappings(Collection<TransportMapping> transportMappings) throws IOException {
-            ArrayList<TransportMapping> l = new ArrayList<TransportMapping>(transportMappings);
+            ArrayList<TransportMapping> l = new ArrayList<>(transportMappings);
             for (Iterator<TransportMapping> it = l.iterator(); it.hasNext();) {
                 TransportMapping tm = it.next();
                 if (tm.isListening()) {

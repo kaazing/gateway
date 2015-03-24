@@ -109,7 +109,7 @@ public class GatewayBindTest {
                 throw new RuntimeException("Failed to create directory kaazing-home/temp/");
             }
 
-            Set<String> allowedServices = new HashSet<String>();
+            Set<String> allowedServices = new HashSet<>();
             allowedServices.add("echo");
 
             GatewayContextResolver resolver = new GatewayContextResolver(configDir, webRootDir, tempDir);

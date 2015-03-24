@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class TokenLoginModule extends BaseStateDrivenLoginModule {
 
     private final Logger LOG = LoggerFactory.getLogger(TokenLoginModule.class);
-    private List<String> roles = new ArrayList<String>();
+    private List<String> roles = new ArrayList<>();
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState, Map<String, ?> options) {

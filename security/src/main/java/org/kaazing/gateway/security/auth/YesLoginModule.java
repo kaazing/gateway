@@ -46,7 +46,7 @@ import javax.security.auth.login.LoginException;
  */
 public class YesLoginModule extends BaseStateDrivenLoginModule {
 
-    private List<String> roles = new ArrayList<String>();
+    private List<String> roles = new ArrayList<>();
 
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler,

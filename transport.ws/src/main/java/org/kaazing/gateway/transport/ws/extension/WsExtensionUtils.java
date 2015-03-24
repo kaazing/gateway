@@ -40,7 +40,7 @@ public class WsExtensionUtils {
     }
     
     public static List<byte[]> getEscapeSequences(List<WsExtension> extensions) {
-        List<byte[]> result = new ArrayList<byte[]>();
+        List<byte[]> result = new ArrayList<>();
         if ( extensions != null ) {
             for ( WsExtension extension: extensions ) {
                 result.add(extension.getControlBytes());
@@ -79,7 +79,7 @@ public class WsExtensionUtils {
                 }
     
             } else {
-                List<WsExtension> wsAcceptedExtensions = new ArrayList<WsExtension>(wsRequestedExtensions.size());
+                List<WsExtension> wsAcceptedExtensions = new ArrayList<>(wsRequestedExtensions.size());
     
                 for (WsExtension candidate : wsRequestedExtensions) {
                     WsExtension accepted = WsExtensionBuilder.create(address, candidate);
@@ -114,10 +114,10 @@ public class WsExtensionUtils {
         }
     
         if (extensionTokens.size() == 0) {
-            return new ArrayList<WsExtension>();
+            return new ArrayList<>();
         }
     
-        List<WsExtension> exts = new ArrayList<WsExtension>(extensionTokens.size());
+        List<WsExtension> exts = new ArrayList<>(extensionTokens.size());
         for (String extensionToken : extensionTokens) {
             if (extensionToken != null) {
                 exts.add(new WsExtensionBuilder(extensionToken).toWsExtension());

@@ -31,7 +31,7 @@ public class LoginModuleConfiguration implements Configuration<SuppressibleLogin
 
     private Suppressible<String> _type;
     private Suppressible<String> _success;
-    private final Map<String, Suppressible<String>> options = new HashMap<String, Suppressible<String>>();
+    private final Map<String, Suppressible<String>> options = new HashMap<>();
     private final Map<String, String> unsuppressibleOptions = Suppressibles.unsuppressibleMap(options);
 
     public LoginModuleConfiguration() {
@@ -58,7 +58,7 @@ public class LoginModuleConfiguration implements Configuration<SuppressibleLogin
     }
 
     public void setType(String type) {
-        this._type = new Suppressible<String>(type);
+        this._type = new Suppressible<>(type);
     }
 
     // Success
@@ -70,7 +70,7 @@ public class LoginModuleConfiguration implements Configuration<SuppressibleLogin
     }
 
     public void setSuccess(String success) {
-        this._success = new Suppressible<String>(success);
+        this._success = new Suppressible<>(success);
     }
 
     // Options

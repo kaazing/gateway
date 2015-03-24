@@ -237,7 +237,7 @@ class ConnectionPool {
         AtomicLong nextFutureId = new AtomicLong(0);
 
         private ThreadSafeConnectFutures(int preparedConnectionCount) {
-            connectFutures = new ConcurrentSkipListMap<Long, ConnectFuture>();
+            connectFutures = new ConcurrentSkipListMap<>();
         }
 
         ConnectFuture pollFirstEntry() {

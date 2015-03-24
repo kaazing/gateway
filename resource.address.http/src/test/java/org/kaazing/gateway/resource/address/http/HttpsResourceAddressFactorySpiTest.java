@@ -57,7 +57,7 @@ public class HttpsResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new HttpsResourceAddressFactorySpi();
         addressURI = URI.create("https://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));
@@ -130,7 +130,7 @@ public class HttpsResourceAddressFactorySpiTest {
             throws Exception {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        Map<String,Object> inputOptions = new LinkedHashMap<String, Object>();
+        Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ssl.wantClientAuth", false);
 
         ResourceAddress address = addressFactory.newResourceAddress(URI.create(String.format("https://localhost:4949/path")), inputOptions);

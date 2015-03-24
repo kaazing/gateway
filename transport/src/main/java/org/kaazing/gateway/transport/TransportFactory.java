@@ -92,11 +92,11 @@ public class TransportFactory {
     }
 
     private static TransportFactory newTransportFactory(ServiceLoader<TransportFactorySpi> transportFactories, Map<String, ?> configuration) {
-        Map<String, Transport> transportsByName = new HashMap<String, Transport>();
-        Map<String, Transport> transportsBySchemeName = new HashMap<String, Transport>();
-        Map<Proxy.Type, ProxyHandler> proxyHandlersByType = new HashMap<Proxy.Type, ProxyHandler>();
-        Map<String, Protocol> protocolsBySchemeName = new HashMap<String, Protocol>();
-        Map<String, ProtocolDispatcher> dispatchersByProtocolName = new HashMap<String, ProtocolDispatcher>();
+        Map<String, Transport> transportsByName = new HashMap<>();
+        Map<String, Transport> transportsBySchemeName = new HashMap<>();
+        Map<Proxy.Type, ProxyHandler> proxyHandlersByType = new HashMap<>();
+        Map<String, Protocol> protocolsBySchemeName = new HashMap<>();
+        Map<String, ProtocolDispatcher> dispatchersByProtocolName = new HashMap<>();
 
         for (TransportFactorySpi transportFactory : transportFactories) {
             String transportName = transportFactory.getTransportName();

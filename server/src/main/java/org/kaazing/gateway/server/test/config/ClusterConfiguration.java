@@ -42,9 +42,9 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
         _configuration = new SuppressibleClusterConfigurationImpl();
         _configuration.setSuppression(Suppressibles.getDefaultSuppressions());
 
-        accepts = new HashSet<Suppressible<URI>>();
+        accepts = new HashSet<>();
         unsurpressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
-        connects = new HashSet<Suppressible<URI>>();
+        connects = new HashSet<>();
         unsurpressibleConnects = Suppressibles.unsuppressibleSet(connects);
     }
 
@@ -86,7 +86,7 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
     }
 
     public void setAwsAccessKeyId(String awsAccessKeyId) {
-        this._awsAccessKeyId = new Suppressible<String>(awsAccessKeyId);
+        this._awsAccessKeyId = new Suppressible<>(awsAccessKeyId);
     }
 
     // AwsSecretKey
@@ -98,7 +98,7 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
     }
 
     public void setAwsSecretKeyId(String awsSecretKeyId) {
-        this._awsSecretKeyId = new Suppressible<String>(awsSecretKeyId);
+        this._awsSecretKeyId = new Suppressible<>(awsSecretKeyId);
     }
 
     // Name
@@ -110,7 +110,7 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
     }
 
     public void setName(String name) {
-        this._name = new Suppressible<String>(name);
+        this._name = new Suppressible<>(name);
     }
 
     private class SuppressibleClusterConfigurationImpl extends SuppressibleClusterConfiguration {

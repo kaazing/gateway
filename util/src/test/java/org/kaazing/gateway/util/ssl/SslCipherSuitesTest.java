@@ -166,7 +166,7 @@ public class SslCipherSuitesTest {
         throws Exception {
 
         for (String ciphersuite : JAVA6_CIPHERSUITES) {
-            List<String> configured = new ArrayList<String>(1);
+            List<String> configured = new ArrayList<>(1);
             configured.add(ciphersuite);
 
             List<String> resolved = SslCipherSuites.resolve(configured);
@@ -182,7 +182,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveHighStrength()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("HIGH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -193,7 +193,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveMediumStrength()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("MEDIUM");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -204,7 +204,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveLowStrength()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("LOW");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -215,7 +215,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExport40Strength()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EXPORT40");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -226,7 +226,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExport56Strength()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EXPORT56");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -238,7 +238,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRSAKeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kRSA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -250,7 +250,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveDHKeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -261,7 +261,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDHECDSAKeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kECDHe");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -272,7 +272,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDHRSAKeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kECDHr");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -283,7 +283,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDHEKeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kEECDHe");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -294,7 +294,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveKRB5KeyExchange()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kKRB5");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -307,7 +307,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRSAAuthentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aRSA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -318,7 +318,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveDSSAuthentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aDSS");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -329,7 +329,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDHAuthentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aECDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -340,7 +340,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDSAAuthentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aECDSA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -351,7 +351,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveKRB5Authentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aKRB5");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -362,7 +362,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveNullAuthentication()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("aNULL");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -375,7 +375,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRC4Encryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("RC4");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -386,7 +386,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveAES128Encryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("AES128");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -397,7 +397,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveAES256Encryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("AES256");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -408,7 +408,7 @@ public class SslCipherSuitesTest {
     public void shouldResolve3DESEncryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("3DES");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -419,7 +419,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveDESEncryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("DES");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -430,7 +430,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveNullEncryption()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("eNULL");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -443,7 +443,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveMD5MAC()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("MD5");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -454,7 +454,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveSHA1MAC()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -469,7 +469,7 @@ public class SslCipherSuitesTest {
             return;
         }
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA256");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -485,7 +485,7 @@ public class SslCipherSuitesTest {
             return;
         }
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA384");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -499,7 +499,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveSSLv3()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SSLv3");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -511,7 +511,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveTLSv1()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("TLSv1");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -525,7 +525,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveTLSv11()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("TLSv1.1");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -535,7 +535,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveTLSv12()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("TLSv1.2");
 
         if (System.getProperty("java.version").startsWith("1.7.")) {
@@ -556,7 +556,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveFIPS()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("FIPS");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -575,7 +575,7 @@ public class SslCipherSuitesTest {
         for (int i = 0; i < OPENSSL_CIPHER_NICKNAMES.length; i++) {
             String ciphersuite = OPENSSL_CIPHER_NICKNAMES[i];
 
-            List<String> configured = new ArrayList<String>(1);
+            List<String> configured = new ArrayList<>(1);
             configured.add(ciphersuite);
 
             List<String> resolved = SslCipherSuites.resolve(configured);
@@ -593,7 +593,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("DH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -604,7 +604,7 @@ public class SslCipherSuitesTest {
     public void shouldResolvekECDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("kECDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -615,7 +615,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("ECDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -626,7 +626,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveDSSAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("DSS");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -637,7 +637,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveECDSAAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("ECDSA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -648,7 +648,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveNullAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("NULL");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -659,7 +659,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveKRB5Alias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("KRB5");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -670,7 +670,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRSAAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("RSA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -681,7 +681,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveAESAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("AES");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -692,7 +692,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRC4Alias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("RC4");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -703,7 +703,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExpAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EXP");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -714,7 +714,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExportAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EXPORT");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -725,7 +725,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveEDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -739,7 +739,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveADHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("ADH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -753,7 +753,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveAllAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("ALL");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -767,7 +767,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveEECDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("EECDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -781,7 +781,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveAECDHAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("AECDH");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -793,7 +793,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveSHAAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -805,7 +805,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveComplementofdefaultAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("COMPLEMENTOFDEFAULT");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -819,7 +819,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveComplementofallAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("COMPLEMENTOFALL");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -834,7 +834,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveLogicalAnd()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1+RC4");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -850,7 +850,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveLogicalOr()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1");
         configured.add("RC4");
 
@@ -866,7 +866,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveSortedCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1+RC4");
         configured.add("@STRENGTH");
 
@@ -888,7 +888,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveKilledCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1+RC4");
         configured.add("!ECDSA");
 
@@ -905,7 +905,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveKilledExportCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("RC4");
         configured.add("!EXPORT");
 
@@ -921,7 +921,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRightShiftedCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1+RC4");
         configured.add("+RC4");
 
@@ -935,7 +935,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveRemovedCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("SHA1");
         configured.add("-RC4");
 
@@ -949,7 +949,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveUnknownName()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("CUSTOM");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -962,7 +962,7 @@ public class SslCipherSuitesTest {
     public void shouldFailNoMatchingCiphers()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("!FIPS");
         List<String> resolved = SslCipherSuites.resolve(configured);
     }
@@ -982,7 +982,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExplicitDefault()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("DEFAULT");
 
         List<String> resolved = SslCipherSuites.resolve(configured);
@@ -996,7 +996,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveExplicitDefaultAndNullAlias()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(2);
+        List<String> configured = new ArrayList<>(2);
         configured.add("DEFAULT");
         configured.add("NULL");
 
@@ -1011,7 +1011,7 @@ public class SslCipherSuitesTest {
     public void shouldNotResolveNullAliasAndExplicitDefault()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(2);
+        List<String> configured = new ArrayList<>(2);
         configured.add("NULL");
         configured.add("DEFAULT");
 
@@ -1022,7 +1022,7 @@ public class SslCipherSuitesTest {
     public void shouldResolveSortedUnknownCipher()
         throws Exception {
 
-        List<String> configured = new ArrayList<String>(1);
+        List<String> configured = new ArrayList<>(1);
         configured.add("TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
         configured.add("CUSTOM");
         configured.add("SSL_RSA_WITH_NULL_MD5");

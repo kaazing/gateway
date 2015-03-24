@@ -84,7 +84,7 @@ public class AmqpStartMessage extends AmqpConnectionMessage {
         AmqpTable            table = new AmqpTable();
         List<AmqpTableEntry> tableEntries = serverProperties.getEntries();
 
-        List<AmqpTableEntry> entries = new ArrayList<AmqpTableEntry>();
+        List<AmqpTableEntry> entries = new ArrayList<>();
         entries.addAll(tableEntries);
         
         table.setEntries(entries);

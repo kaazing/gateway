@@ -67,7 +67,7 @@ public class WsnResourceAddressFactorySpiTest {
     public void before() {
         addressFactorySpi = new WsnResourceAddressFactorySpi();
         addressURI = URI.create("wsn://localhost:2020/");
-        options = new HashMap<String, Object>();
+        options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
         options.put("ws.codecRequired", FALSE);
@@ -151,7 +151,7 @@ public class WsnResourceAddressFactorySpiTest {
             throws Exception {
 
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        Map<String,Object> inputOptions = new LinkedHashMap<String, Object>();
+        Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ws.keepAliveTimeout", 25);
 
         URI location = URI.create(String.format("wsn://localhost:4949/path"));

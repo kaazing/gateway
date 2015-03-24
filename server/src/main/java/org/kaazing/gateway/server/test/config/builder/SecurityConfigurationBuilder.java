@@ -33,7 +33,7 @@ public class SecurityConfigurationBuilder extends AbstractSecurityConfigurationB
 
     @Override
     public AddRealmBuilder<SecurityConfigurationBuilder> realm() {
-        return new AddRealmBuilder<SecurityConfigurationBuilder>(this, getCurrentSuppressions());
+        return new AddRealmBuilder<>(this, getCurrentSuppressions());
     }
 
     private SecurityConfigurationBuilder(SecurityConfiguration configuration, Set<Suppression> suppressions) {

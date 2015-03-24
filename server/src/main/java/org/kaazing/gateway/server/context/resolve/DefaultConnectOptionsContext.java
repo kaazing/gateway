@@ -182,7 +182,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     @Override
     public Map<String, Object> asOptionsMap() {
-        Map<String, Object> result = new LinkedHashMap<String, Object>();
+        Map<String, Object> result = new LinkedHashMap<>();
 
         result.put(SSL_CIPHERS, getSslCiphers());
         result.put(SSL_PROTOCOLS, getSslProtocols());

@@ -36,7 +36,7 @@ final class UdpTransport extends Transport {
 
     private static final Map<String, Protocol> UDP_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("udp", NioProtocol.UDP);
         UDP_PROTOCOLS = Collections.unmodifiableMap(map);
     }

@@ -33,7 +33,7 @@ public abstract class AbstractConfigurationBuilder<C extends Configuration<?>, R
     protected final C configuration;
     protected final R result;
     protected final Set<Suppression> defaultSuppressions;
-    protected final Deque<Set<Suppression>> currentSuppressions = new ArrayDeque<Set<Suppression>>();
+    protected final Deque<Set<Suppression>> currentSuppressions = new ArrayDeque<>();
 
     public R done() {
         return result;

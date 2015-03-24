@@ -48,8 +48,8 @@ public class GatewayConfiguration implements Configuration<SuppressibleGatewayCo
     public GatewayConfiguration() {
         _configuration = new SuppressibleGatewayConfigurationImpl();
         _configuration.setSuppression(Suppressibles.getDefaultSuppressions());
-        services = new LinkedList<ServiceConfiguration>();
-        properties = new HashMap<String, String>();
+        services = new LinkedList<>();
+        properties = new HashMap<>();
     }
 
     @Override

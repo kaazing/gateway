@@ -199,7 +199,7 @@ public class JmxManagementService implements ManagementService, NotificationList
             }
         }
 
-        Map<String, Object> env = new HashMap<String, Object>();
+        Map<String, Object> env = new HashMap<>();
 
         RMIClientSocketFactory csf = new SslRMIClientSocketFactory();
         RMIServerSocketFactory ssf = new SslRMIServerSocketFactory();
@@ -393,7 +393,7 @@ public class JmxManagementService implements ManagementService, NotificationList
                     throw new SecurityException("Access denied");
                 }
 
-                Set<String> authorizedRoles = new HashSet<String>();
+                Set<String> authorizedRoles = new HashSet<>();
                 for (Principal principal : principals) {
                     authorizedRoles.add(principal.getName());
                 }

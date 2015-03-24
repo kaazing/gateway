@@ -123,8 +123,8 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
                                Direction direction) {
         super(service, processor, address, remoteAddress, parent, allocator, direction);
         
-        writeHeaders = new LinkedHashMap<String, List<String>>();
-        writeCookies = new HashSet<HttpCookie>();
+        writeHeaders = new LinkedHashMap<>();
+        writeCookies = new HashSet<>();
         status = HttpStatus.SUCCESS_OK;
         reason = null;
 
@@ -153,7 +153,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         catch (URISyntaxException e) {
         }
         
-        parameters = new HashMap<String, List<String>>();
+        parameters = new HashMap<>();
         
         String query = requestURL.getRawQuery();
         if (query != null) {
@@ -174,7 +174,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         version = HttpVersion.HTTP_1_1;
         method = HttpMethod.GET;
 
-        readHeaders = new TreeMap<String, List<String>>(HttpHeaderNameComparator.INSTANCE);
+        readHeaders = new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
         readCookies = Collections.emptySet();
 
         servicePath = null;
@@ -229,7 +229,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private List<String> _getParameterValues(String parameterName) {
         List<String> parameterValues = parameters.get(parameterName);
         if (parameterValues == null) {
-            parameterValues = new ArrayList<String>();
+            parameterValues = new ArrayList<>();
             parameters.put(parameterName, parameterValues);
         }
         return parameterValues;
@@ -336,7 +336,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     @Override
     public void setWriteHeader(String name, String value) {
-        List<String> header = new ArrayList<String>();
+        List<String> header = new ArrayList<>();
         writeHeaders.put(name, header);
         header.add(value);
     }
@@ -368,7 +368,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         }
         List<String> header = writeHeaders.get(name);
         if (header == null) {
-            header = new ArrayList<String>();
+            header = new ArrayList<>();
             writeHeaders.put(name, header);
         }
         header.add(value);

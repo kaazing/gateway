@@ -28,9 +28,9 @@ import java.util.Set;
 public class ServiceDefaultsConfiguration implements Configuration<SuppressibleServiceDefaultsConfiguration> {
     private final SuppressibleServiceDefaultsConfiguration _configuration;
 
-    private final Map<String, Suppressible<String>> acceptOptions = new HashMap<String, Suppressible<String>>();
+    private final Map<String, Suppressible<String>> acceptOptions = new HashMap<>();
     private final Map<String, String> unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
-    private final Map<String, Suppressible<String>> mimeMappings = new HashMap<String, Suppressible<String>>();
+    private final Map<String, Suppressible<String>> mimeMappings = new HashMap<>();
     private final Map<String, String> unsuppressibleMimeMappings = Suppressibles.unsuppressibleMap(mimeMappings);
 
     public ServiceDefaultsConfiguration() {

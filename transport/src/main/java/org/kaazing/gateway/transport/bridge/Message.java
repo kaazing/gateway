@@ -38,7 +38,7 @@ public class Message implements Cloneable {
         
         @Override
         protected ConcurrentMap<String, IoBufferEx> initialValue() {
-            return new ConcurrentHashMap<String, IoBufferEx>();
+            return new ConcurrentHashMap<>();
         }
     }
     

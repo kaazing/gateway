@@ -70,7 +70,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         }
 
         // pre-process the balance elements into a map from String(scheme)->List<ParameterizedURI>
-        Map<String, List<ParameterizedURI>> processedBalanceElements = new HashMap<String, List<ParameterizedURI>>();
+        Map<String, List<ParameterizedURI>> processedBalanceElements = new HashMap<>();
         for (Element balanceElement : balanceElements) {
             String balanceURIString = balanceElement.getValue();
 
@@ -85,7 +85,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                         new ParameterizedURI(balanceURIString, balanceScheme, balanceHost, balancePort, balancePath);
                 List<ParameterizedURI> pURIsForScheme = processedBalanceElements.get(balanceScheme);
                 if (pURIsForScheme == null) {
-                    pURIsForScheme = new LinkedList<ParameterizedURI>();
+                    pURIsForScheme = new LinkedList<>();
                     processedBalanceElements.put(balanceScheme, pURIsForScheme);
                 }
 
@@ -98,7 +98,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
 
         // pre-process the accept elements in a map from String(scheme)->List<ParameterizedURI>
         List<Element> acceptElements = element.getChildren(ACCEPT_URI_ELEMENT, element.getNamespace());
-        Map<String, List<ParameterizedURI>> processedAcceptElements = new HashMap<String, List<ParameterizedURI>>();
+        Map<String, List<ParameterizedURI>> processedAcceptElements = new HashMap<>();
         for (Element acceptElement : acceptElements) {
             String acceptURIString = acceptElement.getValue();
             Matcher acceptMatcher = uriPattern.matcher(acceptURIString);
@@ -111,7 +111,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                 ParameterizedURI pURI = new ParameterizedURI(acceptURIString, acceptScheme, acceptHost, acceptPort, acceptPath);
                 List<ParameterizedURI> pURIsForScheme = processedAcceptElements.get(acceptScheme);
                 if (pURIsForScheme == null) {
-                    pURIsForScheme = new LinkedList<ParameterizedURI>();
+                    pURIsForScheme = new LinkedList<>();
                     processedAcceptElements.put(acceptScheme, pURIsForScheme);
                 }
 

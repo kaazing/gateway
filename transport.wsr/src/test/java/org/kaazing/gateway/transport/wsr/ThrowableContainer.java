@@ -31,7 +31,7 @@ public class ThrowableContainer {
     private Collection<Throwable> throwables;
 
     public ThrowableContainer() {
-        this.throwables = new LinkedHashSet<Throwable>();
+        this.throwables = new LinkedHashSet<>();
     }
 
     public void add(Throwable t) {

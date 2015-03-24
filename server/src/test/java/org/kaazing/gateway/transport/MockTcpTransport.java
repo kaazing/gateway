@@ -32,7 +32,7 @@ final class MockTcpTransport extends Transport {
     private static final Map<String, Protocol> TCP_PROTOCOLS;
 
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("tcp", null);
         TCP_PROTOCOLS = Collections.unmodifiableMap(map);
     }

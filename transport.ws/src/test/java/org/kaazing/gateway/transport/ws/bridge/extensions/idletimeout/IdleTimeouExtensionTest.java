@@ -53,7 +53,7 @@ public class IdleTimeouExtensionTest {
     @Before
     public void setUp() {
         URI addressURI = URI.create("ws://localhost:2020/");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2500L);
         wsAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
     }

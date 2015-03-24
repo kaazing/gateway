@@ -99,11 +99,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     private MessageBufferFactory messageBufferFactory;
     private CollectionsFactory collectionsFactory;
-    private List<MemberId> localInterfaces = new ArrayList<MemberId>();
-    private final List<MemberId> clusterMembers = new ArrayList<MemberId>();
-    private final List<MembershipEventListener> membershipEventListeners = new ArrayList<MembershipEventListener>();
-    private final List<InstanceKeyListener> instanceKeyListeners = new ArrayList<InstanceKeyListener>();
-    private final List<BalancerMapListener> balancerMapListeners = new ArrayList<BalancerMapListener>();
+    private List<MemberId> localInterfaces = new ArrayList<>();
+    private final List<MemberId> clusterMembers = new ArrayList<>();
+    private final List<MembershipEventListener> membershipEventListeners = new ArrayList<>();
+    private final List<InstanceKeyListener> instanceKeyListeners = new ArrayList<>();
+    private final List<BalancerMapListener> balancerMapListeners = new ArrayList<>();
     private ClusterMessaging clusterMessaging;
     private MemberId localNodeId;
     private final String clusterName;
@@ -246,8 +246,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         multicastConfig.setEnabled(false);
 
         TcpIpConfig tcpIpConfig = joinConfig.getTcpIpConfig();
-        List<InetSocketAddress> multicastAddresses = new ArrayList<InetSocketAddress>();
-        List<InetSocketAddress> unicastAddresses = new ArrayList<InetSocketAddress>();
+        List<InetSocketAddress> multicastAddresses = new ArrayList<>();
+        List<InetSocketAddress> unicastAddresses = new ArrayList<>();
         MemberId awsMember = null;
 
         for (MemberId member : clusterMembers) {
@@ -373,7 +373,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             return null;
         }
 
-        ArrayList<String> addresses = new ArrayList<String>();
+        ArrayList<String> addresses = new ArrayList<>();
         int starIndex = entry.indexOf('*');
         int dashIndex = entry.indexOf('-');
         if (starIndex == -1 && dashIndex == -1) {
@@ -512,7 +512,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         Set<URI> newGlobalBalancedUris = null;
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
-                            newGlobalBalancedUris = new HashSet<URI>(globalBalancedUris);
+                            newGlobalBalancedUris = new HashSet<>(globalBalancedUris);
                             for (URI memberBalancedUri : memberBalancedUris) {
                                 GL.debug(CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);

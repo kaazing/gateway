@@ -62,7 +62,7 @@ public class FileLoginModule implements LoginModule {
     private static final String PWD = "javax.security.auth.login.password";
 
     private static enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
-    private static final ConcurrentMap<String, JaasConfig> SHARED_STATE = new ConcurrentHashMap<String, JaasConfig>();
+    private static final ConcurrentMap<String, JaasConfig> SHARED_STATE = new ConcurrentHashMap<>();
 
     private State state;
     private Subject subject;
@@ -274,10 +274,10 @@ public class FileLoginModule implements LoginModule {
             throw new FailedLoginException("Wrong password");
         }
 
-        userRoles = new HashSet<RoleConfig>();
+        userRoles = new HashSet<>();
 
         // assign user the transitive closure of authorized roles
-        Queue<String> roleNames = new LinkedList<String>();
+        Queue<String> roleNames = new LinkedList<>();
         roleNames.addAll(user.getRoleNames());
         while (!roleNames.isEmpty()) {
             String roleName = roleNames.poll();

@@ -85,9 +85,9 @@ import org.slf4j.LoggerFactory;
 
 public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
-    private static final TypedAttributeKey<Callable<DefaultHttpSession>> HTTP_SESSION_FACTORY_KEY = new TypedAttributeKey<Callable<DefaultHttpSession>>(HttpConnector.class, "httpSessionFactory");
-    private static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<DefaultHttpSession>(HttpConnector.class, "httpSession");
-    private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<ConnectFuture>(HttpConnector.class, "httpConnectFuture");
+    private static final TypedAttributeKey<Callable<DefaultHttpSession>> HTTP_SESSION_FACTORY_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSessionFactory");
+    private static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSession");
+    private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpConnectFuture");
 
     
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
@@ -107,7 +107,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         super(new DefaultIoSessionConfigEx());
         
         // note: content length adjustment filter is added dynamically for httpxe/1.1, and not needed by http/1.1
-        Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol = new HashMap<String, Set<HttpConnectFilter>>();
+        Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol = new HashMap<>();
         connectFiltersByProtocol.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT, PROTOCOL_HTTPXE)));
         connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);

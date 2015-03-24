@@ -35,64 +35,64 @@ public abstract class AbstractServiceConfigurationBuilder<R> extends
 
     public AbstractServiceConfigurationBuilder<R> balance(URI balance) {
         configuration.getSuppressibleConfiguration().addBalance(
-                new Suppressible<URI>(balance, getCurrentSuppressions()));
+                new Suppressible<>(balance, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> accept(URI accept) {
-        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<URI>(accept, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> acceptOption(String optionName, String optionValue) {
         configuration.getSuppressibleConfiguration().addAcceptOption(optionName,
-                new Suppressible<String>(optionValue, getCurrentSuppressions()));
+                new Suppressible<>(optionValue, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> connect(URI connect) {
         configuration.getSuppressibleConfiguration().addConnect(
-                new Suppressible<URI>(connect, getCurrentSuppressions()));
+                new Suppressible<>(connect, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> connectOption(String optionName, String optionValue) {
         configuration.getSuppressibleConfiguration().addConnectOption(optionName,
-                new Suppressible<String>(optionValue, getCurrentSuppressions()));
+                new Suppressible<>(optionValue, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> realmName(String realmName) {
         configuration.getSuppressibleConfiguration().setRealmName(
-                new Suppressible<String>(realmName, getCurrentSuppressions()));
+                new Suppressible<>(realmName, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> type(String type) {
-        configuration.getSuppressibleConfiguration().setType(new Suppressible<String>(type, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().setType(new Suppressible<>(type, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> property(String propertyName, String propertyValue) {
         configuration.getSuppressibleConfiguration().addProperty(propertyName,
-                new Suppressible<String>(propertyValue, getCurrentSuppressions()));
+                new Suppressible<>(propertyValue, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> mimeMapping(String extension, String type) {
         configuration.getSuppressibleConfiguration().addMimeMapping(extension,
-                new Suppressible<String>(type, getCurrentSuppressions()));
+                new Suppressible<>(type, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> description(String description) {
         configuration.getSuppressibleConfiguration().setDescription(
-                new Suppressible<String>(description, getCurrentSuppressions()));
+                new Suppressible<>(description, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractServiceConfigurationBuilder<R> name(String name) {
-        configuration.getSuppressibleConfiguration().setName(new Suppressible<String>(name, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().setName(new Suppressible<>(name, getCurrentSuppressions()));
         return this;
     }
 

@@ -126,7 +126,7 @@ public class NioSocketAcceptorTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "tcp://127.0.0.1:8000";
         final ResourceAddress bindAddress =
@@ -218,7 +218,7 @@ public class NioSocketAcceptorTest {
 
         int bindPort = findFreePort();
         URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
         options.put(NEXT_PROTOCOL, "test-protocol");
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -339,7 +339,7 @@ public class NioSocketAcceptorTest {
     private void createBindConnectDispose(final boolean writeData) throws Exception {
         final IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
         final CountDownLatch sessionOpened = new CountDownLatch(1);
-        final  AtomicReference<IoSessionEx> sessionRef = new AtomicReference<IoSessionEx>();
+        final  AtomicReference<IoSessionEx> sessionRef = new AtomicReference<>();
 
         Properties configuration = new Properties();
         final NioSocketAcceptor acceptor = new NioSocketAcceptor(configuration);
@@ -349,7 +349,7 @@ public class NioSocketAcceptorTest {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         acceptor.setResourceAddressFactory(addressFactory);
         URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
-        Map<String,Object> opts = new HashMap<String,Object>();
+        Map<String,Object> opts = new HashMap<>();
         opts.put(NEXT_PROTOCOL, "test-protocol");
 
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, opts);
@@ -423,8 +423,8 @@ public class NioSocketAcceptorTest {
         context.setThreadingPolicy(new Synchroniser());
         final IoHandler handler = context.mock(IoHandler.class);
         final RuntimeException[] exception = new RuntimeException[1];
-        final Set<Thread> workerThreadsUsed = new ConcurrentHashSet<Thread>();
-        final Set<NioWorker> workersUsed = new ConcurrentHashSet<NioWorker>();
+        final Set<Thread> workerThreadsUsed = new ConcurrentHashSet<>();
+        final Set<NioWorker> workersUsed = new ConcurrentHashSet<>();
         final int NB_ACCEPTS = 3; // = number of boss threads
         final int NB_WORKERS = 7; // = size of worker pool
         int[] bindPorts = new int[NB_ACCEPTS];
@@ -555,7 +555,7 @@ public class NioSocketAcceptorTest {
         acceptor.setResourceAddressFactory(addressFactory);
         acceptor.setSchedulerProvider(schedulerProvider);
 
-        acceptor.bind(bindAddress, new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<IoFuture>());
+        acceptor.bind(bindAddress, new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<>());
         UnbindFuture future = acceptor.unbind(bindAddress);
         future.await();
         // Simulating sessionCreated() happens after unbind()

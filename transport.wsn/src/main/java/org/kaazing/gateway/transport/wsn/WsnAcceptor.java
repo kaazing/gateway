@@ -139,7 +139,7 @@ import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
-    private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY = new TypedAttributeKey<Subject>(WsnAcceptor.class, "subject_transfer");
+    private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY = new TypedAttributeKey<>(WsnAcceptor.class, "subject_transfer");
 
     static final String CHECK_ALIVE_FILTER = WsnProtocol.NAME + "#checkalive";
 	        static final String CODEC_FILTER = WsnProtocol.NAME + "#codec";
@@ -153,10 +153,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsnAcceptor.class, "httpRequestURI");
 
     private static final TypedAttributeKey<ResourceAddress> WEBSOCKET_LOCAL_ADDRESS
-            = new TypedAttributeKey<ResourceAddress>(WsnAcceptor.class, "websocketLocalAddress");
+            = new TypedAttributeKey<>(WsnAcceptor.class, "websocketLocalAddress");
 
     private static final TypedAttributeKey<String[]> SUPPORTED_PROTOCOLS
-            = new TypedAttributeKey<String[]>(WsnAcceptor.class, "supportedProtocols");
+            = new TypedAttributeKey<>(WsnAcceptor.class, "supportedProtocols");
 
     private static final String HEADER_ORIGIN = "Origin";
     private static final String HEADER_CONNECTION = "Connection";

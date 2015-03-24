@@ -70,7 +70,7 @@ public abstract class AbstractManagementBean implements ManagementBean {
         this.summaryInterval = summaryInterval;
         this.summaryDataFieldList = summaryDataFieldList;
 
-        this.summaryDataListeners = new ArrayList<SummaryDataListener>();
+        this.summaryDataListeners = new ArrayList<>();
         // DO NOT send initial summary data here--wait for the first onChange call.
     }
 

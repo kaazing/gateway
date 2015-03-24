@@ -75,7 +75,7 @@ public class NamedPipeTransportTest {
     NamedPipeAcceptor pipeAcceptor;
     NamedPipeConnector pipeConnector;
     
-    Set<Exception> failures = new ConcurrentHashSet<Exception>();
+    Set<Exception> failures = new ConcurrentHashSet<>();
 
     @Before
     public void before() {
@@ -89,7 +89,7 @@ public class NamedPipeTransportTest {
 
         initBridgeServices();
         
-        failures = new ConcurrentHashSet<Exception>();
+        failures = new ConcurrentHashSet<>();
     }
 
     @After
@@ -141,8 +141,8 @@ public class NamedPipeTransportTest {
             }
         };
 
-        Map<String, Object> bindOptions = new HashMap<String, Object>();
-        final Map<String, Object> connectOptions = new HashMap<String, Object>();
+        Map<String, Object> bindOptions = new HashMap<>();
+        final Map<String, Object> connectOptions = new HashMap<>();
 
         pipeConnectorToAcceptor("pipe://transport",
                                 acceptHandler,
@@ -229,7 +229,7 @@ public class NamedPipeTransportTest {
     @Test
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
-        Map<String, Object> acceptOptions = new HashMap<String, Object>();
+        Map<String, Object> acceptOptions = new HashMap<>();
 
         final String connectURIString = "pipe://transport";
         final ResourceAddress bindAddress =

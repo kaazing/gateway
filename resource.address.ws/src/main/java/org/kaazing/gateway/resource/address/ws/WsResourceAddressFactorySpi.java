@@ -135,8 +135,8 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
 
         Map<String, ResourceAddressFactorySpi<?>> alternateAddressFactories =
                 addressFactory.getAlternateAddressFactories(getSchemeName());
-        alternateAddressFactories = new HashMap<String, ResourceAddressFactorySpi<?>>(alternateAddressFactories);
-        List<ResourceFactory> alternateResourceFactories = new ArrayList<ResourceFactory>();
+        alternateAddressFactories = new HashMap<>(alternateAddressFactories);
+        List<ResourceFactory> alternateResourceFactories = new ArrayList<>();
         // Create an ordered list of resource factories for the available alternate address factories
         for(String scheme : WS_ALTERNATE_SCHEMES) {
             if (alternateAddressFactories.get(scheme) != null) {

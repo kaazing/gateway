@@ -30,19 +30,19 @@ public abstract class AbstractLoginModuleConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<LoginModuleConfiguration, R> {
 
     public AbstractLoginModuleConfigurationBuilder<R> type(String type) {
-        configuration.getSuppressibleConfiguration().setType(new Suppressible<String>(type, getCurrentSuppressions()));
+        configuration.getSuppressibleConfiguration().setType(new Suppressible<>(type, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractLoginModuleConfigurationBuilder<R> option(String optionType, String optionContent) {
         configuration.getSuppressibleConfiguration().addOption(optionType,
-                new Suppressible<String>(optionContent, getCurrentSuppressions()));
+                new Suppressible<>(optionContent, getCurrentSuppressions()));
         return this;
     }
 
     public AbstractLoginModuleConfigurationBuilder<R> success(String success) {
         configuration.getSuppressibleConfiguration().setSuccess(
-                new Suppressible<String>(success, getCurrentSuppressions()));
+                new Suppressible<>(success, getCurrentSuppressions()));
         return this;
     }
 

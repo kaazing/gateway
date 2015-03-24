@@ -44,7 +44,7 @@ public final class HttpInjectedDynamicResourceFactorySpi extends HttpDynamicReso
     private final Map<String, HttpDynamicResource> resourcesByName;
     
     public HttpInjectedDynamicResourceFactorySpi() {
-        Map<String, HttpDynamicResource> resourcesByName = new HashMap<String, HttpDynamicResource>();
+        Map<String, HttpDynamicResource> resourcesByName = new HashMap<>();
         ClassLoader classLoader = currentThread().getContextClassLoader();
         try {
             String resourcesPath = "META-INF/services/org/kaazing/gateway/server/resources";

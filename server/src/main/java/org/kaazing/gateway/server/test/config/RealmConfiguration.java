@@ -37,10 +37,10 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private Suppressible<String> _httpChallengeScheme;
     private Suppressible<String> _authorizationMode;
     private Suppressible<String> _sessionTimeout;
-    private final List<Suppressible<String>> httpHeaders = new ArrayList<Suppressible<String>>();
-    private final List<Suppressible<String>> httpQueryParameters = new ArrayList<Suppressible<String>>();
-    private final List<Suppressible<String>> httpCookies = new ArrayList<Suppressible<String>>();
-    private final List<LoginModuleConfiguration> loginModules = new LinkedList<LoginModuleConfiguration>();
+    private final List<Suppressible<String>> httpHeaders = new ArrayList<>();
+    private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
+    private final List<Suppressible<String>> httpCookies = new ArrayList<>();
+    private final List<LoginModuleConfiguration> loginModules = new LinkedList<>();
     private final List<String> unsuppressibleHttpHeaders = Suppressibles.unsuppressibleList(httpHeaders);
     private final List<String> unsuppressibleHttpQueryParameters = Suppressibles
             .unsuppressibleList(httpQueryParameters);
@@ -81,7 +81,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     }
 
     public void setName(String name) {
-        this._name = new Suppressible<String>(name);
+        this._name = new Suppressible<>(name);
     }
 
     // description
@@ -94,7 +94,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
 
     public void setDescription(String description) {
         if (description == null || asciiEncoder.canEncode(description)) {
-            this._description = new Suppressible<String>(description);
+            this._description = new Suppressible<>(description);
         } else {
             throw new RuntimeException(
                     "Invalid non US-ASCII character in Realm description. Realm description can only contain US-ASCII values");
@@ -110,7 +110,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     }
 
     public void setHttpChallengeScheme(String httpChallengeScheme) {
-        this._httpChallengeScheme = new Suppressible<String>(httpChallengeScheme);
+        this._httpChallengeScheme = new Suppressible<>(httpChallengeScheme);
     }
 
     // authorization mode
@@ -122,7 +122,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     }
 
     public void setAuthorizationMode(String authorizationMode) {
-        this._authorizationMode = new Suppressible<String>(authorizationMode);
+        this._authorizationMode = new Suppressible<>(authorizationMode);
     }
 
     // session timeout
@@ -134,7 +134,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     }
 
     public void setSessionTimeout(String sessionTimeout) {
-        this._sessionTimeout = new Suppressible<String>(sessionTimeout);
+        this._sessionTimeout = new Suppressible<>(sessionTimeout);
     }
 
     // http headers

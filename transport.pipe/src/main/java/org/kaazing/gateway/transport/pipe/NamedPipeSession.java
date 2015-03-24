@@ -73,7 +73,7 @@ public class NamedPipeSession extends AbstractIoSessionEx {
         this.handler = handler;
         
         this.config = new NamedPipeSessionConfig();
-        this.remoteSession = new AtomicReference<NamedPipeSession>();
+        this.remoteSession = new AtomicReference<>();
         this.closingOnFlush = new AtomicBoolean();
         this.flushingInternal = new AtomicBoolean();
     }

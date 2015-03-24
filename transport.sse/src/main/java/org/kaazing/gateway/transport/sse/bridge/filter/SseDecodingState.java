@@ -49,7 +49,7 @@ public class SseDecodingState extends DecodingStateMachine {
         UNKNOWN, EVENT, DATA, ID, RETRY, COMMENT;
     }
 
-    private static Map<String, Type> types = new HashMap<String, Type>();
+    private static Map<String, Type> types = new HashMap<>();
     static {
         types.put("event", Type.EVENT);
         types.put("data", Type.DATA);

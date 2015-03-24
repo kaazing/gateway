@@ -145,7 +145,7 @@ public class WsAcceptor implements BridgeAcceptor {
 
 
     private void initWsBridgeAcceptorMap() {
-        wsBridgeAcceptorMap = new HashMap<String, BridgeAcceptor>();
+        wsBridgeAcceptorMap = new HashMap<>();
         Set<EnabledWsTransport> enabledTransports  = resolveEnabledTransports();
 
         if ( enabledTransports.contains(EnabledWsTransport.wsr)) {
@@ -208,7 +208,7 @@ public class WsAcceptor implements BridgeAcceptor {
      * Set of WS transports enabled by default.
      */
     static Set<EnabledWsTransport> DEFAULT_ENABLED_WS_TRANSPORTS =
-            new HashSet<EnabledWsTransport>(Arrays.asList(EnabledWsTransport.values()));
+            new HashSet<>(Arrays.asList(EnabledWsTransport.values()));
 
     /**
      * Which WS transports are enabled?
@@ -219,7 +219,7 @@ public class WsAcceptor implements BridgeAcceptor {
      */
     Set<EnabledWsTransport> resolveEnabledTransports() {
         String enabledTransportsStr = configuration.getProperty(WS_ENABLED_TRANSPORTS.getPropertyName());
-        Set<EnabledWsTransport> enabledTransports = new HashSet<EnabledWsTransport>();
+        Set<EnabledWsTransport> enabledTransports = new HashSet<>();
 
         if ( enabledTransportsStr == null ) {
             return DEFAULT_ENABLED_WS_TRANSPORTS;

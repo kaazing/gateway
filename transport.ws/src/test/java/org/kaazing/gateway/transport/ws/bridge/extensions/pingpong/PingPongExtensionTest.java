@@ -72,7 +72,7 @@ public class PingPongExtensionTest {
     @Before
     public void setUp() {
         URI addressURI = URI.create("ws://localhost:2020/");
-        Map<String, Object> options = new HashMap<String, Object>();
+        Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2500L);
         wsAddress = ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
     }
@@ -173,7 +173,7 @@ public class PingPongExtensionTest {
         final Entry filter1 = context.mock(Entry.class, "filter1");
         final Entry codec = context.mock(Entry.class, "codec");
         final Entry filter2 = context.mock(Entry.class, "filter2");
-        final List<Entry> filters = new ArrayList<Entry>(asList(filter1, codec, filter2));
+        final List<Entry> filters = new ArrayList<>(asList(filter1, codec, filter2));
         final IoFilter filter1Filter = context.mock(IoFilter.class);
         final ProtocolCodecFactory protocolCodecFactory = context.mock(ProtocolCodecFactory.class);  
         final IoFilter codecFilter = new ProtocolCodecFilter(protocolCodecFactory);

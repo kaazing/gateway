@@ -314,7 +314,7 @@ public class TestServiceContext implements ServiceContext {
         private final IoAcceptorEx ioAcceptor;
 
         private TestAcceptor() {
-            bindings = new HashMap<SocketAddress, IoHandler>();
+            bindings = new HashMap<>();
 
             WorkerPool<NioWorker> workerPool = new NioWorkerPool(Executors.newCachedThreadPool(), 1);
             NioServerSocketChannelFactory serverChannelFactory = new NioServerSocketChannelFactory(
@@ -428,8 +428,8 @@ public class TestServiceContext implements ServiceContext {
         private Map<String, List<ServiceProperties>> nestedProperties;
 
         private TestServiceProperties() {
-            simpleProperties = new HashMap<String, String>();
-            nestedProperties = new HashMap<String, List<ServiceProperties>>();
+            simpleProperties = new HashMap<>();
+            nestedProperties = new HashMap<>();
         }
 
         @Override
@@ -446,7 +446,7 @@ public class TestServiceContext implements ServiceContext {
         public List<ServiceProperties> getNested(String name, boolean create) {
             List<ServiceProperties> nestedPropertyList = nestedProperties.get(name);
             if (create && (nestedPropertyList == null)) {
-                nestedPropertyList = new ArrayList<ServiceProperties>();
+                nestedPropertyList = new ArrayList<>();
                 nestedProperties.put(name, nestedPropertyList);
             }
             return nestedPropertyList;

@@ -36,7 +36,7 @@ final class WsrTransport extends Transport {
 
     private static final Map<String, Protocol> WSR_PROTOCOLS;
     static {
-        Map<String, Protocol> map = new HashMap<String, Protocol>();
+        Map<String, Protocol> map = new HashMap<>();
         map.put("wsr", WsrProtocol.WSR);
         map.put("wsr+ssl", WsrProtocol.WSR_SSL);
         map.put("rtmp", RtmpProtocol.RTMP);
@@ -48,7 +48,7 @@ final class WsrTransport extends Transport {
 
     static {
         RtmpProtocolDispatcher dispatcher = new RtmpProtocolDispatcher();
-        Map<String, ProtocolDispatcher> map = new HashMap<String, ProtocolDispatcher>();
+        Map<String, ProtocolDispatcher> map = new HashMap<>();
         map.put(dispatcher.getProtocolName(), dispatcher);
         RTMP_PROTOCOL_DISPATCHERS = Collections.unmodifiableMap(map);
     }

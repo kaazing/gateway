@@ -68,7 +68,7 @@ public interface ResourceOptions {
         }
 
         class ResourceOptionsImpl implements ResourceOptions {
-            private final Map<ResourceOption<?>, Object> optionsByKey = new HashMap<ResourceOption<?>, Object>();
+            private final Map<ResourceOption<?>, Object> optionsByKey = new HashMap<>();
         
             @Override
             @SuppressWarnings("unchecked")

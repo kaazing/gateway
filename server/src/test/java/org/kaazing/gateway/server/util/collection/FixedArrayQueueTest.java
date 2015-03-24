@@ -29,7 +29,7 @@ public class FixedArrayQueueTest {
 
     @Test
     public void addAndPollShouldReplayInOrder() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(5);
+        Queue<Integer> queue = new FixedArrayQueue<>(5);
         for (int i = 0; i < 5; i++) {
             queue.add(new Integer(i));
         }
@@ -40,7 +40,7 @@ public class FixedArrayQueueTest {
 
     @Test(expected = IllegalStateException.class)
     public void addShouldThrowExceptionWhenFull() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(2);
+        Queue<Integer> queue = new FixedArrayQueue<>(2);
         assertTrue(queue.offer(1));
         assertTrue(queue.offer(1));
         queue.add(2);
@@ -48,7 +48,7 @@ public class FixedArrayQueueTest {
 
     @Test
     public void offerAndPeekShouldReplayInOrder() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(5);
+        Queue<Integer> queue = new FixedArrayQueue<>(5);
         for (int i = 0; i < 5; i++) {
             assertTrue(queue.offer(new Integer(i)));
         }
@@ -60,20 +60,20 @@ public class FixedArrayQueueTest {
 
     @Test
     public void offerShouldReturnFalseWhenFull() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(1);
+        Queue<Integer> queue = new FixedArrayQueue<>(1);
         assertTrue(queue.offer(1));
         assertFalse(queue.offer(2));
     }
 
     @Test
     public void peekOnEmptyQueueShouldReturnNull() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(5);
+        Queue<Integer> queue = new FixedArrayQueue<>(5);
         assertNull(queue.peek());
     }
 
     @Test
     public void pollOnEmptyQueueShouldReturnNull() {
-        Queue<Integer> queue = new FixedArrayQueue<Integer>(5);
+        Queue<Integer> queue = new FixedArrayQueue<>(5);
         assertNull(queue.peek());
     }
 
