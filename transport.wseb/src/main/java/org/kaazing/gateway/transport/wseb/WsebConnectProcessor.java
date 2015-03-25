@@ -44,6 +44,7 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
@@ -289,7 +290,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(writeAddress);
             ConnectFuture connectFuture =
                     connector.connect(writeAddress, writeHandler,
-                            selectTransportSessionInitializer(writeAddress)
+                            selectTransportSessionInitializer(session, writeAddress)
                     );
 
             final IoFutureListener<ConnectFuture> connectFutureIoFutureListener =
@@ -298,26 +299,25 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         }
     }
 
-    public IoSessionInitializer<ConnectFuture> selectTransportSessionInitializer(ResourceAddress address) {
-            Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(address.getResource());
-            if ( protocol instanceof HttpProtocol ) {
-                return httpSessionInitializer;
-            }
-            throw new RuntimeException("No session initializer available for address "+address);
-        }
+    public IoSessionInitializer<ConnectFuture> selectTransportSessionInitializer(final WsebSession wsebSession, ResourceAddress address) {
+        Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(address.getResource());
+        if ( protocol instanceof HttpProtocol ) {
+            return new IoSessionInitializer<ConnectFuture>() {
+                @Override
+                public void initializeSession(IoSession session, ConnectFuture future) {
+                    HttpConnectSession writeSession = (HttpConnectSession) session;
+                    writeSession.setMethod(HttpMethod.POST);
+                    writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
+                    writeSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
 
-    final IoSessionInitializer<ConnectFuture> httpSessionInitializer = new IoSessionInitializer<ConnectFuture>() {
-        @Override
-        public void initializeSession(IoSession session, ConnectFuture future) {
-            HttpConnectSession writeSession = (HttpConnectSession) session;
-            writeSession.setMethod(HttpMethod.POST);
-            writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
-
-            // Note: deferring this to writeHandler.sessionOpened creates a race condition
-            IoFilterChain filterChain = writeSession.getFilterChain();
-            filterChain.addLast(CODEC_FILTER, wsebFraming);
+                    // Note: deferring this to writeHandler.sessionOpened creates a race condition
+                    IoFilterChain filterChain = writeSession.getFilterChain();
+                    filterChain.addLast(CODEC_FILTER, wsebFraming);
+                }
+            };
         }
-    };
+        throw new RuntimeException("No session initializer available for address "+address);
+    }
 
     private IoFutureListener<ConnectFuture> selectConnectFutureListener(final WsebSession session, ResourceAddress address) {
         Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(address.getResource());

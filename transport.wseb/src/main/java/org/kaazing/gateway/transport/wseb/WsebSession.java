@@ -27,20 +27,26 @@ import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_T
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
+import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -93,12 +99,18 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     private static final WriteRequest PONG_REQUEST = new DefaultWriteRequestEx(new Object());
     private static final WriteRequest RECONNECT_REQUEST = new DefaultWriteRequestEx(new Object());
 
+    private long readerSequenceNo;
+    private long writerSequenceNo;
+
     private final AtomicBoolean attachingWrite;
     private final AtomicReference<IoSessionEx> readSession;
-    private final AtomicReference<IoSessionEx> pendingNewWriter;
+    private final AtomicReference<HttpSession> pendingNewWriter;
     private final TimeoutCommand timeout;
     private final int clientIdleTimeout;
     private final long inactivityTimeout;
+    private final boolean validateSequenceNo;
+
+    private boolean firstWriter = true;
 
     private EscapeTypes encodeEscapeType = EscapeTypes.NO_ESCAPE;
     private ResourceAddress readAddress;
@@ -124,7 +136,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        DefaultLoginResult loginResult,
                        ActiveWsExtensions wsExtensions,
                        int clientIdleTimeout,
-                       long inactivityTimeout) {
+                       long inactivityTimeout,
+                       boolean validateSequenceNo,
+                       long sequenceNo) {
         super(ioLayer,
               ioThread,
               ioExecutor,
@@ -142,6 +156,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.timeout = new TimeoutCommand(this);
         this.clientIdleTimeout = clientIdleTimeout;
         this.inactivityTimeout = inactivityTimeout;
+        this.validateSequenceNo = validateSequenceNo;
+        this.readerSequenceNo = sequenceNo+1;
+        this.writerSequenceNo = sequenceNo+1;
     }
 
     @Override
@@ -178,7 +195,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
      * races between that method and this one, see KG-2756).
      * @param newWriter
      */
-    public void attachWriter(final IoSessionEx newWriter) {
+    public void attachWriter(final HttpSession newWriter) {
         // The attachWriter processing must be done in this WsebSession's IO thread so we can do
         // getProcessor().flush(). We may need to do "thread hopping" for this since attachWriter gets called by
         // WsebDownstreamHandler.reconnectSession during sessionOpened on the downstream, which may be running
@@ -210,7 +227,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    private void attachWriter0(final IoSessionEx newWriter) {
+    private void attachWriter0(final HttpSession newWriter) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("attachWriter on WsebSession wseb#%d, newWriter=%s", this.getId(), newWriter));
         }
@@ -230,6 +247,19 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 // Do not return here, need to flush (below) to make sure the old downstream gets closed
                 // even if there is no more downstream data being sent (KG-4384)
             } else {
+                if (newWriter instanceof HttpAcceptSession) {
+                    HttpAcceptSession newAcceptWriter = (HttpAcceptSession) newWriter;
+                    // check if the writer is out of order
+                    if (isLongPollingOutOfOrder(newAcceptWriter) || isWriterOutOfOrder(newAcceptWriter)) {
+                        closeSession(newAcceptWriter);
+                        return;
+                    }
+                    writeNoop((HttpAcceptSession) newWriter);
+                }
+
+                writerSequenceNo++;
+                firstWriter = false;
+
                 if (Long.valueOf(0L).equals(newWriter.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY))) {
                     // long-polling case, need to buffer so that Content-Length is written
                     newWriter.suspendWrite();
@@ -306,7 +336,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
     public boolean attachPendingWriter() {
-        IoSessionEx pendingWriter = pendingNewWriter.getAndSet(null);
+        HttpSession pendingWriter = pendingNewWriter.getAndSet(null);
         if (pendingWriter != null) {
             attachWriter(pendingWriter);
             return true;
@@ -328,7 +358,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
 
-    public void attachReader(final IoSessionEx newReader) {
+    public void attachReader(final HttpSession newReader) {
         // The attachReader processing should be done in this WsebSession's IO thread so we can do
         // fireMessageReceived(). We may need to do "thread hopping" for this since attachReader gets called by
         // WsebUpstreamHandler during sessionOpened on the upstream, which may be running
@@ -365,6 +395,15 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         // TODO: needs improved handling of old value for overlapping downstream
         //       from client perspective to detect buffering proxies
         // TODO: needs re-alignment similar to attachWriter
+        if (newReader instanceof HttpAcceptSession) {
+            HttpAcceptSession newAcceptReader = (HttpAcceptSession) newReader;
+            if (isReaderOutOfOrder(newAcceptReader)) {
+                closeSession(newAcceptReader);
+                return;
+            }
+        }
+
+        readerSequenceNo++;
         readSession.set(newReader);
         if (this.isReadSuspended()) {
             newReader.suspendRead();
@@ -519,6 +558,151 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     public void setEncodeEscapeType(WsebEncodingCodecFilter.EscapeTypes escape) {
         this.encodeEscapeType  = escape;
 
+    }
+
+    private boolean isWriterOutOfOrder(HttpAcceptSession session) {
+        if (validateSequenceNo) {
+            return isOutOfOrder(session, writerSequenceNo);
+        }
+        return false;
+    }
+
+    private boolean isReaderOutOfOrder(HttpAcceptSession session) {
+        if (validateSequenceNo) {
+            return isOutOfOrder(session, readerSequenceNo);
+        }
+        return false;
+    }
+
+    private boolean isOutOfOrder(HttpAcceptSession session, long expectedSequenceNo) {
+        String sequenceNo = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
+
+        if (sequenceNo == null || expectedSequenceNo != Long.parseLong(sequenceNo)) {
+            if (LOGGER.isDebugEnabled()) {
+                String logStr = String.format("Closing HTTP session [HTTP#%d], WSEB session [WSEB#%d] as an " +
+                                "out of order request is received (expected seq no=%d, got=%s)", session.getId(),
+                        this.getId(), expectedSequenceNo, sequenceNo);
+                LOGGER.debug(logStr);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    private void writeNoop(final HttpAcceptSession session) {
+        String userAgent = session.getReadHeader("User-Agent");
+        boolean isClientIE11 = false;
+        if (userAgent != null && userAgent.contains("Trident/7.0")) {
+            isClientIE11 = true;
+        }
+
+        // attach now or attach after commit if header flush is required
+        if (!longpoll(session)) {
+            // currently this is required for Silverlight as it seems to want some data to be
+            // received before it will start to deliver messages
+            // this is also needed to detect that streaming has initialized properly
+            // so we don't fall back to encrypted streaming or long polling
+            session.write(WsCommandMessage.NOOP);
+
+            String flushDelay = session.getParameter(".kf");
+            if (isClientIE11 && flushDelay == null) {
+                flushDelay = "200";   //KG-10590 add .kf=200 for IE11 client
+            }
+            if (flushDelay != null) {
+                final long flushDelayMillis = Integer.parseInt(flushDelay);
+                // commit session and write out headers and any messages already in the queue
+                CommitFuture commitFuture = session.commit();
+                commitFuture.addListener(new IoFutureListener<CommitFuture>() {
+                    @Override
+                    public void operationComplete(CommitFuture future) {
+                        // attach http session to wsf session
+                        // after delay to force Silverlight client to notice payload
+                        if (flushDelayMillis > 0L) {
+                            Runnable command = new AttachParentCommand(WsebSession.this, session, flushDelayMillis);
+                            scheduler.schedule(command, flushDelayMillis, TimeUnit.MILLISECONDS);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+
+    private static boolean longpoll(HttpSession session) {
+        return Long.valueOf(0L).equals(session.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY));
+    }
+
+    private class AttachParentCommand implements Runnable {
+
+        private final WsebSession wsebSession;
+        private final HttpSession parent;
+        private final long flushDelayMillis;
+
+        private AttachParentCommand(WsebSession wsebSession, HttpSession parent, long flushDelayMillis) {
+            this.wsebSession = wsebSession;
+            this.parent = parent;
+            this.flushDelayMillis = flushDelayMillis;
+        }
+
+        @Override
+        public void run() {
+            // attaching the parent flushes buffered writes to HTTP response
+            // but if connection has high latency, then intermediate TCP node
+            // can cause server-delayed write to be combined into the same TCP packet
+            // defeating the purpose of the delay (needed by Silverlight)
+            // therefore, write a comment frame a little later as a backup to make
+            // sure that the connection does not get stalled
+
+            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 2, TimeUnit.MILLISECONDS);
+            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 4, TimeUnit.MILLISECONDS);
+            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 8, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private class FlushCommand implements Runnable {
+
+        private final WsebSession session;
+
+        public FlushCommand(WsebSession session) {
+            this.session = session;
+        }
+
+        @Override
+        public void run() {
+            IoSession parent = session.getParent();
+            if (parent != null && !parent.isClosing()) {
+                parent.write(WsCommandMessage.NOOP);
+            }
+        }
+
+    }
+
+    // When sequence no are not used (for e.g old clients) and
+    // If the first write request is long-polling, then it is out of order
+    private boolean isLongPollingOutOfOrder(HttpAcceptSession session) {
+        if (firstWriter && !validateSequenceNo && longpoll(session)) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("Closing HTTP session [HTTP#%d], WSEB session [WSEB#%d] as " +
+                        "long-polling request is out of order", session.getId(), this.getId()));
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void closeSession(HttpAcceptSession session) {
+        session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+        session.close(false);
+        this.reset(new Exception("Out of order HTTP requests in WSEB").fillInStackTrace());
+    }
+
+    long nextReaderSequenceNo() {
+        return readerSequenceNo;
+    }
+
+    long nextWriterSequenceNo() {
+        return writerSequenceNo;
     }
 
 

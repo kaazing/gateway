@@ -1,34 +1,15 @@
 #
-# Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
 #
 
 # Long Polling test - Note that gateway sends Content-Length on the downstream responses
-# Long Polling is triggered by intermediary (like proxy) with "X-Kaazing-Proxy-Buffering: on" header
 
 connect tcp://localhost:8001
 connected
 
-write "GET /echo/;e/ct HTTP/1.1\r\n"
+write "GET /echo/;e/ct?.ki=p HTTP/1.1\r\n"
 write "Host: localhost:8001\r\n"
 write "Connection: keep-alive\r\n"
-write "X-Kaazing-Proxy-Buffering: on\r\n"
 write "X-Origin: http://localhost:8001\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36\r\n"
@@ -36,7 +17,7 @@ write "Accept: */*\r\n"
 write "Referer: http://localhost:8001/?.kr=xs\r\n"
 write "Accept-Encoding: gzip,deflate,sdch\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
-write "X-Sequence-No: 100\r\n"
+write "X-Sequence-No: 15\r\n"
 write "\r\n"
 
 
@@ -51,14 +32,16 @@ read "HTTP/1.1 201 Created\r\n"
 read /Content-Type: .*/ "\r\n"
 read "\r\n"
 
-#http://localhost:8001/echo/;e/ut/BXfkXWR20OzrDhTUyZvHrnopbk8jqEiR
-#http://localhost:8001/echo/;e/dt/BXfkXWR20OzrDhTUyZvHrnopbk8jqEiR
+#http://localhost:8001/echo/;e/ut/BXfkXWR20OzrDhTUyZvHrnopbk8jqEiR?.ki=p
+#http://localhost:8001/echo/;e/dt/BXfkXWR20OzrDhTUyZvHrnopbk8jqEiR?.ki=p
 
 read "http://localhost:8001/echo/;e/ut/"
 read [(:sessionId){32}]
+read "?.ki=p"
 read "\n"
 read "http://localhost:8001/echo/;e/dt/"
 read [(:sessionId){32}]
+read "?.ki=p"
 read "\n"
 
 read notify UPSTREAM
@@ -67,8 +50,7 @@ read notify UPSTREAM
 
 write "GET /echo/;e/dt/"
 write ${sessionId}
-write " HTTP/1.1\r\n"
-write "X-Kaazing-Proxy-Buffering: on\r\n"
+write "?.ki=p HTTP/1.1\r\n"
 write "Host: localhost:8001\r\n"
 write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36\r\n"
 write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
@@ -78,7 +60,7 @@ write "X-Origin: http://localhost:8001\r\n"
 write "Content-Type: application/octet-stream\r\n"
 write "Referer: http://localhost:8001/?.kr=xs\r\n"
 write "Connection: keep-alive\r\n"
-write "X-Sequence-No: 101\r\n"
+write "X-Sequence-No: 16\r\n"
 write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
@@ -103,8 +85,7 @@ read notify UPSTREAMNEXT
 
 write "GET /echo/;e/dt/"
 write ${sessionId}
-write " HTTP/1.1\r\n"
-write "X-Kaazing-Proxy-Buffering: on\r\n"
+write "?.ki=p HTTP/1.1\r\n"
 write "Host: localhost:8001\r\n"
 write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36\r\n"
 write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
@@ -114,7 +95,7 @@ write "X-Origin: http://localhost:8001\r\n"
 write "Content-Type: application/octet-stream\r\n"
 write "Referer: http://localhost:8001/?.kr=xs\r\n"
 write "Connection: keep-alive\r\n"
-write "X-Sequence-No: 102\r\n"
+write "X-Sequence-No: 17\r\n"
 write "\r\n"
 
 read "HTTP/1.1 200 OK\r\n"
@@ -148,8 +129,7 @@ write await UPSTREAM
 
 write "POST /echo/;e/ut/"
 write ${sessionId}
-write " HTTP/1.1\r\n"
-write "X-Kaazing-Proxy-Buffering: on\r\n"
+write "?.ki=p HTTP/1.1\r\n"
 write "Host: localhost:8001\r\n"
 write "Connection: keep-alive\r\n"
 write "Content-Length: 25\r\n"
@@ -161,7 +141,7 @@ write "Accept: */*\r\n"
 write "Referer: http://localhost:8001/?.kr=xs\r\n"
 write "Accept-Encoding: gzip, deflate\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
-write "X-Sequence-No: 101\r\n"
+write "X-Sequence-No: 16\r\n"
 write "\r\n"
 write [0xc2 0x81 0x11]
 write "Hello, WebSocket1"
@@ -189,8 +169,7 @@ write await UPSTREAMNEXT
 
 write "POST /echo/;e/ut/"
 write ${sessionId}
-write " HTTP/1.1\r\n"
-write "X-Kaazing-Proxy-Buffering: on\r\n"
+write "?.ki=p HTTP/1.1\r\n"
 write "Host: localhost:8001\r\n"
 write "Connection: keep-alive\r\n"
 write "Content-Length: 25\r\n"
@@ -202,7 +181,7 @@ write "Accept: */*\r\n"
 write "Referer: http://localhost:8001/?.kr=xs\r\n"
 write "Accept-Encoding: gzip, deflate\r\n"
 write "Accept-Language: en-US,en;q=0.8\r\n"
-write "X-Sequence-No: 102\r\n"
+write "X-Sequence-No: 17\r\n"
 write "\r\n"
 write [0xc2 0x81 0x11]
 write "Hello, WebSocket2"
