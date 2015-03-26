@@ -20,6 +20,7 @@
  */
 package org.kaazing.gateway.server.config.parse.translate;
 
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.translate.mar2015.ReorderAcceptAndConnectOptionsVisitor;
 
 public class September2014toMarch2015Translator extends GatewayConfigTranslatorPipeline {
@@ -28,5 +29,7 @@ public class September2014toMarch2015Translator extends GatewayConfigTranslatorP
 
         // Make sure accept-options and connect-options are properly ordered
         addTranslator(new ReorderAcceptAndConnectOptionsVisitor());
+
+        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.MARCH_2015));
     }
 }

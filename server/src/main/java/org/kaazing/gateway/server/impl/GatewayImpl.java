@@ -34,7 +34,7 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.mar2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.slf4j.Logger;

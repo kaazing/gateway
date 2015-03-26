@@ -50,7 +50,7 @@ import org.junit.rules.MethodRule;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.mar2015.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.test.MethodExecutionTrace;
 import org.kaazing.gateway.service.ServiceContext;
@@ -155,7 +155,7 @@ public class GatewayContextResolverTest {
         File configFile = null;
         try {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
-            org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+            org.kaazing.gateway.server.config.mar2015.GatewayConfigDocument doc = parser.parse(configFile);
             GatewayContext ctx = resolver.resolve(doc);
 
             Collection<? extends ServiceContext> services = ctx.getServices();

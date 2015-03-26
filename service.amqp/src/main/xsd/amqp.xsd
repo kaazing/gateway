@@ -23,10 +23,10 @@
 -->
 
 <schema elementFormDefault="qualified"
-        targetNamespace="http://xmlns.kaazing.org/2014/09/gateway"
+        targetNamespace="http://xmlns.kaazing.org/2015/03/gateway"
         xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:gateway="http://xmlns.kaazing.org/2014/09/gateway">
+        xmlns:gateway="http://xmlns.kaazing.org/2015/03/gateway">
     <annotation>
         <documentation>Configuration for the Kaazing gateway amqp service.
         </documentation>
