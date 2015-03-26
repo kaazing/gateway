@@ -9,6 +9,7 @@
 
     <artifactId>gateway.server.demo</artifactId>
     <name>Kaazing WebSocket Gateway - Server Demo</name>
+    <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway.server.demo.git</url>
     <scm>
