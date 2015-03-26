@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2007-2010, Kaazing Corporation. All rights reserved. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -35,52 +34,53 @@
 
     <modules>
         <module>bridge</module>
+        <module>bom</module>
         <module>distribution</module>
         <module>management</module>
-        <module>resource.address</module>
-        <module>resource.address.http</module>
-        <module>resource.address.httpx</module>
-        <module>resource.address.httpxdraft</module>
-        <module>resource.address.httpxe</module>
-        <module>resource.address.pipe</module>
-        <module>resource.address.rtmp</module>
-        <module>resource.address.sse</module>
-        <module>resource.address.ssl</module>
-        <module>resource.address.tcp</module>
-        <module>resource.address.udp</module>
-        <module>resource.address.ws</module>
-        <module>resource.address.wsdraft</module>
-        <module>resource.address.wse</module>
-        <module>resource.address.wsn</module>
-        <module>resource.address.wsr</module>
-        <module>resource.address.wsx</module>
-        <module>resource.address.wsxdraft</module>
+        <module>resource.address/spi</module>
+        <module>resource.address/http</module>
+        <module>resource.address/httpx</module>
+        <module>resource.address/httpxdraft</module>
+        <module>resource.address/httpxe</module>
+        <module>resource.address/pipe</module>
+        <module>resource.address/rtmp</module>
+        <module>resource.address/sse</module>
+        <module>resource.address/ssl</module>
+        <module>resource.address/tcp</module>
+        <module>resource.address/udp</module>
+        <module>resource.address/ws</module>
+        <module>resource.address/wsdraft</module>
+        <module>resource.address/wse</module>
+        <module>resource.address/wsn</module>
+        <module>resource.address/wsr</module>
+        <module>resource.address/wsx</module>
+        <module>resource.address/wsxdraft</module>
         <module>security</module>
         <module>server</module>
         <module>server.api</module>
         <module>server.demo</module>
         <module>server.spi</module>
-        <module>service</module>
-        <module>service.amqp</module>
-        <module>service.broadcast</module>
-        <module>service.echo</module>
-        <module>service.http.balancer</module>
-        <module>service.http.directory</module>
-        <module>service.http.proxy</module>
-        <module>service.proxy</module>
-        <module>service.update.check</module>
-        <module>service.update.check.management</module>
-        <module>transport</module>
-        <module>transport.bio</module>
-        <module>transport.http</module>
-        <module>transport.nio</module>
-        <module>transport.pipe</module>
-        <module>transport.sse</module>
-        <module>transport.ssl</module>
-        <module>transport.ws</module>
-        <module>transport.wseb</module>
-        <module>transport.wsn</module>
-        <module>transport.wsr</module>
+        <module>service/spi</module>
+        <module>service/amqp</module>
+        <module>service/broadcast</module>
+        <module>service/echo</module>
+        <module>service/http.balancer</module>
+        <module>service/http.directory</module>
+        <module>service/http.proxy</module>
+        <module>service/proxy</module>
+        <module>service/update.check</module>
+        <module>service/update.check.management</module>
+        <module>transport/spi</module>
+        <module>transport/bio</module>
+        <module>transport/http</module>
+        <module>transport/nio</module>
+        <module>transport/pipe</module>
+        <module>transport/sse</module>
+        <module>transport/ssl</module>
+        <module>transport/ws</module>
+        <module>transport/wseb</module>
+        <module>transport/wsn</module>
+        <module>transport/wsr</module>
         <module>truststore</module>
         <module>util</module>
         <module>mina.core</module>
@@ -170,8 +170,7 @@
                             <configuration>
                                 <artifactItems>
                                     <artifactItem>
-                                        <!-- includes common copyright headers 
-                                            for sources -->
+                                        <!-- includes common copyright headers for sources -->
                                         <groupId>org.kaazing</groupId>
                                         <artifactId>community.license</artifactId>
                                         <type>jar</type>
@@ -200,8 +199,8 @@
                             <exclude>**/.svn</exclude>
                             <exclude>**/.svn/**</exclude>
 
-                            <!-- AppManifest.xml is generated by Visual Studio. 
-                                Adding license causes build failure -->
+                            <!-- AppManifest.xml is generated by Visual Studio. Adding license causes 
+                                build failure -->
                             <exclude>**/AppManifest.xml</exclude>
                         </excludes>
                         <encoding>UTF-8</encoding>
