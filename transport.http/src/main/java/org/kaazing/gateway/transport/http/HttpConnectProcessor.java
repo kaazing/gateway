@@ -179,16 +179,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
         IoHandler upgradeHandler = httpSession.getUpgradeHandler();
         if (upgradeHandler == null) {
-            // TODO: implement support for HTTP/1.1 persistent connections
-            IoSession parent = httpSession.getParent();
-            if ("chunked".equals(httpSession.getWriteHeader("Transfer-Encoding"))) {
-                IoBufferAllocatorEx<? extends HttpBuffer> allocator = httpSession.getBufferAllocator();
-                HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
-                HttpContentMessage message = new HttpContentMessage(unsharedEmpty, true);
-                parent.write(message);
-            }
-
-            super.removeInternal(httpSession);
+            removeInternal0(httpSession);
         } else {
             final UpgradeFuture upgradeFuture = httpSession.getUpgradeFuture();
             IoSessionEx parent = httpSession.getParent();
@@ -218,4 +209,25 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             }
         }
     }
+
+    private void removeInternal0(DefaultHttpSession session) {
+        IoSession parent = session.getParent();
+        if (parent == null || parent.isClosing()) {
+            return;
+        }
+
+        boolean connectionClose = session.isConnectionClose();
+        if (connectionClose) {
+            // close TCP connection when write complete
+            parent.close(false);
+        } else if ("chunked".equals(session.getWriteHeader("Transfer-Encoding"))) {
+
+            // write the empty chunk
+            IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
+            HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
+            HttpContentMessage completeMessage = new HttpContentMessage(unsharedEmpty, true, session.isChunked(), session.isGzipped());
+            parent.write(completeMessage);
+        }
+    }
+
 }
