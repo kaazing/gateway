@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.kaazing</groupId>
+        <artifactId>gateway</artifactId>
+        <version>develop-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>gateway.service.echo</artifactId>
+    <name>Echo Service</name>
+    <description>Gateway service that echoes whatever client has sent to it</description>
+
+    <url>https://github.com/kaazing/gateway.service.echo.git</url>
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+        <url>git@github.com:kaazing/gateway.service.echo.git</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- test scoped dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>test.util</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
