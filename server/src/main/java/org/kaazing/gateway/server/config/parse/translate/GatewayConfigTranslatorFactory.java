@@ -62,10 +62,6 @@ public class GatewayConfigTranslatorFactory {
                 GatewayConfigTranslator september2014Validator = new September2014Validator();
                 pipeline.addTranslator(september2014Validator);
 
-                // Translate the September 2014 schema to the March 2015 schema
-                GatewayConfigTranslator september2014toMarch2015Translator = new September2014toMarch2015Translator();
-                pipeline.addTranslator(september2014toMarch2015Translator);
-
                 // NOTE: We deliberately do NOT add a 'break' here; we want
                 // the code to fall through to the next case, so that any
                 // per-namespace pipelines also get added.  This is how we
@@ -76,7 +72,14 @@ public class GatewayConfigTranslatorFactory {
                 // namespaces labels in chronological order, oldest to newest.
 
             case MARCH_2015:
-                // Current namespace, nothing to do here
+                // The March 2015 schema enforces an order of elements in the accept-options
+                // and connect-options.  Make sure that this translator is always run so that
+                // config files built with this schema or any earlier schema do not require
+                // a specific order, but instead the elements are correctly ordered at runtime
+                // before the parsing/validation.
+                GatewayConfigTranslator march2015Translator = new March2015Translator();
+                pipeline.addTranslator(march2015Translator);
+
         }
 
         return pipeline;

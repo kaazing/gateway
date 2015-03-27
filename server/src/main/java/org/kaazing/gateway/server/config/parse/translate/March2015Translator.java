@@ -23,8 +23,8 @@ package org.kaazing.gateway.server.config.parse.translate;
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.translate.mar2015.ReorderAcceptAndConnectOptionsVisitor;
 
-public class September2014toMarch2015Translator extends GatewayConfigTranslatorPipeline {
-    public September2014toMarch2015Translator() {
+public class March2015Translator extends GatewayConfigTranslatorPipeline {
+    public March2015Translator() {
         super();
 
         // Make sure accept-options and connect-options are properly ordered
