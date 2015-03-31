@@ -29,7 +29,27 @@
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
+                <artifactId>gateway.service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.amqp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>test.util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -117,6 +137,16 @@
             </dependency>
 
             <!-- transport dependencies -->
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>mina.netty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.transport.ssl</artifactId>
