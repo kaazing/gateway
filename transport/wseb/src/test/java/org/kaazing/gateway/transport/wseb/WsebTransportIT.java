@@ -78,6 +78,30 @@ public class WsebTransportIT {
         robot.finish();
     }
 
+    @Specification("echo.aligned.downstream.with.sequence.number")
+    @Test
+    public void testEchoAlignedDownstreamWithSequenceNumber() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("echo.aligned.downstream.with.sequence.number.ksn")
+    @Test
+    public void testEchoAlignedDownstreamWithSequenceNumberKsn() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("downstream.request.out.of.order")
+    @Test
+    public void testDownstreamRequestOutOfOrder() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("downstream.request.out.of.order.ksn")
+    @Test
+    public void testDownstreamRequestOutOfOrderKsn() throws Exception {
+        robot.finish();
+    }
+
     @Specification("echo.no.kaazing.handshake.protocol.negotiated")
     @Test
     public void testXKaazingHandshakeMustNOTBeNegotiatedForWseHandhakeRequests() throws Exception {

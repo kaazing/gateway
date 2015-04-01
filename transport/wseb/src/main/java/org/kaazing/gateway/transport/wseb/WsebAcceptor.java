@@ -510,6 +510,10 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
         private void createWsebSessionAndFinalizeResponse(final HttpAcceptSession session) throws Exception {
+            String sequenceStr = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
+            final boolean validateSequenceNo = (sequenceStr != null);
+            final long sequenceNo = validateSequenceNo ? Long.parseLong(sequenceStr) : -1;
+
             final boolean wasHixieHandshake = wasHixieHandshake(session);
 
 
@@ -653,7 +657,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
-                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), wsExtensions0, clientIdleTimeout, inactivityTimeout);
+                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), wsExtensions0, clientIdleTimeout, inactivityTimeout,
+                            validateSequenceNo, sequenceNo);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
                     newWsebSession.setBridgeServiceFactory(bridgeServiceFactory);

@@ -341,46 +341,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
-        // attach now or attach after commit if header flush is required
-        if (!longPoll) {
-            // currently this is required for Silverlight as it seems to want some data to be
-            // received before it will start to deliver messages
-            // this is also needed to detect that streaming has initialized properly
-            // so we don't fall back to encrypted streaming or long polling
-            session.write(WsCommandMessage.NOOP);
-
-            String flushDelay = session.getParameter(".kf");
-            if (isClientIE11 && flushDelay == null) {
-            	flushDelay = "200";   //KG-10590 add .kf=200 for IE11 client
-            }
-            if (flushDelay != null) {
-            	final long flushDelayMillis = Integer.parseInt(flushDelay);
-                // commit session and write out headers and any messages already in the queue
-                CommitFuture commitFuture = session.commit();
-                commitFuture.addListener(new IoFutureListener<CommitFuture>() {
-                    @Override
-                    public void operationComplete(CommitFuture future) {
-                        // attach http session to wsf session
-                        // after delay to force Silverlight client to notice payload
-                        if (flushDelayMillis > 0L) {
-                            Runnable command = new AttachParentCommand(wsebSession, session, flushDelayMillis);
-                            scheduler.schedule(command, flushDelayMillis, TimeUnit.MILLISECONDS);
-                        }
-                        else {
-                            wsebSession.attachWriter(session);
-                        }
-                    }
-                });
-            }
-            else {
-                // attach http session to wse session
-                wsebSession.attachWriter(session);
-            }
-        }
-        else {
-            // attach http session to wse session
-            wsebSession.attachWriter(session);
-        }
+        wsebSession.attachWriter(session);
     }
 
     private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
@@ -393,53 +354,6 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return resource;
         }
         return null;
-    }
-
-    private class AttachParentCommand implements Runnable {
-
-        private final WsebSession wsebSession;
-        private final BridgeSession parent;
-        private final long flushDelayMillis;
-
-        private AttachParentCommand(WsebSession wsebSession, BridgeSession parent, long flushDelayMillis) {
-            this.wsebSession = wsebSession;
-            this.parent = parent;
-            this.flushDelayMillis = flushDelayMillis;
-        }
-
-        @Override
-        public void run() {
-            wsebSession.attachWriter(parent);
-
-            // attaching the parent flushes buffered writes to HTTP response
-            // but if connection has high latency, then intermediate TCP node
-            // can cause server-delayed write to be combined into the same TCP packet
-            // defeating the purpose of the delay (needed by Silverlight)
-            // therefore, write a comment frame a little later as a backup to make
-            // sure that the connection does not get stalled
-
-            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 2, TimeUnit.MILLISECONDS);
-            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 4, TimeUnit.MILLISECONDS);
-            scheduler.schedule(new FlushCommand(wsebSession), flushDelayMillis * 8, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    private class FlushCommand implements Runnable {
-
-        private final WsebSession session;
-
-        public FlushCommand(WsebSession session) {
-            this.session = session;
-        }
-
-        @Override
-        public void run() {
-            IoSession parent = session.getParent();
-            if (parent != null && !parent.isClosing()) {
-                parent.write(WsCommandMessage.NOOP);
-            }
-        }
-
     }
 
     protected final void removeFilter(IoFilterChain filterChain, String name) {

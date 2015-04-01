@@ -67,7 +67,7 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
     protected ResourceAddressFactory resourceAddressFactory;
     protected final WsSessionTimeoutCommand sessionTimeout;
 
-    private ScheduledExecutorService scheduler;
+    protected ScheduledExecutorService scheduler;
     protected DefaultLoginResult loginResult;
     protected final ActiveWsExtensions wsExtensions;
 

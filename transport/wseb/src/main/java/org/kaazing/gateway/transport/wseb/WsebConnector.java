@@ -61,6 +61,7 @@ import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -243,8 +244,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     }
                 };
 
+                final long sequenceNo = 0;
+
                 final HttpSession httpSession = (HttpSession) parent;
                 httpSession.setWriteHeader(HEADER_X_ACCEPT_COMMANDS, "ping");
+                httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(sequenceNo));
                 final IoBufferAllocatorEx<WsBuffer> allocator = new WsebBufferAllocator(httpSession.getBufferAllocator());
 
                 // factory to create a new bridge session
@@ -266,7 +270,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                       null, 
                                                                       null, 
                                                                       0,
-                                                                      connectAddressNext.getOption(INACTIVITY_TIMEOUT));
+                                                                      connectAddressNext.getOption(INACTIVITY_TIMEOUT),
+                                                                      false,            /* no sequence validation */
+                                                                      sequenceNo);      /* starting sequence no */
 
                                 // ability to write will be reactivated when create response returns with write address
                                 wsebSession.suspendWrite();
@@ -340,7 +346,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doSessionClosed(HttpSession createSession) throws Exception {
-            WsebSession wsebSession = WSE_SESSION_KEY.get(createSession);
+            final WsebSession wsebSession = WSE_SESSION_KEY.get(createSession);
             assert (wsebSession != null);
 
             IoBufferEx buf = CREATE_RESPONSE_KEY.remove(createSession);
@@ -372,7 +378,13 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
                 // attach downstream for read
                 final BridgeConnector bridgeConnector = bridgeServiceFactory.newBridgeConnector(readAddress);
-                bridgeConnector.connect(readAddress, selectReadHandler(readAddress), null);
+                bridgeConnector.connect(readAddress, selectReadHandler(readAddress), new IoSessionInitializer<ConnectFuture>() {
+                    @Override
+                    public void initializeSession(IoSession ioSession, ConnectFuture connectFuture) {
+                        HttpSession httpSession = (HttpSession) ioSession;
+                        httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextReaderSequenceNo()));
+                    }
+                });
 
                 // activate upstream for write
                 //TODO: Replace usage of suspendWrite/resumeWrite with a WSEB-specific "send queue" upon which
