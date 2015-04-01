@@ -59,9 +59,19 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
     protected void removeInternal(WsebSession session) {
         HttpSession writer = session.getWriter();
         if (writer != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("CLOSE command is written to writer %d", writer.getId()));
+            }
             writer.write(WsCommandMessage.CLOSE);
             session.detachWriter(writer);
+        } else {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("NOT sending CLOSE command for session = %s as there is no attached writer", session));
+            }
         }
+
+        // Shouldn't we detach any pending writer ?
+        // session.detachPendingWriter();
         session.cancelTimeout();
     }
 

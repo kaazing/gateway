@@ -1,0 +1,118 @@
+#
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+#
+
+# create request
+
+connect tcp://localhost:8000
+connected
+
+write "GET /echo/;e/ct?.ksn=10 HTTP/1.1\r\n"
+write "Accept: */*\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "Connection: keep-alive\r\n"
+write "Host: localhost:8000\r\n"
+write "Referer: http://localhost:8000/?.kr=xs\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36\r\n"
+write "X-WebSocket-Version: wseb-1.0\r\n"
+write "\r\n"
+
+read "HTTP/1.1 201 Created\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Content-Length: 132\r\n"
+read "Content-Type: text/plain;charset=UTF-8\r\n"
+read "Date: "
+read /.*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "http://localhost:8000" /(?<up>.*)/ "\n"
+read "http://localhost:8000" /(?<down>.*)/ "\n"
+
+read notify CREATED
+
+close
+closed
+
+#
+# downstream request (may not be thread aligned - different TCP connection)
+#
+connect tcp://localhost:8000
+connected
+
+write await CREATED
+
+write "POST "
+write ${down}
+write "?.ksn=11 HTTP/1.1\r\n"
+write "Accept: */*\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "Connection: keep-alive\r\n"
+write "Content-Length: 3\r\n"
+write "Host: localhost:8000\r\n"
+write "Referer: http://localhost:8000/?.kr=xs\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36\r\n"
+write "\r\n"
+
+# payload sent by Flash client runtime to prevent the POST converting to GET and stripping the headers off the request (!)
+write ">|<"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Connection: close\r\n"
+read /Content-Type: .*/ "\r\n"
+read /Content-Type: .*/ "\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "X-Content-Type-Options: nosniff\r\n"
+read "X-Idle-Timeout: 60\r\n"
+read "\r\n"
+
+read notify SECOND_DOWNSTREAM
+
+#NOOP
+read [0x01 0x30 0x30 0xff]
+
+#RECONNECT
+read [0x01 0x30 0x31 0xff]
+
+closed
+
+
+# downstream request out of order
+connect tcp://localhost:8000
+connected
+
+write await SECOND_DOWNSTREAM
+
+write "POST "
+write ${down}
+write "?.ksn=13 HTTP/1.1\r\n"
+write "Accept: */*\r\n"
+write "Accept-Encoding: gzip,deflate,sdch\r\n"
+write "Accept-Language: en-US,en;q=0.8\r\n"
+write "Connection: keep-alive\r\n"
+write "Content-Length: 3\r\n"
+write "Host: localhost:8000\r\n"
+write "Referer: http://localhost:8000/?.kr=xs\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.65 Safari/537.36\r\n"
+write "\r\n"
+
+# payload sent by Flash client runtime to prevent the POST converting to GET and stripping the headers off the request (!)
+write ">|<"
+
+read "HTTP/1.1 400 Bad Request\r\n"
+read "Cache-Control: no-cache\r\n"
+read "Connection: close\r\n"
+read "Content-Type: text/html\r\n"
+read /Date:.*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "X-Content-Type-Options: nosniff\r\n"
+read "X-Idle-Timeout: 60\r\n"
+read "Content-Length: 63\r\n"
+read "\r\n"
+read "<html><head></head><body><h1>400 Bad Request</h1></body></html>"
+
+close
+closed
