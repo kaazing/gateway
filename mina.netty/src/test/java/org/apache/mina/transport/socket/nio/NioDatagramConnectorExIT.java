@@ -72,7 +72,10 @@ public class NioDatagramConnectorExIT {
             {
                 oneOf(handler).sessionCreated(with(instanceOf(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(instanceOf(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
+
+                // The session close future is fired before calling handler.sessionClosed so
+                // this next expectation may not be completed before the test ends
+                atMost(1).of(handler).sessionClosed(with(instanceOf(IoSessionEx.class)));
             }
         });
 
