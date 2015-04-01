@@ -42,14 +42,13 @@ ADD NOTICE.txt build/NOTICE.txt
 ADD distribution build/distribution
 ADD pom.xml build/pom.xml
 ADD server.api build/server.api
-ADD target build/target
 ADD util build/util
 
 # Set "/build" dir as working dir
 WORKDIR /build 
 
 # Run the build
-RUN mvn clean install
+RUN mvn -B clean install
 
 # Install the gateway in "/built-gateway"
 RUN tar -xvf distribution/target/kaazing-gateway-community-*.tar.gz && \

@@ -42,10 +42,13 @@
     information on gateway properties configuration
   -->
   <properties>
+  <!--
+    Override hostname to accept on specific host or ip    
     <property>
-      <name>gateway.hostname</name>
+      <name>hostname</name>
       <value>localhost</value>
     </property>
+   -->
     <property>
       <name>gateway.base.port</name>
       <value>8000</value>
@@ -59,23 +62,32 @@
   <service>
     <name>base-directory</name>
     <description>Directory service for base files</description>
-    <accept>http://${gateway.hostname}:${gateway.base.port}/</accept>
+    <accept>http://${hostname}:${gateway.base.port}/</accept>
 
     <type>directory</type>
+
     <properties>
       <directory>/base</directory>
       <welcome-file>index.html</welcome-file>
       <error-pages-directory>/error-pages</error-pages-directory>
       <options>indexes</options>
     </properties>
+
+    <accept-options>
+        <tcp.bind>${gateway.base.port}</tcp.bind>
+    </accept-options>
   </service>
 
   <service>
     <name>echo</name>
     <description>Simple echo service</description>
-    <accept>ws://${gateway.hostname}:${gateway.base.port}/echo</accept>
+    <accept>ws://${hostname}:${gateway.base.port}/echo</accept>
 
     <type>echo</type>
+
+    <accept-options>
+        <tcp.bind>${gateway.base.port}</tcp.bind>
+    </accept-options>
   </service>
 
   <!--
@@ -123,23 +135,33 @@
   <service>
     <name>commandcenter-directory</name>
     <description>Directory service for the Command Center files</description>
-    <accept>http://${gateway.hostname}:${gateway.base.port}/commandcenter</accept>
+    <accept>http://${hostname}:${gateway.base.port}/commandcenter</accept>
 
     <type>directory</type>
+
     <properties>
       <directory>/commandcenter</directory>
       <welcome-file>index.html</welcome-file>
       <error-pages-directory>/error-pages</error-pages-directory>
       <options>indexes</options>
     </properties>
+
+    <accept-options>
+        <tcp.bind>${gateway.base.port}</tcp.bind>
+    </accept-options>
+
   </service>
   
   <service>
     <name>SNMP Management</name>
     <description>SNMP management service</description>
-    <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
+    <accept>ws://${hostname}:${gateway.base.port}/snmp</accept>
 
     <type>management.snmp</type>
+
+    <accept-options>
+        <tcp.bind>${gateway.base.port}</tcp.bind>
+    </accept-options>
 
     <realm-name>commandcenter</realm-name>
 
