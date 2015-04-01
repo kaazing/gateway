@@ -41,6 +41,11 @@ A set of client APIs are provided in the following repos.
    
    Windows: `./kaazing-gateway-community-develop-SNAPSHOT/bin/gateway.start.bat`
 
+# Running this project on docker
+
+0. `docker build -t gateway-develop-snapshot .`
+1. ` docker run -h hostname -p 8000:8000 gateway-develop-snapshot`
+
 # Running a Prebuilt Project
 
 You can also download and run this project from [kaazing.org/download](http://kaazing.org/download/)
