@@ -28,7 +28,6 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>1.9.4.8</version>
         </dependency>
 
         <!-- test scope dependencies -->

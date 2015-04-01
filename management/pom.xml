@@ -20,6 +20,34 @@
         <url>git@github.com:kaazing/gateway.management.git</url>
     </scm>
 
+    <dependencyManagement>
+        <dependencies>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>sigar.dist</artifactId>
+            <version>1.0.0.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>sigar.dist</artifactId>
+            <classifier>distribution</classifier>
+            <type>zip</type>
+            <version>[1.0.0.0,1.1.0.0)</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>snmp4j</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>snmp4j-agent</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Because we depend on gateway.server, a ton of other dependencies 
             come in transitively -->
@@ -66,7 +94,6 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20090211</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
@@ -114,18 +141,15 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>sigar.dist</artifactId>
-            <version>1.0.0.0</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>snmp4j</artifactId>
-            <version>1.11.3</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>snmp4j-agent</artifactId>
-            <version>1.4.3</version>
         </dependency>
         <dependency>
             <groupId>org.jmock</groupId>
