@@ -23,6 +23,8 @@ package org.kaazing.gateway.util.parse;
 
 import static java.lang.String.format;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.CharBuffer;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,7 @@ public abstract class ConfigParameter {
 
     private enum ParameterResolutionStrategy {
         PARAMETER_DEFINITION_DEFAULT, PARAMETER_PROPERTIES_FILE, SYSTEM_PROPERTIES, ENVIRONMENT_VARIABLES,
-        ESCAPED_PARAMETER_DEFINITION, UNRESOLVED_PARAMETER_DEFINITION, CLOUD_RESOLUTION_STRATEGY
+        ESCAPED_PARAMETER_DEFINITION, UNRESOLVED_PARAMETER_DEFINITION, CLOUD_RESOLUTION_STRATEGY, HOSTNAME
     }
 
     /**
@@ -146,6 +148,19 @@ public abstract class ConfigParameter {
                 }
             }
 
+            // resolve hostname
+            if (value == null && "hostname".equals(matcher.group(3))) {
+                LOGGER.debug("${hostname} found in config, using box hostname");
+                strategy = ParameterResolutionStrategy.HOSTNAME;
+                value = resolveHostname();
+                // value may be returned as null but that is good so it is caught as can't
+                // determine value
+                if (value == null) {
+                    LOGGER.warn("${hostname} detected in config but could not " +
+                            "determine cloud enviroment and find valid replacement for it");
+                }
+            }
+
             // resolve cloud.instanceId
             if (value == null && "cloud.instanceId".equals(matcher.group(3))) {
                 LOGGER.info("${cloud.instanceId} found in config, attempting resolution by searching cloud provider");
@@ -194,8 +209,7 @@ public abstract class ConfigParameter {
             LOGGER.debug("Attempting to get AWS host information");
 
             try {
-                String response = httpClient
-                        .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-hostname");
+                String response = httpClient.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-hostname");
                 // confirm it has a aws hostname
                 if (response != null && response.contains("amazonaws.com")) {
                     value = response;
@@ -203,8 +217,7 @@ public abstract class ConfigParameter {
                 } else if (response != null && "".equals(response)) {
                     // sometimes aws does not get a hostname, so we fallback to use
                     // the public ip
-                    response = httpClient
-                            .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-ipv4");
+                    response = httpClient.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/public-ipv4");
                     if (response != null) {
                         value = response;
                         LOGGER.debug(format(
@@ -221,6 +234,18 @@ public abstract class ConfigParameter {
             cachedCloudHost = value;
         }
         return cachedCloudHost;
+    }
+
+    /**
+     * Resolves the hostname
+     * @return value of hostname, or null if it can't be determined
+     */
+    public static String resolveHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 
     // public with UtilityHttpClient is for testing
