@@ -22,6 +22,7 @@
 package org.kaazing.gateway.transport.nio;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
+import static org.kaazing.gateway.transport.AbstractBridgeService.*;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.DEBUG_NIOWORKER_POOL;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_BACKLOG;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IP_TOS;
@@ -62,6 +63,7 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.util.ExternalResourceReleasable;
 import org.jboss.netty.util.internal.ExecutorUtil;
+import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -99,7 +101,6 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         }
     }
 
-    static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
     private static final ThreadLocal<Executor> CURRENT_EXECUTOR = new VicariousThreadLocal<>();
 
     private static final class SetCurrentWorkerTask implements Callable<NioWorker> {

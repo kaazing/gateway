@@ -34,6 +34,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.gateway.transport.BridgeConnector;
 
 public class WsConnector implements BridgeConnector {

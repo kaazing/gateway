@@ -10,7 +10,6 @@ connected
 
 write "GET / HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
-write "Connection: close\r\n"
 write "Cache-Control: max-age=0\r\n"
 write "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
 write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
@@ -25,20 +24,11 @@ read "Server: Kaazing Gateway\r\n"
 read "Transfer-Encoding: chunked\r\n"
 read "\r\n"
 read "14\r\n"
-read "<html>Hellooo</html>\r\n"
+read "<html>Helloo1</html>\r\n"
 read "0\r\n"
 read "\r\n"
 
 read notify CLIENT_SECOND_REQUEST
-
-closed
-
-#
-# ============= client <-> gateway request 2
-#
-connect tcp://localhost:8110
-connected
-
 write await CLIENT_SECOND_REQUEST
 
 write "GET / HTTP/1.1\r\n"
@@ -58,10 +48,9 @@ read "Server: Kaazing Gateway\r\n"
 read "Transfer-Encoding: chunked\r\n"
 read "\r\n"
 read "14\r\n"
-read "<html>Hellooo</html>\r\n"
+read "<html>Helloo2</html>\r\n"
 read "0\r\n"
 read "\r\n"
-
 
 closed
 
@@ -97,7 +86,7 @@ write "Transfer-Encoding: chunked\r\n"
 write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
 write "\r\n"
 write "14\r\n"
-write "<html>Hellooo</html>\r\n"
+write "<html>Helloo1</html>\r\n"
 write "0\r\n"
 write "\r\n"
 
@@ -126,7 +115,7 @@ write "Transfer-Encoding: chunked\r\n"
 write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
 write "\r\n"
 write "14\r\n"
-write "<html>Hellooo</html>\r\n"
+write "<html>Helloo2</html>\r\n"
 write "0\r\n"
 write "\r\n"
 

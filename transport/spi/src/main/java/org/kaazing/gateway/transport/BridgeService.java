@@ -23,7 +23,8 @@ package org.kaazing.gateway.transport;
 
 
 public interface BridgeService {
-    
+
     void dispose();
-    
+
+
 }

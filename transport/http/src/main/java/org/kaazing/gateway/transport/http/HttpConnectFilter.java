@@ -25,6 +25,7 @@ import static java.lang.String.format;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpCodecFilter;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpConnectPersistenceFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpContentLengthAdjustmentFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpPersistenceFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpxeProtocolFilter;
@@ -34,7 +35,7 @@ public enum HttpConnectFilter {
     CONTENT_LENGTH_ADJUSTMENT("http#content-length", new HttpContentLengthAdjustmentFilter()),
     CODEC("http#codec", new HttpCodecFilter(true)),
     PROTOCOL_HTTPXE("http#protocol[httpxe/1.1]", new HttpxeProtocolFilter(true)),
-    PERSISTENCE("http#persistence", new HttpPersistenceFilter());
+    PERSISTENCE("http#persistence");
     
     private final String filterName;
     private final IoFilter filter;

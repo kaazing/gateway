@@ -46,6 +46,9 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private URI sslTransportURI;
     private URI httpTransportURI;
     private boolean sslEncryptionEnabled = true; // default to true
+    private boolean httpKeepaliveEnabled;
+    private int httpKeepaliveTimeout;
+
     private String udpInterface;
 
     public DefaultConnectOptionsContext() {
@@ -127,6 +130,28 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             }
 
             this.sslEncryptionEnabled = (sslEncryptionEnabled == null) ? true : sslEncryptionEnabled;
+
+            Boolean httpKeepaliveEnabled = null;
+            if (connectOptions != null) {
+                ServiceConnectOptionsType.HttpKeepalive.Enum alive = connectOptions.getHttpKeepalive();
+                if (alive != null) {
+                    httpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
+                }
+            }
+
+            this.httpKeepaliveEnabled = (httpKeepaliveEnabled == null) ? false : httpKeepaliveEnabled;
+
+            Long httpKeepaliveTimeout = null;
+            if (connectOptions != null) {
+                String value = connectOptions.getHttpKeepaliveTimeout();
+                if (value != null) {
+                    long val = Utils.parseTimeInterval(value, TimeUnit.SECONDS);
+                    if (val > 0) {
+                        httpKeepaliveTimeout = val;
+                    }
+                }
+            }
+
         }
     }
 
@@ -181,6 +206,16 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     }
 
     @Override
+    public Integer getHttpKeepaliveTimeout() {
+        return httpKeepaliveTimeout;
+    }
+
+    @Override
+    public boolean isHttpKeepaliveEnabled() {
+        return httpKeepaliveEnabled;
+    }
+
+    @Override
     public Map<String, Object> asOptionsMap() {
         Map<String, Object> result = new LinkedHashMap<>();
 
@@ -196,6 +231,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
         result.put("udp.interface", getUdpInterface());
+        result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
+        result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
 
         return result;
     }

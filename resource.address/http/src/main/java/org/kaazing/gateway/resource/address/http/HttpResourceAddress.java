@@ -38,7 +38,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 	private static final long serialVersionUID = 1L;
 
 	static final String TRANSPORT_NAME = "http";
-	
+
+    public static final ResourceOption<Boolean> KEEP_ALIVE = new HttpKeepAliveOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();
     public static final ResourceOption<String> REALM_NAME = new HttpRealmNameOption();
     public static final ResourceOption<String> REALM_AUTHORIZATION_MODE = new HttpRealmAuthorizationModeOption();
@@ -59,7 +60,8 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> AUTHENTICATION_IDENTIFIER = new AuthenticationIdentifierOption();
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
-	
+
+    private Boolean keepAlive = Boolean.FALSE;
 	private Integer keepAliveTimeout;
 	private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
 	private String realmName;
@@ -91,6 +93,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 		if (option instanceof HttpResourceOption) {
             HttpResourceOption httpOption = (HttpResourceOption)option;
             switch (httpOption.kind) {
+                case KEEP_ALIVE:
+                    return (V) keepAlive;
                 case KEEP_ALIVE_TIMEOUT:
                     return (V) keepAliveTimeout;
                 case REQUIRED_ROLES:
@@ -141,6 +145,9 @@ public final class HttpResourceAddress extends ResourceAddress {
         if (option instanceof HttpResourceOption) {
             HttpResourceOption httpOption = (HttpResourceOption) option;
             switch (httpOption.kind) {
+                case KEEP_ALIVE:
+                    keepAlive = (Boolean) value;
+                    return;
                 case KEEP_ALIVE_TIMEOUT:
                     keepAliveTimeout = (Integer) value;
                     return;
@@ -206,7 +213,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 	
 	static class HttpResourceOption<T> extends ResourceOption<T> {
 		
-	    protected static enum Kind { KEEP_ALIVE_TIMEOUT, REQUIRED_ROLES, REALM_NAME,
+	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, REQUIRED_ROLES, REALM_NAME,
             REALM_AUTHORIZATION_MODE, REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
             REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
@@ -231,6 +238,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpKeepAliveTimeoutOption extends HttpResourceOption<Integer> {
         private HttpKeepAliveTimeoutOption() {
             super(Kind.KEEP_ALIVE_TIMEOUT, "keepAliveTimeout");
+        }
+    }
+
+    private static final class HttpKeepAliveOption extends HttpResourceOption<Boolean> {
+        private HttpKeepAliveOption() {
+            super(Kind.KEEP_ALIVE, "keepAlive", Boolean.FALSE);
         }
     }
     

@@ -875,6 +875,10 @@
                              type="gateway:ServiceAcceptOptionsType" />
 
                     <element maxOccurs="1" minOccurs="0"
+                             name="connect-options"
+                             type="gateway:ServiceConnectOptionsType" />
+
+                    <element maxOccurs="1" minOccurs="0"
                              name="realm-name"
                              type="gateway:CollapsedString" />
 
@@ -1221,6 +1225,18 @@
                 <annotation/>
             </element>
             <element name="ws.inactivity.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
+                <annotation/>
+            </element>
+            <element name="http.keepalive" maxOccurs="1" minOccurs="0">
+                <simpleType>
+                    <restriction base="string">
+                        <enumeration value="enabled"></enumeration>
+                        <enumeration value="disabled"></enumeration>
+                        <whiteSpace value="collapse"></whiteSpace>
+                    </restriction>
+                </simpleType>
+            </element>
+            <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
                 <annotation/>
             </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">

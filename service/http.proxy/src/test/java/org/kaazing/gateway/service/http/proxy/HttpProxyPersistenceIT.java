@@ -23,7 +23,9 @@ package org.kaazing.gateway.service.http.proxy;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -32,9 +34,13 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 public class HttpProxyPersistenceIT {
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
 
     private final K3poRule robot = new K3poRule();
 
@@ -47,6 +53,7 @@ public class HttpProxyPersistenceIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
+                            .connectOption("http.keepalive", "enabled")
                         .done()
                     .done();
             // @formatter:on
@@ -57,9 +64,8 @@ public class HttpProxyPersistenceIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
+    @Test
     @Specification( "http.proxy.connect.persistence")
-    @Test(timeout = 5000)
-    @org.junit.Ignore
     public void connectPersistence() throws Exception {
         robot.finish();
     }
