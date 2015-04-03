@@ -114,6 +114,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
     private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
+    private final HttpConnectPersistenceFilter persistenceFilter;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -131,6 +132,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         };
         this.ioExecutors = new ConcurrentHashSet<>();
+        persistenceFilter = new HttpConnectPersistenceFilter(persistentConnectionsStore);
     }
     
     @Resource(name = "bridgeServiceFactory")
@@ -311,7 +313,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         for (HttpConnectFilter connectFilter : connectFilters) {
             switch (connectFilter) {
                 case PERSISTENCE:
-                    chain.addLast(connectFilter.filterName(), new HttpConnectPersistenceFilter(persistentConnectionsStore));
+                    chain.addLast(connectFilter.filterName(), persistenceFilter);
                     break;
                 default:
                     chain.addLast(connectFilter.filterName(), connectFilter.filter());

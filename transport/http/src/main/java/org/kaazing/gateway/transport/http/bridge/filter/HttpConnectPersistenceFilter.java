@@ -21,14 +21,11 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-import org.apache.mina.core.write.WriteRequest;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.BridgeSession;
+import org.apache.mina.core.session.AttributeKey;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.PersistentConnectionsStore;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
-import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpStartMessage;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -44,24 +41,18 @@ import static org.kaazing.gateway.transport.http.HttpStatus.*;
 public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 
     private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
-    private boolean reuseConnection;
+    private static final AttributeKey CLOSE_OR_UPGRADE = new AttributeKey(HttpConnectPersistenceFilter.class,
+            "closeOrUpgrade");
 
     public HttpConnectPersistenceFilter(ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore) {
         this.persistentConnectionsStore = persistentConnectionsStore;
     }
 
     @Override
-    protected void filterWriteHttpRequest(NextFilter nextFilter, IoSessionEx session, WriteRequest writeRequest,
-                HttpRequestMessage httpRequest) throws Exception {
-        reuseConnection = !closeHeader(httpRequest);
-        super.filterWriteHttpRequest(nextFilter, session, writeRequest, httpRequest);
-    }
-
-    @Override
     protected void httpResponseReceived(NextFilter nextFilter, IoSessionEx session,
                 HttpResponseMessage httpResponse) throws Exception {
-        if (reuseConnection && (closeHeader(httpResponse) || upgrade(httpResponse))) {
-            reuseConnection = false;
+        if (closeHeader(httpResponse) || upgrade(httpResponse)) {
+            session.setAttribute(CLOSE_OR_UPGRADE);
         }
 
         if (httpResponse.isComplete()) {
@@ -81,19 +72,19 @@ public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx>
     }
 
     private void reuse(IoSessionEx session) {
-        if (reuseConnection) {
-            DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
-            if (!httpSession.isConnectionClose()) {
-                ResourceAddress remoteAddress = BridgeSession.REMOTE_ADDRESS.get(session);
-                persistentConnectionsStore.get().recycle(remoteAddress, session);
-            }
+        DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
+        // isConnectionClose() true if gateway wants to close connection
+        // CLOSE_OR_UPGRADE is true if origin server wants to close connection
+        if (!httpSession.isConnectionClose() && !session.containsAttribute(CLOSE_OR_UPGRADE)) {
+            session.removeAttribute(CLOSE_OR_UPGRADE);
+            persistentConnectionsStore.get().recycle(session);
         }
     }
 
     /*
-     * return true if the http message contains Connection : close header
+     * return true if the origin server sends Connection : close header
      */
-    private boolean closeHeader(HttpStartMessage msg) {
+    private boolean closeHeader(HttpResponseMessage msg) {
         List<String> connectionValues = msg.getHeaderValues(HttpHeaders.HEADER_CONNECTION, false);
         if (connectionValues != null) {
             for (String connectionValue : connectionValues) {
