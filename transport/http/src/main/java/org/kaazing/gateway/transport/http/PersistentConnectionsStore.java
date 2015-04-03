@@ -21,69 +21,105 @@
 
 package org.kaazing.gateway.transport.http;
 
+import org.apache.mina.core.future.CloseFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class PersistentConnectionsStore {
 
-    private final ThreadLocal<Map<ResourceAddress, List<IoSessionEx>>> connections;
+    private final Map<ResourceAddress, Set<IoSessionEx>> connections;
     private final Logger logger;
+    private final CloseListener closeListener;
 
     PersistentConnectionsStore(Logger logger) {
-        this.connections = new VicariousThreadLocal<>();
+        this.connections = new HashMap<>();     // TODO need a comparator ??
         this.logger = logger;
+        this.closeListener = new CloseListener(this);
     }
 
-    public void add(ResourceAddress address, IoSessionEx session) {
+    /*
+     * Recycle existing transport session so that it can be used as a http
+     * persistent connection
+     */
+    public void recycle(ResourceAddress address, IoSessionEx session) {
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Adding http persistent connection %s", session));
+            logger.debug(String.format("Recycling (adding to store) http persistent connection %s", session));
         }
-        Map<ResourceAddress, List<IoSessionEx>> addressToSessions = connections.get();
-        if (addressToSessions == null) {
-            addressToSessions = new HashMap<>();
-            connections.set(addressToSessions);
-        }
-        List<IoSessionEx> sessions = addressToSessions.get(address);
+        Set<IoSessionEx> sessions = connections.get(address);
         if (sessions == null) {
-            sessions = new ArrayList<>();
-            addressToSessions.put(address, sessions);
+            sessions = new HashSet<>();
+            connections.put(address, sessions);
         }
         sessions.add(session);
+        CloseFuture closeFuture = session.getCloseFuture();
+        closeFuture.addListener(closeListener);
     }
 
-    public IoSession remove(ResourceAddress address) {
-        Map<ResourceAddress, List<IoSessionEx>> addressToSessions = connections.get();
-        if (addressToSessions != null) {
-            List<IoSessionEx> sessions = addressToSessions.get(address);
-            if (sessions != null && !sessions.isEmpty()) {
-                IoSessionEx session = sessions.remove(0);
-                if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Reusing http persistent connection %s", session));
-                }
-                return session;
+    /*
+     * Returns an existing transport session for the resource address that can be reused
+     *
+     * @return a reusable IoSession for the address
+     *         otherwise null
+     */
+    public IoSession take(ResourceAddress address) {
+        Set<IoSessionEx> sessions = connections.get(address);
+        if (sessions != null && !sessions.isEmpty()) {
+            IoSessionEx session = sessions.iterator().next();
+            sessions.remove(session);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Reusing (removing from store) http persistent connection %s", session));
             }
+            session.getCloseFuture().removeListener(closeListener);
+            return session;
         }
+
         return null;
     }
 
-    public void remove(ResourceAddress address, IoSession ioSession) {
-        Map<ResourceAddress, List<IoSessionEx>> addressToSessions = connections.get();
-        if (addressToSessions != null) {
-            List<IoSessionEx> sessions = addressToSessions.get(address);
-            if (sessions != null && !sessions.isEmpty()) {
-                boolean removed = sessions.remove(ioSession);
-                if (removed && logger.isDebugEnabled()) {
-                    logger.debug(String.format("Removed http persistent connection %s", ioSession));
-                }
+    /*
+     * Returns an existing transport session for the given resource address
+     * that can be reused
+     *
+     * @return a reusable IoSession for the address
+     *         otherwise null
+     */
+    public void remove(IoSessionEx session) {
+        ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
+        Set<IoSessionEx> sessions = connections.get(address);
+        if (sessions != null && !sessions.isEmpty()) {
+            boolean removed = sessions.remove(session);
+            if (removed && logger.isDebugEnabled()) {
+                logger.debug(String.format("Removed http persistent connection %s", session));
             }
+        }
+    }
+
+    /*
+     * If a session is closed, it will be removed from this store using this
+     * listener
+     */
+    private static class CloseListener implements IoFutureListener<CloseFuture> {
+
+        private final PersistentConnectionsStore store;
+
+        CloseListener(PersistentConnectionsStore store) {
+            this.store = store;
+        }
+
+        @Override
+        public void operationComplete(CloseFuture future) {
+            IoSessionEx session = (IoSessionEx)future.getSession();
+            store.remove(session);
         }
     }
 

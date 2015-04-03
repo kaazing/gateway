@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeSession;
@@ -44,10 +43,10 @@ import static org.kaazing.gateway.transport.http.HttpStatus.*;
  */
 public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 
-    private final PersistentConnectionsStore persistentConnectionsStore;
+    private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
     private boolean reuseConnection;
 
-    public HttpConnectPersistenceFilter(PersistentConnectionsStore persistentConnectionsStore) {
+    public HttpConnectPersistenceFilter(ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore) {
         this.persistentConnectionsStore = persistentConnectionsStore;
     }
 
@@ -81,20 +80,12 @@ public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx>
         super.httpContentReceived(nextFilter, session, httpContent);
     }
 
-    @Override
-    public void sessionClosed(NextFilter nextFilter, IoSession session)
-            throws Exception {
-        ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
-        persistentConnectionsStore.remove(address, session);
-        super.sessionClosed(nextFilter, session);
-    }
-
     private void reuse(IoSessionEx session) {
         if (reuseConnection) {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
             if (!httpSession.isConnectionClose()) {
                 ResourceAddress remoteAddress = BridgeSession.REMOTE_ADDRESS.get(session);
-                persistentConnectionsStore.add(remoteAddress, session);
+                persistentConnectionsStore.get().recycle(remoteAddress, session);
             }
         }
     }

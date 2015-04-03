@@ -50,5 +50,5 @@ write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
 write "\r\n"
 write "<html>nope</html>"
 
-close
+# gateway(sender) closes the connection
 closed

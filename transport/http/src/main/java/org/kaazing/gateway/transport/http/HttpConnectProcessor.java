@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.http;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 
 import java.net.URI;
@@ -76,6 +77,11 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
                 // TODO: strip port if default
                 httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
+            }
+
+            // Check for Connection: close header and set i/o session needs to be closed or not
+            if (hasCloseHeader(session)) {
+                session.setConnectionClose();
             }
 
             // override headers
@@ -144,6 +150,11 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                         httpRequest.putHeaders(session.getWriteHeaders());
                         if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
                             httpRequest.setHeader(HttpHeaders.HEADER_HOST, session.getRemoteAddress().getResource().getAuthority());
+                        }
+
+                        // Check for Connection: close header and set i/o session needs to be closed or not
+                        if (hasCloseHeader(session)) {
+                            session.setConnectionClose();
                         }
 
                         httpRequest.setCookies(session.getWriteCookies());
@@ -228,6 +239,18 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             HttpContentMessage completeMessage = new HttpContentMessage(unsharedEmpty, true, session.isChunked(), session.isGzipped());
             parent.write(completeMessage);
         }
+    }
+
+    private boolean hasCloseHeader(DefaultHttpSession session) {
+        List<String> connectionValues = session.getWriteHeaders(HEADER_CONNECTION);
+        if (connectionValues != null) {
+            for (String value : connectionValues) {
+                if (value.equalsIgnoreCase("close")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

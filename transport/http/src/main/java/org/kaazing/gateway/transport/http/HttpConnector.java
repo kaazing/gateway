@@ -43,6 +43,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -81,11 +82,13 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpConnectPersistenceFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
+import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +111,9 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final Set<HttpConnectFilter> allConnectFilters;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    private final PersistentConnectionsStore persistentConnectionsStore;
+    private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
     private final ConcurrentHashSet<Executor> ioExecutors;
+    private Properties configuration;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -120,7 +124,12 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
-        this.persistentConnectionsStore = new PersistentConnectionsStore(logger);
+        this.persistentConnectionsStore = new VicariousThreadLocal<PersistentConnectionsStore>() {
+            @Override
+            protected PersistentConnectionsStore initialValue() {
+                return new PersistentConnectionsStore(logger);
+            }
+        };
         this.ioExecutors = new ConcurrentHashSet<>();
     }
     
@@ -132,6 +141,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
         this.addressFactory = resourceAddressFactory;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -196,7 +210,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
             final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
 
-        IoSession transportSession = persistentConnectionsStore.remove(address.getTransport());
+        IoSession transportSession = persistentConnectionsStore.get().take(address.getTransport());
         if (transportSession != null) {
             connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
         } else {

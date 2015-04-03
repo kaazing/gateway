@@ -51,5 +51,5 @@ write "Connection: close\r\n"
 write "\r\n"
 write "<html>Wrong Choice</html>"
 
-close
+# gateway(sender) closes the connection
 closed

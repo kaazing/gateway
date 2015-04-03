@@ -68,5 +68,4 @@ write "<html>Hellooo</html>\r\n"
 write "0\r\n"
 write "\r\n"
 
-close
 closed
