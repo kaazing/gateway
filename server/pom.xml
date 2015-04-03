@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.20</version>
+        <version>5.0.1.21</version>
     </parent>
     <artifactId>gateway.server</artifactId>
     <name>Kaazing WebSocket Gateway - Server</name>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>test.util</artifactId>
-            <version>[1.0.0.0,1.1.0.0)</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -177,27 +177,10 @@
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>${xmlbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
-            <version>${jdom.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>${hazelcast.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-client</artifactId>
-            <version>${hazelcast.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast-cloud</artifactId>
-            <version>${hazelcast.version}</version>
         </dependency>
 
         <dependency>
@@ -514,9 +497,6 @@
         <pipe.address.version>${project.version}</pipe.address.version>
         <proxy.address.version>${project.version}</proxy.address.version>
 
-        <hazelcast.version>1.9.4.8</hazelcast.version>
-        <jdom.version>1.1</jdom.version>
-        <xmlbeans.version>2.4.0</xmlbeans.version>
         <jna.version>3.3.0</jna.version>
         <!-- remove this after next core.common release -->
         <commons-cli.version>1.2</commons-cli.version>

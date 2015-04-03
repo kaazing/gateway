@@ -110,6 +110,12 @@ public class WsebProxyTestIT {
         robot.finish();
     }
 
+    @Specification("wsebLongPollingWithSequenceNumber")
+    @Test(timeout = 7500)
+    public void wsebLongPollingWithSequenceNumber() throws Exception {
+        robot.finish();
+    }
+
     @Specification("wsebSecureLongPolling")
     @Test(timeout = 7500)
     public void wsebSecureLongPolling() throws Exception {

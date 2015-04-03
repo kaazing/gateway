@@ -76,8 +76,6 @@ read "http://localhost:8001/basic/;e/dtm/"
 read ${sessionId} 
 read "\n"
 
-read notify CREATED
-
 write "POST /basic/;e/utm/"
 write ${sessionId}
 write " HTTP/1.1\r\n"
@@ -111,6 +109,8 @@ read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 200 OK\r\n"
 read "\r\n"
+
+read notify CREATED
 
 write await RESPONSE_RECEIVED
 

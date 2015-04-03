@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.20</version>
+        <version>5.0.1.21</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -64,7 +64,6 @@
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>${xmlbeans.version}</version>
         </dependency>
 
         <dependency>
@@ -151,7 +150,4 @@
         </plugins>
     </reporting>
 
-    <properties>
-        <xmlbeans.version>2.4.0</xmlbeans.version>
-    </properties>
 </project>
