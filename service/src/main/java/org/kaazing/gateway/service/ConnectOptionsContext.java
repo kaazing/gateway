@@ -21,23 +21,14 @@
 
 package org.kaazing.gateway.service;
 
-import java.net.URI;
 import java.util.Map;
 
-import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
-
 public interface ConnectOptionsContext {
-    public WebSocketWireProtocol getWebSocketWireProtocol();
-    public String[] getSslCiphers();
-    public String[] getSslProtocols();
-    public URI getPipeTransport();
-    public String getWsVersion();
-    public URI getTcpTransport();
-    public URI getSslTransport();
-    public URI getHttpTransport();
-    public long getWsInactivityTimeout();
-    public boolean isSslEncryptionEnabled();
+    /**
+     * Set the map of options on the ConnectOptionsContext.  The options are String key/value pairs.
+     * @param options the map of String key/value pairs to set on the ConnectOptionsContext
+     */
+    public void setOptions(Map<String, String> options);
 
     Map<String, Object> asOptionsMap();
-
 }

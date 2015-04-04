@@ -61,25 +61,7 @@ public class EchoService implements Service {
     @Override
     public void start() throws Exception {
         AcceptOptionsContext acceptOptions = serviceContext.getAcceptOptionsContext();
-        serviceContext.bind(serviceContext.getAccepts(), handler, new AcceptOptionsContext.Wrapper(acceptOptions) {
-            @Override
-            public List<String> getWsProtocols() {
-
-                List<String> result;
-
-                List<String> supportedProtocols = super.getWsProtocols();
-                List<String> echoProtocols = Arrays.asList("org.kaazing.echo", null);
-                if ( supportedProtocols == null ) {
-                    result = echoProtocols;
-                } else {
-                    result = new ArrayList<>(supportedProtocols);
-                    result.addAll(echoProtocols);
-                }
-
-                return result;
-            }
-            
-        });
+        serviceContext.bind(serviceContext.getAccepts(), handler, new AcceptOptionsContext.Wrapper(acceptOptions) { });
     }
 
     @Override

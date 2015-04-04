@@ -46,7 +46,7 @@ public class WsHttpKeepaliveTimeoutIT {
                         .service()
                             .accept(URI.create("ws://localhost:8555/echo"))
                             .type("echo")
-                            .acceptOption("http.keepaliveTimeout", "3")
+                            .acceptOption("http.keepalive.timeout", "3")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")
                             .done()

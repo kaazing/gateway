@@ -371,7 +371,14 @@ public class Gateway {
             Map<String, String> acceptOptions = service.getAcceptOptions();
             if (!acceptOptions.isEmpty()) {
                 ServiceAcceptOptionsType newAcceptOptions = newService.addNewAcceptOptions();
-                appendAcceptOptions(newAcceptOptions, acceptOptions);
+                Node domNode = newAcceptOptions.getDomNode();
+                Document ownerDocument = domNode.getOwnerDocument();
+                for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
+                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
+                    Text newTextNode = ownerDocument.createTextNode((String) acceptOption.getValue());
+                    newElement.appendChild(newTextNode);
+                    domNode.appendChild(newElement);
+                }
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -413,45 +420,18 @@ public class Gateway {
             Map<String, String> connectOptions = service.getConnectOptions();
             if (!connectOptions.isEmpty()) {
                 ServiceConnectOptionsType newConnectOptions = newService.addNewConnectOptions();
-                appendConnectOptions(newConnectOptions, connectOptions);
+                Node domNode = newConnectOptions.getDomNode();
+                Document ownerDocument = domNode.getOwnerDocument();
+                for (Entry<String, String> connectOption : connectOptions.entrySet()) {
+                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
+                    Text newTextNode = ownerDocument.createTextNode((String) connectOption.getValue());
+                    newElement.appendChild(newTextNode);
+                    domNode.appendChild(newElement);
+                }
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-    }
-
-    private void appendConnectOptions(ServiceConnectOptionsType newConnectOptions, Map<String, String> connectOptions) throws
-            Exception {
-        BeanInfo connectOptionsBeanInfo = getBeanInfo(ServiceConnectOptionsType.class,
-                ServiceConnectOptionsType.class.getSuperclass());
-        PropertyDescriptor[] connectOptionsPropertiesInfo = connectOptionsBeanInfo.getPropertyDescriptors();
-        for (PropertyDescriptor connectOptionPropertyInfo : connectOptionsPropertiesInfo) {
-            String connectOptionPropertyName = connectOptionPropertyInfo.getName();
-            if (connectOptionPropertyInfo.getReadMethod().getName().startsWith("isSet")) {
-                // skip boolean isSetXXX methods
-                continue;
-            }
-            String connectOptionName = camelCaseToDottedLowerCase(connectOptionPropertyName);
-            String connectOptionValue = connectOptions.get(connectOptionName);
-            if (connectOptionValue != null) {
-                setConnectOption(newConnectOptions, connectOptionPropertyInfo, connectOptionValue);
-            }
-        }
-    }
-
-    private void setConnectOption(ServiceConnectOptionsType newConnectOptions,
-                                  PropertyDescriptor connectOptionPropertyInfo,
-                                  String connectOptionValue) throws Exception {
-        Method setterMethod = connectOptionPropertyInfo.getWriteMethod();
-        Class<?> connectOptionPropertyType = connectOptionPropertyInfo.getPropertyType();
-        if (connectOptionPropertyType == String.class) {
-            setterMethod.invoke(newConnectOptions, connectOptionValue);
-        } else {
-            // assumes Enum-style naming convention for static String -> XmlObject value type
-            Method forString = connectOptionPropertyType.getDeclaredMethod("forString", String.class);
-            Object parsedConnectOptionValue = forString.invoke(null, connectOptionValue);
-            setterMethod.invoke(newConnectOptions, parsedConnectOptionValue);
         }
     }
 
