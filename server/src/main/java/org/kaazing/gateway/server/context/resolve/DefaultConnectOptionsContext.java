@@ -35,6 +35,7 @@ import static org.kaazing.gateway.service.TransportOptionNames.*;
 public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
+    private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
 
     private WebSocketWireProtocol webSocketWireProtocol = WebSocketWireProtocol.RFC_6455;
     private String[] sslCiphers;
@@ -46,8 +47,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private URI sslTransportURI;
     private URI httpTransportURI;
     private boolean sslEncryptionEnabled = true; // default to true
-    private boolean httpKeepaliveEnabled;
-    private int httpKeepaliveTimeout;
+    private final boolean httpKeepaliveEnabled;
+    private final int httpKeepaliveTimeout;
 
     private String udpInterface;
 
@@ -56,6 +57,9 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     }
 
     public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions) {
+        Long tmpHttpKeepaliveTimeout = null;
+        Boolean tmpHttpKeepaliveEnabled = null;
+
         if (connectOptions != null) {
 
             wsVersion = connectOptions.getWsVersion();
@@ -109,50 +113,42 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             }
 
             Long wsInactivityTimeout = null;
-            if (connectOptions != null) {
-                String value = connectOptions.getWsInactivityTimeout();
-                if (value != null) {
-                    long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
-                    if (val > 0) {
-                        wsInactivityTimeout = val;
-                    }
+            String value = connectOptions.getWsInactivityTimeout();
+            if (value != null) {
+                long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
+                if (val > 0) {
+                    wsInactivityTimeout = val;
                 }
             }
             this.wsInactivityTimeoutMillis =
                     (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
 
             Boolean sslEncryptionEnabled = null;
-            if (connectOptions != null) {
-                ServiceConnectOptionsType.SslEncryption.Enum encrypted = connectOptions.getSslEncryption();
-                if (encrypted != null) {
-                    sslEncryptionEnabled = encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED;
-                }
+            ServiceConnectOptionsType.SslEncryption.Enum encrypted = connectOptions.getSslEncryption();
+            if (encrypted != null) {
+                sslEncryptionEnabled = encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED;
             }
 
             this.sslEncryptionEnabled = (sslEncryptionEnabled == null) ? true : sslEncryptionEnabled;
 
-            Boolean httpKeepaliveEnabled = null;
-            if (connectOptions != null) {
-                ServiceConnectOptionsType.HttpKeepalive.Enum alive = connectOptions.getHttpKeepalive();
-                if (alive != null) {
-                    httpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
-                }
+            ServiceConnectOptionsType.HttpKeepalive.Enum alive = connectOptions.getHttpKeepalive();
+            if (alive != null) {
+                tmpHttpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
             }
 
-            this.httpKeepaliveEnabled = (httpKeepaliveEnabled == null) ? false : httpKeepaliveEnabled;
-
-            Long httpKeepaliveTimeout = null;
-            if (connectOptions != null) {
-                String value = connectOptions.getHttpKeepaliveTimeout();
-                if (value != null) {
-                    long val = Utils.parseTimeInterval(value, TimeUnit.SECONDS);
-                    if (val > 0) {
-                        httpKeepaliveTimeout = val;
-                    }
+            String timeoutValue = connectOptions.getHttpKeepaliveTimeout();
+            if (timeoutValue != null) {
+                long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
+                if (val > 0) {
+                    tmpHttpKeepaliveTimeout = val;
                 }
             }
 
         }
+
+        this.httpKeepaliveTimeout = (tmpHttpKeepaliveTimeout == null)
+                ? DEFAULT_HTTP_KEEPALIVE_TIMEOUT : tmpHttpKeepaliveTimeout.intValue();
+        this.httpKeepaliveEnabled = (tmpHttpKeepaliveEnabled == null) ? true : tmpHttpKeepaliveEnabled;
     }
 
     @Override

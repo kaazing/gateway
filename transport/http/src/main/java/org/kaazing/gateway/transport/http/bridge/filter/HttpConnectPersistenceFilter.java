@@ -22,12 +22,12 @@
 package org.kaazing.gateway.transport.http.bridge.filter;
 
 import org.apache.mina.core.session.AttributeKey;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.PersistentConnectionsStore;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.bridge.HttpStartMessage;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx>
         }
 
         if (httpResponse.isComplete()) {
-            reuse(session);
+            recycle(session);
         }
         super.httpResponseReceived(nextFilter, session, httpResponse);
     }
@@ -66,18 +66,19 @@ public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx>
                 HttpContentMessage httpContent) throws Exception {
 
         if (httpContent.isComplete()) {
-            reuse(session);
+            recycle(session);
         }
         super.httpContentReceived(nextFilter, session, httpContent);
     }
 
-    private void reuse(IoSessionEx session) {
+    private void recycle(IoSessionEx session) {
         DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
         // isConnectionClose() true if gateway wants to close connection
-        // CLOSE_OR_UPGRADE is true if origin server wants to close connection
+        // CLOSE_OR_UPGRADE is true if origin server wants to close connection or due to upgrade
         if (!httpSession.isConnectionClose() && !session.containsAttribute(CLOSE_OR_UPGRADE)) {
             session.removeAttribute(CLOSE_OR_UPGRADE);
-            persistentConnectionsStore.get().recycle(session);
+            Integer keepAliveTimeout = httpSession.getRemoteAddress().getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
+            persistentConnectionsStore.get().recycle(session, keepAliveTimeout);
         }
     }
 

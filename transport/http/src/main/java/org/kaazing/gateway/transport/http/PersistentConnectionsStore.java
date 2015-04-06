@@ -57,7 +57,8 @@ public class PersistentConnectionsStore {
      * Recycle existing transport session so that it can be used as a http
      * persistent connection
      */
-    public void recycle(IoSessionEx session) {
+    public void recycle(IoSessionEx session, Integer keepAliveTimeout) {
+        assert keepAliveTimeout != null;
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Recycling (adding to pool) http persistent connection %s", session));
         }
@@ -70,7 +71,7 @@ public class PersistentConnectionsStore {
         sessions.add(session);
         CloseFuture closeFuture = session.getCloseFuture();
         closeFuture.addListener(closeListener);
-        session.getConfig().setBothIdleTime(10);     // TODO populate
+        session.getConfig().setBothIdleTime(keepAliveTimeout);
         session.getFilterChain().addLast(IDLE_FILTER, idleFilter);
     }
 

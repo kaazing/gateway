@@ -89,7 +89,7 @@ public class HttpxeResourceAddressFactorySpiTest {
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
-        assertNull(address.getOption(KEEP_ALIVE_TIMEOUT));
+        assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
     }

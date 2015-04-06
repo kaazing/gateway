@@ -38,6 +38,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 	private static final long serialVersionUID = 1L;
 
 	static final String TRANSPORT_NAME = "http";
+    public static final Integer DEFAULT_KEEP_ALIVE_TIMEOUT = 30;
 
     public static final ResourceOption<Boolean> KEEP_ALIVE = new HttpKeepAliveOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();
@@ -62,7 +63,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
 
     private Boolean keepAlive = Boolean.FALSE;
-	private Integer keepAliveTimeout;
+	private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
 	private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
 	private String realmName;
     private String realmAuthorizationMode = REALM_AUTHORIZATION_MODE.defaultValue();
@@ -237,7 +238,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private static final class HttpKeepAliveTimeoutOption extends HttpResourceOption<Integer> {
         private HttpKeepAliveTimeoutOption() {
-            super(Kind.KEEP_ALIVE_TIMEOUT, "keepAliveTimeout");
+            super(Kind.KEEP_ALIVE_TIMEOUT, "keepAliveTimeout", 30);
         }
     }
 

@@ -48,7 +48,8 @@ public class HttpProxyRedirectIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
-                        .done()
+                            .connectOption("http.keepalive", "disabled")
+                            .done()
                     .done();
             // @formatter:on
             init(configuration);

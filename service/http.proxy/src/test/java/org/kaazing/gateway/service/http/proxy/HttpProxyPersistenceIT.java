@@ -53,7 +53,8 @@ public class HttpProxyPersistenceIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
-                            .connectOption("http.keepalive", "enabled")
+                            // NOTE: even though in the config file it's http.keepalive.timeout
+                            .connectOption("http.keepaliveTimeout", "7")
                         .done()
                     .done();
             // @formatter:on
