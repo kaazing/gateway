@@ -54,7 +54,7 @@ public class HttpProxyPersistenceIT {
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
                             // NOTE: even though in the config file it's http.keepalive.timeout
-                            .connectOption("http.keepaliveTimeout", "7")
+                            .connectOption("http.keepaliveTimeout", "5")
                         .done()
                     .done();
             // @formatter:on
@@ -71,4 +71,9 @@ public class HttpProxyPersistenceIT {
         robot.finish();
     }
 
+    @Test
+    @Specification( "http.proxy.connect.persistence.timeout")
+    public void connectPersistenceTimeout() throws Exception {
+        robot.finish();
+    }
 }
