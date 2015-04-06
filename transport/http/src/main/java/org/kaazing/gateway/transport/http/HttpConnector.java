@@ -195,9 +195,16 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     // Returns a random Executor from the available ones
+    // @return a random executor
+    //         otherwise null
     private Executor getIoExecutor() {
-        if (!ioExecutors.isEmpty()) {
-            int index = ThreadLocalRandom.current().nextInt(ioExecutors.size()); // TODO +1 to fill up all slots ??
+        Integer workerCount = null;
+        if (configuration != null) {
+            workerCount = InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration);
+        }
+
+        if (workerCount != null && !ioExecutors.isEmpty()) {
+            int index = ThreadLocalRandom.current().nextInt(workerCount);
             int i = 0;
             for (Executor ioExecutor : ioExecutors) {
                 if (i == index) {
