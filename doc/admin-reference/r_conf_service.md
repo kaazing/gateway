@@ -1,0 +1,2313 @@
+-   [Home](../../index.md)
+-   [Documentation](../index.md)
+-   Service Reference
+
+Service Reference ${enterprise.logo.jms}
+========================================
+
+This document describes all of the elements and properties you can use to configure ${gateway.name.short} services.
+
+<a name="configuring"></a>Overview
+----------------------------------
+
+You can use the optional `service` element to configure one or more services running on ${gateway.name.short}.
+
+<a name="descelements"></a>Structure
+------------------------------------
+
+${the.gateway.cap} configuration file (`gateway-config.xml` or `gateway-config.xml`) defines the `service` configuration element and its subordinate elements and properties that are contained in the top-level `gateway-config` element:
+
+-   [gateway-config](r_conf_gwconfig.md)
+    -   [service](#service)
+        -   [name](#servicename)
+        -   [description](#servicedescription)
+        -   [accept](#acceptele)
+        -   [connect](#connectele)
+        -   [balance](#balanceele)
+        -   [notify](#notifyele)(JMS only) ${enterprise.logo.jms}
+        -   [type](#typeele)
+            -   [balancer](#balancer)
+            -   [broadcast](#broadcast)
+                -   [accept](#broadcast-accept)
+            -   [directory](#directory)
+                -   [directory](#directory-directory)
+                -   [options](#directory-options)
+                -   [welcome-file](#directory-welcomefile)
+                -   [error-pages-directory](#directory-errorpagesdirectory)
+            -   [echo](#echo)
+            -   [management.jmx](#mgmtjmx)
+            -   [management.snmp](#mgmtsnmp)
+            -   [kerberos5.proxy](#kerberos5)${enterprise.logo}
+            -   [proxy](#proxy)
+                -   [maximum.pending.bytes](#proxy-maximumpendingbytes)
+                -   [maximum.recovery.interval](#proxy-maximumrecoveryinterval)
+                -   [prepared.connection.count](#proxy-preparedconnectioncount)
+            -   [amqp.proxy](#proxy)
+                -   [maximum.pending.bytes](#proxy-maximumpendingbytes)
+                -   [maximum.recovery.interval](#proxy-maximumrecoveryinterval)
+                -   [prepared.connection.count](#proxy-preparedconnectioncount)
+                -   [virtual.host](#proxy-virtualhost)
+            -   [jms](r_stomp_service.md#stompjms) (JMS only) ${enterprise.logo.jms}
+            -   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
+            -   [xmpp.proxy](#proxy)
+            -   [session](#session_svc)
+        -   [properties](#propertiesele)
+        -   [accept-options](#svcacceptopts)
+            -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
+            -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
+            -   [ws.maximum.message.size](#wsmaxmsg)
+            -   [http.keepalive.timeout](#keepalive)
+            -   [ssl.ciphers](#sslciphers)
+            -   [ssl.protocols](#sslprotocols)
+            -   [ssl.encryption](#sslencrypt)
+            -   [ssl.verify-client](#sslverifyclient)
+            -   [socks.mode](#socksmode)${enterprise.logo}
+            -   [socks.ssl.ciphers](#sockssslciphers)${enterprise.logo}
+            -   [socks.ssl.protocols](#sslprotocols)${enterprise.logo}
+            -   [socks.ssl.verify-client](#sockssslverifyclient)${enterprise.logo}
+            -   [socks.retry.maximum.interval](#socksretrymaxint)${enterprise.logo}
+            -   [tcp.maximum.outbound.rate](#tcpmaxoutbndrate)${enterprise.logo}
+            -   [ws.inactivity.timeout](#wsinactivitytimeout)
+        -   [connect-options](#svcconnectopts)
+            -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
+            -   [ssl.ciphers](#sslciphers)
+            -   [ssl.protocols](#sslprotocols)
+            -   [ssl.encryption](#sslencrypt)
+            -   [socks.mode](#socksmode)${enterprise.logo}
+            -   [socks.timeout](#conn_sockstimeout)${enterprise.logo}
+            -   [socks.ssl.ciphers](#sockssslciphers)${enterprise.logo}
+            -   [socks.ssl.protocols](#sslprotocols)${enterprise.logo}
+            -   [socks.ssl.verify-client](#sockssslverifyclient)${enterprise.logo}
+            -   [ws.inactivity.timeout](#wsinactivitytimeout)
+            -   [ws.version](#wsversionopt) (deprecated)
+        -   [notify-options](#notifyopts)(JMS only) ${enterprise.logo.jms}
+            -   [apns.notify.transport](#notify_apnstrnsp)
+            -   [apns.feedback.transport](#notify_apnsfeedback)
+            -   [ssl.ciphers](#notify_sslciphers)
+            -   [tcp.transport](#notify_tcptransport)
+        -   [realm-name](#realm-name)
+        -   [authorization-constraint](#svcauthconst)
+            -   [require-role](#requireroleopt)
+            -   [require-valid-user](#requirevaliduser)
+        -   [mime-mapping](r_conf_serv_defs.md#svcdftmimemapping)
+            -   [extension](r_conf_serv_defs.md#mimemapextension)
+            -   [mime-type](r_conf_serv_defs.md#mimemapextension)
+        -   [cross-site-constraint](#xsiteconst)
+            -   [allow-origin](#alloworigin)
+            -   [allow-methods](#allowmethods)
+            -   [allow-headers](#alllowheaders)
+
+<span id="service"></span></a>service
+-------------------------------------
+
+Each `service` can contain any of the subordinate elements listed in the following table.
+
+**Note:** Subordinate elements must be specified in the order shown in the following table.
+<table class="reference">
+<tr>
+<th width="26%" scope="col">
+Subordinate Element
+</th>
+<th width="74%" scope="col">
+Description
+</th>
+</tr>
+<tr>
+<td class="code_inline">
+<a name="servicename"></a>name
+</td>
+<td>
+The name of the service. You must provide a name for the service. The `name` element can be any name.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+<a name="servicedescription"></a>description
+</td>
+<td>
+A description of the service is optional.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+accept
+</td>
+<td>
+The URLs on which the service accepts connections.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+connect
+</td>
+<td>
+The URL of a ${message.broker.generic} to which the proxy service or [broadcast](#broadcast)service connects.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+balance
+</td>
+<td>
+The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.
+</td>
+</tr>
+${jms.ems.begin}
+<tr>
+<td class="code_inline">
+notify (JMS only) ${enterprise.logo.jms}
+</td>
+<td>
+The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notifyele) element for details.
+</td>
+</tr>
+${jms.ems.end}
+<tr>
+<td class="code_inline">
+type
+</td>
+<td>
+The type of service. One of the following:
+-   [balancer](#balancer)
+-   [broadcast](#broadcast)
+-   [directory](#directory)
+-   [echo](#echo)
+-   [kerberos5.proxy](#kerberos5)${enterprise.logo}
+-   [management.jmx](#mgmtjmx)
+-   [management.snmp](#mgmtsnmp)
+-   [proxy](#proxy)
+-   [amqp.proxy](#proxy)
+-   [jms](r_stomp_service.md#stompjms) (JMS only) ${enterprise.logo.jms}
+-   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
+-   [xmpp.proxy](#proxy)
+-   [session](#session_svc)
+
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+properties
+</td>
+<td>
+The service type-specific properties.
+</td>
+</tr>
+<tr>
+<td height="34" class="code_inline">
+accept-options
+</td>
+<td>
+Options for the `accept` element (see [accept-options](#svcacceptopts)).
+</td>
+</tr>
+<tr>
+<td height="34" class="code_inline">
+connect-options
+</td>
+<td>
+Options for the `connect` element (see [connect-options](#svcconnectopts)).
+</td>
+</tr>
+${jms.ems.begin}
+<tr>
+<td height="34" class="code_inline">
+notify-options (JMS only) ${enterprise.logo.jms}
+</td>
+<td>
+Options for the notify element (see [notify-options)](#notifyopts).
+</td>
+</tr>
+${jms.ems.end}
+<tr>
+<td class="code_inline">
+realm-name
+</td>
+<td>
+The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.
+</td>
+</tr>
+<tr>
+<td height="34" class="code_inline">
+authorization-constraint
+</td>
+<td>
+The user roles that are authorized to access the service (see [authorization-constraint](#svc_auth_const)).
+</td>
+</tr>
+<tr>
+<td height="34" class="code_inline">
+mime-mapping
+</td>
+<td>
+Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping](#svcmimemapping)).
+</td>
+</tr>
+<tr>
+<td height="34" class="code_inline">
+cross-site-constraint
+</td>
+<td>
+The cross-origin sites (and their methods and custom headers) allowed to access the service. (see [cross-site-constraint](#xsiteconst)).
+</td>
+</tr>
+</table>
+### <a name="note_supportedURLschemes"></a>Supported URL Schemes:
+
+When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
+</p>
+-   ws
+-   wss
+-   http
+-   https
+-   ssl
+-   tcp
+-   udp
+
+</span>
+### <a name="acceptele"></a>accept
+
+**Required?** Yes; **Occurs:** At least once.
+
+The URLs on which the service accepts connections (see [Supported URL schemes](#note_supportedURLschemes)).
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>ws://balancer.example.com:8081/echo</accept>
+.
+.
+.
+</service>
+```
+
+#### Notes
+
+-   There is no default value for the accept element. You must configure it and specify the URI on which the service accepts connections.
+-   ${the.gateway.cap} is configured by default to provide services only to users on the same machine (`localhost`) as that on which it is running. To customize ${the.gateway} for your environment, choose the appropriate type of service (for example, `balancer`, `broadcast`, `directory`, and so on) to signal ${the.gateway} to accept incoming connections from clients using any supported URL scheme.
+-   Supported URL Schemes:</b> When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
+    </p>
+    -   ws
+    -   wss
+    -   http
+    -   https
+    -   ssl
+    -   tcp
+    -   udp
+
+### <a name="connectele"></a>connect
+
+**Required?** Yes; **Occurs:** At least once.
+
+The URL of a ${message.broker.generic} to which the proxy service (for example, `proxy` or amqp.proxy service) or [broadcast](#broadcast) service connects (see [Supported URL schemes](#note_supportedURLschemes)).
+
+#### Example
+
+``` auto-links:
+<connect>tcp://192.0.2.11:5943</connect>
+```
+
+#### Notes
+
+-   There is no default value for the `connect` element. You must configure it and specify the URI on which the service makes a connection to the ${message.broker.generic}.
+-   ${the.gateway.cap} is configured by default to provide services only to users on the same machine (`localhost`) as that on which it is running. To customize ${the.gateway} for your environment, choose the appropriate type of service (for example, `balancer`, `broadcast`, `echo`, and so on) to signal ${the.gateway} to accept incoming connections from clients using any supported URL scheme.
+-   Supported URL Schemes:</b> When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
+    </p>
+    -   ws
+    -   wss
+    -   http
+    -   https
+    -   ssl
+    -   tcp
+    -   udp
+
+### <a name="balanceele"></a>balance
+
+**Required?** Optional; **Occurs:** one or more.
+
+A URI that matches the `accept` URI in a [`balancer`](#balancer) service. The `balance` element is added to a `service` in order for that `service` to be load balanced between cluster members.
+
+#### Example
+
+The following example shows a ${gateway.cap} with a `balancer` service and an Echo service that contains a `balance` element. Note that the `accept` URI in the `balancer` service matches the `balance` URI in the Echo service.
+
+**Balancer Service**
+
+``` auto-links:
+<service>
+  <accept>ws://balancer.example.com:8081/echo</accept>
+
+  <type>balancer</type>
+
+  <accept-options>
+      <ws.bind>192.168.2.10:8081</ws.bind>
+  </accept-options>
+
+</service>
+```
+
+**${gateway.cap} Service Participating in Load Balancing**
+
+``` auto-links:
+<service>
+  <accept>ws://node1.example.com:8081/echo</accept>
+  <balance>ws://balancer.example.com:8081/echo</balance>
+
+  <type>echo</type>
+
+  <cross-site-constraint>
+    <allow-origin>http://directory.example.com:8080</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+#### Notes
+
+-   There is no default value for the balance element. If you configure it, then you must specify a URI for its value.
+-   The `balance` and `accept` element URIs in a `service` must use the same port number and path. The hostnames in the URIs may be different.
+-   See the [balancer](#balancer) service to configure the balancer.
+-   See [Set Up ${gateway.name.long} as a Load Balancer](../high-availability/p_ha_loadbalance.md) for a complete load balancing description and example.
+
+${jms.ems.begin}
+### <a name="notifyele"></a>notify (JMS only) ${enterprise.logo.jms}
+
+**Required?** Optional; **Occurs:** one or more.
+
+Use the `notify` element to make Apple Push Notification Service (APNs) notifications available for the service. This element specifies the notification-specific URI that contains the bundle ID and an optional development (or sandbox) indicator. ${jms.proxy.apns}
+
+**Note:** You must specify the bundle ID for your app in lowercase letters. For more information, see [Setting the Bundle ID](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/ConfiguringYourApp/ConfiguringYourApp.html#//apple_ref/doc/uid/TP40012582-CH28-SW16).
+For example, you might configure the URI `<notify>apns://com.example.myapp</notify>` to indicate that the iOS application can use the APNs notifying feature (while other iOS applications, with different bundle IDs, cannot). Because the bundle ID is the same for both the sandbox and production environments, you might have two different APNs certificates for the same bundle ID: one sandbox certificate and one production certificate. To tell them apart in ${the.gateway} configuration, the URIs would be slightly different. For example:
+
+-   For the sandbox environment: `<notify>apns://com.example.myapp/DEVELOPMENT</notify>`
+-   For the production environment: `<notify>apns://com.example.myapp/PRODUCTION</notify>`
+
+**Note:** To configure ${the.gateway} and iOS applications built using the ${gateway.name.long} Objective-C client library to use APNs for offline notifications, see the step-by-step instructions in [Deploy APNs with ${gateway.name.long}](../apns/o_apns.md). 
+#### <a name="notifyexample"></a>Example Configuration for the notify Element
+
+The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notifyopts) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
+`-importcert`, as described in [Deploy APNs with ${gateway.name.long}](../apns/o_apns.md)).
+
+**Example Configuration for an Apple Production Environment**
+
+``` auto-links:
+<service>
+  <accept>ws://${gateway.hostname}:8000/proxy</accept>
+
+  <!-- Use the APNs scheme (notification provider), 
+    and allow the application com.example.myapp to 
+    to subscribe and receive notifications via APNs --> 
+  <notify>apns://com.example.myapp/PRODUCTION</notify>
+
+  <type>jms</type>
+
+  <properties>
+    <connection.factory.name>
+      Connection Factory
+    </connection.factory.name>
+    <context.lookup.topic.format>
+      dynamicTopics/%s
+    </context.lookup.topic.format>
+    <context.lookup.queue.format>
+      dynamicQueues/%s
+    </context.lookup.queue.format>
+    <env.java.naming.factory.initial>
+      org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    </env.java.naming.factory.initial>
+    <env.java.naming.provider.url>
+      tcp://localhost:61616
+    </env.java.naming.provider.url>
+  </properties>
+  
+    <!-- These DNS names/ports point to the production Apple servers. This means
+    JMS clients that connect to this service should have production device tokens.-->
+    <!-- Use ssl:// - Apple requires TLS/SSL to communicate with their services -->
+  <notify-options>
+    <apns.notify.transport>ssl://gateway.push.apple.com:2195</apns.notify.transport>
+    <apns.feedback.transport>ssl://feedback.push.apple.com:2196</apns.feedback.transport>
+  </notify-options>
+
+  <realm-name>demo</realm-name>
+
+  <cross-site-constraint>
+    <allow-origin>http://example.com:8080</allow-origin>
+  </cross-site-constraint>
+</service>
+    .
+    .
+    .
+<security>
+  <keystore>
+    <type>JCEKS</type>
+    <file>keystore.db</file>
+    <password-file>keystore.pw</password-file>
+  </keystore>
+  <truststore>
+    <type>JCEKS</type>
+    <file>truststore-JCEKS.db</file>
+  </truststore>
+</security>
+  .
+  .
+  .
+```
+
+**Example Configuration for an Apple Sandbox Development Environment**
+
+``` auto-links:
+  .
+  .
+  .
+<service>
+  <accept>ws://example.com:8080/jms</accept>
+  
+    <!-- Use the APNs scheme (notification provider) and allow  
+    the application com.example.myapp/DEVELOPMENT to  
+    subscribe and receive notifications via APNs -->
+  <notify>apns://com.example.myapp/DEVELOPMENT</notify>
+
+  <type>jms</type>
+
+  <properties>
+    <connection.factory.name>
+      Connection Factory
+    </connection.factory.name>
+    <context.lookup.topic.format>
+      dynamicTopics/%s
+    </context.lookup.topic.format>
+    <context.lookup.queue.format>
+      dynamicQueues/%s
+    </context.lookup.queue.format>
+    <env.java.naming.factory.initial>
+      org.apache.activemq.jndi.ActiveMQInitialContextFactory
+    </env.java.naming.factory.initial>
+    <env.java.naming.provider.url>
+      tcp://localhost:61616
+    </env.java.naming.provider.url>
+  </properties>
+  
+    <!-- These DNS names/ports point to the sandbox Apple servers. Thus, the JMS
+    clients that connect to this service should have development device tokens.-->
+    <!-- Must use ssl:// - Apple requires TLS/SSL to communicate with their services -->
+  <notify-options>
+    <apns.notify.transport>
+      ssl://gateway.sandbox.push.apple.com:2195
+    </apns.notify.transport>
+    <apns.feedback.transport>
+      ssl://feedback.sandbox.push.apple.com:2196
+    </apns.feedback.transport>
+  </notify-options>
+
+  <realm-name>demo</realm-name>
+
+  <cross-site-constraint> 
+    <allow-origin>http://example.com:8080</allow-origin> 
+  </cross-site-constraint>
+</service>
+.
+.
+.
+<security>
+  <keystore>
+    <type>JCEKS</type>
+    <file>keystore.db</file>
+    <password-file>keystore.pw</password-file>
+  </keystore>
+  <truststore>
+    <type>JCEKS</type>
+    <file>truststore-JCEKS.db</file>
+  </truststore>
+</security>
+  .
+  .
+  .
+```
+
+#### Notes
+
+-   There is no default value for the notify element. If you configure the `notify` element, then you must specify the URI of the Apple Push Notification Service (APNs) as its value.
+-   Configure the `notify` element after any `accept`, `connect`, and `balance` elements, and before the `type` element.
+-   Configure the [notify-options](#notifyopts) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
+-   Configure the `security` element for all APNs configurations, including both the production and development environments.
+-   In an ${enterprise.shield} topology, configure `notify` and `notify-options` on the [jms](r_stomp_service.md#stompjms) service on an internal ${gateway.cap} that is connected directly to the ${message.broker.generic}.
+-   Do not configure a single ${gateway.cap} instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
+
+    For example, because the production and sandbox configurations shown in [Example Configuration for the notify Element](#notifyexample) use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (<span class="auto-links: false; brush: xml; highlight: [10,17,18,19,20]; toolbar: false;">`com.example.myapp/DEVELOPMENT`</span>) on its URI.
+
+-   For APNs notifications, if the sandbox and the production environments both use the same bundle ID (such as `com.example.myapp`), then you must configure two ${gateway.cap} instances: one for the sandbox environment and one for the production environment. When establishing connections to Apple's development (and production) environment, both the bundle ID and the environment are used.
+
+-   If the client already has an active or open connection to ${the.gateway}, then APNs will not be used.
+-   Considerations regarding certificates:
+    -   Connecting to the APNs requires a certificate; each certificate is tied to a specific application (by iOS application ID). Thus, you must configure multiple APNs certificates for a given service.
+    -   The sandbox and the production environments each has its own set of certificates. Configuration of APNs certificates, for a given service, is therefore comprised of separate sets of certificates per environment, and per application within each environment.
+    -   The APNs URI (which uses the bundle ID, such as `com.example.myapp`) in the `notify` element ties together the provisioning profile and digital certificate. The provisioning profile and digital certificate are only valid for a single AppID. This relationship ensures that ${the.gateway} can send push notifications to instances of a specific iOS app, and to no other application.
+    -   If you use separate digital certificates for ${the.gateway} and the iOS app, then both certificates must have the same bundle ID.
+
+${jms.ems.end}
+### <a name="typeele"></a>type
+
+The type of service. One of the following:
+
+-   [balancer](#balancer)
+-   [broadcast](#broadcast)
+-   [directory](#directory)
+-   [echo](#echo)
+-   [kerberos5.proxy](#kerberos5)${enterprise.logo}
+-   [management.jmx](#mgmtjmx)
+-   [management.snmp](#mgmtsnmp)
+-   [amqp.proxy](#proxy)
+-   [proxy](#proxy)
+-   [jms](r_stomp_service.md#stompjms) (JMS only) ${enterprise.logo.jms}
+-   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
+-   [xmpp.proxy](#proxy)
+-   [session](#session_svc)
+
+### <span id="balancer"></span></a>balancer
+
+Use the `balancer` service to balance load for requests for any other ${gateway.cap} service type.
+
+#### Example
+
+The following example shows a ${gateway.cap} with a `balancer` service and an Echo service that contains a `balance` element. Note that the `accept` URI in the `balancer` service matches the `balance` URI in the Echo service.
+
+**Balancer Service**
+
+``` auto-links:
+<service>
+  <accept>ws://balancer.example.com:8081/echo</accept>
+
+  <type>balancer</type>
+  
+  <accept-options>
+    <ws.bind>192.168.2.10:8081</ws.bind>
+  </accept-options>
+
+  <cross-site-constraint>
+    <allow-origin>http://directory.example.com:8080</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+**${gateway.cap} Service Participating in Load Balancing**
+
+``` auto-links:
+<service>
+  <accept>ws://node1.example.com:8081/echo</accept>
+  <balance>ws://balancer.example.com:8081/echo</balance>
+
+  <type>echo</type>
+
+  <cross-site-constraint>
+    <allow-origin>http://directory.example.com:8080</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+#### Notes
+
+-   When you configure ${the.gateway} as a load balancer you specify `accept` elements that identify the URLs on which the balancer service listens for client requests. The `balancer` service is used to balance load for a cluster of ${gateway.cap}s.
+-   As with all services, the `balancer` service needs to have appropriate cross-site constraints defined.
+-   For more information about load balancing and using the `balancer` service, see the [Configure ${the.gateway} for High Availability](../high-availability/o_ha.md) topic.
+
+### <a name="broadcast"></a>broadcast
+
+Use the `broadcast` service to relay information from a ${message.broker.generic}. The `broadcast` service has the following property:
+
+| Property                                | Description                                                                     |
+|-----------------------------------------|---------------------------------------------------------------------------------|
+| <a name="broadcast-accept"></a>`accept` | The URL of the broadcast service to which a ${message.broker.generic} connects. |
+
+#### Examples
+
+-   The following example configures the `broadcast` service with the `accept` element coded inside the `properties` element. This configures ${the.gateway} to accept connections initiated by the ${message.broker.generic} and broadcast messages that are sent along that connection to clients.
+
+    ``` auto-links:
+    <service>
+      <accept>sse://localhost:8000/sse</accept>
+      <accept>sse+ssl://localhost:9000/sse</accept>
+
+      <type>broadcast</type>
+
+      <properties>
+        <accept>udp://localhost:50505</accept>
+      </properties>
+
+      <cross-site-constraint>
+        <allow-origin>http://localhost:8000</allow-origin>
+      </cross-site-constraint>
+
+      <cross-site-constraint>
+        <allow-origin>https://localhost:9000</allow-origin>
+      </cross-site-constraint>
+    </service>
+    ```
+
+-   The following example configures the `broadcast` service with a `connect` element that contains the URL of the ${message.broker.generic} (`news.example.com:50505`) to which ${the.gateway} connects. If you configure ${the.gateway} in this way, then ${the.gateway} initiates the connection to the ${message.broker.generic}. When the service receives information, it broadcasts it to all the SSE channels accepted from clients on `www.example.com`.
+
+    </p>
+    ``` auto-links:
+    <service>
+      <accept>sse://www.example.com:8000/sse</accept>
+      <accept>sse+ssl://www.example.com:9000/sse</accept>
+      <connect>tcp://news.example.com:50505/</connect>
+      <type>broadcast</type>
+
+      <cross-site-constraint>
+        <allow-origin>http://www.example.com:8000</allow-origin>
+      </cross-site-constraint>
+      <cross-site-constraint>
+        <allow-origin>https://www.example.com:9000</allow-origin>
+      </cross-site-constraint>
+    </service>
+    ```
+
+### <span id="directory"></span></a>directory
+
+Use the `directory` service to expose directories or files hosted on ${the.gateway}. The `directory` service has the following properties:
+
+**Note:** The properties must be specified in the order shown in the following table.x
+
+| Property                                                            | Required or Optional? | Description                                                                                                                                                                                                                                                                                                                                              |
+|---------------------------------------------------------------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="directory-directory"></a>`directory`                       | Required              | The path to the directory to be exposed on ${the.gateway}.                                                                                                                                                                                                                                                                                               |
+| <a name="directory-options"></a>`options`                           | Optional              | Enables directory browsing of the files and folders in the location specified by the `directory` property. The value `indexes` must be entered. For example, `<options>indexes</options>` enables directory browsing. Omitting the `options` property disables directory browsing. Browsing a directory with `welcome-file` will serve the welcome file. |
+| <a name="directory-welcomefile"></a>`welcome-file`                  | Optional              | The path to the file to be exposed on ${the.gateway}.                                                                                                                                                                                                                                                                                                    |
+| <a name="directory-errorpagesdirectory"></a>`error-pages-directory` | Optional              | The path to the directory containing the `404.md` file. By default, ${the.gateway} includes a `404.md` file in `GATEWAY_HOME/error-pages`. See the [Notes](#dir_notes) for more information.                                                                                                                                                         |
+
+#### Examples
+
+-   The following is an example of a `service` element of type `directory` that accepts connections on localhost by default:
+
+    ``` auto-links:
+    <service>
+      <accept>http://localhost:8000/</accept>
+      <accept>https://localhost:9000/</accept>
+
+      <type>directory</type>
+      <properties>
+        <directory>/</directory>
+        <welcome-file>index.md</welcome-file>
+        <error-pages-directory>/error-pages</error-pages-directory>
+      </properties>
+    </service>
+    ```
+
+#### <a name="dir_notes"></a>Notes
+
+-   The path you specify for the `directory` service must be relative to the directory `GATEWAY_HOME\web` (where `GATEWAY_HOME` is the directory in which ${gateway.name.short} is installed). For example, `C:\gateway\GATEWAY_HOME\web`. An absolute path cannot be specified.
+-   ${gateway.name.short} services are configured to accept connections on `localhost` by default. The cross-origin sites allowed to access those services are also configured for localhost-only by default. If you want to connect to host names other than localhost you must update your server configuration, and use the fully qualified host name of the host machine.
+-   If you use the optional `error-pages-directory` property, you can test it by adding the property, saving the `gateway-config.xml` file, then starting ${the.gateway}. Once ${the.gateway} is running, point your browser to a page that does not exist, such as `http://localhost:8000/nonexistentpage.html`.
+
+### <a name="echo"></a>echo
+
+This type of service receives a string of characters through a WebSocket connection and returns, or *echoes* the same characters to the sender.
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8001/echo</accept>
+  <accept>wss://localhost:9001/echo</accept>
+
+  <type>echo</type>
+  
+  <cross-site-constraint>
+    <allow-origin>http://localhost:8000</allow-origin>
+  </cross-site-constraint>
+
+  <cross-site-constraint>
+    <allow-origin>https://localhost:9000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+#### Notes
+
+-   The primary use for the `echo` service is to validate the basic gateway configuration.
+-   The default `echo` service is configured to run on a separate port to verify cross-origin access.
+
+### <span id="kerberos5"></span></a>kerberos5.proxy${enterprise.logo}
+
+Use the `kerberos5.proxy` service to connect ${the.gateway} to the Kerberos Key Distribution Center.
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8000/kerberos5</accept>
+  <connect>tcp://kdc.example.com:88</connect>
+
+  <type>kerberos5.proxy</type>
+
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+#### Notes
+
+-   The `kerberos5.proxy` service is required when you configure the `Application Negotiate` [authentication scheme](r_conf_security.md#challenge_scheme).
+
+### <a name="mgmtjmx"></a>management.jmx
+
+Use the `management.jmx` service type to track and monitor user sessions and configuration data using JMX Managed Beans.
+
+#### Example
+
+The following example is a snippet from the default Gateway configuration file showing the JMX Management section:
+
+``` auto-links:
+     <service>
+       <name>JMX Management</name>
+        <description>JMX Management Service</description>
+
+        <type>management.jmx</type>
+      
+       <properties>
+         <connector.server.address>jmx://${gateway.hostname}:2020/</connector.server.address>
+       </properties>
+
+       <!-- secure monitoring using a security realm -->
+       <realm-name>demo</realm-name>
+
+       <!-- configure the authorized user roles -->
+        <authorization-constraint>
+         <require-role>ADMINISTRATOR</require-role>
+       </authorization-constraint>
+     </service>
+```
+
+#### Notes
+
+-   See [Monitor ${the.gateway}](../management/o_admin_monitor.md) for an introduction to monitoring ${the.gateway}.
+-   See [Monitor with JMX](../management/p_monitor_jmx.md) for more information and examples of monitoring with JMX.
+-   The `management.jmx` service is enabled by default in ${the.gateway} configuration file.
+-   ${gateway.name.short} supports Java Management Extension (JMX) access through any JMX-compliant console that supports communication using the JMX protocol.
+
+### <a name="mgmtsnmp"></a>management.snmp
+
+Use the `management.snmp` service type to monitor a Gateway or a Gateway cluster through ${console.name}, which is a browser-based application. Using ${console.name} is the recommended method for monitoring ${the.gateway}.
+
+#### Example
+
+The following example is a snippet from the default Gateway configuration file showing the SNMP Management section:
+
+``` auto-links:
+      <service>
+        <name>SNMP Management</name>
+          <description>SNMP Management Service</description>
+        <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
+      
+          <type>management.snmp</type>
+
+        <!-- secure monitoring using a security realm -->
+        <realm-name>commandcenter</realm-name>
+
+        <!-- configure the authorized user roles -->
+          <authorization-constraint>
+          <require-role>ADMINISTRATOR</require-role>
+        </authorization-constraint>
+      
+        <cross-site-constraint>
+          <allow-origin>*</allow-origin>
+        </cross-site-constraint>
+      </service>
+```
+
+#### Notes
+
+-   The `management.snmp` service is enabled by default in ${the.gateway} configuration file. The `management.snmp` service is designed for use with ${console.name}.
+-   See [Monitor ${the.gateway}](../management/o_admin_monitor.md) for an introduction to monitoring ${the.gateway}.
+-   See [Monitor with ${console.name}](../management/p_monitor_cc.md) for more information about monitoring with ${console.name}.
+
+${rm.jms.proxy.begin}
+### <a name="proxy"></a>proxy and amqp.proxy
+
+Use the `proxy` service or amqp.proxy to enable a client to make a WebSocket connection to a ${message.broker.generic} that cannot natively accept WebSocket connections.
+
+##### Properties for the `proxy` Service and amqp.proxy Service
+
+Use the following properties with the `proxy` service and amqp.proxy service:
+
+<table class="reference">
+<tr>
+<th scope="col">
+Property
+</th>
+<th scope="col">
+Required?
+</th>
+<th scope="col">
+Description
+</th>
+</tr>
+<tr>
+<td>
+<a name="proxy-maximumpendingbytes"></a>`maximum.pending.bytes`
+</td>
+<td>
+Optional
+</td>
+<td>
+The size of data the service buffers for one client connection before slowing incoming data. The value must be a positive integer with either no specified unit or appended with `kB` or `MB` (the unit is case insensitive) to indicate kilobytes or megabytes. If no unit is specified, the default unit is bytes. If you do not specify this property, its default value is `64kB`. For example:
+-   A value of `2048` sets the buffer to **2048 bytes**
+-   A value of `128kB` sets the buffer to **128 kilobytes**
+-   No instance of the `maximum.pending.bytes` property in the `gateway-config.xml` sets the buffer to **64 kilobytes**
+
+${the.gateway.cap} uses this buffer when the speed of the data coming into the service is faster than the speed of the data being consumed by the receiving end, which is either the client or the ${message.broker.generic}. The buffer stores the data up to the limit you specify in this property per client connection, then slows the incoming data, until either the client or the ${message.broker.generic} (whichever is consuming the data) has consumed more than 50% of the outgoing data flow. For example, suppose you set this property to `128kB`. If the ${message.broker.generic} sends 256kB of data to a client and the client has only consumed 128kB, the remaining 128kB (the limit you set in the property) is buffered. At this time, ${the.gateway} suspends reading the data from the ${message.broker.generic}; as the client consumes the buffered data, the size of the buffered data decreases. When the buffered data falls below 64kB, ${the.gateway} resumes reading the data from the ${message.broker.generic}.
+</td>
+</tr>
+<tr>
+<td>
+<a name="proxy-maximumrecoveryinterval"></a>`maximum.recovery.interval`
+</td>
+<td>
+Optional
+</td>
+<td>
+The maximum interval (in seconds) between attempts of the service to establish a connection to the ${message.broker.generic} specified by the `connect` element.
+-   If specified, the value must be a non-negative integer. You must enable this property to ensure the client can reconnect to another service that has a good connection to an available ${message.broker.generic}.
+-   If unspecified or if the value is set to `0`, then the property is disabled but ${the.gateway} will start and run successfully. However, when the property is not enabled, the load balancer does not detect when a service is disconnected from the ${message.broker.generic} or when the broker is unavailable.
+
+If the ${message.broker.generic} becomes unavailable or ${the.gateway} cannot establish a connection to it, ${the.gateway} triggers a recovery. ${the.gateway.cap} attempts to reestablish a connection to the ${message.broker.generic}. Initially, the interval between attempts is short, but grows until it reaches the specified value. From that point on, ${the.gateway} attempts to reestablish a connection only at the interval specified. During this recovery phase, ${the.gateway} unbinds the service, and clients attempting to connect to this service receive a "404 Not Found" error. Once the ${message.broker.generic} recovers and ${the.gateway} establishes a connection, ${the.gateway} binds the service and clients can connect to the service. See the [Examples](#proxyserviceexamples) for a code snippet using this property.
+</td>
+</td>
+</tr>
+<tr>
+<td>
+<a name="proxy-preparedconnectioncount"></a>`prepared.connection.count`
+</td>
+<td>
+Optional
+</td>
+<td>
+Set this property in either of the following use cases:
+-   Set this property when configuring your proxy service, which is the most common use case for `prepared.connection.count`. In this case, setting `prepared.connection.count` sets the number of connections ${the.gateway} creates (or *prepares*) to the ${message.broker.generic} specified by the `connect` element in addition to the client connections. When ${the.gateway} starts, it creates the specified number of connections to the ${message.broker.generic}, thus creating a "prepared connection." When an incoming client connection uses a prepared connection, ${the.gateway} creates another connection to the ${message.broker.generic}, thus maintaining the specified number of prepared connections to the ${message.broker.generic}.
+-   Set this property when configuring ${enterprise.shield}. See [Configure ${enterprise.shield}](../reverse-connectivity/p_rc_config.md) for detailed configuration information.</span>
+
+If you do not set this property, then ${the.gateway} does not prepare connections to the ${message.broker.generic}.
+</td>
+</tr>
+<tr>
+<td>
+<a name="proxy-virtualhost"></a>`virtual.host`
+</td>
+<td>
+Optional
+</td>
+<td>
+Specifies the AMQP virtual host to which ${the.gateway} can proxy clients that are connected to this service.After ${the.gateway} authenticates the client, the virtual host is injected into the AMQP protocol and messages can be exchanged. This ensures the target virtual host comes from a validated and trusted source such as ${the.gateway}, rather than relying on what is set by the client, which can be manipulated.You may choose to configure a virtual host when you want to:
+-   Isolate exchanges, queues, and topics created under one virtual-host from those in the other virtual hosts residing in the same AMQP broker instance.
+-   Ensure each client can only see their data and not the data of other clients.
+-   Handle a configuration in which your AMQP broker is part of a multi-tenant application and you do not want clients from one tenant sharing data and exchanges with clients from another tenant.
+
+See the [Examples](#proxyserviceexamples) for a code snippet using this property.
+</td>
+</tr>
+</table>
+#### <a name="proxyserviceexamples"></a>Examples
+
+-   The following example of the `proxy` service configures the `accept` element to signal ${the.gateway} to accept incoming connections from clients using WebSocket (`ws`) and WebSocket Secure (`wss`), and it configures the `connect` element to connect to the ${message.broker.generic} using TCP. The example uses the `${proxy.service.inline.link}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+    </p>
+    The example also configures the following properties:
+
+    -   `maximum.pending.bytes` property, which sets the buffer to `128kB`.
+    -   `maximum.recovery.interval `property, which tells ${the.gateway} to ping the service at `tcp://internal.example.com:${port}` every 30 seconds if the ${message.broker.generic} becomes unavailable.
+    -   `prepared.connection.count` property, which tells ${the.gateway} to prepare 10 connections to the ${message.broker.generic} specified by the `connect` element, then maintain 10 connections as clients consume each connection.
+
+    ``` auto-links:
+    <service>
+      <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+      <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+      <connect>tcp://internal.example.com:${port}</connect>
+
+      <type>proxy</type>
+      
+      <properties>
+        <maximum.pending.bytes>128kB</maximum.pending.bytes>
+        <maximum.recovery.interval>30</maximum.recovery.interval>
+        <prepared.connection.count>10</prepared.connection.count>
+      </properties>
+
+      <cross-site-constraint>
+        <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
+      </cross-site-constraint>
+      <cross-site-constraint>
+        <allow-origin>https://${gateway.hostname}:${gateway.base.port}</allow-origin>
+      </cross-site-constraint>
+    </service>
+    ```
+
+-   The following example shows a service configuration section that is used to accept connections for the `proxy` service at the URL `ws://www.example.com` on port `80`. (The port is included for the sake of example. You can omit the default ports 80 or 443.).
+
+    </p>
+    ``` auto-links:
+    <service>
+      <accept>ws://www.example.com:80/service</accept>
+      <connect>tcp://internal.example.com:${port}</connect>
+
+      <type>proxy</type>
+      
+    </service>
+    ```
+
+-   The following example configures two `amqp.proxy` services, `app1` and `app2`, and each service connects to a virtual host, `vhost1` and `vhost2`. Clients connecting via the `app1` service can access only `vhost1`, and clients on the `app2` service can access only `vhost2`.
+
+    ``` auto-links:
+    <!-- This service connects only to the AMQP virtual host vhost1. -->
+    <service>  
+      <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
+      <connect>pipe://vhost1</connect>
+
+      <type>amqp.proxy</type>
+
+      <properties>
+        <virtual.host>/vhost1</virtual.host>
+      </properties>
+    </service>
+
+    <!-- This service connects only to the AMQP virtual host vhost2.-->
+    <service>
+      <accept>ws://${gateway.hostname}:${gateway.port}/app2</accept>
+      <connect>pipe://vhost2</connect>
+      
+      <type>amqp.proxy</type>
+      
+      <properties>
+        <virtual.host>/vhost2</virtual.host>
+      </properties>
+    </service>
+      
+    <!-- Proxy service accepts on named pipes to connect to the AMQP broker.-->
+    <service>
+      <accept>pipe://vhost1</accept>
+      <accept>pipe://vhost2</accept>
+      <connect>tcp://${gateway.hostname}:5672</connect>
+      
+      <type>proxy</type>
+      
+    </service>
+    ```
+
+#### Notes
+
+-   You must also configure the following elements:
+    -   [`accept`](#acceptele): the URL at which the service accepts connections
+    -   [`connect`](#connectele): the URL of the service to which ${the.gateway} connects
+-   The WebSocket protocol used by the client connection is converteded into a protocol that you specify (for example, TCP) to connect to the ${message.broker.generic}. Upon client connection, ${the.gateway} establishes a full-duplex connection between itself and the client, and between itself and the ${message.broker.generic}. The result is a full-duplex connection between the client and the ${message.broker.generic}.
+-   ${the.gateway.cap} services are configured to accept connections on `localhost` by default. The cross-origin sites allowed to access those services are also configured for localhost by default. If you want to connect to host names other than `localhost`, then you must update your server configuration and use the fully qualified host name of the host machine, as shown in the example.
+-   When there are multiple `amqp.proxy` services in ${the.gateway} configuration that are connecting to the same AMQP broker instance, all AMQP proxy services should pipe their `connect` elements to a common service as shown in the previous configuration example. This is recommended due to a current restriction with JMX monitoring.
+-   See the [Promote User Identity into the AMQP Protocol](../security/p_aaa_userid_promo.md) topic for more information about injecting AMQP credentials into the protocol in a trusted manner.
+
+${rm.jms.proxy.end}
+### <a name="session_svc"></a>session
+
+Use the `session` service to prevent sessions from timing out.
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>https://localhost:9000/session</accept>
+
+  <type>session</type>
+
+  <authorization-constraint>
+    <require-role>AUTHORIZED</require-role>
+  </authorization-constraint>
+</service>
+```
+
+#### Notes
+
+-   *Always* use HTTPS when configuring communication with the `session` service.
+
+### <a name="propertiesele"></a>properties
+
+The service's type-specific properties.
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>http://${gateway.hostname}:${gateway.extras.port}/</accept>
+
+  <type>directory</type>
+
+  <properties>
+    <directory>/</directory>
+    <welcome-file>index.md</welcome-file>
+  </properties>
+    .
+    .
+    .
+</service>
+```
+
+#### Notes
+
+-   The `properties` subelement to used to configure properties that are specific to each service.
+-   See also the `property` subelement that you specify in the Property Defaults section of ${the.gateway} configuration file to define property values once and that are then propagated throughout the configuration when ${the.gateway} starts. See the [Configure ${gateway.name.long}](p_conf_files.md) topic for more information about configuring the property defaults section of ${the.gateway} configuration file.
+
+### <span id="svcacceptopts"></span></a>accept-options and <a name="svcconnectopts"></a>connect-options
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `accept-options` element to add options to all accepts for the service (see also the [`accept`](#acceptele) element).
+
+You can configure `accept-options` on the [service](#service) or the [service-defaults](r_conf_serv_defs.md) elements:
+
+-   Setting `accept-options` on the `service` element only affects the specified service and overrides any defaults.
+-   Setting `accept-options` on `service-defaults` affects all services that can use that option and is overridden by any `accept-options` applied at the service level.
+
+Use the `connect-options` element to add options to all connections for the service (see also the `connect` element).
+
+-   Setting `connect-options` can only be done for the *service* element; You cannot configure `connect-options` at the [service-defaults](r_conf_serv_defs.md) level.
+-   Setting `connect-options` affects only the specified service and override any defaults.
+
+<table class="reference">
+<tr>
+<th>
+Option
+</th>
+<th>
+accept-options
+</th>
+<th>
+connect-options
+</th>
+<th>
+Description
+</th>
+</tr>
+<tr>
+<td height="208" class="code_inline">
+*protocol*.bind
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+Binds the URL(s) on which the service accepts connections (defined by the `accept` element). Set `protocol` to one of the following:
+-   ws
+-   wss
+-   http
+-   https
+-   ssl
+-   tcp
+-   udp
+
+See [*protocol*.bind](#protocolbind)
+</td>
+</tr>
+<tr>
+<td height="208" class="code_inline">
+*protocol*.transport
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Specifies the URI for use as a transport layer (defined by the `accept` element). Set `protocol.transport` to any of the following:
+-   http.transport
+-   ssl.transport
+-   tcp.transport
+-   pipe.transport
+
+See [*protocol*.transport](#protocoltransport).
+</td>
+</tr>
+<tr>
+<td height="36" class="code_inline">
+ws.maximum.message.size
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+Specifies the maximum incoming WebSocket message size allowed by ${the.gateway} (see [ws.maximum.message.size](#wsmaxmsg)).
+</td>
+</tr>
+<tr>
+<td height="36" class="code_inline">
+http.keepalive.timeout
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+Specifies how much time ${the.gateway} waits after responding to an HTTP or HTTPS request and receiving a subsequent request (see [http.keepalive.timeout](#keepalive)).
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+ssl.ciphers
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Lists the cipher strings and cipher suite names used by the secure connection.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+ssl.protocols
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Lists the TLS/SSL protocol names on which ${the.gateway} can accept connections. See [ssl.protocols and socks.ssl.protocols](#sslprotocols).
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+ssl.encryption
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Signals ${gateway.name.long} to enable or disable encryption on incoming traffic.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+ssl.verify-client
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+Signals ${gateway.name.long} to require a client to provide a digital certificate that ${the.gateway} can use to verify the client’s identity.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+socks.mode ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+The mode that you can optionally set to `forward` or `reverse` to tell ${the.gateway} how to interpret SOCKS URIs to initiate the connection (see [socks.mode](#socksmode)).
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+socks.timeout ${enterprise.logo}
+</td>
+<td class="no">
+ 
+</td>
+<td class="yes">
+
+</td>
+<td>
+Specifies the length of time (in seconds) to wait for SOCKS connections to form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#conn_sockstimeout).
+</td>
+</tr>
+<tr>
+<tr>
+<td class="code_inline">
+socks.ssl.ciphers ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Lists the cipher strings and cipher suite names used by the secure SOCKS connection.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+socks.ssl.protocols ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Lists the TLS/SSL protocol names on which ${the.gateway} can accept connections for ${enterprise.shield} configurations that are running the SOCKS protocol over SSL. See [ssl.protocols and socks.ssl.protocols](#sslprotocols).
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+socks.ssl.verify-client ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+A connect mode you can set to `required`, `optional`, or `none` to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+socks.retry.maximum.interval ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+The maximum interval ${the.gateway} waits before retrying if an attempt to connect to the SOCKS proxy fails. ${the.gateway.cap} initially retries after waiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of `socks.retry.maximum.interval`. After the maximum interval is reached, ${the.gateway} continues to reconnect to the SOCKS proxy at the maximum interval.
+</td>
+</tr>
+<tr>
+<td class="code_inline">
+tcp.maximum.outbound.rate ${enterprise.logo}
+</td>
+<td class="yes">
+
+</td>
+<td class="no">
+ 
+</td>
+<td>
+Specifies the maximum bandwidth rate at which bytes can be written from ${the.gateway} (outbound) to each client session. This option controls the rate of outbound traffic being sent per client connection for clients connecting to a service (see [tcp.maximum.outbound.rate](#tcpmaxoutbndrate)).
+</td>
+</tr>
+<tr>
+<td height="36" class="code_inline">
+ws.inactivity.timeout
+</td>
+<td class="yes">
+
+</td>
+<td class="yes">
+
+</td>
+<td>
+Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). ${the.gateway.cap} will drop the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+</td>
+</tr>
+<tr>
+<td height="116" class="code_inline">
+ws.version (deprecated)
+</td>
+<td class="no">
+ 
+</td>
+<td class="yes">
+
+</td>
+<td>
+The `ws.version` element has been deprecated. See [ws.version](#wsversionopt)
+</td>
+</tr>
+</table>
+#### <span id="svcacceptopts3"></span></a>*protocol*.bind
+
+**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be ws, wss, http, https, ssl, tcp, or udp
+
+Use the `protocol.bind` element to configure network protocol bindings for your ${gateway.cap} services. Configure `protocol.bind` as an accept-option or a connect-option to bind a URI or URIs on which ${the.gateway} can accept or make connections. ${the.gateway.cap} binds the URI or port or IP address specified in the `protocol.bind` element to bind the public URI in the `accept` or `connect` element to the URI or port or IP address
+
+</p>
+Specify any of the following protocol schemes:
+
+-   `ws`: Specifies the WebSocket (WS) protocol.
+-   `wss`: Specifies the WebSocket Secure (WSS) protocol, which is the secure WS protocol.
+-   `http`: Specifies the Hypertext Transfer Protocol (HTTP).
+-   `https`: Specifies the HTTP Secure (HTTPS), which is the secure HTTP protocol.
+-   `socks`: Specifies the SOCKet Secure (SOCKS) protocol.
+-   `ssl`: Specifies the Transport Layer Security (TLS), previously known as Secure Sockets Layer (SSL).
+-   `tcp`: Specifies the Transmission Control Protocol (TCP).
+-   `udp`: Specifies the User Datagram Protocol (UDP).
+
+See the [Configure ${the.gateway} on an Internal Network](../internal-network/p_network_addresses.md) document for more information about configuring the `protocol.bind` element.
+
+##### Example: Binding to Specific Ports
+
+The following example shows external addresses (that users will see) for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols on `localhost:8000` and `localhost:9000`. Internally, however, these addresses are bound to ports 8001 and 9001 respectively.
+
+``` auto-links:
+<service>
+  <name>Echo Config</name>
+  <accept>ws://localhost:8000/echo</accept>
+  <accept>wss://localhost:9000/echo</accept>
+
+  <type>echo</type>
+  
+  <accept-options>
+    <ws.bind>8001</ws.bind>
+    <wss.bind>9001</wss.bind>
+  </accept-options>
+</service>
+```
+
+##### Example: Binding a Public URI to IP Addresses in a Cluster Configuration
+
+In the following example, the `ws.bind` and `wss.bind`elements in accept-options are used to bind the public URI in the `accept` elements to the local IP address of the cluster member. This allows the accept URIs in the balancer service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member (contain the local IP address of that cluster member).
+
+``` auto-links:
+<service>
+  <accept>ws://balancer.example.com:8081/echo</accept>
+  <accept>wss://balancer.example.com:9091/echo</accept>
+
+  <type>balancer</type>
+  
+  <accept-options>
+    <ws.bind>192.168.2.10:8081</ws.bind>
+    <wss.bind>192.168.2.10:9091</wss.bind>
+  </accept-options>
+</service>
+```
+
+#### <span id="svcacceptopts3"></span></a>*protocol*.transport
+
+**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be pipe, tcp, ssl, or http.
+
+Use the `protocol.transport` accept-option or connect-option to replace the default transport with a new transport. This allows you to change the behavior of the connection without affecting the protocol stack above the transport. For example, a TCP transport normally connects to a remote IP address and port number. However, you could replace that, for instance, with an in-memory (pipe) transport that communicates with another service in the same ${gateway.cap}.
+
+Specify any of the following transports:
+
+-   <a name="httptransport"></a>`http.transport`: Specifies a URI for use as a transport layer under the HTTP transport or WebSocket transport (since WebSocket is always over HTTP). This is the most frequently used transport option.
+-   <a name="ssltransport"></a>`ssl.transport`: Specifies a URI for use as a transport layer under the TLS/SSL transport.
+-   <a name="tcptransport"></a>`tcp.transport`: Specifies a URI for use as a transport layer under the TCP/IP (tcp) transport.
+-   <a name="pipetransport"></a>`pipe.transport`: Specifies a URI for use as a transport layer under the pipe transport.
+-   <a name="sockstransport"></a>`socks.transport`: Specifies a URI for use as a transport layer under the SOCKS transport.
+
+##### Example: Configuring the Transport in accept-options
+
+In the following example, the HTTP transport is replaced with a new (`socks+ssl`) transport that is capable of doing a reverse connection using the SOCKS protocol over TLS/SSL.
+
+``` auto-links:
+  <service>
+    <accept>wss://gateway.example.com:443/path</accept>
+    <connect>tcp://internal.example.com:1080</connect>
+    .
+    .
+    .
+    <accept-options>
+      <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+      <socks.mode>reverse</socks.mode>
+      <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>        
+    </accept-options>
+  </service>
+```
+
+##### Example: Configuring the Transport in connect-options
+
+In the following example, the `socks+ssl`) transport performs a reverse connection using the SOCKS protocol over TLS/SSL.
+
+``` auto-links:
+   <service>
+     <accept>wss://gateway.example.com:443/path</accept>
+     <connect>wss://gateway.example.com:443/path</connect>
+     .
+     .
+     .
+     <connect-options>
+       <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+       <socks.mode>reverse</socks.mode>
+       <socks.timeout>2 seconds</socks.timeout>
+       <ssl.verify-client>required</ssl.verify-client>    
+     </connect-options>
+   </service>
+```
+
+For more examples, see [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/o_rc_checklist.md).
+
+#### <a name="wsmaxmsg"></a>ws.maximum.message.size
+
+**Required?** Optional; **Occurs:** zero or one
+
+Configures the maximum message size the service can accept from a WebSocket client connection.
+
+Although the `ws.maximum.message.size` is optional, you should configure this element to keep clients from accidentally or deliberately causing ${the.gateway} to spend resources processing large messages. Setting this element is useful in preventing *denial of service* attacks because you can limit the size of the message (such as a particularly large message) incoming to ${the.gateway} from a client.
+
+The actual maximum message size that ${the.gateway} can handle is influenced by the JVM settings (such as maximum heap size), available memory on the system, network resources, available disk space and other operating system resources. The maximum message size is also influenced by the configuration and capabilities of back-end services to which ${the.gateway} might be forwarding these messages. The best way to determine the true maximum message size for your environment and use case is to perform some testing.
+
+If you do not specify `ws.maximum.message.size` in the gateway-config.xml file, then the default maximum incoming message is limited to `128k`.
+
+If you specify `ws.maximum.message.size` in the gateway-config.xml file, then specify a positive integer. You can append a `k`, `K`, `m`, or `M` to indicate kilobytes or megabytes (the unit is case insensitive). If a unit is not included, then `ws.maximum.message.size` defaults to bytes. For example:
+
+-   A value of `2048` sets the buffer to **2048 bytes**
+-   A value of `128K` sets the buffer to **128 kilobytes**
+-   A value of `128M` sets the buffer to **128 megabytes**
+
+If an incoming message from a client exceeds the value of `ws.maximum.message.size`, then ${the.gateway} terminates the connection with the client and disconnects the client, and records a message in ${the.gateway} log.
+
+##### Example
+
+The following example sets a maximum incoming message limit of 64 kilobytes, as shown in line 8:
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8000/echo</accept>
+  <accept>wss://localhost:9000/echo</accept>
+  <accept-options>
+    <ssl.encryption>disabled</ssl.encryption>
+    <ws.bind>8001</ws.bind>
+    <wss.bind>9001</wss.bind>
+    <ws.maximum.message.size>64k</ws.maximum.message.size>
+  </accept-options>
+</service>
+```
+
+#### <a name="keepalive"></a>http.keepalive.timeout
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `http.keepalive.timeout` accept-option to set the number of seconds ${the.gateway} waits after responding to a request and receiving a subsequent request on an HTTP or HTTPS connection before closing the connection. The default value is `30` seconds.
+
+##### Example
+
+The following example shows a `service` element containing an HTTP or HTTPS connection time limit of `120` seconds, as shown in line 8:
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8000/echo</accept>
+  <accept>wss://localhost:9000/echo</accept>
+  <accept-options>
+    <ssl.encryption>disabled</ssl.encryption>
+    <ws.bind>8001</ws.bind>
+    <wss.bind>9001</wss.bind>
+    <http.keepalive.timeout>120</http.keepalive.timeout>
+  </accept-options>
+</service>
+```
+
+##### Notes
+
+-   the `http.keepalive.timeout` accept-option is useful for conserving resources because it avoids idle connections remaining open.
+-   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+
+#### <a name="sslciphers"></a>ssl.ciphers
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
+
+Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL). By default (or if you do not specify this element on a secure connection), ${the.gateway} uses `HIGH,MEDIUM,!ADH,!KRB5`.
+
+##### Examples
+
+-   The following example shows a `${proxy.service.inline}` service accepting a secure connection over WSS and connecting to the ${message.broker.generic} over TCP with the ciphers used by the encryption algorithm specified in `ssl.ciphers`. The example uses the `${proxy.service.inline}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+    ``` auto-links:
+    <service>
+      <accept>wss://www.example.com:443/remoteService</accept>
+      <connect>${message.broker.host.port.stomp}</connect>
+
+      <type>${proxy.service.inline}</type>
+
+      <accept-options>
+        <ssl.ciphers>DEFAULT</ssl.ciphers>
+      </accept-options>
+
+      <connect-options>
+        <ssl.ciphers>LOW</ssl.ciphers>
+      </connect-options>
+    </service>
+    ```
+
+    By default (or if you do not specify `ssl.ciphers` on a secure connection), ${the.gateway} uses the equivalent of the following ciphers:
+
+    ``` auto-links:
+    <ssl.ciphers>HIGH,MEDIUM,!ADH,!KRB5</ssl.ciphers>
+    ```
+
+    -   `HIGH` and `MEDIUM` aliases are included because they do not contain any weak (LOW or EXPORT) cipher suites.
+    -   `ADH` (Anonymous Diffie-Hellman) cipher suites are excluded because they are not secure against man-in-the-middle attacks.
+
+        To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH,MEDIUM,ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
+
+    -   `KRB5` (Kerberos) cipher suites are excluded because most sites do not have the related Kerberose libraries installed for supporting those cipher suites.
+
+-   **NULL cipher suite**
+
+    Use the `NULL` cipher suite when you want ${the.gateway} to accept connections from known authenticated TLS clients but you do not want those connections to be encrypted:
+
+    ``` auto-links:
+    <ssl.ciphers>NULL</ssl.ciphers>
+    ```
+
+    This is analogous to configuring an HTTP service for authentication using `authorization-constraint`, only now you are doing it for a TLS/SSL service.
+
+-   **ALL cipher suite**
+
+    Use the `ALL` cipher suite to enable all of the cipher suites (such as for testing purposes):
+
+    ``` auto-links:
+    <ssl.ciphers>ALL</ssl.ciphers>
+    ```
+
+    Note that because NULL encryption cipher suites are so insecure they are not enabled even by using the `ALL` cipher suite. You must explicitly include NULL ciphers by configuring them, as follows:
+
+    ``` auto-links:
+    <ssl.ciphers>HIGH,MEDIUM,LOW,EXPORT,NULL</ssl.ciphers>
+    ```
+
+##### Notes
+
+-   The [OpenSSL Project documentation](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) lists all permitted OpenSSL cipher strings. ${the.gateway.cap} supports ciphers that are implemented by Java, as described in the [Java Secure Socket Extension (JSSE) documentation.](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider)
+-   For configurations running ${gateway.name.long} 4.0.5 or earlier releases, you can disable the SSLv3 protocol by configuring SSLv3 ciphers using `<ssl.ciphers>!SSLv3<ssl.ciphers>`.
+-   Values for cipher strings are case-sensitive.
+-   Typos or incorrect strings (or unsupported ciphers) in `ssl.ciphers` are noticed by ${the.gateway} when a connection is made, not when ${the.gateway} is started. These errors are only discoverable by looking at ${the.gateway} log.
+-   The `ssl.ciphers` property does not configure the ciphers used on a secure connection. It merely specified the ciphers used in the TLS/SSL certificate used to establish the secure connection.
+-   For secure SOCKS connections, use[socks.ssl.ciphers](#sockssslciphers).
+-   TLS/SSL is used to verify ${the.gateway} to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
+-   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.ciphers` accept option, the values for `ssl.ciphers` must be identical.
+
+#### <a name="sslprotocols"></a>ssl.protocols and socks.ssl.protocols
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** SSLv2Hello, SSLv3, TLSv1, TLSv1.1, TLSv1.2
+
+Specify a comma-separated list of the TLS/SSL protocol names on which ${the.gateway} can accept or make connections. The list of protocols you specify are negotiated during the TLS/SSL handshake when the connection is created. See [How TLS/SSL Works with ${the.gateway}](../security/u_tls_works.md) to learn more about secure communication between clients and ${the.gateway}. See the [Java Documentation](http://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext) for a list of valid protocol names.
+
+The `ssl.protocols` and `socks.ssl.protocols` elements are optional, and in general, there is no need to configure either element except to prevent usage of specific TLS/SSL protocols for which a vulnerability has been discovered. A good example is the [POODLE attack](http://en.wikipedia.org/wiki/POODLE) that exploited a vulnerability in SSLv3.
+
+If you configure these elements, then you must explicitly name the TLS/SSL protocols you want to enable. If you do not configure the `ssl.protocols` or `socks.ssl.protocols` element, or you configure either element but do not specify any protocols, then the default value is taken from the underlying JVM. The protocol values are case-sensitive.
+
+Typically, you configure the `ssl.protocols` or `socks.ssl.protocols` in the `accept-options` for inbound requests from clients. You might also specify these elements in the `connect-options` for an ${enterprise.shield} configuration, although this is less common because Gateway-to-Gateway communication usually occurs in a controlled environment and the TLS/SSL protocol you use is controlled. The `ssl.protocols` and `socks.ssl.protocols` elements are more useful in the `accept-options` when accepting requests from clients that are not in your direct control.
+
+**Note:** These elements were introduced in ${gateway.name.long} release 4.0.6 and can be used for configurations running ${gateway.name.long} 4.0.6 or later releases. For configurations running ${gateway.name.long} 4.0.5 or earlier releases, you can disable the SSLv3 protocol by disabling SSLv3 ciphers with `><ssl.ciphers>!SSLv3</ssl.ciphers>`. See [ssl.ciphers](#sslciphers) for more information.
+If you configure the `ssl.protocols` or the `socks.ssl.protocols` element to enable SSLv3, but disable SSLv3 cipher suites with the `ssl.ciphers` or `socks.ssl.ciphers` elements, then the connection does not occur and ${the.gateway} will not accept SSLv3 connections. Similarly, if you enable TLSv1 with the `ssl.protocols` or the `socks.ssl.protocols` element, but disable the TLSv1 ciphers, then the handshake will not succeed and the connection cannot go through.
+
+##### Example: Simple Configuration Using ssl.protocols to Accept TLSv1, TLSv1.2, and TLSv1.1 Connections
+
+The following example shows a `${proxy.service.inline}` service. Because the `accept` URL the `wss://` scheme, we know that this is a secure connection. The `ssl.protocols` element in line 12 indicates that we want ${the.gateway} to accept only TLSv1, TLSv1.2, and TLSv1.1 protocols, say, from clients over this secure connection.
+
+``` auto-links:
+<service>
+  <name>DMZ Gateway</name>
+  <accept>wss://example.com:443/myapp</accept>
+    ... 
+  <type>${proxy.service.inline}</type>
+
+  <properties>
+    ... 
+  </properties>
+
+  <accept-options>
+    <ssl.protocols>TLSv1,TLSv1.2,TLSv1.1</ssl.protocols>
+    ... 
+  </accept-options>
+  
+</service>
+```
+
+##### Example: ${enterprise.shield} Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2
+
+This example shows a `${proxy.service.inline}` service in the DMZ configured for ${enterprise.shield}, for which the <connect> behavior is reversed. Instead of connecting to another host, ${the.gateway} accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about ${enterprise.shield} and forward and reverse connectivity, see [Checklist: Configure ${enterprise.shield} for ${gateway.name.long}](../reverse-connectivity/o_rc_checklist.md).
+
+Because this configuration connects a ${gateway.cap} to another ${gateway.cap} in a controlled data center, the example only configures the TLSv1.2 protocol for secure connections. For this type of topology we don't expect to make any other kinds of connections.
+
+The prefix for this example is `socks.ssl`, rather than just `ssl` to explicitly reference the SSL layer that is transporting the SOCKS protocol.
+
+``` auto-links:
+<service>
+  <name>DMZ Gateway</name>
+  <accept>wss://example.com:443/myapp</accept>
+  <connect>wss://example.com:443/myapp</connect>
+    ... 
+  <type>${proxy.service.inline}</type>
+
+  <properties>
+    ... 
+  </properties>
+  
+  <connect-options>
+    <http.transport>socks://internal.example.com:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.transport>ssl://internal.example.com:1080</socks.transport>
+    <socks.ssl.protocols>TLSv1.2</socks.ssl.protocols>
+  </connect-options>
+     ...     
+</service>
+```
+
+##### Example: ${enterprise.shield} Configuration Using ssl.protocols and socks.ssl.protocols
+
+This example combines the previous two examples to show an ${enterprise.shield} configuration in which `ssl.protocols` is specified in the accept-options, and `socks.ssl.protocols` is specified in the connect-options.
+
+On the frontplane, ${the.gateway} accepts connections from clients only using the TLSv1, TLSv1.2, and TLSv1.1 protocols. On the backplane, ${the.gateway} only accepts (reverse) connections using the protocol TLSv1.2 (from another ${gateway.cap}).
+
+``` auto-links:
+<service>
+  <name>DMZ Gateway</name>
+  <accept>wss://example.com:443/myapp</accept>
+  <connect>wss://example.com:443/myapp</connect>
+    ... 
+  <type>${proxy.service.inline}</type>
+
+  <properties>
+    ... 
+  </properties>
+
+  <accept-options>
+    <ssl.protocols>TLSv1,TLSv1.2,TLSv1.1</ssl.protocols>
+    ... 
+  </accept-options>
+  
+  <connect-options>
+    <http.transport>socks://internal.example.com:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.transport>ssl://internal.example.com:1080</socks.transport>
+    <socks.ssl.protocols>TLSv1.2</socks.ssl.protocols>
+  </connect-options>
+     ... 
+     
+</service>
+```
+
+#### <span id="svcacceptopts2"></span></a>ssl.encryption
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** enabled, disabled
+
+This element allows you to enable or disable TLS/SSL encryption on incoming traffic to ${the.gateway}, turning off TLS/SSL certificate verification for an HTTPS or WSS accept. By default (or if you do not specify this element), encryption is enabled for HTTPS and WSS.
+
+For example, if ${the.gateway} is deployed behind a TLS/SSL offloader (a network device designed specifically for handling a company's TLS/SSL certificate traffic), where the incoming traffic to the TLS/SSL offloader is secured over HTTPS and the outgoing traffic from the TLS/SSL offloader to ${the.gateway} is *not* secure, you can disable encryption so that ${the.gateway} accepts the unsecured traffic on a connection that uses HTTPS/WSS. Basically, ${the.gateway} trusts traffic from the TLS/SSL offloader and therefore ${the.gateway} does not need to verify the connection itself.
+
+You can include the [accept-options](#svcacceptopts) element on a service that accepts over HTTPS or WSS, then disable encryption by setting the `ssl.encryption` element to `disabled`. Even when encryption is disabled, ${the.gateway} returns the response as HTTPS/WSS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, ${the.gateway} treats incoming traffic on HTTPS or WSS as secure and handles the TLS/SSL certificate verification itself.
+
+See [Secure Network Traffic with ${the.gateway}](../security/o_tls.md) for more information about HTTPS/WSS.
+
+##### Example: Using ssl.encrption in accept-options
+
+The following example shows a `service` element containing the `accept-options` and `ssl.encryption` elements, which signal ${the.gateway} to listen on address `www.example.com`, with encryption disabled. The example uses the `${proxy.service.inline}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+``` auto-links:
+<service>
+  <accept>wss://www.example.com/remoteService</accept>
+  <connect>${message.broker.host.port.stomp}</connect>
+
+  <type>${proxy.service.inline}</type>
+   .
+   .
+   .
+  <accept-options>
+    <ssl.encryption>disabled</ssl.encryption>
+  </accept-options>
+</service>
+ 
+```
+
+Alternatively, the IP address can be used in the configuration parameters. You can also specify an IP address and port for the external address. Typically when you disable encryption on the incoming traffic, as ${the.gateway} is behind a TLS/SSL offloader, you will also have a network mapping section mapping `www.example.com` to internal address `gateway.dmz.net:9000`.
+
+##### Example: Using ssl.encrption in connect-options
+
+The following example for an ${enterprise.shield} topology shows a `service` element containing several `connect-options` including an `ssl.encryption` option that disables encryption.
+
+``` auto-links:
+<service>
+  <accept>wss://dmz.example.com:443/remoteService</accept>
+  <connect>tcp://internal.example.com:8010</connect>
+
+  <type>${proxy.rc}</type>
+        
+  <properties>
+    <prepared.connection.count>1</prepared.connection.count>
+  </properties>
+
+  <accept-options>
+    <ssl.ciphers>DEFAULT</ssl.ciphers>
+    <ssl.verify-client>none</ssl.verify-client>
+  </accept-options>
+
+  <connect-options>
+    <tcp.transport>socks+ssl://dmz.example.com:1443</tcp.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.ssl.ciphers>NULL</socks.ssl.ciphers>
+    <ssl.encryption>disabled</ssl.encryption>
+    <socks.ssl.verify-client>required</socks.ssl.verify-client>     
+  </connect-options>
+</service>
+```
+
+##### Notes
+
+-   If you have set up ${gateway.name.short} behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to ${the.gateway} is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, ${the.gateway} returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, ${the.gateway} treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   See [Secure Network Traffic with ${the.gateway}](../security/o_tls.md) for more information about HTTPS.
+
+#### <a name="sslverifyclient"></a>ssl.verify-client
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
+
+By default, when ${the.gateway} accepts a secure URI (for example, WSS, HTTPS, SSL), ${the.gateway} provides its digital certificate to connecting clients but does not require that the clients provide a certificate of their own — ${the.gateway} trusts all clients. For added security, implement a mutual verification pattern where, in addition to ${the.gateway} presenting a certificate to the client, the client also presents a certificate to ${the.gateway} so that ${the.gateway} can verify the client's authenticity.
+
+To configure that, you can use the `ssl.verify-client` on an `accept` to specify that ${the.gateway} requires a client to provide a digital certificate that ${the.gateway} can use to verify the client’s identity. This configuration ensures that both the clients and ${the.gateway} are verified via TLS/SSL before transmitting data, establishing a mutually-verified connection.
+
+| If you configure the ssl.verify-client option with the value ... | Then ...                                                                                                                                                                                                                                                                                                                            |
+|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `required`                                                       | A client certificate is required. ${the.gateway.cap} requires that the client connecting to ${the.gateway} over the secure URI in the `accept` must provide a digital certificate to verify the client’s identity. After ${the.gateway} has verified the client certificate, then the client can connect to ${the.gateway} service. |
+| `optional`                                                       | The client certificate is not required, but if a client provides a certificate, ${the.gateway} attempts to verify it. If the client provides a certificate and verification fails, then the client is not allowed to connect.                                                                                                       |
+| `none`                                                           | The client recognizes that a certificate is not required and it does not send a certificate. All clients can connect to the secure service on ${the.gateway}.                                                                                                                                                                       |
+
+##### Example
+
+In the following example, ${the.gateway} accepts on a secure URI (`wss://`) and requires that all clients connecting to ${the.gateway} on that URI provide a digital certificate verifying their identity.
+
+``` auto-links:
+<service>
+  <accept>wss://example.com:443</accept>
+  <connect>tcp://server1.corp.example.com:5050</connect>
+
+  <type>${proxy.rc}</type>
+
+  <accept-options>
+    <ssl.verify-client>required</ssl.verify-client>
+  </accept-options>
+</service>
+```
+
+##### Notes
+
+-   To use `ssl.verify-client` as an accept-option on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).</span>
+-   If you have set up ${gateway.name.short} behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to ${the.gateway} is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, ${the.gateway} returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, ${the.gateway} treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   See [Secure Network Traffic with ${the.gateway}](../security/o_tls.md) for more information about HTTPS.
+-   This configuration ensures that both the clients and ${the.gateway} are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
+-   This configuration ensures that both the clients and ${the.gateway} are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
+-   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.verify-client` accept option, the values for `ssl.verify-client` must be identical.
+
+#### <a name="socksmode"></a>socks.mode ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `socks.mode` accept-option or connect-option to initiate ${the.gateway} connection using the SOCKet Secure (SOCKS) protocol in one of the following modes:
+
+-   `forward`: initiates forward connectivity from the DMZ Gateway to the internal Gateway on the trusted network. Once connected, a regular full-duplex connection is established. You typically use the `forward` mode to ensure the SOCKS settings are correctly configured before you attempt to reverse the connection.
+-   `reverse`: configures the connection mode in *reverse* so that the connection is initiated from the internal Gateway on the trusted network to the DMZ Gateway to allow a connection between the client and server that is otherwise blocked by the firewall. With the reverse mode, ${the.gateway} interprets `accept` URIs as `connect` URIs.
+
+For more information about ${enterprise.shield} and forward and reverse connectivity, see [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/o_rc_checklist.md).
+
+##### Example
+
+The following example shows a `service` element with the `socks.mode` set to `reverse`. This configuration causes ${the.gateway} to interpret the SOCKS URI as a connect URI, as shown in line 8:
+
+``` auto-links:
+<service>
+  <accept>pipe://pipe-1</accept>
+  <connect>tcp://broker.example.com:8010/</connect>
+
+  <type>${proxy.rc}</type>
+
+  <accept-options>
+    <pipe.transport>socks+ssl://dmz.example.com:1443</pipe.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.retry.maximum.interval>45 seconds</socks.retry.maximum.interval>
+  </accept-options>
+</service>
+```
+
+##### Example
+
+The following example shows a `connect-option` element with the `socks.mode` set to `reverse`.
+
+``` auto-links:
+<service>
+  <accept>tcp://dmz.example.com:8000/</accept>
+  <connect>pipe://pipe-1</connect>
+
+  <type>${proxy.rc}</type>
+
+  <connect-options>
+    <pipe.transport>socks+ssl://dmz.example.com:1443</pipe.transport>
+    <socks.mode>reverse</socks.mode>
+  </connect-options>
+</service>
+```
+
+#### <a name="conn_sockstimeout"></a>socks.timeout ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `socks.timeout` connect-option to specify the length of time (in seconds) to wait for a SOCKS connection to form before closing the connection. If you do not specify `socks.timeout` for your Gateway configuration, then a timeout is not enforced.
+
+Note the following behavior for reverse and forward SOCKS connections:
+
+-   For *reverse* connections (`socks.mode` is set to *reverse*), the time you specify for `socks.timeout` determines how long pending connection requests on the DMZ Gateway wait for the internal Gateway to initiate a reverse connection.
+
+    Connect requests are queued until the internal Gateway pulls the requests from the queue and consumes them. If the connect requests are not consumed within the specified time, then the connection to the client times out and is closed.
+
+-   For *forward* connections (`socks.mode` is set to *forward*), the time you specify for `socks.timeout` determines how long to wait for confirmation that the connection succeeded.
+
+    If the network connection or the SOCKS handshake does not succeed within the time specified by `socks.timeout`, then the connection to the client fails and the connection is closed.
+
+##### Example
+
+The following example shows a `socks.timeout` that is set to 10 seconds in line 15. If the forward connection is not formed within 10 seconds, then the connection is closed and the client must initiate another connection.
+
+``` auto-links:
+<service>
+  <accept>wss://www.example.com:443/remoteService</accept>
+  <connect>${message.broker.host.port.stomp}</connect>
+
+  <type>${proxy.rc}</type>
+
+  <accept-options>
+    <ssl.ciphers>DEFAULT</ssl.ciphers>
+    <ssl.verify-client>none</ssl.verify-client>
+  </accept-options>
+
+  <connect-options>
+    <pipe.transport>socks+ssl://dmz.example.com:1443</pipe.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.timeout>10 sec</socks.timeout>
+  </connect-options>
+</service>
+```
+
+#### <a name="sockssslciphers"></a>socks.ssl.ciphers ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
+
+Use `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL). By default (or if you do not specify this element on a secure connection), ${the.gateway} uses `HIGH,MEDIUM,!ADH,!KRB5`.
+
+##### Example for SOCKS Ciphers
+
+The following example shows a `${proxy.rc}` service for the DMZ Gateway in an ${enterprise.shield} topology. ${the.gateway.cap} receives secure client connections (`wss://`) and specifies the ciphers used on the accept URI (`DEFAULT`), but does not require mutual verification from the clients (`ssl.verify-client`). In addition, the internal Gateway connects over SOCKS and TLS/SSL (`socks+ssl://`) to the DMZ Gateway, specifies the ciphers used (`NULL`), and requires mutual verification (`socks.ssl.verify-client`). For more information about forward and reverse connectivity, see [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/o_rc_checklist.md).
+
+``` auto-links:
+<service>
+  <accept>wss://dmz.example.com:443/remoteService</accept>
+  <connect>tcp://internal.example.com:8000</connect>
+
+  <type>${proxy.rc}</type>
+
+  <properties>
+    <prepared.connection.count>1</prepared.connection.count>
+  </properties>
+
+  <accept-options>
+    <ssl.ciphers>DEFAULT</ssl.ciphers>
+    <ssl.verify-client>none</ssl.verify-client>    
+  </accept-options>
+
+  <connect-options>
+    <tcp.transport>socks+ssl://dmz.example.com:1443</tcp.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.ssl.ciphers>NULL</socks.ssl.ciphers>
+    <socks.ssl.verify-client>required</socks.ssl.verify-client>    
+  </connect-options>
+</service>
+```
+
+##### Notes
+
+-   Values are case-sensitive.
+-   The `socks.ssl.ciphers` property does not configure the ciphers used on a secure connection. It merely specified the ciphers used in the TLS/SSL certificate used to establish the secure connection.
+-   OpenSSL aliases and names listed as *Not implemented* in the [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS "OpenSSL: Documents, ciphers(1)") documentation are not supported by ${the.gateway}.
+-   Typos or incorrect strings (or unsupported ciphers) in `socks.ssl.ciphers` are noticed by ${the.gateway} when a connection is made, not on startup. These errors are only discoverable by looking at ${the.gateway} log.
+-   TLS/SSL is used to verify ${the.gateway} to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
+
+#### <span id="svcacceptopts2"></span></a>socks.ssl.verify-client ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
+
+In an ${enterprise.shield} topology over `socks+ssl://`, the DMZ Gateway provides the internal Gateway with a digital certificate that the internal Gateway uses to verify the DMZ Gateway’s identity before establishing the secure connection. For added security, you can use the `socks.ssl.verify-client` option on the DMZ Gateway to require that the internal Gateway provide a digital certificate to establish a secure connection. This configuration ensures that both the DMZ Gateway and internal Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification.
+
+| If you configure the socks.ssl.verify-client option with the value ... | Then ...                                                                                                                                                                                                                                                                                                    |
+|------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `required`                                                             | A certificate is required. The DMZ Gateway requires that the client connecting from the internal Gateway over the SOCKS transport must provide a digital certificate to verify the client’s identity. After the DMZ Gateway has verified the client certificate, then the reverse connection can be formed. |
+| `optional`                                                             | A certificate is not required, but if a client provides a certificate then the DMZ Gateway attempts to verify it. If the verification fails, then the client is not allowed to connect.                                                                                                                     |
+| `none`                                                                 | The client recognizes that a certificate is not required and it does not send a certificate. All clients can connect to the secure service on the DMZ Gateway.                                                                                                                                              |
+
+For more information, see [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/o_rc_checklist.md).
+
+##### Example
+
+In the following example, the DMZ Gateway accepts on a WebSocket URI and connects over a named pipe. The DMZ Gateway also listens for connections on port 1443 as `pipe.transport` URI over SOCKS and TLS/SSL (`socks+ssl://`). To increase security, the `socks.ssl.verify-client` is set to `required`, which specifies that the internal Gateway URI must provide a digital certificate to the DMZ Gateway.
+
+``` auto-links:
+<service>
+  <accept>wss://dmz.example.com:443/remoteService</accept>
+  <connect>pipe://pipe-1</connect>
+
+  <type>${proxy.rc}</type>
+    
+  <properties>
+    <prepared.connection.count>1</prepared.connection.count>
+  </properties>
+
+  <accept-options>
+    <ssl.ciphers>DEFAULT</ssl.ciphers>
+    <ssl.verify-client>none</ssl.verify-client>
+  </accept-options>
+
+  <connect-options>
+    <pipe.transport>socks+ssl://dmz.example.com:1443</pipe.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.ssl.ciphers>NULL</socks.ssl.ciphers>
+    <socks.ssl.verify-client>required</socks.ssl.verify-client>    
+  </connect-options>
+</service>
+```
+
+##### Notes
+
+-   If you have set up ${gateway.name.short} behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to ${the.gateway} is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, ${the.gateway} returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, ${the.gateway} treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   See [Secure Network Traffic with ${the.gateway}](../security/o_tls.md) for more information about HTTPS.
+-   See [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
+
+#### <a name="socksretrymaxint"></a>socks.retry.maximum.interval ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `socks.retry.maximum.interval` accept-option in an ${enterprise.shield} topology to set the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt. The internal Gateway initially retries after waiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of `socks.retry.maximum.interval`. Once the maximum interval is reached, ${the.gateway} continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure ${enterprise.shield} with ${the.gateway}](../reverse-connectivity/o_rc_checklist.md).
+
+##### Example
+
+The following example shows a `service` element containing a SOCKS proxy connection retry interval time limit of 60 seconds, as shown in line 10:
+
+``` auto-links:
+<service>
+  <accept>pipe://pipe-1</accept>
+  <connect>tcp://broker.example.com:8010/</connect>
+
+  <type>${proxy.rc}</type>
+
+  <accept-options>
+    <pipe.transport>socks+ssl://dmz.example.com:1443</pipe.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.retry.maximum.interval>60 seconds</socks.retry.maximum.interval>
+  </accept-options>
+</service>
+```
+
+#### <a name="tcpmaxoutbndrate"></a>tcp.maximum.outbound.rate ${enterprise.logo}
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `tcp.maximum.outbound.rate` accept option to specify the maximum bandwidth rate at which bytes can be written from ${the.gateway} to a client session. This option delays outbound messages as a way to control the maximum rate, per client session, at which ${the.gateway} can send data to clients connecting to a service.
+
+You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with B/s (byte), kB/s (kilobyte), KiB/s (kibibyte), MB/s (megabyte), or MiB/s (Mebibytes) per second. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
+
+You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with a unit of measurement from the following table. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
+
+|---------------------|------------------|-------------------------------|-------------------------------------------------------------|
+| **Unit**            | **Abbreviation** | **Bytes per Second per Unit** | **Notes**                                                   |
+| Byte per second     | B/s              | 1                             | Example: `512B/s`                                           |
+| kilobyte per second | kB/s             | 1000 (10<sup>3</sup>)         | Decimal kilobytes per second. Example: `1000kB/s`           |
+| kibibyte per second | KiB/s            | 1024 (2<sup>10</sup>)         | Kibibytes per second (kilobytes binary). Example: `1KiB/s`  |
+| megabyte per second | MB/s             | 1,000,000 (10<sup>6</sup>)    | Decimal megabytes per second. Example: `1MB/s`              |
+| mebibyte per second | MiB/s            | 1,048,576 (2<sup>20</sup>)    | Mebibytes per second (megabytes binary) Example: `512MiB/s` |
+
+##### Example
+
+The following example shows a portion of a Gateway configuration file containing three services, each with a different bandwidth constraint: VIP, premium, and freemium. The VIP service has the best bandwidth at 1 megabyte per second (line 5). The premium service is slower at 1 kibibyte per second (line 13), and the free service is the slowest at only 512 bytes per second (line 21). The example shows these variations configured for the `${proxy.service.inline.link}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+``` auto-links:
+<service>
+  <accept>ws://service.example.com/vip</accept>
+  <type>${proxy.service.inline}</type>
+  <accept-options>
+    <tcp.maximum.outbound.rate>1MB/s</tcp.maximum.outbound.rate>
+  </accept-options>
+</service>
+
+<service>
+  <accept>ws://service.example.com/premium</accept>
+  <type>${proxy.service.inline}</type>
+  <accept-options>
+    <tcp.maximum.outbound.rate>1KiB/s</tcp.maximum.outbound.rate>
+  </accept-options>
+</service>
+
+<service>
+  <accept>ws://service.example.com/freemium</accept>
+  <type>${proxy.service.inline}</type>
+  <accept-options>
+    <tcp.maximum.outbound.rate>512B/s</tcp.maximum.outbound.rate>
+  </accept-options>
+</service>
+```
+
+##### Notes
+
+-   If no unit is specified, the default unit is in bytes per second (B/s).
+-   If you do not specify `tcp.maximum.outbound.rate`, the bandwidth rate is unrestricted.
+-   ${the.gateway.cap} follows the conventions for units defined in the Conversion formula table on the Wikipedia [Data rate units page](http://en.wikipedia.org/wiki/Data_rate_units#Kilobyte_per_second).
+
+#### <a name="wsinactivitytimeout"></a>ws.inactivity.timeout
+
+**Required?** Optional; **Occurs:** zero or one
+
+Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). ${the.gateway.cap} will drop the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. An inactive connection can result from a network failure (such as a lost cellular or Wi-Fi connection) that prevents network communication from being received on any established connection. Thus, when `ws.inactivity.timeout` is set to a nonzero time interval, ${the.gateway} will drop the connection if it cannot communicate with the client in the number of seconds specified.
+
+Some use cases for the `ws.inactivity.timeout` property include:
+
+-   Detect a lost cellular (or Mobile) connection or a lost Wi-Fi connection.
+-   Detect a half-closed connection over WebSocket, such as a silent network failure over WebSocket between ${gateway.cap}s.
+-   Detect a network failure between the DMZ and Internal Gateway over WebSocket, such as for an ${enterprise.shield} topology using forward and reverse connectivity.
+
+##### Example
+
+In the following example, the `ws.inactivity.timeout` property specifies that if ${the.gateway} cannot communicate with a client over the past five-seconds, then the connection to that client will be dropped.
+
+``` auto-links:
+    <service>
+      <accept>ws://gateway.example.com/echo</accept>
+      <connect>ws://internal.example.com/echo</connect>
+
+      <type>echo</type>
+
+     <accept-options>
+       <ws.inactivity.timeout>5s</ws.inactivity.timeout>
+     </accept-options>
+       .
+       .
+       .
+    </service>
+```
+
+##### Notes
+
+-   Set the time interval to a value that is at least double the expected maximum network round-trip time between ${the.gateway} and any client. Otherwise, clients may be disconnected unexpectedly.
+-   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+
+#### <a name="wsversionopt"></a>ws.version (deprecated)
+
+**Required?** Optional; **Occurs:** zero or more; **Where** `version` can be rfc6455 or draft-75
+
+The `ws.version` element has been deprecated. If you are using an existing configuration that includes the `ws.version` element, you can continue to use it. However, if the scheme of the URI inside the `connect` element is ws:// or wss://, then the WebSocket version defaults to rfc6455 and there is no need to explicitly set `ws.version`.
+
+The `ws.version` element was used to tell ${the.gateway} which version of the WebSocket protocol to use for the service connections. You would specify this element only if the scheme of the URI inside the `connect` element is `ws:` or `wss:` (to indicate that the WebSocket protocol was being used). If you did not specify the `ws.version` connect-option, then the WebSocket version would default to `rfc6455`.
+
+##### Example
+
+The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of ${the.gateway}. The example uses the `${proxy.service.inline.link}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+``` auto-links:
+  <service>
+    <accept>ws://${gateway.hostname}:8000/${proxy.service.inline}</accept>
+    <connect>wss://${gateway.hostname}:5566/data</connect>
+    <connect-options>
+      <ws.version>draft-75</ws.version>
+    </connect-options>
+  </service>
+  
+```
+
+${jms.ems.begin}
+### <a name="notifyopts"></a>notify-options (JMS only) ${enterprise.logo.jms}
+
+**Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
+
+Specify `notify-options` for the [notify](#notifyele) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which ${the.gateway} iOS application (Objective C clients) is installed. See also the [notify](#notifyele) element.
+
+**Note:** 
+The notify-options must be specified in the order shown in the following table.
+
+</span>
+| notify-options                                            | Required?  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|-----------------------------------------------------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <a name="notify_apnstrnsp"></a>apns.notify.transport      | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the Apple scheme and connection data for pushing notifications to remote iOS devices. Push notifications, also known as remote notifications, are sent by ${the.gateway} to Apple Push Notification Service, which pushes the notification to iOS devices on which ${the.gateway} iOS app is installed. The `apns.notify.transport` option is required for APNs. |
+| <a name="notify_apnsfeedback"></a>apns.feedback.transport | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the scheme and connection data for the Apple Feedback Service, a companion service to APNs, to know when to stop sending notifications to particular devices. The `apns.feedback.transport` option is required for APNs.                                                                                                                                         |
+| <a name="notify_sslciphers"></a>ssl.ciphers               | Optional   | Lists the cipher strings and cipher suite names used by the secure connection. The `ssl.ciphers` option is not required for APNs and is used to specify the TLS/SSL cipher suites to use when talking to Apple.                                                                                                                                                                                                                                               |
+| <a name="notify_tcptransport"></a>tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the[socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
+
+#### Notes
+
+-   For APNs functionality, the `apns.notify.transport` and `apns.feedback.transport` elements are required. ${the.gateway.cap} will not accept the device token from an iOS application if these elements are not present in ${the.gateway} configuration.
+-   For a complete example of the `notify` element with the `notify-options`, see [Example Configuration for the notify Element](#notifyexample) earlier in this topic.
+-   To configure ${the.gateway} and its iOS (Objective-C) client applications to use the Apple Push Notification Service (APNs), see the step-by-step checklist [Deploy APNs with ${gateway.name.long}.](../apns/o_apns.md)${jms.proxy.apns}
+
+${jms.ems.end}
+### <a name="realm-name"></a>realm-name
+
+The name of the security realm used for authorization.
+
+#### Example
+
+``` auto-links:
+<service>
+  <accept>wss://localhost:9000/kerberos5</accept>
+  <connect>tcp://kerberos.example.com:88</connect>
+  <type>kerberos5.proxy</type>
+  <realm-name>demo</realm-name>
+    .
+    .
+    .
+</service>
+```
+
+#### Notes
+
+-   If you do not configure `realm-name`, then authentication and authorization are not enforced for the service.
+
+### <a name="svcauthconst"></a>auth-constraint
+
+This element has been deprecated. Use the [authorization-constraint](#svc_auth_const) element instead. 
+
+### <a name="svc_auth_const"></a>authorization-constraint
+
+**Required?** Optional; **Occurs:** zero or more
+
+Use the `authorization-constraint` element to configure the user roles that are authorized to access the service. `authorization-constraint` contains the following subordinate element:
+
+| Subordinate Element                                       | Description                                                                                                  |
+|-----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| <span id="requireroleopt"></span></a>require-role         | The name of the user role to be included in the `authorization-constraint` or `*` to indicate any valid user |
+| <span id="requirevaliduser"></span></a>require-valid-user | Grants access any user whose credentials have been successfully authenticated.                               |
+
+#### Example
+
+The following example of a `${proxy.service.inline}` service element is configured with an `authorization-constraint`, as shown in lines 7 to 9. The example uses the `${proxy.service.inline.link}` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8000/remoteService</accept>
+  <connect>${message.broker.host.port.stomp}</connect>
+
+  <type>${proxy.service.inline}</type>
+
+  <authorization-constraint>
+    <require-role>AUTHORIZED</require-role>
+  </authorization-constraint>
+</service>
+```
+
+### <span id="svcmimemapping"></span></a>mime-mapping
+
+**Required?** Optional; **Occurs:** zero or more
+
+The `mime-mapping` element defines the way ${the.gateway} maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_conf_serv_defs.md#svcdftmimemapping). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
+
+#### Example
+
+The following example shows a `directory` service that includes two mime-mapping elements for files with the `PNG` and and `HTML` extensions. ${the.gateway.cap} sets the content or MIME type for files with the `PNG` extension as a PNG image and files with the `HTML` extension as an HTML text file:
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8000</accept>
+  <accept>wss://localhost:9000</accept>
+
+  <type>directory</type>
+
+  <accept-options>
+    <ws.bind>8001</ws.bind>
+    <wss.bind>9001</wss.bind>
+  </accept-options>
+
+  <mime-mapping>
+    <extension>png</extension>
+    <mime-type>image/png</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>html</extension>
+    <mime-type>text/html</mime-type>
+  </mime-mapping>
+
+  <cross-site-constraint>
+  <allow-origin>http://localhost:8000</allow-origin>
+  </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>https://localhost:9000</allow-origin>
+  </cross-site-constraint>
+  </service>
+```
+
+#### Notes
+
+-   If your client does not properly render a file type as expected, ensure that the MIME type is properly mapped and that you do not have multiple entries for the same extension type within the same section.
+-   If two or more `mime-mapping` entries for the same extension are given in a single `service` or in `service-defaults`, then ${the.gateway} applies the last `mime-mapping` entry. That is, within a given `service` or `service-defaults` section, ${the.gateway} applies the `mime-mapping` entry closest to the end of the `service` (or `service-defaults`) section.
+
+### <a name="xsiteconst"></a>cross-site-constraint
+
+**Required?** Optional; **Occurs:** zero or more
+
+Use cross-site-constraint to configure how a cross-origin site is allowed to access a service. `cross-site-constraint` contains the following subordinate elements:
+
+**Note:** You must specify the properties for the cross-site-constraint element in the order shown in the table.
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Subordinate Element</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><a name="alloworigin"></a>allow-origin</td>
+<td align="left">Specifies the cross-origin site or sites that are allowed to access this service:
+<ul>
+<li>To allow access to a specific cross-site origin site, specify the protocol scheme, fully qualified host name, and port number of the cross-origin site in the format: <code>&lt;scheme&gt;://&lt;hostname&gt;:&lt;port&gt;</code> For example: <code>&lt;allow-origin&gt;http://localhost:8000&lt;/allow-origin&gt;</code>.</li>
+<li>To allow access to all cross-site origin sites, including connections to gateway services from pages loaded from the file system rather than a web site, specify the value <code>*</code>. For example: <code>&lt;allow-origin&gt;*&lt;/allow-origin&gt;</code>. Specifying <code>*</code> may be appropriate for services that restrict HTTP methods or custom headers, but not the origin of the request.</li>
+</ul></td>
+</tr>
+<tr class="even">
+<td align="left"><a name="allowmethods"></a>allow-methods</td>
+<td align="left">A comma-separated list of methods that can be invoked by the cross-origin site. For example: <code>&lt;allow-methods&gt;POST,DELETE&lt;/allow-methods&gt;</code>.</td>
+</tr>
+<tr class="odd">
+<td align="left"><a name="alllowheaders"></a>allow-headers</td>
+<td align="left">A comma-separated list of custom header names that can be sent by the cross-origin site when it accesses the service. For example, <code>&lt;allow-headers&gt;X-Custom&lt;/allow-headers&gt;</code>.</td>
+</tr>
+</tbody>
+</table>
+
+#### Example
+
+The following example of a `${proxy.service.inline}` service element includes a cross-site-constraint (as shown in lines 11-13), allowing access to the ${message.broker.generic} by the site `http://localhost:8000` (note the different port number).
+
+``` auto-links:
+<service>
+  <accept>ws://localhost:8001/remoteService</accept>
+  <connect>${message.broker.host.port.stomp}</connect>
+
+  <type>${proxy.service.inline}</type>
+
+  <authorization-constraint>
+    <require-role>AUTHORIZED</require-role>
+  </authorization-constraint>
+
+  <cross-site-constraint>
+    <allow-origin>http://localhost:8000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
+
+#### Notes
+
+-   Cross-site access to the back-end is denied by default. However, by defining a cross-site constraint, you can override the default behavior and effectively "white-list" cross-origin sites.
+
+Summary
+-------
+
+In this document, you learned about ${the.gateway} service element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting ${the.gateway}, see ${setting.up.inline}. For more information about ${gateway.name.short} administration, see the [documentation](../index.md).
+
+
