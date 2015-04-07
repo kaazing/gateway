@@ -47,7 +47,7 @@ public class PersistentConnectionsStore {
     private final HttpConnectIdleFilter idleFilter;
 
     PersistentConnectionsStore(Logger logger) {
-        this.connections = new HashMap<>();     // TODO need a comparator ??
+        this.connections = new HashMap<>();
         this.logger = logger;
         this.closeListener = new CloseListener(this);
         this.idleFilter = new HttpConnectIdleFilter(this, logger);

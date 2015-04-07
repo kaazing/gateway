@@ -29,7 +29,6 @@ import static java.util.EnumSet.of;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static org.kaazing.gateway.transport.http.HttpConnectFilter.CODEC;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
@@ -46,7 +45,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -63,6 +61,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
@@ -112,7 +111,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
     private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
-    private final ConcurrentSkipListSet<Executor> ioExecutors;
+    private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
     private final HttpConnectPersistenceFilter persistenceFilter;
 
@@ -131,7 +130,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 return new PersistentConnectionsStore(logger);
             }
         };
-        this.ioExecutors = new ConcurrentSkipListSet<>();
+        this.ioExecutors = new ConcurrentHashSet<>();
         persistenceFilter = new HttpConnectPersistenceFilter(persistentConnectionsStore);
     }
     
@@ -245,13 +244,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             return;
         }
 
-        if (!transportSession.isClosing()) {
-            IoFilterChain filterChain = transportSession.getFilterChain();
-            removeBridgeFilters(filterChain);
-        }
-        if (transportSession.getFilterChain().contains(CODEC.filterName())) {
-            transportSession.getFilterChain().remove(CODEC.filterName());
-        }
         if (transportSession.getFilterChain().contains(TRUNCATE_CONTENT_FILTER)) {
             transportSession.getFilterChain().remove(TRUNCATE_CONTENT_FILTER);
         }
@@ -259,8 +251,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         try {
 
             bridgeHandler.sessionOpened(transportSession);
-
-            //newSession(httpSessionInitializer, connectFuture, httpSessionFactory);
         } catch (Exception e) {
             // TODO
             throw new RuntimeIoException(e);

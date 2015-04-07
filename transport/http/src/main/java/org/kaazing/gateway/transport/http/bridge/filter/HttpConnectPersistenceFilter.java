@@ -21,10 +21,12 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.AttributeKey;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.PersistentConnectionsStore;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -78,6 +80,19 @@ public class HttpConnectPersistenceFilter extends HttpFilterAdapter<IoSessionEx>
         if (!httpSession.isConnectionClose() && !session.containsAttribute(CLOSE_OR_UPGRADE)) {
             session.removeAttribute(CLOSE_OR_UPGRADE);
             Integer keepAliveTimeout = httpSession.getRemoteAddress().getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
+            try {
+                // Remove all the http filters on the transport session
+                IoFilterChain filterChain = session.getFilterChain();
+                List<IoFilterChain.Entry> filterList = filterChain.getAll();
+                for(IoFilterChain.Entry e : filterList) {
+                    if (e.getName().startsWith(HttpProtocol.NAME+"#")) {
+                        filterChain.remove(e.getName());
+                    }
+                }
+            } catch (Exception e) {
+                session.getFilterChain().fireExceptionCaught(e);
+                return;
+            }
             persistentConnectionsStore.get().recycle(session, keepAliveTimeout);
         }
     }
