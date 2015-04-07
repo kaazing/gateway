@@ -36,12 +36,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/*
+ * A store for reusable persistent transport connections. HttpConnector
+ * may pick one of the transport connections instead of creating a new
+ * one while connecting to the origin server.
+ */
 public class PersistentConnectionsStore {
 
     private static final String IDLE_FILTER = HttpProtocol.NAME + "#idle";
 
     // transport address -> set of persistent connections
-    private final Map<ResourceAddress, Set<IoSessionEx>> connections;
+    private final Map<ResourceAddress, Set<IoSession>> connections;
     private final Logger logger;
     private final CloseListener closeListener;
     private final HttpConnectIdleFilter idleFilter;
@@ -57,13 +62,13 @@ public class PersistentConnectionsStore {
      * Recycle existing transport session so that it can be used as a http
      * persistent connection
      */
-    public void recycle(IoSessionEx session, Integer keepAliveTimeout) {
+    public void recycle(IoSession session, Integer keepAliveTimeout) {
         assert keepAliveTimeout != null;
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Recycling (adding to pool) http persistent connection %s", session));
+            logger.debug(String.format("Recycling (adding to pool) http connect persistent connection %s", session));
         }
         ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
-        Set<IoSessionEx> sessions = connections.get(address);
+        Set<IoSession> sessions = connections.get(address);
         if (sessions == null) {
             sessions = new HashSet<>();
             connections.put(address, sessions);
@@ -71,8 +76,7 @@ public class PersistentConnectionsStore {
         sessions.add(session);
         CloseFuture closeFuture = session.getCloseFuture();
         closeFuture.addListener(closeListener);
-        session.getConfig().setBothIdleTime(keepAliveTimeout);
-        session.getFilterChain().addLast(IDLE_FILTER, idleFilter);
+        addIdleFilter(session, keepAliveTimeout);
     }
 
     /*
@@ -82,13 +86,13 @@ public class PersistentConnectionsStore {
      *         otherwise null
      */
     public IoSession take(ResourceAddress address) {
-        Set<IoSessionEx> sessions = connections.get(address);
+        Set<IoSession> sessions = connections.get(address);
         if (sessions != null && !sessions.isEmpty()) {
-            IoSessionEx session = sessions.iterator().next();
+            IoSession session = sessions.iterator().next();
             sessions.remove(session);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Reusing (removing from pool) http persistent connection %s", session));
+                logger.debug(String.format("Reusing (removing from pool) http connect persistent connection %s", session));
             }
             session.getCloseFuture().removeListener(closeListener);
             session.getConfig().setBothIdleTime(0);
@@ -107,15 +111,20 @@ public class PersistentConnectionsStore {
      * @return a reusable IoSession for the address
      *         otherwise null
      */
-    public void remove(IoSessionEx session) {
+    public void remove(IoSession session) {
         ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
-        Set<IoSessionEx> sessions = connections.get(address);
+        Set<IoSession> sessions = connections.get(address);
         if (sessions != null && !sessions.isEmpty()) {
             boolean removed = sessions.remove(session);
             if (removed && logger.isDebugEnabled()) {
-                logger.debug(String.format("Removed http persistent connection %s", session));
+                logger.debug(String.format("Removed http connect persistent connection %s", session));
             }
         }
+    }
+
+    public void addIdleFilter(IoSession session, int keepAliveTimeout ) {
+        session.getConfig().setBothIdleTime(keepAliveTimeout);
+        session.getFilterChain().addLast(IDLE_FILTER, idleFilter);
     }
 
     /*
@@ -152,9 +161,9 @@ public class PersistentConnectionsStore {
         @Override
         public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Idle http persistent connection %s", session));
+                logger.debug(String.format("Idle http connect persistent connection %s", session));
             }
-            store.remove((IoSessionEx)session);
+            store.remove(session);
             session.close(false);
             super.sessionIdle(nextFilter, session, status);
         }

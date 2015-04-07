@@ -79,7 +79,6 @@ import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpConnectPersistenceFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -113,7 +112,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
     private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
-    private final HttpConnectPersistenceFilter persistenceFilter;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -131,7 +129,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         };
         this.ioExecutors = new ConcurrentHashSet<>();
-        persistenceFilter = new HttpConnectPersistenceFilter(persistentConnectionsStore);
     }
     
     @Resource(name = "bridgeServiceFactory")
@@ -151,7 +148,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     @Override
     protected IoProcessorEx<DefaultHttpSession> initProcessor() {
-        return new HttpConnectProcessor();
+        return new HttpConnectProcessor(persistentConnectionsStore);
     }
 
     @Override
@@ -238,22 +235,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         HTTP_SESSION_FACTORY_KEY.set(transportSession, httpSessionFactory);
         HTTP_CONNECT_FUTURE_KEY.set(transportSession, connectFuture);
 
-        DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(transportSession);
-        if (httpSession != null && !httpSession.isClosing()) {
-            httpSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
-            return;
-        }
-
-        if (transportSession.getFilterChain().contains(TRUNCATE_CONTENT_FILTER)) {
-            transportSession.getFilterChain().remove(TRUNCATE_CONTENT_FILTER);
-        }
-
         try {
-
             bridgeHandler.sessionOpened(transportSession);
         } catch (Exception e) {
-            // TODO
-            throw new RuntimeIoException(e);
+            connectFuture.setException(e);
         }
     }
 
@@ -308,13 +293,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         assert (connectFilters != null && !connectFilters.isEmpty());
 
         for (HttpConnectFilter connectFilter : connectFilters) {
-            switch (connectFilter) {
-                case PERSISTENCE:
-                    chain.addLast(connectFilter.filterName(), persistenceFilter);
-                    break;
-                default:
-                    chain.addLast(connectFilter.filterName(), connectFilter.filter());
-            }
+            chain.addLast(connectFilter.filterName(), connectFilter.filter());
         }
     }
 
