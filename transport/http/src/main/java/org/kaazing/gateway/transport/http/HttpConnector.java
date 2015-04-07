@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -62,7 +63,6 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
@@ -112,7 +112,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
     private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
-    private final ConcurrentHashSet<Executor> ioExecutors;
+    private final ConcurrentSkipListSet<Executor> ioExecutors;
     private Properties configuration;
     private final HttpConnectPersistenceFilter persistenceFilter;
 
@@ -131,7 +131,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 return new PersistentConnectionsStore(logger);
             }
         };
-        this.ioExecutors = new ConcurrentHashSet<>();
+        this.ioExecutors = new ConcurrentSkipListSet<>();
         persistenceFilter = new HttpConnectPersistenceFilter(persistentConnectionsStore);
     }
     
