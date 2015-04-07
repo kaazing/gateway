@@ -106,7 +106,7 @@ public class Gateway {
         }
     }
 
-    GatewayContext createGatewayContext(GatewayConfiguration configuration) throws Exception {
+    public GatewayContext createGatewayContext(GatewayConfiguration configuration) throws Exception {
         GatewayConfigDocument gatewayConfigDocument = GatewayConfigDocument.Factory.newInstance();
         GatewayConfig gatewayConfig = gatewayConfigDocument.addNewGatewayConfig();
 
@@ -241,6 +241,13 @@ public class Gateway {
             if (!configuredAcceptOptions.isEmpty()) {
                 ServiceAcceptOptionsType newAcceptOption = serviceDefaults.addNewAcceptOptions();
                 appendAcceptOptions(newAcceptOption, configuredAcceptOptions);
+            }
+
+            // connect options
+            Map<String, String> configuredConnectOptions = serviceDefaultsConfiguration.getConnectOptions();
+            if (!configuredConnectOptions.isEmpty()) {
+                ServiceConnectOptionsType newConnectOptions = serviceDefaults.addNewConnectOptions();
+                appendConnectOptions(newConnectOptions, configuredConnectOptions);
             }
 
             // mime-mappings
