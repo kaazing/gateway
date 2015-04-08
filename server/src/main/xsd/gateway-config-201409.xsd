@@ -59,7 +59,7 @@
                     <element maxOccurs="1" minOccurs="0" name="service-defaults" type="gateway:ServiceDefaultsType">
                         <annotation>
                             <documentation>This is the element for configuring a
-                                set of default accept-options for all services running
+                                set of default accept-options, connect-options, mime-mapping for all services running
                                 on the gateway.
                             </documentation>
                         </annotation>
