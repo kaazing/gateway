@@ -37,11 +37,11 @@ import java.util.Map;
 import java.util.Set;
 
 /*
- * A store for reusable persistent transport connections. HttpConnector
+ * A pool for reusable persistent transport connections. HttpConnector
  * may pick one of the transport connections instead of creating a new
  * one while connecting to the origin server.
  */
-public class PersistentConnectionsStore {
+public class PersistentConnectionPool {
 
     private static final String IDLE_FILTER = HttpProtocol.NAME + "#idle";
 
@@ -51,7 +51,7 @@ public class PersistentConnectionsStore {
     private final CloseListener closeListener;
     private final HttpConnectIdleFilter idleFilter;
 
-    PersistentConnectionsStore(Logger logger) {
+    PersistentConnectionPool(Logger logger) {
         this.connections = new HashMap<>();
         this.logger = logger;
         this.closeListener = new CloseListener(this);
@@ -128,14 +128,14 @@ public class PersistentConnectionsStore {
     }
 
     /*
-     * If a session is closed, it will be removed from this store using this
+     * If a session is closed, it will be removed from this pool using this
      * CloseFuture listener
      */
     private static class CloseListener implements IoFutureListener<CloseFuture> {
 
-        private final PersistentConnectionsStore store;
+        private final PersistentConnectionPool store;
 
-        CloseListener(PersistentConnectionsStore store) {
+        CloseListener(PersistentConnectionPool store) {
             this.store = store;
         }
 
@@ -150,11 +150,11 @@ public class PersistentConnectionsStore {
      * Filter to detect if a persistent connection is idle
      */
     private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
-        private final PersistentConnectionsStore store;
+        private final PersistentConnectionPool pool;
         private final Logger logger;
 
-        HttpConnectIdleFilter(PersistentConnectionsStore store, Logger logger) {
-            this.store = store;
+        HttpConnectIdleFilter(PersistentConnectionPool pool, Logger logger) {
+            this.pool = pool;
             this.logger = logger;
         }
 
@@ -163,7 +163,7 @@ public class PersistentConnectionsStore {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Idle http connect persistent connection %s", session));
             }
-            store.remove(session);
+            pool.remove(session);
             session.close(false);
             super.sessionIdle(nextFilter, session, status);
         }

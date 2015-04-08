@@ -53,10 +53,10 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
     public static final IoBufferEx WRITE_COMPLETE = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(0));
     private static final String FILTER_PREFIX = HttpProtocol.NAME + "#";
-    private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
+    private final ThreadLocal<PersistentConnectionPool> persistentConnectionPool;
 
-    HttpConnectProcessor(ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore) {
-        this.persistentConnectionsStore = persistentConnectionsStore;
+    HttpConnectProcessor(ThreadLocal<PersistentConnectionPool> persistentConnectionPool) {
+        this.persistentConnectionPool = persistentConnectionPool;
     }
 
     protected void finishConnect(DefaultHttpSession session) {
@@ -241,7 +241,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             } else if (serverToClose) {
                 // Let server close transport session. Add idle filter to close the connection,
                 // in case server doesn't close it.
-                persistentConnectionsStore.get().addIdleFilter(parent, keepAliveTimeout);
+                persistentConnectionPool.get().addIdleFilter(parent, keepAliveTimeout);
             }
         } else {
             if ("chunked".equals(session.getWriteHeader("Transfer-Encoding"))) {
@@ -267,7 +267,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             // TODO should we make sure that complete response is read before recycling ??
 
             // recycle the transport connection
-            persistentConnectionsStore.get().recycle(parent, keepAliveTimeout);
+            persistentConnectionPool.get().recycle(parent, keepAliveTimeout);
         }
     }
 

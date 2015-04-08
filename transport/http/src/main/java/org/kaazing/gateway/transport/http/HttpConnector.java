@@ -50,7 +50,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
 
-import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.DefaultConnectFuture;
@@ -109,7 +108,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final Set<HttpConnectFilter> allConnectFilters;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    private final ThreadLocal<PersistentConnectionsStore> persistentConnectionsStore;
+    private final ThreadLocal<PersistentConnectionPool> persistentConnectionsStore;
     private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
 
@@ -122,10 +121,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
-        this.persistentConnectionsStore = new VicariousThreadLocal<PersistentConnectionsStore>() {
+        this.persistentConnectionsStore = new VicariousThreadLocal<PersistentConnectionPool>() {
             @Override
-            protected PersistentConnectionsStore initialValue() {
-                return new PersistentConnectionsStore(logger);
+            protected PersistentConnectionPool initialValue() {
+                return new PersistentConnectionPool(logger);
             }
         };
         this.ioExecutors = new ConcurrentHashSet<>();
