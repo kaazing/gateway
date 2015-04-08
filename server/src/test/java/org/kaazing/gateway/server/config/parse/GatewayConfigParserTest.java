@@ -106,6 +106,21 @@ public class GatewayConfigParserTest {
     }
 
     @Test
+    public void testWillParseServiceDefaults() throws Exception {
+        File configFile = null;
+        try {
+            configFile = createTempFileFromResource(
+                    "org/kaazing/gateway/server/config/parse/data/gateway-config-with-service-defaults.xml");
+            parser.parse(configFile);
+
+        } finally {
+            if (configFile != null) {
+                configFile.delete();
+            }
+        }
+    }
+
+    @Test
     // see http://jira.kaazing.wan/browse/KG-6189
     public void shouldParseExcaliburSslCiphersConnectOptions() throws Exception {
 
