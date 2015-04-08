@@ -103,4 +103,5 @@ write "\r\n"
 write "0\r\n"
 write "\r\n"
 
+# gateway(sender) closes the connection
 closed

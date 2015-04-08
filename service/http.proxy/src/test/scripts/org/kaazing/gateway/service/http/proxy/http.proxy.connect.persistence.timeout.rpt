@@ -28,9 +28,6 @@ read "<html>Helloo1</html>\r\n"
 read "0\r\n"
 read "\r\n"
 
-read notify CLIENT_SECOND_REQUEST
-write await CLIENT_SECOND_REQUEST
-
 write "GET / HTTP/1.1\r\n"
 write "Host: localhost:8110\r\n"
 write "Cache-Control: max-age=0\r\n"

@@ -26,5 +26,4 @@ public interface BridgeService {
 
     void dispose();
 
-
 }

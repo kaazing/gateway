@@ -62,9 +62,9 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
 
     private Boolean keepAlive = Boolean.FALSE;
-	private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
-	private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
-	private String realmName;
+    private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
+    private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
+    private String realmName;
     private String realmAuthorizationMode = REALM_AUTHORIZATION_MODE.defaultValue();
     private String realmChallengeScheme;
     private String realmDescription;
