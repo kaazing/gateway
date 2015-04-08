@@ -29,7 +29,27 @@
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
+                <artifactId>gateway.service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.service.amqp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>test.util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -57,23 +77,15 @@
                 <artifactId>gateway.management</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <!-- This imports dependencyManagement from gateway.management -->
             <dependency>
                 <groupId>org.kaazing</groupId>
-                <artifactId>snmp4j</artifactId>
-                <version>1.11.3</version>
+                <artifactId>gateway.management</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>snmp4j-agent</artifactId>
-                <version>1.4.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
-                <artifactId>sigar.dist</artifactId>
-                <classifier>distribution</classifier>
-                <type>zip</type>
-                <version>[1.0.0.0,1.1.0.0)</version>
-            </dependency>
+
             <!-- service dependencies -->
             <dependency>
                 <groupId>org.kaazing</groupId>
@@ -117,6 +129,16 @@
             </dependency>
 
             <!-- transport dependencies -->
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>mina.netty</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>gateway.transport.ssl</artifactId>
@@ -260,7 +282,48 @@
                 <artifactId>gateway.resource.address.wse</artifactId>
                 <version>${project.version}</version>
             </dependency>
-        </dependencies>
 
+            <!-- external dependencies (as included in gateway assembly) -->
+        </dependencies>
     </dependencyManagement>
+
+    <!-- for testing purposes only -->
+    <dependencies>
+        <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>sigar.dist</artifactId>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>sigar.dist</artifactId>
+                <classifier>distribution</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>snmp4j</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.management</artifactId>
+            </dependency>
+
+    </dependencies>
 </project>

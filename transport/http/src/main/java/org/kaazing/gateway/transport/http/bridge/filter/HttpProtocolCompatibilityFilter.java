@@ -57,6 +57,7 @@ import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptFilter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
@@ -84,6 +85,8 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     private static final String HEADER_CREATE_ENCODING = "X-Create-Encoding";
     private static final String HEADER_X_HTTP_VERSION = "X-Http-Version";
     private static final String HEADER_VALUE_HTTPE_VERSION_1_0 = "httpe-1.0";
+
+    public static final String PARAMETER_X_SEQUENCE_NO = ".ksn";
     
     private static final String QUERY_PARAM_METHOD = ".km";
     private static final String QUERY_PARAM_RESOURCE = ".kr";
@@ -186,6 +189,14 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     protected void httpRequestReceived(NextFilter nextFilter, IoSessionEx session, HttpRequestMessage httpRequest)
             throws Exception {
         // GL.debug("http", getClass().getSimpleName() + " request received.");
+
+        if (!httpRequest.hasHeader(HttpHeaders.HEADER_X_SEQUENCE_NO)) {
+            String candidateSequenceNo = httpRequest.removeParameter(PARAMETER_X_SEQUENCE_NO);
+            if (candidateSequenceNo != null) {
+                // if ".ksn" parameter is present, use this value as "X-Sequence-No" header
+                httpRequest.setHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, candidateSequenceNo);
+            }
+        }
 
         if (deferOriginSecurityToHttpxe(session, httpRequest)) {
             if (session.getFilterChain().contains(HttpAcceptFilter.ORIGIN_SECURITY.filterName())) {

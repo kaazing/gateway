@@ -22,9 +22,16 @@
 package org.kaazing.gateway.server.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Properties;
+
 import javax.management.MBeanServer;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.config.PropertySetter;
 import org.apache.log4j.helpers.FileWatchdog;
@@ -39,6 +46,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
+
 import static java.lang.String.format;
 
 /**
@@ -219,7 +227,6 @@ final class GatewayImpl implements Gateway {
         // we need to make sure to put the log directory back into the configuration properties.
         configuration.setProperty(GATEWAY_LOG_DIRECTORY_PROPERTY, logDir.toString());
 
-
         // As of 3.2 we will normally have two config files in the config directory (if you
         // have the 'full' installation), one for the 'minimal' configuration (that you would
         // get if you just have a base installation) and one for the demos and docs.  To decide
@@ -231,6 +238,24 @@ final class GatewayImpl implements Gateway {
         //  * If none of those exists (and is a readable file), that's an error.
         File gatewayConfigFile = null;
         String gatewayConfigProperty = configuration.getProperty(GATEWAY_CONFIG_PROPERTY);
+
+        // If config property is a url then we download it and reset the property
+        try {
+            // if config is a URL download it to config directory
+            URL configURL = new URL(gatewayConfigProperty);
+            String path = configURL.getPath();
+            ReadableByteChannel rbc = Channels.newChannel(configURL.openStream());
+            final File configFile = new File(configDir, path.substring(path.lastIndexOf('/') + 1));
+            try (FileOutputStream fos = new FileOutputStream(configFile)) {
+                fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+            }
+            configuration.setProperty(Gateway.GATEWAY_CONFIG_PROPERTY, configFile.getPath());
+            gatewayConfigProperty = configuration.getProperty(GATEWAY_CONFIG_PROPERTY);
+        } catch (MalformedURLException e1) {
+            // expected exception if config is not a url
+        } catch (IOException e) {
+            throw new RuntimeException("Could not fetch config from url: " + gatewayConfigProperty, e);
+        }
 
         if (gatewayConfigProperty != null) {
             gatewayConfigFile = new File(gatewayConfigProperty);

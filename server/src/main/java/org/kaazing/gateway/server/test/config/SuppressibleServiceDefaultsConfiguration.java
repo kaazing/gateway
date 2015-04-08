@@ -27,9 +27,13 @@ public abstract class SuppressibleServiceDefaultsConfiguration implements Suppre
 
     public abstract Map<String, Suppressible<String>> getAcceptOptions();
 
+    public abstract Map<String, Suppressible<String>> getConnectOptions();
+
     public abstract Map<String, Suppressible<String>> getMimeMappings();
 
     public abstract void addAcceptOption(String key, Suppressible<String> value);
+
+    public abstract void addConnectOption(String key, Suppressible<String> value);
 
     public abstract void addMimeMapping(String key, Suppressible<String> value);
 

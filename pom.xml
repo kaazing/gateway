@@ -28,7 +28,10 @@
         <maven.compiler.testSource>1.7</maven.compiler.testSource>
         <maven.compiler.testTarget>1.7</maven.compiler.testTarget>
         <animal.sniffer.signature.artifactId>java17</animal.sniffer.signature.artifactId>
+        <hazelcast.version>1.9.4.8</hazelcast.version>
+        <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
+        <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
         <enforcer.skip>true</enforcer.skip>
     </properties>
 
@@ -93,7 +96,7 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po.junit</artifactId>
-                <version>2.0.0-alpha-4</version>
+                <version>2.0.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -127,7 +130,19 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
-                <version>1.7.5</version>
+                <version>${slf4j.log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-parent</artifactId>
+                <version>${slf4j.log4j.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.log4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
@@ -150,6 +165,36 @@
                 <version>1.2</version>
                 <type>jar</type>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-client</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast-cloud</artifactId>
+                <version>${hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jdom</groupId>
+                <artifactId>jdom</artifactId>
+                <version>${jdom.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20090211</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -361,7 +406,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>2.0.0-alpha-8</version>
+                <version>2.0.0</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>

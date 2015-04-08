@@ -39,7 +39,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -168,7 +167,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         if (socketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
             ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                    transportName);
+                                                                                transportName);
             LOCAL_ADDRESS.set(session, resourceAddress);
         }
         else if (socketAddress instanceof NamedPipeAddress) {

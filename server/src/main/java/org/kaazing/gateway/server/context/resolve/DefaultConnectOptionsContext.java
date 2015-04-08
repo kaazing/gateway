@@ -21,10 +21,20 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
+import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
+
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
@@ -41,7 +51,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private String[] sslCiphers;
     private String[] sslProtocols;
     private long wsInactivityTimeoutMillis;
-    private String wsVersion;  // added so we can expose to Console
+    private String wsVersion; // added so we can expose to Console
     private URI pipeTransportURI;
     private URI tcpTransportURI;
     private URI sslTransportURI;
@@ -53,13 +63,12 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private String udpInterface;
 
     public DefaultConnectOptionsContext() {
-        this(ServiceConnectOptionsType.Factory.newInstance());
+        this(ServiceConnectOptionsType.Factory.newInstance(), ServiceConnectOptionsType.Factory.newInstance());
     }
 
-    public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions) {
+    public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions, ServiceConnectOptionsType defaultOptions) {
         Long tmpHttpKeepaliveTimeout = null;
         Boolean tmpHttpKeepaliveEnabled = null;
-
         if (connectOptions != null) {
 
             wsVersion = connectOptions.getWsVersion();
@@ -80,8 +89,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (tcpTransport != null) {
                 tcpTransportURI = URI.create(tcpTransport);
                 if (!tcpTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String
-                            .format("tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
+                    throw new IllegalArgumentException(String.format("tcp.transport must contain an absolute URI, not \"%s\"",
+                            tcpTransport));
                 }
             }
 
@@ -89,8 +98,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (pipeTransport != null) {
                 pipeTransportURI = URI.create(pipeTransport);
                 if (!pipeTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String
-                            .format("pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
+                    throw new IllegalArgumentException(String.format("pipe.transport must contain an absolute URI, not \"%s\"",
+                            pipeTransport));
                 }
             }
 
@@ -98,8 +107,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (sslTransport != null) {
                 sslTransportURI = URI.create(sslTransport);
                 if (!sslTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String
-                            .format("ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
+                    throw new IllegalArgumentException(String.format("ssl.transport must contain an absolute URI, not \"%s\"",
+                            sslTransport));
                 }
             }
 
@@ -107,29 +116,10 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             if (httpTransport != null) {
                 httpTransportURI = URI.create(httpTransport);
                 if (!httpTransportURI.isAbsolute()) {
-                    throw new IllegalArgumentException(String
-                            .format("http.transport must contain an absolute URI, not \"%s\"", httpTransport));
+                    throw new IllegalArgumentException(String.format("http.transport must contain an absolute URI, not \"%s\"",
+                            httpTransport));
                 }
             }
-
-            Long wsInactivityTimeout = null;
-            String value = connectOptions.getWsInactivityTimeout();
-            if (value != null) {
-                long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
-                if (val > 0) {
-                    wsInactivityTimeout = val;
-                }
-            }
-            this.wsInactivityTimeoutMillis =
-                    (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
-
-            Boolean sslEncryptionEnabled = null;
-            ServiceConnectOptionsType.SslEncryption.Enum encrypted = connectOptions.getSslEncryption();
-            if (encrypted != null) {
-                sslEncryptionEnabled = encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED;
-            }
-
-            this.sslEncryptionEnabled = (sslEncryptionEnabled == null) ? true : sslEncryptionEnabled;
 
             ServiceConnectOptionsType.HttpKeepalive.Enum alive = connectOptions.getHttpKeepalive();
             if (alive != null) {
@@ -145,6 +135,113 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
             }
 
         }
+
+        // Set default values via service-defaults
+        if (defaultOptions != null) {
+            if (wsVersion == null) {
+                wsVersion = defaultOptions.getWsVersion();
+                if ("rfc6455".equals(wsVersion)) {
+                    webSocketWireProtocol = WebSocketWireProtocol.RFC_6455;
+                } else if ("draft-75".equals(wsVersion)) {
+                    webSocketWireProtocol = WebSocketWireProtocol.HIXIE_75;
+                }
+            }
+
+            if (udpInterface == null) {
+                udpInterface = defaultOptions.getUdpInterface();
+            }
+
+            if (this.sslCiphers == null) {
+                String sslCiphersStr = defaultOptions.getSslCiphers();
+                this.sslCiphers = sslCiphersStr != null ? SslCipherSuites.resolveCSV(sslCiphersStr) : null;
+            }
+            if (this.sslProtocols == null) {
+                String sslProtocolsStr = defaultOptions.getSslProtocols();
+                this.sslProtocols = sslProtocolsStr != null ? resolveProtocols(sslProtocolsStr) : null;
+            }
+
+            if (this.tcpTransportURI == null) {
+                String tcpTransport = defaultOptions.getTcpTransport();
+                if (tcpTransport != null) {
+                    tcpTransportURI = URI.create(tcpTransport);
+                    if (!tcpTransportURI.isAbsolute()) {
+                        throw new IllegalArgumentException(String.format(
+                                "tcp.transport must contain an absolute URI, not \"%s\"", tcpTransport));
+                    }
+                }
+            }
+
+            if (this.pipeTransportURI == null) {
+                String pipeTransport = defaultOptions.getPipeTransport();
+                if (pipeTransport != null) {
+                    pipeTransportURI = URI.create(pipeTransport);
+                    if (!pipeTransportURI.isAbsolute()) {
+                        throw new IllegalArgumentException(String.format(
+                                "pipe.transport must contain an absolute URI, not \"%s\"", pipeTransport));
+                    }
+                }
+            }
+
+            if (this.sslTransportURI == null) {
+                String sslTransport = defaultOptions.getSslTransport();
+                if (sslTransport != null) {
+                    sslTransportURI = URI.create(sslTransport);
+                    if (!sslTransportURI.isAbsolute()) {
+                        throw new IllegalArgumentException(String.format(
+                                "ssl.transport must contain an absolute URI, not \"%s\"", sslTransport));
+                    }
+                }
+            }
+
+            if (this.httpTransportURI == null) {
+                String httpTransport = defaultOptions.getHttpTransport();
+                if (httpTransport != null) {
+                    httpTransportURI = URI.create(httpTransport);
+                    if (!httpTransportURI.isAbsolute()) {
+                        throw new IllegalArgumentException(String.format(
+                                "http.transport must contain an absolute URI, not \"%s\"", httpTransport));
+                    }
+                }
+            }
+        }
+
+        // Set properties that have default values, needs special logic for ServiceDefaults
+
+        // inactivity timeout
+        Long wsInactivityTimeout = null;
+        String value = null;
+        if (connectOptions != null) {
+            value = connectOptions.getWsInactivityTimeout();
+            // if null use ServiceDefaults
+        }
+        if (value == null && defaultOptions != null) {
+            value = defaultOptions.getWsInactivityTimeout();
+        }
+        if (value != null) {
+            long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
+            if (val > 0) {
+                wsInactivityTimeout = val;
+            }
+        }
+
+        this.wsInactivityTimeoutMillis =
+                (wsInactivityTimeout == null) ? DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS : wsInactivityTimeout;
+
+        // ssl encryption enabled
+        Boolean sslEncryptionEnabled = null;
+        ServiceConnectOptionsType.SslEncryption.Enum encrypted = null;
+        if (connectOptions != null) {
+            encrypted = connectOptions.getSslEncryption();
+        }
+        // if null use ServiceDefaults
+        if (encrypted == null && defaultOptions != null) {
+            encrypted = defaultOptions.getSslEncryption();
+        }
+        if (encrypted != null) {
+            sslEncryptionEnabled = encrypted != ServiceConnectOptionsType.SslEncryption.DISABLED;
+        }
+
+        this.sslEncryptionEnabled = (sslEncryptionEnabled == null) ? true : sslEncryptionEnabled;
 
         this.httpKeepaliveTimeout = (tmpHttpKeepaliveTimeout == null)
                 ? DEFAULT_HTTP_KEEPALIVE_TIMEOUT : tmpHttpKeepaliveTimeout.intValue();

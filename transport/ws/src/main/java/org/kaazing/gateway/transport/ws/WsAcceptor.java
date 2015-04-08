@@ -40,7 +40,6 @@ import javax.annotation.Resource;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.AbstractBridgeService;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;

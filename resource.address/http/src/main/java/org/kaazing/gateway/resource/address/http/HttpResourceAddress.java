@@ -38,7 +38,6 @@ public final class HttpResourceAddress extends ResourceAddress {
 	private static final long serialVersionUID = 1L;
 
 	static final String TRANSPORT_NAME = "http";
-    public static final Integer DEFAULT_KEEP_ALIVE_TIMEOUT = 30;
 
     public static final ResourceOption<Boolean> KEEP_ALIVE = new HttpKeepAliveOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();

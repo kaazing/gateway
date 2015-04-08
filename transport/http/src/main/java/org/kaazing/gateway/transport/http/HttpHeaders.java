@@ -44,6 +44,6 @@ public interface HttpHeaders {
     public static final String HEADER_VIA= "Via";
     public static final String HEADER_CONNECTION = "Connection";
     public static final String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
-
+    public static final String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
 
 }

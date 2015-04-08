@@ -64,7 +64,6 @@
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>${xmlbeans.version}</version>
         </dependency>
 
         <dependency>
@@ -151,7 +150,4 @@
         </plugins>
     </reporting>
 
-    <properties>
-        <xmlbeans.version>2.4.0</xmlbeans.version>
-    </properties>
 </project>

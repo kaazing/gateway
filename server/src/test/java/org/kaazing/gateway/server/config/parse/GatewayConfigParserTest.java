@@ -337,6 +337,32 @@ public class GatewayConfigParserTest {
     }
 
     @Test
+    public void testCanConvertHostname() {
+        File configFile = null;
+        GatewayConfigDocument doc = null;
+        try {
+            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-hostname.xml");
+            doc = parser.parse(configFile);
+        } catch (Exception e) {
+                fail("Caught unexpected exception parsing: " + e);
+        } finally {
+            if (configFile != null) {
+                configFile.delete();
+            }
+        }
+        String accept = doc.getGatewayConfig().getServiceArray(0)
+                .getAcceptArray(0);
+        Assert.assertFalse("accept is null", accept == null);
+        Assert.assertFalse("accept is empty", "".endsWith(accept));
+        Assert.assertFalse("Found pattern in accept",
+                accept.contains("${hostname}"));
+        Pattern pattern = Pattern.compile("\\s");
+        Matcher matcher = pattern.matcher(accept);
+        boolean found = matcher.find();
+        Assert.assertFalse("Found whitespace in accept", found);
+    }
+
+    @Test
     public void testCanConvertAwsInstanceIdIfAvailable() {
         boolean onAWS = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();

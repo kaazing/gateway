@@ -48,5 +48,5 @@ GW_HOME=`cd "$PRGDIR/.." ; pwd`
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
-java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
 
