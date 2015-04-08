@@ -27,7 +27,9 @@ public class ServiceDefaultsTest {
                 .connectOption("ssl.encryption", "disabled")
                 .connectOption("udp.interface", "en0")
                 .connectOption("tcp.transport", "socks://localhost:8000")
-            .done()
+                .connectOption("http.keepalive", "disabled")
+                .connectOption("http.keepaliveTimeout", "5sec")
+                .done()
             .service()
                 .type("echo")
                 .name("test1")
@@ -46,6 +48,9 @@ public class ServiceDefaultsTest {
         Assert.assertTrue("en0".equals(connectOptionsContext.asOptionsMap().get("udp.interface")));
         System.out.println(connectOptionsContext.getTcpTransport());
         Assert.assertTrue("socks://localhost:8000".equals(connectOptionsContext.getTcpTransport().toString().trim()));
-        Assert.assertTrue(false == connectOptionsContext.isSslEncryptionEnabled());
+        Assert.assertFalse(connectOptionsContext.isSslEncryptionEnabled());
+
+        Assert.assertEquals(Integer.valueOf(5), connectOptionsContext.getHttpKeepaliveTimeout());
+        Assert.assertFalse(connectOptionsContext.isHttpKeepaliveEnabled());
     }
 }

@@ -203,6 +203,23 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
                     }
                 }
             }
+
+            if (tmpHttpKeepaliveEnabled == null) {
+                ServiceConnectOptionsType.HttpKeepalive.Enum alive = defaultOptions.getHttpKeepalive();
+                if (alive != null) {
+                    tmpHttpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
+                }
+            }
+
+            if (tmpHttpKeepaliveTimeout == null) {
+                String timeoutValue = defaultOptions.getHttpKeepaliveTimeout();
+                if (timeoutValue != null) {
+                    long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
+                    if (val > 0) {
+                        tmpHttpKeepaliveTimeout = val;
+                    }
+                }
+            }
         }
 
         // Set properties that have default values, needs special logic for ServiceDefaults
