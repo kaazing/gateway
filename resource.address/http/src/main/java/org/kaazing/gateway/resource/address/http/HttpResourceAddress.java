@@ -61,7 +61,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
 
-    private Boolean keepAlive = Boolean.FALSE;
+    private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
     private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
     private String realmName;
@@ -243,7 +243,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private static final class HttpKeepAliveOption extends HttpResourceOption<Boolean> {
         private HttpKeepAliveOption() {
-            super(Kind.KEEP_ALIVE, "keepAlive", Boolean.FALSE);
+            super(Kind.KEEP_ALIVE, "keepAlive", Boolean.TRUE);
         }
     }
     
