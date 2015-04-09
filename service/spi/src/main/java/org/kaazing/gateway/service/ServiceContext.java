@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
@@ -106,6 +107,9 @@ public interface ServiceContext {
     
     public ConnectFuture connect(URI connectURI, IoHandler connectHandler,
             IoSessionInitializer<ConnectFuture> ioSessionInitializer);
+
+    public ConnectFuture connect(ResourceAddress address, IoHandler connectHandler,
+            IoSessionInitializer<ConnectFuture> connectSessionInitializer);
 
     public Collection<IoSessionEx> getActiveSessions();
 	

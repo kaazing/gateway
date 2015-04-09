@@ -928,10 +928,15 @@ public class DefaultServiceContext implements ServiceContext {
     @Override
     public ConnectFuture connect(URI connectURI, final IoHandler connectHandler,
                                  final IoSessionInitializer<ConnectFuture> connectSessionInitializer) {
-        String uriScheme = connectURI.getScheme();
-        Transport transport = transportFactory.getTransportForScheme(uriScheme);
-
         ResourceAddress address = resourceAddressFactory.newResourceAddress(connectURI, connectOptionsContext.asOptionsMap());
+        return connect(address, connectHandler, connectSessionInitializer);
+    }
+
+    @Override
+    public ConnectFuture connect(ResourceAddress address, final IoHandler connectHandler,
+                                 final IoSessionInitializer<ConnectFuture> connectSessionInitializer) {
+        String uriScheme = address.getExternalURI().getScheme();
+        Transport transport = transportFactory.getTransportForScheme(uriScheme);
 
         BridgeConnector connector = transport.getConnector(address);
         return connector.connect(address, connectHandler, new IoSessionInitializer<ConnectFuture>() {
