@@ -1229,7 +1229,13 @@
             <element name="ws.inactivity.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
                 <annotation/>
             </element>
-            <element name="http.keepalive" maxOccurs="1" minOccurs="0">
+            <element name="http.keepalive" maxOccurs="1" minOccurs="0" default="enabled">
+                <annotation>
+                    <documentation>HTTP keep-alive (or persistent connections) allow reuse of same TCP
+                        connection for multiple HTTP request/responses. This will improve HTTP performance
+                        esp for services like http proxy. This is enabled by default.
+                    </documentation>
+                </annotation>
                 <simpleType>
                     <restriction base="string">
                         <enumeration value="enabled"></enumeration>
@@ -1239,7 +1245,13 @@
                 </simpleType>
             </element>
             <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
-                <annotation/>
+                <annotation>
+                    <documentation>HTTP keep-alive (or persistent connections) allow reuse of same TCP
+                        connection for multiple HTTP request/responses. If the TCP connection is idle
+                        for the specified time, the connection is closed and will not be reused for
+                        any further HTTP requests/responses.
+                    </documentation>
+                </annotation>
             </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>
