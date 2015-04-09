@@ -168,7 +168,7 @@ public class ConnectOptionsTest {
         ServiceConnectOptionsType connectOptionsType = doc.getGatewayConfig().getServiceArray(0).getConnectOptions();
         ConnectOptionsContext connectOptionsContext = null;
         try {
-            connectOptionsContext = new DefaultConnectOptionsContext(connectOptionsType);
+            connectOptionsContext = new DefaultConnectOptionsContext(connectOptionsType, ServiceConnectOptionsType.Factory.newInstance());
         } catch (Exception e) {
             if (expectedResult == TestResult.VALIDATE_FAILURE) {
 //                System.out.println("Caught expected validate exception " + e);

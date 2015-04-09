@@ -40,9 +40,15 @@ public class AbstractServiceDefaultsConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractServiceDefaultsConfigurationBuilder<R> acceptOption(String option, String version) {
+    public AbstractServiceDefaultsConfigurationBuilder<R> acceptOption(String option, String value) {
         configuration.getSuppressibleConfiguration().addAcceptOption(option,
-                new Suppressible<>(version, getCurrentSuppressions()));
+                new Suppressible<>(value, getCurrentSuppressions()));
+        return this;
+    }
+
+    public AbstractServiceDefaultsConfigurationBuilder<R> connectOption(String option, String value) {
+        configuration.getSuppressibleConfiguration().addConnectOption(option,
+                new Suppressible<>(value, getCurrentSuppressions()));
         return this;
     }
 

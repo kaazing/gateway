@@ -21,6 +21,16 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_WANT_CLIENT_AUTH;
+import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCOLS;
+import static org.kaazing.gateway.service.TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE;
+import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,11 +41,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
-import static org.kaazing.gateway.service.TransportOptionNames.*;
 
 public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private static int DEFAULT_WEBSOCKET_MAXIMUM_MESSAGE_SIZE = 128 * 1024; //128KB
