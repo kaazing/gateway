@@ -45,7 +45,7 @@ import static org.kaazing.gateway.service.TransportOptionNames.*;
 public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
-    private static int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
 
     private WebSocketWireProtocol webSocketWireProtocol = WebSocketWireProtocol.RFC_6455;
     private String[] sslCiphers;
