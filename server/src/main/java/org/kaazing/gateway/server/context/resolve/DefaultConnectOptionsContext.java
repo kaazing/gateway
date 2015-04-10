@@ -40,10 +40,12 @@ import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import static org.kaazing.gateway.service.TransportOptionNames.*;
 
 public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
 
     private WebSocketWireProtocol webSocketWireProtocol = WebSocketWireProtocol.RFC_6455;
     private String[] sslCiphers;
@@ -55,6 +57,9 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private URI sslTransportURI;
     private URI httpTransportURI;
     private boolean sslEncryptionEnabled = true; // default to true
+    private final boolean httpKeepaliveEnabled;
+    private final int httpKeepaliveTimeout;
+
     private String udpInterface;
 
     public DefaultConnectOptionsContext() {
@@ -62,6 +67,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     }
 
     public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions, ServiceConnectOptionsType defaultOptions) {
+        Long tmpHttpKeepaliveTimeout = null;
+        Boolean tmpHttpKeepaliveEnabled = null;
         if (connectOptions != null) {
 
             wsVersion = connectOptions.getWsVersion();
@@ -111,6 +118,19 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
                 if (!httpTransportURI.isAbsolute()) {
                     throw new IllegalArgumentException(String.format("http.transport must contain an absolute URI, not \"%s\"",
                             httpTransport));
+                }
+            }
+
+            ServiceConnectOptionsType.HttpKeepalive.Enum alive = connectOptions.getHttpKeepalive();
+            if (alive != null) {
+                tmpHttpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
+            }
+
+            String timeoutValue = connectOptions.getHttpKeepaliveTimeout();
+            if (timeoutValue != null) {
+                long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
+                if (val > 0) {
+                    tmpHttpKeepaliveTimeout = val;
                 }
             }
 
@@ -183,6 +203,23 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
                     }
                 }
             }
+
+            if (tmpHttpKeepaliveEnabled == null) {
+                ServiceConnectOptionsType.HttpKeepalive.Enum alive = defaultOptions.getHttpKeepalive();
+                if (alive != null) {
+                    tmpHttpKeepaliveEnabled = alive != ServiceConnectOptionsType.HttpKeepalive.DISABLED;
+                }
+            }
+
+            if (tmpHttpKeepaliveTimeout == null) {
+                String timeoutValue = defaultOptions.getHttpKeepaliveTimeout();
+                if (timeoutValue != null) {
+                    long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
+                    if (val > 0) {
+                        tmpHttpKeepaliveTimeout = val;
+                    }
+                }
+            }
         }
 
         // Set properties that have default values, needs special logic for ServiceDefaults
@@ -222,6 +259,10 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         }
 
         this.sslEncryptionEnabled = (sslEncryptionEnabled == null) ? true : sslEncryptionEnabled;
+
+        this.httpKeepaliveTimeout = (tmpHttpKeepaliveTimeout == null)
+                ? DEFAULT_HTTP_KEEPALIVE_TIMEOUT : tmpHttpKeepaliveTimeout.intValue();
+        this.httpKeepaliveEnabled = (tmpHttpKeepaliveEnabled == null) ? true : tmpHttpKeepaliveEnabled;
     }
 
     @Override
@@ -275,6 +316,16 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     }
 
     @Override
+    public Integer getHttpKeepaliveTimeout() {
+        return httpKeepaliveTimeout;
+    }
+
+    @Override
+    public boolean isHttpKeepaliveEnabled() {
+        return httpKeepaliveEnabled;
+    }
+
+    @Override
     public Map<String, Object> asOptionsMap() {
         Map<String, Object> result = new LinkedHashMap<>();
 
@@ -290,6 +341,8 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
         result.put("udp.interface", getUdpInterface());
+        result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
+        result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
 
         return result;
     }

@@ -25,6 +25,8 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -172,7 +174,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         if (upgrade) {
             connectSession.setWriteHeader(HttpHeaders.HEADER_CONNECTION, HttpHeaders.HEADER_UPGRADE);
         } else {
-            connectSession.setWriteHeader(HttpHeaders.HEADER_CONNECTION, "close");
+            ResourceAddress address = connectSession.getRemoteAddress();
+            if (!address.getOption(HttpResourceAddress.KEEP_ALIVE)) {
+                connectSession.setWriteHeader(HttpHeaders.HEADER_CONNECTION, "close");
+            }
         }
         connectSession.addWriteHeader(HttpHeaders.HEADER_VIA, VIA_HEADER_VALUE);
     }

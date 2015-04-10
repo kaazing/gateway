@@ -37,6 +37,9 @@ public interface ConnectOptionsContext {
     public URI getHttpTransport();
     public long getWsInactivityTimeout();
     public boolean isSslEncryptionEnabled();
+    boolean isHttpKeepaliveEnabled();
+    Integer getHttpKeepaliveTimeout();
+
 
     Map<String, Object> asOptionsMap();
 
