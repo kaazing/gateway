@@ -81,6 +81,10 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
         ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest);
         Binding binding = bindings.getBinding(candidateAddress);
+        if (binding == null) {
+            candidateAddress = createAltCandidateAddress(session, httpRequest);
+            binding = bindings.getBinding(candidateAddress);
+        }
         ResourceAddress localAddress = (binding != null) ? binding.bindAddress() : null;
         if (localAddress != null) {
             httpRequest.setExternalURI(candidateAddress.getExternalURI());
@@ -123,6 +127,32 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
 
         URI candidateURI = URI.create(format("%s://%s/", scheme, authority)).resolve(requestURI);
         String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
+
+        ResourceAddress transport = LOCAL_ADDRESS.get(session);
+        if (transport == null) {
+            throw new NullPointerException("transport");
+        }
+
+        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+        options.setOption(NEXT_PROTOCOL, nextProtocol);
+        options.setOption(TRANSPORT, transport);
+
+        return addressFactory.newResourceAddress(candidateURI, options);
+    }
+
+    private ResourceAddress createAltCandidateAddress(IoSession session, HttpRequestMessage httpRequest) {
+
+        URI requestURI = httpRequest.getRequestURI();
+        String authority = httpRequest.getHeader(HEADER_HOST);
+        String scheme = httpRequest.isSecure() ? "https" : "http";
+
+        // handle missing Host header
+        if (authority == null) {
+            return null;
+        }
+
+        URI candidateURI = URI.create(format("%s://%s/", scheme, authority)).resolve(requestURI);
+        String nextProtocol = null;
 
         ResourceAddress transport = LOCAL_ADDRESS.get(session);
         if (transport == null) {
