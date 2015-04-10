@@ -21,15 +21,6 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_PROTOCOLS;
-import static org.kaazing.gateway.service.TransportOptionNames.SSL_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
-import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
-
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;

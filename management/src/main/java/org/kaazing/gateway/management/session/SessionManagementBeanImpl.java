@@ -36,7 +36,6 @@ import org.kaazing.gateway.management.AbstractManagementBean;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.transport.BridgeSession;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
