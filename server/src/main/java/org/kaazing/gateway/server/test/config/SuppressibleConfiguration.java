@@ -24,7 +24,7 @@ package org.kaazing.gateway.server.test.config;
 import java.util.Set;
 
 public interface SuppressibleConfiguration {
-    public enum Suppression {
+    enum Suppression {
         NONE, UNIFIED,
     }
 

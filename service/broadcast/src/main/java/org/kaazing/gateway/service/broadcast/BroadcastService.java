@@ -144,7 +144,7 @@ public class BroadcastService implements Service {
 
         try {
             if (acceptURI != null) {
-                serviceContext.bind(Arrays.asList(new URI[] { acceptURI }), handler.getListenHandler());
+                serviceContext.bind(Arrays.asList(acceptURI), handler.getListenHandler());
             }
 
             if (connectURI != null) {
@@ -179,7 +179,7 @@ public class BroadcastService implements Service {
             serviceContext.unbind(serviceContext.getAccepts(), handler);
 
             if (acceptURI != null) {
-                serviceContext.unbind(Arrays.asList(new URI[] { acceptURI }), handler.getListenHandler());
+                serviceContext.unbind(Arrays.asList(acceptURI), handler.getListenHandler());
             }
         }
     }

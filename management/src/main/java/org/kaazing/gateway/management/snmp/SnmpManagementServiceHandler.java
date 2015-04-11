@@ -262,7 +262,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         // processed on IO thread
         if (message instanceof IoBufferEx) {
             ByteBuffer buf = ((IoBufferEx) message).buf();
-            transportMapping.processMessage(new ManagementAddress((IoSessionEx) session), buf);
+            transportMapping.processMessage(new ManagementAddress(session), buf);
         }
         super.doMessageReceived(session, message);
     }
@@ -1533,8 +1533,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         // thread, but it's faster done directly.
         ServiceManagementBean serviceBean = sessionManagementBean.getServiceManagementBean();
         OID dataOID = ((OID) MIBConstants.oidSessionEntry.clone()).append(MIBConstants.colSessionSummaryData)
-                .append((int) serviceBean.getGatewayManagementBean().getId())
-                .append((int) serviceBean.getId())
+                .append(serviceBean.getGatewayManagementBean().getId())
+                .append(serviceBean.getId())
                 .append((int) sessionManagementBean.getId());
 
         OID notificationOID = MIBConstants.oidSessionSummaryDataNotification;
@@ -1593,7 +1593,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidSystemSummaryData.clone())
-                        .append((int) managementBean.getGatewayManagementBean().getId());
+                        .append(managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidSystemSummaryDataNotification;
 
@@ -1610,7 +1610,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidCpuListSummaryData.clone())
-                        .append((int) managementBean.getGatewayManagementBean().getId());
+                        .append(managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidCpuListSummaryDataNotification;
 
@@ -1634,7 +1634,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidNicListSummaryData.clone())
-                        .append((int) managementBean.getGatewayManagementBean().getId());
+                        .append(managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidNicListSummaryDataNotification;
 
@@ -1659,7 +1659,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         managementContext.runManagementTask(new Runnable() {
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidJvmSummaryData.clone())
-                        .append((int) managementBean.getGatewayManagementBean().getId());
+                        .append(managementBean.getGatewayManagementBean().getId());
 
                 OID notificationOID = MIBConstants.oidJvmSummaryDataNotification;
 

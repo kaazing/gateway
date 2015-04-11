@@ -121,8 +121,8 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
             @Override
             @SuppressWarnings("unchecked")
             public void entryAdded(EntryEvent<K, V> event) {
-                K key = (K) event.getKey();
-                V newValue = (V) event.getValue();
+                K key = event.getKey();
+                V newValue = event.getValue();
 
                 EntryEvent localEvent = event;
                 try {
@@ -148,7 +148,7 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
             @Override
             @SuppressWarnings("unchecked")
             public void entryRemoved(EntryEvent<K, V> event) {
-                K key = (K) event.getKey();
+                K key = event.getKey();
                 V oldValue = localCache.remove(key);
                 EntryEvent localEvent = new EntryEvent(event.getName(), null, EntryEvent.TYPE_REMOVED, key, oldValue);
                 listenerSupport.entryRemoved(localEvent);
@@ -156,8 +156,8 @@ public class ReplicatedIMap<K, V> extends IMapProxy<K, V> implements Serializabl
 
             @Override
             public void entryUpdated(EntryEvent<K, V> event) {
-                K key = (K) event.getKey();
-                V newValue = (V) event.getValue();
+                K key = event.getKey();
+                V newValue = event.getValue();
                 localCache.put(key, newValue);
                 listenerSupport.entryUpdated(event);
             }

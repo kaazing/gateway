@@ -481,7 +481,7 @@ public class Gateway {
     private void appendSimpleProperties(Map<String, String> properties, Node domNode, Document ownerDocument) {
         for (Entry<String, String> property : properties.entrySet()) {
             Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
-            Text newTextNode = ownerDocument.createTextNode((String) property.getValue());
+            Text newTextNode = ownerDocument.createTextNode(property.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
         }

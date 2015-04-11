@@ -29,41 +29,41 @@ public interface Service {
      * gets the internal type of the service.
      * @return the service type
      */
-    public String getType();
+    String getType();
     
     /**
      * Initializes the service.
      * 
      * @throws Exception
      */
-    public void init(ServiceContext serviceContext) throws Exception;
+    void init(ServiceContext serviceContext) throws Exception;
 
     /**
      * Starts the service.
      * 
      * @throws Exception
      */
-    public void start() throws Exception;
+    void start() throws Exception;
 
     /**
      * Stops the service.
      * 
      * @throws Exception
      */
-    public void stop() throws Exception;
+    void stop() throws Exception;
 
     /**
      * Quiesces the service.
      * 
      * @throws Exception
      */
-    public void quiesce() throws Exception;
+    void quiesce() throws Exception;
 
     /**
      * Destroys the service.
      * 
      * @throws Exception
      */
-    public void destroy() throws Exception;
+    void destroy() throws Exception;
 
 }

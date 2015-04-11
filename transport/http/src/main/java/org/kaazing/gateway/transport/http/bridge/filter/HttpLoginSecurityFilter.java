@@ -284,7 +284,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         Subject subject = httpRequest.getSubject();
 
         Collection<String> requireRoles = asList(requiredRolesArray);
-        Collection<String> authorizedRoles = Collections.<String>emptySet();
+        Collection<String> authorizedRoles = Collections.emptySet();
         boolean rolesAreSufficient = authorizedRoles.containsAll(requireRoles);
 
         if ( loggerEnabled() ) {

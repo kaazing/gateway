@@ -30,7 +30,7 @@ public final class WsExtensionNegotiationResult {
     public static final WsExtensionNegotiationResult OK_EMPTY 
               = new WsExtensionNegotiationResult(new ArrayList<WsExtension>(0), EndpointKind.SERVER);
 
-    static enum Status {
+    enum Status {
         FAILURE,
         OK
     }

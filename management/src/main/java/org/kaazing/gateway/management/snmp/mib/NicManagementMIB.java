@@ -237,7 +237,7 @@ public class NicManagementMIB implements MOGroup, CounterListener, AgentCapabili
     }
 
     public OID addNicManagementBean(NicManagementBean bean) {
-        OID cpuIndexOID = new OID(new int[]{(int) bean.getId()});
+        OID cpuIndexOID = new OID(new int[]{bean.getId()});
         nicEntry.addRow(new NicEntryRow(cpuIndexOID, bean));
 
         return cpuIndexOID;

@@ -102,11 +102,11 @@ public enum InternalSystemProperty {
     private final String name;
     private final String defaultValue;
 
-    private InternalSystemProperty(String propertyName) {
+    InternalSystemProperty(String propertyName) {
         this(propertyName, null);
     }
 
-    private InternalSystemProperty(String name, String defaultValue) {
+    InternalSystemProperty(String name, String defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
     }

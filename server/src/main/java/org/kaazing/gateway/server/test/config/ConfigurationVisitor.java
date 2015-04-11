@@ -45,7 +45,7 @@ public interface ConfigurationVisitor {
 
     void visit(NestedServicePropertiesConfiguration nestedServicePropertiesConfiguration);
 
-    public static class Adapter implements ConfigurationVisitor {
+    class Adapter implements ConfigurationVisitor {
 
         @Override
         public void visit(AuthorizationConstraintConfiguration authorizationConstraintConfiguration) {

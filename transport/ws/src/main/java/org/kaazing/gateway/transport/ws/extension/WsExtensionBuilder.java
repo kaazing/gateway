@@ -153,10 +153,8 @@ public class WsExtensionBuilder implements WsExtension {
 
         WsExtensionBuilder that = (WsExtensionBuilder) o;
 
-        if (extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null)
-            return false;
+        return !(extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null);
 
-        return true;
     }
 
     @Override

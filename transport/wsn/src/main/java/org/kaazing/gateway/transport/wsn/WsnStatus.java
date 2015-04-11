@@ -36,12 +36,12 @@ public enum WsnStatus {
 
 	private final int code;
 	private final String reason;
-	private WsnStatus(int code) {
+	WsnStatus(int code) {
 		this.code = code;
 		this.reason = "";
 	}
 	
-	private WsnStatus(int code, String reason) {
+	WsnStatus(int code, String reason) {
 		this.code = code;
 		this.reason = reason;
 	}

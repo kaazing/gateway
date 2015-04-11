@@ -388,9 +388,9 @@ public class HttpProtocolCompatibilityFilterTest {
         exp.allowing(serverSession).getReadHeader("X-Origin");
         exp.will(returnValue(null));
         exp.allowing(serverSession).getReadHeader("X-Next-Protocol");
-        exp.will(returnValue((String)null));
+        exp.will(returnValue(null));
         exp.allowing(serverSession).getParameter(".knp");
-        exp.will(returnValue((String)null));
+        exp.will(returnValue(null));
         exp.allowing(serverSession).getParameter(".kv");
         exp.will(returnValue("10.05"));
         exp.allowing(serverSession).getParameter(".kl");

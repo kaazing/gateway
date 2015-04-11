@@ -845,11 +845,11 @@ public final class Utils {
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, new Object[] { param1, param2, param3 }); return;
-            case DEBUG : logger.debug(message, new Object[] { param1, param2, param3 }); return;
-            case INFO  : logger.info(message, new Object[] { param1, param2, param3 }); return;
-            case WARN  : logger.warn(message, new Object[] { param1, param2, param3 }); return;
-            case ERROR : logger.error(message, new Object[] { param1, param2, param3 }); return;
+            case TRACE : logger.trace(message, param1, param2, param3); return;
+            case DEBUG : logger.debug(message, param1, param2, param3); return;
+            case INFO  : logger.info(message, param1, param2, param3); return;
+            case WARN  : logger.warn(message, param1, param2, param3); return;
+            case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
         }
     }

@@ -36,7 +36,7 @@ public class SnmpManagementServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("management.snmp");
+        return Collections.singletonList("management.snmp");
     }
 
     @Override

@@ -23,27 +23,27 @@ package org.kaazing.gateway.transport.http;
 
 public interface HttpHeaders {
 
-    public static final String HEADER_AUTHORIZATION = "Authorization";
-    public static final String HEADER_CONTENT_LENGTH = "Content-Length";
-    public static final String HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String HEADER_DATE = "Date";
+    String HEADER_AUTHORIZATION = "Authorization";
+    String HEADER_CONTENT_LENGTH = "Content-Length";
+    String HEADER_CONTENT_TYPE = "Content-Type";
+    String HEADER_DATE = "Date";
 
-    public static final String HEADER_HOST = "Host";
-    public static final String HEADER_MAX_AGE = "Max-Age";
-    public static final String HEADER_USER_AGENT = "User-Agent";
-    public static final String HEADER_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
-    public static final String HEADER_WEBSOCKET_VERSION = "X-WebSocket-Version";
-    public static final String HEADER_X_NEXT_PROTOCOL = "X-Next-Protocol";
-    public static final String HEADER_X_ORIGIN = "X-Origin";
-    public static final String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
-    public static final String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
-    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    String HEADER_HOST = "Host";
+    String HEADER_MAX_AGE = "Max-Age";
+    String HEADER_USER_AGENT = "User-Agent";
+    String HEADER_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
+    String HEADER_WEBSOCKET_VERSION = "X-WebSocket-Version";
+    String HEADER_X_NEXT_PROTOCOL = "X-Next-Protocol";
+    String HEADER_X_ORIGIN = "X-Origin";
+    String HEADER_X_CREATE_ENCODING = "X-Create-Encoding";
+    String HEADER_X_ACCEPT_COMMANDS = "X-Accept-Commands";
+    String HEADER_CACHE_CONTROL = "Cache-Control";
 
 
-    public static final String HEADER_UPGRADE = "Upgrade";
-    public static final String HEADER_VIA= "Via";
-    public static final String HEADER_CONNECTION = "Connection";
-    public static final String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
-    public static final String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
+    String HEADER_UPGRADE = "Upgrade";
+    String HEADER_VIA= "Via";
+    String HEADER_CONNECTION = "Connection";
+    String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
+    String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
 
 }
