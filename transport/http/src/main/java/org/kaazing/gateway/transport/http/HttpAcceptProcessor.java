@@ -28,7 +28,6 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;

@@ -23,7 +23,9 @@ package org.kaazing.gateway.service.http.proxy;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -32,9 +34,13 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
-public class HttpProxyRequestIT {
+public class HttpProxyPersistenceIT {
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
 
     private final K3poRule robot = new K3poRule();
 
@@ -47,8 +53,9 @@ public class HttpProxyRequestIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                            .done()
+                            // NOTE: even though in the config file it's http.keepalive.timeout
+                            .connectOption("http.keepaliveTimeout", "5")
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -58,28 +65,15 @@ public class HttpProxyRequestIT {
     @Rule
     public TestRule chain = outerRule(robot).around(gateway);
 
-    @Specification( "http.proxy.query.string")
-    @Test(timeout = 5000)
-    public void queryString() throws Exception {
+    @Test
+    @Specification( "http.proxy.connect.persistence")
+    public void connectPersistence() throws Exception {
         robot.finish();
     }
 
-    @Specification( "http.proxy.post.method")
-    @Test(timeout = 5000)
-    public void postMethod() throws Exception {
+    @Test
+    @Specification( "http.proxy.connect.persistence.timeout")
+    public void connectPersistenceTimeout() throws Exception {
         robot.finish();
     }
-
-    @Specification( "http.proxy.status.500")
-    @Test(timeout = 5000)
-    public void status500() throws Exception {
-        robot.finish();
-    }
-
-    @Specification( "http.proxy.get.method.status.401")
-    @Test(timeout = 5000)
-    public void getMethodStatus401() throws Exception {
-        robot.finish();
-    }
-
 }

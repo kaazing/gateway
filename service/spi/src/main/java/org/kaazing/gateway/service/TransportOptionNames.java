@@ -49,6 +49,11 @@ public interface TransportOptionNames {
     public static final String WS_LIGHTWEIGHT_SESSION = "wsn.isLightweightWsnSession";
 
     /**
+     * To indicated persistent HTTP connections
+     */
+    public static final String HTTP_KEEP_ALIVE = "keepAlive";
+
+    /**
      * How long should we keep a HTTP session alive?  Useful for directory services.
      */
     public static final String HTTP_KEEP_ALIVE_TIMEOUT_KEY = "keepAliveTimeout";
