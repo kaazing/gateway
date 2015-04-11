@@ -45,7 +45,6 @@ import org.jboss.netty.channel.ChannelPipeline;
 
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.AbstractIoProcessor;
-import org.kaazing.mina.core.service.AbstractIoService;
 import org.kaazing.mina.netty.ChannelIoBufferAllocator.ChannelIoBuffer;
 import org.kaazing.mina.netty.channel.DownstreamMessageEventEx;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
@@ -134,7 +133,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
             // DefaultIoFilterChain.CONNECT_FUTURE is cleared inside here
             // in AbstractIoFilterChain.fireSessionOpened().
             // Propagate the SESSION_CREATED event up to the chain
-            IoServiceListenerSupport listeners = ((AbstractIoService) session.getService()).getListeners();
+            IoServiceListenerSupport listeners = session.getService().getListeners();
             listeners.fireSessionCreated(session);
         } catch (Throwable e) {
             ExceptionMonitor.getInstance().exceptionCaught(e);
@@ -158,7 +157,7 @@ final class ChannelIoProcessor extends AbstractIoProcessor<ChannelIoSession<? ex
             filterChain.fireExceptionCaught(e);
         } finally {
             clearWriteRequestQueue(session);
-            ((AbstractIoService) session.getService()).getListeners()
+            session.getService().getListeners()
                     .fireSessionDestroyed(session);
         }
         return false;

@@ -23,5 +23,5 @@ package org.kaazing.gateway.transport.pipe;
 
 public interface Ref<T> {
 
-	public T get();
+	T get();
 }

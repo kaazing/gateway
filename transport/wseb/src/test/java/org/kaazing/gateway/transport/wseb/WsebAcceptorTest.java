@@ -124,7 +124,7 @@ public class WsebAcceptorTest {
     @Test
     public void shouldBindAWsAddress() throws Exception {
         URI location = URI.create("wse://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
+        Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress wseAddress = addressFactory.newResourceAddress(location, addressOptions);
         IoHandler acceptHandler = new IoHandlerAdapter() {};
 

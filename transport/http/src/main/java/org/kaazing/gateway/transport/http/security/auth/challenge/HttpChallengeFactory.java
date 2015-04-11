@@ -31,8 +31,8 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
  */
 public interface HttpChallengeFactory {
 
-    public abstract HttpResponseMessage createChallenge(HttpRequestMessage httpRequest,
-                                                        Object... params);
+    HttpResponseMessage createChallenge(HttpRequestMessage httpRequest,
+                                        Object... params);
 
 }
 

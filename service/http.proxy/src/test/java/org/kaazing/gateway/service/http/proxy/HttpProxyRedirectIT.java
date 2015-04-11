@@ -30,7 +30,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.io.File;
 import java.net.URI;
 
 import static org.junit.rules.RuleChain.outerRule;

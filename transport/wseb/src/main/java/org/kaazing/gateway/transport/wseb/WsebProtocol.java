@@ -31,7 +31,7 @@ public enum WsebProtocol implements Protocol {
 
     private final boolean secure;
 
-    private WsebProtocol(boolean secure) {
+    WsebProtocol(boolean secure) {
         this.secure = secure;
     }
 

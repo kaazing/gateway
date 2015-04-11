@@ -30,7 +30,7 @@ public enum AmqpFrame {
     
     private final byte type;
     
-    private AmqpFrame(byte type) {
+    AmqpFrame(byte type) {
         this.type = type;
     }
     

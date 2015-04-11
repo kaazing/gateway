@@ -109,7 +109,7 @@ public final class UdpResourceAddress extends ResourceAddress {
 
     static class UdpResourceOption<T> extends ResourceOption<T> {
 
-		static enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE }
+		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE, INTERFACE }
 		
 		static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 

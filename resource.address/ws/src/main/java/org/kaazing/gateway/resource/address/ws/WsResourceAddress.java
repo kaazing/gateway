@@ -126,7 +126,7 @@ public class WsResourceAddress extends ResourceAddress {
 
     static class WsResourceOption<T> extends ResourceOption<T> {
 
-        protected static enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, EXTENSIONS, MAX_MESSAGE_SIZE,
+        protected enum Kind { CODEC_REQUIRED, LIGHTWEIGHT, EXTENSIONS, MAX_MESSAGE_SIZE,
                                      INACTIVITY_TIMEOUT, SUPPORTED_PROTOCOLS,
                                      REQUIRED_PROTOCOLS }
         

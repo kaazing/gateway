@@ -64,7 +64,7 @@ public class HttpRequestDecoderTest {
         
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-        HttpContentMessage httpContent = (HttpContentMessage)httpRequest.getContent();
+        HttpContentMessage httpContent = httpRequest.getContent();
         assertEquals("/;e/ut", httpRequest.getRequestURI().toASCIIString());
         assertEquals("text/plain;charset=UTF-8", httpRequest.getHeader("Content-Type"));
         assertTrue(httpContent.isComplete());
@@ -96,7 +96,7 @@ public class HttpRequestDecoderTest {
         
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-        HttpContentMessage httpContent = (HttpContentMessage)httpRequest.getContent();
+        HttpContentMessage httpContent = httpRequest.getContent();
         assertEquals("/;e/ut", httpRequest.getRequestURI().toASCIIString());
         assertEquals("text/plain;charset=UTF-8", httpRequest.getHeader("Content-Type"));
         assertTrue(httpContent.isComplete());
@@ -222,7 +222,7 @@ public class HttpRequestDecoderTest {
 		
 		assertFalse(session.getDecoderOutputQueue().isEmpty());
 		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-		HttpContentMessage httpContent = (HttpContentMessage)httpRequest.getContent();
+		HttpContentMessage httpContent = httpRequest.getContent();
 		assertTrue(httpContent.isComplete());
 		assertEquals("retry:2500\r\n" +
 				     "event:TCPSend\r\n" +

@@ -30,7 +30,7 @@ public enum RtmpProtocol implements Protocol {
 
     private final boolean secure;
 
-    private RtmpProtocol(boolean secure) {
+    RtmpProtocol(boolean secure) {
         this.secure = secure;
     }
 

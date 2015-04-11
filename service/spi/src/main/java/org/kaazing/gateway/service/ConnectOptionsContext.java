@@ -27,16 +27,16 @@ import java.util.Map;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 
 public interface ConnectOptionsContext {
-    public WebSocketWireProtocol getWebSocketWireProtocol();
-    public String[] getSslCiphers();
-    public String[] getSslProtocols();
-    public URI getPipeTransport();
-    public String getWsVersion();
-    public URI getTcpTransport();
-    public URI getSslTransport();
-    public URI getHttpTransport();
-    public long getWsInactivityTimeout();
-    public boolean isSslEncryptionEnabled();
+    WebSocketWireProtocol getWebSocketWireProtocol();
+    String[] getSslCiphers();
+    String[] getSslProtocols();
+    URI getPipeTransport();
+    String getWsVersion();
+    URI getTcpTransport();
+    URI getSslTransport();
+    URI getHttpTransport();
+    long getWsInactivityTimeout();
+    boolean isSslEncryptionEnabled();
     boolean isHttpKeepaliveEnabled();
     Integer getHttpKeepaliveTimeout();
 

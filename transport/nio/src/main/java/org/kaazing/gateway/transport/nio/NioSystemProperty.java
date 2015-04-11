@@ -57,11 +57,11 @@ public enum NioSystemProperty {
     private final String name;
     private final String defaultValue;
 
-    private NioSystemProperty(String propertyName) {
+    NioSystemProperty(String propertyName) {
         this(propertyName, null);
     }
 
-    private NioSystemProperty(String name, String defaultValue) {
+    NioSystemProperty(String name, String defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
     }

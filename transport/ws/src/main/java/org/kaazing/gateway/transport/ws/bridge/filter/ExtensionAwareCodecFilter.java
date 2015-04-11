@@ -35,5 +35,5 @@ public interface ExtensionAwareCodecFilter {
      * @param extensions  the extensions to associate with this filter
      *
      */
-    public void setExtensions(IoSession session, ActiveWsExtensions extensions);
+    void setExtensions(IoSession session, ActiveWsExtensions extensions);
 }

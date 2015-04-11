@@ -62,7 +62,7 @@ public class DefaultLoginResultTest {
         Assert.assertTrue(String.format("Expected null login challenge data, got %s", data), data == null);
 
         // Test the empty array argument case
-        loginResult.challenge(new Object[] { });
+        loginResult.challenge();
         assertLoginResultChallenge();
         data = loginResult.getLoginChallengeData();
         Assert.assertTrue(String.format("Expected null login challenge data, got %s", data), data == null);
@@ -78,7 +78,7 @@ public class DefaultLoginResultTest {
         // Test the mulitple argument case
         String param2 = "baz=\"quxx\"";
         String param3 = "quzz=\"alef\"";
-        loginResult.challenge(new Object[] { param2, param3 });
+        loginResult.challenge(param2, param3);
         assertLoginResultChallenge();
 
         data = loginResult.getLoginChallengeData();
@@ -87,17 +87,17 @@ public class DefaultLoginResultTest {
 
         int expectedDataCount = 0;
         for (Object datum : data) {
-            if (param1.equals((String) datum)) {
+            if (param1.equals(datum)) {
                 expectedDataCount++;
                 continue;
             }
 
-            if (param2.equals((String) datum)) {
+            if (param2.equals(datum)) {
                 expectedDataCount++;
                 continue;
             }
 
-            if (param3.equals((String) datum)) {
+            if (param3.equals(datum)) {
                 expectedDataCount++;
                 continue;
             }

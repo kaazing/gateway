@@ -24,7 +24,7 @@ package org.kaazing.gateway.transport.wsr;
 
 public abstract class RtmpCommandMessage extends RtmpStreamMessage {
 
-    public static enum CommandKind {CONNECT, CREATE_STREAM, DELETE_STREAM, CONNECT_RESULT, CREATE_STREAM_RESULT, PLAY, PLAY_RESONSE, PUBLISH, PUBLISH_RESPONSE
+    public enum CommandKind {CONNECT, CREATE_STREAM, DELETE_STREAM, CONNECT_RESULT, CREATE_STREAM_RESULT, PLAY, PLAY_RESONSE, PUBLISH, PUBLISH_RESPONSE
 
     }
 

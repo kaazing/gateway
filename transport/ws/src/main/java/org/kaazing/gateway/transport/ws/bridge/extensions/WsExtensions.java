@@ -32,20 +32,20 @@ public interface WsExtensions {
     //
     // Meta Web Socket Extension details
     //
-    public static final String NAME = "wsExtension";
+    String NAME = "wsExtension";
 
-    public static final String HEADER_X_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
-    public static final String HEADER_WEBSOCKET_EXTENSIONS = "WebSocket-Extensions";
-    public static final String HEADER_SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
+    String HEADER_X_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
+    String HEADER_WEBSOCKET_EXTENSIONS = "WebSocket-Extensions";
+    String HEADER_SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
 
     List<String> NATIVE_EXTENSION_HEADERS = Arrays.asList(WsExtensions.HEADER_SEC_WEBSOCKET_EXTENSIONS,
                                                           WsExtensions.HEADER_WEBSOCKET_EXTENSIONS);
 
     // Idle timeout Notify extension details
-    public static final String IDLE_TIMEOUT = "x-kaazing-idle-timeout";
-    public static final String IDLE_TIMEOUT_TIMEOUT_PARAM = "timeout";
+    String IDLE_TIMEOUT = "x-kaazing-idle-timeout";
+    String IDLE_TIMEOUT_TIMEOUT_PARAM = "timeout";
 
     // Ping pong extension
-    public static final String PING_PONG = "x-kaazing-ping-pong";
+    String PING_PONG = "x-kaazing-ping-pong";
 
 }

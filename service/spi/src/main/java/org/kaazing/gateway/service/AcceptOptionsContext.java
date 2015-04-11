@@ -28,28 +28,28 @@ import java.util.Map;
 @Deprecated
 public interface AcceptOptionsContext {
 
-    public Map<String, Object> asOptionsMap();
+    Map<String, Object> asOptionsMap();
 
-    public boolean isSslEncryptionEnabled();
+    boolean isSslEncryptionEnabled();
 
-    public URI getInternalURI(URI externalURI);
+    URI getInternalURI(URI externalURI);
 
-    public List<String> getWsProtocols();
+    List<String> getWsProtocols();
 
-    public List<String> getWsExtensions();
+    List<String> getWsExtensions();
 
-    public String[] getSslCiphers();
-    public String[] getSslProtocols();
+    String[] getSslCiphers();
+    String[] getSslProtocols();
 
-    public boolean getSslWantClientAuth();
-    public boolean getSslNeedClientAuth();
+    boolean getSslWantClientAuth();
+    boolean getSslNeedClientAuth();
 
-    public URI getTcpTransport();
-    public URI getSslTransport();
-    public URI getHttpTransport();
+    URI getTcpTransport();
+    URI getSslTransport();
+    URI getHttpTransport();
 
-    public String getUdpInterface();
-    public abstract URI getPipeTransport();
+    String getUdpInterface();
+    URI getPipeTransport();
 
     /**
      * Add a binding to the accept-options from the given scheme to the given authority.  If a service needs to
@@ -64,39 +64,39 @@ public interface AcceptOptionsContext {
      * @param scheme
      * @param authority
      */
-    public void addBind(String scheme, String authority);
+    void addBind(String scheme, String authority);
 
     /**
      * @return the configured binds for a service
      */
-    public Map<String, String> getBinds();
+    Map<String, String> getBinds();
 
     /**
      * @return The configured maximum WebSocket message size, or 0 meaning no limit if none is configured
      */
-    public int getWsMaxMessageSize();
+    int getWsMaxMessageSize();
 
 
     /**
      * @return The configured WebSocket inactivity timeout (for check alive feature), in milliseconds
      */
-    public long getWsInactivityTimeout();
+    long getWsInactivityTimeout();
 
     /**
      *
      * @return The configured maximum outbound rate in bytes per second. 0xFFFFFFFF (max unsigned int) means no limit.
      */
-    public long getTcpMaximumOutboundRate();
+    long getTcpMaximumOutboundRate();
 
     /**
      * @return The configured idle timeout for the given protocol scheme, or null if there is none
      *         configured and there is no default for the scheme
      */
-    public Integer getSessionIdleTimeout(String scheme);
+    Integer getSessionIdleTimeout(String scheme);
     
-    public Integer getHttpKeepaliveTimeout();
+    Integer getHttpKeepaliveTimeout();
 
-    public static class Wrapper implements AcceptOptionsContext {
+    class Wrapper implements AcceptOptionsContext {
 
         private final AcceptOptionsContext delegate;
 
