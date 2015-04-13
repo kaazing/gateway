@@ -31,7 +31,7 @@ public class HttpBalancerServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("balancer");
+        return Collections.singletonList("balancer");
     }
 
     @Override

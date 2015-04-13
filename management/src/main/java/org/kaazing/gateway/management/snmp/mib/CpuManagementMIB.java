@@ -238,7 +238,7 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
     }
 
     public OID addCpuManagementBean(CpuManagementBean bean) {
-        OID cpuIndexOID = new OID(new int[]{(int) bean.getId()});
+        OID cpuIndexOID = new OID(new int[]{bean.getId()});
         cpuListEntry.addRow(new CpuEntryRow(cpuIndexOID, bean));
 
         return cpuIndexOID;

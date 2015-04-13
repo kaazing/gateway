@@ -23,12 +23,12 @@ package org.kaazing.gateway.transport.wsr;
 
 public abstract class RtmpStreamMessage extends RtmpMessage {
 
-    public static enum StreamKind { 
+    public enum StreamKind {
         SET_CHUNK_SIZE(1), ABORT(2), ACKNOWLEDGMENT(3), USER(4), WINDOW_ACKNOWLEDGMENT_SIZE(5), SET_PEER_BANDWIDTH(6), DATA_AMF3(15), COMMAND_AMF3(17), DATA_AMF0(18), COMMAND_AMF0(20);
         
         private final byte code;
         
-        private StreamKind(int code) {
+        StreamKind(int code) {
             this.code = (byte)code;
         }
         

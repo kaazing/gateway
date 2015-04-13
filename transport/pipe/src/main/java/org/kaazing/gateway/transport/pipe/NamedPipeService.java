@@ -26,6 +26,6 @@ import org.kaazing.mina.core.service.IoServiceEx;
 
 public interface NamedPipeService extends IoServiceEx {
 
-    public IoServiceListenerSupport getListeners();
+    IoServiceListenerSupport getListeners();
 
 }

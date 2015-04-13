@@ -34,14 +34,14 @@ public interface ResourceOptions {
 
     <T> boolean hasOption(ResourceOption<T> key);
 
-    static interface Factory {
+    interface Factory {
         
         ResourceOptions newResourceOptions();
         
         ResourceOptions newResourceOptions(ResourceOptions defaults);
     }
 
-    static final Factory FACTORY = new  ResourceOptions.Factory() {
+    Factory FACTORY = new  ResourceOptions.Factory() {
 
         @Override
         public ResourceOptions newResourceOptions() {

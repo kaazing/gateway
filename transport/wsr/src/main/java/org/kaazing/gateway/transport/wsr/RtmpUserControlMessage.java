@@ -24,7 +24,7 @@ package org.kaazing.gateway.transport.wsr;
 
 public abstract class RtmpUserControlMessage extends RtmpStreamMessage {
 
-    public static enum UserControlKind {
+    public enum UserControlKind {
         STREAM_BEGIN, STREAM_EOF, STREAM_DRY, SET_BUFFER_LENGTH, STREAM_RECORDED, PING_REQUEST, PING_RESPONSE
     }
 

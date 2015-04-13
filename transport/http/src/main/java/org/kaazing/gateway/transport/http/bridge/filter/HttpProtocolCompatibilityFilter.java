@@ -364,11 +364,11 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                         String validatedOriginsHeader = "X-Origin-" + URLEncoder.encode(emulatedOrigin, "UTF-8");
                         validatedOrigins = httpRequest.removeHeader(validatedOriginsHeader);
                         if (validatedOrigins == null) {
-                            validatedOrigins = Collections.<String>emptyList();
+                            validatedOrigins = Collections.emptyList();
                         }
 
                     } else {
-                        validatedOrigins = Collections.<String>emptyList();
+                        validatedOrigins = Collections.emptyList();
                     }
 
                     String validatedOrigin = !validatedOrigins.isEmpty() ? validatedOrigins.get(0) : null;
@@ -564,7 +564,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             // mutate the session, defer changing the GET method to a post if there is a GET method.
             // that will be handled at the httpxe-filter-chain's protocol compat filter.
             // for now, make sure the outer content type is valid httpxe value
-            DefaultHttpSession httpSession = (DefaultHttpSession) session;
+            DefaultHttpSession httpSession = session;
             Map<String,List<String>> sessionHeaders = new HashMap<>(httpSession.getReadHeaders());
             sessionHeaders.put(HEADER_CONTENT_TYPE, asList(CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP));
             httpSession.setReadHeaders(sessionHeaders);

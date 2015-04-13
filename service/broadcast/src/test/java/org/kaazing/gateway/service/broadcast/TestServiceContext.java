@@ -116,17 +116,17 @@ public class TestServiceContext implements ServiceContext {
 
     @Override
     public Collection<URI> getAccepts() {
-        return Collections.<URI>singletonList(acceptURI);
+        return Collections.singletonList(acceptURI);
     }
 
     @Override
     public Collection<URI> getBalances() {
-        return Collections.<URI>emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<URI> getConnects() {
-        return Collections.<URI>singletonList(connectURI);
+        return Collections.singletonList(connectURI);
     }
 
     @Override
@@ -247,7 +247,7 @@ public class TestServiceContext implements ServiceContext {
 
     @Override
     public Collection<IoSessionEx> getActiveSessions() {
-        return Collections.<IoSessionEx>emptyList();
+        return Collections.emptyList();
     }
 
     @Override

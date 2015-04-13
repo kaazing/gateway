@@ -156,7 +156,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
         }
     }
 
-    static interface AlternateStrategy {
+    interface AlternateStrategy {
          List<TestResourceAddress> makeAlternates(URI original,
                                                   URI location,
                                                   ResourceOptions options);

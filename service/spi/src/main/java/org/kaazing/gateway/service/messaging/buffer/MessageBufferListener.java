@@ -24,5 +24,5 @@ package org.kaazing.gateway.service.messaging.buffer;
 import java.util.EventListener;
 
 public interface MessageBufferListener extends EventListener {
-    public void messageAdded(MessageBufferEntry newMessage);
+    void messageAdded(MessageBufferEntry newMessage);
 }

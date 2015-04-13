@@ -22,5 +22,5 @@
 package org.kaazing.gateway.service.messaging.buffer;
 
 public interface MessageBufferFactory {
-    public MessageBuffer createMessageBuffer(int capacity);
+    MessageBuffer createMessageBuffer(int capacity);
 }

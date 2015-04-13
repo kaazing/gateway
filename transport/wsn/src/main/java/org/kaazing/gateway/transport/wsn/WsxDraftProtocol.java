@@ -31,7 +31,7 @@ public enum WsxDraftProtocol implements Protocol {
 
     private final boolean secure;
 
-    private WsxDraftProtocol(boolean secure) {
+    WsxDraftProtocol(boolean secure) {
         this.secure = secure;
     }
 

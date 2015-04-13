@@ -71,7 +71,7 @@ public interface IoFilter<S extends IoSession, M> {
                                 Throwable cause) throws Exception;
 
     @SuppressWarnings("unchecked")
-    public class Adapter<S extends IoSession, M, F extends IoFilter<S, M>> implements
+    class Adapter<S extends IoSession, M, F extends IoFilter<S, M>> implements
             org.apache.mina.core.filterchain.IoFilter {
 
         protected final F filter;
@@ -119,7 +119,7 @@ public interface IoFilter<S extends IoSession, M> {
         public void messageSent(NextFilter nextFilter, IoSession session,
                                 WriteRequest writeRequest) throws Exception {
             filter.messageSent(nextFilter, (S) session, writeRequest,
-                    (M) writeRequest.getMessage());
+                    writeRequest.getMessage());
         }
 
         @Override

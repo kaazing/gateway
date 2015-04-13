@@ -27,6 +27,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 
 public interface SocketAddressFactory<T extends SocketAddress> {
 
-	public T createSocketAddress(ResourceAddress address);
+	T createSocketAddress(ResourceAddress address);
 
 }

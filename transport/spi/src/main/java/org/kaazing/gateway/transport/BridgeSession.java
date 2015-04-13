@@ -31,7 +31,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 public interface BridgeSession extends IoSessionEx {
 
-    public static final TypedAttributeKey<String> NEXT_PROTOCOL_KEY = new TypedAttributeKey<>(BridgeSession.class, "nextProtocol");
+    TypedAttributeKey<String> NEXT_PROTOCOL_KEY = new TypedAttributeKey<>(BridgeSession.class, "nextProtocol");
     /**
      * Used as an attribute on transports below bridge acceptors
      * that use InetSocketAddresses rather than ResourceAddress objects

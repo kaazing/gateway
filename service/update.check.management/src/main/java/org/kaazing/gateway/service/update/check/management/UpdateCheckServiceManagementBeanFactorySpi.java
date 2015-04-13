@@ -33,7 +33,7 @@ public class UpdateCheckServiceManagementBeanFactorySpi extends ServiceManagemen
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String> singletonList("update.check");
+        return Collections.singletonList("update.check");
     }
 
     @Override

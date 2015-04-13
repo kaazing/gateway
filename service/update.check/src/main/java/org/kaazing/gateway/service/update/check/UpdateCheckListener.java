@@ -29,12 +29,12 @@ public interface UpdateCheckListener {
      * @param currentVersion
      * @param latestGatewayVersion
      */
-    public void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion);
+    void newVersionAvailable(GatewayVersion currentVersion, GatewayVersion latestGatewayVersion);
     
     /**
      * Listeners can force a update check through the service if they wish to
      * @param service
      */
-    public void setUpdateCheckService(UpdateCheckService service);
+    void setUpdateCheckService(UpdateCheckService service);
 
 }
