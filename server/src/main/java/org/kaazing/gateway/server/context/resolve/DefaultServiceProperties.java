@@ -112,6 +112,7 @@ public class DefaultServiceProperties implements ServiceProperties {
             return false;
         }
 
+        return true;
     }
 
     @Override
