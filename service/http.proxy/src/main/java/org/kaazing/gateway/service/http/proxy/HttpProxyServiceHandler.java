@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -29,9 +30,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +67,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     @Override
     public void sessionOpened(IoSession session) {
         if (!session.isClosing()) {
-            final HttpAcceptSession acceptSession = (HttpAcceptSession) session;
+            final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
             //final Subject subject = ((IoSessionEx) acceptSession).getSubject();
 
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), new IoSessionInitializer<ConnectFuture>() {
@@ -82,16 +87,16 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     private class ConnectListener implements IoFutureListener<ConnectFuture> {
-        private final HttpAcceptSession acceptSession;
+        private final DefaultHttpSession acceptSession;
 
-        ConnectListener(HttpAcceptSession acceptSession) {
+        ConnectListener(DefaultHttpSession acceptSession) {
             this.acceptSession = acceptSession;
         }
 
         @Override
         public void operationComplete(ConnectFuture future) {
             if (future.isConnected()) {
-                IoSession connectedSession = future.getSession();
+                DefaultHttpSession connectedSession = (DefaultHttpSession)future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectedSession+"]");
@@ -100,6 +105,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     connectedSession.close(true);
                 } else {
                     AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectedSession);
+                    connectedSession.getCloseFuture().addListener(new UpgradeCloseListener(connectedSession, acceptSession));  // TODO single instance
+                    acceptSession.getCloseFuture().addListener(new UpgradeCloseListener(acceptSession, connectedSession));     // TODO single instance
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
@@ -195,5 +202,57 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         hopByHopHeaders.add(HttpHeaders.HEADER_CONNECTION);
         return hopByHopHeaders;
     }
-    
+
+    private static class ProxyUpgradeHandler extends IoHandlerAdapter<IoSessionEx>  {
+        final IoSession session;
+        final IoSession attachedSession;
+
+        ProxyUpgradeHandler(IoSession session, IoSession attachedSession) {
+            this.session = session;
+            this.attachedSession = attachedSession;
+        }
+
+        @Override
+        protected void doSessionOpened(final IoSessionEx session) throws Exception {
+            session.resumeRead();
+        }
+
+        @Override
+        protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+            attachedSession.write(message);
+        }
+
+        @Override
+        protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+            attachedSession.close(false);
+        }
+
+        @Override
+        protected void doSessionClosed(IoSessionEx session) throws Exception {
+            attachedSession.close(false);
+        }
+
+    }
+
+    /*
+     */
+    private static class UpgradeCloseListener implements IoFutureListener<CloseFuture> {
+        private final DefaultHttpSession session;
+        private final DefaultHttpSession attachedSession;
+
+        UpgradeCloseListener(DefaultHttpSession session, DefaultHttpSession attachedSession) {
+            this.session = session;
+            this.attachedSession = attachedSession;
+        }
+
+        @Override
+        public void operationComplete(CloseFuture future) {
+            if (session.getStatus() == HttpStatus.INFO_SWITCHING_PROTOCOLS) {
+                ProxyUpgradeHandler handler = new ProxyUpgradeHandler(session.getParent(), attachedSession.getParent());
+                session.suspendRead();
+                session.upgrade(handler);
+            }
+        }
+    }
+
 }
