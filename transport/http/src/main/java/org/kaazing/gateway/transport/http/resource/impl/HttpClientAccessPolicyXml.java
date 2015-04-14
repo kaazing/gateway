@@ -251,7 +251,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
     }
 
     private interface CachedResult {
-        public void writeFile(HttpAcceptSession httpSession);
+        void writeFile(HttpAcceptSession httpSession);
 
     }
 

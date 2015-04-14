@@ -23,17 +23,17 @@ package org.kaazing.gateway.transport.http;
 
 public interface MutableHttpCookie extends HttpCookie {
 
-	public void setVersion(int version);
+	void setVersion(int version);
 	
-	public void setValue(String value);
+	void setValue(String value);
 
-	public void setDomain(String domain);
+	void setDomain(String domain);
 
-	public void setPath(String path);
+	void setPath(String path);
 	
-	public void setSecure(boolean secure);
+	void setSecure(boolean secure);
 	
-	public void setMaxAge(long maxAge);
+	void setMaxAge(long maxAge);
 	
-	public void setComment(String comment);
+	void setComment(String comment);
 }

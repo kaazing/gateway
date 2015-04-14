@@ -36,7 +36,7 @@ package org.kaazing.gateway.transport.ws.extension;
  */
 public interface WsExtensionParameter {
 
-    public String getName();
-    public String getValue();
+    String getName();
+    String getValue();
 
 }

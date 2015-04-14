@@ -150,7 +150,7 @@ public class WsrTransportTest {
     public void shouldCorrectlyConstructLocalAndRemoteAddressesForConnectedWsrSessions() throws Exception {
 
         final URI location = URI.create("wsr://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap();
+        Map<String, Object> addressOptions = Collections.emptyMap();
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
 

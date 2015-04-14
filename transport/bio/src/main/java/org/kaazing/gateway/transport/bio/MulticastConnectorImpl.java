@@ -256,7 +256,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
 
 	            // DefaultIoFilterChain.CONNECT_FUTURE is cleared inside here
 	            // in AbstractIoFilterChain.fireSessionOpened().
-	            ((AbstractIoConnectorEx) session.getService()).getListeners()
+	            session.getService().getListeners()
 	                    .fireSessionCreated(session);
 	            notified = true;
 	        } catch (Throwable e) {

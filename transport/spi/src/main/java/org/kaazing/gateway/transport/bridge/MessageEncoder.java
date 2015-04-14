@@ -26,5 +26,5 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 
 public interface MessageEncoder<T extends Message> {
 
-    public abstract IoBufferEx encode(IoBufferAllocatorEx<?> allocator, T message, int flags);
+    IoBufferEx encode(IoBufferAllocatorEx<?> allocator, T message, int flags);
 }

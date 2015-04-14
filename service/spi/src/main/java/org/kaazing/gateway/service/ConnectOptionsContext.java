@@ -28,7 +28,7 @@ public interface ConnectOptionsContext {
      * Set the map of options on the ConnectOptionsContext.  The options are String key/value pairs.
      * @param options the map of String key/value pairs to set on the ConnectOptionsContext
      */
-    public void setOptions(Map<String, String> options);
+    void setOptions(Map<String, String> options);
 
     /**
      * Set the map of default options on the ConnectOptionsContext.  The options are String key/value pairs.
@@ -36,7 +36,7 @@ public interface ConnectOptionsContext {
      * are left untouched.
      * @param options the map of String key/value pairs to set as the default options on the ConnectOptionsContext
      */
-    public void setDefaultOptions(Map<String, String> defaultOptions);
+    void setDefaultOptions(Map<String, String> defaultOptions);
 
     Map<String, Object> asOptionsMap();
 }

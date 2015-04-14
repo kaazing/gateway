@@ -23,7 +23,7 @@ package org.kaazing.gateway.transport.ws.extension;
 
 public class WsExtensionValidation {
 
-    static enum Status {
+    enum Status {
         INVALID,
         VALID
     }

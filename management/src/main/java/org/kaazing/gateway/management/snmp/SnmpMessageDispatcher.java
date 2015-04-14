@@ -53,7 +53,7 @@ public class SnmpMessageDispatcher extends MessageDispatcherImpl {
     protected void sendMessage(TransportMapping transport, Address destAddress, byte[] message) throws IOException {
         // the Kaazing ManagementAdress object has a callback for sending the message on the IoSessionEx.
         if ((destAddress instanceof ManagementAddress) && (transport instanceof ManagementTransport)) {
-            ((ManagementTransport) transport).sendMessage(destAddress, message);
+            transport.sendMessage(destAddress, message);
         } else {
             // log an issue with getting a message for an unsupported address
             logger.warn(

@@ -27,9 +27,9 @@ import java.util.Map;
 @Deprecated
 public interface AcceptOptionsContext {
 
-    public Map<String, Object> asOptionsMap();
+    Map<String, Object> asOptionsMap();
 
-    public URI getInternalURI(URI externalURI);
+    URI getInternalURI(URI externalURI);
 
     /**
      * Add a binding to the accept-options from the given scheme to the given authority.  If a service needs to
@@ -44,18 +44,18 @@ public interface AcceptOptionsContext {
      * @param scheme
      * @param authority
      */
-    public void addBind(String scheme, String authority);
+    void addBind(String scheme, String authority);
 
     /**
      * @return the configured binds for a service
      */
-    public Map<String, String> getBinds();
+    Map<String, String> getBinds();
 
     /**
      * Set the map of options on the AcceptOptionsContext.  The options are String key/value pairs.
      * @param options the map of String key/value pairs to set on the AcceptOptionsContext
      */
-    public void setOptions(Map<String, String> options);
+    void setOptions(Map<String, String> options);
 
     /**
      * Set the map of default options on the AcceptOptionsContext.  The options are String key/value pairs.
@@ -63,9 +63,9 @@ public interface AcceptOptionsContext {
      * are left untouched.
      * @param options the map of String key/value pairs to set as the default options on the AcceptOptionsContext
      */
-    public void setDefaultOptions(Map<String, String> defaultOptions);
+    void setDefaultOptions(Map<String, String> defaultOptions);
 
-    public static class Wrapper implements AcceptOptionsContext {
+    class Wrapper implements AcceptOptionsContext {
 
         private final AcceptOptionsContext delegate;
 

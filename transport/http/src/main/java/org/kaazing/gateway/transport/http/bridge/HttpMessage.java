@@ -25,7 +25,7 @@ import org.kaazing.gateway.transport.bridge.Message;
 
 public abstract class HttpMessage extends Message {
 
-	public static enum Kind { REQUEST, RESPONSE, CONTENT }
+	public enum Kind { REQUEST, RESPONSE, CONTENT }
 	
 	public abstract Kind getKind();
 	

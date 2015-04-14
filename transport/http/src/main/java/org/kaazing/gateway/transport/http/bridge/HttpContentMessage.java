@@ -51,7 +51,7 @@ public class HttpContentMessage extends HttpMessage {
     public static final HttpContentMessage EMPTY = new HttpContentMessage(httpAllocator.wrap(httpAllocator.allocate(0)), true);
     public static final HttpContentMessage FLUSH = new HttpContentMessage(httpAllocator.wrap(httpAllocator.allocate(0)), true);
     
-	private static enum HttpContentInfo { INJECTED, COMPLETE }
+	private enum HttpContentInfo { INJECTED, COMPLETE }
 
     private final IoBufferEx data;
     private final Set<HttpEncoding> encodings;

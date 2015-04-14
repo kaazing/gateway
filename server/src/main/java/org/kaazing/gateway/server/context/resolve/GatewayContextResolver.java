@@ -1200,7 +1200,7 @@ public class GatewayContextResolver {
 
         public SingletonConfiguration(String applicationName, Collection<AppConfigurationEntry> configurationEntries) {
             AppConfigurationEntry[] array = new AppConfigurationEntry[configurationEntries.size()];
-            this.configurationEntries = Collections.<String, AppConfigurationEntry[]>singletonMap(applicationName,
+            this.configurationEntries = Collections.singletonMap(applicationName,
                     configurationEntries.toArray(array));
         }
 

@@ -26,10 +26,10 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.KeySelector;
 
 public interface TransportKeySelector extends KeySelector {
-    public ResourceAddress getAvailableCertAliasesKey(boolean clientMode);
+    ResourceAddress getAvailableCertAliasesKey(boolean clientMode);
 
-    public void bind(ResourceAddress resourceAddress) throws Exception;
-    public void unbind(ResourceAddress resourceAddress) throws Exception;
+    void bind(ResourceAddress resourceAddress) throws Exception;
+    void unbind(ResourceAddress resourceAddress) throws Exception;
 
-    public void connect(ResourceAddress resourceAddress) throws Exception;
+    void connect(ResourceAddress resourceAddress) throws Exception;
 }

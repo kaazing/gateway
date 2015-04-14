@@ -308,11 +308,7 @@ public class SimpleTokenLoginModule implements LoginModule {
             return true;
         }
 
-        if("jane".equals(parts[1]) && "welcome".equals(parts[2])){
-            return true;
-        }
-        
-        return false;
+        return "jane".equals(parts[1]) && "welcome".equals(parts[2]);
 
     }
 

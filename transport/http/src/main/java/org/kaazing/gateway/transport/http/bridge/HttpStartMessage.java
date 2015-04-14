@@ -39,10 +39,10 @@ import org.kaazing.gateway.transport.http.HttpVersion;
 
 public abstract class HttpStartMessage extends HttpMessage {
 
-	private static final Map<String, List<String>> EMPTY_HEADERS = Collections.<String, List<String>>emptyMap();
-    private static final Set<String> EMPTY_HEADER_NAMES = Collections.<String>emptySet();
-    private static final List<String> EMPTY_HEADER = Collections.<String>emptyList();
-	private static final Set<HttpCookie> EMPTY_COOKIES = Collections.<HttpCookie>emptySet();
+	private static final Map<String, List<String>> EMPTY_HEADERS = Collections.emptyMap();
+    private static final Set<String> EMPTY_HEADER_NAMES = Collections.emptySet();
+    private static final List<String> EMPTY_HEADER = Collections.emptyList();
+	private static final Set<HttpCookie> EMPTY_COOKIES = Collections.emptySet();
 	
 	private Set<HttpCookie> cookies;
 	private Map<String, List<String>> headers;

@@ -440,20 +440,11 @@ public class WsCloseFilter
     }
 
     public static boolean neededForProtocolVersion(WebSocketWireProtocol wsVersion) {
-        if (WebSocketWireProtocol.RFC_6455 == wsVersion ||
-            WebSocketWireProtocol.HYBI_13 == wsVersion ||
-            WebSocketWireProtocol.HYBI_8 == wsVersion ||
-            WebSocketWireProtocol.HYBI_7 == wsVersion ||
-            WebSocketWireProtocol.HYBI_6 == wsVersion) {
+        return WebSocketWireProtocol.RFC_6455 == wsVersion ||
+                WebSocketWireProtocol.HYBI_13 == wsVersion ||
+                WebSocketWireProtocol.HYBI_8 == wsVersion ||
+                WebSocketWireProtocol.HYBI_7 == wsVersion ||
+                WebSocketWireProtocol.HYBI_6 == wsVersion;
 
-            // In theory we could add hybi-5 to this list as well, but that
-            // Draft only requires that client-initiated closures send CLOSE
-            // frames; it does not require that a server send a CLOSE frame
-            // before closing the connection.
-
-            return true;
-         }
-
-         return false;
     }
 }

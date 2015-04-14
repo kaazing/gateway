@@ -47,7 +47,7 @@ public class Utils {
     protected Utils() { }
 
     // For letting management decide if a session is a WS type or something else.
-    public static enum ManagementSessionType {
+    public enum ManagementSessionType {
         NATIVE, EMULATED, OTHER
     }
 
