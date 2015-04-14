@@ -204,7 +204,9 @@ public class HttpProxySecureTest {
         
         void stop() throws IOException {
             stopped = true;
-            socket.close();
+            if (socket != null) {
+                socket.close();
+            }
         }
         
     }

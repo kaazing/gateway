@@ -23,7 +23,6 @@ package org.kaazing.gateway.transport;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.hamcrest.BaseMatcher;

@@ -42,8 +42,11 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
 
@@ -57,6 +60,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
@@ -75,11 +79,13 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
+import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +108,9 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final Set<HttpConnectFilter> allConnectFilters;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
+    private final ThreadLocal<PersistentConnectionPool> persistentConnectionsStore;
+    private final ConcurrentHashSet<Executor> ioExecutors;
+    private Properties configuration;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -112,6 +121,13 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
+        this.persistentConnectionsStore = new VicariousThreadLocal<PersistentConnectionPool>() {
+            @Override
+            protected PersistentConnectionPool initialValue() {
+                return new PersistentConnectionPool(logger);
+            }
+        };
+        this.ioExecutors = new ConcurrentHashSet<>();
     }
     
     @Resource(name = "bridgeServiceFactory")
@@ -124,9 +140,14 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         this.addressFactory = resourceAddressFactory;
     }
 
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
     protected IoProcessorEx<DefaultHttpSession> initProcessor() {
-        return new HttpConnectProcessor();
+        return new HttpConnectProcessor(persistentConnectionsStore);
     }
 
     @Override
@@ -140,9 +161,88 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     @Override
-    protected <T extends ConnectFuture> ConnectFuture connectInternal(final ResourceAddress address, final IoHandler handler,
-                                                                      final IoSessionInitializer<T> initializer) {
-        final DefaultConnectFuture bridgeConnectFuture = new DefaultConnectFuture();
+    protected <T extends ConnectFuture> ConnectFuture connectInternal(final ResourceAddress address,
+                final IoHandler handler, final IoSessionInitializer<T> initializer) {
+
+        final ConnectFuture connectFuture =  new DefaultConnectFuture();
+        final ResourceAddress transportAddress = address.getTransport();
+
+        if (transportAddress != null) {
+            Executor ioExecutor = null;
+            boolean ioAligned = isIoAligned();
+            if (!ioAligned) {
+                ioExecutor = getIoExecutor();
+            }
+
+            if (ioAligned || ioExecutor == null) {
+                connectInternal0(connectFuture, address, handler, initializer);
+            } else {
+                ioExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectInternal0(connectFuture, address, handler, initializer);
+                    }
+                });
+            }
+        }
+
+        return connectFuture;
+    }
+
+    // Returns a random Executor from the available ones
+    // @return a random executor
+    //         otherwise null
+    private Executor getIoExecutor() {
+        Integer workerCount = null;
+        if (configuration != null) {
+            workerCount = InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration);
+        }
+
+        if (workerCount != null && !ioExecutors.isEmpty()) {
+            int index = ThreadLocalRandom.current().nextInt(workerCount);
+            int i = 0;
+            for (Executor ioExecutor : ioExecutors) {
+                if (i == index) {
+                    return ioExecutor;
+                }
+                i = i + 1;
+            }
+        }
+        return null;
+    }
+
+    private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
+            final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
+
+        IoSession transportSession = persistentConnectionsStore.get().take(address.getTransport());
+        if (transportSession != null) {
+            connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
+        } else {
+            connectUsingNewTransport(connectFuture, address, handler, initializer);
+        }
+
+    }
+
+    protected <T extends ConnectFuture> void connectUsingExistingTransport(final ConnectFuture connectFuture,
+                ResourceAddress address, IoSession transportSession, IoHandler handler,
+                IoSessionInitializer<T> initializer) {
+
+        IoSessionInitializer<T> httpSessionInitializer = createHttpSessionInitializer(handler, initializer);
+
+        Callable<DefaultHttpSession> httpSessionFactory = createHttpSession(address, transportSession, httpSessionInitializer, connectFuture);
+
+        HTTP_SESSION_FACTORY_KEY.set(transportSession, httpSessionFactory);
+        HTTP_CONNECT_FUTURE_KEY.set(transportSession, connectFuture);
+
+        try {
+            bridgeHandler.sessionOpened(transportSession);
+        } catch (Exception e) {
+            connectFuture.setException(e);
+        }
+    }
+
+    private <T extends ConnectFuture> void connectUsingNewTransport(final ConnectFuture connectFuture,
+               ResourceAddress address, IoHandler handler, IoSessionInitializer<T> initializer) {
 
         // propagate connection failure, if necessary
         IoFutureListener<ConnectFuture> parentConnectListener = new IoFutureListener<ConnectFuture>() {
@@ -150,20 +250,20 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             public void operationComplete(ConnectFuture future) {
                 // fail bridge connect future if parent connect fails
                 if (!future.isConnected()) {
-                    bridgeConnectFuture.setException(future.getException());
+                    connectFuture.setException(future.getException());
+                } else {
+                    IoSessionEx session = (IoSessionEx)future.getSession();
+                    ioExecutors.add(session.getIoExecutor());
                 }
             }
         };
 
-        final ResourceAddress transportAddress = address.getTransport();
-        if ( transportAddress != null ) {
-            final BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transportAddress);
-            IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(address, handler, initializer,
-                    bridgeConnectFuture);
-            connector.connect(transportAddress, bridgeHandler, parentInitializer).addListener(parentConnectListener);
+        ResourceAddress transportAddress = address.getTransport();
+        BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(transportAddress);
+        IoSessionInitializer<ConnectFuture> parentInitializer = createParentInitializer(address,
+                handler, initializer, connectFuture);
+        connector.connect(transportAddress, bridgeHandler, parentInitializer).addListener(parentConnectListener);
 
-        }
-        return bridgeConnectFuture;
     }
 
     @Override
@@ -225,98 +325,112 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     }
 
     private <T extends ConnectFuture> IoSessionInitializer<ConnectFuture> createParentInitializer(final ResourceAddress connectAddress,
-            final IoHandler handler, final IoSessionInitializer<T> initializer, final DefaultConnectFuture httpConnectFuture) {
+            final IoHandler handler, final IoSessionInitializer<T> initializer, final ConnectFuture httpConnectFuture) {
         // initialize parent session before connection attempt
         return new IoSessionInitializer<ConnectFuture>() {
             @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
-                final IoSessionInitializer<T> httpSessionInitializer = new IoSessionInitializer<T>() {
-                    @Override
-                    public void initializeSession(IoSession session, T future) {
-                        DefaultHttpSession httpSession = (DefaultHttpSession) session;
-                        httpSession.setHandler(handler);
-
-                        if (initializer != null) {
-                            initializer.initializeSession(session, future);
-                        }
-                    }
-                };
+                final IoSessionInitializer<T> httpSessionInitializer = createHttpSessionInitializer(handler, initializer);
 
                 // factory to create a new bridge session
-                Callable<DefaultHttpSession> createSession = new Callable<DefaultHttpSession>() {
-                    @Override
-                    public DefaultHttpSession call() throws Exception {
-
-                        //TODO: Using instanceof is brittle.
-                        // support connecting http over pipes / socket addresses
-                        setLocalAddressFromSocketAddress(parent,
-                                                         parent instanceof NioSocketChannelIoSession ? "tcp" : "udp");
-
-                        ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
-                        final ResourceAddress localAddress =
-                                addressFactory.newResourceAddress(connectAddress, transportAddress);
-
-                        Callable<DefaultHttpSession> httpSessionFactory = new Callable<DefaultHttpSession>() {
-                            @Override
-                            public DefaultHttpSession call() throws Exception {
-                                IoSessionEx parentEx = (IoSessionEx) parent;
-                                IoBufferAllocatorEx<?> parentAllocator = parentEx.getBufferAllocator();
-                                DefaultHttpSession httpSession = new DefaultHttpSession(HttpConnector.this,
-                                                              getProcessor(), 
-                                                              localAddress, 
-                                                              connectAddress, 
-                                                              parentEx, 
-                                                              new HttpBufferAllocator(parentAllocator));
-                                parent.setAttribute(HTTP_SESSION_KEY, httpSession);
-                                return httpSession;
-                            }
-                        };
-
-                        return newSession(httpSessionInitializer, httpConnectFuture, httpSessionFactory);
-                    }
-
-                    private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                                  final String transportName) {
-                        SocketAddress socketAddress = session.getLocalAddress();
-                        if (socketAddress instanceof InetSocketAddress) {
-                            InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                            ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                                                                                                transportName);
-                            LOCAL_ADDRESS.set(session, resourceAddress);
-                        }
-                        else if (socketAddress instanceof NamedPipeAddress) {
-                            NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-                            ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                                                                                                "pipe");
-                            LOCAL_ADDRESS.set(session, resourceAddress);
-                        }
-                    }
-
-
-                    public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                                               final String transportName) {
-                        String addressFormat = "%s://%s";
-                        String pipeName = namedPipeAddress.getPipeName();
-                        URI transport = URI.create(format(addressFormat, transportName, pipeName));
-                        return addressFactory.newResourceAddress(transport);
-                    }
-
-                    public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                                               final String transportName) {
-                        InetAddress inetAddress = inetSocketAddress.getAddress();
-                        String hostAddress = inetAddress.getHostAddress();
-                        String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
-                        int port = inetSocketAddress.getPort();
-                        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-                        return addressFactory.newResourceAddress(transport);
-                    }
-
-                };
+                Callable<DefaultHttpSession> createSession = createHttpSession(connectAddress, parent, httpSessionInitializer, httpConnectFuture);
 
                 HTTP_SESSION_FACTORY_KEY.set(parent, createSession);
                 HTTP_CONNECT_FUTURE_KEY.set(parent, httpConnectFuture);
+            }
+
+        };
+    }
+
+
+    // initializer for bridge session to specify bridge handler,
+    // and call user-defined bridge session initializer if present
+    private <T extends ConnectFuture> IoSessionInitializer<T> createHttpSessionInitializer(final IoHandler handler, final IoSessionInitializer<T> initializer) {
+        return new IoSessionInitializer<T>() {
+            @Override
+            public void initializeSession(IoSession session, T future) {
+                DefaultHttpSession httpSession = (DefaultHttpSession) session;
+                httpSession.setHandler(handler);
+
+                if (initializer != null) {
+                    initializer.initializeSession(session, future);
+                }
+            }
+        };
+    }
+
+    // factory to create a new bridge session
+    private <T extends ConnectFuture> Callable<DefaultHttpSession> createHttpSession(final ResourceAddress connectAddress,
+                final IoSession parent, final IoSessionInitializer<T> httpSessionInitializer,
+                final ConnectFuture connectFuture) {
+        return new Callable<DefaultHttpSession>() {
+            @Override
+            public DefaultHttpSession call() throws Exception {
+
+                //TODO: Using instanceof is brittle.
+                // support connecting http over pipes / socket addresses
+                setLocalAddressFromSocketAddress(parent,
+                        parent instanceof NioSocketChannelIoSession ? "tcp" : "udp");
+
+                ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
+                final ResourceAddress localAddress =
+                        addressFactory.newResourceAddress(connectAddress, transportAddress);
+
+                Callable<DefaultHttpSession> httpSessionFactory = new Callable<DefaultHttpSession>() {
+                    @Override
+                    public DefaultHttpSession call() throws Exception {
+                        IoSessionEx parentEx = (IoSessionEx) parent;
+                        IoBufferAllocatorEx<?> parentAllocator = parentEx.getBufferAllocator();
+                        DefaultHttpSession httpSession = new DefaultHttpSession(HttpConnector.this,
+                                getProcessor(),
+                                localAddress,
+                                connectAddress,
+                                parentEx,
+                                new HttpBufferAllocator(parentAllocator));
+                        parent.setAttribute(HTTP_SESSION_KEY, httpSession);
+                        return httpSession;
+                    }
+                };
+
+                return newSession(httpSessionInitializer, connectFuture, httpSessionFactory);
+            }
+
+            private void setLocalAddressFromSocketAddress(final IoSession session,
+                                                          final String transportName) {
+                SocketAddress socketAddress = session.getLocalAddress();
+                if (socketAddress instanceof InetSocketAddress) {
+                    InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+                    ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
+                            transportName);
+                    LOCAL_ADDRESS.set(session, resourceAddress);
+                }
+                else if (socketAddress instanceof NamedPipeAddress) {
+                    NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
+                    ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
+                            "pipe");
+                    LOCAL_ADDRESS.set(session, resourceAddress);
+                }
+            }
+
+
+            public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
+                                                       final String transportName) {
+                String addressFormat = "%s://%s";
+                String pipeName = namedPipeAddress.getPipeName();
+                URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                return addressFactory.newResourceAddress(transport);
+            }
+
+            public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
+                                                       final String transportName) {
+                InetAddress inetAddress = inetSocketAddress.getAddress();
+                String hostAddress = inetAddress.getHostAddress();
+                String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
+                int port = inetSocketAddress.getPort();
+                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                return addressFactory.newResourceAddress(transport);
             }
 
         };

@@ -24,11 +24,9 @@ package org.kaazing.mina.netty;
 import static org.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBufferFactory.CHANNEL_BUFFER_FACTORY;
 import static org.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBufferFactory.OPTIMIZE_PERFORMANCE_CLIENT;
 import static java.lang.String.format;
-import static java.lang.System.getProperty;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.jboss.netty.buffer.ChannelBufferFactory;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandler;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -38,8 +36,6 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.kaazing.mina.netty.buffer.ByteBufferWrappingChannelBufferFactory;
 
 /**
  * This creates the session then immediately replaces itself with IoSessionChannelHandler, in order to allow

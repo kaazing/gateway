@@ -22,6 +22,8 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
 import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
@@ -40,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.server.config.mar2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
+import org.kaazing.gateway.service.TransportOptionNames;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
@@ -53,6 +56,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     private static final Logger logger = LoggerFactory.getLogger(DefaultConnectOptionsContext.class);
 
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
+    private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
 
     private Map<String, String> options;
 
@@ -60,15 +64,28 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         this.options = new HashMap<String, String>();
     }
 
-    public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions) {
+    public DefaultConnectOptionsContext(ServiceConnectOptionsType connectOptions, ServiceConnectOptionsType defaultOptions) {
         this();
 
-        parseConnectOptionsType(connectOptions);
+        parseConnectOptionsType(connectOptions, defaultOptions);
     }
 
     @Override
     public void setOptions(Map<String, String> options) {
         this.options = options;
+    }
+
+    @Override
+    public void setDefaultOptions(Map<String, String> defaultOptions) {
+        if (options == null) {
+            options = defaultOptions;
+        } else if (defaultOptions != null) {
+            for (Entry<String, String> entry : defaultOptions.entrySet()) {
+                if (!options.containsKey(entry.getKey())) {
+                    options.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
     }
 
     @Override
@@ -87,6 +104,9 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
         result.put("udp.interface", getUdpInterface());
+
+        result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
+        result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
 
         // for now just put in the rest of the options as strings
         for (Entry<String, String> entry : options.entrySet()) {
@@ -176,6 +196,29 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         return sslEncryptionEnabled;
     }
 
+    private Integer getHttpKeepaliveTimeout() {
+        int httpKeepaliveTimeout = DEFAULT_HTTP_KEEPALIVE_TIMEOUT;
+        String timeoutValue = options.get("http.keepalive.timeout");
+        if (timeoutValue != null) {
+            long val = Utils.parseTimeInterval(timeoutValue, TimeUnit.SECONDS);
+            if (val > 0) {
+                httpKeepaliveTimeout = (int) val;
+            }
+        }
+
+        return httpKeepaliveTimeout;
+    }
+
+    private boolean isHttpKeepaliveEnabled() {
+        boolean httpKeepaliveEnabled = true;
+        String httpKeepaliveEnabledValue = options.get("http.keepalive");
+        if (httpKeepaliveEnabledValue != null) {
+            httpKeepaliveEnabled = !httpKeepaliveEnabledValue.equalsIgnoreCase("disabled");
+        }
+
+        return httpKeepaliveEnabled;
+    }
+
     // We return a String array here, rather than a list, because the
     // javax.net.ssl.SSLEngine.setEnabledProtocols() method wants a
     // String array.
@@ -187,11 +230,18 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
         }
     }
 
-    private void parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType) {
+    private void parseConnectOptionsType(ServiceConnectOptionsType connectOptionsType,
+                                         ServiceConnectOptionsType defaultOptionsType) {
         if (connectOptionsType != null) {
             Map<String, String> connectOptionsMap = new HashMap<String, String>();
             parseOptions(connectOptionsType.getDomNode(), connectOptionsMap);
             setOptions(connectOptionsMap);
+        }
+
+        if (defaultOptionsType != null) {
+            Map<String, String> defaultConnectOptionsMap = new HashMap<String, String>();
+            parseOptions(defaultOptionsType.getDomNode(), defaultConnectOptionsMap);
+            setDefaultOptions(defaultConnectOptionsMap);
         }
     }
 

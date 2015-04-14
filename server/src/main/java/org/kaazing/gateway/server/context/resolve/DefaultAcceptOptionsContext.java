@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
-
 import static java.lang.String.format;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
