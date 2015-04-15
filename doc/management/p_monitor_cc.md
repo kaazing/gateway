@@ -1,73 +1,73 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Monitoring ${gateway.name.short}
+-   Monitoring KAAZING Gateway
 
-<span id="monitorhcc"></span></a>Monitor with ${console.name}${enterprise.logo.jms}
+<span id="monitorhcc"></span></a>Monitor with Command Center
 ===================================================================================
 
-You can monitor a ${gateway.cap} or a ${gateway.cap} cluster through ${console.name}, which is a browser-based application enabled in the default ${gateway.cap} configuration. This procedure describes how to launch ${console.name} and begin monitoring a ${gateway.cap} or a ${gateway.cap} cluster.
+You can monitor a Gateway or a Gateway cluster through Command Center, which is a browser-based application enabled in the default Gateway configuration. This procedure describes how to launch Command Center and begin monitoring a Gateway or a Gateway cluster.
 
-**Note:** You can monitor a ${gateway.cap} or ${gateway.cap} cluster through ${console.name} as long as ${the.gateway} where you launch ${console.name} uses the ${gateway.name.long} load balancing technology. See [Configure ${the.gateway} for High Availability](../high-availability/o_ha.md) to learn more about ${the.gateway}'s integrated clustering and load balancing features.
+**Note:** You can monitor a Gateway or Gateway cluster through Command Center as long as the Gateway where you launch Command Center uses the KAAZING Gateway load balancing technology. See [Configure the Gateway for High Availability](../high-availability/o_ha.md) to learn more about the Gateway's integrated clustering and load balancing features.
 Before You Begin
 ----------------
 
-This procedure is part of [Monitoring ${gateway.name.short}](o_admin_monitor.md):
+This procedure is part of [Monitoring KAAZING Gateway](o_admin_monitor.md):
 
-1.  [Introduction to Monitoring ${gateway.name.long}](o_admin_monitor.md#intromonitor)
-2.  [Secure ${gateway.name.long} Monitoring](p_mgt_config_secure_mgmt.md)
-3.  Monitor a ${gateway.cap} or ${gateway.cap} cluster
-    -   **Monitor with ${console.name}** (Recommended)
+1.  [Introduction to Monitoring KAAZING Gateway](o_admin_monitor.md#intromonitor)
+2.  [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md)
+3.  Monitor a Gateway or Gateway cluster
+    -   **Monitor with Command Center** (Recommended)
     -   [Monitor with JMX](p_monitor_jmx.md)
 
-4.  [Troubleshoot ${the.gateway}](../troubleshooting/o_ts.md)
+4.  [Troubleshoot the Gateway](../troubleshooting/o_ts.md)
 
-<span id="launchcc"></span></a>To launch ${console.name}
+<span id="launchcc"></span></a>To launch Command Center
 --------------------------------------------------------
 
-1.  If ${the.gateway} is not already installed, then download ${the.gateway} distribution from [kaazing.org](http://kaazing.org) and see ${setting.up.inline} for help with ${gateway.cap} set-up and configuration.
-2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default ${gateway.cap} configuration. See [Secure ${gateway.name.long} Monitoring](p_mgt_config_secure_mgmt.md) for more information.
-3.  Start ${gateway.name.short}.
-    -   To start ${the.gateway} using the default ${gateway.cap} configuration file supplied in `GATEWAY_HOME/conf/gateway.config.xml`, follow the instructions in ${setting.up.inline}.
+1.  If the Gateway is not already installed, then download the Gateway distribution from [kaazing.org](http://kaazing.org) and see [Setting Up KAAZING Gateway](../about/setup-guide.md) for help with Gateway set-up and configuration.
+2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md) for more information.
+3.  Start KAAZING Gateway.
+    -   To start the Gateway using the default Gateway configuration file supplied in `GATEWAY_HOME/conf/gateway.config.xml`, follow the instructions in [Setting Up KAAZING Gateway](../about/setup-guide.md).
 
-        ${console.name} does not require any custom coding and it works immediately if you start ${the.gateway} using the default ${gateway.cap} configuration file. Once ${the.gateway} starts, then skip to step 4.
+        Command Center does not require any custom coding and it works immediately if you start the Gateway using the default Gateway configuration file. Once the Gateway starts, then skip to step 4.
 
-    -   To start ${the.gateway} using a custom ${gateway.cap} configuration file requires that you copy these pieces from the default `GATEWAY_HOME/conf/gateway-config.xml` file:
+    -   To start the Gateway using a custom Gateway configuration file requires that you copy these pieces from the default `GATEWAY_HOME/conf/gateway-config.xml` file:
 
         -   The `management.snmp` management service
         -   The directory service `commandcenter-directory`
         -   The `commandcenter` security realm
 
-        See the [Service Reference](../admin-reference/r_conf_service.md#service) documentation for information and examples. For more information about default and custom ${gateway.cap} configuration files, see [Configure ${gateway.name.short}](../admin-reference/p_conf_files.md).
+        See the [Service Reference](../admin-reference/r_conf_service.md#service) documentation for information and examples. For more information about default and custom Gateway configuration files, see [Configure KAAZING Gateway](../admin-reference/p_conf_files.md).
 
 4.  Open a Web browser and enter one of the following URLs:
     -   To monitor a cluster, the default URL is: `http://localhost:8080/commandcenter`.
-    -   For single ${gateway.cap} monitoring, the default URL is: `http://localhost:8000/commandcenter` **Note:** On startup, ${console.name} verifies that your browser supports HTML5 and CSS3. If you are using an older browser that does not meet the requirements for ${console.name}, then you may receive an error message from ${console.name}. See the README.txt file in the *`GATEWAY_HOME`* directory where you unpacked the ${gateway.name.long} distribution.
+    -   For single Gateway monitoring, the default URL is: `http://localhost:8000/commandcenter` **Note:** On startup, Command Center verifies that your browser supports HTML5 and CSS3. If you are using an older browser that does not meet the requirements for Command Center, then you may receive an error message from Command Center. See the README.txt file in the *`GATEWAY_HOME`* directory where you unpacked the KAAZING Gateway distribution.
 
-5.  Log into ${console.name} using Administrator credentials and provide the administrator's username and password (by default, `admin/admin`). If necessary, you can find the login credentials in `GATEWAY_HOME/conf/jaas-config.xml`.
+5.  Log into Command Center using Administrator credentials and provide the administrator's username and password (by default, `admin/admin`). If necessary, you can find the login credentials in `GATEWAY_HOME/conf/jaas-config.xml`.
 
-    **Note:** If you are running ${the.gateway} on an Amazon Web Services (AWS) Marketplace instance, the password is set to the public instance ID by default. You can replace the default password by configuring the `cloud.instanceid` parameter in the `GATEWAY_HOME/conf/jaas-config.xml` file. See [Configure ${gateway.name.short}](../admin-reference/p_conf_files.md) for more information about the `cloud.instanceid` parameter.
+    **Note:** If you are running the Gateway on an Amazon Web Services (AWS) Marketplace instance, the password is set to the public instance ID by default. You can replace the default password by configuring the `cloud.instanceid` parameter in the `GATEWAY_HOME/conf/jaas-config.xml` file. See [Configure KAAZING Gateway](../admin-reference/p_conf_files.md) for more information about the `cloud.instanceid` parameter.
 
-    When you log into ${console.name}, you can enter a URL for any ${gateway.cap} running the management service (including localhost) or take the default URL provided by ${console.name}:
+    When you log into Command Center, you can enter a URL for any Gateway running the management service (including localhost) or take the default URL provided by Command Center:
 
-    -   By default, ${console.name} uses the SNMP management URL to ${the.gateway} that you accessed to start the ${console.name} itself. For example, if you launched ${console.name} using `http://localhost:8000/commandcenter`, then ${console.name} defaults to `ws://localhost:8000/snmp`. In this example, the `ws` scheme is the address specified in the `accept` configuration element for the `management.snmp` management service.
-    -   You can override the default and enter a Management URL during the login dialog by entering the path to any ${gateway.cap} to which you have network access.
+    -   By default, Command Center uses the SNMP management URL to the Gateway that you accessed to start the Command Center itself. For example, if you launched Command Center using `http://localhost:8000/commandcenter`, then Command Center defaults to `ws://localhost:8000/snmp`. In this example, the `ws` scheme is the address specified in the `accept` configuration element for the `management.snmp` management service.
+    -   You can override the default and enter a Management URL during the login dialog by entering the path to any Gateway to which you have network access.
 
-<span id="usecc"></span></a>Get Started with ${console.name}
+<span id="usecc"></span></a>Get Started with Command Center
 ------------------------------------------------------------
 
-${console.name} provides information about your cluster, its cluster members, and services and sessions through the following main pages:
+Command Center provides information about your cluster, its cluster members, and services and sessions through the following main pages:
 
 -   [Dashboard Page](#dashbd_page)
 -   [Configuration Page](#config_page)
 -   [Overview Page](#overview_page)
 -   [Monitoring Page](#monitor_page)
 
-**Note:** In a ${gateway.cap} cluster, it is recommended that all cluster members have identical configurations. However, if a cluster member’s configuration does not match the other cluster members, then the dissimilar member is quarantined and remains running and joined to the cluster but all of its services will be stopped (unbound), except for its management services. See [Configure ${the.gateway} for High Availability](../high-availability/o_ha.md) for complete information about configuring clustering and load balancing.
-The following sections provide a high-level description of the information you can view with ${console.name}.
+**Note:** In a Gateway cluster, it is recommended that all cluster members have identical configurations. However, if a cluster member’s configuration does not match the other cluster members, then the dissimilar member is quarantined and remains running and joined to the cluster but all of its services will be stopped (unbound), except for its management services. See [Configure the Gateway for High Availability](../high-availability/o_ha.md) for complete information about configuring clustering and load balancing.
+The following sections provide a high-level description of the information you can view with Command Center.
 
 ### <span id="dashbd_page"></span></a>Dashboard Page
 
-The Dashboard page provides an overview of ${the.gateway} cluster by means of a user-selectable set of dynamic, scrolling charts The charts show current performance metrics (such as sessions, system information, I/O, JVM memory, and so on). Some of the charts you can view include:
+The Dashboard page provides an overview of the Gateway cluster by means of a user-selectable set of dynamic, scrolling charts The charts show current performance metrics (such as sessions, system information, I/O, JVM memory, and so on). Some of the charts you can view include:
 
 -   CPU%
 -   Current Sessions
@@ -77,41 +77,41 @@ The Dashboard page provides an overview of ${the.gateway} cluster by means of a 
 -   Write Throughput Combined
 -   Write Throughput Per Interface Card
 
-You can personalize the Dashboard by adding and removing charts to include only the charts you need. The menu at the top of the page allows you to dynamically add and remove any of the graphs to customize your view. Plus, you can drag and drop the charts to organize them in a way that makes sense to you. ${console.name} stores the chart order in the browser so that you get the same display the next time you log in.
+You can personalize the Dashboard by adding and removing charts to include only the charts you need. The menu at the top of the page allows you to dynamically add and remove any of the graphs to customize your view. Plus, you can drag and drop the charts to organize them in a way that makes sense to you. Command Center stores the chart order in the browser so that you get the same display the next time you log in.
 
 In addition, the Dashboard helps to catch and diagnose cluster misconfigurations at a glance. Metrics just above the charts indicate the number of running cluster members and if any members are quarantined.
 
 ### <span id="config_page"></span></a>Configuration Page
 
-${console.name} shows all of ${the.gateway} configuration details, from a graphical overview of services and realms through all configuration settings in all ${gateway.cap}s in the cluster. ${console.name} helps you monitor all cluster members from a single view, and when viewing a cluster, the Configuration pages help you quickly find where cluster member configurations match and do not match.
+Command Center shows all of the Gateway configuration details, from a graphical overview of services and realms through all configuration settings in all Gateways in the cluster. Command Center helps you monitor all cluster members from a single view, and when viewing a cluster, the Configuration pages help you quickly find where cluster member configurations match and do not match.
 
-All configuration settings in all ${gateway.cap} cluster members are available through the various Configuration pages to help you determine if there are configuration differences between members. The Configuration pages provide a more detailed look at all of the configuration types and show ${the.gateway} configuration elements that have been configured and their current settings. In short, anything that you have in your ${gateway.cap} configuration file can be viewed on the Configuration pages, including:
+All configuration settings in all Gateway cluster members are available through the various Configuration pages to help you determine if there are configuration differences between members. The Configuration pages provide a more detailed look at all of the configuration types and show the Gateway configuration elements that have been configured and their current settings. In short, anything that you have in your Gateway configuration file can be viewed on the Configuration pages, including:
 
 -   Service configuration defaults such as supported [MIME types](../admin-reference/r_conf_service.md#svcmimemapping) and [bind](../admin-reference/r_conf_service.md#protocolbind) information
 -   Specific security information about the [realms](../admin-reference/r_conf_security.md#realm_element), [truststores](../admin-reference/r_conf_security.md#truststore), [keystores](../admin-reference/r_conf_security.md#keystore), and login details
--   Licensing information for a single ${gateway.cap} and cluster licensing
+-   Licensing information for a single Gateway and cluster licensing
 
-The Configuration pages can be instrumental in diagnosing issues you may have seen on either the Overview or Dashboard pages. For example, if you have configured each cluster member identically but ${console.name} shows that two services in your cluster have the same name (for example, on the ${console.name} Overview page), then you can view the Configuration pages to find out why the services are different. If you discover that there is a configuration issue, then you can also look at all the service options available and decide how to correct the issue. See [Configure ${the.gateway} for High Availability](../high-availability/o_ha.md) for complete information about configuring and using clusters.
+The Configuration pages can be instrumental in diagnosing issues you may have seen on either the Overview or Dashboard pages. For example, if you have configured each cluster member identically but Command Center shows that two services in your cluster have the same name (for example, on the Command Center Overview page), then you can view the Configuration pages to find out why the services are different. If you discover that there is a configuration issue, then you can also look at all the service options available and decide how to correct the issue. See [Configure the Gateway for High Availability](../high-availability/o_ha.md) for complete information about configuring and using clusters.
 
 ### <span id="overview_page"></span></a>Overview Page (General Configuration Information)
 
-${console.name} presents a graphical display of all the services for a single ${gateway.cap} or all ${gateway.cap} members in a cluster. The Overview page is an option under the Configuration menu that presents a live graphical display of the available services and their security realms for your installation, whether you are viewing a single ${gateway.cap} or an entire cluster.
+Command Center presents a graphical display of all the services for a single Gateway or all Gateway members in a cluster. The Overview page is an option under the Configuration menu that presents a live graphical display of the available services and their security realms for your installation, whether you are viewing a single Gateway or an entire cluster.
 
-As with the Configuration page, the overview information displays configuration objects that match or differ to help you find issues (such as with the service and realm definitions) in the configuration. Links embedded in the actual objects provide a direct path to other pages in the ${console.name} that have more detailed information.
+As with the Configuration page, the overview information displays configuration objects that match or differ to help you find issues (such as with the service and realm definitions) in the configuration. Links embedded in the actual objects provide a direct path to other pages in the Command Center that have more detailed information.
 
-Whether you are viewing a single ${gateway.cap} or a cluster, the overview page facilitates navigation between service and realm views, and shows:
+Whether you are viewing a single Gateway or a cluster, the overview page facilitates navigation between service and realm views, and shows:
 
 -   Details of services, realms, and other configuration settings such as properties, global defaults, security settings, and more
 -   The [accept](../admin-reference/r_conf_service.md#acceptele) and [connect](../admin-reference/r_conf_service.md#connectele) elements configured for your services
 -   High level view of security and items in the keystore and truststore
 -   License information
--   All public ${gateway.cap} configuration settings
+-   All public Gateway configuration settings
 
-When viewing a cluster, the Overview page helps you quickly find where cluster member configurations match or do not match. The Overview page helps you determine if there are configuration differences and on which cluster members. For example, the gray box in the previous screenshot shows the demo realm twice, and, in a cluster, there should only be one demo realm. If the Overview page shows two realms with the same name, then you immediately know that there are differences between the cluster members. Other information on the Overview Page can help you determine where the differences occur. With this information, you know at a glance where the problem lies for fast evaluation to quickly fix differences. See [Configure ${the.gateway} for High Availability](../high-availability/o_ha.md) for more information about configuring clusters.
+When viewing a cluster, the Overview page helps you quickly find where cluster member configurations match or do not match. The Overview page helps you determine if there are configuration differences and on which cluster members. For example, the gray box in the previous screenshot shows the demo realm twice, and, in a cluster, there should only be one demo realm. If the Overview page shows two realms with the same name, then you immediately know that there are differences between the cluster members. Other information on the Overview Page can help you determine where the differences occur. With this information, you know at a glance where the problem lies for fast evaluation to quickly fix differences. See [Configure the Gateway for High Availability](../high-availability/o_ha.md) for more information about configuring clusters.
 
 ### <span id="monitor_page"></span></a>Monitoring Pages
 
-${console.name} provides live metrics about higher-level concepts than Dashboard. The monitoring pages indicate what is going on in the cluster right now, including details for individual services, sessions, and each ${gateway.cap} overall.
+Command Center provides live metrics about higher-level concepts than Dashboard. The monitoring pages indicate what is going on in the cluster right now, including details for individual services, sessions, and each Gateway overall.
 
 In particular, you can view a number of session details or you can view all of the services that are running. The Monitoring pages also provide high-level totals about what is coming in and going out across the entire cluster.
 
@@ -137,17 +137,17 @@ The following list describes some of the tabular information you see in the Moni
     -   License
 -   Cluster Member Monitoring
 
-    Gathers data from each cluster member that has a direct connection and displays the data in a single instance of ${console.name}. See the [Notes](#notes) for more information about configuring cluster member connections.
+    Gathers data from each cluster member that has a direct connection and displays the data in a single instance of Command Center. See the [Notes](#notes) for more information about configuring cluster member connections.
 
 Next Step
 ---------
 
-You are done getting started with ${console.name} monitoring. For more information about ${gateway.cap} administration, see the [documentation](../index.md).
+You are done getting started with Command Center monitoring. For more information about Gateway administration, see the [documentation](../index.md).
 
 <span id="notes"></span></a>Notes
 ---------------------------------
 
--   ${console.name} connects to each cluster member using that ${gateway.cap}'s `management.snmp` service. If that service is not defined in ${the.gateway}'s configuration file (such as `gateway-config.xml`), then ${console.name} cannot connect to the cluster member. See the [Service Reference](../admin-reference/r_conf_service.md#service) documentation for help configuring the `management.snmp` service for ${console.name}.
--   In a ${gateway.cap} cluster, if a cluster member’s configuration is different than the other members of the cluster, the dissimilar member is quarantined. Thus, a cluster member with no management section in ${the.gateway}'s configuration (such as `gateway-config.xml` file) will be quarantined. But because the member has no management section, ${console.name} cannot interact with that member. To troubleshoot common problems with startup, security, clusters, and clients, see [Troubleshoot ${the.gateway}](../troubleshooting/o_ts.md).
+-   Command Center connects to each cluster member using that Gateway's `management.snmp` service. If that service is not defined in the Gateway's configuration file (such as `gateway-config.xml`), then Command Center cannot connect to the cluster member. See the [Service Reference](../admin-reference/r_conf_service.md#service) documentation for help configuring the `management.snmp` service for Command Center.
+-   In a Gateway cluster, if a cluster member’s configuration is different than the other members of the cluster, the dissimilar member is quarantined. Thus, a cluster member with no management section in the Gateway's configuration (such as `gateway-config.xml` file) will be quarantined. But because the member has no management section, Command Center cannot interact with that member. To troubleshoot common problems with startup, security, clusters, and clients, see [Troubleshoot the Gateway](../troubleshooting/o_ts.md).
 
 

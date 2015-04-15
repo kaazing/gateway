@@ -6,9 +6,9 @@
 ===============================================================================================
 
 <span class="alert">**Warning:** Using self-signed certificates can result in unpredictable behavior because various browsers, plug-ins, operating systems, and related run-time systems handle self-signed certificates differently. Resulting issues may include connectivity failures and other security issues which can be difficult to diagnose. Instead, use [trusted certificates](p_tls_trusted.md) issued from a trusted certificate authority (CA) for real-world development, test, and production environments.</span>
-In these procedures, you will learn how to configure secure networking between ${gateway.name.short} and clients and web browsers using self-signed certificates. Typically, a self-signed certificate is intended for limited development and testing environments.
+In these procedures, you will learn how to configure secure networking between KAAZING Gateway and clients and web browsers using self-signed certificates. Typically, a self-signed certificate is intended for limited development and testing environments.
 
-In this procedure, you will configure applications for TLS/SSL connections with ${the.gateway} in the following ways:
+In this procedure, you will configure applications for TLS/SSL connections with the Gateway in the following ways:
 
 -   [To Use Self-Signed Certificates With iOS Devices and iOS Simulator](#tls_ios)
 -   [To Use Self-Signed Certificates With Android Devices](#tls_android)
@@ -20,12 +20,12 @@ In this procedure, you will configure applications for TLS/SSL connections with 
 Before You Begin
 ----------------
 
-This procedure is part of [Secure Network Traffic with ${the.gateway}](o_tls.md):
+This procedure is part of [Secure Network Traffic with the Gateway](o_tls.md):
 
--   [Secure ${the.gateway} Using Trusted Certificates](p_tls_trusted.md)
--   [Secure ${the.gateway} Using Self-Signed Certificates](p_tls_selfsigned.md)
+-   [Secure the Gateway Using Trusted Certificates](p_tls_trusted.md)
+-   [Secure the Gateway Using Self-Signed Certificates](p_tls_selfsigned.md)
 -   **Secure Clients and Web Browsers with a Self-Signed Certificate**
--   [Require Clients to Provide Certificates to ${the.gateway}](../security/p_tls_mutualauth.md)
+-   [Require Clients to Provide Certificates to the Gateway](../security/p_tls_mutualauth.md)
 
 <a name="tls_ios"></a>To Use Self-Signed Certificates With iOS Devices and iOS Simulator
 ----------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ The following steps describe how to import a self-signed certificate into an iOS
 
 To import the self-signed certificate into the iOS device, do the following:
 
-1.  On ${the.gateway}, enter the following command to export the certificate from the default keystore on ${the.gateway}:
+1.  On the Gateway, enter the following command to export the certificate from the default keystore on the Gateway:
 
     keytool -exportcert -alias *hostname* -keystore *GATEWAY\_HOME*\\conf\\keystore.db -storetype JCEKS -file *GATEWAY\_HOME*\\web\\base\\*hostname*.cer -storepass *password*
 
@@ -50,7 +50,7 @@ To import the self-signed certificate into the iOS device, do the following:
 Importing self-signed certificates is not directly supported in the iOS Simulator. To add a self-signed certificate to the iOS Simulator, do the following:
 
 1.  Download the management script [ADVTrustStore](https://github.com/ADVTOOLS/ADVTrustStore) from GitHub. ADVTrustStore is a simple management script to import, list, and remove self-signed certificates in the iOS Simulator. You might find it convenient to download the ADVTrustStore script into the `GATEWAY_HOME/conf/` folder, as that is where the keystore.db file is located.
-2.  On ${the.gateway}, enter the following command to export the certificate from the default keystore on ${the.gateway}:
+2.  On the Gateway, enter the following command to export the certificate from the default keystore on the Gateway:
 
     keytool -exportcert -alias *hostname* -keystore *GATEWAY\_HOME*\\conf\\keystore.db -storetype JCEKS -file *GATEWAY\_HOME*\\conf\\*hostname*.cer -storepass *password* -rfc
 
@@ -75,7 +75,7 @@ There are many different Android devices, but the following instructions for And
 
 To import the self-signed certificate into the Android device, do the following:
 
-1.  On ${the.gateway}, enter the following command to export the certificate from the default keystore on ${the.gateway}:
+1.  On the Gateway, enter the following command to export the certificate from the default keystore on the Gateway:
 
     keytool -exportcert -alias *hostname* -keystore *GATEWAY\_HOME*\\conf\\keystore.db -storetype JCEKS -file *GATEWAY\_HOME*\\conf\\*hostname*.cer -storepass *password*
 
@@ -91,16 +91,16 @@ Place self-signed certificates in the Windows Trusted Root Certification Authori
 <a name="tls_java_clients"></a>To Use Self-Signed Certificates with Java Clients
 --------------------------------------------------------------------------------
 
-After you have created or imported the self-signed certificate into the keystore.db file for ${the.gateway}, you can enable your Java clients to use that self-signed certificate in one of two ways:
+After you have created or imported the self-signed certificate into the keystore.db file for the Gateway, you can enable your Java clients to use that self-signed certificate in one of two ways:
 
 -   [Import the self-signed certificate into the Java client's JVM truststore](#tls_java_clients_import), or
 -   [Add the self-signed certificate to a truststore and reference it when Launching the Java Client](#tls_java_clients_launch).
 
 ### <a name="tls_java_clients_import"></a>Import the Self-Signed Certificate into the Java Client's JVM Truststore
 
-To import the certificate into the Java client's truststore, export the self-signed certificate located on ${the.gateway} in a format that can be imported into the Java client.
+To import the certificate into the Java client's truststore, export the self-signed certificate located on the Gateway in a format that can be imported into the Java client.
 
-1.  On ${the.gateway}, enter the following command to exports the certificate from the default keystore on ${the.gateway}:
+1.  On the Gateway, enter the following command to exports the certificate from the default keystore on the Gateway:
 
     keytool -exportcert -alias *hostname* -keystore *GATEWAY\_HOME*\\conf\\keystore.db -storetype JCEKS -file *GATEWAY\_HOME*\\conf\\*hostname*.cer -storepass *password*
 
@@ -115,7 +115,7 @@ To import the certificate into the Java client's truststore, export the self-sig
 
 To add the self-signed certificate to the default truststore used by the JVM, import the certificate into a truststore and then reference it when launching the Java client.
 
-1.  On ${the.gateway}, enter the following command to exports the certificate from the default keystore on ${the.gateway}:
+1.  On the Gateway, enter the following command to exports the certificate from the default keystore on the Gateway:
 
     keytool -exportcert -alias *hostname* -keystore *GATEWAY\_HOME*\\conf\\keystore.db -storetype JCEKS -file *GATEWAY\_HOME*\\conf\\*hostname*.cer -storepass *password*
 
@@ -131,7 +131,7 @@ To add the self-signed certificate to the default truststore used by the JVM, im
 
     System.setProperty("javax.net.ssl.trustStore", "*path to truststore*");
 
-    If you are running the client on the same computer as ${the.gateway}, you can use the following code in your Java client to set the location of the truststore and certificate:
+    If you are running the client on the same computer as the Gateway, you can use the following code in your Java client to set the location of the truststore and certificate:
 
     ``` brush:
         final String trustStore = new File(new File(GatewayLauncher.getGatewayHomeDir(), "conf/"),
@@ -152,7 +152,7 @@ To add the self-signed certificate to the default truststore used by the JVM, im
 
 When using self-signed certificates with web browsers, you can import the self-signed certificate into the web browser using the browser's built-in functionality. The following table includes general steps for importing self-signed certificates into web browsers. For information specific to web browsers and operating systems, see their documentation on importing certificates.
 
-**Note:** In general, you will only be using self-signed certificates for testing purposes. When using a WebSocket Secure (WSS) connection, you are not prompted to import a certificate. The prompt displays if you navigate to an HTTPS page. Follow the steps in [Secure ${the.gateway} Using Self-Signed Certificates](p_tls_selfsigned.md) to accept the self-signed certificate in a web browser. When you surf to the secure directory service on ${the.gateway} (`https://`), the browser will display a warning stating that the certificate is not trusted. Accept the untrusted certificate and proceed to the web page.
+**Note:** In general, you will only be using self-signed certificates for testing purposes. When using a WebSocket Secure (WSS) connection, you are not prompted to import a certificate. The prompt displays if you navigate to an HTTPS page. Follow the steps in [Secure the Gateway Using Self-Signed Certificates](p_tls_selfsigned.md) to accept the self-signed certificate in a web browser. When you surf to the secure directory service on the Gateway (`https://`), the browser will display a warning stating that the certificate is not trusted. Accept the untrusted certificate and proceed to the web page.
 <table>
 <colgroup>
 <col width="50%" />
@@ -167,7 +167,7 @@ When using self-signed certificates with web browsers, you can import the self-s
 <tbody>
 <tr class="odd">
 <td align="left">Apple Safari</td>
-<td align="left">You might want to export the certificate from the keystore of ${the.gateway} and import it into your Mac Keychain. Mac Keychain only recognizes the PKCS12 and PKCS7 certificate types. When you export the certificate from the keystore of ${the.gateway} using <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html">keytool</a> and the <code>-exportcert</code> command, use <code>-storetype PKCS7</code>. You can also use the <a href="http://www.lazgosoftware.com/kse/">KeyStore Explorer</a> tool. For more information, see <a href="http://support.apple.com/kb/PH10968">OS X Mountain Lion: If your certificate isn’t being accepted</a> from Apple.</td>
+<td align="left">You might want to export the certificate from the keystore of the Gateway and import it into your Mac Keychain. Mac Keychain only recognizes the PKCS12 and PKCS7 certificate types. When you export the certificate from the keystore of the Gateway using <a href="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html">keytool</a> and the <code>-exportcert</code> command, use <code>-storetype PKCS7</code>. You can also use the <a href="http://www.lazgosoftware.com/kse/">KeyStore Explorer</a> tool. For more information, see <a href="http://support.apple.com/kb/PH10968">OS X Mountain Lion: If your certificate isn’t being accepted</a> from Apple.</td>
 </tr>
 <tr class="even">
 <td align="left">Google Chrome</td>
@@ -177,7 +177,7 @@ When using self-signed certificates with web browsers, you can import the self-s
 <td align="left">Microsoft Internet Explorer</td>
 <td align="left">See <a href="http://windows.microsoft.com/en-US/windows-vista/Import-or-export-certificates-and-private-keys">Import or export certificates and private keys</a> and <a href="http://windows.microsoft.com/en-us/internet-explorer/certificate-errors-faq#ie=ie-10">Certificate errors: FAQ</a> from Microsoft. <strong>For Internet Explorer 8 and 9</strong>
 <ol>
-<li>Navigate to ${the.gateway} home using an HTTPS URL.</li>
+<li>Navigate to the Gateway home using an HTTPS URL.</li>
 <li>At the prompt <strong>There is a problem with this website's security certificate</strong>, click <strong>Continue to this website (not recommended)</strong>.</li>
 <li>Click <strong>Internet Options</strong> on the <strong>Tools</strong> menu.</li>
 <li>On the <strong>Security</strong> tab, click <strong>Trusted sites</strong> and then click <strong>Sites</strong>.</li>
@@ -211,12 +211,12 @@ When using self-signed certificates with web browsers, you can import the self-s
 Next Steps
 ----------
 
-To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting ${gateway.name.short} Security](../troubleshooting/ts_security.md).
+To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
 
 <a name="see_also"></a>See Also
 -------------------------------
 
 -   [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
--   [How TLS/SSL Works with ${the.gateway}](u_tls_works.md)
+-   [How TLS/SSL Works with the Gateway](u_tls_works.md)
 
 

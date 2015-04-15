@@ -1,11 +1,11 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   [Security with ${gateway.name.short}](../index.md#security)
+-   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="tls_concepts"></a>Transport Layer Security (TLS/SSL) Concepts${enterprise.logo.jms}
+<a name="tls_concepts"></a>Transport Layer Security (TLS/SSL) Concepts
 ============================================================================================
 
-This section is a high-level introduction to the technologies used to configure secure networking with ${gateway.name.short}. Secure networking with ${the.gateway} uses two networking protocols: Transport Layer Security (TLS/SSL) and its predecessor Secure Sockets Layer (SSL). For the purposes of this guide, we use TLS/SSL when discussing secure protocols because SSL, while still popular, has not been updated since SSL version 3.0 in 1996 and TLS/SSL continues to be developed into new versions.
+This section is a high-level introduction to the technologies used to configure secure networking with KAAZING Gateway. Secure networking with the Gateway uses two networking protocols: Transport Layer Security (TLS/SSL) and its predecessor Secure Sockets Layer (SSL). For the purposes of this guide, we use TLS/SSL when discussing secure protocols because SSL, while still popular, has not been updated since SSL version 3.0 in 1996 and TLS/SSL continues to be developed into new versions.
 
 The goal of TLS/SSL is to establish a secure session between two hosts on a network. The mechanism used to accomplish this goal is cryptography, which changes readable data into codes that are unreadable unless you know how the code was created. The process of encoding data is called encryption and the process of decoding that data is called decryption. The information used to perform encryption and decryption is called the *key*.
 
@@ -27,21 +27,21 @@ Here’s how a TLS/SSL session between a client and web server is established.
 
 </figcaption>
 </figure>
-The following figure shows how ${the.gateway} uses TLS/SSL to secure network traffic with clients and back-end servers. See [How TLS/SSL Works with ${the.gateway}](u_tls_works.md) for an in-depth discussion and examples of common TLS/SSL configurations with ${the.gateway}.
+The following figure shows how the Gateway uses TLS/SSL to secure network traffic with clients and back-end servers. See [How TLS/SSL Works with the Gateway](u_tls_works.md) for an in-depth discussion and examples of common TLS/SSL configurations with the Gateway.
 
 <figure>
-![${the.gateway} uses TLS to secure network traffic with clients and back-end servers](../images/f-TLS-client-gateway-server.jpg)
+![the Gateway uses TLS to secure network traffic with clients and back-end servers](../images/f-TLS-client-gateway-server.jpg)
 <figcaption>
 
-**Figure: ${the.gateway.cap} Uses one TLS/SSL Certificate to Secure Network Traffic With Clients and a Separate TLS/SSL Certificate to Secure Network Traffic With Back-end Servers**
+**Figure: The Gateway Uses one TLS/SSL Certificate to Secure Network Traffic With Clients and a Separate TLS/SSL Certificate to Secure Network Traffic With Back-end Servers**
 
 </figcaption>
 </figure>
-**Note:** The back-end server might be a ${message.broker.generic} or another ${gateway.cap}. In most cases, a ${message.broker.generic} can be configured to ensure a connection uses TLS/SSL.
+**Note:** The back-end server might be a back-end service or message broker or another Gateway. In most cases, a back-end service or message broker can be configured to ensure a connection uses TLS/SSL.
 
 #### See Also
 
--   [Secure Network Traffic with ${the.gateway}](o_tls.md)
--   [How TLS/SSL Works with ${the.gateway}](u_tls_works.md)
+-   [Secure Network Traffic with the Gateway](o_tls.md)
+-   [How TLS/SSL Works with the Gateway](u_tls_works.md)
 
 

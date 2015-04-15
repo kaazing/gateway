@@ -1,11 +1,11 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Reference for ${gateway.cap} Configuration Elements
+-   Reference for Gateway Configuration Elements
 
-Reference for ${gateway.cap} Configuration Elements ${enterprise.logo.jms}
+Reference for Gateway Configuration Elements 
 ==========================================================================
 
-The following topics provide reference information to help you configure ${gateway.name.short}:
+The following topics provide reference information to help you configure KAAZING Gateway:
 
 -   [Configuration Element Index](r_conf_elementref.md)
 -   [Configuration Element Dependencies](r_conf_elementdep.md)
@@ -19,7 +19,7 @@ The following topics provide reference information to help you configure ${gatew
 See Also
 --------
 
--   [Understanding ${gateway.name.short} Configuration Files, Elements, and Namespaces](c_conf_concepts.md)
+-   [Understanding KAAZING Gateway Configuration Files, Elements, and Namespaces](c_conf_concepts.md)
 
 </div>
 

@@ -1,11 +1,11 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Troubleshoot ${the.gateway}
+-   Troubleshoot the Gateway
 
-<a name="ha_config"></a></span>Troubleshoot ${the.gateway}${enterprise.logo.jms}
+<a name="ha_config"></a></span>Troubleshoot the Gateway
 ================================================================================
 
-This checklist provides the tasks necessary to troubleshoot ${gateway.name.short}:
+This checklist provides the tasks necessary to troubleshoot KAAZING Gateway:
 
 <table class="reference">
 <tr>
@@ -21,7 +21,7 @@ Topic or Reference
 Configuration and startup
 </td>
 <td>
-[Troubleshoot ${gateway.name.short} Configuration and Startup](ts_config.md)
+[Troubleshoot KAAZING Gateway Configuration and Startup](ts_config.md)
 </td>
 </tr>
 <tr>
@@ -29,7 +29,7 @@ Configuration and startup
 Clusters and load balancing
 </td>
 <td>
-[Troubleshoot ${gateway.name.short} Cluster and Load Balancing](ts_ha.md)
+[Troubleshoot KAAZING Gateway Cluster and Load Balancing](ts_ha.md)
 </td>
 </tr>
 <tr>
@@ -37,7 +37,7 @@ Clusters and load balancing
 Security
 </td>
 <td>
-[Troubleshoot ${gateway.name.short} Security](ts_security.md)
+[Troubleshoot KAAZING Gateway Security](ts_security.md)
 </td>
 </tr>
 <tr>
@@ -48,7 +48,7 @@ Clients
 [Troubleshoot Your Clients](p_dev_troubleshoot.md)
 </td>
 </tr>
-${jms.troubleshoot}
+
 </table>
 
 

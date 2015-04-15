@@ -1,13 +1,13 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Configure ${the.gateway} to Use Multicast
+-   Configure the Gateway to Use Multicast
 
-<a name="multicast"></a>Configure ${the.gateway} to Use Multicast${enterprise.logo.jms}
+<a name="multicast"></a>Configure the Gateway to Use Multicast
 =======================================================================================
 
-This procedure demonstrates how to configure a service that is running on ${gateway.name.short} to use a multicast address (for example, a broadcast service).
+This procedure demonstrates how to configure a service that is running on KAAZING Gateway to use a multicast address (for example, a broadcast service).
 
-<a name="configure_multicast"></a>To configure a service to use multicast, you must specify the following elements in ${the.gateway} configuration file (for example, `GATEWAY_HOME/conf/gateway-config.xml`):
+<a name="configure_multicast"></a>To configure a service to use multicast, you must specify the following elements in the Gateway configuration file (for example, `GATEWAY_HOME/conf/gateway-config.xml`):
 
 -   Specify the multicast URI udp://*group-address*:*port-number* in the `accept` or `connect` element.
 -   Specify the udp interface name in the `accept-option` or `connect-option`.
@@ -21,7 +21,7 @@ The following example shows a service using a multicast address. In the example,
 
   <type>broadcast</type>
   <properties>
-    <accept>udp://224.0.0.1:${port}</accept>
+    <accept>udp://224.0.0.1:port-number</accept>
       <accept-option>
         <udp-interface>eth0</udp-interface>
       </accept-option>
@@ -36,18 +36,18 @@ The following example shows a service using a multicast address. In the example,
 </service>
 ```
 
-${multicast.verify.begin}
-To verify this configuration, you can start the newsfeed data source that ships with ${gateway.name.short} and pass the multicast URI you configured as a startup argument. To do this, perform the following steps:
+
+To verify this configuration, you can start the newsfeed data source that ships with KAAZING Gateway and pass the multicast URI you configured as a startup argument. To do this, perform the following steps:
 
 1.  Add the above example to `GATEWAY_HOME/conf/gateway-config.xml` but configure ` udp-interface` to `lo0` (or bind to an interface available for your system). You might need to comment out any other `service` elements using the same `accept` or `connect`.
 2.  In a command prompt or shell, navigate to `GATEWAY_HOME/bin`.
 3.  Run `demo-services.start udp://multicast-group:port-number` (for example, `gateway.demos.start udp://multicast-group`) to start the newsfeed data source.
-4.  Run `gateway.start` to start ${the.gateway}.
+4.  Run `gateway.start` to start the Gateway.
 5.  In a browser, navigate to the server-sent events demo page (by default, this is located at `http://localhost:8001/demo/core/javascript/?d=sse`), enter `http://localhost:8000/sse` and watch the streaming news feed data.
 
-You can now configure and run a second ${gateway.name.short} to serve server-sent event streams from a different host and port for the same newsfeed multicast data packets. Note that services cannot send UDP packets to an MCP acceptor, nor MCP packets to a UDP acceptor.
+You can now configure and run a second KAAZING Gateway to serve server-sent event streams from a different host and port for the same newsfeed multicast data packets. Note that services cannot send UDP packets to an MCP acceptor, nor MCP packets to a UDP acceptor.
 
-${multicast.verify.end}
+
 <a name="see_also"></a>See Also
 -------------------------------
 

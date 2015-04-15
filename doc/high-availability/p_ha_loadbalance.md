@@ -1,30 +1,30 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Set Up ${gateway.name.long} as a Load Balancer
+-   Set Up KAAZING Gateway as a Load Balancer
 
-<a name="ha_config"></a>Set Up ${gateway.name.long} as a Load Balancer ${enterprise.logo.jms}
+<a name="ha_config"></a>Set Up KAAZING Gateway as a Load Balancer 
 =============================================================================================
 
-Load balancing is used to balance client connection loads for a group of ${gateway.cap}s that have been configured as a cluster using the `cluster` service. For more information, see [Configure a ${gateway.name.long} Cluster](p_ha_cluster.md). You can configure load balancing using a third-party load balancer, but this procedure describes how to use the built-in load balancing features of ${the.gateway}.
+Load balancing is used to balance client connection loads for a group of Gateways that have been configured as a cluster using the `cluster` service. For more information, see [Configure a KAAZING Gateway Cluster](p_ha_cluster.md). You can configure load balancing using a third-party load balancer, but this procedure describes how to use the built-in load balancing features of the Gateway.
 
-To configure load balancing, you configure each ${gateway.cap} in the cluster with a `balancer` service. The `balancer` service has `accept` elements for each URI that will be balanced across the cluster. Each cluster member configured with a `balancer` service acts as a load balancer to the other members.
+To configure load balancing, you configure each Gateway in the cluster with a `balancer` service. The `balancer` service has `accept` elements for each URI that will be balanced across the cluster. Each cluster member configured with a `balancer` service acts as a load balancer to the other members.
 
-Next, in the `service` elements on each ${gateway.cap}, you add `balance` child elements containing the same URIs you configured in the `balancer` service.
+Next, in the `service` elements on each Gateway, you add `balance` child elements containing the same URIs you configured in the `balancer` service.
 
 Before You Begin
 ----------------
 
-This procedure is part of [Configure ${the.gateway} for High Availability](o_ha.md):
+This procedure is part of [Configure the Gateway for High Availability](o_ha.md):
 
-1.  [Using ${the.gateway} to Support High Availability](u_ha.md)
-2.  [Configure a ${gateway.name.long} Cluster](p_ha_cluster.md)
-3.  **Set Up ${gateway.name.long} as a Load Balancer**
-4.  [Troubleshoot ${gateway.name.short} Clusters and Load Balancing](../troubleshooting/ts_ha.md)
+1.  [Using the Gateway to Support High Availability](u_ha.md)
+2.  [Configure a KAAZING Gateway Cluster](p_ha_cluster.md)
+3.  **Set Up KAAZING Gateway as a Load Balancer**
+4.  [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
 
-<span id="ha_balance"></span></a>To Set Up ${the.gateway.cap} as a Load Balancer
+<span id="ha_balance"></span></a>To Set Up The Gateway as a Load Balancer
 --------------------------------------------------------------------------------
 
-1.  Configure a `balancer` service in each ${gateway.cap} that will participate in load balancing (each cluster member). The `balancer` service has an `accept` for each URI that will be balanced across participating ${gateway.cap}s. These are the public URIs that clients will use when connecting to the cluster for the first time.
+1.  Configure a `balancer` service in each Gateway that will participate in load balancing (each cluster member). The `balancer` service has an `accept` for each URI that will be balanced across participating Gateways. These are the public URIs that clients will use when connecting to the cluster for the first time.
 
     ``` auto-links:
     <service>
@@ -79,15 +79,15 @@ This procedure is part of [Configure ${the.gateway} for High Availability](o_ha.
 
     </span>
 
-3.  Ensure that each ${gateway.cap} participating in load balancing is configured with a `cluster` service, as described in [Configure a ${gateway.name.long} Cluster](p_ha_cluster.md).
+3.  Ensure that each Gateway participating in load balancing is configured with a `cluster` service, as described in [Configure a KAAZING Gateway Cluster](p_ha_cluster.md).
 4.  Configure client applications to connect to the cluster using the URI(s) configured in the `balancer` service (for example, `ws://balancer.example.com:8081/echo` or `wss://balancer.example.com:9091/echo`).
 5.  Start all cluster members.
-6.  Monitor the cluster using the steps in [Monitor with ${console.name}](../management/p_monitor_cc.md). To monitor a cluster, the default URL is: `http://localhost:8080/commandcenter`.
+6.  Monitor the cluster using the steps in [Monitor with Command Center](../management/p_monitor_cc.md). To monitor a cluster, the default URL is: `http://localhost:8080/commandcenter`.
 
 Example Configuration
 ---------------------
 
-Here is an example of a ${gateway.cap} configured as a cluster member and load balanced for both secure and unsecured Echo services:
+Here is an example of a Gateway configured as a cluster member and load balanced for both secure and unsecured Echo services:
 
 ``` auto-links:
 <!-- Cluster service -->
@@ -134,7 +134,7 @@ Here is an example of a ${gateway.cap} configured as a cluster member and load b
 <a name="next"></a>Next Step
 ----------------------------
 
-You have completed high availability configuration using ${the.gateway}.
+You have completed high availability configuration using the Gateway.
 
 Notes
 -----
@@ -144,7 +144,7 @@ Notes
 See Also
 --------
 
--   [Common ${gateway.name.long} Production Topologies](../admin-reference/c_topologies.md).
+-   [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md).
 -   For information on the order of subordinate elements in a service, see the [service](../admin-reference/r_conf_service.md#service) element reference.
 
 

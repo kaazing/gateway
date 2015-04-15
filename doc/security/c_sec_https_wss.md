@@ -1,11 +1,11 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   [Security with ${gateway.name.short}](../index.md#security)
+-   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="abouthttps_wss"></a>About HTTPS and WSS${enterprise.logo.jms}
+<a name="abouthttps_wss"></a>About HTTPS and WSS
 ======================================================================
 
-${gateway.name.short} supports communication over HTTPS and WSS. ${the.gateway.cap} supports the following communication between ${the.gateway} and the client: HTTP, HTTPS, WS, WSS. The HTTPS and WSS protocols are very similar, with both running on top of TLS/SSL over TCP connections.
+KAAZING Gateway supports communication over HTTPS and WSS. The Gateway supports the following communication between the Gateway and the client: HTTP, HTTPS, WS, WSS. The HTTPS and WSS protocols are very similar, with both running on top of TLS/SSL over TCP connections.
 
 The cables at the top of the following figure show how HTTPS is not a separate protocol, but it is the combination of HTTP running on a TLS/SSL connection. Commonly, HTTPS uses a different port than HTTP (HTTPS's default port is 443 and HTTP's default port is 80). HTTP runs directly on TCP and HTTPS runs on TLS/SSL, which, in turn, runs on TCP.
 
@@ -13,13 +13,13 @@ The cables at the bottom of the figure show that the same is true for WebSocket 
 
 ![](../images/f-portable-network-e.jpg)
 
-For communication between ${the.gateway} and the back-end service, ${the.gateway} supports TCP, TCP+TLS/SSL, UDP, WS and WSS.
+For communication between the Gateway and the back-end service, the Gateway supports TCP, TCP+TLS/SSL, UDP, WS and WSS.
 
 <a name="seealso"></a>See Also
 ------------------------------
 
--   [Secure Network Traffic with ${the.gateway}](o_tls.md)
+-   [Secure Network Traffic with the Gateway](o_tls.md)
 -   [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
--   [How TLS/SSL Works with ${the.gateway}](u_tls_works.md)
+-   [How TLS/SSL Works with the Gateway](u_tls_works.md)
 
 

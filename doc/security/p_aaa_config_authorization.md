@@ -2,10 +2,10 @@
 -   [Documentation](../index.md)
 -   Configure Authorization
 
-<a name="authorization"></a>Configure Authorization${enterprise.logo.jms}
+<a name="authorization"></a>Configure Authorization
 =========================================================================
 
-After the client is authenticated, then authorization works to verify and grant access to sensitive resources. Access to services provided by ${gateway.name.short} can be limited to only authorized users by setting authorization constraints. You configure the `authorization-constraint` element in ${the.gateway} configuration to specify the user roles that are authorized to perform management operations for Gateway services. The `authorization-constraint` element contains the `require-role` element.
+After the client is authenticated, then authorization works to verify and grant access to sensitive resources. Access to services provided by KAAZING Gateway can be limited to only authorized users by setting authorization constraints. You configure the `authorization-constraint` element in the Gateway configuration to specify the user roles that are authorized to perform management operations for Gateway services. The `authorization-constraint` element contains the `require-role` element.
 
 Before You Begin
 ----------------
@@ -20,10 +20,10 @@ This procedure is part of [Configure Authentication and Authorization](o_aaa_con
 To Configure Authorization
 --------------------------
 
-1.  On the server, update ${the.gateway} configuration (for example, by editing `GATEWAY_HOME/conf/gateway-config.xml` in a text editor).
-2.  Determine the type of service you want to define in ${the.gateway} configuration.
+1.  On the server, update the Gateway configuration (for example, by editing `GATEWAY_HOME/conf/gateway-config.xml` in a text editor).
+2.  Determine the type of service you want to define in the Gateway configuration.
 
-    Define the `service` element to configure a service to run on ${the.gateway}. ${the.gateway.cap} supports several types of services:
+    Define the `service` element to configure a service to run on the Gateway. The Gateway supports several types of services:
 
     -   balancer
     -   broadcast
@@ -63,23 +63,23 @@ Notes
 
     | If you set `authorization-constraint` on ... | Then ...                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
     |----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-    | balancer service only                        | Authentication occurs for all connections processed through the balancer service. Thus, the client will already have a valid token when the balancer redirects the client to a cluster member. The client can then use the token in its response to the `HTTP 401 Authorization Required` challenge from ${the.gateway}. **Note:** This option does not protect direct connections to cluster members.                                                                  |
+    | balancer service only                        | Authentication occurs for all connections processed through the balancer service. Thus, the client will already have a valid token when the balancer redirects the client to a cluster member. The client can then use the token in its response to the `HTTP 401 Authorization Required` challenge from the Gateway. **Note:** This option does not protect direct connections to cluster members.                                                                  |
     | cluster-members only                         | Authentication occurs for all direct connections to Gateway services on cluster members. **Note:** This option does not protect connections made through the balancer service.                                                                                                                                                                                                                                                                                          |
     | balancer service and cluster members         | Authentication occurs whether the connection is made through the balancer service or directly to a cluster member. This is the best practice recommendation if you want to ensure that authentication occurs. With this option, consider configuring the challenge handler on the client to remember the credentials. Doing so provides the advantage of accessing the cluster member based on the credentials established through the balancer service authentication. |
 
-    For more information about configuring high availability, see [Using ${the.gateway} to Support High Availability](../high-availability/u_ha.md) and the [balancer](../admin-reference/r_conf_service.md#balancer) service in the [Service Reference](../admin-reference/r_conf_service.md) documentation.
+    For more information about configuring high availability, see [Using the Gateway to Support High Availability](../high-availability/u_ha.md) and the [balancer](../admin-reference/r_conf_service.md#balancer) service in the [Service Reference](../admin-reference/r_conf_service.md) documentation.
 
 Next Steps
 ----------
 
-Ensure your clients are also configured for secure networking using Transport Layer Security (TLS) and its predecessor Secure Sockets Layer (SSL). Please see [Secure Network Traffic with ${the.gateway}](o_tls.md) that provides the steps necessary to secure network traffic.
+Ensure your clients are also configured for secure networking using Transport Layer Security (TLS) and its predecessor Secure Sockets Layer (SSL). Please see [Secure Network Traffic with the Gateway](o_tls.md) that provides the steps necessary to secure network traffic.
 
 <a name="seealso"></a>See Also
 ------------------------------
 
--   []Configure ${the.gateway}](../admin-reference/o_conf_checklist.md)
+-   []Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with ${the.gateway}](u_aaa_implement.md)
+-   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
 
 

@@ -5,7 +5,7 @@
 Troubleshoot Your Clients
 =========================
 
-The following topics describe how to troubleshoot clients built using the ${gateway.name.long} Client APIs:
+The following topics describe how to troubleshoot clients built using the KAAZING Gateway Client APIs:
 
 | Client Platform      | Troubleshooting and Logging Resources                                                              |
 |----------------------|----------------------------------------------------------------------------------------------------|
@@ -21,6 +21,6 @@ The following topics describe how to troubleshoot clients built using the ${gate
                         [Display Logs for the Java Client](../dev-java/p_dev_java_logging.md)                             |
 | Google Web Toolkit   | [Google Web Toolkit: Troubleshooting](../dev-gwt/p_dev_gwt.md#troubleshooting)                   |
 
-Also, see [Troubleshoot ${the.gateway}](o_ts.md) for help troubleshooting your configuration, clusters, and security.
+Also, see [Troubleshoot the Gateway](o_ts.md) for help troubleshooting your configuration, clusters, and security.
 
 

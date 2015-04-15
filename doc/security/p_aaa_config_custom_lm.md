@@ -2,14 +2,14 @@
 -   [Documentation](../index.md)
 -   Create Custom Login Modules
 
-<a name="custom_lm"></a>Create Custom Login Modules${enterprise.logo.jms}
+<a name="custom_lm"></a>Create Custom Login Modules
 =========================================================================
 
-Even though ${gateway.name.short} provides several standard types of `login-module` implementations, you might choose to write a custom implementation. Because the JAAS interface implementation holds the authentication logic, most of the material you need to implement the `LoginModule` interface is provided in the following documentation:
+Even though KAAZING Gateway provides several standard types of `login-module` implementations, you might choose to write a custom implementation. Because the JAAS interface implementation holds the authentication logic, most of the material you need to implement the `LoginModule` interface is provided in the following documentation:
 
 -   [Java Authentication and Authorization Service (JAAS) LoginModule Developer's Guide](http://docs.oracle.com/javase/7/docs/technotes/guides/security/jaas/JAASLMDevGuide.html)
 -   [Interface LoginModule class](http://docs.oracle.com/javase/7/docs/api/javax/security/auth/spi/LoginModule.html) (Java SE Developer's Documentation)
--   ${gateway.name.long} [Client API Documentation](../index.md#api_topics)
+-   KAAZING Gateway [Client API Documentation](../index.md#api_topics)
 
 Before You Begin
 ----------------
@@ -19,7 +19,7 @@ This optional procedure is part of [Configure Authentication and Authorization](
 1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
 2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
     -   **Create Custom Login Modules (Optional)**
-    -   [Integrate an Existing Custom Login Module into ${the.gateway} (Optional)](p_aaa_integ_custom_lm.md)
+    -   [Integrate an Existing Custom Login Module into the Gateway (Optional)](p_aaa_integ_custom_lm.md)
 
 3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
 4.  [Configure Authorization](p_aaa_config_authorization.md)
@@ -36,11 +36,11 @@ To Configure Custom Login Modules
 Next Steps
 ----------
 
-[Integrate an Existing Custom Login Module into ${the.gateway}](p_aaa_integ_custom_lm.md)
+[Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md)
 <a name="seealso"></a>See Also
 ------------------------------
 
--   [Configure ${the.gateway}](../admin-reference/o_conf_checklist.md) for more configuration information and examples
+-   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
 -   [Server API Documentation](../index.md#server_api_topics)
 
 

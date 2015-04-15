@@ -68,7 +68,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [authorization-mode](r_conf_security.md#auth_mode)
 
-[authorization-timeout](r_conf_security.md#auth_timeout)${enterprise.logo}
+[authorization-timeout](r_conf_security.md#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [balance](r_conf_service.md#balanceele)
 
@@ -124,7 +124,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [https.bind](r_conf_service.md#protocolbind)
 
-[kerberos5.proxy${enterprise.logo}](r_conf_service.md#kerberos5)
+[kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](r_conf_service.md#kerberos5)
 
 [keystore](r_conf_security.md#keystore)
 
@@ -184,23 +184,23 @@ You can view and link to all Gateway configuration elements and properties using
 
 [session](r_conf_service.md#session_svc)
 
-[session-timeout](r_conf_security.md#sessiontimeout)${enterprise.logo}
+[session-timeout](r_conf_security.md#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.bind](r_conf_service.md#protocolbind)${enterprise.logo}
+[socks.bind](r_conf_service.md#protocolbind) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.mode](r_conf_service.md#socksmode)${enterprise.logo}
+[socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint)${enterprise.logo}
+[socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.timeout](r_conf_service.md#conn_sockstimeout)${enterprise.logo}
+[socks.timeout](r_conf_service.md#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}
+[socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.protocols](r_conf_service.md#sslprotocols)${enterprise.logo}
+[socks.ssl.protocols](r_conf_service.md#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)${enterprise.logo}
+[socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.transport](r_conf_service.md#protocoltransport)${enterprise.logo}
+[socks.transport](r_conf_service.md#protocoltransport) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [ssl.bind](r_conf_service.md#protocolbind)
 
@@ -218,7 +218,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [tcp.bind](r_conf_service.md#protocolbind)
 
-[tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate)${enterprise.logo}
+[tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [tcp.transport](r_conf_service.md#tcptransport)
 

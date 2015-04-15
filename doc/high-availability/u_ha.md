@@ -1,11 +1,11 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Using ${the.gateway} to Support High Availability
+-   Using the Gateway to Support High Availability
 
-<a name="ha_config"></a>Using ${the.gateway} to Support High Availability ${enterprise.logo.jms}
+<a name="ha_config"></a>Using the Gateway to Support High Availability 
 ================================================================================================
 
-You can configure ${gateway.name.long} to be highly available, something that is mission critical to the success of today's enterprises. Configuring ${gateway.name.long} for high availability protects applications from hardware and software failures.
+You can configure KAAZING Gateway to be highly available, something that is mission critical to the success of today's enterprises. Configuring KAAZING Gateway for high availability protects applications from hardware and software failures.
 
 This document describes the various aspects of high availability configuration:
 
@@ -14,7 +14,7 @@ This document describes the various aspects of high availability configuration:
 -   [Clustering and Load Balancing Migration](#migrate)
 -   [Configure a Two-Member Local Demo Cluster](#demo)
 
-To resolve issues encountered when configuring high availability, see [Troubleshoot ${gateway.name.short} Clusters and Load Balancing](../troubleshooting/ts_ha.md).
+To resolve issues encountered when configuring high availability, see [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md).
 
 <a name="ha_cluster"></a>Gateway Clustering
 -------------------------------------------
@@ -23,9 +23,9 @@ High availability for services is achieved by configuring multiple gateways to b
 
 ### <a name="cluster_overview"></a>Overview of Gateway Clustering
 
-You configure a cluster by adding the `cluster` configuration element to the `gateway-config.xml` file. In the `cluster` element, you add the address on which ${the.gateway} instance is listening for other cluster members (typically, the local IP address of ${the.gateway}) and the cluster group address used by all cluster members to discover other cluster members.
+You configure a cluster by adding the `cluster` configuration element to the `gateway-config.xml` file. In the `cluster` element, you add the address on which the Gateway instance is listening for other cluster members (typically, the local IP address of the Gateway) and the cluster group address used by all cluster members to discover other cluster members.
 
-There is no concept of cluster masters and slaves; each cluster member has its own connection to the back-end server. If a cluster member terminates unexpectedly, the ${gateway.name.long} client will reconnect to the cluster.
+There is no concept of cluster masters and slaves; each cluster member has its own connection to the back-end server. If a cluster member terminates unexpectedly, the KAAZING Gateway client will reconnect to the cluster.
 
 1.  The cluster members come online, discover the cluster members, and establish connections with the other cluster members. This is shown in the following figure (the back-end server is omitted):
     <figure>
@@ -36,7 +36,7 @@ There is no concept of cluster masters and slaves; each cluster member has its o
 
     </figcaption>
     </figure>
-2.  In the case when one of the cluster members terminates unexpectedly, then the ${gateway.name.long} clients connected to that member will reconnect to the cluster and other members will no longer redirect to that cluster member. This is shown in the following figure:
+2.  In the case when one of the cluster members terminates unexpectedly, then the KAAZING Gateway clients connected to that member will reconnect to the cluster and other members will no longer redirect to that cluster member. This is shown in the following figure:
     <figure>
     ![This figure shows a cluster of three members but one member has failed. The two surviving cluster members and the clients reestablish connections to each other and no longer connect to the failed node.](../images/f-ha-cluster-fail-web.jpg)
     <figcaption>
@@ -45,48 +45,48 @@ There is no concept of cluster masters and slaves; each cluster member has its o
 
     </figcaption>
     </figure>
-3.  When the cluster member is brought back online, it starts participating again in the cluster as usual. Clustering is used in conjunction with load balancing (via the load balancing features of ${the.gateway} or a third-party load balancer), which is described in the [Load Balancing Services](#ha_balance) section.
+3.  When the cluster member is brought back online, it starts participating again in the cluster as usual. Clustering is used in conjunction with load balancing (via the load balancing features of the Gateway or a third-party load balancer), which is described in the [Load Balancing Services](#ha_balance) section.
 
 <span id="ha_balance"></span></a>Load Balancing Services
 --------------------------------------------------------
 
-${gateway.name.long} provides the `balancer` service, which allows you to balance load for requests from any ${gateway.cap} service type. Services running on ${gateway.name.long} support peer load balancer awareness with the `balance` element.
+KAAZING Gateway provides the `balancer` service, which allows you to balance load for requests from any Gateway service type. Services running on KAAZING Gateway support peer load balancer awareness with the `balance` element.
 
-All cluster members that wish to participate in load balancing are configured with a `balancer` service. Each member then acts as a *balancer ${gateway.cap}* to the other members.
+All cluster members that wish to participate in load balancing are configured with a `balancer` service. Each member then acts as a *balancer Gateway* to the other members.
 
 The load balancing process occurs as follows:
 
-1.  An initial client request is sent to a ${gateway.cap} configured with a `balancer` service (`ws://balancer.example.com:8081/echo`). The `balancer` service is aware of the services that have been configured for load balancing. The cluster members share information about which members are active and which services are balanced across the cluster.
+1.  An initial client request is sent to a Gateway configured with a `balancer` service (`ws://balancer.example.com:8081/echo`). The `balancer` service is aware of the services that have been configured for load balancing. The cluster members share information about which members are active and which services are balanced across the cluster.
 2.  The `balancer` service checks the cluster to see which members are available, selects a member, and then sends a redirect to the client to connect to that member directly. 
 
-    **Note**: ${the.gateway.cap} supports cookies. If the client has accessed a particular node before, the `balancer` service checks to see if that node is available; if the node is available, the `balancer` service chooses this node for the client connection. The `balancer` service follows the same process for terminated connections: if a connection terminates unexpectedly, the `balancer` service first checks to see if the node to which the client was originally connected is still available, and then tells the client to connect to that node.
+    **Note**: The Gateway supports cookies. If the client has accessed a particular node before, the `balancer` service checks to see if that node is available; if the node is available, the `balancer` service chooses this node for the client connection. The `balancer` service follows the same process for terminated connections: if a connection terminates unexpectedly, the `balancer` service first checks to see if the node to which the client was originally connected is still available, and then tells the client to connect to that node.
 
-3.  The client establishes a connection with the node assigned by the `balancer` service (for example, `ws://node1.example.com:8081/echo`), bypassing the first ${gateway.cap} after the initial connection is established.
-4.  If a connected ${gateway.name.long} instance terminates unexpectedly, the client reconnects to the original ${gateway.cap} URI (`ws://balancer.example.com:8081/echo`).
+3.  The client establishes a connection with the node assigned by the `balancer` service (for example, `ws://node1.example.com:8081/echo`), bypassing the first Gateway after the initial connection is established.
+4.  If a connected KAAZING Gateway instance terminates unexpectedly, the client reconnects to the original Gateway URI (`ws://balancer.example.com:8081/echo`).
 5.  The `balancer` service checks the cluster again to see which nodes are still available and chooses a new one for the client to connect to directly.
-6.  The client establishes a connection with the new node assigned by the `balancer` service (for example, `ws://node2.example.com:8081/echo`), once again bypassing the first ${gateway.cap} after the initial connection is established. 
+6.  The client establishes a connection with the new node assigned by the `balancer` service (for example, `ws://node2.example.com:8081/echo`), once again bypassing the first Gateway after the initial connection is established. 
 
-    **Note**: ${the.gateway.cap}s (members) of a ${gateway.name.long} cluster share information across the cluster. If a connection or one of ${the.gateway}s fails, then a client can connect to another member within the cluster.
+    **Note**: The Gateways (members) of a KAAZING Gateway cluster share information across the cluster. If a connection or one of the Gateways fails, then a client can connect to another member within the cluster.
 
 <a name="migrate"></a>Clustering and Load Balancing Migration
 -------------------------------------------------------------
 
-The following checklists describe how to migrate a ${gateway.name.long} 3.3-3.5 load-balanced cluster to ${gateway.name.long} 4.x. The tasks in the checklists are a part of the overall ${gateway.cap} configuration migration sequence described in the [Migrate ${the.gateway} Configuration](../upgrade/p_migrate_gwconfig.md) topic. Before you migrate your existing cluster, review the procedures in [Configure ${the.gateway} for High Availability](o_ha.md).
+The following checklists describe how to migrate a KAAZING Gateway 3.3-3.5 load-balanced cluster to KAAZING Gateway 4.x. The tasks in the checklists are a part of the overall Gateway configuration migration sequence described in the [Migrate the Gateway Configuration](../upgrade/p_migrate_gwconfig.md) topic. Before you migrate your existing cluster, review the procedures in [Configure the Gateway for High Availability](o_ha.md).
 
 ### Cluster Migration Checklist
 
 | \#  | Step                                                                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |-----|--------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1   | Modify the `name` element in `cluster`, if desired.                      | In ${gateway.name.long} 3.3-3.5, the `name` element was required to be `kzha`. This is no longer a requirement. The `name` element can be any name. The name must be the same in the `cluster` service of every ${gateway.cap} that wishes to join this cluster.                                                                                                                                                                                 |
-| 2   | Revise the `connect` element to contain a multicast address, if desired. | In ${gateway.name.long} 3.3-3.5, at least one `connect` element containing the unicast address of another cluster member was required, but in ${gateway.name.long} 4.x you can choose to use a multicast address in the `connect` element instead (for example, `udp://224.2.2.44:54327`). If you use a multicast address in the `connect` element, then the same `connect` element can be used in the `cluster` service on each cluster member. |
+| 1   | Modify the `name` element in `cluster`, if desired.                      | In KAAZING Gateway 3.3-3.5, the `name` element was required to be `kzha`. This is no longer a requirement. The `name` element can be any name. The name must be the same in the `cluster` service of every Gateway that wishes to join this cluster.                                                                                                                                                                                 |
+| 2   | Revise the `connect` element to contain a multicast address, if desired. | In KAAZING Gateway 3.3-3.5, at least one `connect` element containing the unicast address of another cluster member was required, but in KAAZING Gateway 4.x you can choose to use a multicast address in the `connect` element instead (for example, `udp://224.2.2.44:54327`). If you use a multicast address in the `connect` element, then the same `connect` element can be used in the `cluster` service on each cluster member. |
 
 ### Load Balancing Migration Checklist
 
 | \#  | Step                                                                                                                                                                                                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 |-----|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1   | In the `balancer` service(s), add an `accept-options` element containing a `ws.bind` child element. In the `ws.bind` element, enter the local IP address of the cluster member.                                     | The `ws.bind` element in `accept-options` is used to bind the public URI in the `accept` element to the local IP address of this cluster member. This allows the `accept` URIs in the `balancer` service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| 2   | For each `service` participating in load balancing (each `service` element containing a `balance` element), ensure that the `balance` and `accept` element URIs in the `service` use the same port number and path. | The hostnames in the `balance` and `accept` element URIs may be different, but if the port number or path is different, an error will occur when ${the.gateway} starts.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| 3   | Copy the `balancer` service to each cluster member.                                                                                                                                                                 | In ${gateway.name.long} 3.3-3.5, there was the concept of a single ${gateway.cap} running a `balancer` service on behalf of the other cluster members (a *balancer ${gateway.cap}*). In ${gateway.name.long} 4.x, every cluster member with a load-balanced service must include a `balancer` service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 2   | For each `service` participating in load balancing (each `service` element containing a `balance` element), ensure that the `balance` and `accept` element URIs in the `service` use the same port number and path. | The hostnames in the `balance` and `accept` element URIs may be different, but if the port number or path is different, an error will occur when the Gateway starts.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 3   | Copy the `balancer` service to each cluster member.                                                                                                                                                                 | In KAAZING Gateway 3.3-3.5, there was the concept of a single Gateway running a `balancer` service on behalf of the other cluster members (a *balancer Gateway*). In KAAZING Gateway 4.x, every cluster member with a load-balanced service must include a `balancer` service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 4   | Configure DNS to support the load-balanced cluster members.                                                                                                                                                         | The hostname in the `accept` element of each `balancer` service must resolve in DNS to the IP addresses of every cluster member. Multiple DNS A resource records should be registered for the hostname in the `accept` URI, with each A record mapping the hostname to the IP address of one cluster member. When a client resolves the hostname of the `accept` URI in DNS, the client will receive the IP address of a cluster member and connect. To register these DNS records, you will need access to the public DNS zone for the hostname, or the assistance of your network administrator or Internet Service Provider (ISP). All ISPs provide ways for their customers to update their DNS zones with new hostnames and IP addresses. **Note:** During development and testing, you might choose to alter the [hosts](http://en.wikipedia.org/wiki/Hosts_(file)) file of the cluster members instead of registering DNS records. This is not recommended for production as it can complicate troubleshooting. |
 
 <a name="demo"></a>Configure a Two-Member Local Demo Cluster
@@ -203,7 +203,7 @@ The following steps walk you through setting up a two-member cluster with load-b
 
     2.  Paste the configuration files into `GATEWAY_HOME/conf` folder.
 
-4.  Navigate to `GATEWAY_HOME/bin`, and launch the first cluster member using the following command, where `GATEWAY_HOME` is the full path to the directory that contains ${gateway.name.long} and its components (for more information, see ${setting.up.inline}):
+4.  Navigate to `GATEWAY_HOME/bin`, and launch the first cluster member using the following command, where `GATEWAY_HOME` is the full path to the directory that contains KAAZING Gateway and its components (for more information, see [Setting Up KAAZING Gateway](../about/setup-guide.md)):
 
     -   For Mac and Linux:
 
@@ -234,23 +234,23 @@ The following steps walk you through setting up a two-member cluster with load-b
          }
          INFO Cluster member tcp://172.19.19.5:5943 is now online
 
-6.  Run ${console.name} to view the cluster. For information on running ${console.name}, see [Monitor with ${console.name}](../management/p_monitor_cc.md).
+6.  Run Command Center to view the cluster. For information on running Command Center, see [Monitor with Command Center](../management/p_monitor_cc.md).
 
     1.  Open a Web browser and enter the following URL: `http://example.com:8000/commandcenter`.
     2.  In **Management URL**, enter `ws://member1.example.com:8000/snmp`.
     3.  Enter the username and password and click **OK**. The default passwords are stored in `GATEWAY_HOME/conf/jaas-config.xml`
 
-    The ${console.name} dashboard displays the message **Connected to a cluster. Members: 2**. You can use the ${console.name} to view details about the cluster.
+    The Command Center dashboard displays the message **Connected to a cluster. Members: 2**. You can use the Command Center to view details about the cluster.
 
 7.  In a new Web browser tab, enter the following URL: `http://example.com:8001/`.
-8.  Click the **Demos** link and run some of the demos against the cluster. Then return to ${console.name} to monitor how the cluster manages client connections.
+8.  Click the **Demos** link and run some of the demos against the cluster. Then return to Command Center to monitor how the cluster manages client connections.
 
 <a name="seealso"></a>See Also
 ------------------------------
 
--   [Configure ${the.gateway} for High Availability](o_ha.md)
-    -   [Configure a ${gateway.name.long} Cluster](p_ha_cluster.md)
-    -   [Set Up ${gateway.name.long} as a Load Balancer](p_ha_loadbalance.md)
-    -   [Troubleshoot ${gateway.name.short} Clusters and Load Balancing](../troubleshooting/ts_ha.md)
+-   [Configure the Gateway for High Availability](o_ha.md)
+    -   [Configure a KAAZING Gateway Cluster](p_ha_cluster.md)
+    -   [Set Up KAAZING Gateway as a Load Balancer](p_ha_loadbalance.md)
+    -   [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
 
 

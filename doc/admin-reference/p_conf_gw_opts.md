@@ -1,48 +1,48 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Configure ${gateway.name.short} Using the GATEWAY\_OPTS Environment Variable
+-   Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable
 
-<a name="aboutgateway_opts"></a>Configure ${gateway.name.short} Using the GATEWAY\_OPTS Environment Variable ${enterprise.logo.jms}
+<a name="aboutgateway_opts"></a>Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable 
 ===================================================================================================================================
 
-On occasion you might want the flexibility to change the configuration that is set up in your Gateway configuration file (see [About ${gateway.name.short} Configuration Files](c_conf_concepts.md#aboutconffiles)) or change the Java process temporarily without modifying the configuration file itself. For example, you might want to define your own startup scripts that specify different log4j configurations or different log directories. You can do that by setting the `GATEWAY_OPTS` environment variable (or any other Java option or command-line setting) to include any of the properties in the following table:
+On occasion you might want the flexibility to change the configuration that is set up in your Gateway configuration file (see [About KAAZING Gateway Configuration Files](c_conf_concepts.md#aboutconffiles)) or change the Java process temporarily without modifying the configuration file itself. For example, you might want to define your own startup scripts that specify different log4j configurations or different log directories. You can do that by setting the `GATEWAY_OPTS` environment variable (or any other Java option or command-line setting) to include any of the properties in the following table:
 
 | Variable                     | Description                                                   |
 |------------------------------|---------------------------------------------------------------|
-| `GATEWAY_HOME`               | The directory path for ${the.gateway} home                    |
-| `GATEWAY_CONFIG`             | The name of ${the.gateway} configuration file                 |
-| `GATEWAY_CONFIG_DIRECTORY`   | The path for ${the.gateway} configuration directory           |
-| `GATEWAY_WEB_DIRECTORY`      | The path for ${the.gateway} web directory                     |
-| `GATEWAY_TEMP_DIRECTORY`     | The path for ${the.gateway} temp files directory              |
-| `GATEWAY_LOG_DIRECTORY`      | The path for ${the.gateway} logfiles directory                |
-| `GATEWAY_USER_LIB_DIRECTORY` | The path for ${the.gateway} user library files                |
-| `LOG4J_CONFIG`               | The name and path for ${the.gateway} log4j configuration file |
+| `GATEWAY_HOME`               | The directory path for the Gateway home                    |
+| `GATEWAY_CONFIG`             | The name of the Gateway configuration file                 |
+| `GATEWAY_CONFIG_DIRECTORY`   | The path for the Gateway configuration directory           |
+| `GATEWAY_WEB_DIRECTORY`      | The path for the Gateway web directory                     |
+| `GATEWAY_TEMP_DIRECTORY`     | The path for the Gateway temp files directory              |
+| `GATEWAY_LOG_DIRECTORY`      | The path for the Gateway logfiles directory                |
+| `GATEWAY_USER_LIB_DIRECTORY` | The path for the Gateway user library files                |
+| `LOG4J_CONFIG`               | The name and path for the Gateway log4j configuration file |
 
 For `GATEWAY_OPTS` environment variable examples, see [`GATEWAY_OPTS` Environment Variable Examples](#examples) below.
 
 Before You Begin
 ----------------
 
-This procedure is part of [Configure ${gateway.name.short}](o_conf_checklist.md):
+This procedure is part of [Configure KAAZING Gateway](o_conf_checklist.md):
 
--   [Configure ${gateway.name.short}](p_conf_files.md)
--   **Configure ${gateway.name.short} Using the `GATEWAY_OPTS` Environment Variables**
--   Verify ${the.gateway} configuration following the instructions for your deployment in ${setting.up.inline}
+-   [Configure KAAZING Gateway](p_conf_files.md)
+-   **Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables**
+-   Verify the Gateway configuration following the instructions for your deployment in [Setting Up KAAZING Gateway](../about/setup-guide.md)
 
 To Configure the `GATEWAY_OPTS` Environment Variable
 ----------------------------------------------------
 
-1.  Ensure you have followed the steps in ${setting.up.inline} to download and install ${gateway.name.short}.
-2.  Ensure ${the.gateway} is stopped.
-    1.  To Stop ${the.gateway} on Windows: press CTRL + C in the command prompt that was used to start ${the.gateway}, or close the command prompt.
-    2.  To Stop ${the.gateway} on Linux, UNIX, and Mac: use the following commands (where *process ID* is the process ID of ${the.gateway} process):
+1.  Ensure you have followed the steps in [Setting Up KAAZING Gateway](../about/setup-guide.md) to download and install KAAZING Gateway.
+2.  Ensure the Gateway is stopped.
+    1.  To Stop the Gateway on Windows: press CTRL + C in the command prompt that was used to start the Gateway, or close the command prompt.
+    2.  To Stop the Gateway on Linux, UNIX, and Mac: use the following commands (where *process ID* is the process ID of the Gateway process):
 
         ps –ef | grep *process name*
          kill *process ID*
 
 3.  Specify one or more system property values using `-Dproperty=value` with the `GATEWAY_OPTS` environment variable.
 
-    The environment variable `GATEWAY_OPTS` can contain a space-separated list of command-line arguments. For example, to specify the name of ${the.gateway} configuration and ${the.gateway} log directory at the Linux command line, specify the `GATEWAY_OPTS` environment variable as follows:
+    The environment variable `GATEWAY_OPTS` can contain a space-separated list of command-line arguments. For example, to specify the name of the Gateway configuration and the Gateway log directory at the Linux command line, specify the `GATEWAY_OPTS` environment variable as follows:
 
     GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml
     -DGATEWAY\_LOG\_DIRECTORY=/home/myname/gateway/logs"
@@ -64,31 +64,31 @@ To Configure the `GATEWAY_OPTS` Environment Variable
 
     </span>
 
-4.  Start ${the.gateway}.
+4.  Start the Gateway.
 
-    To Start ${the.gateway} on Windows:
+    To Start the Gateway on Windows:
 
-    1.  In Windows Explorer, navigate to the `GATEWAY_HOME/bin` directory where you installed ${the.gateway}.
+    1.  In Windows Explorer, navigate to the `GATEWAY_HOME/bin` directory where you installed the Gateway.
     2.  Double-click the `gateway.start.bat` script.
 
-    To Start ${the.gateway} on Linux, UNIX, or Mac:
+    To Start the Gateway on Linux, UNIX, or Mac:
 
-    1.  Navigate to the `${kaazing.home}/bin` directory where you installed ${the.gateway}.
+    1.  Navigate to the ``_KAAZING\_HOME_`/bin` directory where you installed the Gateway.
     2.  Run the `gateway.start` script: <span class="code">./gateway.start</span>
 
-    When you successfully start ${the.gateway}, messages display in your shell or command prompt indicating the services that are hosted by ${the.gateway}. The startup message may differ depending on your ${gateway.cap} configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot ${gateway.name.short}](../troubleshooting/o_ts.md)for help finding the problem.
+    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot KAAZING Gateway](../troubleshooting/o_ts.md)for help finding the problem.
 
     </span>
 
 <a name="_"></a>Next Step
 -------------------------
 
-Verify ${the.gateway} configuration following the instructions for your deployment in ${setting.up.inline}
+Verify the Gateway configuration following the instructions for your deployment in [Setting Up KAAZING Gateway](../about/setup-guide.md)
 
 Notes
 -----
 
--   Any system property values that you define with the `GATEWAY_OPTS` environment variable before starting ${the.gateway} are used and override the values specified in the default Gateway configuration.
+-   Any system property values that you define with the `GATEWAY_OPTS` environment variable before starting the Gateway are used and override the values specified in the default Gateway configuration.
 
 <a name="examples"></a>`GATEWAY_OPTS` Environment Variable Examples
 -------------------------------------------------------------------
@@ -198,9 +198,9 @@ $ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DLOG4J\_CONFIG=/Us
 See Also
 --------
 
--   [About ${gateway.cap} Configuration](c_conf_concepts.md)
--   [Configure ${gateway.name.short}](o_conf_checklist.md)
--   [Documentation Conventions](../about/about.md) to learn more about ${kaazing.home}.
+-   [About Gateway Configuration](c_conf_concepts.md)
+-   [Configure KAAZING Gateway](o_conf_checklist.md)
+-   [Documentation Conventions](../about/about.md) to learn more about `_KAAZING\_HOME_`.
 
 </div>
 

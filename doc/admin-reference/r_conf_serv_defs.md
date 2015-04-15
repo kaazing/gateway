@@ -1,21 +1,21 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Administration with ${gateway.name.short}
+-   Administration with KAAZING Gateway
 
-Service-Defaults Reference ${enterprise.logo.jms}
+Service-Defaults Reference 
 =================================================
 
-This document describes all of the elements and properties you can use to configure ${gateway.name.short} service-defaults.
+This document describes all of the elements and properties you can use to configure KAAZING Gateway service-defaults.
 
 <a name="configuring"></a>Overview
 ----------------------------------
 
-You can use the optional `service-defaults` element to configure certain default options across all services running on ${the.gateway}.
+You can use the optional `service-defaults` element to configure certain default options across all services running on the Gateway.
 
 <a name="descelements"></a>Structure
 ------------------------------------
 
-${the.gateway.cap} configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `service-defaults` configuration element contained in the top-level `gateway-config` element:
+The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `service-defaults` configuration element contained in the top-level `gateway-config` element:
 
 -   [gateway-config](r_conf_gwconfig.md)
     -   [service-defaults](#servicedefaults)
@@ -28,12 +28,12 @@ ${the.gateway.cap} configuration file (`gateway-config.xml` or `gateway-config-m
             -   [ssl.protocols](r_conf_service.md#sslprotocols)
             -   [ssl.encryption](r_conf_service.md#sslencrypt)
             -   [ssl.verify-client](r_conf_service.md#sslverifyclient)
-            -   [socks.mode](r_conf_service.md#socksmode)${enterprise.logo}
-            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}
+            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.protocols](r_conf_service.md#sslprotocols)
             -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)
-            -   [socks.retry.maximum.interval](r_conf_service.md#socksmaxretryint)${enterprise.logo}
-            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate)${enterprise.logo}
+            -   [socks.retry.maximum.interval](r_conf_service.md#socksmaxretryint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
         -   [mime-mapping](#svcdftmimemapping)
             -   [extension](#svcdftmimemapping)
@@ -55,21 +55,21 @@ The `service-defaults` section can contain the following accept-options:
 
 -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
 -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
--   [ws.maximum.message.size](r_conf_service.md#wsmaxmsg): configures the maximum incoming WebSocket message size allowed by ${the.gateway}
--   [http.keepalive.timeout](r_conf_service.md#keepalive): configures the duration ${the.gateway} waits between responding to an HTTP or HTTPS connection request and the subsequent request
--   [ssl.ciphers](r_conf_service.md#sslciphers): specifies the TLS/SSL ciphers used by ${gateway.name.short} on secure connections.
--   [ssl.protocols](r_conf_service.md#sslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which ${the.gateway} can accept or make connections.
--   [ssl.encryption](r_conf_service.md#sslencrypt): signals ${gateway.name.short} to enable or disable encryption on incoming traffic.
--   [ssl.verify-client](r_conf_service.md#sslverifyclient): implements a mutual verification pattern where, in addition to ${the.gateway} presenting a certificate to the client, the client also presents a certificate to ${the.gateway} so that ${the.gateway} can verify the client's authenticity.
--   [socks.mode](r_conf_service.md#socksmode)${enterprise.logo}: initiates ${the.gateway} connection using the SOCKet Secure (SOCKS) protocol in forward or reverse mode.
--   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}: uses `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL).
--   [socks.ssl.protocols](r_conf_service.md#sslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which ${the.gateway} can accept or make connections using the SOCKS protocol.
+-   [ws.maximum.message.size](r_conf_service.md#wsmaxmsg): configures the maximum incoming WebSocket message size allowed by the Gateway
+-   [http.keepalive.timeout](r_conf_service.md#keepalive): configures the duration the Gateway waits between responding to an HTTP or HTTPS connection request and the subsequent request
+-   [ssl.ciphers](r_conf_service.md#sslciphers): specifies the TLS/SSL ciphers used by KAAZING Gateway on secure connections.
+-   [ssl.protocols](r_conf_service.md#sslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections.
+-   [ssl.encryption](r_conf_service.md#sslencrypt): signals KAAZING Gateway to enable or disable encryption on incoming traffic.
+-   [ssl.verify-client](r_conf_service.md#sslverifyclient): implements a mutual verification pattern where, in addition to the Gateway presenting a certificate to the client, the client also presents a certificate to the Gateway so that the Gateway can verify the client's authenticity.
+-   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): initiates the Gateway connection using the SOCKet Secure (SOCKS) protocol in forward or reverse mode.
+-   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): uses `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL).
+-   [socks.ssl.protocols](r_conf_service.md#sslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections using the SOCKS protocol.
 -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient): implements a mutual verification pattern (same as `ssl.verify-client`) over the SOCKS protocol.
--   [socks.retry.maximum.interval](r_conf_service.md#socksmaxretryint)${enterprise.logo}: sets the maximum interval of time that the internal ${gateway.cap} waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an ${enterprise.shield} topology.
--   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate)${enterprise.logo}: specifies the maximum bandwidth rate at which bytes can be written from ${the.gateway} to a client session.
--   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout): specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). ${the.gateway.cap} drops the connection if it cannot communicate with the client in the number of seconds specified.
+-   [socks.retry.maximum.interval](r_conf_service.md#socksmaxretryint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): sets the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an Enterprise Shield&trade; topology.
+-   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): specifies the maximum bandwidth rate at which bytes can be written from the Gateway to a client session.
+-   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout): specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified.
 
-These `accept-options` plus examples are fully documented in the [Service Reference](r_conf_service.md#svcacceptopts). Note that if you specify `accept-options` on a particular [service](r_conf_service.md), then those `accept-options` supercede any default values configured in `service-defaults`. Thus, if there are no explicit `accept-options` configured for a particular service, then ${the.gateway} uses the values configured in service-defaults.
+These `accept-options` plus examples are fully documented in the [Service Reference](r_conf_service.md#svcacceptopts). Note that if you specify `accept-options` on a particular [service](r_conf_service.md), then those `accept-options` supercede any default values configured in `service-defaults`. Thus, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in service-defaults.
 
 #### Example
 
@@ -99,11 +99,11 @@ The following example shows `ssl.encryption` disabled, sample network protocol b
 
 ### <a name="svcdftmimemapping"></a>mime-mapping (service-defaults)
 
-The `mime-mapping` element defines the way ${the.gateway} maps a file extension to a MIME type. The `service-defaults` section in the default Gateway configuration file contains default MIME type mappings that apply to all services on ${the.gateway}.
+The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. The `service-defaults` section in the default Gateway configuration file contains default MIME type mappings that apply to all services on the Gateway.
 
 #### Example
 
-The following example shows two entries for the same file extension; in this case, when ${the.gateway} receives a request for a file with an `HTML` extension, ${the.gateway} will respond with a Content-Type header value of `text/html` (not `image/png`) as shown in lines 1-4 and 9-12:
+The following example shows two entries for the same file extension; in this case, when the Gateway receives a request for a file with an `HTML` extension, the Gateway will respond with a Content-Type header value of `text/html` (not `image/png`) as shown in lines 1-4 and 9-12:
 
 ``` auto-links:
   <mime-mapping>
@@ -123,13 +123,13 @@ The following example shows two entries for the same file extension; in this cas
 Notes
 -----
 
--   When ${the.gateway} responds to a file request, such as from the `directory` service, the response includes a Content-Type header based on the filename extension of the requested file. The Content-Type header value is the specified MIME type for that extension. If the file extension is not mapped to a MIME type by a `mime-mapping` element, ${the.gateway} does not include a Content-Type header in its response.
+-   When the Gateway responds to a file request, such as from the `directory` service, the response includes a Content-Type header based on the filename extension of the requested file. The Content-Type header value is the specified MIME type for that extension. If the file extension is not mapped to a MIME type by a `mime-mapping` element, the Gateway does not include a Content-Type header in its response.
 -   You can specify MIME types for file extensions either in the `service-defaults` section or in a `service`. Specifying MIME types for file extensions in a `service` overrides any existing corresponding `mime-mapping` entries in the `service-defaults` section. See [service](#service) for more information.
--   If you specify two or more `mime-mapping` entries for the same extension in a single `service` or in `service-defaults`, ${the.gateway} only applies the last `mime-mapping` entry for that extension.
+-   If you specify two or more `mime-mapping` entries for the same extension in a single `service` or in `service-defaults`, the Gateway only applies the last `mime-mapping` entry for that extension.
 -   The `service-defaults` section in the default Gateway configuration includes the following standard mappings. You can modify these entries, but keep in mind that all `mime-mapping` entries must come after any [accept-options](#svcdftacceptoptions) you add to this section.
 
     </p>
-    **Note:** ${the.gateway.cap} has hard-coded internal MIME mappings that are equivalent to those provided in the `service-defaults` section of the `gateway-config.xml`, for backward compatibility with earlier releases of ${gateway.name.short}. You cannot remove these internal settings. You can, however, override them with new MIME-type values.
+    **Note:** The Gateway has hard-coded internal MIME mappings that are equivalent to those provided in the `service-defaults` section of the `gateway-config.xml`, for backward compatibility with earlier releases of KAAZING Gateway. You cannot remove these internal settings. You can, however, override them with new MIME-type values.
 
     The default Gateway `mime-mapping` entries are:
 
@@ -209,7 +209,7 @@ Notes
 Summary
 -------
 
-In this document, you learned about ${the.gateway} service-defaults configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting ${the.gateway}, see ${setting.up.inline}. For more information about ${gateway.name.short} administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway service-defaults configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
 
 </div>
 

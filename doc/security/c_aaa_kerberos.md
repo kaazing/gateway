@@ -1,13 +1,13 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   [Security with ${gateway.name.short}](../index.md#security)
+-   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="about_kerberos"></a>About Kerberos V5 Network Authentication${enterprise.logo}${enterprise.logo.jms}
+<a name="about_kerberos"></a>About Kerberos V5 Network Authentication ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 =============================================================================================================
 
 Kerberos provides user authentication or single sign-on (SSO) functionality by providing communication between trusted hosts on untrusted networks. Kerberos—named after Cerberus, the three-headed guard dog of the underworld in Greek mythology—is a ticket-based network authentication protocol in which clients send a request to a trusted <a name="kdc"></a>Key Distribution Center (KDC) for credentials to access another server. The credentials are encrypted using secret-key cryptography and no cleartext passwords are ever sent over the network. Additionally, Kerberos provides for mutual authentication between clients and servers and single sign-on.
 
-For information on how to use ${gateway.name.short} with Kerberos, see *[Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)*.
+For information on how to use KAAZING Gateway with Kerberos, see *[Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)*.
 
 <a name="kerberos_overview"></a>Kerberos Network Authentication Overview
 ------------------------------------------------------------------------
@@ -38,27 +38,27 @@ The figure shows how a client interacts with a server that requires Kerberos aut
 
 The connection from the browser to the KDC uses TCP, not HTTP, although some Kerberos systems also support UDP. The client program runs on a machine that is logged on to a network (for example, a desktop computer logged in on a Windows domain) and has network access to the KDC.
 
-The Simple and Protected GSSAPI Negotiation Mechanism (SPNEGO) provides a web-based way to supply an encrypted ticket to a web server. Internet Explorer, Mozilla Firefox, and Google Chrome support SPNEGO-based Kerberos V5 credential negotiation. In addition, ${gateway.name.long} provides an implementation of Kerberos over WebSocket that enables you to extend Kerberos-based authentication over the web using the default web ports 80 and 443.
+The Simple and Protected GSSAPI Negotiation Mechanism (SPNEGO) provides a web-based way to supply an encrypted ticket to a web server. Internet Explorer, Mozilla Firefox, and Google Chrome support SPNEGO-based Kerberos V5 credential negotiation. In addition, KAAZING Gateway provides an implementation of Kerberos over WebSocket that enables you to extend Kerberos-based authentication over the web using the default web ports 80 and 443.
 
 ### <a name="gssapimech"></a>How does Kerberos SPNEGO GSS-API work?
 
-Consider a scenario where you have Kerberos in your environment and want to configure ${gateway.name.short}'s security to use Kerberos. In this scenario, suppose a web browser or client requests an access-protected document from the web server using a GET method request. The URI of the document is `http://www.example.com/dir/index.html`, and the browser sends the following request:
+Consider a scenario where you have Kerberos in your environment and want to configure KAAZING Gateway's security to use Kerberos. In this scenario, suppose a web browser or client requests an access-protected document from the web server using a GET method request. The URI of the document is `http://www.example.com/dir/index.html`, and the browser sends the following request:
 
 GET dir/index.md
 
-No authorization header is sent the first time the browser requests the document, and ${gateway.name.short} responds with an error saying that the browser could not authenticate, for example:
+No authorization header is sent the first time the browser requests the document, and KAAZING Gateway responds with an error saying that the browser could not authenticate, for example:
 
 HTTP/1.1 401 Unauthorized
  WWW-Authenticate: Negotiate
 
-The browser then uses the SPNEGO GSS-API to obtain the user credentials using the SPNEGO GSS-API mechanism. The KDC generates the service ticket (or `gssapi-data`) to be sent by the browser to ${the.gateway} with a new request, including an authorization header. For example:
+The browser then uses the SPNEGO GSS-API to obtain the user credentials using the SPNEGO GSS-API mechanism. The KDC generates the service ticket (or `gssapi-data`) to be sent by the browser to the Gateway with a new request, including an authorization header. For example:
 
 GET dir/index.md
  Authorization: Negotiate a87421000492aa874209af8bc028
 
-${the.gateway.cap} decodes the `gssapi-data` and passes this information to the SPNEGO GSS-API mechanism to validate the ticket granted. When the ticket is validated, the user is allowed access, otherwise the user is challenged again.
+The Gateway decodes the `gssapi-data` and passes this information to the SPNEGO GSS-API mechanism to validate the ticket granted. When the ticket is validated, the user is allowed access, otherwise the user is challenged again.
 
-For information on how to using ${the.gateway} and Kerberos, see [Using Kerberos V5 Network Authentication with ${the.gateway}](u_krb_config_kerberos.md).
+For information on how to using the Gateway and Kerberos, see [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md).
 
 <a name="seealso"></a>See Also
 ------------------------------

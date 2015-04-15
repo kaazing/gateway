@@ -2,10 +2,10 @@
 -   [Documentation](../index.md)
 -   Configure a Ticket Granting Gateway
 
-<a name></a>Configure a Ticket Granting Gateway${enterprise.logo}${enterprise.logo.jms}
+<a name></a>Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 =======================================================================================
 
-In this procedure, you will learn how to configure ${gateway.name.short} as a Ticket Granting Gateway to proxy Kerberos protocol traffic from clients to a KDC.
+In this procedure, you will learn how to configure KAAZING Gateway as a Ticket Granting Gateway to proxy Kerberos protocol traffic from clients to a KDC.
 
 Before You Begin
 ----------------
@@ -42,7 +42,7 @@ This allows the client to access the TGG as required by `Application Negotiate` 
 Next Steps
 ----------
 
-After you configure ${the.gateway}, ensure your clients are also configured for Kerberos. For information on creating ${gateway.name.long} client Kerberos challenge handlers, see the [Howto](../index.md#dev_topics) documentation for developers.
+After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md#dev_topics) documentation for developers.
 
 Notes
 -----
@@ -52,7 +52,7 @@ Notes
 <a name="seealso"></a>See Also
 ------------------------------
 
--   [Configure ${the.gateway}](../admin-reference/o_conf_checklist.md)
+-   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
 -   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
 

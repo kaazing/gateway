@@ -1,22 +1,22 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Configure ${the.gateway} on an Internal Network
+-   Configure the Gateway on an Internal Network
 
-<span id="addressmapconfig2"></span></a>Configure ${the.gateway} on an Internal Network ${enterprise.logo.jms}
+<span id="addressmapconfig2"></span></a>Configure the Gateway on an Internal Network 
 ==============================================================================================================
 
-This document describes how to integrate ${gateway.name.long} into an internal network using the [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind)element. In this procedure you will do the following:
+This document describes how to integrate KAAZING Gateway into an internal network using the [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind)element. In this procedure you will do the following:
 
 1.  Configure network protocol bindings for all services.
-2.  Configure ${the.gateway} to accept traffic on multiple IP addresses.
-3.  Start ${the.gateway} with the new configuration.
+2.  Configure the Gateway to accept traffic on multiple IP addresses.
+3.  Start the Gateway with the new configuration.
 
 Before You Begin
 ----------------
 
-Read the overview of integrating ${the.gateway} into an internal network in [About Internal Network Integration with ${gateway.name.long}](u_network_addresses.md).
+Read the overview of integrating the Gateway into an internal network in [About Internal Network Integration with KAAZING Gateway](u_network_addresses.md).
 
-<a name="servicedefaults"></a>To Integrate ${the.gateway} Into an Internal Network
+<a name="servicedefaults"></a>To Integrate the Gateway Into an Internal Network
 ----------------------------------------------------------------------------------
 
 1.  <a name="servicedefaults"></a>Configure network protocol bindings for all services.
@@ -48,14 +48,14 @@ Read the overview of integrating ${the.gateway} into an internal network in [Abo
 
     For more information, see the [Service Defaults Reference](../admin-reference/r_conf_serv_defs.md) documentation.
 
-2.  <a name="multipleip"></a>Configure ${the.gateway} to accept traffic on multiple IP addresses.
+2.  <a name="multipleip"></a>Configure the Gateway to accept traffic on multiple IP addresses.
 
-    If ${the.gateway} host machine has multiple IP addresses and you want the machine to accept traffic on all addresses, you can either:
+    If the Gateway host machine has multiple IP addresses and you want the machine to accept traffic on all addresses, you can either:
 
     -   Specify *every* hostname and port number on which you wish it to listen, or
-    -   Specify *only* the port number on which you wish ${the.gateway} to listen
+    -   Specify *only* the port number on which you wish the Gateway to listen
 
-    The following example shows a configuration where only the port number is specified, so that ${the.gateway} listens to all interfaces using that port. Here, ${the.gateway} binds to the wildcard address (`0.0.0.0`) as the host in the `<wss.bind>` element.
+    The following example shows a configuration where only the port number is specified, so that the Gateway listens to all interfaces using that port. Here, the Gateway binds to the wildcard address (`0.0.0.0`) as the host in the `<wss.bind>` element.
 
     ``` auto-links:
     <service>
@@ -83,11 +83,11 @@ Read the overview of integrating ${the.gateway} into an internal network in [Abo
     </service>
     ```
 
-3.  <a name="newconfig"></a>Start ${the.gateway} with the new configuration.
+3.  <a name="newconfig"></a>Start the Gateway with the new configuration.
 
-    Once you save the `gateway-config.xml` file with your changes, you can start up ${the.gateway}. The ` protocol.bind` elements you've added display in ${the.gateway} startup log.
+    Once you save the `gateway-config.xml` file with your changes, you can start up the Gateway. The ` protocol.bind` elements you've added display in the Gateway startup log.
 
-    For example, if you've configured ${the.gateway} with the following:
+    For example, if you've configured the Gateway with the following:
 
     ``` auto-links:
     <service>
@@ -118,7 +118,7 @@ Read the overview of integrating ${the.gateway} into an internal network in [Abo
 <a name="nextstep"></a>Next Step
 --------------------------------
 
-You have configured ${the.gateway} on an internal network. For more information about Gateway administration, see the [documentation](../index.md).
+You have configured the Gateway on an internal network. For more information about Gateway administration, see the [documentation](../index.md).
 
 Notes
 -----

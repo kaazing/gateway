@@ -1,15 +1,15 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   [Security with ${gateway.name.short}](../index.md#security)
+-   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="overview_aaa"></a>About Authentication and Authorization${enterprise.logo.jms}
+<a name="overview_aaa"></a>About Authentication and Authorization
 =======================================================================================
 
-The following topics describe the concepts behind authentication and authorization with ${the.gateway}:
+The following topics describe the concepts behind authentication and authorization with the Gateway:
 
 -   [Authentication and Authorization Concepts](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with ${the.gateway}](u_aaa_implement.md)
+-   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
 
 #### See Also
 

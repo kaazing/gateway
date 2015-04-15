@@ -1,40 +1,40 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Monitoring ${gateway.name.short}
+-   Monitoring KAAZING Gateway
 
-<a name="monitorjmx"></a>Monitor with JMX${enterprise.logo.jms}
+<a name="monitorjmx"></a>Monitor with JMX
 ===============================================================
 
-${gateway.name.short} supports Java Management Extension (JMX) access through any JMX-compliant console, such as Java's built-in Java Management and Monitoring Console ([JConsole](http://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html "Using JConsole - Java SE Monitoring and Management Guide")) or MC4J, or through any program that supports communication using the JMX protocol. ${the.gateway.cap} supports a `management.jmx` service to allow JMX-compliant applications to monitor current ${gateway.cap} service and session state and operate on individual sessions. See the [Service Reference](../admin-reference/r_conf_service.md#service) for information about the JMX management service (`management.jmx`).
+KAAZING Gateway supports Java Management Extension (JMX) access through any JMX-compliant console, such as Java's built-in Java Management and Monitoring Console ([JConsole](http://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html "Using JConsole - Java SE Monitoring and Management Guide")) or MC4J, or through any program that supports communication using the JMX protocol. The Gateway supports a `management.jmx` service to allow JMX-compliant applications to monitor current Gateway service and session state and operate on individual sessions. See the [Service Reference](../admin-reference/r_conf_service.md#service) for information about the JMX management service (`management.jmx`).
 
 Before You Begin
 ----------------
 
-This procedure is part of [Monitoring ${gateway.name.short}](o_admin_monitor.md):
+This procedure is part of [Monitoring KAAZING Gateway](o_admin_monitor.md):
 
 <ol>
 <li>
-[Introduction to Monitoring ${gateway.name.long}](o_admin_monitor.md#intromonitor)
+[Introduction to Monitoring KAAZING Gateway](o_admin_monitor.md#intromonitor)
 </li>
 <li>
-[Secure ${gateway.name.long} Monitoring](p_mgt_config_secure_mgmt.md)
+[Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md)
 </li>
 <li>
-Monitor a ${gateway.cap} or ${gateway.cap} cluster
+Monitor a Gateway or Gateway cluster
 </li>
--   [Monitor with ${console.name}](p_monitor_cc.md) (**Recommended**)
+-   [Monitor with Command Center](p_monitor_cc.md) (**Recommended**)
 -   **Monitor with JMX**
 
 </li>
 <li>
-[Troubleshoot ${the.gateway}](../troubleshooting/o_ts.md)
+[Troubleshoot the Gateway](../troubleshooting/o_ts.md)
 </li>
 </ol>
 To Monitor with JMX
 -------------------
 
-1.  Install and start ${the.gateway} as described in ${setting.up.inline}. **Note:** To connect to a JMX service on a ${gateway.cap} running on an EC2 instance, configure the `GATEWAY_OPTS` environment variable with the `-Djava.rmi.server.hostname` property set to the IP address or hostname being used in the RMI registry. For example, `GATEWAY_OPTS="-Xmx512m -Djava.rmi.server.hostname=ec2-54-205-184-88.example-1.amazonaws.com`. See the topic [Configure ${gateway.name.long} Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_conf_gw_opts.md) for more information.
-2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default ${gateway.cap} configuration. See [Secure ${gateway.name.long} Monitoring](p_mgt_config_secure_mgmt.md) for more information.
+1.  Install and start the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md). **Note:** To connect to a JMX service on a Gateway running on an EC2 instance, configure the `GATEWAY_OPTS` environment variable with the `-Djava.rmi.server.hostname` property set to the IP address or hostname being used in the RMI registry. For example, `GATEWAY_OPTS="-Xmx512m -Djava.rmi.server.hostname=ec2-54-205-184-88.example-1.amazonaws.com`. See the topic [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_conf_gw_opts.md) for more information.
+2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md) for more information.
 3.  Start your favorite Java monitoring console or application. This documentation uses JConsole for its examples.
 4.  Select the local process, for example `org.kaazing.gateway.server.Main` (as shown in the following screenshot), then click **Connect**. (For Windows, the local process name is `org.kaazing.gateway.server.WindowsMain`.)
 
@@ -50,9 +50,9 @@ To Monitor with JMX
     </figure>
     <span class="note">**Notes:** 
 
-    -   To connect to a *remote* process you must specify an address that uniquely represents the remote instance of ${the.gateway} and provide the administrator's user name and password (by default, `admin`/`admin`). If there are multiple instances of ${the.gateway} on a remote server then JMX management will be hosted on different ports.
-    -   Use the following syntax to access your local ${gateway.cap} as a remote process (where `hostname` is the remote hostname): `service:jmx:rmi://hostname/jndi/rmi://hostname:2020/jmxrmi`
-    -   Password authentication over the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) is enabled by default in JMX. Consequently, you must have a digital certificate for the hostname of ${the.gateway} in the keystore.db file used by ${the.gateway}. In addition, access to port 2020 must be enabled in your network for the remote monitoring agent to connect to ${the.gateway}. For information on how to create a certificate for the hostname of ${the.gateway}, see [Secure Network Traffic with the ${gateway.cap}](../security/o_tls.md).
+    -   To connect to a *remote* process you must specify an address that uniquely represents the remote instance of the Gateway and provide the administrator's user name and password (by default, `admin`/`admin`). If there are multiple instances of the Gateway on a remote server then JMX management will be hosted on different ports.
+    -   Use the following syntax to access your local Gateway as a remote process (where `hostname` is the remote hostname): `service:jmx:rmi://hostname/jndi/rmi://hostname:2020/jmxrmi`
+    -   Password authentication over the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) is enabled by default in JMX. Consequently, you must have a digital certificate for the hostname of the Gateway in the keystore.db file used by the Gateway. In addition, access to port 2020 must be enabled in your network for the remote monitoring agent to connect to the Gateway. For information on how to create a certificate for the hostname of the Gateway, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
     </span>
 
@@ -69,7 +69,7 @@ To Monitor with JMX
 
     </figcaption>
     </figure>
-8.  Click one of the session IDs. The session data exposed by the MBeans displays. Here, you can examine the user sessions on ${the.gateway}.
+8.  Click one of the session IDs. The session data exposed by the MBeans displays. Here, you can examine the user sessions on the Gateway.
 
 <a name="examine_jconsole"></a>Get Started with JMX Monitoring
 --------------------------------------------------------------
@@ -108,14 +108,14 @@ The steps in this section use the JConsole example from the previous section to 
 
     </figcaption>
     </figure>
-6.  Now that you've taken a look at some of the actions you can perform on a session, you can use this information with your own management console to manage user sessions. ${the.gateway.cap} also tracks the information you see here, such as the opening and closing of sessions, and sends this information by way of JMX notifications. You can then set up your JMX clients to subscribe to these notifications or query the sessions directly from the JMX server bean. To learn how to do this, see the next section, [To Configure Notifications](#managing_sessions_notif).
+6.  Now that you've taken a look at some of the actions you can perform on a session, you can use this information with your own management console to manage user sessions. The Gateway also tracks the information you see here, such as the opening and closing of sessions, and sends this information by way of JMX notifications. You can then set up your JMX clients to subscribe to these notifications or query the sessions directly from the JMX server bean. To learn how to do this, see the next section, [To Configure Notifications](#managing_sessions_notif).
 
 <span id="managing_sessions_notif"></span></a>To Configure Notifications
 ------------------------------------------------------------------------
 
-${the.gateway.cap} tracks sessions that are opened and closed in the management interface and sends out JMX notifications. You can configure a JMX client to subscribe to these notifications or configure ${the.gateway} to query the connected sessions. The JMX notification includes the user's data, which consists of a key and a value.
+The Gateway tracks sessions that are opened and closed in the management interface and sends out JMX notifications. You can configure a JMX client to subscribe to these notifications or configure the Gateway to query the connected sessions. The JMX notification includes the user's data, which consists of a key and a value.
 
-You can also configure ${the.gateway} to extract user information from the authentication information within the session. For example, in the security section of the `gateway-config.xml` file, you can use the `user-principal-class` property, as shown in the following example.
+You can also configure the Gateway to extract user information from the authentication information within the session. For example, in the security section of the `gateway-config.xml` file, you can use the `user-principal-class` property, as shown in the following example.
 
 ``` auto-links:
 <security>
@@ -134,17 +134,17 @@ You can also configure ${the.gateway} to extract user information from the authe
 </security>
 ```
 
-After you add the `userPrincipalClass` property to the [realm](../admin-reference/r_conf_security.md#realm_element), save the `gateway-config.xml` file and start ${the.gateway}. You should then see notifications in JConsole of one of two types: `session.created` or `session.closed`.
+After you add the `userPrincipalClass` property to the [realm](../admin-reference/r_conf_security.md#realm_element), save the `gateway-config.xml` file and start the Gateway. You should then see notifications in JConsole of one of two types: `session.created` or `session.closed`.
 
 Next Step
 ---------
 
-You have configured management with JMX for ${gateway.name.short}.
+You have configured management with JMX for KAAZING Gateway.
 
 See Also
 --------
 
 -   The [realm](../admin-reference/r_conf_security.md#realm_element) element for reference information about the `user-principal-class` property.
--   ${gateway.name.long} [documentation](../index.md) for more information about. ${gateway.cap} administration.
+-   KAAZING Gateway [documentation](../index.md) for more information about. Gateway administration.
 
 

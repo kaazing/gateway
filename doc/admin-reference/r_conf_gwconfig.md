@@ -1,8 +1,8 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Administration with ${gateway.name.short}
+-   Administration with KAAZING Gateway
 
-Gateway-Config Reference ${enterprise.logo.jms}
+Gateway-Config Reference 
 ===============================================
 
 This document describes the top-level `gateway-config` element.
@@ -10,7 +10,7 @@ This document describes the top-level `gateway-config` element.
 <a name="configuring"></a>Overview
 ----------------------------------
 
-You must specify the `gateway-config` element in ${the.gateway} configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) to configure ${gateway.name.short}.
+You must specify the `gateway-config` element in the Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) to configure KAAZING Gateway.
 
 <a name="gwconfig_elements"></a>Structure
 -----------------------------------------
@@ -58,12 +58,12 @@ The following is an example `gateway-config` element:
 Notes
 -----
 
-${gateway.name.long} configuration files must use the namespace: ` http://xmlns.kaazing.com/2014/09/gateway`. See [About ${gateway.name.short} Namespace Declarations](c_conf_concepts.md#aboutnamespace) for more information about namespaces.
+KAAZING Gateway configuration files must use the namespace: ` http://xmlns.kaazing.com/2014/09/gateway`. See [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#aboutnamespace) for more information about namespaces.
 
 Summary
 -------
 
-In this document, you learned about ${the.gateway} `gateway-config` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting ${the.gateway}, see ${setting.up.inline}. For more information about ${gateway.name.short} administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway `gateway-config` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
 
 </div>
 

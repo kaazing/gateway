@@ -2,10 +2,10 @@
 -   [Documentation](../index.md)
 -   Implement Protocol Injection
 
-<a name="authentication"></a>Implement Protocol Injection${enterprise.logo}
+<a name="authentication"></a>Implement Protocol Injection ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 ===========================================================================
 
-The following checklist provides the steps necessary to configure ${gateway.name.short} to implement protocol injection:
+The following checklist provides the steps necessary to configure KAAZING Gateway to implement protocol injection:
 
 | \#  | Step                                                     | Topic or Reference                                       |
 |-----|----------------------------------------------------------|----------------------------------------------------------|

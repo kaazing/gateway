@@ -1,14 +1,14 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Administration with ${gateway.name.short}
+-   Administration with KAAZING Gateway
 
-Configuration Skeleton${enterprise.logo.jms}
+Configuration Skeleton
 ============================================
 
-You can view and link to all ${gateway.cap} configuration elements and properties using these lists:
+You can view and link to all Gateway configuration elements and properties using these lists:
 
 -   [Configuration Element Index](r_conf_elementindex.md) for an alphabetical listing
--   **Configuration Skeleton** (this topic) for a bare bones ${gateway.cap} configuration
+-   **Configuration Skeleton** (this topic) for a bare bones Gateway configuration
 
 -   [gateway-config](r_conf_gwconfig.md)
     -   [service](r_conf_service.md)
@@ -17,7 +17,7 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
         -   [accept](r_conf_service.md#acceptele)
         -   [connect](r_conf_service.md#connectele)
         -   [balance](r_conf_service.md#balanceele)
-        -   [notify](r_conf_service.md#notifyele)(JMS only) ${enterprise.logo.jms}
+        -   [notify](r_conf_service.md#notifyele)(JMS only) 
         -   [type](r_conf_service.md#typeele)
             -   [balancer](r_conf_service.md#balancer)
             -   [broadcast](r_conf_service.md#broadcast)
@@ -36,7 +36,7 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
             -   [echo](r_conf_service.md#echo)
             -   [management.jmx](r_conf_service.md#mgmtjmx)
             -   [management.snmp](r_conf_service.md#mgmtsnmp)
-            -   [kerberos5.proxy](r_conf_service.md#kerberos5) ${enterprise.logo}
+            -   [kerberos5.proxy](r_conf_service.md#kerberos5)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [proxy](r_conf_service.md#proxy)
 
                 Properties:
@@ -52,7 +52,7 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
                 -   [maximum.recovery.interval](r_conf_service.md#proxy-maximumrecoveryinterval)
                 -   [prepared.connection.count](r_conf_service.md#proxy-preparedconnectioncount)
                 -   [virtual.host](r_conf_service.md#proxy-virtualhost)
-            -   [jms](r_stomp_service.md#stompjms) (JMS only) ${enterprise.logo.jms}
+            -   [jms](r_stomp_service.md#stompjms) (JMS only) 
             -   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
             -   [xmpp.proxy](r_conf_service.md#proxy)
 
@@ -73,26 +73,26 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
             -   [ssl.protocols](r_conf_service.md#sslprotocols)
             -   [ssl.encryption](r_conf_service.md#sslencrypt)
             -   [ssl.verify-client](r_conf_service.md#sslverifyclient)
-            -   [socks.mode](r_conf_service.md#socksmode)${enterprise.logo}
-            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}
-            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols)${enterprise.logo}
-            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)${enterprise.logo}
-            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint)${enterprise.logo}
-            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate)${enterprise.logo}
+            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
         -   [connect-options](r_conf_service.md#svcconnectopts)
             -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ssl.ciphers](r_conf_service.md#sslciphers)
             -   [ssl.protocols](r_conf_service.md#sslprotocols)
             -   [ssl.encryption](r_conf_service.md#sslencrypt)
-            -   [socks.mode](r_conf_service.md#socksmode)${enterprise.logo}
-            -   [socks.timeout](r_conf_service.md#conn_sockstimeout)${enterprise.logo}
-            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}
-            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols)${enterprise.logo}
-            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)${enterprise.logo}
+            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.timeout](r_conf_service.md#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
             -   [ws.version](r_conf_service.md#wsversionopt) (deprecated)
-        -   [notify-options](r_conf_service.md#notifyopts) (JMS only) ${enterprise.logo.jms}
+        -   [notify-options](r_conf_service.md#notifyopts) (JMS only) 
             -   [apns.notify.transport](r_conf_service.md#notify_apnstrnsp)
             -   [apns.feedback.transport](r_conf_service.md#notify_apnsfeedback)
             -   [ssl.ciphers](r_conf_service.md#notify_sslciphers)
@@ -118,12 +118,12 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
             -   [ssl.protocols](r_conf_service.md#sslprotocols)
             -   [ssl.encryption](r_conf_service.md#sslencrypt)
             -   [ssl.verify-client](r_conf_service.md#sslverifyclient)
-            -   [socks.mode](r_conf_service.md#socksmode)${enterprise.logo}
-            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers)${enterprise.logo}
-            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols)${enterprise.logo}
-            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)${enterprise.logo}
-            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint)${enterprise.logo}
-            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate)${enterprise.logo}
+            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
         -   [mime-mapping](r_conf_serv_defs.md#svcdftmimemapping)
             -   [extension](r_conf_serv_defs.md#mimemapextension)
@@ -146,8 +146,8 @@ You can view and link to all ${gateway.cap} configuration elements and propertie
                 -   [http-query-parameter](r_conf_security.md#httpqueryparameter)
                 -   [http-cookie](r_conf_security.md#http-cookie)
                 -   [authorization-mode](r_conf_security.md#auth_mode)
-                -   [authorization-timeout](r_conf_security.md#auth_timeout)${enterprise.logo}
-                -   [session-timeout](r_conf_security.md#sessiontimeout)${enterprise.logo}
+                -   [authorization-timeout](r_conf_security.md#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+                -   [session-timeout](r_conf_security.md#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
                 -   [login-modules](r_conf_security.md#realm_loginmodules)
                     -   [login-module](r_conf_security.md#loginmodule)
                         -   [type](r_conf_security.md#loginmoduletype)
