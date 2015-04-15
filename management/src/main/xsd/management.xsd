@@ -23,9 +23,9 @@
 -->
 
 <schema elementFormDefault="qualified"
-        targetNamespace="http://xmlns.kaazing.org/2015/03/gateway"
+        targetNamespace="http://xmlns.kaazing.org/2014/09/gateway"
         xmlns="http://www.w3.org/2001/XMLSchema"
-        xmlns:gateway="http://xmlns.kaazing.org/2015/03/gateway">
+        xmlns:gateway="http://xmlns.kaazing.org/2014/09/gateway">
     <annotation>
         <documentation>Configuration for the Kaazing gateway Management service
             extensions.

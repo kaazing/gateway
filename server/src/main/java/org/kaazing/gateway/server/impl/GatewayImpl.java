@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.server.impl;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,13 +43,11 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.api.GatewayAlreadyRunningException;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.mar2015.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
-
-import static java.lang.String.format;
 
 /**
  * <p> Use this class to start and stop a Gateway from Java. </p>

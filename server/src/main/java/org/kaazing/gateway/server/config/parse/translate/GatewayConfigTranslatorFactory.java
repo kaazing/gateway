@@ -70,14 +70,6 @@ public class GatewayConfigTranslatorFactory {
                 //
                 // This means that the switch statement MUST have the
                 // namespaces labels in chronological order, oldest to newest.
-
-            case MARCH_2015:
-                // The March 2015 schema changes the accept-options and connect-options into
-                // a loosely parsed type.  Make sure that this translator is always run so that
-                // config files built with this schema or any earlier schema have the correct
-                // XSD version.
-                GatewayConfigTranslator march2015Translator = new March2015Translator();
-                pipeline.addTranslator(march2015Translator);
         }
 
         return pipeline;

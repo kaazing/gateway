@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.kaazing.gateway.server.config.mar2015.ServiceAcceptOptionsType;
+import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
@@ -413,7 +413,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     private void parseAcceptOptionsType(ServiceAcceptOptionsType acceptOptionsType,
-                                                               ServiceAcceptOptionsType defaultOptionsType) {
+                                        ServiceAcceptOptionsType defaultOptionsType) {
         if (acceptOptionsType != null) {
             Map<String, String> acceptOptionsMap = new HashMap<String, String>();
             parseOptions(acceptOptionsType.getDomNode(), acceptOptionsMap);

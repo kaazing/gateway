@@ -39,9 +39,9 @@ import junit.framework.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.kaazing.gateway.server.config.mar2015.GatewayConfigDocument;
-import org.kaazing.gateway.server.config.mar2015.ServiceConnectOptionsType;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
+import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
 

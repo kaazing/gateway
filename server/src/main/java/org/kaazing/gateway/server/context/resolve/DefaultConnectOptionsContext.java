@@ -40,9 +40,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
-import org.kaazing.gateway.server.config.mar2015.ServiceConnectOptionsType;
+import org.kaazing.gateway.server.config.sep2014.ServiceConnectOptionsType;
 import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.service.TransportOptionNames;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.ssl.SslCipherSuites;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
