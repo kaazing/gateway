@@ -267,7 +267,7 @@ public class Gateway {
         for (Entry<String, String> acceptOption : configuredAcceptOptions.entrySet()) {
             Element newElement = ownerDocument
                     .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
-            Text newTextNode = ownerDocument.createTextNode((String) acceptOption.getValue());
+            Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
         }
@@ -373,7 +373,7 @@ public class Gateway {
                 for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
                     Element newElement = ownerDocument
                             .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
-                    Text newTextNode = ownerDocument.createTextNode((String) acceptOption.getValue());
+                    Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
                     newElement.appendChild(newTextNode);
                     domNode.appendChild(newElement);
                 }
@@ -407,7 +407,7 @@ public class Gateway {
                 for (Entry<String, String> connectOption : connectOptions.entrySet()) {
                     Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
                             connectOption.getKey());
-                    Text newTextNode = ownerDocument.createTextNode((String) connectOption.getValue());
+                    Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
                     newElement.appendChild(newTextNode);
                     domNode.appendChild(newElement);
                 }
@@ -425,7 +425,7 @@ public class Gateway {
         for (Entry<String, String> connectOption : connectOptions.entrySet()) {
             Element newElement = ownerDocument
                     .createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
-            Text newTextNode = ownerDocument.createTextNode((String) connectOption.getValue());
+            Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
         }

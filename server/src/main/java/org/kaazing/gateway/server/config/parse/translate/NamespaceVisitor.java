@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Set the namespace on the given DOM to be the given {@ GatewayConfigNamespace} .
+ * Set the namespace on the given DOM to be the given {@link GatewayConfigNamespace} .
  */
 public class NamespaceVisitor extends AbstractVisitor {
 
     private static final Logger logger = LoggerFactory.getLogger(NamespaceVisitor.class);
 
-    private GatewayConfigNamespace ns;
+    private final GatewayConfigNamespace ns;
 
     public NamespaceVisitor(GatewayConfigNamespace ns) {
         super();

@@ -232,7 +232,8 @@ public class GatewayConfigParserTest {
         }
     }
 
-    @Test(expected = GatewayConfigParserException.class) @Ignore
+    @Test(expected = GatewayConfigParserException.class)
+    @Ignore("XSD no longer validates accept-options types")
     public void testInvalidWsInactivityTimeout() throws Exception {
         File configFile = null;
         try {
@@ -248,7 +249,8 @@ public class GatewayConfigParserTest {
         }
     }
 
-    @Test(expected = GatewayConfigParserException.class) @Ignore
+    @Test(expected = GatewayConfigParserException.class)
+    @Ignore("XSD no longer validates connect-options types")
     public void testInvalidWsInactivityTimeoutAsConnectOption()
             throws Exception {
         File configFile = null;

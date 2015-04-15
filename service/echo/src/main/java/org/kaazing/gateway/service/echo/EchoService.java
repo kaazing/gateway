@@ -23,12 +23,7 @@ package org.kaazing.gateway.service.echo;
 
 import static org.kaazing.gateway.service.util.ServiceUtils.getOptionalIntProperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -60,8 +55,7 @@ public class EchoService implements Service {
 
     @Override
     public void start() throws Exception {
-        AcceptOptionsContext acceptOptions = serviceContext.getAcceptOptionsContext();
-        serviceContext.bind(serviceContext.getAccepts(), handler, new AcceptOptionsContext.Wrapper(acceptOptions) { });
+        serviceContext.bind(serviceContext.getAccepts(), handler);
     }
 
     @Override

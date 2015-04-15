@@ -34,7 +34,7 @@ public interface ConnectOptionsContext {
      * Set the map of default options on the ConnectOptionsContext.  The options are String key/value pairs.
      * If the given default option does not exist in the option map it is added.  Any options already set
      * are left untouched.
-     * @param options the map of String key/value pairs to set as the default options on the ConnectOptionsContext
+     * @param defaultOptions the map of String key/value pairs to set as the default options on the ConnectOptionsContext
      */
     void setDefaultOptions(Map<String, String> defaultOptions);
 

@@ -85,8 +85,8 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     private Map<String, String> options;
 
     public DefaultAcceptOptionsContext() {
-        this.binds = new HashMap<String, String>();
-        this.options = new HashMap<String, String>();
+        this.binds = new HashMap<>();
+        this.options = new HashMap<>();
     }
 
     public DefaultAcceptOptionsContext(ServiceAcceptOptionsType acceptOptions, ServiceAcceptOptionsType defaultOptions) {

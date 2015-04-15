@@ -64,9 +64,9 @@ public class ServiceDefaultsConfigurationBeanImpl implements ServiceDefaultsConf
         JSONObject jsonObj;
 
         AcceptOptionsContext context = serviceDefaultsContext.getAcceptOptionsContext();
-        Map<String, Object> acceptOptions = context.asOptionsMap();
         try {
             if (context != null) {
+                Map<String, Object> acceptOptions = context.asOptionsMap();
                 Map<String, String> binds = context.getBinds();
                 if ((binds != null) && !binds.isEmpty()) {
                     jsonObj = new JSONObject();

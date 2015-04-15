@@ -97,13 +97,14 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
         if (serviceContext.supportsAccepts()) {
 
             AcceptOptionsContext context = serviceContext.getAcceptOptionsContext();
-            Map<String, Object> acceptOptions = context.asOptionsMap();
 
             JSONObject jsonOptions = new JSONObject();
             JSONObject jsonObj;
 
             try {
                 if (context != null) {
+                    Map<String, Object> acceptOptions = context.asOptionsMap();
+
                     Map<String, String> binds = context.getBinds();
                     if ((binds != null) && !binds.isEmpty()) {
                         jsonObj = new JSONObject();
@@ -156,7 +157,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 //                  }
 
 
-                    jsonOptions.put("ws.maximum.message.size", (Long) acceptOptions.get("ws.maximum.message.size"));
+                    jsonOptions.put("ws.maximum.message.size", acceptOptions.get("ws.maximum.message.size"));
 
                     Long wsInactivityTimeout = (Long) acceptOptions.get("ws.inactivity.timeout");
                     if (wsInactivityTimeout != null) {
@@ -222,12 +223,12 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     public String getConnectOptions() {
         if (serviceContext.supportsConnects()) {
             ConnectOptionsContext context = serviceContext.getConnectOptionsContext();
-            Map<String, Object> connectOptions = context.asOptionsMap();
 
             JSONObject jsonOptions = new JSONObject();
 
             try {
                 if (context != null) {
+                    Map<String, Object> connectOptions = context.asOptionsMap();
 
                     String[] sslCiphersArray = (String[]) connectOptions.get("ssl.ciphers");
                     if (sslCiphersArray != null) {

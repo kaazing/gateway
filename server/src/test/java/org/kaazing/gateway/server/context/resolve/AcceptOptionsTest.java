@@ -77,13 +77,15 @@ public class AcceptOptionsTest {
         serviceList.add("directory");
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslCiphersOption() throws Exception {
         expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
         expectParseFailure("ssl.ciphers", "FOO, BAR");
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testHttpKeepAliveTimeoutOption() throws Exception {
         // expect default if 0 is specified
         expectSuccess("http.keepalive.timeout", "0 minutes", "http[http/1.1].keepAliveTimeout", 30);
@@ -98,7 +100,8 @@ public class AcceptOptionsTest {
         expectParseFailure("http.keepalive.timeout", null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testWsMaximumMessageSizeOption() throws Exception {
         expectSuccess("ws.maximum.message.size", "10k", "ws.maxMessageSize", 10240);
         expectSuccess("ws.maximum.message.size", "10m", "ws.maxMessageSize", 10485760);
@@ -110,7 +113,8 @@ public class AcceptOptionsTest {
         expectParseFailure("ws.maximum.message.size", null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testTcpMaximumOutboundRateOption() throws Exception {
         expectSuccess("tcp.maximum.outbound.rate", "10KiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, 10240L);
         expectSuccess("tcp.maximum.outbound.rate", "10MiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, 10485760L);
@@ -189,7 +193,8 @@ public class AcceptOptionsTest {
         expectRuntimeFailure("wss.bind", null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslVerifyClientOption() throws Exception {
         expectSuccess("ssl.verify-client", "none",
                 TransportOptionNames.SSL_NEED_CLIENT_AUTH, Boolean.FALSE,
@@ -205,7 +210,8 @@ public class AcceptOptionsTest {
         expectParseFailure("ssl.verify-client", null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslEncryptionOption() throws Exception {
         expectSuccess("ssl.encryption", "enabled", "ssl.encryptionEnabled", Boolean.TRUE);
         expectSuccess("ssl.encryption", "disabled", "ssl.encryptionEnabled", Boolean.FALSE);

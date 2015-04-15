@@ -61,7 +61,7 @@ public interface AcceptOptionsContext {
      * Set the map of default options on the AcceptOptionsContext.  The options are String key/value pairs.
      * If the given default option does not exist in the option map it is added.  Any options already set
      * are left untouched.
-     * @param options the map of String key/value pairs to set as the default options on the AcceptOptionsContext
+     * @param defaultOptions the map of String key/value pairs to set as the default options on the AcceptOptionsContext
      */
     void setDefaultOptions(Map<String, String> defaultOptions);
 
