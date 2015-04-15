@@ -340,7 +340,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
         // TODO: same-origin requests must consider cross-origin access control
         //       internal redirect to secure resource should not trigger 403 Forbidden
-        ResourceAddress localAddress = (ResourceAddress)session.getLocalAddress();
+        ResourceAddress localAddress = session.getLocalAddress();
         URI resource = localAddress.getResource();
         Protocol resourceProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource);
         if (WsebProtocol.WSEB_SSL == resourceProtocol || WsProtocol.WSS == resourceProtocol) {

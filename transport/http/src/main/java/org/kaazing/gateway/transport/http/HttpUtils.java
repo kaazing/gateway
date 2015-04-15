@@ -27,7 +27,6 @@ import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_NOT_MODIFIE
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -145,7 +144,7 @@ public class HttpUtils {
 	}
 
 	public static final void fileRequested(IoBufferAllocatorEx<?> allocator, HttpRequestMessage httpRequest, HttpResponseMessage httpResponse,
-			File requestFile) throws FileNotFoundException, IOException {
+			File requestFile) throws IOException {
 		if (requestFile.isFile() && requestFile.exists()) {
 			String etag = getETagHeaderValue(requestFile);
 			String ifNoneMatch = httpRequest.getHeader("If-None-Match");
@@ -180,7 +179,7 @@ public class HttpUtils {
 	}
 	
 	// ported from httpFileRequested (above)
-    public static final void writeIfModified(HttpAcceptSession httpSession, File requestFile) throws FileNotFoundException, IOException {
+    public static final void writeIfModified(HttpAcceptSession httpSession, File requestFile) throws IOException {
         if (requestFile.isFile() && requestFile.exists()) {
             String etag = getETagHeaderValue(requestFile);
             String ifNoneMatch = httpSession.getReadHeader("If-None-Match");
@@ -219,7 +218,7 @@ public class HttpUtils {
     }
     
 	// TODO: should be able to remove this once we can send File down the pipe
-	public static final IoBufferEx getBufferForFile(IoBufferAllocatorEx<?> allocator, File requestFile) throws FileNotFoundException, IOException {
+	public static final IoBufferEx getBufferForFile(IoBufferAllocatorEx<?> allocator, File requestFile) throws IOException {
 		FileInputStream in = new FileInputStream(requestFile);
 		IoBufferEx out = allocator.wrap(allocator.allocate(in.available())).setAutoExpander(allocator);
 		try {
@@ -289,11 +288,7 @@ public class HttpUtils {
 		}
 	
 		// check modified time against file last modified
-		if (lastModified <= ifModifiedSinceDate.getTime()) {
-			return false;
-		} else {
-			return true;
-		}
+		return lastModified > ifModifiedSinceDate.getTime();
 	}
 	
 	public static final void addLastModifiedHeader(HttpSession session, File requestFile) {
@@ -348,7 +343,7 @@ public class HttpUtils {
 
 	private static final void supplyBridgeFile(File xdBridgeFile, long startTime,
 			String resourcePath, String preamble, String postamble)
-			throws IOException, FileNotFoundException {
+			throws IOException {
 		if (!xdBridgeFile.exists() || xdBridgeFile.lastModified() < startTime) {
 			ClassLoader loader = HttpUtils.class.getClassLoader();
 			URL resource = loader.getResource(resourcePath);

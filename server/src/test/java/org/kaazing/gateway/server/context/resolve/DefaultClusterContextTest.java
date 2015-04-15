@@ -471,11 +471,8 @@ public class DefaultClusterContextTest {
         Map<URI, Set<URI>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
 
         Set<URI> currentBalanceTargets = sharedBalancerMap.get(URI.create("ws://www.example.com:8080/path"));
-        if ((currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets)) {
-            return true;
-        }
+        return (currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets);
 
-        return false;
     }
 
     private boolean validateMemberIdBalancerMap(CollectionsFactory factory, MemberId memberId, List<URI> balanceTargets) {
@@ -491,10 +488,7 @@ public class DefaultClusterContextTest {
 
         URI balanceURI = URI.create("ws://www.example.com:8080/path");
         List<URI> memberBalanceTargets = balancerMap.get(balanceURI);
-        if ((memberBalanceTargets != null) && memberBalanceTargets.containsAll(balanceTargets)) {
-            return true;
-        }
+        return (memberBalanceTargets != null) && memberBalanceTargets.containsAll(balanceTargets);
 
-        return false;
     }
 }

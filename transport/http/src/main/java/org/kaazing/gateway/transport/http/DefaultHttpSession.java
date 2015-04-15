@@ -258,7 +258,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         requestURI = request.getRequestURI();
         parameters = request.getParameters();
 
-        String host = (String)request.getHeader("Host");
+        String host = request.getHeader("Host");
         requestURL = URI.create((secure ? "https" : "http") + "://" + host + requestURI);
 
         servicePath = URI.create(serviceURI.getPath());
@@ -537,12 +537,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     @Override
     public ResourceAddress getLocalAddress() {
-        return (ResourceAddress) super.getLocalAddress();
+        return super.getLocalAddress();
     }
     
     @Override
     public ResourceAddress getRemoteAddress() {
-        return (ResourceAddress) super.getRemoteAddress();
+        return super.getRemoteAddress();
     }
 
     public IoBufferEx getCurrentReadRequest() {

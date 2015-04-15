@@ -141,9 +141,8 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
         if (domain != null ? !domain.equals(that.domain) : that.domain != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        return !(value != null ? !value.equals(that.value) : that.value != null);
 
-        return true;
     }
 
     @Override

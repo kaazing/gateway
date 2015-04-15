@@ -26,7 +26,7 @@ import static org.kaazing.gateway.transport.wsr.RtmpStreamMessage.StreamKind.SET
 
 public class RtmpSetPeerBandwidthMessage extends RtmpStreamMessage {
 
-    public static enum LimitType {
+    public enum LimitType {
         HARD, SOFT, DYNAMIC
     }
     private long windowSize;

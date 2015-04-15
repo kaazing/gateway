@@ -28,7 +28,7 @@ public abstract class AmqpClassMessage extends AmqpMessage {
 
     private int channelId;    // This is short as per the spec.
     
-    public static enum ClassKind {
+    public enum ClassKind {
         CONNECTION((short)10),
         CHANNEL((short)20),
         EXCHANGE((short)40),
@@ -38,7 +38,7 @@ public abstract class AmqpClassMessage extends AmqpMessage {
         
         private final short classIndex;
         
-        private ClassKind(short classId) {
+        ClassKind(short classId) {
             this.classIndex = classId;
         }
         

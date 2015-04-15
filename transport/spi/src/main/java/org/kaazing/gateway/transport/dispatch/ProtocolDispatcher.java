@@ -29,9 +29,9 @@ import java.util.Comparator;
 
 public interface ProtocolDispatcher extends Comparable<ProtocolDispatcher> {
 
-    public String getProtocolName();
+    String getProtocolName();
 
-    public Collection<byte[]> getDiscriminators();
+    Collection<byte[]> getDiscriminators();
 
     // Need to establish an ordering for dispatchers because we use a SortedSet to hold them
     Comparator<ProtocolDispatcher> protocolDispatchComparator = compareNonNull(new Comparator<ProtocolDispatcher>() {

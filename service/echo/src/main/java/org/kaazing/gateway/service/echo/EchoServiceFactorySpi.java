@@ -31,7 +31,7 @@ public class EchoServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("echo");
+        return Collections.singletonList("echo");
     }
 
     @Override

@@ -459,10 +459,10 @@ public class JVMManagementMIB implements MOGroup {
                     classLoadingLong = (long) bean.getLoadedClassCount();
                     break;
                 case JVM_CLASSES_TOTAL_LOADED_OPER:
-                    classLoadingLong = (long) bean.getTotalLoadedClassCount();
+                    classLoadingLong = bean.getTotalLoadedClassCount();
                     break;
                 case JVM_CLASSES_UNLOADED_OPER:
-                    classLoadingLong = (long) bean.getUnloadedClassCount();
+                    classLoadingLong = bean.getUnloadedClassCount();
                     break;
                 default:
                     throw new RuntimeException(

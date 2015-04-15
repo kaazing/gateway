@@ -60,7 +60,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private final long maxExpectedRtt; // how long to wait for pong reply
     private final long pingDelay; // how long to wait before sending ping
 
-    private static enum NextAction {
+    private enum NextAction {
         PONG, // ping has been written, awaiting pong
         PING  // need to write ping
     }

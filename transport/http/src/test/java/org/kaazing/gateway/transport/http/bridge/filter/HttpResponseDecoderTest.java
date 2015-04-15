@@ -99,7 +99,7 @@ public class HttpResponseDecoderTest {
 		
 		assertFalse(session.getDecoderOutputQueue().isEmpty());
 		HttpResponseMessage httpResponse = (HttpResponseMessage)session.getDecoderOutputQueue().poll();
-		HttpContentMessage httpContent = (HttpContentMessage)httpResponse.getContent();
+		HttpContentMessage httpContent = httpResponse.getContent();
 		assertTrue(httpContent.isComplete());
 		assertEquals("retry:2500\r\n" +
 				     "event:TCPSend\r\n" +

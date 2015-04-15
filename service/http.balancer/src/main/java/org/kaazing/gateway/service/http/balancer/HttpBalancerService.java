@@ -106,7 +106,7 @@ public class HttpBalancerService implements Service {
                     List<URI> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
                     List<URI> selectedBalanceeURIs = null;
                     if (availableBalanceeURIs.isEmpty()) {
-                        selectedBalanceeURIs = Collections.<URI> emptyList();
+                        selectedBalanceeURIs = Collections.emptyList();
                     } else {
                         URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
                         selectedBalanceeURIs = new ArrayList<>(1);
