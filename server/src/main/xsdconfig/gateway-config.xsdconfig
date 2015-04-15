@@ -26,7 +26,4 @@
     <xb:namespace uri="http://xmlns.kaazing.org/2014/09/gateway">
         <xb:package>org.kaazing.gateway.server.config.sep2014</xb:package>
     </xb:namespace>
-    <xb:namespace uri="http://xmlns.kaazing.org/2015/03/gateway">
-        <xb:package>org.kaazing.gateway.server.config.mar2015</xb:package>
-    </xb:namespace>
 </xb:config>
