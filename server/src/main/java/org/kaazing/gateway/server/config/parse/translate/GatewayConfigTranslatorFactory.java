@@ -57,19 +57,9 @@ public class GatewayConfigTranslatorFactory {
         switch (ns) {
 
             case SEPTEMBER_2014:
-                // First validate that the config adhere's to the configuration guidelines
-                // for the September 2014 schema
+                /// Currently no per-namespace translator to add in here, just validate
                 GatewayConfigTranslator september2014Validator = new September2014Validator();
                 pipeline.addTranslator(september2014Validator);
-
-                // NOTE: We deliberately do NOT add a 'break' here; we want
-                // the code to fall through to the next case, so that any
-                // per-namespace pipelines also get added.  This is how we
-                // "chain" the pipelines together, creating a multi-stage
-                // pipeline to get a config from one namespace to the next.
-                //
-                // This means that the switch statement MUST have the
-                // namespaces labels in chronological order, oldest to newest.
         }
 
         return pipeline;

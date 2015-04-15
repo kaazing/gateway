@@ -89,12 +89,7 @@ public class GatewayConfigParser {
     /**
      * Namespace for current release.
      */
-    private static final String GATEWAY_CONFIG_NS = "http://xmlns.kaazing.org/2015/03/gateway";
-
-    /**
-     * Namespace for the Community Edition release
-     */
-    private static final String GATEWAY_CONFIG_201409_NS = "http://xmlns.kaazing.org/2014/09/gateway";
+    private static final String GATEWAY_CONFIG_NS = "http://xmlns.kaazing.org/2014/09/gateway";
 
     /**
      * Namespace for 4.0 release
@@ -210,12 +205,6 @@ public class GatewayConfigParser {
 
         switch (ns) {
             case SEPTEMBER_2014:
-                translatedConfigFile = new File(configFile.getParent(), configFile.getName() + TRANSLATED_CONFIG_FILE_EXT);
-                translate(ns, dom, translatedConfigFile);
-                break;
-            case MARCH_2015:
-                // translate the file to finish all the config enforcement validation steps, but skip writing out
-                // the translated file
                 translatedConfigFile = configFile;
                 translate(ns, dom, translatedConfigFile, true);
                 break;
