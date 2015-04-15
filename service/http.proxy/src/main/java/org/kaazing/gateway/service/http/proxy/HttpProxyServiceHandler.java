@@ -34,8 +34,6 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
-import org.kaazing.gateway.transport.http.HttpHeaders;
-import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
@@ -96,17 +99,17 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         @Override
         public void operationComplete(ConnectFuture future) {
             if (future.isConnected()) {
-                DefaultHttpSession connectedSession = (DefaultHttpSession)future.getSession();
+                DefaultHttpSession connectSession = (DefaultHttpSession)future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectedSession+"]");
+                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectSession+"]");
                 }
                 if (acceptSession == null || acceptSession.isClosing()) {
-                    connectedSession.close(true);
+                    connectSession.close(true);
                 } else {
-                    AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectedSession);
-                    connectedSession.getCloseFuture().addListener(new UpgradeCloseListener(connectedSession, acceptSession));  // TODO single instance
-                    acceptSession.getCloseFuture().addListener(new UpgradeCloseListener(acceptSession, connectedSession));     // TODO single instance
+                    AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectSession);
+                    connectSession.getCloseFuture().addListener(new Upgrader(connectSession, acceptSession));
+                    acceptSession.getCloseFuture().addListener(new Upgrader(acceptSession, connectSession));
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
@@ -160,16 +163,19 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
     
     
-    // Write all request headers from accept session to connect session
-    private void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+    /*
+     * Write all (except hop-by-hop) request headers from accept session to connect session.
+     * If the request is an upgrade one, let the Upgrade header go through as this
+     * service supports upgrade
+     */
+    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
         Set<String> hopByHopHeaders = getHopByHopHeaders(acceptSession);
-        boolean upgrade = false;
-        String upgradeHeader = acceptSession.getReadHeader(HttpHeaders.HEADER_UPGRADE);
-        if ("WebSocket".equalsIgnoreCase(upgradeHeader)) {
-            upgrade = true;
-            hopByHopHeaders.remove(HttpHeaders.HEADER_UPGRADE);
+        boolean upgrade = acceptSession.getReadHeader(HEADER_UPGRADE) != null;
+        if (upgrade) {
+            hopByHopHeaders.remove(HEADER_UPGRADE);
         }
 
+        // Add accept session headers to connect session
         for(Map.Entry<String, List<String>> e : acceptSession.getReadHeaders().entrySet()) {
             String name = e.getKey();
             for(String value : e.getValue()) {
@@ -178,20 +184,28 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 }
             }
         }
+
+        // Add Connection: upgrade or Connection: close header
         if (upgrade) {
-            connectSession.setWriteHeader(HttpHeaders.HEADER_CONNECTION, HttpHeaders.HEADER_UPGRADE);
+            connectSession.setWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
         } else {
             ResourceAddress address = connectSession.getRemoteAddress();
+            // If keep-alive is disabled, add Connection: close header
             if (!address.getOption(HttpResourceAddress.KEEP_ALIVE)) {
-                connectSession.setWriteHeader(HttpHeaders.HEADER_CONNECTION, "close");
+                connectSession.setWriteHeader(HEADER_CONNECTION, "close");
             }
         }
-        connectSession.addWriteHeader(HttpHeaders.HEADER_VIA, VIA_HEADER_VALUE);
+
+        // Add Via: 1.1 kaazing header
+        connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE);
     }
     
-    // Get all hop-by-hop headers from Connection header. Also add Connection header itself to the set
-    private Set<String> getHopByHopHeaders(HttpAcceptSession acceptSession) {
-        List<String> connectionHeaders = acceptSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION);
+    /*
+     * Get all hop-by-hop headers from Connection header value.
+     * Also add Connection header itself to the set
+     */
+    private static Set<String> getHopByHopHeaders(HttpAcceptSession acceptSession) {
+        List<String> connectionHeaders = acceptSession.getReadHeaders(HEADER_CONNECTION);
         if (connectionHeaders == null) {
             connectionHeaders = Collections.emptyList();
         }
@@ -199,16 +213,18 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         for(String conHeader : connectionHeaders) {
             hopByHopHeaders.add(conHeader);
         }
-        hopByHopHeaders.add(HttpHeaders.HEADER_CONNECTION);
+        hopByHopHeaders.add(HEADER_CONNECTION);
         return hopByHopHeaders;
     }
 
+    /*
+     * An upgrade handler that connects transport sessions of http accept and connect
+     * sessions.
+     */
     private static class ProxyUpgradeHandler extends IoHandlerAdapter<IoSessionEx>  {
-        final IoSession session;
         final IoSession attachedSession;
 
-        ProxyUpgradeHandler(IoSession session, IoSession attachedSession) {
-            this.session = session;
+        ProxyUpgradeHandler(IoSession attachedSession) {
             this.attachedSession = attachedSession;
         }
 
@@ -235,21 +251,26 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     }
 
     /*
+     * A close listener that upgrades underlying transport connection
+     * at the end of http session close.
      */
-    private static class UpgradeCloseListener implements IoFutureListener<CloseFuture> {
+    private static class Upgrader implements IoFutureListener<CloseFuture> {
         private final DefaultHttpSession session;
         private final DefaultHttpSession attachedSession;
 
-        UpgradeCloseListener(DefaultHttpSession session, DefaultHttpSession attachedSession) {
+        Upgrader(DefaultHttpSession session, DefaultHttpSession attachedSession) {
             this.session = session;
             this.attachedSession = attachedSession;
         }
 
         @Override
         public void operationComplete(CloseFuture future) {
-            if (session.getStatus() == HttpStatus.INFO_SWITCHING_PROTOCOLS) {
-                ProxyUpgradeHandler handler = new ProxyUpgradeHandler(session.getParent(), attachedSession.getParent());
+            if (session.getStatus() == INFO_SWITCHING_PROTOCOLS) {
+                ProxyUpgradeHandler handler = new ProxyUpgradeHandler(attachedSession.getParent());
                 session.suspendRead();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(String.format("http.proxy service is upgrading session %s", session));
+                }
                 session.upgrade(handler);
             }
         }
