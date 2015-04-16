@@ -69,4 +69,16 @@ public class HttpProxyUpgradeIT {
         robot.finish();
     }
 
+    @Specification("http.proxy.upgrade.client.disconnect")
+    @Test
+    public void clientDisconnect() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.upgrade.server.disconnect")
+    @Test
+    public void serverDisconnect() throws Exception {
+        robot.finish();
+    }
+
 }
