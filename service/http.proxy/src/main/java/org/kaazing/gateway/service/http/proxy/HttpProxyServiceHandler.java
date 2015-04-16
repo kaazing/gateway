@@ -73,20 +73,34 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
             //final Subject subject = ((IoSessionEx) acceptSession).getSubject();
 
-            ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), new IoSessionInitializer<ConnectFuture>() {
-                @Override
-                public void initializeSession(IoSession session, ConnectFuture future) {
-                    HttpConnectSession connectSession = (HttpConnectSession) session;
-                    connectSession.setVersion(acceptSession.getVersion());
-                    connectSession.setMethod(acceptSession.getMethod());
-                    connectSession.setRequestURI(acceptSession.getRequestURI());
-                    processRequestHeaders(acceptSession, connectSession);
-                }
-            });
+            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
+            ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
 
             super.sessionOpened(acceptSession);
         }
+    }
+
+    /*
+     * Initializer for connect session. It adds the processed accept session headers
+     * on the connect session
+     */
+    private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
+        private final DefaultHttpSession acceptSession;
+
+        ConnectSessionInitializer(DefaultHttpSession acceptSession) {
+            this.acceptSession = acceptSession;
+        }
+
+        @Override
+        public void initializeSession(IoSession session, ConnectFuture future) {
+            HttpConnectSession connectSession = (HttpConnectSession) session;
+            connectSession.setVersion(acceptSession.getVersion());
+            connectSession.setMethod(acceptSession.getMethod());
+            connectSession.setRequestURI(acceptSession.getRequestURI());
+            processRequestHeaders(acceptSession, connectSession);
+        }
+
     }
 
     private class ConnectListener implements IoFutureListener<ConnectFuture> {
@@ -139,22 +153,20 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             AttachedSessionManager attachedSessionManager = getAttachedSessionManager(session);
             if (attachedSessionManager != null) {
                 HttpAcceptSession acceptSession = (HttpAcceptSession) attachedSessionManager.getAttachedSession();
-                if (acceptSession.getWrittenBytes() == 0L) {
-                    if (!(acceptSession.isCommitting() || acceptSession.isClosing())) {
-                        acceptSession.setStatus(connectSession.getStatus());
-                        acceptSession.setReason(connectSession.getReason());
-                        acceptSession.setVersion(connectSession.getVersion());
-                        Map<String, List<String>> headers = connectSession.getReadHeaders();
-                        for (Map.Entry<String, List<String>> e : headers.entrySet()) {
-                            String name = e.getKey();
-                            for (String value : e.getValue()) {
-                                // client<-->gateway may use keep-alive, so don't send gateway<-->origin's connection hdr
-                                // Note that origin server may send Connection: Upgrade
-                                if (name.equalsIgnoreCase("Connection") && value.equals("close")) {
-                                    continue;
-                                }
-                                acceptSession.addWriteHeader(name, value);
+                if (acceptSession.getWrittenBytes() == 0L && !acceptSession.isCommitting() && !acceptSession.isClosing()) {
+                    acceptSession.setStatus(connectSession.getStatus());
+                    acceptSession.setReason(connectSession.getReason());
+                    acceptSession.setVersion(connectSession.getVersion());
+                    Map<String, List<String>> headers = connectSession.getReadHeaders();
+                    for (Map.Entry<String, List<String>> e : headers.entrySet()) {
+                        String name = e.getKey();
+                        for (String value : e.getValue()) {
+                            // client<-->gateway may use keep-alive, so don't send gateway<-->origin's connection header
+                            // Note that origin server may send Connection: Upgrade
+                            if (name.equalsIgnoreCase("Connection") && value.equals("close")) {
+                                continue;
                             }
+                            acceptSession.addWriteHeader(name, value);
                         }
                     }
                 }
