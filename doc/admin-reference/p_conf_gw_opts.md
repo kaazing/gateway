@@ -98,7 +98,8 @@ GATEWAY_OPTS Environment Variable Examples
 
 Windows Example:
 
-`> SET GATEWAY_OPTS=-DGATEWAY_HOME=C:\Gateway\` 
+`> SET GATEWAY_OPTS=-DGATEWAY_HOME=C:\Gateway\`
+
 `> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
