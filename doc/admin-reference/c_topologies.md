@@ -15,27 +15,23 @@ Developers that want to develop against the Gateway can run the Gateway locally 
 
 This topic covers the following information:
 
--   [DMZ to Trusted Network Topology](#DMZ_to_Internal)
-    -   [Deploying the DMZ to Trusted Network Topology](#Deploy_DMZ_to_Internal)
--   [Enterprise Shield™](#Enterprise_Shield)
--   [Virtual Private Connection](#VPC)
--   [TLS/SSL Security Considerations](#TLS)
+-   [DMZ to Trusted Network Topology](#dmz-to-trusted-network-topology)
+    -   [Deploying the DMZ to Trusted Network Topology](#deploying-the-dmz-to-trusted-network-topology)
+-   [Enterprise Shield™](#enterprise-shield)
+-   [Virtual Private Connection](#virtual-private-connection)
+-   [TLS/SSL Security Considerations](#tlsssl-security-considerations)
 
-<a name="DMZ_to_Internal"></a>DMZ to Trusted Network Topology
+DMZ to Trusted Network Topology
 -------------------------------------------------------------
 
 In this topology, client to back-end service or message broker connections are protected by two layers of network security, a firewall-protected DMZ and a firewall-protected Trusted Network. A Gateway or Gateway cluster is deployed in the firewall-protected DMZ peripheral network to service requests from KAAZING Gateway clients on the Web. The DMZ Gateway connects through a firewall to a second Gateway deployed in the internal, Trusted Network. The Internal Gateway connects to the back-end service or message broker.
 
 Here is an example of the topology.
 
-<figure style="margin-left:0px;">
-![](../images/f-dmz-trusted-top.png)
-<figcaption>
+![DMZ to Trusted Network Topology](../images/f-dmz-trusted-top.png)
 
 **Figure: DMZ to Trusted Network Topology**
 
-</figcaption>
-</figure>
 ### <a name="Deploy_DMZ_to_Internal"></a>Deploying the DMZ to Trusted Network Topology
 
 Deploying this topology involves the following:
@@ -47,25 +43,25 @@ Deploying this topology involves the following:
 
 This topology is typically deployed using Gateway clustering and load balancing. For more information, see [Configure the Gateway for High Availability](../high-availability/o_ha.md). Load balancing can also be performed by a third party load balancer.
 
-<a name="Enterprise_Shield"></a>Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 ---------------------------------------------------------------------
 
-Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md#whatis).
+Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md#about-enterprise-shield).
 
-<a name="VPC"></a>Virtual Private Connection
+Virtual Private Connection
 --------------------------------------------
 
 In this topology, the VPC solution (sometimes called *NoVPN*) transparently uses the Web Tier for all of its secure communication. This topology provides a VPN-style solution without the need for specialist VPN software.
 
 KAAZING Gateway can be configured to allow TCP (and UDP) clients to connect to servers over the Web without the need for any special WebSocket libraries, thus creating a virtual private connection. KAAZING Gateway is designed not only to proxy TCP protocols using the WebSocket protocol, but to run in a WebSocket protocol to TCP mode. This design allows system and network administrators to configure two or more Gateway instances to enable applications to traverse the Web securely through firewalls and proxy servers. The VPC topology delivers sophisticated server-to-server systems and rich client applications over a LAN or WAN web infrastructure in the same manner as conventional distributed applications, all without the expense or complexity of a private line.
 
-<a name="TLS"></a>TLS/SSL Security Considerations
+TLS/SSL Security Considerations
 -------------------------------------------------
 
 KAAZING Gateway topologies use TLS/SSL to ensure that network intermediaries, such as transparent proxy servers and firewalls that are unaware of WebSocket, do not drop the WebSocket connection. WebSocket uses the same HTTP upgrade method commonly used to upgrade HTTP connections to HTTPS. Intermediaries unfamiliar with WebSocket might drop the unfamiliar WebSocket upgrade as a security precaution, preventing the WebSocket connection. When using the WSS connection over TLS/SSL, however, intermediaries trust the WSS connection and allow it to pass.
 
 When using TLS/SSL with Gateway topologies, the Gateway must provide KAAZING Gateway clients (built using KAAZING Gateway libraries) with the certificate for the domain name in the URI that the clients use to connect to the Gateway. If TLS/SSL is deployed between Gateway instances, then certificates must be used for the hostnames in the URIs used by the connected Gateway instances.
 
-For more information, see [TLS/SSL with the Gateway Example](../security/u_tls_works.md#tls_how_works) and [Secure Network Traffic with the Gateway](../security/o_tls.md).
+For more information, see [TLS/SSL with the Gateway Example](../security/u_tls_works.md#tlsssl-with-the-gateway-example) and [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
 
