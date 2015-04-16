@@ -1,37 +1,3 @@
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-</button>
-[![](../../resources/images/KAAZING.png)](http://kaazing.org)
-
--   [GitHub](http://github.com/kaazing)
--   [Documentation](http://developer.kaazing.com/documentation/5.0/index.html)
--   [Download](http://kaazing.org/download)
--   [Demos](http://kaazing.org/demos)
--   [Quick Start](http://kaazing.org/demos/quick-start)
--   [Blog](http://kaazing.org/blog)
--   [Developer Subscription](http://kaazing.org/developer-subscription)
-
-</nav>
-
-<style type="text/css">
-
-          ul.nav li {
-            margin-top: 0;
-            margin-left: 0;
-            padding-left: 0;
-          }
-
-          #responsive_header {
-            height: 0;
-          }
-
-          .expand {
-            top: 60px;
-          }
-
-  </style>
-
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
 -   Administration with KAAZING Gateway
@@ -44,33 +10,33 @@ You can view and link to all Gateway configuration elements and properties using
 -   **Configuration Element Index** (this topic) for an alphabetical listing
 -   [Configuration Skeleton](r_conf_elementskeleton.md) for a bare bones Gateway configuration
 
-[accept](r_conf_service.md#broadcast-accept) (broadcast)
+[accept](r_conf_service.md#broadcast) (broadcast)
 
-[accept](r_conf_cluster.md#clstracceptopt) (cluster)
+[accept](r_conf_cluster.md) (cluster)
 
-[accept](r_conf_service.md#acceptele) (service)
+[accept](r_conf_service.md) (service)
 
-[accept-options](r_conf_service.md#svcacceptopts) (service)
+[accept-options](r_conf_service.md) (service)
 
-[accept-options](r_conf_serv_defs.md#svcdftacceptoptions) (service-defaults)
+[accept-options](r_conf_serv_defs.md#accept-options-service-defaults) (service-defaults)
 
-[allow-headers](r_conf_service.md#alllowheaders)
+[allow-headers](r_conf_service.md#cross-site-constraint)
 
-[allow-methods](r_conf_service.md#allowmethods)
+[allow-methods](r_conf_service.md#cross-site-constraint)
 
-[allow-origin](r_conf_service.md#alloworigin)
+[allow-origin](r_conf_service.md#cross-site-constraint)
 
-[amqp.proxy](r_conf_service.md#proxy)
+[amqp.proxy](r_conf_service.md#proxy-and-amqpproxy)
 
-[authentication](r_conf_security.md#sec_auth)
+[authentication](r_conf_security.md#realm)
 
-[authorization-constraint](r_conf_service.md#svcauthconst)
+[authorization-constraint](r_conf_service.md#authorization-constraint)
 
-[authorization-mode](r_conf_security.md#auth_mode)
+[authorization-mode](r_conf_security.md#authentication)
 
-[authorization-timeout](r_conf_security.md#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[authorization-timeout](r_conf_security.md#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[balance](r_conf_service.md#balanceele)
+[balance](r_conf_service.md#balance)
 
 [balancer](r_conf_service.md#balancer)
 
@@ -78,103 +44,103 @@ You can view and link to all Gateway configuration elements and properties using
 
 [cluster](r_conf_cluster.md)
 
-[connect](r_conf_cluster.md#clstrconnectopt) (cluster)
+[connect](r_conf_cluster.md) (cluster)
 
-[connect](r_conf_service.md#connectele) (service)
+[connect](r_conf_service.md#connect) (service)
 
-[connect-options](r_conf_service.md#svcconnectopts)
+[connect-options](r_conf_service.md#accept-options-and-connect-options)
 
-[cross-site-constraint](r_conf_service.md#xsiteconst)
+[cross-site-constraint](r_conf_service.md#cross-site-constraint)
 
-[debug](r_conf_security.md#debug_opt)
+[debug](r_conf_security.md)
 
-[description](r_conf_security.md#realm_description) (security)
+[description](r_conf_security.md) (security)
 
-[description](r_conf_service.md#servicedescription) (service)
+[description](r_conf_service.md) (service)
 
-[directory](r_conf_service.md#directory-directory) (directory)
+[directory](r_conf_service.md#directory) (directory)
 
 [directory](r_conf_service.md#directory) (service)
 
 [echo](r_conf_service.md#echo)
 
-[error-pages-directory](r_conf_service.md#directory-errorpagesdirectory)
+[error-pages-directory](r_conf_service.md)
 
-[extension](r_conf_serv_defs.md#mimemapextension)
+[extension](r_conf_serv_defs.md)
 
-[file](r_conf_security.md#keystore_file) (keystore)
+[file](r_conf_security.md#keystore) (keystore)
 
-[file](r_conf_security.md#truststore_file) (truststore)
+[file](r_conf_security.md#truststore) (truststore)
 
 [gateway-config](r_conf_gwconfig.md)
 
 [http.bind](r_conf_service.md#protocolbind)
 
-[http-challenge-scheme](r_conf_security.md#challenge_scheme)
+[http-challenge-scheme](r_conf_security.md#authentication)
 
-[http-cookie](r_conf_security.md#http-cookie)
+[http-cookie](r_conf_security.md#authentication)
 
-[http-header](r_conf_security.md#http-header)
+[http-header](r_conf_security.md#authentication)
 
-[http.keepalive.timeout](r_conf_service.md#keepalive)
+[http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout)
 
-[http-query-parameter](r_conf_security.md#httpqueryparameter)
+[http-query-parameter](r_conf_security.md#authentication)
 
-[http.transport](r_conf_service.md#httptransport)
+[http.transport](r_conf_service.md#protocoltransport)
 
-[https.bind](r_conf_service.md#protocolbind)
+[https.bind](r_conf_service.md#protocoltransport)
 
-[kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](r_conf_service.md#kerberos5)
+[kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](r_conf_service.md#kerberos5proxy)
 
 [keystore](r_conf_security.md#keystore)
 
-[login-module](r_conf_security.md#loginmodule)
+[login-module](r_conf_security.md#login-module)
 
-[login-modules](r_conf_security.md#realm_loginmodules)
+[login-modules](r_conf_security.md#realm)
 
-[management.jmx](r_conf_service.md#mgmtjmx)
+[management.jmx](r_conf_service.md#managementjmx)
 
-[management.snmp](r_conf_service.md#mgmtsnmp)
+[management.snmp](r_conf_service.md#managementsnmp)
 
-[maximum.pending.bytes](r_conf_service.md#proxy-maximumpendingbytes)
+[maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy)
 
-[maximum.recovery.interval](r_conf_service.md#proxy-maximumrecoveryinterval)
+[maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
 
-[mime-mapping](r_conf_service.md#svcmimemapping) (service)
+[mime-mapping](r_conf_service.md#mime-mapping) (service)
 
-[mime-mapping](r_conf_serv_defs.md#svcdftmimemapping) (service defaults)
+[mime-mapping](r_conf_serv_defs.md#mime-mapping-service-defaults) (service defaults)
 
-[mime-type](r_conf_serv_defs.md#mimemapextension)
+[mime-type](r_conf_serv_defs.md#service-defaults)
 
-[name](r_conf_cluster.md#clstrnameprop) (cluster)
+[name](r_conf_cluster.md#cluster) (cluster)
 
-[name](r_conf_security.md#realm_name) (security)
+[name](r_conf_security.md#realm) (security)
 
-[name](r_conf_service.md#servicename) (service)
+[name](r_conf_service.md#service) (service)
 
-[options](r_conf_service.md#directory-options) (directory)
+[options](r_conf_service.md#directory) (directory)
 
-[options](r_conf_security.md#loginmoduleoptions) (login-module)
+[options](r_conf_security.md#options-login-module) (login-module)
 
-[password-file](r_conf_security.md#keystore_passwordfile) (keystore)
+[password-file](r_conf_security.md#keystore) (keystore)
 
-[password-file](r_conf_security.md#truststore_passwordfile) (truststore)
+[password-file](r_conf_security.md#truststore) (truststore)
 
-[pipe.transport](r_conf_service.md#pipetransport)
+[pipe.transport](r_conf_service.md#protocoltransport)
 
-[prepared.connection.count](r_conf_service.md#proxy-preparedconnectioncount)
+[prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
 
-[properties](r_conf_service.md#propertiesele)
+[properties](r_conf_service.md#properties)
 
 [proxy](r_conf_service.md#proxy)
 
-[realm](r_conf_security.md#realm_element)
+[realm](r_conf_security.md#realm)
 
 [realm-name](r_conf_service.md#realm-name)
 
-[require-role](r_conf_service.md#requireroleopt)
+[require-role](r_conf_service.md#authorization-constraint)
 
-[require-valid-user](r_conf_service.md#requirevaliduser)
+[require-valid-user](r_conf_service.md#authorization-constraint)
 
 [security](r_conf_security.md)
 
@@ -182,23 +148,23 @@ You can view and link to all Gateway configuration elements and properties using
 
 [service-defaults](r_conf_serv_defs.md)
 
-[session](r_conf_service.md#session_svc)
+[session](r_conf_service.md#session)
 
-[session-timeout](r_conf_security.md#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[session-timeout](r_conf_security.md#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.bind](r_conf_service.md#protocolbind) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.retry.maximum.interval](r_conf_service.md#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.timeout](r_conf_service.md#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.timeout](r_conf_service.md#sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.protocols](r_conf_service.md#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.ssl.verify-client](r_conf_service.md#accept-options-and-connect-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.transport](r_conf_service.md#protocoltransport) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
@@ -206,69 +172,49 @@ You can view and link to all Gateway configuration elements and properties using
 
 [ssl.ciphers](r_conf_service.md#sslciphers)
 
-[ssl.encryption](r_conf_service.md#sslencrypt)
+[ssl.encryption](r_conf_service.md#sslencryption)
 
-[ssl.protocols](r_conf_service.md#sslprotocols)
+[ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
 
-[ssl.transport](r_conf_service.md#ssltransport)
+[ssl.transport](r_conf_service.md#protocoltransport)
 
-[ssl.verify-client](r_conf_service.md#sslverifyclient)
+[ssl.verify-client](r_conf_service.md#sslverify-client)
 
-[success](r_conf_security.md#success)
+[success](r_conf_security.md#login-module)
 
 [tcp.bind](r_conf_service.md#protocolbind)
 
-[tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[tcp.transport](r_conf_service.md#tcptransport)
+[tcp.transport](r_conf_service.md#protocoltransport)
 
 [truststore](r_conf_security.md#truststore)
 
-[tryFirstToken](r_conf_security.md#tryFirstToken_option)
+[tryFirstToken](r_conf_security.md#login-module)
 
-[type](r_conf_security.md#loginmoduletype) (login-module)
+[type](r_conf_security.md#login-module) (login-module)
 
-[type](r_conf_security.md#keystore_type) (keystore)
+[type](r_conf_security.md#keystore) (keystore)
 
-[type](r_conf_security.md#truststore_type) (truststore)
+[type](r_conf_security.md#truststore) (truststore)
 
-[type](r_conf_service.md#typeele) (service)
+[type](r_conf_service.md#type) (service)
 
 [udp.bind](r_conf_service.md#protocolbind)
 
-[user-principal-class](r_conf_security.md#userprincipalclass)
+[user-principal-class](r_conf_security.md#realm)
 
-[virtual.host](r_conf_service.md#proxy-virtualhost)
+[virtual.host](r_conf_service.md#proxy-and-amqpproxy)
 
-[welcome-file](r_conf_service.md#directory-welcomefile)
+[welcome-file](r_conf_service.md#directory)
 
 [ws.bind](r_conf_service.md#protocolbind)
 
 [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
 
-[ws.maximum.message.size](r_conf_service.md#wsmaxmsg)
+[ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize)
 
-[ws.version](r_conf_service.md#wsversionopt) (deprecated)
+[ws.version](r_conf_service.md#wsversion-deprecated) (deprecated)
 
 [wss.bind](r_conf_service.md#protocolbind)
-
-</div>
-<footer>
-[**](https://github.com/kaazing) [**](https://www.facebook.com/kaazing)  [**](https://twitter.com/kaazing)  [**](https://plus.google.com/+KaazingHome)  [**](https://www.youtube.com/user/KaazingTV)  [**](https://www.linkedin.com/company/kaazing-corporation) 
-
-Copyright © 2007-2015 Kaazing Corporation
-
-This website is licensed under [Creative Commons BY-NC-SA](http://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-</footer>
-<script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-        </script>
-<script type="text/javascript">
-            try {
-            var pageTracker = _gat._getTracker("UA-1771436-5");
-            pageTracker._trackPageview();
-            } catch(err) {}
-        </script>
 
