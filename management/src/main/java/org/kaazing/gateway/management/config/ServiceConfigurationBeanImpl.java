@@ -21,11 +21,14 @@
 
 package org.kaazing.gateway.management.config;
 
+import static java.util.Arrays.asList;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +41,6 @@ import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.Utils;
-import static java.util.Arrays.asList;
 
 public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
@@ -101,6 +103,8 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
             try {
                 if (context != null) {
+                    Map<String, Object> acceptOptions = context.asOptionsMap();
+
                     Map<String, String> binds = context.getBinds();
                     if ((binds != null) && !binds.isEmpty()) {
                         jsonObj = new JSONObject();
@@ -110,7 +114,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("binds", jsonObj);
                     }
 
-                    String[] sslCiphers = context.getSslCiphers();
+                    String[] sslCiphers = (String[]) acceptOptions.get("ssl.ciphers");
                     if (sslCiphers != null) {
                         String cipherString = Utils.asCommaSeparatedString(asList(sslCiphers));
                         if (cipherString != null && cipherString.length() > 0) {
@@ -118,12 +122,15 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         }
                     }
 
+                    boolean isSslEncryptionEnabled = (Boolean) acceptOptions.get("ssl.encryption");
                     jsonOptions.put("ssl.encryption",
-                            context.isSslEncryptionEnabled() ? "enabled" : "disabled");
+                            isSslEncryptionEnabled ? "enabled" : "disabled");
 
-                    if (context.getSslNeedClientAuth()) {
+                    boolean wantClientAuth = (Boolean) acceptOptions.get("ssl.wantClientAuth");
+                    boolean needClientAuth = (Boolean) acceptOptions.get("ssl.needClientAuth");
+                    if (needClientAuth) {
                         jsonOptions.put("ssl.verify-client", "required");
-                    } else if (context.getSslWantClientAuth()) {
+                    } else if (wantClientAuth) {
                         jsonOptions.put("ssl.verify-client", "optional");
                     } else {
                         jsonOptions.put("ssl.verify-client", "none");
@@ -150,39 +157,39 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 //                  }
 
 
-                    jsonOptions.put("ws.maximum.message.size", context.getWsMaxMessageSize());
+                    jsonOptions.put("ws.maximum.message.size", acceptOptions.get("ws.maximum.message.size"));
 
-                    Long wsInactivityTimeout = context.getWsInactivityTimeout();
+                    Long wsInactivityTimeout = (Long) acceptOptions.get("ws.inactivity.timeout");
                     if (wsInactivityTimeout != null) {
                         jsonOptions.put("ws.inactivity.timeout", wsInactivityTimeout);
                     }
 
-                    Integer httpKeepAlive = context.getSessionIdleTimeout("http");
+                    Integer httpKeepAlive = (Integer) acceptOptions.get("http.keepalive.timeout");
                     if (httpKeepAlive != null) {
                         jsonOptions.put("http.keepalive.timeout", httpKeepAlive);
                     }
 
-                    URI pipeTransport = context.getPipeTransport();
+                    URI pipeTransport = (URI) acceptOptions.get("pipe.transport");
                     if (pipeTransport != null) {
                         jsonOptions.put("pipe.transport", pipeTransport.toString());
                     }
 
-                    URI tcpTransport = context.getTcpTransport();
+                    URI tcpTransport = (URI) acceptOptions.get("tcp.transport");
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
 
-                    URI sslTransport = context.getSslTransport();
+                    URI sslTransport = (URI) acceptOptions.get("ssl.transport");
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = context.getHttpTransport();
+                    URI httpTransport = (URI) acceptOptions.get("http.transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
                     }
 
-                    long tcpMaxOutboundRate = context.getTcpMaximumOutboundRate();
+                    long tcpMaxOutboundRate = (Long) acceptOptions.get("tcp.maximum.outbound.rate");
                     jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
                 }
             } catch (Exception ex) {
@@ -221,9 +228,11 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
             try {
                 if (context != null) {
+                    Map<String, Object> connectOptions = context.asOptionsMap();
 
-                    if (context.getSslCiphers() != null) {
-                        List<String> sslCiphers = Arrays.asList(context.getSslCiphers());
+                    String[] sslCiphersArray = (String[]) connectOptions.get("ssl.ciphers");
+                    if (sslCiphersArray != null) {
+                        List<String> sslCiphers = Arrays.asList(sslCiphersArray);
                         if (sslCiphers.size() > 0) {
                             jsonOptions.put("ssl.ciphers", sslCiphers);
                         }
@@ -234,27 +243,27 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     //WebSocketWireProtocol protocol = connectOptions.getWebSocketWireProtocol();
                     //sb.append("websocket-wire-protocol=" + protocol);
 
-                    String wsVersion = context.getWsVersion();
+                    String wsVersion = (String) connectOptions.get("ws.version");
                     if (wsVersion != null) {
                         jsonOptions.put("ws.version", wsVersion);
                     }
 
-                    URI pipeTransport = context.getPipeTransport();
+                    URI pipeTransport = (URI) connectOptions.get("pipe.transport");
                     if (pipeTransport != null) {
                         jsonOptions.put("pipe.transport", pipeTransport.toString());
                     }
 
-                    URI tcpTransport = context.getTcpTransport();
+                    URI tcpTransport = (URI) connectOptions.get("tcp.transport");
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
 
-                    URI sslTransport = context.getSslTransport();
+                    URI sslTransport = (URI) connectOptions.get("ssl.transport");
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = context.getHttpTransport();
+                    URI httpTransport = (URI) connectOptions.get("http.transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
                     }
