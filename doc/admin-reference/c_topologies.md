@@ -17,7 +17,7 @@ This topic covers the following information:
 
 -   [DMZ to Trusted Network Topology](#dmz-to-trusted-network-topology)
     -   [Deploying the DMZ to Trusted Network Topology](#deploying-the-dmz-to-trusted-network-topology)
--   [Enterprise Shield™](#enterprise-shield)
+-   [Enterprise Shield™](#enterprise-shield--)
 -   [Virtual Private Connection](#virtual-private-connection)
 -   [TLS/SSL Security Considerations](#tlsssl-security-considerations)
 
