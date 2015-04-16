@@ -20,10 +20,10 @@ To Configure the Gateway
 ---------------------------
 
 The standard way to set up and maintain your Gateway configuration is by editing the settings in the Gateway configuration file in the `GATEWAY_HOME/conf/` directory. The following steps describe how to modify one of the default configuration files `gateway-config.xml` and `gateway-config-minimal.xml,`, or you can create and edit your own configuration file.
+
 1.  Before you configure the Gateway, ensure you have followed the steps in [Setting Up KAAZING Gateway](../about/setup-guide.md) to download and install KAAZING Gateway.
 2.  Configure the Gateway using one of the following configuration files:
-    -   Modify the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file.
-
+  -   Modify the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file.
         The `gateway-config.xml` contains a complete set of the Gateway properties, including the properties and services needed to run the Gateway documentation and out of the box demos.
 
     -   Create a customized Gateway configuration by adding specific elements to the configuration file `GATEWAY_HOME/conf/gateway-config-minimal.xml` file.
@@ -34,12 +34,12 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
 3.  At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
-    -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#aboutnamespace).
+    -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#about-kaazing-gateway-namespace-declarations).
     -   The `service` element with the [directory](r_conf_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
     Here's an example of a simple Gateway configuration file that uses the default (supplied) ports to bind the `/base` (port 8000) to the Gateway host:
 
-    ``` brush:
+    ``` xml
     <?xml version="1.0" encoding="UTF-8" ?>
     <gateway-config xmlns="http://xmlns.kaazing.com/2014/09/gateway">
 
