@@ -57,7 +57,7 @@ public class GatewayConfigTranslatorFactory {
         switch (ns) {
 
             case SEPTEMBER_2014:
-                /// Currently no per-namespace translator to add in here, just validate
+                // Currently no per-namespace translator to add in here, just validate
                 GatewayConfigTranslator september2014Validator = new September2014Validator();
                 pipeline.addTranslator(september2014Validator);
         }
