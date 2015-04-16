@@ -19,9 +19,9 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
 
 -   [gateway-config](r_conf_gwconfig.md)
     -   [cluster](#cluster)
-        -   [name](#clstrnameprop)
-        -   [accept](#clstracceptopt)
-        -   [connect](#clstrconnectopt)
+        -   name
+        -   accept
+        -   connect
 
 cluster
 --------------------------------------
