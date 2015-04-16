@@ -94,7 +94,7 @@ Notes
 GATEWAY_OPTS Environment Variable Examples
 -------------------------------------------------------------------
 
-### GATEWAY\_HOME
+### GATEWAY_HOME
 
 Windows Example:
 
@@ -104,105 +104,120 @@ Windows Example:
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_HOME=/Users/johnsmith/Desktop/Gateway/"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_HOME=/Users/johnsmith/Desktop/Gateway/"`
 
-### GATEWAY\_CONFIG
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### GATEWAY_CONFIG
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config-test.xml
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config-test.xml`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Here is an alternative way to specify the configuration file:
 
 `> gateway.start.bat --config C:\Gateway\conf\gateway-config-test.xml`
+
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=/Users/johnsmith/Desktop/Gateway/conf/gateway-config-test.xml"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=/Users/johnsmith/Desktop/Gateway/conf/gateway-config-test.xml"`
+ 
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
 
 Here is an alternative way to specify the configuration file:
 
 `./gateway.start --config /Users/johnsmith/Desktop/Gateway/conf/gateway-config-test.xml`
-### GATEWAY\_CONFIG\_DIRECTORY
+
+### GATEWAY_CONFIG_DIRECTORY
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config-test.xml -DGATEWAY\_CONFIG\_DIRECTORY=C:\\Gateway\\conf
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config-test.xml -DGATEWAY_CONFIG_DIRECTORY=C:\Gateway\conf`
+ 
+ `> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config-test.xml -DGATEWAY\_CONFIG\_DIRECTORY= \\ /Users/johnsmith/Desktop/Gateway/conf"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config-test.xml -DGATEWAY_CONFIG_DIRECTORY= \ /Users/johnsmith/Desktop/Gateway/conf"
 
-### GATEWAY\_WEB\_DIRECTORY
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### GATEWAY_WEB_DIRECTORY
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config.xml -DGATEWAY\_WEB\_DIRECTORY=C:\\Gateway\\web-test
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config.xml -DGATEWAY_WEB_DIRECTORY=C:\Gateway\web-test`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DGATEWAY\_WEB\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/web-test"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml -DGATEWAY\_WEB\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/web-test"`
 
-### GATEWAY\_TEMP\_DIRECTORY
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### GATEWAY_TEMP_DIRECTORY
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config.xml -DGATEWAY\_TEMP\_DIRECTORY=C:\\Gateway\\temp-test
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config.xml -DGATEWAY_TEMP_DIRECTORY=C:\Gateway\temp-test`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DGATEWAY\_TEMP\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/temp-test"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml -DGATEWAY_TEMP_DIRECTORY=/Users/johnsmith/Desktop/Gateway/temp-test"`
 
-### GATEWAY\_LOG\_DIRECTORY
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### GATEWAY_LOG_DIRECTORY
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config.xml -DGATEWAY\_LOG\_DIRECTORY=C:\\Gateway\\log
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config.xml -DGATEWAY_LOG_DIRECTORY=C:\Gateway\log`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DGATEWAY\_LOG\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/log"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml -DGATEWAY_LOG_DIRECTORY=/Users/johnsmith/Desktop/Gateway/log"`
 
-### GATEWAY\_USER\_LIB\_DIRECTORY
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### GATEWAY_USER_LIB_DIRECTORY
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config.xml -DGATEWAY\_USER\_LIB\_DIRECTORY=C:\\Gateway\\lib
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config.xml -DGATEWAY_USER_LIB_DIRECTORY=C:\Gateway\lib`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DGATEWAY\_USER\_LIB\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/lib"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml -DGATEWAY\_USER\_LIB\_DIRECTORY=/Users/johnsmith/Desktop/Gateway/lib"`
 
-### LOG4J\_CONFIG
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
+
+### LOG4J_CONFIG
 
 Windows Example:
 
-\> SET GATEWAY\_OPTS=-DGATEWAY\_CONFIG=C:\\Gateway\\conf\\gateway-config.xml -DLOG4J\_CONFIG=C:\\Gateway\\log\\log4j.xml
- \> C:\\Gateway\\bin\\gateway.start.bat
+`> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config.xml -DLOG4J_CONFIG=C:\Gateway\log\log4j.xml`
+
+`> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:
 
-$ export GATEWAY\_OPTS="-DGATEWAY\_CONFIG=gateway-config.xml -DLOG4J\_CONFIG=/Users/johnsmith/Desktop/Gateway/log/log4j.xml"
- $ /Users/johnsmith/Desktop/Gateway/bin/gateway.start
+`$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml -DLOG4J_CONFIG=/Users/johnsmith/Desktop/Gateway/log/log4j.xml"`
+
+`$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
 
 See Also
 --------
 
 -   [About Gateway Configuration](c_conf_concepts.md)
 -   [Configure KAAZING Gateway](o_conf_checklist.md)
--   [Documentation Conventions](../about/about.md) to learn more about `_KAAZING\_HOME_`.
-
-</div>
+-   [Documentation Conventions](../about/about.md) to learn more about `KAAZING_HOME`.
 
