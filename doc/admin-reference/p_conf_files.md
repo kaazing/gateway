@@ -85,7 +85,7 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
     To ensure that the `gateway-config.xml` file is not used in production, rename the file (for example, rename the file to `test-gateway-config.xml`).
 
-<a name="_"></a>Next Step
+Next Step
 -------------------------
 
 [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_conf_gw_opts.md) is optional. It is an alternative method for configuration the Gateway.
@@ -104,6 +104,4 @@ See Also
 
 -   [Configuration Element Index](r_conf_elementindex.md)
 -   [About KAAZING Gateway Configuration](c_conf_concepts.md)
-
-</div>
 
