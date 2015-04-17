@@ -19,48 +19,48 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
 
 -   [gateway-config](r_conf_gwconfig.md)
     -   [service](#service)
-        -   [name](#servicename)
-        -   [description](#servicedescription)
-        -   [accept](#acceptele)
-        -   [connect](#connectele)
-        -   [balance](#balanceele)
-        -   [notify](#notifyele)(JMS only) 
-        -   [type](#typeele)
+        -   name
+        -   description
+        -   accept](#accept)
+        -   [connect](#connect)
+        -   [balance](#balance)
+        -   [notify](#notify-jms-only)(JMS only) 
+        -   [type](#type)
             -   [balancer](#balancer)
             -   [broadcast](#broadcast)
-                -   [accept](#broadcast-accept)
+                -   accept
             -   [directory](#directory)
-                -   [directory](#directory-directory)
-                -   [options](#directory-options)
-                -   [welcome-file](#directory-welcomefile)
-                -   [error-pages-directory](#directory-errorpagesdirectory)
+                -   directory
+                -   options
+                -   welcome-file
+                -   error-pages-directory
             -   [echo](#echo)
-            -   [management.jmx](#mgmtjmx)
-            -   [management.snmp](#mgmtsnmp)
-            -   [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [proxy](#proxy)
-                -   [maximum.pending.bytes](#proxy-maximumpendingbytes)
-                -   [maximum.recovery.interval](#proxy-maximumrecoveryinterval)
-                -   [prepared.connection.count](#proxy-preparedconnectioncount)
-            -   [amqp.proxy](#proxy)
-                -   [maximum.pending.bytes](#proxy-maximumpendingbytes)
-                -   [maximum.recovery.interval](#proxy-maximumrecoveryinterval)
-                -   [prepared.connection.count](#proxy-preparedconnectioncount)
-                -   [virtual.host](#proxy-virtualhost)
+            -   [management.jmx](#managementjmx)
+            -   [management.snmp](#managementsnmp)
+            -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [proxy](#proxy-and-amqpproxy)
+                -   maximum.pending.bytes
+                -   maximum.recovery.interval
+                -   prepared.connection.count
+            -   [amqp.proxy](#proxy-and-amqpproxy)
+                -   maximum.pending.bytes
+                -   maximum.recovery.interval
+                -   prepared.connection.count
+                -   virtual.host
             -   [jms](r_stomp_service.md#stompjms) (JMS only) 
-            -   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
-            -   [xmpp.proxy](#proxy)
-            -   [session](#session_svc)
-        -   [properties](#propertiesele)
-        -   [accept-options](#svcacceptopts)
+            -   [jms.proxy](proxy-and-amqpproxy)
+            -   [xmpp.proxy](#proxy-and-amqpproxy)
+            -   [session](#session)
+        -   [properties](#properties)
+        -   [accept-options and connect-options](#accept-options-and-connect-options)
             -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
             -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
-            -   [ws.maximum.message.size](#wsmaxmsg)
-            -   [http.keepalive.timeout](#keepalive)
+            -   [ws.maximum.message.size](#wsmaximummessagesize)
+            -   [http.keepalive.timeout](#httpkeepalivetimeout)
             -   [ssl.ciphers](#sslciphers)
-            -   [ssl.protocols](#sslprotocols)
-            -   [ssl.encryption](#sslencrypt)
-            -   [ssl.verify-client](#sslverifyclient)
+            -   [ssl.protocols](#sslprotocols-and-sockssslprotocols)
+            -   [ssl.encryption](#sslencryption)
+            -   [ssl.verify-client](#sslverify-client)
             -   [socks.mode](#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.ciphers](#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.protocols](#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
@@ -68,36 +68,24 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [socks.retry.maximum.interval](#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
-        -   [connect-options](#svcconnectopts)
-            -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
-            -   [ssl.ciphers](#sslciphers)
-            -   [ssl.protocols](#sslprotocols)
-            -   [ssl.encryption](#sslencrypt)
-            -   [socks.mode](#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.timeout](#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.ciphers](#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.protocols](#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.verify-client](#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [ws.inactivity.timeout](#wsinactivitytimeout)
-            -   [ws.version](#wsversionopt) (deprecated)
-        -   [notify-options](#notifyopts)(JMS only) 
+        -   [notify-options](#notify-options-jms-only)(JMS only) 
             -   [apns.notify.transport](#notify_apnstrnsp)
             -   [apns.feedback.transport](#notify_apnsfeedback)
             -   [ssl.ciphers](#notify_sslciphers)
             -   [tcp.transport](#notify_tcptransport)
         -   [realm-name](#realm-name)
-        -   [authorization-constraint](#svcauthconst)
+        -   [authorization-constraint](#authorization-constraint)
             -   [require-role](#requireroleopt)
             -   [require-valid-user](#requirevaliduser)
-        -   [mime-mapping](r_conf_serv_defs.md#svcdftmimemapping)
-            -   [extension](r_conf_serv_defs.md#mimemapextension)
-            -   [mime-type](r_conf_serv_defs.md#mimemapextension)
-        -   [cross-site-constraint](#xsiteconst)
-            -   [allow-origin](#alloworigin)
-            -   [allow-methods](#allowmethods)
-            -   [allow-headers](#alllowheaders)
+        -   [mime-mapping](r_conf_serv_defs.md#mime-mapping)
+            -   extension
+            -   mime-type
+        -   [cross-site-constraint](#cross-site-constraint)
+            -   allow-origin
+            -   allow-methods
+            -   allow-headers
 
-<span id="service"></span></a>service
+service
 -------------------------------------
 
 Each `service` can contain any of the subordinate elements listed in the following table.
