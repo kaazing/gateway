@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -45,19 +44,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class HttpProxyWssUpgradeTest {
-    private KeyStore keyStore;
-    private char[] password;
-    private KeyStore trustStore;
-
-    private SSLSocketFactory clientSocketFactory;
-
-    @Before
-    public void init() throws Exception {
-        password = TlsTestUtil.password();
-        keyStore = TlsTestUtil.keyStore();
-        trustStore = TlsTestUtil.trustStore();
-        clientSocketFactory = TlsTestUtil.clientSocketFactory();
-    }
+    private final KeyStore keyStore = TlsTestUtil.keyStore();
+    private final char[] password = TlsTestUtil.password();
+    private final KeyStore trustStore = TlsTestUtil.trustStore();
+    private final SSLSocketFactory clientSocketFactory = TlsTestUtil.clientSocketFactory();
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));

@@ -22,7 +22,6 @@
 package org.kaazing.gateway.service.http.proxy;
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
@@ -38,30 +37,19 @@ import java.net.URI;
 import java.net.URL;
 import java.security.KeyStore;
 
-import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class HttpProxySecureTest {
-
-    private KeyStore keyStore;
-    private char[] password;
-    private KeyStore trustStore;
-
-    private SSLSocketFactory clientSocketFactory;
+    private final KeyStore keyStore = TlsTestUtil.keyStore();
+    private final char[] password = TlsTestUtil.password();
+    private final KeyStore trustStore = TlsTestUtil.trustStore();
+    private final SSLSocketFactory clientSocketFactory = TlsTestUtil.clientSocketFactory();
 
     @BeforeClass
     public static void initClass() throws Exception {
         BasicConfigurator.configure();
     }
-
-    @Before
-    public void init() throws Exception {
-        password = TlsTestUtil.password();
-        keyStore = TlsTestUtil.keyStore();
-        trustStore = TlsTestUtil.trustStore();
-        clientSocketFactory = TlsTestUtil.clientSocketFactory();
-    }
-
 
     // client <---- ssl/http ---> gateway <---- ssl/http -----> origin server
     @Test(timeout = 5000)
@@ -107,7 +95,7 @@ public class HttpProxySecureTest {
             try(BufferedReader r = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
                 String line = r.readLine();
                 assertEquals("<html>Hellooo</html>", line);
-                assertNull(null, r.readLine());
+                assertNull(r.readLine());
             }
         } finally {
             gateway.stop();
