@@ -66,7 +66,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [socks.ssl.protocols](#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.verify-client](#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.retry.maximum.interval](#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [tcp.maximum.outbound.rate](#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
         -   [notify-options](#notify-options-jms-only)(JMS only) 
             -   [apns.notify.transport](#notify_apnstrnsp)
@@ -1555,13 +1555,13 @@ You must specify the value of `tcp.maximum.outbound.rate` as a positive integer 
 | kilobyte per second | kB/s | 1000 (10^3) | Decimal kilobytes per second. Example: `1000kB/s` |
 | kilobyte per second | KiB/s | 1024 (2^10) | Kibibytes per second (kilobytes binary). Example: `1KiB/s` |
 | megabyte per second | MB/s | 1,000,000 (10^6) | Decimal megabytes per second. Example: `1MB/s` |
-| megabyte per second | MiB/s | 1,048,576 (2^20) |  |
+| megabyte per second | MiB/s | 1,048,576 (2^20) | Mebibytes per second (megabytes binary) Example: `512MiB/s` |
 
 ##### Example
 
-The following example shows a portion of a Gateway configuration file containing three services, each with a different bandwidth constraint: VIP, premium, and freemium. The VIP service has the best bandwidth at 1 megabyte per second (line 5). The premium service is slower at 1 kibibyte per second (line 13), and the free service is the slowest at only 512 bytes per second (line 21). The example shows these variations configured for the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+The following example shows a portion of a Gateway configuration file containing three services, each with a different bandwidth constraint: VIP, premium, and freemium. The VIP service has the best bandwidth at 1 megabyte per second (line 5). The premium service is slower at 1 kibibyte per second (line 13), and the free service is the slowest at only 512 bytes per second (line 21). The example shows these variations configured for the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://service.example.com/vip</accept>
   <type>proxy</type>
@@ -1593,7 +1593,7 @@ The following example shows a portion of a Gateway configuration file containing
 -   If you do not specify `tcp.maximum.outbound.rate`, the bandwidth rate is unrestricted.
 -   The Gateway follows the conventions for units defined in the Conversion formula table on the Wikipedia [Data rate units page](http://en.wikipedia.org/wiki/Data_rate_units#Kilobyte_per_second).
 
-#### <a name="wsinactivitytimeout"></a>ws.inactivity.timeout
+#### ws.inactivity.timeout
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1609,7 +1609,7 @@ Some use cases for the `ws.inactivity.timeout` property include:
 
 In the following example, the `ws.inactivity.timeout` property specifies that if the Gateway cannot communicate with a client over the past five-seconds, then the connection to that client will be dropped.
 
-``` auto-links:
+``` xml
     <service>
       <accept>ws://gateway.example.com/echo</accept>
       <connect>ws://internal.example.com/echo</connect>
@@ -1630,7 +1630,7 @@ In the following example, the `ws.inactivity.timeout` property specifies that if
 -   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
 
-#### <a name="wsversionopt"></a>ws.version (deprecated)
+#### ws.version (deprecated)
 
 **Required?** Optional; **Occurs:** zero or more; **Where** `version` can be rfc6455 or draft-75
 
@@ -1642,7 +1642,7 @@ The `ws.version` element was used to tell the Gateway which version of the WebSo
 
 The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
-``` auto-links:
+``` xml
   <service>
     <accept>ws://${gateway.hostname}:8000/proxy</accept>
     <connect>wss://${gateway.hostname}:5566/data</connect>
@@ -1653,8 +1653,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
   
 ```
 
-
-### <a name="notifyopts"></a>notify-options (JMS only) 
+### notify-options (JMS only) 
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
@@ -1663,13 +1662,12 @@ Specify `notify-options` for the [notify](#notifyele) element when using Apple P
 **Note:** 
 The notify-options must be specified in the order shown in the following table.
 
-</span>
 | notify-options                                            | Required?  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |-----------------------------------------------------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="notify_apnstrnsp"></a>apns.notify.transport      | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the Apple scheme and connection data for pushing notifications to remote iOS devices. Push notifications, also known as remote notifications, are sent by the Gateway to Apple Push Notification Service, which pushes the notification to iOS devices on which the Gateway iOS app is installed. The `apns.notify.transport` option is required for APNs. |
-| <a name="notify_apnsfeedback"></a>apns.feedback.transport | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the scheme and connection data for the Apple Feedback Service, a companion service to APNs, to know when to stop sending notifications to particular devices. The `apns.feedback.transport` option is required for APNs.                                                                                                                                         |
-| <a name="notify_sslciphers"></a>ssl.ciphers               | Optional   | Lists the cipher strings and cipher suite names used by the secure connection. The `ssl.ciphers` option is not required for APNs and is used to specify the TLS/SSL cipher suites to use when talking to Apple.                                                                                                                                                                                                                                               |
-| <a name="notify_tcptransport"></a>tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the[socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
+| apns.notify.transport      | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the Apple scheme and connection data for pushing notifications to remote iOS devices. Push notifications, also known as remote notifications, are sent by the Gateway to Apple Push Notification Service, which pushes the notification to iOS devices on which the Gateway iOS app is installed. The `apns.notify.transport` option is required for APNs. |
+| apns.feedback.transport | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the scheme and connection data for the Apple Feedback Service, a companion service to APNs, to know when to stop sending notifications to particular devices. The `apns.feedback.transport` option is required for APNs.                                                                                                                                         |
+| ssl.ciphers               | Optional   | Lists the cipher strings and cipher suite names used by the secure connection. The `ssl.ciphers` option is not required for APNs and is used to specify the TLS/SSL cipher suites to use when talking to Apple.                                                                                                                                                                                                                                               |
+| tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the[socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
 
 #### Notes
 
