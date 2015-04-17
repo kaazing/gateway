@@ -7,62 +7,49 @@ Security Reference
 
 This document describes all of the elements and properties you can use to configure KAAZING Gateway security.
 
-<span id="configuring"></span></a>Overview
+Overview
 ------------------------------------------
 
 You can use the optional `security` element to configure secure communication with the Gateway.
 
-<span id="descelements"></span></a>Structure
+Structure
 --------------------------------------------
 
 The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `security` configuration element contained in the top-level `gateway-config` element:
 
-<ul>
-<li>
-[gateway-config](r_conf_gwconfig.md)
-<ul>
-<li>
-[security](#security)
-<ul>
-<li>
-[keystore](#keystore)
-</li>
--   [type](#keystore_type)
--   [file](#keystore_file)
--   [password-file](#keystore_passwordfile)
+- [gateway-config](r_conf_gwconfig.md)
+- [security](#security)
+- [keystore](#keystore)
+  - [type](#keystore_type)
+  - [file](#keystore_file)
+  - [password-file](#keystore_passwordfile)
+- [truststore](#truststore)
+    - [type](#truststore_type)
+    - [file](#truststore_file)
+    - [password-file](#truststore_passwordfile)
+- [realm](#realm_element)
+    - [name](#realm_name)
+    - [description](#realm_description)
+    - [authentication](#sec_auth)
+        - [http-challenge-scheme](#challenge_scheme)
+        - [http-header](#http-header)
+        - [http-query-parameter](#httpqueryparameter)
+        - [http-cookie](#http-cookie)
+        - [authorization-mode](#auth_mode)
+        - [authorization-timeout](#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+       - [session-timeout](#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+- [login-modules](#realm_loginmodules)
+    - [login-module](#loginmodule)
+    - [type](#loginmoduletype)
+    - [success](#success)
+    - [options](#loginmoduleoptions)
+    - [debug](#debug_opt)
+    - [tryFirstToken](#tryFirstToken_option)
+- [user-principal-class](#userprincipalclass)
 
-</li>
-<li>
-[truststore](#truststore)
--   [type](#truststore_type)
--   [file](#truststore_file)
--   [password-file](#truststore_passwordfile)
-
-<li>
-[realm](#realm_element)
--   [name](#realm_name)
--   [description](#realm_description)
--   [authentication](#sec_auth)
-    -   [http-challenge-scheme](#challenge_scheme)
-    -   [http-header](#http-header)
-    -   [http-query-parameter](#httpqueryparameter)
-    -   [http-cookie](#http-cookie)
-    -   [authorization-mode](#auth_mode)
-    -   [authorization-timeout](#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-    -   [session-timeout](#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-    -   [login-modules](#realm_loginmodules)
-        -   [login-module](#loginmodule)
-            -   [type](#loginmoduletype)
-            -   [success](#success)
-            -   [options](#loginmoduleoptions)
-                -   [debug](#debug_opt)
-                -   [tryFirstToken](#tryFirstToken_option)
--   [user-principal-class](#userprincipalclass)
-
-</li>
-</ul>
 **Note:** The security elements and properties must be specified in the order shown.
-<a name="security"></a>security
+
+security
 -------------------------------
 
 **The** `security` element contains the following elements:
