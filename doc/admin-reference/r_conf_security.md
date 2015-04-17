@@ -222,13 +222,12 @@ This element configures the login module, which communicates with a user databas
 
 | Element | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type    | The type of login module: - file - ldap - kerberos5 - gss - jndi - keystore - custom See the login-module examples that follow this table. Note: You must use the kerberos5 and gss elements together, and in that sequence. For information about using these login-modules, see Configure a Chain of Login Modules.                                                                                                                                                                                                                                                      |
-| success | The behavior of the login module at the time it validates the user's credentials. Possible values are:* required* requisite* sufficient* optionalThe success status options are defined in the javax.security.auth.login.Configuration class. Authentication succeeds if all required and requisite login modules succeed, or if a sufficient or optional login module succeeds. The table in Configure a Chain of Login Modules provides more information about how the order of login modules and the setting of the success element controls authentication processing. |
-| options | The configuration options specific to the type of login module (see options login-module).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| type    | The type of login module: `file`, `ldap`, `kerberos5`, `gss`, `jndi`, `keystore`, and `custom`. Note: You must use the kerberos5 and gss elements together, and in that sequence. For information about using these login-modules, see [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).                                                                                                                                                                                                                                                      |
+| success | The behavior of the login module at the time it validates the user's credentials. Possible values are: `required`, `requisite`, `sufficient`, and `optional`. The success status options are defined in the `javax.security.auth.login.Configuration` class. Authentication succeeds if all required and requisite login modules succeed, or if a sufficient or optional login module succeeds. The table in [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md) provides more information about how the order of login modules and the setting of the success element controls authentication processing. |
+| options | The configuration options specific to the type of login module (see [options login-module](#options-login-module)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 
-
-##### <a name="loginmoduleopts"></a>options (`login-module`)
+##### options (`login-module`)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -236,33 +235,10 @@ This is the element for adding options to specific types of login modules. The o
 
 `options` contains the following elements:
 
-<table>
-<colgroup>
-<col width="33%" />
-<col width="33%" />
-<col width="33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Option</th>
-<th align="left">Applies to login-module type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><a name="debug_opt"></a>debug</td>
-<td align="left"><code>file</code></td>
-<td align="left">If <code>true</code>, then the login module sends debug information (at the <code>DEBUG</code> level) to the logger. If <code> false</code> (the default), then the login module disables sending logging information to the logger. This is the default.</td>
-</tr>
-<tr class="even">
-<td align="left"><a name="tryFirstToken_option"></a>tryFirstToken</td>
-<td align="left"><code>gss</code></td>
-<td align="left"><p dir="ltr">
-If <code>true</code>, then the login module looks in the JAAS shared state for a token using the key: <code>org.kaazing.gateway.server.auth.gss.token</code>. If <code>false</code> (the default), then the login module uses a CallbackHandler to discover the token from <code>LoginContext</code>.</td>
-</tr>
-</tbody>
-</table>
+| Option        | Applies to login-module type | Description                                                                                                                                                                                                           |
+|---------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
+| tryFirstToken | `gss`                        |                                                                                                                                                                                                                       |
 
 ##### <span id="fileloginmodule"></span></a>Example of a `file` Login Module
 
