@@ -20,32 +20,32 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
 - [gateway-config](r_conf_gwconfig.md)
 - [security](#security)
 - [keystore](#keystore)
-  - [type](#keystore_type)
-  - [file](#keystore_file)
-  - [password-file](#keystore_passwordfile)
+  - [type](#keystore)
+  - [file](#keystore)
+  - [password-file](#keystore)
 - [truststore](#truststore)
-    - [type](#truststore_type)
-    - [file](#truststore_file)
-    - [password-file](#truststore_passwordfile)
+    - [type](#truststore)
+    - [file](#truststore)
+    - [password-file](#truststore)
 - [realm](#realm_element)
-    - [name](#realm_name)
-    - [description](#realm_description)
-    - [authentication](#sec_auth)
-        - [http-challenge-scheme](#challenge_scheme)
-        - [http-header](#http-header)
-        - [http-query-parameter](#httpqueryparameter)
-        - [http-cookie](#http-cookie)
-        - [authorization-mode](#auth_mode)
-        - [authorization-timeout](#auth_timeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-       - [session-timeout](#sessiontimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-- [login-modules](#realm_loginmodules)
-    - [login-module](#loginmodule)
-    - [type](#loginmoduletype)
-    - [success](#success)
-    - [options](#loginmoduleoptions)
-    - [debug](#debug_opt)
-    - [tryFirstToken](#tryFirstToken_option)
-- [user-principal-class](#userprincipalclass)
+    - [name](#realm)
+    - [description](#realm)
+    - [authentication](#authentication)
+        - [http-challenge-scheme](#authentication)
+        - [http-header](#authentication)
+        - [http-query-parameter](#authentication)
+        - [http-cookie](#authentication)
+        - [authorization-mode](#authentication)
+        - [authorization-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+       - [session-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+- [login-modules](#login-module)
+    - [login-module](#login-module)
+    - [type](#login-module)
+    - [success](#login-module)
+    - [options](#options-login-module)
+    - [debug](#options-login-module)
+    - [tryFirstToken](#options-login-module)
+- [user-principal-class](#realm)
 
 **Note:** The security elements and properties must be specified in the order shown.
 
@@ -58,9 +58,9 @@ security
 |------------|-------------------------------------------------------------------------------------------------------------------------------------------|
 | keystore   | The keystore contains the encryption keys for secure communications with KAAZING Gateway (see [keystore](#keystore))                |
 | truststore | The truststore contains digital certificates for certificate authorities trusted by KAAZING Gateway (see [truststore](#truststore)) |
-| realm      | The realm associates an authenticated user with a set of authorized roles (see [realm](#realm_element))                                   |
+| realm      | The realm associates an authenticated user with a set of authorized roles (see [realm](#realm))                                   |
 
-### <span id="keystore"></span></a>keystore
+### keystore
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -74,7 +74,7 @@ Identifies the keystore file that contains the certificates for the host names a
 
 #### Example
 
-``` auto-links:
+``` xml
 <keystore>
   <type>JCEKS</type>
   <file>keystore.db</file>
@@ -88,7 +88,7 @@ Identifies the keystore file that contains the certificates for the host names a
 -   The Gateway supports certificates that are generated for wildcard domains. For example, `*.example.com` represents example.com and all its subdomains, such as my.example.com and secure-mail.example.com.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information and examples.
 
-### <span id="truststore"></span></a>truststore
+### truststore
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -102,7 +102,7 @@ Identifies the truststore file that contains certificates for hosts and certific
 
 #### Example
 
-``` auto-links:
+``` xml
 <keystore>
   <type>JCEKS</type>
   <file>keystore.db</file>
@@ -118,7 +118,7 @@ Identifies the truststore file that contains certificates for hosts and certific
 
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information and examples.
 
-### <span id="realm_element"></span></a>realm
+### realm
 
 **Required?** Optional; **Occurs:** zero or more
 
@@ -126,18 +126,16 @@ This is the element that associates an authenticated user with a set of authoriz
 
 | Element                                               | Description                                                                                                                                                                                                                                                                                                                                                                                                          |
 |-------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="realm_name"></a>name                         | The name of the realm.                                                                                                                                                                                                                                                                                                                                                                                               |
-| <a name="realm_description"></a>description           | The description of the realm.                                                                                                                                                                                                                                                                                                                                                                                        |
-| <a name="sec_auth"></a>authentication                 | The authentication information the Gateway uses to challenge the user, respond to the challenge response, process logins, and govern the authorization and session timeouts (see [authentication](#sec_auth)).                                                                                                                                                                                                    |
-| <a name="userprincipalclass"></a>user-principal-class | The name of the class that represents a user principal that an administrator wants to know about. When a principal of this class is authenticated, a notification of such is sent through the management service. If no management service is configured, then this element is ignored. The class must implement [`java.security.Principal`](http://docs.oracle.com/javase/7/docs/api/java/security/Principal.html). |
+| name                         | The name of the realm.                                                                                                                                                                                                                                                                                                                                                                                               |
+| description           | The description of the realm.                                                                                                                                                                                                                                                                                                                                                                                        |
+| authentication                 | The authentication information the Gateway uses to challenge the user, respond to the challenge response, process logins, and govern the authorization and session timeouts (see [authentication](#authentication)).                                                                                                                                                                                                    |
+| user-principal-class | The name of the class that represents a user principal that an administrator wants to know about. When a principal of this class is authenticated, a notification of such is sent through the management service. If no management service is configured, then this element is ignored. The class must implement [`java.security.Principal`](http://docs.oracle.com/javase/7/docs/api/java/security/Principal.html). |
 
 #### Example
 
-``` auto-links:
+``` xml
 <security>
-  .
-  .
-  .
+  ...
   <realm>
     <name>demo</name>
     <description>KAAZING Gateway Demo</description>
@@ -177,70 +175,24 @@ This is the element that associates an authenticated user with a set of authoriz
 #### Notes
 
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information and examples.
--   See [Monitor with JMX](../management/p_monitor_jmx.md#managing_sessions_notif) for an example configuring notifications using `user-principal-class` to extract user information from a session using JMX.
+-   See [Monitor with JMX](../management/p_monitor_jmx.md) for an example configuring notifications using `user-principal-class` to extract user information from a session using JMX.
 
-### <span id="sec_auth"></span></a>authentication
+### authentication
 
 **Required?** Required; **Occurs:** at most once
 
 Use `authentication` to configure the authentication parameters for the `realm`, which includes the challenge-scheme and the parts of the request that contain authentication information. `authentication` contains the following elements:
 
-<table>
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Element</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><code>http-challenge-scheme</code> (required)</td>
-<td align="left">The method used for authentication: <code>Basic</code>, <code>Application Basic</code>, <code>Negotiate</code>, <code>Application Negotiate</code>, or <code>Application Token</code>:
-<ul>
-<li>Use <code>Basic</code> or <code>Negotiate</code> to allow the <em>browser</em> to respond to authentication challenges.</li>
-<li>Use <code>Application Basic</code> or <code>Application Negotiate</code> to allow the <em>client</em> to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in the following <a href="../index.md">How-To</a> documentation.</li>
-<li>Use <code>Application Token</code> to allow the client to present a third-party token or custom token to be presented to your custom login module.</li>
-</ul>
-<strong>Note:</strong> Use <code>Negotiate</code> or <code>Application Negotiate</code> if using Kerberos Network Authentication. For more information, see <a href="../security/o_tls.md">Secure Network Traffic with the Gateway</a>.</td>
-</tr>
-<tr class="even">
-<td align="left"><code>http-header</code> (zero or more)</td>
-<td align="left">The names of the header or headers that carry authentication data for use by the login modules in this <code>realm</code>. This element is optional. If you do not specify it, then the Gateway uses <code>&lt;http-header&gt;Authorization&lt;/http-header&gt;</code> for the challenge response (see <a href="#customHTTPtokens">Custom HTTP Authentication Tokens</a>).</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>http-query-parameter</code> (zero or more)</td>
-<td align="left">The names of query parameters that carry authentication data for use by the login modules in this <code>realm</code>. This element is optional. If you do not specify it, then the Gateway uses <code>&lt;http-header&gt;Authorization&lt;/http-header&gt;</code> for the challenge response (see <a href="#customHTTPtokens">Custom HTTP Authentication Tokens</a>).</td>
-</tr>
-<tr class="even">
-<td align="left"><code>http-cookie</code> (zero or more)</td>
-<td align="left">The names of HTTP cookies that carry authentication data for use by the login modules in this <code>realm</code>. This element is optional. If you do not specify it, then the Gateway uses <code>&lt;http-header&gt;Authorization&lt;/http-header&gt;</code> for the challenge response (see <a href="#customHTTPtokens">Custom HTTP Authentication Tokens</a>).</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>authorization-mode</code> (at most one)</td>
-<td align="left">The <code>challenge</code> or <code>recycle</code> mode the Gateway uses to handle credentials provided when the client logs in:
-<ul>
-<li>Use <code>challenge</code> to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.</li>
-<li>Use <code>recycle</code> to enable the Gateway to write its own authorization session cookie. <code>recycle</code> is only applicable to <code>Basic</code>, <code>Application Basic</code>, <code>Negotiate</code>, and <code>Application Negotiate</code> HTTP challenge schemes.</li>
-</ul></td>
-</tr>
-<tr class="even">
-<td align="left"><a name="auth_timeout"></a><code>authorization-timeout</code> (at most one)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)</td>
-<td align="left">For directory services, this is the time interval that must elapse without service access before the Gateway challenges the client for credentials. For WebSocket services, this is the time interval before which the client must reauthenticate the WebSocket. If reauthentication has not occurred within the specified time, then the Gateway closes the WebSocket connection.</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>session-timeout</code> (at most one)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)</td>
-<td align="left">For WebSocket services only. This is the time interval after which the Gateway closes the WebSocket connection, regardless of other settings. Effectively, the <code>session-timeout</code> specifies the maximum lifetime of the WebSocket connection.</td>
-</tr>
-<tr class="even">
-<td align="left"><a name="realm_loginmodules"></a>login-modules</td>
-<td align="left">The container for a chain of individual login modules that communicate with a user database to validate user's credentials and to determine a set of authorized roles (see <a href="#loginmodule">login-module</a>).</td>
-</tr>
-</tbody>
-</table>
+| Element                                                                                                                                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+|-----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http-challenge-scheme (required)                                                                                                        | The method used for authentication: Basic, Application Basic, Negotiate,Application Negotiate, or Application Token:Use Basic or Negotiate to allow the browser to respond to authentication challenges.Use Application Basic or Application Negotiate to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in the following How-To documentation.Use Application Token to allow the client to present a third-party token or custom token to be presented to your custom login module.Note: Use Negotiate or Application Negotiate if using Kerberos Network Authentication. For more information, see Secure Network Traffic with the Gateway. |
+| http-header (zero or more)                                                                                                              | The names of the header or headers that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses Authorization for the challenge response (see Custom HTTP Authentication Tokens).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| http-query-parameter (zero or more)                                                                                                     | The names of query parameters that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses Authorization for the challenge response (see Custom HTTP Authentication Tokens).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| http-cookie (zero or more)                                                                                                              | The names of HTTP cookies that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses Authorization for the challenge response (see Custom HTTP Authentication Tokens).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| authorization-mode (at most one)                                                                                                        | The challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in:Use challenge to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.Use recycle to enable the Gateway to write its own authorization session cookie. recycle is only applicable to Basic, Application Basic, Negotiate, and Application Negotiate HTTP challenge schemes.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| authorization-timeout (at most one) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) | For directory services, this is the time interval that must elapse without service access before the Gateway challenges the client for credentials. For WebSocket services, this is the time interval before which the client must reauthenticate the WebSocket. If reauthentication has not occurred within the specified time, then the Gateway closes the WebSocket connection.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| session-timeout (at most one) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)       | For WebSocket services only. This is the time interval after which the Gateway closes the WebSocket connection, regardless of other settings. Effectively, thesession-timeout specifies the maximum lifetime of the WebSocket connection.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| login-modules                                                                                                                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 #### <span id="customHTTPtokens"></span></a>Custom HTTP Authentication Tokens
 
