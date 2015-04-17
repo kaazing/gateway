@@ -56,7 +56,7 @@ public class WsebInactivityTimeoutIT {
                         .service()
                             .accept(URI.create("wse://localhost:8123/echo"))
                             // NOTE: even though in the config file it's ws.inactivity.timeout!
-                            .acceptOption("ws.inactivityTimeout", "2sec")
+                            .acceptOption("ws.inactivity.timeout", "2sec")
                             .type("echo")
                         .done()
                     .done();
