@@ -1549,12 +1549,13 @@ You must specify the value of `tcp.maximum.outbound.rate` as a positive integer
 
 You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with a unit of measurement from the following table. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
 
-| **Unit**            | **Abbreviation** | **Bytes per Second per Unit** | **Notes**                                                   |
-| Byte per second     | B/s              | 1                             | Example: `512B/s`                                           |
-| kilobyte per second | kB/s             | 1000 (10<sup>3</sup>)         | Decimal kilobytes per second. Example: `1000kB/s`           |
-| kibibyte per second | KiB/s            | 1024 (2<sup>10</sup>)         | Kibibytes per second (kilobytes binary). Example: `1KiB/s`  |
-| megabyte per second | MB/s             | 1,000,000 (10<sup>6</sup>)    | Decimal megabytes per second. Example: `1MB/s`              |
-| mebibyte per second | MiB/s            | 1,048,576 (2<sup>20</sup>)    | Mebibytes per second (megabytes binary) Example: `512MiB/s` |
+| Unit | Abbreviation | Bytes per Second per Unit | Notes |
+|---------------------|--------------|---------------------------|------------------------------------------------------------|
+| Byte per second | B/s | 1 | Example: `512B/s` |
+| kilobyte per second | kB/s | 1000 (10^3) | Decimal kilobytes per second. Example: `1000kB/s` |
+| kilobyte per second | KiB/s | 1024 (2^10) | Kibibytes per second (kilobytes binary). Example: `1KiB/s` |
+| megabyte per second | MB/s | 1,000,000 (10^6) | Decimal megabytes per second. Example: `1MB/s` |
+| megabyte per second | MiB/s | 1,048,576 (2^20) |  |
 
 ##### Example
 
