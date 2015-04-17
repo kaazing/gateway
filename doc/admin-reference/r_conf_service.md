@@ -91,6 +91,7 @@ service
 Each `service` can contain any of the subordinate elements listed in the following table.
 
 **Note:** Subordinate elements must be specified in the order shown in the following table.
+
 <table class="reference">
 <tr>
 <th width="26%" scope="col">
