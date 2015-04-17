@@ -1667,7 +1667,7 @@ The notify-options must be specified in the order shown in the following table.
 | apns.notify.transport      | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the Apple scheme and connection data for pushing notifications to remote iOS devices. Push notifications, also known as remote notifications, are sent by the Gateway to Apple Push Notification Service, which pushes the notification to iOS devices on which the Gateway iOS app is installed. The `apns.notify.transport` option is required for APNs. |
 | apns.feedback.transport | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the scheme and connection data for the Apple Feedback Service, a companion service to APNs, to know when to stop sending notifications to particular devices. The `apns.feedback.transport` option is required for APNs.                                                                                                                                         |
 | ssl.ciphers               | Optional   | Lists the cipher strings and cipher suite names used by the secure connection. The `ssl.ciphers` option is not required for APNs and is used to specify the TLS/SSL cipher suites to use when talking to Apple.                                                                                                                                                                                                                                               |
-| tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the[socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
+| tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the [socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
 
 #### Notes
 
@@ -1675,14 +1675,13 @@ The notify-options must be specified in the order shown in the following table.
 -   For a complete example of the `notify` element with the `notify-options`, see [Example Configuration for the notify Element](#notifyexample) earlier in this topic.
 -   To configure the Gateway and its iOS (Objective-C) client applications to use the Apple Push Notification Service (APNs), see the step-by-step checklist [Deploy APNs with KAAZING Gateway.](../apns/o_apns.md)
 
-
-### <a name="realm-name"></a>realm-name
+### realm-name
 
 The name of the security realm used for authorization.
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://localhost:9000/kerberos5</accept>
   <connect>tcp://kerberos.example.com:88</connect>
@@ -1698,11 +1697,11 @@ The name of the security realm used for authorization.
 
 -   If you do not configure `realm-name`, then authentication and authorization are not enforced for the service.
 
-### <a name="svcauthconst"></a>auth-constraint
+### auth-constraint
 
-This element has been deprecated. Use the [authorization-constraint](#svc_auth_const) element instead. 
+This element has been deprecated. Use the [authorization-constraint](#authorization-constraint) element instead. 
 
-### <a name="svc_auth_const"></a>authorization-constraint
+### authorization-constraint
 
 **Required?** Optional; **Occurs:** zero or more
 
@@ -1717,7 +1716,7 @@ Use the `authorization-constraint` element to configure the user roles that are 
 
 The following example of a `proxy` service element is configured with an `authorization-constraint`, as shown in lines 7 to 9. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8000/remoteService</accept>
   <connect></connect>
@@ -1730,17 +1729,17 @@ The following example of a `proxy` service element is configured with an `author
 </service>
 ```
 
-### <span id="svcmimemapping"></span></a>mime-mapping
+### mime-mapping
 
 **Required?** Optional; **Occurs:** zero or more
 
-The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_conf_serv_defs.md#svcdftmimemapping). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
+The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_conf_serv_defs.md#mime-mapping-service-defaults). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
 
 #### Example
 
 The following example shows a `directory` service that includes two mime-mapping elements for files with the `PNG` and and `HTML` extensions. The Gateway sets the content or MIME type for files with the `PNG` extension as a PNG image and files with the `HTML` extension as an HTML text file:
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8000</accept>
   <accept>wss://localhost:9000</accept>
@@ -1775,43 +1774,19 @@ The following example shows a `directory` service that includes two mime-mapping
 -   If your client does not properly render a file type as expected, ensure that the MIME type is properly mapped and that you do not have multiple entries for the same extension type within the same section.
 -   If two or more `mime-mapping` entries for the same extension are given in a single `service` or in `service-defaults`, then the Gateway applies the last `mime-mapping` entry. That is, within a given `service` or `service-defaults` section, the Gateway applies the `mime-mapping` entry closest to the end of the `service` (or `service-defaults`) section.
 
-### <a name="xsiteconst"></a>cross-site-constraint
+### cross-site-constraint
 
 **Required?** Optional; **Occurs:** zero or more
 
 Use cross-site-constraint to configure how a cross-origin site is allowed to access a service. `cross-site-constraint` contains the following subordinate elements:
 
 **Note:** You must specify the properties for the cross-site-constraint element in the order shown in the table.
-<table>
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Subordinate Element</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><a name="alloworigin"></a>allow-origin</td>
-<td align="left">Specifies the cross-origin site or sites that are allowed to access this service:
-<ul>
-<li>To allow access to a specific cross-site origin site, specify the protocol scheme, fully qualified host name, and port number of the cross-origin site in the format: <code>&lt;scheme&gt;://&lt;hostname&gt;:&lt;port&gt;</code> For example: <code>&lt;allow-origin&gt;http://localhost:8000&lt;/allow-origin&gt;</code>.</li>
-<li>To allow access to all cross-site origin sites, including connections to gateway services from pages loaded from the file system rather than a web site, specify the value <code>*</code>. For example: <code>&lt;allow-origin&gt;*&lt;/allow-origin&gt;</code>. Specifying <code>*</code> may be appropriate for services that restrict HTTP methods or custom headers, but not the origin of the request.</li>
-</ul></td>
-</tr>
-<tr class="even">
-<td align="left"><a name="allowmethods"></a>allow-methods</td>
-<td align="left">A comma-separated list of methods that can be invoked by the cross-origin site. For example: <code>&lt;allow-methods&gt;POST,DELETE&lt;/allow-methods&gt;</code>.</td>
-</tr>
-<tr class="odd">
-<td align="left"><a name="alllowheaders"></a>allow-headers</td>
-<td align="left">A comma-separated list of custom header names that can be sent by the cross-origin site when it accesses the service. For example, <code>&lt;allow-headers&gt;X-Custom&lt;/allow-headers&gt;</code>.</td>
-</tr>
-</tbody>
-</table>
+
+| Subordinate Element | Description |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| allow-origin | Specifies the cross-origin site or sites that are allowed to access this service: To allow access to a specific cross-site origin site, specify the protocol scheme, fully qualified host name, and port number of the cross-origin site in the format: `<scheme>://<hostname>:<port>` For example: `<allow-origin>http://localhost:8000</allow-origin>`. To allow access to all cross-site origin sites, including connections to gateway services from pages loaded from the file system rather than a web site, specify the value `*`. For example: `<allow-origin>*</allow-origin>`. Specifying `*` may be appropriate for services that restrict HTTP methods or custom headers, but not the origin of the request. |
+| allow-methods | A comma-separated list of methods that can be invoked by the cross-origin site. For example: `<allow-methods>POST,DELETE</allow-methods>`. |
+| allow-headers | A comma-separated list of custom header names that can be sent by the cross-origin site when it accesses the service. For example, `<allow-headers>X-Custom</allow-headers>`. |
 
 #### Example
 
