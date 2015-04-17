@@ -299,7 +299,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
 
     private long getWsInactivityTimeout() {
         long wsInactivityTimeout = DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS;
-        String value = options.get("ws.inactivityTimeout");
+        String value = options.get("ws.inactivity.timeout");
         if (value != null) {
             long val = Utils.parseTimeInterval(value, TimeUnit.MILLISECONDS);
             if (val > 0) {
