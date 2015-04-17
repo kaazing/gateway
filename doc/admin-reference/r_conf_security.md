@@ -193,7 +193,8 @@ Use `authentication` to configure the authentication parameters for the `realm`,
 | authorization-timeout (at most one) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) | For directory services, this is the time interval that must elapse without service access before the Gateway challenges the client for credentials. For WebSocket services, this is the time interval before which the client must reauthenticate the WebSocket. If reauthentication has not occurred within the specified time, then the Gateway closes the WebSocket connection. |
 | session-timeout (at most one) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) | For WebSocket services only. This is the time interval after which the Gateway closes the WebSocket connection, regardless of other settings. Effectively, thesession-timeout specifies the maximum lifetime of the WebSocket connection. |
 | login-modules |  |
-#### <span id="customHTTPtokens"></span></a>Custom HTTP Authentication Tokens
+
+#### Custom HTTP Authentication Tokens
 
 By default, the HTTP standard ([RFC 2617](http://tools.ietf.org/html/rfc2617)) specifies the use of the authorization header `(<http-header>Authorization</http-header>`) for sending credentials from the client to the server. The Gateway configuration elements `http-header`, `http-query-parameter`, and `http-cookie` provide a means of extending the standard. You use these elements to allow the Gateway configuration to specify other parts of an HTTP request that can carry authentication credentials.
 
@@ -203,7 +204,7 @@ For example, suppose the client's authentication system provides authentication 
 
     The Gateway always obtains the authentication values from the authorization header (if any) and the Gateway also obtains any declared values from one or more authorization headers, query parameters, or cookies that are explicitly specified in the `http-header`, `http-query-parameter`, and `http-cookie` elements, respectively. For example:
 
-    ``` brush:
+    ``` xml
     <http-header>X-Acme-Authorization</http-header>
     <http-query-parameter>auth</http-query-parameter>
     <http-cookie>Acme</http-cookie>
@@ -211,9 +212,9 @@ For example, suppose the client's authentication system provides authentication 
 
 2.  Make the values sent via an HTTP request available to your custom login module using the `AuthenticationToken` object.
 
-    To declare explicit values in the login modules (configured as a chain within the [realm](#realm_element) element), use the `AuthenticationToken` object made available to the login modules through an `AuthenticationTokenCallback`, as follows:
+    To declare explicit values in the login modules (configured as a chain within the [realm](#realm) element), use the `AuthenticationToken` object made available to the login modules through an `AuthenticationTokenCallback`, as follows:
 
-    ``` brush:
+    ``` xml
     AuthenticationToken token = getTokenFromCallback();
     String headerPart = token.get(“X-Acme-Authorization”);
     String parameterPart = token.get(“auth”);
@@ -222,55 +223,65 @@ For example, suppose the client's authentication system provides authentication 
 
 For more detailed information about implementation, see [Create Custom Login Modules](../security/p_aaa_config_custom_lm.md) and [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).
 
-#### <span id="loginmodule"></span></a>login-module
+#### login-module
 
 **Required?** Required; **Occurs:** one or more
 
 This element configures the login module, which communicates with a user database to validate user's credentials and to determine a set of authorized roles. See [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md). The `login-module` contains the elements described in the following table.
 
-<table>
-<colgroup>
-<col width="50%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Element</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><a name="loginmoduletype"></a>type</td>
-<td align="left">The type of login module:
-<ul>
-<li><code>file</code></li>
-<li><code>ldap</code></li>
-<li><code>kerberos5</code></li>
-<li><code>gss</code></li>
-<li><code>jndi</code></li>
-<li><code>keystore</code></li>
-<li><code>custom</code></li>
-</ul>
-See the <code>login-module</code> examples that follow this table. <strong>Note:</strong> You must use the <code>kerberos5</code> and <code>gss</code> elements together, and in that sequence. For information about using these login-modules, see <a href="../security/p_aaa_config_lm.md">Configure a Chain of Login Modules</a>.</td>
-</tr>
-<tr class="even">
-<td align="left"><a name="success"></a>success</td>
-<td align="left">The behavior of the login module at the time it validates the user's credentials. Possible values are:
-<ul>
-<li><code>required</code></li>
-<li><code>requisite</code></li>
-<li><code>sufficient</code></li>
-<li><code>optional</code></li>
-</ul>
-The success status options are defined in the <code>javax.security.auth.login.Configuration</code> class. Authentication succeeds if all required and requisite login modules succeed, or if a sufficient or optional login module succeeds. The table in <a href="../security/p_aaa_config_lm.md">Configure a Chain of Login Modules</a> provides more information about how the order of login modules and the setting of the <code>success</code> element controls authentication processing.</td>
-</tr>
-<tr class="odd">
-<td align="left"><a name="loginmoduleoptions"></a>options</td>
-<td align="left">The configuration options specific to the <code>type</code> of login module (see <a href="#loginmoduleopts">options (login-module)</a>):</td>
-</tr>
-</tbody>
-</table>
++--------------------------------------+--------------------------------------+
+| Element                              | Description                          |
++======================================+======================================+
+| type                                 | The type of login module:            |
+|                                      | -   `file`                           |
+|                                      | -   `ldap`                           |
+|                                      | -   `kerberos5`                      |
+|                                      | -   `gss`                            |
+|                                      | -   `jndi`                           |
+|                                      | -   `keystore`                       |
+|                                      | -   `custom`                         |
+|                                      |                                      |
+|                                      | See the `login-module` examples that |
+|                                      | follow this table. **Note:** You     |
+|                                      | must use the `kerberos5` and `gss`   |
+|                                      | elements together, and in that       |
+|                                      | sequence. For information about      |
+|                                      | using these login-modules, see       |
+|                                      | [Configure a Chain of Login          |
+|                                      | Modules](../security/p_aaa_config_lm |
+|                                      | .md).                                |
++--------------------------------------+--------------------------------------+
+| success                              | The behavior of the login module at  |
+|                                      | the time it validates the user's     |
+|                                      | credentials. Possible values are:    |
+|                                      | -   `required`                       |
+|                                      | -   `requisite`                      |
+|                                      | -   `sufficient`                     |
+|                                      | -   `optional`                       |
+|                                      |                                      |
+|                                      | The success status options are       |
+|                                      | defined in the                       |
+|                                      | `javax.security.auth.login.Configura |
+|                                      | tion`                                |
+|                                      | class. Authentication succeeds if    |
+|                                      | all required and requisite login     |
+|                                      | modules succeed, or if a sufficient  |
+|                                      | or optional login module succeeds.   |
+|                                      | The table in [Configure a Chain of   |
+|                                      | Login                                |
+|                                      | Modules](../security/p_aaa_config_lm |
+|                                      | .md)                                 |
+|                                      | provides more information about how  |
+|                                      | the order of login modules and the   |
+|                                      | setting of the `success` element     |
+|                                      | controls authentication processing.  |
++--------------------------------------+--------------------------------------+
+| options                              | The configuration options specific   |
+|                                      | to the `type` of login module (see   |
+|                                      | [options                             |
+|                                      | (login-module)](#loginmoduleopts)):  |
++--------------------------------------+--------------------------------------+
+
 
 ##### <a name="loginmoduleopts"></a>options (`login-module`)
 
