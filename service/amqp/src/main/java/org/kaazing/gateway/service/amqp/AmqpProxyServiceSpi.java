@@ -31,7 +31,7 @@ public class AmqpProxyServiceSpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("amqp.proxy");
+        return Collections.singletonList("amqp.proxy");
     }
 
     @Override

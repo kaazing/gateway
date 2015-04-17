@@ -37,11 +37,11 @@ public enum WsSystemProperty {
     private final String name;
     private final String defaultValue;
 
-    private WsSystemProperty(String propertyName) {
+    WsSystemProperty(String propertyName) {
         this(propertyName, null);
     }
 
-    private WsSystemProperty(String name, String defaultValue) {
+    WsSystemProperty(String name, String defaultValue) {
         this.name = name;
         this.defaultValue = defaultValue;
     }

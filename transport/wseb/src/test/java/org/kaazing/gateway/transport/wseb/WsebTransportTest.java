@@ -152,7 +152,7 @@ public class WsebTransportTest {
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
         URI location = URI.create("wse://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
+        Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
 
@@ -211,7 +211,7 @@ public class WsebTransportTest {
 	public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
 		URI location = URI.create("wse://localhost:8000/echo");
-		Map<String, Object> addressOptions = Collections.<String, Object>emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
+		Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
 		ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 		final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
 		IoHandler acceptHandler = new IoHandlerAdapter() {

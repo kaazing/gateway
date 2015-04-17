@@ -21,16 +21,10 @@
 
 package org.kaazing.gateway.transport.ssl;
 
-import javax.net.ssl.SSLException;
-
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
-import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
-import org.kaazing.gateway.transport.ssl.bridge.filter.SslFilter;
 
 public class SslAcceptProcessor extends BridgeAcceptProcessor<SslSession> {
 

@@ -43,74 +43,74 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * </pre>
  */
 public interface WsExtension {
-    public static enum EndpointKind { CLIENT, SERVER }
+    enum EndpointKind { CLIENT, SERVER }
 
-    public String getExtensionToken();
+    String getExtensionToken();
 
-    public List<WsExtensionParameter> getParameters() ;
+    List<WsExtensionParameter> getParameters() ;
 
-    public boolean hasParameters();
+    boolean hasParameters();
     
     /**
      * Tells if this extension has frames which will need decoding
      * @param endpointKind      client or server
      * @return true if this extension has frames which can flow into the given endpoint kind
      */
-    public boolean canDecode(EndpointKind endpointKind, Kind messageKind);
+    boolean canDecode(EndpointKind endpointKind, Kind messageKind);
 
     /**
      * Tells if this extension has frames which will need encoding
      * @param endpointKind      client or server
      * @return true if this extension has frames which can flow out from the given endpoint kind
      */
-    public boolean canEncode(EndpointKind endpointKind, Kind messageKind);
+    boolean canEncode(EndpointKind endpointKind, Kind messageKind);
 
-    public WsExtensionValidation checkValidity();
+    WsExtensionValidation checkValidity();
     
     /**
      * @param payload  The message binary payload, excluding the extension's control bytes
      * @return
      */
-    public WsMessage decode(IoBufferEx payload);
+    WsMessage decode(IoBufferEx payload);
     
     /**
      * Get the encoded payload of the message. Caller must not mutate the result.
      * @return  The payload for the encoded form of this message, excluding control bytes
      */
-    public byte[] encode(WsMessage message);
+    byte[] encode(WsMessage message);
     
     /**
      * @return The control bytes used to distinguish the extension's control frames  
      *         from other WebSocket frames, or null if the extension has no control frames.
      */
-    public byte[] getControlBytes();
+    byte[] getControlBytes();
     
     /**
      * Reports which kind of WebSocket frame should be used to to send the given extension message on the wire
      * @param message   Extension message which is being encoded
      * @return
      */
-    public Kind getEncodedKind(WsMessage message);
+    Kind getEncodedKind(WsMessage message);
     
     /**
      * Extensions are ordered alphabetically based on the results of this method.
      * @return
      */
-    public String getOrdering();
+    String getOrdering();
     
-    public void handleMessage(IoSessionEx session, WsMessage message);
+    void handleMessage(IoSessionEx session, WsMessage message);
     
     /**
      * This method should undo anything done by updateBridgeFilters (e.g. remove an extension specific filter)
      * @param filterChain
      */
-    public void removeBridgeFilters(IoFilterChain filterChain);
+    void removeBridgeFilters(IoFilterChain filterChain);
     
     /**
      * This method give the extension to manipulate the filter chain if needed (e.g. add an extension specific filter)
      * @param session  The transport session containing the WebSocket codec (parent of the WebSocket session,
      *                 or grandparent in the extended handshake case)
      */
-    public void updateBridgeFilters(IoFilterChain filterChain);
+    void updateBridgeFilters(IoFilterChain filterChain);
     
 }

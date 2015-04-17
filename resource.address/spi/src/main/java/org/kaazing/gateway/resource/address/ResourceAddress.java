@@ -347,9 +347,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             return false;
         if (qualifier != null ? !qualifier.equals(address.qualifier) : address.qualifier != null)
             return false;
-        if (getTransportedURI() != null ? !getTransportedURI().equals(address.getTransportedURI()) : address.getTransportedURI() != null)
-            return false;
-        return true;
+        return !(getTransportedURI() != null ? !getTransportedURI().equals(address.getTransportedURI()) : address.getTransportedURI() != null);
 
     }
 
@@ -395,7 +393,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     static class DefaultResourceOption<T> extends ResourceOption<T> {
 
-        static enum Kind { NEXT_PROTOCOL,
+        enum Kind { NEXT_PROTOCOL,
                            TRANSPORT,
                            TRANSPORT_URI,
                            ALTERNATE,
@@ -506,7 +504,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             });
         }
         
-        private static enum IpAddressFamily { IPv4, IPv6 }
+        private enum IpAddressFamily { IPv4, IPv6 }
         
         private static void retainInetAddresses(Iterable<InetAddress> ifaceAddresses, IpAddressFamily family) {
             for (Iterator<InetAddress> $i = ifaceAddresses.iterator(); $i.hasNext(); ) {

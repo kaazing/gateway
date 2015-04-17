@@ -88,11 +88,11 @@ public enum HttpAcceptFilter {
     private final String filterName;
     private final IoFilter filter;
     
-    private HttpAcceptFilter(String filterName) {
+    HttpAcceptFilter(String filterName) {
         this(filterName, null);
     }
     
-    private HttpAcceptFilter(String filterName, IoFilter filter) {
+    HttpAcceptFilter(String filterName, IoFilter filter) {
         this.filterName = filterName;
         this.filter = filter;
     }

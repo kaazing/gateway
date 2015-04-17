@@ -78,7 +78,7 @@ public class JaasConfigParser {
         return handler.getAuthConfig();
     }
 
-    private static enum HandlerState {
+    private enum HandlerState {
         DOCUMENT, JAAS_CONFIG,
         USER, USER_NAME, USER_PASSWORD, USER_ROLE_NAME,
         ROLE, ROLE_NAME, ROLE_DESCRIPTION, ROLE_ROLE_NAME }

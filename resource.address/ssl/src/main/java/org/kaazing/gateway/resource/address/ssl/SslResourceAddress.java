@@ -112,7 +112,7 @@ public final class SslResourceAddress extends ResourceAddress {
 	
 	static class SslResourceOption<T> extends ResourceOption<T> {
 
-	    protected static enum Kind { CIPHERS, ENCRYPTION, WANT_CLIENT_AUTH,
+	    protected enum Kind { CIPHERS, ENCRYPTION, WANT_CLIENT_AUTH,
                                     NEED_CLIENT_AUTH, KEY_SELECTOR, PROTOCOLS }
 		
 		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();

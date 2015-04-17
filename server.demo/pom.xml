@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.22</version>
+        <version>5.0.1.23</version>
     </parent>
 
     <artifactId>gateway.server.demo</artifactId>

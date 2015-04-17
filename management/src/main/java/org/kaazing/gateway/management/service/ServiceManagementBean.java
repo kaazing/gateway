@@ -218,7 +218,7 @@ public interface ServiceManagementBean extends ManagementBean {
 
     void removeUserPrincipals(IoSessionEx session);
 
-    static class DefaultServiceManagementBean extends AbstractManagementBean implements ServiceManagementBean {
+    class DefaultServiceManagementBean extends AbstractManagementBean implements ServiceManagementBean {
         // Each IO worker thread gets a ThreadServiceStats object via get().
         private final ThreadLocal<ThreadServiceStats> serviceStats = new VicariousThreadLocal<ThreadServiceStats>() {
             @Override

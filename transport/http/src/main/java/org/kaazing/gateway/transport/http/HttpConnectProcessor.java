@@ -21,7 +21,9 @@
 
 package org.kaazing.gateway.transport.http;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -33,6 +35,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnectProcessor;
@@ -49,6 +52,12 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSession> {
 
     public static final IoBufferEx WRITE_COMPLETE = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(0));
+    private static final String FILTER_PREFIX = HttpProtocol.NAME + "#";
+    private final ThreadLocal<PersistentConnectionPool> persistentConnectionPool;
+
+    HttpConnectProcessor(ThreadLocal<PersistentConnectionPool> persistentConnectionPool) {
+        this.persistentConnectionPool = persistentConnectionPool;
+    }
 
     protected void finishConnect(DefaultHttpSession session) {
         // GET methods implicitly have no payload
@@ -179,16 +188,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
         IoHandler upgradeHandler = httpSession.getUpgradeHandler();
         if (upgradeHandler == null) {
-            // TODO: implement support for HTTP/1.1 persistent connections
-            IoSession parent = httpSession.getParent();
-            if ("chunked".equals(httpSession.getWriteHeader("Transfer-Encoding"))) {
-                IoBufferAllocatorEx<? extends HttpBuffer> allocator = httpSession.getBufferAllocator();
-                HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
-                HttpContentMessage message = new HttpContentMessage(unsharedEmpty, true);
-                parent.write(message);
-            }
-
-            super.removeInternal(httpSession);
+            removeInternal0(httpSession);
         } else {
             final UpgradeFuture upgradeFuture = httpSession.getUpgradeFuture();
             IoSessionEx parent = httpSession.getParent();
@@ -218,4 +218,74 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             }
         }
     }
+
+    private void removeInternal0(DefaultHttpSession session) {
+        IoSession parent = session.getParent();
+        if (parent == null || parent.isClosing()) {
+            return;
+        }
+
+        Integer keepAliveTimeout = session.getRemoteAddress().getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
+        assert keepAliveTimeout != null;
+
+        boolean http10 = session.getVersion() == HttpVersion.HTTP_1_0;
+        boolean gatewayToClose = hasCloseHeader(session.getWriteHeaders(HEADER_CONNECTION));
+        boolean serverToClose = hasCloseHeader(session.getReadHeaders(HEADER_CONNECTION));
+        boolean upgrade = session.getStatus() == INFO_SWITCHING_PROTOCOLS;
+
+        if (http10 || gatewayToClose || serverToClose || upgrade) {
+            // will not recycle the transport session, but may need to close the transport
+            if (gatewayToClose) {
+                // close transport connection when write complete
+                parent.close(false);
+            } else if (serverToClose) {
+                // Let server close transport session. Add idle filter to close the connection,
+                // in case server doesn't close it.
+                persistentConnectionPool.get().addIdleFilter(parent, keepAliveTimeout);
+            }
+        } else {
+            if ("chunked".equals(session.getWriteHeader("Transfer-Encoding"))) {
+                // write the empty chunk
+                IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
+                HttpBuffer unsharedEmpty = allocator.wrap(allocator.allocate(0));
+                HttpContentMessage completeMessage = new HttpContentMessage(unsharedEmpty, true, session.isChunked(), session.isGzipped());
+                parent.write(completeMessage);
+            }
+
+            // Clean up the transport session before recycling
+
+            // Remove all the http filters on the transport session
+            IoFilterChain filterChain = parent.getFilterChain();
+            List<IoFilterChain.Entry> filterList = filterChain.getAll();
+            for(IoFilterChain.Entry e : filterList) {
+                if (e.getName().startsWith(FILTER_PREFIX)) {        // http# prefixed filter
+                    filterChain.remove(e.getName());
+                }
+            }
+
+            // Remove any HTTP related attributes ??
+            // TODO should we make sure that complete response is read before recycling ??
+
+            // recycle the transport connection
+            persistentConnectionPool.get().recycle(parent, keepAliveTimeout);
+        }
+    }
+
+    /*
+     * Returns whether there is Connection: close header
+     *
+     * @param list of Connection header values
+     * @return true if Connection: close header is part of the values
+     */
+    private boolean hasCloseHeader(List<String> connectionValues) {
+        if (connectionValues != null) {
+            for (String value : connectionValues) {
+                if (value.equalsIgnoreCase("close")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

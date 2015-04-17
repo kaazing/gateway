@@ -21,6 +21,9 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,9 +34,11 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParserException;
@@ -41,8 +46,6 @@ import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.TransportOptionNames;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Unit tests for resolving gateway-config.xml.
@@ -75,12 +78,14 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslCiphersOption() throws Exception {
         expectSuccess("ssl.ciphers", "  FOO,BAR ", "ssl.ciphers", new String[]{"FOO", "BAR"});
         expectParseFailure("ssl.ciphers", "FOO, BAR");
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testHttpKeepAliveTimeoutOption() throws Exception {
         // expect default if 0 is specified
         expectSuccess("http.keepalive.timeout", "0 minutes", "http[http/1.1].keepAliveTimeout", 30);
@@ -96,6 +101,7 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testWsMaximumMessageSizeOption() throws Exception {
         expectSuccess("ws.maximum.message.size", "10k", "ws.maxMessageSize", 10240);
         expectSuccess("ws.maximum.message.size", "10m", "ws.maxMessageSize", 10485760);
@@ -108,6 +114,7 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testTcpMaximumOutboundRateOption() throws Exception {
         expectSuccess("tcp.maximum.outbound.rate", "10KiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, 10240L);
         expectSuccess("tcp.maximum.outbound.rate", "10MiB/s", TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE, 10485760L);
@@ -187,6 +194,7 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslVerifyClientOption() throws Exception {
         expectSuccess("ssl.verify-client", "none",
                 TransportOptionNames.SSL_NEED_CLIENT_AUTH, Boolean.FALSE,
@@ -203,6 +211,7 @@ public class AcceptOptionsTest {
     }
 
     @Test
+    @Ignore("XSD no longer validates accept-options types")
     public void testSslEncryptionOption() throws Exception {
         expectSuccess("ssl.encryption", "enabled", "ssl.encryptionEnabled", Boolean.TRUE);
         expectSuccess("ssl.encryption", "disabled", "ssl.encryptionEnabled", Boolean.FALSE);

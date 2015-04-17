@@ -36,7 +36,7 @@ public class HttpManagementUpdateCheckFactorySpi extends ManagementUpdateCheckFa
 
     @Override
     public Collection<String> getSupportedProtocols() {
-        return Collections.<String> singletonList("http");
+        return Collections.singletonList("http");
     }
 
 }

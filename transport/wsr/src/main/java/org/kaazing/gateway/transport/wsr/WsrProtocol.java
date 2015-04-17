@@ -30,7 +30,7 @@ public enum WsrProtocol implements Protocol {
 
     private final boolean secure;
 
-    private WsrProtocol(boolean secure) {
+    WsrProtocol(boolean secure) {
         this.secure = secure;
     }
 

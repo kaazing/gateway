@@ -36,7 +36,7 @@ import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 
 public final class HttpInjectedDynamicResource extends HttpDynamicResource {
 
-    private static final Map<String, String> EMPTY_WRITE_HEADERS = Collections.<String, String>emptyMap();
+    private static final Map<String, String> EMPTY_WRITE_HEADERS = Collections.emptyMap();
     
     private final long startTime;
     private final String resourcePath;

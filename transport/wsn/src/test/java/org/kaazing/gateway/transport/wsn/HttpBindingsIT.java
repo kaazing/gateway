@@ -58,7 +58,7 @@ public class HttpBindingsIT {
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
-                        .acceptOption("ws.inactivityTimeout", "2sec")
+                        .acceptOption("ws.inactivity.timeout", "2sec")
                     .done()
                     .service()
                         .accept(URI.create("ws://localhost:80/echo80"))
@@ -66,7 +66,7 @@ public class HttpBindingsIT {
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
-                        .acceptOption("ws.inactivityTimeout", "2sec")
+                        .acceptOption("ws.inactivity.timeout", "2sec")
                         .acceptOption("tcp.bind", "8002")
                     .done()
                 .done();

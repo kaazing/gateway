@@ -31,7 +31,7 @@ public enum SseProtocol implements Protocol {
 
     private final boolean secure;
 
-    private SseProtocol(boolean secure) {
+    SseProtocol(boolean secure) {
         this.secure = secure;
     }
 

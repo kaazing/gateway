@@ -33,11 +33,15 @@ import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.util.ExceptionMonitor;
 
+import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.kaazing.mina.core.service.AbstractIoServiceEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
+import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?>> extends AbstractIoServiceEx implements BridgeService {
+
+    public static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private IoProcessorEx<T> processor;
 
@@ -120,4 +124,9 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
             filterChain.remove(filter);
         }
     }
+
+    protected boolean isIoAligned() {
+        return CURRENT_WORKER.get() != null;
+    }
+
 }

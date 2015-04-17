@@ -104,7 +104,7 @@ public class EntryListenerSupport<K, V> implements EntryListener<K, V>  {
         return null;
     }
 
-    private static enum Method {
+    private enum Method {
         ADDED, REMOVED, UPDATED, EVICTED,
     }
 

@@ -22,23 +22,33 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import java.util.Map;
+
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
+import org.kaazing.gateway.service.ConnectOptionsContext;
 
 public class DefaultServiceDefaultsContext implements ServiceDefaultsContext {
 
     private final AcceptOptionsContext acceptOptionsContext;
+    private final ConnectOptionsContext connectOptionsContext;
     private final Map<String, String> mimeMappings;
 
     public DefaultServiceDefaultsContext(AcceptOptionsContext acceptOptionsContext,
+                                         ConnectOptionsContext connectOptionsContext,
                                          Map<String, String> mimeMappings) {
         this.acceptOptionsContext = acceptOptionsContext;
+        this.connectOptionsContext = connectOptionsContext;
         this.mimeMappings = mimeMappings;
     }
 
     @Override
     public AcceptOptionsContext getAcceptOptionsContext() {
         return acceptOptionsContext;
+    }
+
+    @Override
+    public ConnectOptionsContext getConnectOptionsContext() {
+        return connectOptionsContext;
     }
 
     @Override

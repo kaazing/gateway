@@ -30,7 +30,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.io.File;
 import java.net.URI;
 
 import static org.junit.rules.RuleChain.outerRule;
@@ -48,7 +47,8 @@ public class HttpProxyRedirectIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
-                        .done()
+                            .connectOption("http.keepalive", "disabled")
+                            .done()
                     .done();
             // @formatter:on
             init(configuration);

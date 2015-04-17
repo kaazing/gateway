@@ -39,7 +39,7 @@ final class TypedAttributeKeyMatching extends BaseMatcher<TypedAttributeKey<?>> 
     @Override
     public boolean matches(Object arg) {
         return (arg instanceof TypedAttributeKey) &&
-                ((TypedAttributeKey<?>) arg).toString().matches(pattern);
+                arg.toString().matches(pattern);
     }
 
     @Override

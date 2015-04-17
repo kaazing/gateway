@@ -97,7 +97,7 @@ public class OcspIT {
                             .service()
                                 .accept(URI.create("ssl://localhost:9558"))
                                 .type("echo")
-                                .acceptOption("ssl.verifyClient", "required")
+                                .acceptOption("ssl.verify-client", "required")
                             .done()
                             .security()
                                 .keyStore(keyStore)

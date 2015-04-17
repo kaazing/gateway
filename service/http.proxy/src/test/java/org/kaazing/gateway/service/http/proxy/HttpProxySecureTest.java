@@ -24,7 +24,6 @@ package org.kaazing.gateway.service.http.proxy;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -204,7 +203,9 @@ public class HttpProxySecureTest {
         
         void stop() throws IOException {
             stopped = true;
-            socket.close();
+            if (socket != null) {
+                socket.close();
+            }
         }
         
     }

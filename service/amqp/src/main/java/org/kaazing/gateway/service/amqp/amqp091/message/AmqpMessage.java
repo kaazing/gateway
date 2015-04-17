@@ -28,7 +28,7 @@ import org.kaazing.gateway.service.amqp.amqp091.filter.AmqpFilter;
 import org.kaazing.gateway.transport.bridge.Message;
 
 public abstract class AmqpMessage extends Message {
-    public static enum MessageKind {
+    public enum MessageKind {
         PROTOCOL_HEADER,
         CLASS
     }

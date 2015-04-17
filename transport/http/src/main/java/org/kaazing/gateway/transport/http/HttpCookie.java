@@ -23,19 +23,19 @@ package org.kaazing.gateway.transport.http;
 
 public interface HttpCookie {
 
-	public String getName();
+	String getName();
 	
-	public int getVersion();
+	int getVersion();
 	
-	public String getValue();
+	String getValue();
 
-	public String getDomain();
+	String getDomain();
 
-	public String getPath();
+	String getPath();
 	
-	public boolean isSecure();
+	boolean isSecure();
 	
-	public long getMaxAge();
+	long getMaxAge();
 	
-	public String getComment();
+	String getComment();
 }

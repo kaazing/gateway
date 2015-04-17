@@ -31,7 +31,7 @@ public class TestServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("test");
+        return Collections.singletonList("test");
     }
 
     @Override

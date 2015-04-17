@@ -83,7 +83,7 @@ public class HttpxeProtocolFilter extends HttpFilterAdapter<IoSession> {
 
     private static final Collection<String> ASCII_COMPATIBLE = Arrays.asList("charset=ascii", "charset=utf-8", "charset=windows-1252");
 
-    private static enum Mode { CLIENT, SERVER }
+    private enum Mode { CLIENT, SERVER }
 
     private final Mode mode;
 

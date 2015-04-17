@@ -30,7 +30,7 @@ import javax.security.auth.spi.LoginModule;
 
 public abstract class BaseStateDrivenLoginModule implements LoginModule {
 
-    protected static enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
+    protected enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
 
     protected State state = State.INITIALIZE_REQUIRED;
     protected Subject subject;

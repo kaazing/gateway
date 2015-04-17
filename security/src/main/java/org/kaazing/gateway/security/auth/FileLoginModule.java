@@ -61,7 +61,7 @@ public class FileLoginModule implements LoginModule {
     private static final String NAME = "javax.security.auth.login.name";
     private static final String PWD = "javax.security.auth.login.password";
 
-    private static enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
+    private enum State { INITIALIZE_REQUIRED, INITIALIZE_COMPLETE, LOGIN_COMPLETE, COMMIT_COMPLETE }
     private static final ConcurrentMap<String, JaasConfig> SHARED_STATE = new ConcurrentHashMap<>();
 
     private State state;
@@ -94,7 +94,7 @@ public class FileLoginModule implements LoginModule {
             throw new RuntimeException("Missing required option \"" + FILE_KEY + "\" to locate JAAS configuration file");
         }
 
-        JaasConfig jaasConfig = (JaasConfig) SHARED_STATE.get(jaasFilename);
+        JaasConfig jaasConfig = SHARED_STATE.get(jaasFilename);
         if (jaasConfig == null) {
             File jaasFile = new File(jaasFilename);
             if (!jaasFile.isAbsolute()) {

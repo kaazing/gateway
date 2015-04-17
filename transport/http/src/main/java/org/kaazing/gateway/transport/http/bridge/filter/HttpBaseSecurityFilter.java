@@ -28,7 +28,6 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.transport.SuspendableIoFilterAdapter;
 import org.kaazing.gateway.transport.http.HttpStatus;
