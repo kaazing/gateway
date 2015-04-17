@@ -30,7 +30,7 @@ import static org.kaazing.gateway.transport.ws.WsMessage.Kind.BINARY;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.PING;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.PONG;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.TEXT;
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
 import static org.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATOR;
 
 import java.net.URI;
@@ -56,8 +56,8 @@ import org.kaazing.gateway.transport.ws.AbstractWsControlMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionBuilder;
+import org.kaazing.gateway.transport.ws.extension.Extension;
+import org.kaazing.gateway.transport.ws.extension.ExtensionBuilder;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
@@ -87,7 +87,7 @@ public class PingPongExtensionTest {
 //        context.checking(new Expectations() {{
 //
 //        }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         assertFalse(extension.canDecode(SERVER, BINARY));
         assertTrue(extension.canDecode(SERVER, TEXT));
         assertFalse(extension.canEncode(SERVER, BINARY));
@@ -104,7 +104,7 @@ public class PingPongExtensionTest {
 //        context.checking(new Expectations() {{
 //
 //        }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         WsMessage result = extension.decode(BUFFER_ALLOCATOR.wrap(Utils.asByteBuffer(new byte[]{0x09, 0x00})));
         assertEquals(PING, result.getKind());
         assertEquals(WsPingMessage.class, result.getClass());
@@ -120,7 +120,7 @@ public class PingPongExtensionTest {
 //        context.checking(new Expectations() {{
 //
 //        }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         WsMessage result = extension.decode(BUFFER_ALLOCATOR.wrap(Utils.asByteBuffer(new byte[]{0x0a, 0x00})));
         assertEquals(PONG, result.getKind());
         assertEquals(WsPongMessage.class, result.getClass());
@@ -136,7 +136,7 @@ public class PingPongExtensionTest {
 //        context.checking(new Expectations() {{
 //
 //        }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         AbstractWsControlMessage message = new WsPingMessage();
         message.setStyle(CLIENT);
         message.setExtension(extension);
@@ -154,7 +154,7 @@ public class PingPongExtensionTest {
 //        context.checking(new Expectations() {{
 //
 //        }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         AbstractWsControlMessage message = new WsPongMessage();
         message.setStyle(CLIENT);
         message.setExtension(extension);
@@ -185,7 +185,7 @@ public class PingPongExtensionTest {
             oneOf(codec).getFilter(); will(returnValue(codecFilter));
             oneOf(filterChain).addAfter(with("codec"), with("x-kaazing-ping-pong"), with(any(PingPongFilter.class)));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         extension.updateBridgeFilters(filterChain);
     }
 
@@ -201,7 +201,7 @@ public class PingPongExtensionTest {
         context.checking(new Expectations() {{
             oneOf(filterChain).remove(with(PingPongFilter.class));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping=pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping=pong"));
         extension.removeBridgeFilters(filterChain);
     }
 
@@ -218,7 +218,7 @@ public class PingPongExtensionTest {
             oneOf(filterChain).remove(with(PingPongFilter.class));
             will(throwException(new IllegalArgumentException("filter not present in chain")));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-ping-pong"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-ping-pong"));
         extension.removeBridgeFilters(filterChain);
     }
     

@@ -24,7 +24,7 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 import static org.junit.Assert.assertFalse;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.BINARY;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.TEXT;
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -38,8 +38,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionBuilder;
+import org.kaazing.gateway.transport.ws.extension.Extension;
+import org.kaazing.gateway.transport.ws.extension.ExtensionBuilder;
 import org.kaazing.gateway.transport.ws.util.Expectations;
 
 /**
@@ -60,7 +60,7 @@ public class IdleTimeouExtensionTest {
 
     @Test
     public void shouldNotDecodeOrEncode() throws Exception {
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-idle-timeout"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-idle-timeout"));
         assertFalse(extension.canDecode(SERVER, BINARY));
         assertFalse(extension.canDecode(SERVER, TEXT));
         assertFalse(extension.canEncode(SERVER, BINARY));
@@ -78,7 +78,7 @@ public class IdleTimeouExtensionTest {
         context.checking(new Expectations() {{
             oneOf(filterChain).addLast(with("x-kaazing-idle-timeout"), with(any(IdleTimeoutFilter.class)));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-idle-timeout"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-idle-timeout"));
         extension.updateBridgeFilters(filterChain);
     }
 
@@ -93,7 +93,7 @@ public class IdleTimeouExtensionTest {
         context.checking(new Expectations() {{
             oneOf(filterChain).remove(with(IdleTimeoutFilter.class));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-idle-timeout"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-idle-timeout"));
         extension.removeBridgeFilters(filterChain);
     }
 
@@ -109,7 +109,7 @@ public class IdleTimeouExtensionTest {
             oneOf(filterChain).remove(with(IdleTimeoutFilter.class));
             will(throwException(new IllegalArgumentException("filter not present in chain")));
         }});
-        WsExtension extension = WsExtensionBuilder.create(wsAddress, new WsExtensionBuilder("x-kaazing-idle-timeout"));
+        Extension extension = ExtensionBuilder.create(wsAddress, new ExtensionBuilder("x-kaazing-idle-timeout"));
         extension.removeBridgeFilters(filterChain);
     }
     

@@ -71,10 +71,10 @@ public class WsExtensionUtilsTest {
         DefaultHttpSession session = new DefaultHttpSession(httpAcceptor, httpProcessor, address, remoteAddress, parentSession, null, request, uri);
 
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
-        List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
+        List<Extension> negotiatedExts = wenr.getExtensions().asList();
 
-        List<WsExtension> expectedExts = new ArrayList<>();
-        WsExtensionBuilder web = new WsExtensionBuilder("x-kaazing-ping-pong");
+        List<Extension> expectedExts = new ArrayList<>();
+        ExtensionBuilder web = new ExtensionBuilder("x-kaazing-ping-pong");
         web.appendParameter("01010102");
         expectedExts.add(web.toWsExtension());
 
@@ -103,7 +103,7 @@ public class WsExtensionUtilsTest {
         DefaultHttpSession session = new DefaultHttpSession(httpAcceptor, httpProcessor, address, remoteAddress, parentSession, null, request, uri);
 
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
-        List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
+        List<Extension> negotiatedExts = wenr.getExtensions().asList();
 
         assertTrue(String.format("Expected no negotiated WS extensions, got '%s'", negotiatedExts), negotiatedExts.size()==0);
     }
@@ -132,7 +132,7 @@ public class WsExtensionUtilsTest {
         DefaultHttpSession session = new DefaultHttpSession(httpAcceptor, httpProcessor, address, remoteAddress, parentSession, null, request, uri);
 
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
-        List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
+        List<Extension> negotiatedExts = wenr.getExtensions().asList();
 
         assertTrue(String.format("Expected no negotiated WS extensions, got '%s'", negotiatedExts), negotiatedExts.size()==0);
     }
@@ -169,10 +169,10 @@ public class WsExtensionUtilsTest {
         DefaultHttpSession session = new DefaultHttpSession(httpAcceptor, httpProcessor, address, remoteAddress, parentSession, null, request, uri);
 
         WsExtensionNegotiationResult wenr = negotiateWebSocketExtensions(null, session, null, requestedExts, supportedExts);
-        List<WsExtension> negotiatedExts = wenr.getExtensions().asList();
+        List<Extension> negotiatedExts = wenr.getExtensions().asList();
 
-        List<WsExtension> expectedExts = new ArrayList<>();
-        WsExtensionBuilder web = new WsExtensionBuilder("x-kaazing-ping-pong");
+        List<Extension> expectedExts = new ArrayList<>();
+        ExtensionBuilder web = new ExtensionBuilder("x-kaazing-ping-pong");
         expectedExts.add(web.toWsExtension());
 
         assertTrue(String.format("Expected negotiated WS extensions '%s', got '%s'", expectedExts, negotiatedExts), negotiatedExts.equals(expectedExts));

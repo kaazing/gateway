@@ -33,7 +33,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEI
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
 import static org.kaazing.gateway.transport.ws.extension.WsExtensionUtils.negotiateWebSocketExtensions;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketProtocol;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;

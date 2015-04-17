@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.ws.extension.spi;
+package org.kaazing.gateway.transport.ws.extension;
 
 import java.io.IOException;
+import java.util.Comparator;
+
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 
 
 /**
@@ -38,20 +41,18 @@ public abstract class WebSocketExtensionFactorySpi {
      * @return String   name of the extension
      */
     public abstract String getExtensionName();
-
+    
+    public abstract Comparator<Extension> getComparator();
+    
     /**
-     * Creates a {@link WebSocketExtensionSpi} instance. The specified HTTP request header formatted string is validated as well.
-     * An IOException is thrown if the specified string is deemed invalid. If an IOException is thrown, the extension is not
-     * negotiated during the opening handshake and does not have it's hooks exercised when messages are being received or sent.
-     * The format for extensionWithParams is as shown below:
-     *
-     * {@code}
-     *      extension-name[;param1=value1;param2;param3=value3]
-     * {@code}
-     *
-     * @param extensionWithParams  String representation of the extension in request header format
-     * @return WebSocketExtensionSpi  instance
-     * @throw IOException if the extension considers the specified string is invalid
+     * This method is called when the extension is requested by the client during the WebSocket handshake. 
+     * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
+     * @param address    WebSocket resource address on which the handshake is taking place
+     * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
+     * @throws IOException  If the extension cannot be negotiated. Throwing this exception will result
+     *                      in failing the WebSocket connection.
      */
-    public abstract WebSocketExtensionSpi createExtension(String extensionWithParams) throws IOException;
+    public abstract WebSocketExtensionSpi negotiate(Extension requestedExtension, WsResourceAddress address)
+            throws IOException;
+
 }

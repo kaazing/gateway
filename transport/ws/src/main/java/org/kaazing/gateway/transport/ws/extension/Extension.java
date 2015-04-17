@@ -30,6 +30,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
+ * This class represents an extension present in the extensions header of a WebSocket handshake HTTP request or response,
+ * as defined by the following syntax:
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -42,16 +44,12 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-/**
- * @author cbarrow
- *
- */
-public interface WsExtension {
+public interface Extension {
     enum EndpointKind { CLIENT, SERVER }
 
     String getExtensionToken();
 
-    List<WsExtensionParameter> getParameters() ;
+    List<ExtensionParameter> getParameters() ;
 
     boolean hasParameters();
     

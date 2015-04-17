@@ -22,7 +22,7 @@
 package org.kaazing.gateway.transport.ws;
 
 import org.kaazing.gateway.transport.bridge.Message;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
+import org.kaazing.gateway.transport.ws.extension.Extension;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -38,7 +38,7 @@ public abstract class WsMessage extends Message {
 
     private IoBufferEx buf;
     
-    private WsExtension extension = null;
+    private Extension extension = null;
 
     public WsMessage() {
         this(true);
@@ -52,7 +52,7 @@ public abstract class WsMessage extends Message {
         return buf;
     }
     
-    public final WsExtension getExtension() {
+    public final Extension getExtension() {
         return extension;
     }
 
@@ -80,7 +80,7 @@ public abstract class WsMessage extends Message {
                 Utils.sameOrEquals(this.buf, that.buf));
     }
     
-    public final void setExtension(WsExtension extension) {
+    public final void setExtension(Extension extension) {
         this.extension = extension;
     }
 

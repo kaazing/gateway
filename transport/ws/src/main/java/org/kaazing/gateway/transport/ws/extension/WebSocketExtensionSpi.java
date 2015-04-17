@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.ws.extension.spi;
+package org.kaazing.gateway.transport.ws.extension;
 
 import org.apache.mina.core.filterchain.IoFilter;
-import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
 
 /**
  * {@link WebSocketExtensionSpi} is part of <i>Service Provider Interface</i> <em>(SPI)</em> for extension developers.
@@ -30,12 +28,10 @@ public abstract class WebSocketExtensionSpi {
 
     /**
      * This method is called when the extension is successfully negotiated.
-     * @param extension Details of the negotiated extension and parameters (from the response header)
-     * @param address The WebSocket address of the WebSocket connection
+     * @returns The extension header (token and optional parameters) that should be included in the WebSocket handshake
+     * response for this extension
      */
-    public void negotiated(WsExtension extension, WsResourceAddress address) {
-
-    };
+    public abstract Extension getExtension();
 
     /**
      * This method is called after the negotiated method. If allows extensions to provide a filter that will be added to
@@ -44,7 +40,7 @@ public abstract class WebSocketExtensionSpi {
      * @param extension Details of the negotiated extension and parameters
      * @return A filter which is to be added to the filter chain, or null if none is to be added
      */
-    public IoFilter getFilter(WsExtension extension) {
+    public IoFilter getFilter() {
         return null;
     };
 

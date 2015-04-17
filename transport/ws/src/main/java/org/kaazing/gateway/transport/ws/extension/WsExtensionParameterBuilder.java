@@ -34,7 +34,7 @@ package org.kaazing.gateway.transport.ws.extension;
  *            ;'token' ABNF.
  * </pre>
  */
-public class WsExtensionParameterBuilder implements WsExtensionParameter {
+public class WsExtensionParameterBuilder implements ExtensionParameter {
 
     private String name;
     private String value;

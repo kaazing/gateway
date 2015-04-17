@@ -53,14 +53,14 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-public class WsExtensionBuilder implements WsExtension {
+public class ExtensionBuilder implements Extension {
     // TODO: Allocate control bytes for each active extension? (add setControlBytes method to WsExtension)
     //private static int nextControlBytes = 0;
     
     private String extensionToken;
-    private Map<String, WsExtensionParameter> parametersByName = new LinkedHashMap<>();
+    private Map<String, ExtensionParameter> parametersByName = new LinkedHashMap<>();
 
-    public WsExtensionBuilder(String extensionToken) {
+    public ExtensionBuilder(String extensionToken) {
         if (extensionToken == null) {
             throw new NullPointerException("extensionToken");
         }
@@ -92,10 +92,10 @@ public class WsExtensionBuilder implements WsExtension {
         }
     }
 
-    public WsExtensionBuilder(WsExtension extension) {
+    public ExtensionBuilder(Extension extension) {
         this.extensionToken = extension.getExtensionToken();
-        List<WsExtensionParameter> parameters = extension.getParameters();
-        for ( WsExtensionParameter p: parameters) {
+        List<ExtensionParameter> parameters = extension.getParameters();
+        for ( ExtensionParameter p: parameters) {
             this.parametersByName.put(p.getName(), p);
         }
     }
@@ -104,7 +104,7 @@ public class WsExtensionBuilder implements WsExtension {
         return extensionToken;
     }
 
-    public List<WsExtensionParameter> getParameters() {
+    public List<ExtensionParameter> getParameters() {
         return Collections.unmodifiableList(new ArrayList<>(parametersByName.values()));
     }
 
@@ -119,16 +119,16 @@ public class WsExtensionBuilder implements WsExtension {
         return new WsExtensionValidation();
     }
 
-    public WsExtension toWsExtension() {
+    public Extension toWsExtension() {
         return this;
     }
 
-    public WsExtensionBuilder setExtensionToken(String token) {
+    public ExtensionBuilder setExtensionToken(String token) {
         this.extensionToken = token;
         return this;
     }
 
-    public WsExtensionBuilder append(WsExtensionParameter parameter) {
+    public ExtensionBuilder append(ExtensionParameter parameter) {
         if ( !parametersByName.containsKey(parameter.getName()) ) {
             parametersByName.put(parameter.getName(), parameter);
         }
@@ -138,7 +138,7 @@ public class WsExtensionBuilder implements WsExtension {
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder(extensionToken);
-        for (WsExtensionParameter wsExtensionParameter: parametersByName.values()) {
+        for (ExtensionParameter wsExtensionParameter: parametersByName.values()) {
             b.append(';').append(' ').append(wsExtensionParameter);
         }
         return b.toString();
@@ -149,9 +149,9 @@ public class WsExtensionBuilder implements WsExtension {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof WsExtensionBuilder)) return false;
+        if (o == null || !(o instanceof ExtensionBuilder)) return false;
 
-        WsExtensionBuilder that = (WsExtensionBuilder) o;
+        ExtensionBuilder that = (ExtensionBuilder) o;
 
         return !(extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null);
 
@@ -170,8 +170,8 @@ public class WsExtensionBuilder implements WsExtension {
         append(new WsExtensionParameterBuilder(parameterName, parameterValue));
     }
 
-    public static WsExtension create(ResourceAddress address, WsExtension extension) {
-        WsExtension ext;
+    public static Extension create(ResourceAddress address, Extension extension) {
+        Extension ext;
     
         if (extension.getExtensionToken().equals(WsExtensions.IDLE_TIMEOUT)) {
             IdleTimeoutExtension idleTimeoutExt = new IdleTimeoutExtension(extension,

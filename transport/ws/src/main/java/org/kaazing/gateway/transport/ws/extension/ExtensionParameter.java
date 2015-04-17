@@ -22,6 +22,8 @@
 package org.kaazing.gateway.transport.ws.extension;
 
 /**
+ * This class represents an extension parameter from an extension present in the extensions header of a WebSocket
+ * handshake HTTP request or response, as defined by the following syntax: 
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -34,9 +36,10 @@ package org.kaazing.gateway.transport.ws.extension;
  *            ;'token' ABNF.
  * </pre>
  */
-public interface WsExtensionParameter {
+public interface ExtensionParameter {
 
     String getName();
+    
     String getValue();
 
 }

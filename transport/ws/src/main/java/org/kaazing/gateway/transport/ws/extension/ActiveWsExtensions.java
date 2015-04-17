@@ -39,29 +39,29 @@ import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
 public class ActiveWsExtensions {
-    public static final ActiveWsExtensions EMPTY = new ActiveWsExtensions(new ArrayList<WsExtension>(0), WsExtension.EndpointKind.SERVER);
+    public static final ActiveWsExtensions EMPTY = new ActiveWsExtensions(new ArrayList<Extension>(0), Extension.EndpointKind.SERVER);
     private static final TypedAttributeKey<ActiveWsExtensions> WS_EXTENSIONS_KEY 
            = new TypedAttributeKey<>(ActiveWsExtensions.class, "activeWsExtensions");
 
     
-    private final List<WsExtension> extensions;
-    private final List<WsExtension> binaryDecodingExtensions;
-    private final List<WsExtension> textDecodingExtensions;
-    private final List<WsExtension> binaryEncodingExtensions;
-    private final List<WsExtension> textEncodingExtensions;
+    private final List<Extension> extensions;
+    private final List<Extension> binaryDecodingExtensions;
+    private final List<Extension> textDecodingExtensions;
+    private final List<Extension> binaryEncodingExtensions;
+    private final List<Extension> textEncodingExtensions;
     private final EscapeSequencer binaryEscapeSequencer;
     private final EscapeSequencer textEscapeSequencer;
     
     private final byte[] commonBytes;
     
-    private WsExtension escapedDecodingExtension = null;
+    private Extension escapedDecodingExtension = null;
 
-    public ActiveWsExtensions(List<WsExtension> negotiatedExtensions, WsExtension.EndpointKind endpointKind) {
+    public ActiveWsExtensions(List<Extension> negotiatedExtensions, Extension.EndpointKind endpointKind) {
         extensions = new ArrayList<>(negotiatedExtensions.size());
-        SortedSet<WsExtension> sorted = new TreeSet<>(new Comparator<WsExtension>(){
+        SortedSet<Extension> sorted = new TreeSet<>(new Comparator<Extension>(){
 
             @Override
-            public int compare(WsExtension o1, WsExtension o2) {
+            public int compare(Extension o1, Extension o2) {
                 assert o1 != null && o2 != null : "cannot negotiate a null extension"; 
                 return o1.getOrdering().compareTo(o2.getOrdering());
             }
@@ -75,7 +75,7 @@ public class ActiveWsExtensions {
         textEncodingExtensions = new ArrayList<>(extensions.size());
         byte[] commonBytes = new byte[0];
         int commonCount = 0;
-        for (WsExtension extension : negotiatedExtensions) {
+        for (Extension extension : negotiatedExtensions) {
             if (extension.canDecode(endpointKind, BINARY)) {
                 binaryDecodingExtensions.add(extension);
             }
@@ -96,7 +96,7 @@ public class ActiveWsExtensions {
     }
 
     // for unit tests and gateway.management
-    public List<WsExtension> asList() {
+    public List<Extension> asList() {
         return Collections.unmodifiableList(extensions);
     }
 
@@ -120,7 +120,7 @@ public class ActiveWsExtensions {
      *                  and so was not written to decoder output), else false.
      */
     public boolean decode(IoBufferEx payload, Kind messageKind, ProtocolDecoderOutput out) {
-        List<WsExtension> decodingExtensions = null;
+        List<Extension> decodingExtensions = null;
         switch(messageKind) {
         case BINARY:
             decodingExtensions = binaryDecodingExtensions;
@@ -144,7 +144,7 @@ public class ActiveWsExtensions {
             }
         }
     
-        for (WsExtension extension : decodingExtensions) {
+        for (Extension extension : decodingExtensions) {
             byte[] controlBytes = extension.getControlBytes();
             if ( !startsWith(payload, controlBytes) ) {
                 continue;
@@ -177,8 +177,8 @@ public class ActiveWsExtensions {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends WsExtension> T getExtension(Class<T> extensionClass) {
-        for (WsExtension extension : extensions) {
+    public <T extends Extension> T getExtension(Class<T> extensionClass) {
+        for (Extension extension : extensions) {
             if ( extensionClass == extension.getClass() ) {
                 return (T)extension;
             }
@@ -186,26 +186,26 @@ public class ActiveWsExtensions {
         return null;
     }
     
-    public boolean hasExtension(Class<? extends WsExtension> extensionClass) {
+    public boolean hasExtension(Class<? extends Extension> extensionClass) {
         return getExtension(extensionClass) != null;
     }
     
     public static ActiveWsExtensions merge(ActiveWsExtensions extensions1, ActiveWsExtensions extensions2,
-            WsExtension.EndpointKind endpointKind) {
+            Extension.EndpointKind endpointKind) {
         if (extensions1 == EMPTY) {
             return extensions2;
         }
         if (extensions2 == EMPTY) {
             return extensions1;
         }
-        List<WsExtension> merged = new ArrayList<>(extensions1.extensions.size() + extensions2.extensions.size());
+        List<Extension> merged = new ArrayList<>(extensions1.extensions.size() + extensions2.extensions.size());
         merged.addAll(extensions1.extensions);
         merged.addAll(extensions2.extensions);
         return new ActiveWsExtensions(merged, endpointKind);
     }
     
     public void removeBridgeFilters(IoFilterChain filterChain) {
-        for (WsExtension extension : extensions) {
+        for (Extension extension : extensions) {
             extension.removeBridgeFilters(filterChain);
         }
     }
@@ -219,16 +219,16 @@ public class ActiveWsExtensions {
     }
     
     public void updateBridgeFilters(IoFilterChain filterChain) {
-        for (WsExtension extension : extensions) {
+        for (Extension extension : extensions) {
             extension.updateBridgeFilters(filterChain);
         }
     }
     
-    public static byte[] getCommonBytes(List<WsExtension> extensions, WsExtension.EndpointKind endpointKind) {
+    public static byte[] getCommonBytes(List<Extension> extensions, Extension.EndpointKind endpointKind) {
         byte[] commonBytes = new byte[0];
         int commonCount = 0;
         boolean first = true;
-        for (WsExtension extension : extensions) {
+        for (Extension extension : extensions) {
             byte[] controlBytes = extension.getControlBytes();
             if (first) {
                 commonBytes = controlBytes.clone();

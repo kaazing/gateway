@@ -28,7 +28,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.BINARY;
 import static org.kaazing.gateway.transport.ws.WsMessage.Kind.TEXT;
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 
 import java.nio.ByteBuffer;
@@ -42,7 +42,7 @@ import org.jmock.lib.action.CustomAction;
 import org.junit.Test;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
-import org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind;
+import org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind;
 import org.kaazing.gateway.transport.ws.util.Expectations;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
@@ -54,9 +54,9 @@ public class ActiveWsExtensionsTest {
     
     @Test
     public void commonBytesShouldBe0() {
-        WsExtension extension1 = new TestExtension("x-kaazing-test", new byte[]{(byte)0x01,(byte)0x02,(byte)0x03,(byte)0x04});
-        WsExtension extension2 = new TestExtension("x-kaazing-test-nomatch", new byte[]{(byte)0x00,(byte)0x02,(byte)0x03,(byte)0x04});
-        List<WsExtension> extensions = asList(extension1, extension2);
+        Extension extension1 = new TestExtension("x-kaazing-test", new byte[]{(byte)0x01,(byte)0x02,(byte)0x03,(byte)0x04});
+        Extension extension2 = new TestExtension("x-kaazing-test-nomatch", new byte[]{(byte)0x00,(byte)0x02,(byte)0x03,(byte)0x04});
+        List<Extension> extensions = asList(extension1, extension2);
         byte[] result = ActiveWsExtensions.getCommonBytes(extensions, SERVER);
         assertEquals(0, result.length);
         assertTrue(Arrays.equals(new byte[0], result));
@@ -64,9 +64,9 @@ public class ActiveWsExtensionsTest {
     
     @Test
     public void commonBytesShouldBe3() {
-        WsExtension extension1 = new TestExtension("x-kaazing-test", CONTROL1);
-        WsExtension extension2 = new TestExtension("x-kaazing-test-nomatch", CONTROL2);
-        List<WsExtension> extensions = asList(extension1, extension2);
+        Extension extension1 = new TestExtension("x-kaazing-test", CONTROL1);
+        Extension extension2 = new TestExtension("x-kaazing-test-nomatch", CONTROL2);
+        List<Extension> extensions = asList(extension1, extension2);
         byte[] result = ActiveWsExtensions.getCommonBytes(extensions, SERVER);
         assertEquals(3, result.length);
         assertTrue(Arrays.equals(new byte[]{(byte)0x01,(byte)0x02,(byte)0x03}, result));
@@ -93,30 +93,30 @@ public class ActiveWsExtensionsTest {
     
     @Test
     public void extensionsShouldBeOrdered() {
-        WsExtension extension1 = new TestExtension("x-kaazing-test1", CONTROL1) {
+        Extension extension1 = new TestExtension("x-kaazing-test1", CONTROL1) {
             @Override
             // Make sure this extension is last
             public String getOrdering() {
                 return "y";
             }
         };
-        WsExtension extension2 = new TestExtension("x-kaazing-test2", CONTROL2);
-        WsExtension extension3 = new TestExtension("x-kaazing-test3", CONTROL3);
+        Extension extension2 = new TestExtension("x-kaazing-test2", CONTROL2);
+        Extension extension3 = new TestExtension("x-kaazing-test3", CONTROL3);
         ActiveWsExtensions extensions = new ActiveWsExtensions(asList(extension1, extension2, extension3), SERVER);
         assertEquals(asList(extension2, extension3, extension1), extensions.asList());
     }
     
     @Test
     public void mergeShouldCombineInOrder() {
-        WsExtension extension1 = new TestExtension("x-kaazing-test1", CONTROL1) {
+        Extension extension1 = new TestExtension("x-kaazing-test1", CONTROL1) {
             @Override
             // Make sure this extension is last
             public String getOrdering() {
                 return "zzz";
             }
         };
-        WsExtension extension2 = new TestExtension("x-kaazing-test2", CONTROL2);
-        WsExtension extension3 = new TestExtension("x-kaazing-test3", CONTROL3);
+        Extension extension2 = new TestExtension("x-kaazing-test2", CONTROL2);
+        Extension extension3 = new TestExtension("x-kaazing-test3", CONTROL3);
         ActiveWsExtensions extensions1 = new ActiveWsExtensions(asList(extension1, extension2), SERVER);
         ActiveWsExtensions extensions2 = new ActiveWsExtensions(asList(extension3), SERVER);
         ActiveWsExtensions result = ActiveWsExtensions.merge(extensions1, extensions2, SERVER);
@@ -149,8 +149,8 @@ public class ActiveWsExtensionsTest {
         buf.flip();
         final IoBufferEx payload = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(buf);
         
-        WsExtension extension = new TestExtension("x-kaazing-test", CONTROL1);
-        WsExtension[] negotiated = new WsExtension[]{extension};
+        Extension extension = new TestExtension("x-kaazing-test", CONTROL1);
+        Extension[] negotiated = new Extension[]{extension};
         ActiveWsExtensions extensions = new ActiveWsExtensions(asList(negotiated), SERVER);
         assertTrue(extensions.decode(payload, TEXT, out));
         assertSame(extension, result[0].getExtension());
@@ -178,9 +178,9 @@ public class ActiveWsExtensionsTest {
                 }
             });
         }
-        WsExtension extension1 = new TestExtension("x-kaazing-test-1", CONTROL1);
-        WsExtension extension2 = new TestExtension("x-kaazing-test-2", CONTROL2);
-        WsExtension[] negotiated = new WsExtension[]{extension1, extension2};
+        Extension extension1 = new TestExtension("x-kaazing-test-1", CONTROL1);
+        Extension extension2 = new TestExtension("x-kaazing-test-2", CONTROL2);
+        Extension[] negotiated = new Extension[]{extension1, extension2};
         ActiveWsExtensions extensions = new ActiveWsExtensions(Arrays.asList(negotiated), EndpointKind.SERVER);
         
         ByteBuffer  buf = ByteBuffer.allocate(9);
@@ -222,9 +222,9 @@ public class ActiveWsExtensionsTest {
                 }
             });
         }
-        final WsExtension extension1 = context.mock(WsExtension.class, "extension1");
-        final WsExtension extension2 = context.mock(WsExtension.class, "extensions2");
-        WsExtension[] negotiated = new WsExtension[]{extension1, extension2};
+        final Extension extension1 = context.mock(Extension.class, "extension1");
+        final Extension extension2 = context.mock(Extension.class, "extensions2");
+        Extension[] negotiated = new Extension[]{extension1, extension2};
         
         context.checking(new Expectations() {
             {
@@ -268,15 +268,15 @@ public class ActiveWsExtensionsTest {
         buf.flip();
         final IoBufferEx payload = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(buf);
         
-        WsExtension extension = new TestExtension("x-kaazing-test", CONTROL1);
-        WsExtension[] negotiated = new WsExtension[]{extension};
+        Extension extension = new TestExtension("x-kaazing-test", CONTROL1);
+        Extension[] negotiated = new Extension[]{extension};
         ActiveWsExtensions extensions = new ActiveWsExtensions(asList(negotiated), SERVER);
         assertTrue(extensions.decode(payload, TEXT, out));
         context.assertIsSatisfied();
     }
     
     
-    class TestExtension extends WsExtensionBuilder {
+    class TestExtension extends ExtensionBuilder {
         private final byte[] controlBytes;
 
         public TestExtension(String extensionToken, byte[] controlBytes) {

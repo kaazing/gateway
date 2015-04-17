@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +39,10 @@ public class WsExtensionUtils {
         
     }
     
-    public static List<byte[]> getEscapeSequences(List<WsExtension> extensions) {
+    public static List<byte[]> getEscapeSequences(List<Extension> extensions) {
         List<byte[]> result = new ArrayList<>();
         if ( extensions != null ) {
-            for ( WsExtension extension: extensions ) {
+            for ( Extension extension: extensions ) {
                 result.add(extension.getControlBytes());
             }
         }
@@ -58,8 +58,8 @@ public class WsExtensionUtils {
                                                                             List<String> clientRequestedExtensions,
                                                                             List<String> serverWsExtensions) {
         if (clientRequestedExtensions != null) {
-            List<WsExtension> wsSupportedExtensions = toWsExtensions(serverWsExtensions);
-            List<WsExtension> wsRequestedExtensions = toWsExtensions(clientRequestedExtensions);
+            List<Extension> wsSupportedExtensions = toWsExtensions(serverWsExtensions);
+            List<Extension> wsRequestedExtensions = toWsExtensions(clientRequestedExtensions);
     
             // Since the client may have provided parameters in their
             // extensions, we retain the common requested extensions, not
@@ -79,10 +79,10 @@ public class WsExtensionUtils {
                 }
     
             } else {
-                List<WsExtension> wsAcceptedExtensions = new ArrayList<>(wsRequestedExtensions.size());
+                List<Extension> wsAcceptedExtensions = new ArrayList<>(wsRequestedExtensions.size());
     
-                for (WsExtension candidate : wsRequestedExtensions) {
-                    WsExtension accepted = WsExtensionBuilder.create(address, candidate);
+                for (Extension candidate : wsRequestedExtensions) {
+                    Extension accepted = ExtensionBuilder.create(address, candidate);
                     WsExtensionValidation validation = accepted.checkValidity();
                     if (validation.isValid()) {
                         wsAcceptedExtensions.add(accepted);
@@ -96,7 +96,7 @@ public class WsExtensionUtils {
     
                 //TODO: This is where we can add server-initiated coordinated extension parameters.
     
-                for (WsExtension ext : wsAcceptedExtensions) {
+                for (Extension ext : wsAcceptedExtensions) {
                     session.addWriteHeader(headerName, ext.toString());
                 }
     
@@ -108,7 +108,7 @@ public class WsExtensionUtils {
     }
 
 
-    public static List<WsExtension> toWsExtensions(List<String> extensionTokens) {
+    public static List<Extension> toWsExtensions(List<String> extensionTokens) {
         if (extensionTokens == null) {
             throw new NullPointerException("extensionTokens");
         }
@@ -117,10 +117,10 @@ public class WsExtensionUtils {
             return new ArrayList<>();
         }
     
-        List<WsExtension> exts = new ArrayList<>(extensionTokens.size());
+        List<Extension> exts = new ArrayList<>(extensionTokens.size());
         for (String extensionToken : extensionTokens) {
             if (extensionToken != null) {
-                exts.add(new WsExtensionBuilder(extensionToken).toWsExtension());
+                exts.add(new ExtensionBuilder(extensionToken).toWsExtension());
             }
         }
     
