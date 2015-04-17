@@ -872,13 +872,12 @@ Use the `connect-options` element to add options to all connections for the serv
 | ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection canbe inactive (seconds is the default time interval syntax). The Gatewaywill drop the connection if it cannot communicate with the client in thenumber of seconds specified (see[ws.inactivity.timeout](#wsinactivitytimeout)). You can specify yourpreferred time interval syntax in milliseconds, seconds, minutes, orhours (spelled out or abbreviated). For example, all of the followingare valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m,3min, or 3 minutes. If you do not specify a time unit then seconds areassumed. |
 | ws.version (deprecated) | no | yes |  |
 
-#### <span id="svcacceptopts3"></span></a>*protocol*.bind
+#### *protocol*.bind
 
 **Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be ws, wss, http, https, ssl, tcp, or udp
 
 Use the `protocol.bind` element to configure network protocol bindings for your Gateway services. Configure `protocol.bind` as an accept-option or a connect-option to bind a URI or URIs on which the Gateway can accept or make connections. The Gateway binds the URI or port or IP address specified in the `protocol.bind` element to bind the public URI in the `accept` or `connect` element to the URI or port or IP address
 
-</p>
 Specify any of the following protocol schemes:
 
 -   `ws`: Specifies the WebSocket (WS) protocol.
@@ -896,7 +895,7 @@ See the [Configure the Gateway on an Internal Network](../internal-network/p_net
 
 The following example shows external addresses (that users will see) for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols on `localhost:8000` and `localhost:9000`. Internally, however, these addresses are bound to ports 8001 and 9001 respectively.
 
-``` auto-links:
+``` xml
 <service>
   <name>Echo Config</name>
   <accept>ws://localhost:8000/echo</accept>
@@ -915,7 +914,7 @@ The following example shows external addresses (that users will see) for the Web
 
 In the following example, the `ws.bind` and `wss.bind`elements in accept-options are used to bind the public URI in the `accept` elements to the local IP address of the cluster member. This allows the accept URIs in the balancer service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member (contain the local IP address of that cluster member).
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://balancer.example.com:8081/echo</accept>
   <accept>wss://balancer.example.com:9091/echo</accept>
@@ -929,7 +928,7 @@ In the following example, the `ws.bind` and `wss.bind`elements in accept-options
 </service>
 ```
 
-#### <span id="svcacceptopts3"></span></a>*protocol*.transport
+#### *protocol*.transport
 
 **Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be pipe, tcp, ssl, or http.
 
@@ -937,17 +936,17 @@ Use the `protocol.transport` accept-option or connect-option to replace the defa
 
 Specify any of the following transports:
 
--   <a name="httptransport"></a>`http.transport`: Specifies a URI for use as a transport layer under the HTTP transport or WebSocket transport (since WebSocket is always over HTTP). This is the most frequently used transport option.
--   <a name="ssltransport"></a>`ssl.transport`: Specifies a URI for use as a transport layer under the TLS/SSL transport.
--   <a name="tcptransport"></a>`tcp.transport`: Specifies a URI for use as a transport layer under the TCP/IP (tcp) transport.
--   <a name="pipetransport"></a>`pipe.transport`: Specifies a URI for use as a transport layer under the pipe transport.
--   <a name="sockstransport"></a>`socks.transport`: Specifies a URI for use as a transport layer under the SOCKS transport.
+-   `http.transport`: Specifies a URI for use as a transport layer under the HTTP transport or WebSocket transport (since WebSocket is always over HTTP). This is the most frequently used transport option.
+-   `ssl.transport`: Specifies a URI for use as a transport layer under the TLS/SSL transport.
+-   `tcp.transport`: Specifies a URI for use as a transport layer under the TCP/IP (tcp) transport.
+-   `pipe.transport`: Specifies a URI for use as a transport layer under the pipe transport.
+-   `socks.transport`: Specifies a URI for use as a transport layer under the SOCKS transport.
 
 ##### Example: Configuring the Transport in accept-options
 
 In the following example, the HTTP transport is replaced with a new (`socks+ssl`) transport that is capable of doing a reverse connection using the SOCKS protocol over TLS/SSL.
 
-``` auto-links:
+``` xml
   <service>
     <accept>wss://gateway.example.com:443/path</accept>
     <connect>tcp://internal.example.com:1080</connect>
@@ -964,9 +963,9 @@ In the following example, the HTTP transport is replaced with a new (`socks+ssl`
 
 ##### Example: Configuring the Transport in connect-options
 
-In the following example, the `socks+ssl`) transport performs a reverse connection using the SOCKS protocol over TLS/SSL.
+In the following example, the `socks+ssl` transport performs a reverse connection using the SOCKS protocol over TLS/SSL.
 
-``` auto-links:
+``` xml
    <service>
      <accept>wss://gateway.example.com:443/path</accept>
      <connect>wss://gateway.example.com:443/path</connect>
@@ -984,7 +983,7 @@ In the following example, the `socks+ssl`) transport performs a reverse connecti
 
 For more examples, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
-#### <a name="wsmaxmsg"></a>ws.maximum.message.size
+#### ws.maximum.message.size
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1008,7 +1007,7 @@ If an incoming message from a client exceeds the value of `ws.maximum.message.si
 
 The following example sets a maximum incoming message limit of 64 kilobytes, as shown in line 8:
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8000/echo</accept>
   <accept>wss://localhost:9000/echo</accept>
@@ -1021,7 +1020,7 @@ The following example sets a maximum incoming message limit of 64 kilobytes, as 
 </service>
 ```
 
-#### <a name="keepalive"></a>http.keepalive.timeout
+#### http.keepalive.timeout
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1031,7 +1030,7 @@ Use the `http.keepalive.timeout` accept-option to set the number of seconds the 
 
 The following example shows a `service` element containing an HTTP or HTTPS connection time limit of `120` seconds, as shown in line 8:
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8000/echo</accept>
   <accept>wss://localhost:9000/echo</accept>
@@ -1049,7 +1048,7 @@ The following example shows a `service` element containing an HTTP or HTTPS conn
 -   the `http.keepalive.timeout` accept-option is useful for conserving resources because it avoids idle connections remaining open.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
 
-#### <a name="sslciphers"></a>ssl.ciphers
+#### ssl.ciphers
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
 
@@ -1059,7 +1058,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 
 -   The following example shows a `proxy` service accepting a secure connection over WSS and connecting to the back-end service or message broker over TCP with the ciphers used by the encryption algorithm specified in `ssl.ciphers`. The example uses the `proxy` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>wss://www.example.com:443/remoteService</accept>
       <connect></connect>
@@ -1078,7 +1077,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 
     By default (or if you do not specify `ssl.ciphers` on a secure connection), the Gateway uses the equivalent of the following ciphers:
 
-    ``` auto-links:
+    ``` xml
     <ssl.ciphers>HIGH,MEDIUM,!ADH,!KRB5</ssl.ciphers>
     ```
 
@@ -1093,7 +1092,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 
     Use the `NULL` cipher suite when you want the Gateway to accept connections from known authenticated TLS clients but you do not want those connections to be encrypted:
 
-    ``` auto-links:
+    ``` xml
     <ssl.ciphers>NULL</ssl.ciphers>
     ```
 
@@ -1103,13 +1102,13 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 
     Use the `ALL` cipher suite to enable all of the cipher suites (such as for testing purposes):
 
-    ``` auto-links:
+    ``` xml
     <ssl.ciphers>ALL</ssl.ciphers>
     ```
 
     Note that because NULL encryption cipher suites are so insecure they are not enabled even by using the `ALL` cipher suite. You must explicitly include NULL ciphers by configuring them, as follows:
 
-    ``` auto-links:
+    ``` xml
     <ssl.ciphers>HIGH,MEDIUM,LOW,EXPORT,NULL</ssl.ciphers>
     ```
 
@@ -1124,7 +1123,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 -   TLS/SSL is used to verify the Gateway to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
 -   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.ciphers` accept option, the values for `ssl.ciphers` must be identical.
 
-#### <a name="sslprotocols"></a>ssl.protocols and socks.ssl.protocols
+#### ssl.protocols and socks.ssl.protocols
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** SSLv2Hello, SSLv3, TLSv1, TLSv1.1, TLSv1.2
 
@@ -1143,7 +1142,7 @@ If you configure the `ssl.protocols` or the `socks.ssl.protocols` element to ena
 
 The following example shows a `proxy` service. Because the `accept` URL the `wss://` scheme, we know that this is a secure connection. The `ssl.protocols` element in line 12 indicates that we want the Gateway to accept only TLSv1, TLSv1.2, and TLSv1.1 protocols, say, from clients over this secure connection.
 
-``` auto-links:
+``` xml
 <service>
   <name>DMZ Gateway</name>
   <accept>wss://example.com:443/myapp</accept>
@@ -1170,7 +1169,7 @@ Because this configuration connects a Gateway to another Gateway in a controlled
 
 The prefix for this example is `socks.ssl`, rather than just `ssl` to explicitly reference the SSL layer that is transporting the SOCKS protocol.
 
-``` auto-links:
+``` xml
 <service>
   <name>DMZ Gateway</name>
   <accept>wss://example.com:443/myapp</accept>
@@ -1198,7 +1197,7 @@ This example combines the previous two examples to show an Enterprise Shield&tra
 
 On the frontplane, the Gateway accepts connections from clients only using the TLSv1, TLSv1.2, and TLSv1.1 protocols. On the backplane, the Gateway only accepts (reverse) connections using the protocol TLSv1.2 (from another Gateway).
 
-``` auto-links:
+``` xml
 <service>
   <name>DMZ Gateway</name>
   <accept>wss://example.com:443/myapp</accept>
@@ -1226,7 +1225,7 @@ On the frontplane, the Gateway accepts connections from clients only using the T
 </service>
 ```
 
-#### <span id="svcacceptopts2"></span></a>ssl.encryption
+#### ssl.encryption
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** enabled, disabled
 
@@ -1242,7 +1241,7 @@ See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more inf
 
 The following example shows a `service` element containing the `accept-options` and `ssl.encryption` elements, which signal the Gateway to listen on address `www.example.com`, with encryption disabled. The example uses the `proxy` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://www.example.com/remoteService</accept>
   <connect></connect>
@@ -1264,7 +1263,7 @@ Alternatively, the IP address can be used in the configuration parameters. You c
 
 The following example for an Enterprise Shield&trade; topology shows a `service` element containing several `connect-options` including an `ssl.encryption` option that disables encryption.
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://dmz.example.com:443/remoteService</accept>
   <connect>tcp://internal.example.com:8010</connect>
@@ -1295,7 +1294,7 @@ The following example for an Enterprise Shield&trade; topology shows a `service`
 -   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 
-#### <a name="sslverifyclient"></a>ssl.verify-client
+#### ssl.verify-client
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
 
@@ -1313,7 +1312,7 @@ To configure that, you can use the `ssl.verify-client` on an `accept` to specify
 
 In the following example, the Gateway accepts on a secure URI (`wss://`) and requires that all clients connecting to the Gateway on that URI provide a digital certificate verifying their identity.
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://example.com:443</accept>
   <connect>tcp://server1.corp.example.com:5050</connect>
@@ -1335,7 +1334,7 @@ In the following example, the Gateway accepts on a secure URI (`wss://`) and req
 -   This configuration ensures that both the clients and the Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
 -   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.verify-client` accept option, the values for `ssl.verify-client` must be identical.
 
-#### <a name="socksmode"></a>socks.mode  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.mode  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1350,7 +1349,7 @@ For more information about Enterprise Shield&trade; and forward and reverse conn
 
 The following example shows a `service` element with the `socks.mode` set to `reverse`. This configuration causes the Gateway to interpret the SOCKS URI as a connect URI, as shown in line 8:
 
-``` auto-links:
+``` xml
 <service>
   <accept>pipe://pipe-1</accept>
   <connect>tcp://broker.example.com:8010/</connect>
@@ -1369,7 +1368,7 @@ The following example shows a `service` element with the `socks.mode` set to `re
 
 The following example shows a `connect-option` element with the `socks.mode` set to `reverse`.
 
-``` auto-links:
+``` xml
 <service>
   <accept>tcp://dmz.example.com:8000/</accept>
   <connect>pipe://pipe-1</connect>
@@ -1403,7 +1402,7 @@ Note the following behavior for reverse and forward SOCKS connections:
 
 The following example shows a `socks.timeout` that is set to 10 seconds in line 15. If the forward connection is not formed within 10 seconds, then the connection is closed and the client must initiate another connection.
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://www.example.com:443/remoteService</accept>
   <connect></connect>
@@ -1433,7 +1432,7 @@ Use `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the
 
 The following example shows a `proxy` service for the DMZ Gateway in an Enterprise Shield&trade; topology. The Gateway receives secure client connections (`wss://`) and specifies the ciphers used on the accept URI (`DEFAULT`), but does not require mutual verification from the clients (`ssl.verify-client`). In addition, the internal Gateway connects over SOCKS and TLS/SSL (`socks+ssl://`) to the DMZ Gateway, specifies the ciphers used (`NULL`), and requires mutual verification (`socks.ssl.verify-client`). For more information about forward and reverse connectivity, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://dmz.example.com:443/remoteService</accept>
   <connect>tcp://internal.example.com:8000</connect>
@@ -1466,7 +1465,7 @@ The following example shows a `proxy` service for the DMZ Gateway in an Enterpri
 -   Typos or incorrect strings (or unsupported ciphers) in `socks.ssl.ciphers` are noticed by the Gateway when a connection is made, not on startup. These errors are only discoverable by looking at the Gateway log.
 -   TLS/SSL is used to verify the Gateway to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
 
-#### <span id="svcacceptopts2"></span></a>socks.ssl.verify-client  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.ssl.verify-client  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
 
@@ -1484,7 +1483,7 @@ For more information, see [Configure Enterprise Shield&trade; with the Gateway](
 
 In the following example, the DMZ Gateway accepts on a WebSocket URI and connects over a named pipe. The DMZ Gateway also listens for connections on port 1443 as `pipe.transport` URI over SOCKS and TLS/SSL (`socks+ssl://`). To increase security, the `socks.ssl.verify-client` is set to `required`, which specifies that the internal Gateway URI must provide a digital certificate to the DMZ Gateway.
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://dmz.example.com:443/remoteService</accept>
   <connect>pipe://pipe-1</connect>
@@ -1515,7 +1514,7 @@ In the following example, the DMZ Gateway accepts on a WebSocket URI and connect
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 -   See [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
 
-#### <a name="socksretrymaxint"></a>socks.retry.maximum.interval  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.retry.maximum.interval  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1525,7 +1524,7 @@ Use the `socks.retry.maximum.interval` accept-option in an Enterprise Shield&tra
 
 The following example shows a `service` element containing a SOCKS proxy connection retry interval time limit of 60 seconds, as shown in line 10:
 
-``` auto-links:
+``` xml
 <service>
   <accept>pipe://pipe-1</accept>
   <connect>tcp://broker.example.com:8010/</connect>
@@ -1540,7 +1539,7 @@ The following example shows a `service` element containing a SOCKS proxy connect
 </service>
 ```
 
-#### <a name="tcpmaxoutbndrate"></a>tcp.maximum.outbound.rate  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### tcp.maximum.outbound.rate  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1550,7 +1549,6 @@ You must specify the value of `tcp.maximum.outbound.rate` as a positive integer
 
 You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with a unit of measurement from the following table. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
 
-|---------------------|------------------|-------------------------------|-------------------------------------------------------------|
 | **Unit**            | **Abbreviation** | **Bytes per Second per Unit** | **Notes**                                                   |
 | Byte per second     | B/s              | 1                             | Example: `512B/s`                                           |
 | kilobyte per second | kB/s             | 1000 (10<sup>3</sup>)         | Decimal kilobytes per second. Example: `1000kB/s`           |
