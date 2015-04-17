@@ -31,12 +31,9 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -56,25 +53,10 @@ public class HttpProxyWssUpgradeTest {
 
     @Before
     public void init() throws Exception {
-        // Initialize KeyStore of gateway
-        password = "ab987c".toCharArray();
-        keyStore = KeyStore.getInstance("JCEKS");
-        FileInputStream kis = new FileInputStream("target/truststore/keystore.db");
-        keyStore.load(kis, password);
-        kis.close();
-
-        // Initialize TrustStore of gateway
-        trustStore = KeyStore.getInstance("JKS");
-        FileInputStream tis = new FileInputStream("target/truststore/truststore.db");
-        trustStore.load(tis, null);
-        tis.close();
-
-        // Configure client socket factory to trust the gateway's certificate
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(trustStore);
-        sslContext.init(null, tmf.getTrustManagers(), null);
-        clientSocketFactory = sslContext.getSocketFactory();
+        password = TlsTestUtil.password();
+        keyStore = TlsTestUtil.keyStore();
+        trustStore = TlsTestUtil.trustStore();
+        clientSocketFactory = TlsTestUtil.clientSocketFactory();
     }
 
     @Rule
@@ -100,7 +82,7 @@ public class HttpProxyWssUpgradeTest {
         // @formatter:on
 
         SecureOriginServer.Handler handler = new WebSocketServer();
-        SecureOriginServer originServer = new SecureOriginServer(8080, keyStore, password, handler);
+        SecureOriginServer originServer = new SecureOriginServer(8080, handler);
 
         try {
             originServer.start();
@@ -183,7 +165,7 @@ public class HttpProxyWssUpgradeTest {
         static final byte[] CLOSE_FRAME = new byte[] {(byte) 0x88, 0x02, 0x03, (byte) 0xe8};
 
         @Override
-        public void handle(SSLSocket serverSocket) {
+        public void handle(SSLSocket serverSocket) throws IOException {
             try(Socket socket = serverSocket;
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream()) {
@@ -204,8 +186,6 @@ public class HttpProxyWssUpgradeTest {
                 readFully(in, new byte[8]);
                 byte[] close = CLOSE_FRAME;
                 out.write(close);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
     }

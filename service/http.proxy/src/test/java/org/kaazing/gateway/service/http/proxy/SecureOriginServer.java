@@ -21,44 +21,32 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import javax.net.ServerSocketFactory;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.KeyStore;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 class SecureOriginServer implements Runnable {
-    private final KeyStore keyStore;
-    private final char[] password;
     private final int port;
     private final Handler handler;
     private volatile boolean stopped;
     private SSLServerSocket socket;
 
     interface Handler {
-        void handle(SSLSocket sslSocket);
+        void handle(SSLSocket sslSocket) throws IOException;
     }
 
-    SecureOriginServer(int port, KeyStore keyStore, char[] password, Handler handler) {
+    SecureOriginServer(int port, Handler handler) {
         this.port = port;
-        this.keyStore = keyStore;
-        this.password = password;
         this.handler = handler;
     }
 
     void start() throws Exception {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        kmf.init(keyStore, password);
-        sslContext.init(kmf.getKeyManagers(), null, null);
-        ServerSocketFactory serverSocketFactory = sslContext.getServerSocketFactory();
-
+        SSLServerSocketFactory serverSocketFactory = TlsTestUtil.serverSocketFactory();
         socket = (SSLServerSocket) serverSocketFactory.createServerSocket(port);
         new Thread(this, "SSL Origin Server").start();
     }
@@ -66,8 +54,7 @@ class SecureOriginServer implements Runnable {
     @Override
     public void run() {
         while (!stopped) {
-            try {
-                SSLSocket acceptSocket = (SSLSocket) socket.accept();
+            try(SSLSocket acceptSocket = (SSLSocket) socket.accept()) {
                 try {
                     handler.handle(acceptSocket);
                 } catch (Exception ioe) {
@@ -103,15 +90,13 @@ class SecureOriginServer implements Runnable {
         }
 
         @Override
-        public void handle(SSLSocket acceptSocket) {
+        public void handle(SSLSocket acceptSocket) throws IOException {
             try (SSLSocket socket = acceptSocket;
                  InputStream in = socket.getInputStream();
                  OutputStream out = socket.getOutputStream()) {
 
                 parseHttpHeaders(in);
                 out.write(resBytes);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
             }
         }
 

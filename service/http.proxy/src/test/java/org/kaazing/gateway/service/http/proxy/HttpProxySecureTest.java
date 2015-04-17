@@ -31,11 +31,8 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.service.http.proxy.SecureOriginServer.HttpHandler;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
@@ -59,25 +56,10 @@ public class HttpProxySecureTest {
 
     @Before
     public void init() throws Exception {
-        // Initialize KeyStore of gateway
-        password = "ab987c".toCharArray();
-        keyStore = KeyStore.getInstance("JCEKS");
-        FileInputStream kis = new FileInputStream("target/truststore/keystore.db");
-        keyStore.load(kis, password);
-        kis.close();
-
-        // Initialize TrustStore of gateway
-        trustStore = KeyStore.getInstance("JKS");
-        FileInputStream tis = new FileInputStream("target/truststore/truststore.db");
-        trustStore.load(tis, null);
-        tis.close();
-
-        // Configure client socket factory to trust the gateway's certificate
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(trustStore);
-        sslContext.init(null, tmf.getTrustManagers(), null);
-        clientSocketFactory = sslContext.getSocketFactory();
+        password = TlsTestUtil.password();
+        keyStore = TlsTestUtil.keyStore();
+        trustStore = TlsTestUtil.trustStore();
+        clientSocketFactory = TlsTestUtil.clientSocketFactory();
     }
 
 
@@ -114,7 +96,7 @@ public class HttpProxySecureTest {
                 "0\r\n" +
                 "\r\n";
         HttpHandler handler = new HttpHandler(response);
-        SecureOriginServer originServer = new SecureOriginServer(8080, keyStore, password, handler);
+        SecureOriginServer originServer = new SecureOriginServer(8080, handler);
 
         try {
             originServer.start();
