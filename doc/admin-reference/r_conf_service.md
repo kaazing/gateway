@@ -1792,7 +1792,7 @@ Use cross-site-constraint to configure how a cross-origin site is allowed to acc
 
 The following example of a `proxy` service element includes a cross-site-constraint (as shown in lines 11-13), allowing access to the back-end service or message broker by the site `http://localhost:8000` (note the different port number).
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8001/remoteService</accept>
   <connect></connect>
@@ -1817,5 +1817,3 @@ Summary
 -------
 
 In this document, you learned about the Gateway service element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
-
-
