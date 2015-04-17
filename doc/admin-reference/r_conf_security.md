@@ -240,11 +240,11 @@ This is the element for adding options to specific types of login modules. The o
 | debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
 | tryFirstToken | `gss`                        |                                                                                                                                                                                                                       |
 
-##### <span id="fileloginmodule"></span></a>Example of a `file` Login Module
+##### Example of a `file` Login Module
 
 The following example shows a `file`-based `login-module` element that uses the flat XML file,` jaas-config.xml`:
 
-``` auto-links:
+``` xml
 <login-module>
   <type>file</type>
   <success>required</success>
@@ -256,13 +256,13 @@ The following example shows a `file`-based `login-module` element that uses the 
 </login-module>
 ```
 
-For information about the `file` login module options, see the table in the [options (login-module)](#loginmoduleopts) section.
+For information about the `file` login module options, see the table in the [options (login-module)](#loginmodule) section.
 
-##### <span id="ldaploginmodule"></span></a>Example of a `ldap` login module
+##### Example of a `ldap` login module
 
 The following example shows an LDAP-based `login-module` element:
 
-``` auto-links:
+``` xml
 <login-module>
   <type>ldap</type>
   <success>required</success>
@@ -279,11 +279,11 @@ The following example shows an LDAP-based `login-module` element:
 
 For information about configuring the LDAP login-module options, see the [Class LDAPLoginModule documentation](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/LdapLoginModule.html).
 
-##### <span id="kerberos5loginmodule"></span></a>Example of `kerberos5` login module
+##### Example of `kerberos5` login module
 
-The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](#gssloginmodule) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#challenge_scheme):
+The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
-``` auto-links:
+``` xml
   <login-module>
     <type>kerberos5</type>
     <success>required</success>
@@ -300,24 +300,24 @@ The following example shows a `kerberos5`-based `login-module` element. You must
 
 For information about configuring the Kerberos login module options, see the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation. For information about how to use KAAZING Gateway with Kerberos, see [Configure Kerberos V5 Network Authentication](../security/o_krb.md).
 
-##### <span id="gssloginmodule"></span>`gss` login module</a>
+##### `gss` login module
 
-The following example shows a `gss`-based `login-module` element that you define after the Kerberos login module in the chain to enable the Kerberos tokens to travel over the Web. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#challenge_scheme):
+The following example shows a `gss`-based `login-module` element that you define after the Kerberos login module in the chain to enable the Kerberos tokens to travel over the Web. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
-``` auto-links:
+``` xml
 <login-module>
     <type>gss</type>
     <success>required</success>
 </login-module>
 ```
 
-For information about the `gss` login module options, see the table in the [options (login-module)](#loginmoduleopts) section. The `gss` login-module element requires no options but must follow the [kerberos5](#kerberos5loginmodule) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#kerberos5loginmodule) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_krb_config_kerberos.md) for more information.
+For information about the `gss` login module options, see the table in the [options (login-module)](#login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_krb_config_kerberos.md) for more information.
 
-##### <span id="jndiloginmodule"></span></a>Example of a `jndi` login module
+##### Example of a `jndi` login module
 
-The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the <span class="brush: xml; toolbar: false;">[JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc</span> into the XML you would use in the `security.realm` section of the Gateway configuration:
+The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
-``` auto-links:
+``` xml
   <login-module>
     <type>jndi</type>
     <success>required</success>
@@ -332,11 +332,11 @@ The following example shows a jndi-based `login-module` element. It translates t
 
 For information about configuring the JNDI login-module options, see the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) documentation.
 
-##### <span id="keystoreloginmodule"></span></a>Example of a `keystore` login module
+##### Example of a `keystore` login module
 
 The following example shows a keystore-based `login-module` element. It translates the examples in the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
-``` auto-links:
+``` xml
   <login-module>
     <type>keystore</type>
     <success>required</success>
@@ -351,7 +351,7 @@ The following example shows a keystore-based `login-module` element. It translat
 
 For information about configuring the keystore login-module options, see the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) documentation.
 
-##### <span id="customloginmodule"></span></a>Example of a `custom` login module
+##### Example of a `custom` login module
 
 KAAZING Gateway also supports a plugin mechanism for integration with custom authentication modules based on the Java LoginModule API.
 
@@ -365,7 +365,7 @@ For information about creating a custom login module using this API, see:
 
 The following is an example of a complete `security` element that includes a chain of two login modules:
 
-``` auto-links:
+``` xml
 <security>
   <keystore>
    <type>JCEKS</type>
@@ -417,6 +417,4 @@ Summary
 -------
 
 In this document, you learned about the Gateway `security` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
-
-</div>
 
