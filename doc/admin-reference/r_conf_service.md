@@ -97,24 +97,24 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |name|The name of the service. You must provide a name for the service. The \`name\` element can be any name.|
 |description|A description of the service is optional.|
 |accept|The URLs on which the service accepts connections.|
-|connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](\#broadcast)service connects.|
-|balance|The URI that is balanced by a \`balancer\` service. See [balancer](\#balancer) service for details.|
-|notify (JMS only)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](\#notifyele) element for details.|
-|type|The type of service. One of the following: - [balancer](\#balancer) - [broadcast](\#broadcast) - [directory](\#directory) - [echo](\#echo) - [kerberos5.proxy](\#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) - [management.jmx](\#mgmtjmx) - [management.snmp](\#mgmtsnmp) - [proxy](\#proxy) - [amqp.proxy](\#proxy) - [jms](r\_stomp\_service.md\#stompjms) (JMS only) - jms.proxy - [xmpp.proxy](\#proxy) - [session](\#session\_svc)|
+|connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast)service connects.|
+|balance|The URI that is balanced by a \`balancer\` service. See [balancer](#balancer) service for details.|
+|notify (JMS only)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [management.jmx](#mgmtjmx), [management.snmp](#mgmtsnmp), [proxy](#proxy), [amqp.proxy](#proxy), [jms](r_stomp_service.md#stompjms) (JMS only), jms.proxy, [xmpp.proxy](#proxy), and [session](\#session\_svc)|
 |properties|The service type-specific properties.|
-|accept-options|Options for the \`accept\` element (see [accept-options](\#svcacceptopts)).|
-|connect-options|Options for the \`connect\` element (see [connect-options](\#svcconnectopts)).|
-|notify-options (JMS only)|Options for the notify element (see [notify-options)](\#notifyopts).|
+|accept-options|Options for the `accept` element (see [accept-options](#svcacceptopts)).|
+|connect-options|Options for the `connect` element (see [connect-options](#svcconnectopts)).|
+|notify-options (JMS only)|Options for the notify element (see [notify-options)](#notifyopts).|
 |realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
-|authorization-constraint|The user roles that are authorized to access the service (see [authorization-constraint](\#authorization-constraint)).|
-|mime-mapping|Mappings of file extensions to MIME types. Each \`mime-mapping\` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping](\#svcmimemapping)).|
-|cross-site-constraint|The cross-origin sites (and their methods and custom headers) allowed to access the service. (see [cross-site-constraint](\#xsiteconst)).|
+|authorization-constraint|The user roles that are authorized to access the service (see [authorization-constraint](#authorization-constraint)).|
+|mime-mapping|Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping](#svcmimemapping)).|
+|cross-site-constraint|The cross-origin sites (and their methods and custom headers) allowed to access the service. (see [cross-site-constraint](#xsiteconst)).|
 
 
-### <a name="note_supportedURLschemes"></a>Supported URL Schemes:
+### Supported URL Schemes:
 
 When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
-</p>
+
 -   ws
 -   wss
 -   http
@@ -123,8 +123,7 @@ When specifying URLs for the `accept` or `connect` elements, you can use `tcp://
 -   tcp
 -   udp
 
-</span>
-### <a name="acceptele"></a>accept
+### accept
 
 **Required?** Yes; **Occurs:** At least once.
 
@@ -132,12 +131,12 @@ The URLs on which the service accepts connections (see [Supported URL schemes](#
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://balancer.example.com:8081/echo</accept>
-.
-.
-.
+  .
+  .
+  .
 </service>
 ```
 
@@ -146,7 +145,7 @@ The URLs on which the service accepts connections (see [Supported URL schemes](#
 -   There is no default value for the accept element. You must configure it and specify the URI on which the service accepts connections.
 -   The Gateway is configured by default to provide services only to users on the same machine (`localhost`) as that on which it is running. To customize the Gateway for your environment, choose the appropriate type of service (for example, `balancer`, `broadcast`, `directory`, and so on) to signal the Gateway to accept incoming connections from clients using any supported URL scheme.
 -   Supported URL Schemes:</b> When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
-    </p>
+
     -   ws
     -   wss
     -   http
@@ -155,7 +154,7 @@ The URLs on which the service accepts connections (see [Supported URL schemes](#
     -   tcp
     -   udp
 
-### <a name="connectele"></a>connect
+### connect
 
 **Required?** Yes; **Occurs:** At least once.
 
@@ -163,7 +162,7 @@ The URL of a back-end service or message broker to which the proxy service (for 
 
 #### Example
 
-``` auto-links:
+``` xml
 <connect>tcp://192.0.2.11:5943</connect>
 ```
 
@@ -172,7 +171,7 @@ The URL of a back-end service or message broker to which the proxy service (for 
 -   There is no default value for the `connect` element. You must configure it and specify the URI on which the service makes a connection to the back-end service or message broker.
 -   The Gateway is configured by default to provide services only to users on the same machine (`localhost`) as that on which it is running. To customize the Gateway for your environment, choose the appropriate type of service (for example, `balancer`, `broadcast`, `echo`, and so on) to signal the Gateway to accept incoming connections from clients using any supported URL scheme.
 -   Supported URL Schemes:</b> When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
-    </p>
+
     -   ws
     -   wss
     -   http
@@ -181,7 +180,7 @@ The URL of a back-end service or message broker to which the proxy service (for 
     -   tcp
     -   udp
 
-### <a name="balanceele"></a>balance
+### balance
 
 **Required?** Optional; **Occurs:** one or more.
 
@@ -193,7 +192,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 
 **Balancer Service**
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://balancer.example.com:8081/echo</accept>
 
@@ -208,7 +207,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 
 **Gateway Service Participating in Load Balancing**
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://node1.example.com:8081/echo</accept>
   <balance>ws://balancer.example.com:8081/echo</balance>
@@ -229,7 +228,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 -   See [Set Up KAAZING Gateway as a Load Balancer](../high-availability/p_ha_loadbalance.md) for a complete load balancing description and example.
 
 
-### <a name="notifyele"></a>notify (JMS only) 
+### notify (JMS only) 
 
 **Required?** Optional; **Occurs:** one or more.
 
@@ -249,7 +248,7 @@ The following examples show complete `notify` elements including a service for t
 
 **Example Configuration for an Apple Production Environment**
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://${gateway.hostname}:8000/proxy</accept>
 
@@ -313,7 +312,7 @@ The following examples show complete `notify` elements including a service for t
 
 **Example Configuration for an Apple Sandbox Development Environment**
 
-``` auto-links:
+``` xml
   .
   .
   .
@@ -391,7 +390,7 @@ The following examples show complete `notify` elements including a service for t
 -   In an Enterprise Shield&trade; topology, configure `notify` and `notify-options` on the [jms](r_stomp_service.md#stompjms) service on an internal Gateway that is connected directly to the back-end service or message broker.
 -   Do not configure a single Gateway instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
 
-    For example, because the production and sandbox configurations shown in [Example Configuration for the notify Element](#notifyexample) use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (<span class="auto-links: false; brush: xml; highlight: [10,17,18,19,20]; toolbar: false;">`com.example.myapp/DEVELOPMENT`</span>) on its URI.
+    For example, because the production and sandbox configurations shown in [Example Configuration for the notify Element](#notifyexample) use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (`com.example.myapp/DEVELOPMENT`) on its URI.
 
 -   For APNs notifications, if the sandbox and the production environments both use the same bundle ID (such as `com.example.myapp`), then you must configure two Gateway instances: one for the sandbox environment and one for the production environment. When establishing connections to Apple's development (and production) environment, both the bundle ID and the environment are used.
 
@@ -403,7 +402,7 @@ The following examples show complete `notify` elements including a service for t
     -   If you use separate digital certificates for the Gateway and the iOS app, then both certificates must have the same bundle ID.
 
 
-### <a name="typeele"></a>type
+### type
 
 The type of service. One of the following:
 
@@ -412,14 +411,14 @@ The type of service. One of the following:
 -   [directory](#directory)
 -   [echo](#echo)
 -   [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [management.jmx](#mgmtjmx)
--   [management.snmp](#mgmtsnmp)
--   [amqp.proxy](#proxy)
--   [proxy](#proxy)
+-   [management.jmx](#managementjmx)
+-   [management.snmp](#managementsnmp)
+-   [amqp.proxy](#proxy-and-amqpproxy)
+-   [proxy](#proxy-and-amqpproxy)
 -   [jms](r_stomp_service.md#stompjms) (JMS only) 
--   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
--   [xmpp.proxy](#proxy)
--   [session](#session_svc)
+-   [jms.proxy](r_stomp_service.md#stompinterceptor)
+-   [xmpp.proxy](#proxy-and-amqpproxy)
+-   [session](#session)
 
 ### <span id="balancer"></span></a>balancer
 
@@ -431,7 +430,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 
 **Balancer Service**
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://balancer.example.com:8081/echo</accept>
 
@@ -449,7 +448,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 
 **Gateway Service Participating in Load Balancing**
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://node1.example.com:8081/echo</accept>
   <balance>ws://balancer.example.com:8081/echo</balance>
@@ -468,19 +467,19 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 -   As with all services, the `balancer` service needs to have appropriate cross-site constraints defined.
 -   For more information about load balancing and using the `balancer` service, see the [Configure the Gateway for High Availability](../high-availability/o_ha.md) topic.
 
-### <a name="broadcast"></a>broadcast
+### broadcast
 
 Use the `broadcast` service to relay information from a back-end service or message broker. The `broadcast` service has the following property:
 
 | Property                                | Description                                                                     |
 |-----------------------------------------|---------------------------------------------------------------------------------|
-| <a name="broadcast-accept"></a>`accept` | The URL of the broadcast service to which a back-end service or message broker connects. |
+| `accept` | The URL of the broadcast service to which a back-end service or message broker connects. |
 
 #### Examples
 
 -   The following example configures the `broadcast` service with the `accept` element coded inside the `properties` element. This configures the Gateway to accept connections initiated by the back-end service or message broker and broadcast messages that are sent along that connection to clients.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>sse://localhost:8000/sse</accept>
       <accept>sse+ssl://localhost:9000/sse</accept>
@@ -503,8 +502,7 @@ Use the `broadcast` service to relay information from a back-end service or mess
 
 -   The following example configures the `broadcast` service with a `connect` element that contains the URL of the back-end service or message broker (`news.example.com:50505`) to which the Gateway connects. If you configure the Gateway in this way, then the Gateway initiates the connection to the back-end service or message broker. When the service receives information, it broadcasts it to all the SSE channels accepted from clients on `www.example.com`.
 
-    </p>
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>sse://www.example.com:8000/sse</accept>
       <accept>sse+ssl://www.example.com:9000/sse</accept>
@@ -520,7 +518,7 @@ Use the `broadcast` service to relay information from a back-end service or mess
     </service>
     ```
 
-### <span id="directory"></span></a>directory
+### directory
 
 Use the `directory` service to expose directories or files hosted on the Gateway. The `directory` service has the following properties:
 
@@ -528,16 +526,16 @@ Use the `directory` service to expose directories or files hosted on the Gateway
 
 | Property                                                            | Required or Optional? | Description                                                                                                                                                                                                                                                                                                                                              |
 |---------------------------------------------------------------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="directory-directory"></a>`directory`                       | Required              | The path to the directory to be exposed on the Gateway.                                                                                                                                                                                                                                                                                               |
-| <a name="directory-options"></a>`options`                           | Optional              | Enables directory browsing of the files and folders in the location specified by the `directory` property. The value `indexes` must be entered. For example, `<options>indexes</options>` enables directory browsing. Omitting the `options` property disables directory browsing. Browsing a directory with `welcome-file` will serve the welcome file. |
-| <a name="directory-welcomefile"></a>`welcome-file`                  | Optional              | The path to the file to be exposed on the Gateway.                                                                                                                                                                                                                                                                                                    |
-| <a name="directory-errorpagesdirectory"></a>`error-pages-directory` | Optional              | The path to the directory containing the `404.md` file. By default, the Gateway includes a `404.md` file in `GATEWAY_HOME/error-pages`. See the [Notes](#dir_notes) for more information.                                                                                                                                                         |
+| `directory`                       | Required              | The path to the directory to be exposed on the Gateway.                                                                                                                                                                                                                                                                                               |
+| `options`                           | Optional              | Enables directory browsing of the files and folders in the location specified by the `directory` property. The value `indexes` must be entered. For example, `<options>indexes</options>` enables directory browsing. Omitting the `options` property disables directory browsing. Browsing a directory with `welcome-file` will serve the welcome file. |
+| `welcome-file`                  | Optional              | The path to the file to be exposed on the Gateway.                                                                                                                                                                                                                                                                                                    |
+| `error-pages-directory` | Optional              | The path to the directory containing the `404.md` file. By default, the Gateway includes a `404.md` file in `GATEWAY_HOME/error-pages`. See the [Notes](#dir_notes) for more information.                                                                                                                                                         |
 
 #### Examples
 
 -   The following is an example of a `service` element of type `directory` that accepts connections on localhost by default:
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>http://localhost:8000/</accept>
       <accept>https://localhost:9000/</accept>
@@ -551,19 +549,19 @@ Use the `directory` service to expose directories or files hosted on the Gateway
     </service>
     ```
 
-#### <a name="dir_notes"></a>Notes
+#### Notes
 
 -   The path you specify for the `directory` service must be relative to the directory `GATEWAY_HOME\web` (where `GATEWAY_HOME` is the directory in which KAAZING Gateway is installed). For example, `C:\gateway\GATEWAY_HOME\web`. An absolute path cannot be specified.
 -   KAAZING Gateway services are configured to accept connections on `localhost` by default. The cross-origin sites allowed to access those services are also configured for localhost-only by default. If you want to connect to host names other than localhost you must update your server configuration, and use the fully qualified host name of the host machine.
 -   If you use the optional `error-pages-directory` property, you can test it by adding the property, saving the `gateway-config.xml` file, then starting the Gateway. Once the Gateway is running, point your browser to a page that does not exist, such as `http://localhost:8000/nonexistentpage.html`.
 
-### <a name="echo"></a>echo
+### echo
 
 This type of service receives a string of characters through a WebSocket connection and returns, or *echoes* the same characters to the sender.
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8001/echo</accept>
   <accept>wss://localhost:9001/echo</accept>
@@ -585,13 +583,13 @@ This type of service receives a string of characters through a WebSocket connect
 -   The primary use for the `echo` service is to validate the basic gateway configuration.
 -   The default `echo` service is configured to run on a separate port to verify cross-origin access.
 
-### <span id="kerberos5"></span></a>kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Use the `kerberos5.proxy` service to connect the Gateway to the Kerberos Key Distribution Center.
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>ws://localhost:8000/kerberos5</accept>
   <connect>tcp://kdc.example.com:88</connect>
@@ -608,7 +606,7 @@ Use the `kerberos5.proxy` service to connect the Gateway to the Kerberos Key Dis
 
 -   The `kerberos5.proxy` service is required when you configure the `Application Negotiate` [authentication scheme](r_conf_security.md#challenge_scheme).
 
-### <a name="mgmtjmx"></a>management.jmx
+### management.jmx
 
 Use the `management.jmx` service type to track and monitor user sessions and configuration data using JMX Managed Beans.
 
@@ -616,7 +614,7 @@ Use the `management.jmx` service type to track and monitor user sessions and con
 
 The following example is a snippet from the default Gateway configuration file showing the JMX Management section:
 
-``` auto-links:
+``` xml
      <service>
        <name>JMX Management</name>
         <description>JMX Management Service</description>
@@ -644,7 +642,7 @@ The following example is a snippet from the default Gateway configuration file s
 -   The `management.jmx` service is enabled by default in the Gateway configuration file.
 -   KAAZING Gateway supports Java Management Extension (JMX) access through any JMX-compliant console that supports communication using the JMX protocol.
 
-### <a name="mgmtsnmp"></a>management.snmp
+### management.snmp
 
 Use the `management.snmp` service type to monitor a Gateway or a Gateway cluster through Command Center, which is a browser-based application. Using Command Center is the recommended method for monitoring the Gateway.
 
@@ -652,7 +650,7 @@ Use the `management.snmp` service type to monitor a Gateway or a Gateway cluster
 
 The following example is a snippet from the default Gateway configuration file showing the SNMP Management section:
 
-``` auto-links:
+``` xml
       <service>
         <name>SNMP Management</name>
           <description>SNMP Management Service</description>
@@ -681,7 +679,7 @@ The following example is a snippet from the default Gateway configuration file s
 -   See [Monitor with Command Center](../management/p_monitor_cc.md) for more information about monitoring with Command Center.
 
 
-### <a name="proxy"></a>proxy and amqp.proxy
+### proxy and amqp.proxy
 
 Use the `proxy` service or amqp.proxy to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
@@ -689,82 +687,13 @@ Use the `proxy` service or amqp.proxy to enable a client to make a WebSocket con
 
 Use the following properties with the `proxy` service and amqp.proxy service:
 
-<table class="reference">
-<tr>
-<th scope="col">
-Property
-</th>
-<th scope="col">
-Required?
-</th>
-<th scope="col">
-Description
-</th>
-</tr>
-<tr>
-<td>
-<a name="proxy-maximumpendingbytes"></a>`maximum.pending.bytes`
-</td>
-<td>
-Optional
-</td>
-<td>
-The size of data the service buffers for one client connection before slowing incoming data. The value must be a positive integer with either no specified unit or appended with `kB` or `MB` (the unit is case insensitive) to indicate kilobytes or megabytes. If no unit is specified, the default unit is bytes. If you do not specify this property, its default value is `64kB`. For example:
--   A value of `2048` sets the buffer to **2048 bytes**
--   A value of `128kB` sets the buffer to **128 kilobytes**
--   No instance of the `maximum.pending.bytes` property in the `gateway-config.xml` sets the buffer to **64 kilobytes**
+| Property                    | Required? | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|-----------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *maximum.pending.bytes*     | Optional  | The size of data the service buffers for one client connection before slowing incoming data. The value must be a positive integer with either no specified unit or appended with *kB* or *MB* (the unit is case insensitive) to indicate kilobytes or megabytes. If no unit is specified, the default unit is bytes. If you do not specify this property, its default value is *64kB*. For example: - A value of *2048* sets the buffer to **2048 bytes** - A value of *128kB* sets the buffer to **128 kilobytes** - No instance of the *maximum.pending.bytes* property in the *gateway-config.xml* sets the buffer to **64 kilobytes** The Gateway uses this buffer when the speed of the data coming into the service is faster than the speed of the data being consumed by the receiving end, which is either the client or the back-end service or message broker. The buffer stores the data up to the limit you specify in this property per client connection, then slows the incoming data, until either the client or the back-end service or message broker (whichever is consuming the data) has consumed more than 50% of the outgoing data flow. For example, suppose you set this property to *128kB*. If the back-end service or message broker sends 256kB of data to a client and the client has only consumed 128kB, the remaining 128kB (the limit you set in the property) is buffered. At this time, the Gateway suspends reading the data from the back-end service or message broker; as the client consumes the buffered data, the size of the buffered data decreases. When the buffered data falls below 64kB, the Gateway resumes reading the data from the back-end service or message broker. |
+| *maximum.recovery.interval* | Optional  | The maximum interval (in seconds) between attempts of the service to establish a connection to the back-end service or message broker specified by the *connect* element. - If specified, the value must be a non-negative integer. You must enable this property to ensure the client can reconnect to another service that has a good connection to an available back-end service or message broker. - If unspecified or if the value is set to *0*, then the property is disabled but the Gateway will start and run successfully. However, when the property is not enabled, the load balancer does not detect when a service is disconnected from the back-end service or message broker or when the broker is unavailable. If the back-end service or message broker becomes unavailable or the Gateway cannot establish a connection to it, the Gateway triggers a recovery. The Gateway attempts to reestablish a connection to the back-end service or message broker. Initially, the interval between attempts is short, but grows until it reaches the specified value. From that point on, the Gateway attempts to reestablish a connection only at the interval specified. During this recovery phase, the Gateway unbinds the service, and clients attempting to connect to this service receive a "404 Not Found" error. Once the back-end service or message broker recovers and the Gateway establishes a connection, the Gateway binds the service and clients can connect to the service. See the [Examples](\#proxyserviceexamples) for a code snippet using this property.                                                                                                                               |
+| *prepared.connection.count* | Optional  | Set this property in either of the following use cases: - Set this property when configuring your proxy service, which is the most common use case for *prepared.connection.count*. In this case, setting *prepared.connection.count* sets the number of connections the Gateway creates (or *prepares*) to the back-end service or message broker specified by the *connect* element in addition to the client connections. When the Gateway starts, it creates the specified number of connections to the back-end service or message broker, thus creating a "prepared connection." When an incoming client connection uses a prepared connection, the Gateway creates another connection to the back-end service or message broker, thus maintaining the specified number of prepared connections to the back-end service or message broker. - Set this property when configuring Enterprise Shield™. See [Configure Enterprise Shield™](../reverse-connectivity/p\_rc\_config.md) for detailed configuration information. If you do not set this property, then the Gateway does not prepare connections to the back-end service or message broker.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *virtual.host*              | Optional  | Specifies the AMQP virtual host to which the Gateway can proxy clients that are connected to this service.After the Gateway authenticates the client, the virtual host is injected into the AMQP protocol and messages can be exchanged. This ensures the target virtual host comes from a validated and trusted source such as the Gateway, rather than relying on what is set by the client, which can be manipulated.You may choose to configure a virtual host when you want to: - Isolate exchanges, queues, and topics created under one virtual-host from those in the other virtual hosts residing in the same AMQP broker instance. - Ensure each client can only see their data and not the data of other clients. - Handle a configuration in which your AMQP broker is part of a multi-tenant application and you do not want clients from one tenant sharing data and exchanges with clients from another tenant. See the [Examples](\#proxyserviceexamples) for a code snippet using this property.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
-The Gateway uses this buffer when the speed of the data coming into the service is faster than the speed of the data being consumed by the receiving end, which is either the client or the back-end service or message broker. The buffer stores the data up to the limit you specify in this property per client connection, then slows the incoming data, until either the client or the back-end service or message broker (whichever is consuming the data) has consumed more than 50% of the outgoing data flow. For example, suppose you set this property to `128kB`. If the back-end service or message broker sends 256kB of data to a client and the client has only consumed 128kB, the remaining 128kB (the limit you set in the property) is buffered. At this time, the Gateway suspends reading the data from the back-end service or message broker; as the client consumes the buffered data, the size of the buffered data decreases. When the buffered data falls below 64kB, the Gateway resumes reading the data from the back-end service or message broker.
-</td>
-</tr>
-<tr>
-<td>
-<a name="proxy-maximumrecoveryinterval"></a>`maximum.recovery.interval`
-</td>
-<td>
-Optional
-</td>
-<td>
-The maximum interval (in seconds) between attempts of the service to establish a connection to the back-end service or message broker specified by the `connect` element.
--   If specified, the value must be a non-negative integer. You must enable this property to ensure the client can reconnect to another service that has a good connection to an available back-end service or message broker.
--   If unspecified or if the value is set to `0`, then the property is disabled but the Gateway will start and run successfully. However, when the property is not enabled, the load balancer does not detect when a service is disconnected from the back-end service or message broker or when the broker is unavailable.
-
-If the back-end service or message broker becomes unavailable or the Gateway cannot establish a connection to it, the Gateway triggers a recovery. The Gateway attempts to reestablish a connection to the back-end service or message broker. Initially, the interval between attempts is short, but grows until it reaches the specified value. From that point on, the Gateway attempts to reestablish a connection only at the interval specified. During this recovery phase, the Gateway unbinds the service, and clients attempting to connect to this service receive a "404 Not Found" error. Once the back-end service or message broker recovers and the Gateway establishes a connection, the Gateway binds the service and clients can connect to the service. See the [Examples](#proxyserviceexamples) for a code snippet using this property.
-</td>
-</td>
-</tr>
-<tr>
-<td>
-<a name="proxy-preparedconnectioncount"></a>`prepared.connection.count`
-</td>
-<td>
-Optional
-</td>
-<td>
-Set this property in either of the following use cases:
--   Set this property when configuring your proxy service, which is the most common use case for `prepared.connection.count`. In this case, setting `prepared.connection.count` sets the number of connections the Gateway creates (or *prepares*) to the back-end service or message broker specified by the `connect` element in addition to the client connections. When the Gateway starts, it creates the specified number of connections to the back-end service or message broker, thus creating a "prepared connection." When an incoming client connection uses a prepared connection, the Gateway creates another connection to the back-end service or message broker, thus maintaining the specified number of prepared connections to the back-end service or message broker.
--   Set this property when configuring Enterprise Shield&trade;. See [Configure Enterprise Shield&trade;](../reverse-connectivity/p_rc_config.md) for detailed configuration information.</span>
-
-If you do not set this property, then the Gateway does not prepare connections to the back-end service or message broker.
-</td>
-</tr>
-<tr>
-<td>
-<a name="proxy-virtualhost"></a>`virtual.host`
-</td>
-<td>
-Optional
-</td>
-<td>
-Specifies the AMQP virtual host to which the Gateway can proxy clients that are connected to this service.After the Gateway authenticates the client, the virtual host is injected into the AMQP protocol and messages can be exchanged. This ensures the target virtual host comes from a validated and trusted source such as the Gateway, rather than relying on what is set by the client, which can be manipulated.You may choose to configure a virtual host when you want to:
--   Isolate exchanges, queues, and topics created under one virtual-host from those in the other virtual hosts residing in the same AMQP broker instance.
--   Ensure each client can only see their data and not the data of other clients.
--   Handle a configuration in which your AMQP broker is part of a multi-tenant application and you do not want clients from one tenant sharing data and exchanges with clients from another tenant.
-
-See the [Examples](#proxyserviceexamples) for a code snippet using this property.
-</td>
-</tr>
-</table>
 #### <a name="proxyserviceexamples"></a>Examples
 
 -   The following example of the `proxy` service configures the `accept` element to signal the Gateway to accept incoming connections from clients using WebSocket (`ws`) and WebSocket Secure (`wss`), and it configures the `connect` element to connect to the back-end service or message broker using TCP. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
