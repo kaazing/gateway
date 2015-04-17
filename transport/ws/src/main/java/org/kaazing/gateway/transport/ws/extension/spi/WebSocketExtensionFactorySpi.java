@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.ws.extension;
+package org.kaazing.gateway.transport.ws.extension.spi;
 
 import java.io.IOException;
 
@@ -26,6 +26,7 @@ import java.io.IOException;
  * <UL>
  *   <LI> a sub-class of {@link WebSocketExtensionFactorySpi}
  *   <LI> a sub-class of {@link WebSocketExtensionSpi}
+ *   <LI> (optional) a filter ({@link org.apache.mina.core.filterchain.IoFilter IoFilter})
  * </UL>
  * <p>
  */
