@@ -35,9 +35,9 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
             -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
-        -   [mime-mapping](#mime-mapping)
-            -   [extension](#mime-mapping)
-            -   [mime-type](#mime-mapping)
+        -   [mime-mapping](#mime-mapping-service-defaults)
+            -   [extension](#mime-mapping-service-defaults)
+            -   [mime-type](#mime-mapping-service-defaults)
 
 service-defaults
 ----------------------------------------------
