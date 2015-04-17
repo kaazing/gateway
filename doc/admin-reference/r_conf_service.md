@@ -7,12 +7,12 @@ Service Reference
 
 This document describes all of the elements and properties you can use to configure KAAZING Gateway services.
 
-<a name="configuring"></a>Overview
+Overview
 ----------------------------------
 
 You can use the optional `service` element to configure one or more services running on KAAZING Gateway.
 
-<a name="descelements"></a>Structure
+Structure
 ------------------------------------
 
 The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) defines the `service` configuration element and its subordinate elements and properties that are contained in the top-level `gateway-config` element:
@@ -92,154 +92,25 @@ Each `service` can contain any of the subordinate elements listed in the followi
 
 **Note:** Subordinate elements must be specified in the order shown in the following table.
 
-<table class="reference">
-<tr>
-<th width="26%" scope="col">
-Subordinate Element
-</th>
-<th width="74%" scope="col">
-Description
-</th>
-</tr>
-<tr>
-<td class="code_inline">
-<a name="servicename"></a>name
-</td>
-<td>
-The name of the service. You must provide a name for the service. The `name` element can be any name.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-<a name="servicedescription"></a>description
-</td>
-<td>
-A description of the service is optional.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-accept
-</td>
-<td>
-The URLs on which the service accepts connections.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-connect
-</td>
-<td>
-The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast)service connects.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-balance
-</td>
-<td>
-The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.
-</td>
-</tr>
+|Subordinate Element|Description|
+|:------------------|:----------|
+|name|The name of the service. You must provide a name for the service. The \`name\` element can be any name.|
+|description|A description of the service is optional.|
+|accept|The URLs on which the service accepts connections.|
+|connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](\#broadcast)service connects.|
+|balance|The URI that is balanced by a \`balancer\` service. See [balancer](\#balancer) service for details.|
+|notify (JMS only)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](\#notifyele) element for details.|
+|type|The type of service. One of the following: - [balancer](\#balancer) - [broadcast](\#broadcast) - [directory](\#directory) - [echo](\#echo) - [kerberos5.proxy](\#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) - [management.jmx](\#mgmtjmx) - [management.snmp](\#mgmtsnmp) - [proxy](\#proxy) - [amqp.proxy](\#proxy) - [jms](r\_stomp\_service.md\#stompjms) (JMS only) - jms.proxy - [xmpp.proxy](\#proxy) - [session](\#session\_svc)|
+|properties|The service type-specific properties.|
+|accept-options|Options for the \`accept\` element (see [accept-options](\#svcacceptopts)).|
+|connect-options|Options for the \`connect\` element (see [connect-options](\#svcconnectopts)).|
+|notify-options (JMS only)|Options for the notify element (see [notify-options)](\#notifyopts).|
+|realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
+|authorization-constraint|The user roles that are authorized to access the service (see [authorization-constraint](\#authorization-constraint)).|
+|mime-mapping|Mappings of file extensions to MIME types. Each \`mime-mapping\` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping](\#svcmimemapping)).|
+|cross-site-constraint|The cross-origin sites (and their methods and custom headers) allowed to access the service. (see [cross-site-constraint](\#xsiteconst)).|
 
-<tr>
-<td class="code_inline">
-notify (JMS only) 
-</td>
-<td>
-The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notifyele) element for details.
-</td>
-</tr>
 
-<tr>
-<td class="code_inline">
-type
-</td>
-<td>
-The type of service. One of the following:
--   [balancer](#balancer)
--   [broadcast](#broadcast)
--   [directory](#directory)
--   [echo](#echo)
--   [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [management.jmx](#mgmtjmx)
--   [management.snmp](#mgmtsnmp)
--   [proxy](#proxy)
--   [amqp.proxy](#proxy)
--   [jms](r_stomp_service.md#stompjms) (JMS only) 
--   <a href="r_stomp_service.md#stompinterceptor">jms.proxy
--   [xmpp.proxy](#proxy)
--   [session](#session_svc)
-
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-properties
-</td>
-<td>
-The service type-specific properties.
-</td>
-</tr>
-<tr>
-<td height="34" class="code_inline">
-accept-options
-</td>
-<td>
-Options for the `accept` element (see [accept-options](#svcacceptopts)).
-</td>
-</tr>
-<tr>
-<td height="34" class="code_inline">
-connect-options
-</td>
-<td>
-Options for the `connect` element (see [connect-options](#svcconnectopts)).
-</td>
-</tr>
-
-<tr>
-<td height="34" class="code_inline">
-notify-options (JMS only) 
-</td>
-<td>
-Options for the notify element (see [notify-options)](#notifyopts).
-</td>
-</tr>
-
-<tr>
-<td class="code_inline">
-realm-name
-</td>
-<td>
-The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.
-</td>
-</tr>
-<tr>
-<td height="34" class="code_inline">
-authorization-constraint
-</td>
-<td>
-The user roles that are authorized to access the service (see [authorization-constraint](#svc_auth_const)).
-</td>
-</tr>
-<tr>
-<td height="34" class="code_inline">
-mime-mapping
-</td>
-<td>
-Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping](#svcmimemapping)).
-</td>
-</tr>
-<tr>
-<td height="34" class="code_inline">
-cross-site-constraint
-</td>
-<td>
-The cross-origin sites (and their methods and custom headers) allowed to access the service. (see [cross-site-constraint](#xsiteconst)).
-</td>
-</tr>
-</table>
 ### <a name="note_supportedURLschemes"></a>Supported URL Schemes:
 
 When specifying URLs for the `accept` or `connect` elements, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported protocol schemes:
