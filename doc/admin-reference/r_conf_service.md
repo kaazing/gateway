@@ -696,16 +696,15 @@ Use the following properties with the `proxy` service and amqp.proxy service:
 
 #### <a name="proxyserviceexamples"></a>Examples
 
--   The following example of the `proxy` service configures the `accept` element to signal the Gateway to accept incoming connections from clients using WebSocket (`ws`) and WebSocket Secure (`wss`), and it configures the `connect` element to connect to the back-end service or message broker using TCP. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+-   The following example of the `proxy` service configures the `accept` element to signal the Gateway to accept incoming connections from clients using WebSocket (`ws`) and WebSocket Secure (`wss`), and it configures the `connect` element to connect to the back-end service or message broker using TCP. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
-    </p>
     The example also configures the following properties:
 
     -   `maximum.pending.bytes` property, which sets the buffer to `128kB`.
     -   `maximum.recovery.interval `property, which tells the Gateway to ping the service at `tcp://internal.example.com:port-number` every 30 seconds if the back-end service or message broker becomes unavailable.
     -   `prepared.connection.count` property, which tells the Gateway to prepare 10 connections to the back-end service or message broker specified by the `connect` element, then maintain 10 connections as clients consume each connection.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
       <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
@@ -730,8 +729,7 @@ Use the following properties with the `proxy` service and amqp.proxy service:
 
 -   The following example shows a service configuration section that is used to accept connections for the `proxy` service at the URL `ws://www.example.com` on port `80`. (The port is included for the sake of example. You can omit the default ports 80 or 443.).
 
-    </p>
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>ws://www.example.com:80/service</accept>
       <connect>tcp://internal.example.com:port-number</connect>
@@ -743,7 +741,7 @@ Use the following properties with the `proxy` service and amqp.proxy service:
 
 -   The following example configures two `amqp.proxy` services, `app1` and `app2`, and each service connects to a virtual host, `vhost1` and `vhost2`. Clients connecting via the `app1` service can access only `vhost1`, and clients on the `app2` service can access only `vhost2`.
 
-    ``` auto-links:
+    ``` xml
     <!-- This service connects only to the AMQP virtual host vhost1. -->
     <service>  
       <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
@@ -789,14 +787,13 @@ Use the following properties with the `proxy` service and amqp.proxy service:
 -   When there are multiple `amqp.proxy` services in the Gateway configuration that are connecting to the same AMQP broker instance, all AMQP proxy services should pipe their `connect` elements to a common service as shown in the previous configuration example. This is recommended due to a current restriction with JMX monitoring.
 -   See the [Promote User Identity into the AMQP Protocol](../security/p_aaa_userid_promo.md) topic for more information about injecting AMQP credentials into the protocol in a trusted manner.
 
-
-### <a name="session_svc"></a>session
+### session
 
 Use the `session` service to prevent sessions from timing out.
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>https://localhost:9000/session</accept>
 
@@ -812,13 +809,13 @@ Use the `session` service to prevent sessions from timing out.
 
 -   *Always* use HTTPS when configuring communication with the `session` service.
 
-### <a name="propertiesele"></a>properties
+### properties
 
 The service's type-specific properties.
 
 #### Example
 
-``` auto-links:
+``` xml
 <service>
   <accept>http://${gateway.hostname}:${gateway.extras.port}/</accept>
 
@@ -839,11 +836,11 @@ The service's type-specific properties.
 -   The `properties` subelement to used to configure properties that are specific to each service.
 -   See also the `property` subelement that you specify in the Property Defaults section of the Gateway configuration file to define property values once and that are then propagated throughout the configuration when the Gateway starts. See the [Configure KAAZING Gateway](p_conf_files.md) topic for more information about configuring the property defaults section of the Gateway configuration file.
 
-### <span id="svcacceptopts"></span></a>accept-options and <a name="svcconnectopts"></a>connect-options
+### accept-options and connect-options
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `accept-options` element to add options to all accepts for the service (see also the [`accept`](#acceptele) element).
+Use the `accept-options` element to add options to all accepts for the service (see also the [`accept`](#accept) element).
 
 You can configure `accept-options` on the [service](#service) or the [service-defaults](r_conf_serv_defs.md) elements:
 
@@ -855,276 +852,26 @@ Use the `connect-options` element to add options to all connections for the serv
 -   Setting `connect-options` can only be done for the *service* element; You cannot configure `connect-options` at the [service-defaults](r_conf_serv_defs.md) level.
 -   Setting `connect-options` affects only the specified service and override any defaults.
 
-<table class="reference">
-<tr>
-<th>
-Option
-</th>
-<th>
-accept-options
-</th>
-<th>
-connect-options
-</th>
-<th>
-Description
-</th>
-</tr>
-<tr>
-<td height="208" class="code_inline">
-*protocol*.bind
-</td>
-<td class="yes">
+| Option | accept-options | connect-options | Description |
+|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *protocol*.bind | yes | no | Binds the URL(s) on which the service accepts connections (defined bythe accept element). Set *protocol* to one of the following:-,ws-,wss-,http-,https-,ssl-,tcp-,udpSee [*protocol*.bind](#protocolbind) |
+| *protocol*.transport | yes | yes | Specifies the URI for use as a transport layer (defined by the acceptelement). Set *protocol*.transport to any of the following:-,http.transport-,ssl.transport-,tcp.transport-,pipe.transportSee [*protocol*.transport](#protocoltransport). |
+| ws.maximum.message.size | yes | no | Specifies the maximum incoming WebSocket message size allowed by theGateway (see [ws.maximum.message.size](#wsmaxmsg)). |
+| http.keepalive.timeout | yes | no | Specifies how much time the Gateway waits after responding to an HTTP orHTTPS request and receiving a subsequent request (see[http.keepalive.timeout](#keepalive)). |
+| ssl.ciphers | yes | yes | Lists the cipher strings and cipher suite names used by the secureconnection. |
+| ssl.protocols | yes | yes | Lists the TLS/SSL protocol names on which the Gateway can acceptconnections. See [ssl.protocols and socks.ssl.protocols](#sslprotocols). |
+| ssl.encryption | yes | yes | Signals KAAZING Gateway to enable or disable encryption on incomingtraffic. |
+| ssl.verify-client | yes | no | Signals KAAZING Gateway to require a client to provide a digitalcertificate that the Gateway can use to verify the client’s identity. |
+| socks.mode ![This feature is available in KAAZING Gateway - EnterpriseEdition.](../../resources/images/enterprise-feature.png) | yes | yes | The mode that you can optionally set to forward or reverse to tell theGateway how to interpret SOCKS URIs to initiate the connection (see[socks.mode](#socksmode)). |
+| socks.timeout ![This feature is available in KAAZING Gateway -Enterprise Edition.](../../resources/images/enterprise-feature.png) | no | yes | Specifies the length of time (in seconds) to wait for SOCKS connectionsto form. If the connection does not succeed within the specified time,then the connection fails and is closed and the client must reconnect.For more information, see [socks.timeout](#conn_sockstimeout). |
+| socks.ssl.ciphers ![This feature is available in KAAZING Gateway -Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | yes | Lists the cipher strings and cipher suite names used by the secure SOCKSconnection. |
+| socks.ssl.protocols ![This feature is available in KAAZING Gateway -Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | yes | Lists the TLS/SSL protocol names on which the Gateway can acceptconnections for Enterprise Shield™ configurations that are running theSOCKS protocol over SSL. See [ssl.protocols andsocks.ssl.protocols](#sslprotocols). |
+| socks.ssl.verify-client ![This feature is available in KAAZING Gateway -Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify howto secure the SOCKS proxy against unauthorized use by forcing the use ofTLS/SSL connections with a particular certificate. When required,the DMZGateway expects the internal Gateway to prove its trustworthiness bypresenting certificates during the TLS/SSL handshake. |
+| socks.retry.maximum.interval ![This feature is available in KAAZINGGateway - EnterpriseEdition.](../../resources/images/enterprise-feature.png) | yes | no | The maximum interval the Gateway waits before retrying if an attempt toconnect to the SOCKS proxy fails. The Gateway initially retries afterwaiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s,4s, and so on up to the value of socks.retry.maximum.interval. After themaximum interval is reached, the Gateway continues to reconnect to theSOCKS proxy at the maximum interval. |
+| tcp.maximum.outbound.rate ![This feature is available in KAAZING Gateway- Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | no | Specifies the maximum bandwidth rate at which bytes can be written fromthe Gateway (outbound) to each client session. This option controls therate of outbound traffic being sent per client connection for clientsconnecting to a service (see[tcp.maximum.outbound.rate](#tcpmaxoutbndrate)). |
+| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection canbe inactive (seconds is the default time interval syntax). The Gatewaywill drop the connection if it cannot communicate with the client in thenumber of seconds specified (see[ws.inactivity.timeout](#wsinactivitytimeout)). You can specify yourpreferred time interval syntax in milliseconds, seconds, minutes, orhours (spelled out or abbreviated). For example, all of the followingare valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m,3min, or 3 minutes. If you do not specify a time unit then seconds areassumed. |
+| ws.version (deprecated) | no | yes |  |
 
-</td>
-<td class="no">
- 
-</td>
-<td>
-Binds the URL(s) on which the service accepts connections (defined by the `accept` element). Set `protocol` to one of the following:
--   ws
--   wss
--   http
--   https
--   ssl
--   tcp
--   udp
-
-See [*protocol*.bind](#protocolbind)
-</td>
-</tr>
-<tr>
-<td height="208" class="code_inline">
-*protocol*.transport
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Specifies the URI for use as a transport layer (defined by the `accept` element). Set `protocol.transport` to any of the following:
--   http.transport
--   ssl.transport
--   tcp.transport
--   pipe.transport
-
-See [*protocol*.transport](#protocoltransport).
-</td>
-</tr>
-<tr>
-<td height="36" class="code_inline">
-ws.maximum.message.size
-</td>
-<td class="yes">
-
-</td>
-<td class="no">
- 
-</td>
-<td>
-Specifies the maximum incoming WebSocket message size allowed by the Gateway (see [ws.maximum.message.size](#wsmaxmsg)).
-</td>
-</tr>
-<tr>
-<td height="36" class="code_inline">
-http.keepalive.timeout
-</td>
-<td class="yes">
-
-</td>
-<td class="no">
- 
-</td>
-<td>
-Specifies how much time the Gateway waits after responding to an HTTP or HTTPS request and receiving a subsequent request (see [http.keepalive.timeout](#keepalive)).
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-ssl.ciphers
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Lists the cipher strings and cipher suite names used by the secure connection.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-ssl.protocols
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Lists the TLS/SSL protocol names on which the Gateway can accept connections. See [ssl.protocols and socks.ssl.protocols](#sslprotocols).
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-ssl.encryption
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Signals KAAZING Gateway to enable or disable encryption on incoming traffic.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-ssl.verify-client
-</td>
-<td class="yes">
-
-</td>
-<td class="no">
- 
-</td>
-<td>
-Signals KAAZING Gateway to require a client to provide a digital certificate that the Gateway can use to verify the client’s identity.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-socks.mode  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-The mode that you can optionally set to `forward` or `reverse` to tell the Gateway how to interpret SOCKS URIs to initiate the connection (see [socks.mode](#socksmode)).
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-socks.timeout  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="no">
- 
-</td>
-<td class="yes">
-
-</td>
-<td>
-Specifies the length of time (in seconds) to wait for SOCKS connections to form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#conn_sockstimeout).
-</td>
-</tr>
-<tr>
-<tr>
-<td class="code_inline">
-socks.ssl.ciphers  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Lists the cipher strings and cipher suite names used by the secure SOCKS connection.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-socks.ssl.protocols  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Lists the TLS/SSL protocol names on which the Gateway can accept connections for Enterprise Shield&trade; configurations that are running the SOCKS protocol over SSL. See [ssl.protocols and socks.ssl.protocols](#sslprotocols).
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-socks.ssl.verify-client  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-A connect mode you can set to `required`, `optional`, or `none` to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-socks.retry.maximum.interval  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="no">
- 
-</td>
-<td>
-The maximum interval the Gateway waits before retrying if an attempt to connect to the SOCKS proxy fails. The Gateway initially retries after waiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of `socks.retry.maximum.interval`. After the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval.
-</td>
-</tr>
-<tr>
-<td class="code_inline">
-tcp.maximum.outbound.rate  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-</td>
-<td class="yes">
-
-</td>
-<td class="no">
- 
-</td>
-<td>
-Specifies the maximum bandwidth rate at which bytes can be written from the Gateway (outbound) to each client session. This option controls the rate of outbound traffic being sent per client connection for clients connecting to a service (see [tcp.maximum.outbound.rate](#tcpmaxoutbndrate)).
-</td>
-</tr>
-<tr>
-<td height="36" class="code_inline">
-ws.inactivity.timeout
-</td>
-<td class="yes">
-
-</td>
-<td class="yes">
-
-</td>
-<td>
-Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway will drop the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
-</td>
-</tr>
-<tr>
-<td height="116" class="code_inline">
-ws.version (deprecated)
-</td>
-<td class="no">
- 
-</td>
-<td class="yes">
-
-</td>
-<td>
-The `ws.version` element has been deprecated. See [ws.version](#wsversionopt)
-</td>
-</tr>
-</table>
 #### <span id="svcacceptopts3"></span></a>*protocol*.bind
 
 **Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be ws, wss, http, https, ssl, tcp, or udp
