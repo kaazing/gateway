@@ -18,26 +18,26 @@ Structure
 The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `service-defaults` configuration element contained in the top-level `gateway-config` element:
 
 -   [gateway-config](r_conf_gwconfig.md)
-    -   [service-defaults](#servicedefaults)
-        -   [accept-options](#svcdftacceptoptions)
+    -   [service-defaults](#service-defaults)
+        -   [accept-options](#accept-options-service-defaults)
             -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
             -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
-            -   [ws.maximum.message.size](r_conf_service.md#wsmaxmsg)
-            -   [http.keepalive.timeout](r_conf_service.md#keepalive)
+            -   [ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize)
+            -   [http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout)
             -   [ssl.ciphers](r_conf_service.md#sslciphers)
-            -   [ssl.protocols](r_conf_service.md#sslprotocols)
-            -   [ssl.encryption](r_conf_service.md#sslencrypt)
-            -   [ssl.verify-client](r_conf_service.md#sslverifyclient)
+            -   [ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
+            -   [ssl.encryption](r_conf_service.md#sslencryption)
+            -   [ssl.verify-client](r_conf_service.md#sslverify-client)
             -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols)
-            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverifyclient)
-            -   [socks.retry.maximum.interval](r_conf_service.md#socksmaxretryint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaxoutbndrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
+            -   [socks.ssl.verify-client](r_conf_service.md#sockssslverify-client)
+            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
-        -   [mime-mapping](#svcdftmimemapping)
-            -   [extension](#svcdftmimemapping)
-            -   [mime-type](#svcdftmimemapping)
+        -   [mime-mapping](#mime-mapping)
+            -   [extension](#mime-mapping)
+            -   [mime-type](#mime-mapping)
 
 service-defaults
 ----------------------------------------------
