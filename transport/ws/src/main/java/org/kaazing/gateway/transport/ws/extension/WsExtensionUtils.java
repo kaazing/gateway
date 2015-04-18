@@ -49,9 +49,6 @@ public class WsExtensionUtils {
         return result;
     }
 
-
-
-
     public static WsExtensionNegotiationResult negotiateWebSocketExtensions(ResourceAddress address,
                                                                             HttpAcceptSession session,
                                                                             String headerName,
