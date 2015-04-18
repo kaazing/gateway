@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.KeyStore;
+
 import org.kaazing.gateway.server.config.sep2014.SecurityStoreType;
 import org.kaazing.gateway.server.config.sep2014.SecurityType;
 import org.slf4j.Logger;

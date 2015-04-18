@@ -17,6 +17,7 @@ out
 build-local.properties
 .gradle
 build
+.checkstyle
 
 # Github java basic 
 *.class

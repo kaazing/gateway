@@ -22,11 +22,15 @@
 package org.kaazing.gateway.server.context;
 
 import java.util.Map;
+
 import org.kaazing.gateway.service.AcceptOptionsContext;
+import org.kaazing.gateway.service.ConnectOptionsContext;
 
 public interface ServiceDefaultsContext {
 
     AcceptOptionsContext getAcceptOptionsContext();
+
+    ConnectOptionsContext getConnectOptionsContext();
 
     Map<String, String> getMimeMappings();
 }
