@@ -64,7 +64,7 @@ public class HttpProxySecurePersistenceTest {
                         .accept(URI.create("https://localhost:8110"))
                         .connect(URI.create("https://localhost:8080"))
                         .type("http.proxy")
-                        .connectOption("http.keepaliveTimeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
+                        .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
                     .done()
                     .security()
                         .trustStore(trustStore)
