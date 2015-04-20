@@ -83,6 +83,8 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest, nextProtocol);
         Binding binding = bindings.getBinding(candidateAddress);
         if (binding == null) {
+            // try with null nextProtocol as this request may be websocket request but
+            // is handled by origin server via http.proxy service
             candidateAddress = createCandidateAddress(session, httpRequest, null);  // null nextProtocol
             binding = bindings.getBinding(candidateAddress);
         }
