@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure the Gateway for High Availability
 
-<a name="ha_config"></a>Configure the Gateway for High Availability 
+Configure the Gateway for High Availability 
 =============================================================================================
 
 This checklist provides the steps necessary to configure KAAZING Gateway for high availability:
