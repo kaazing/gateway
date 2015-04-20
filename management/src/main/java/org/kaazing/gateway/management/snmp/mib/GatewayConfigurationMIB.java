@@ -74,6 +74,8 @@ public class GatewayConfigurationMIB implements MOGroup {
 
     private MOScalar serviceDefaultsAcceptOptions;
     private MOScalar serviceDefaultsMimeMappings;
+    // TODO: add connect-options to service-defaults
+//  private MOScalar serviceDefaultsConnectOptions;
 
     // extra fields that really aren't part of the config, but are fixed
     // per gateway, so should be reported here.
@@ -319,6 +321,10 @@ public class GatewayConfigurationMIB implements MOGroup {
         serviceDefaultsMimeMappings = new MOScalar(MIBConstants.oidServiceDefaultsMimeMappings,
                 moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ),
                 new OctetString(""));
+     // TODO: add connect-options to service-defaults
+//        serviceDefaultsConnectOptions = new MOScalar(MIBConstants.oidServiceDefaultsConnectOptions,
+//                moFactory.createAccess(MOAccessImpl.ACCESSIBLE_FOR_READ),
+//                new OctetString(""));
     }
 
     private void createVersionInfo(MOFactory moFactory) {
@@ -348,6 +354,8 @@ public class GatewayConfigurationMIB implements MOGroup {
         server.register(serviceTable, context);
         server.register(serviceDefaultsAcceptOptions, context);
         server.register(serviceDefaultsMimeMappings, context);
+        // TODO: add connect-options to service-defaults
+//        server.register(serviceDefaultsConnectOptions, context);
         server.register(versionInfoProductTitle, context);
         server.register(versionInfoProductBuild, context);
         server.register(versionInfoProductEdition, context);
@@ -368,6 +376,8 @@ public class GatewayConfigurationMIB implements MOGroup {
         server.unregister(serviceTable, context);
         server.unregister(serviceDefaultsAcceptOptions, context);
         server.unregister(serviceDefaultsMimeMappings, context);
+        // TODO: add connect-options to service-defaults
+//        server.unregister(serviceDefaultsConnectOptions, context);
         server.unregister(versionInfoProductTitle, context);
         server.unregister(versionInfoProductBuild, context);
         server.unregister(versionInfoProductEdition, context);
@@ -455,6 +465,8 @@ public class GatewayConfigurationMIB implements MOGroup {
     public OID addServiceDefaultsConfiguration(ServiceDefaultsConfigurationBean bean) {
         serviceDefaultsAcceptOptions.setValue(Utils.stringToVariable(bean.getAcceptOptions()));
         serviceDefaultsMimeMappings.setValue(Utils.stringToVariable(bean.getMimeMappings()));
+        // TODO: add connect-options to service-defaults
+//        serviceDefaultsConnectOptions.setValue(Utils.stringToVariable(bean.getConnectOptions()));
 
         return MIBConstants.oidServiceDefaults;
     }

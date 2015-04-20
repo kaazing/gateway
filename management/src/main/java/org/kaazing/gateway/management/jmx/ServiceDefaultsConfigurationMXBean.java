@@ -28,5 +28,7 @@ public interface ServiceDefaultsConfigurationMXBean {
 
     String getAcceptOptions();
 
+    String getConnectOptions();
+
     String getMimeMappings();
 }

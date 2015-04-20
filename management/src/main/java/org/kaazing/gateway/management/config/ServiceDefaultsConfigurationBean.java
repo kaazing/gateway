@@ -32,5 +32,7 @@ public interface ServiceDefaultsConfigurationBean {
 
     String getAcceptOptions();
 
+    String getConnectOptions();
+
     String getMimeMappings();
 }

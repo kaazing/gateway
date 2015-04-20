@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,7 +115,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("binds", jsonObj);
                     }
 
-                    String[] sslCiphers = (String[]) acceptOptions.get("ssl.ciphers");
+                    String[] sslCiphers = (String[]) acceptOptions.remove("ssl.ciphers");
                     if (sslCiphers != null) {
                         String cipherString = Utils.asCommaSeparatedString(asList(sslCiphers));
                         if (cipherString != null && cipherString.length() > 0) {
@@ -122,12 +123,12 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         }
                     }
 
-                    boolean isSslEncryptionEnabled = (Boolean) acceptOptions.get("ssl.encryption");
+                    boolean isSslEncryptionEnabled = (Boolean) acceptOptions.remove("ssl.encryptionEnabled");
                     jsonOptions.put("ssl.encryption",
                             isSslEncryptionEnabled ? "enabled" : "disabled");
 
-                    boolean wantClientAuth = (Boolean) acceptOptions.get("ssl.wantClientAuth");
-                    boolean needClientAuth = (Boolean) acceptOptions.get("ssl.needClientAuth");
+                    boolean wantClientAuth = (Boolean) acceptOptions.remove("ssl.wantClientAuth");
+                    boolean needClientAuth = (Boolean) acceptOptions.remove("ssl.needClientAuth");
                     if (needClientAuth) {
                         jsonOptions.put("ssl.verify-client", "required");
                     } else if (wantClientAuth) {
@@ -157,40 +158,58 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 //                  }
 
 
-                    jsonOptions.put("ws.maximum.message.size", acceptOptions.get("ws.maximum.message.size"));
+                    jsonOptions.put("ws.maximum.message.size", acceptOptions.remove("ws.maxMessageSize"));
 
-                    Long wsInactivityTimeout = (Long) acceptOptions.get("ws.inactivity.timeout");
+                    Long wsInactivityTimeout = (Long) acceptOptions.remove("ws.inactivityTimeout");
                     if (wsInactivityTimeout != null) {
                         jsonOptions.put("ws.inactivity.timeout", wsInactivityTimeout);
                     }
 
-                    Integer httpKeepAlive = (Integer) acceptOptions.get("http.keepalive.timeout");
+                    Integer httpKeepAlive = (Integer) acceptOptions.remove("http[http/1.1].keepAliveTimeout");
                     if (httpKeepAlive != null) {
                         jsonOptions.put("http.keepalive.timeout", httpKeepAlive);
                     }
 
-                    URI pipeTransport = (URI) acceptOptions.get("pipe.transport");
+                    URI pipeTransport = (URI) acceptOptions.remove("pipe.transport");
                     if (pipeTransport != null) {
                         jsonOptions.put("pipe.transport", pipeTransport.toString());
                     }
 
-                    URI tcpTransport = (URI) acceptOptions.get("tcp.transport");
+                    URI tcpTransport = (URI) acceptOptions.remove("tcp.transport");
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
 
-                    URI sslTransport = (URI) acceptOptions.get("ssl.transport");
+                    URI sslTransport = (URI) acceptOptions.remove("ssl.transport");
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = (URI) acceptOptions.get("http.transport");
+                    URI httpTransport = (URI) acceptOptions.remove("http.transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
                     }
 
-                    long tcpMaxOutboundRate = (Long) acceptOptions.get("tcp.maximum.outbound.rate");
+                    long tcpMaxOutboundRate = (Long) acceptOptions.remove("tcp.maximumOutboundRate");
                     jsonOptions.put("tcp.maximum.outbound.rate", tcpMaxOutboundRate);
+
+                    for (Entry<String, Object> entry : acceptOptions.entrySet()) {
+                        String key = entry.getKey();
+                        if (key.startsWith("ws") &&
+                                (key.endsWith("maxMessageSize") ||
+                                 key.endsWith("inactivityTimeout") ||
+                                 key.endsWith("extensions"))) {
+                            // skip over options already seen with the base ws.*
+                            continue;
+                        }
+
+                        Object value = entry.getValue();
+                        if (value instanceof String[]) {
+                            jsonOptions.put(key, Utils.asCommaSeparatedString(asList((String[]) value)));
+                        } else {
+                            jsonOptions.put(key, value);
+                        }
+                    }
                 }
             } catch (Exception ex) {
                 // This is only for JSON exceptions, but there should be no way to
@@ -230,7 +249,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                 if (context != null) {
                     Map<String, Object> connectOptions = context.asOptionsMap();
 
-                    String[] sslCiphersArray = (String[]) connectOptions.get("ssl.ciphers");
+                    String[] sslCiphersArray = (String[]) connectOptions.remove("ssl.ciphers");
                     if (sslCiphersArray != null) {
                         List<String> sslCiphers = Arrays.asList(sslCiphersArray);
                         if (sslCiphers.size() > 0) {
@@ -243,29 +262,40 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                     //WebSocketWireProtocol protocol = connectOptions.getWebSocketWireProtocol();
                     //sb.append("websocket-wire-protocol=" + protocol);
 
-                    String wsVersion = (String) connectOptions.get("ws.version");
+                    String wsVersion = (String) connectOptions.remove("ws.version");
                     if (wsVersion != null) {
                         jsonOptions.put("ws.version", wsVersion);
                     }
 
-                    URI pipeTransport = (URI) connectOptions.get("pipe.transport");
+                    URI pipeTransport = (URI) connectOptions.remove("pipe.transport");
                     if (pipeTransport != null) {
                         jsonOptions.put("pipe.transport", pipeTransport.toString());
                     }
 
-                    URI tcpTransport = (URI) connectOptions.get("tcp.transport");
+                    URI tcpTransport = (URI) connectOptions.remove("tcp.transport");
                     if (tcpTransport != null) {
                         jsonOptions.put("tcp.transport", tcpTransport.toString());
                     }
 
-                    URI sslTransport = (URI) connectOptions.get("ssl.transport");
+                    URI sslTransport = (URI) connectOptions.remove("ssl.transport");
                     if (sslTransport != null) {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = (URI) connectOptions.get("http.transport");
+                    URI httpTransport = (URI) connectOptions.remove("http.transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
+                    }
+
+                    for (Entry<String, Object> entry : connectOptions.entrySet()) {
+                        String key = entry.getKey();
+
+                        Object value = entry.getValue();
+                        if (value instanceof String[]) {
+                            jsonOptions.put(key, Utils.asCommaSeparatedString(asList((String[]) value)));
+                        } else {
+                            jsonOptions.put(key, value);
+                        }
                     }
                 }
             } catch (Exception ex) {
