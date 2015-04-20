@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Set Up KAAZING Gateway as a Load Balancer
 
-<a name="ha_config"></a>Set Up KAAZING Gateway as a Load Balancer 
+Set Up KAAZING Gateway as a Load Balancer
 =============================================================================================
 
 Load balancing is used to balance client connection loads for a group of Gateways that have been configured as a cluster using the `cluster` service. For more information, see [Configure a KAAZING Gateway Cluster](p_ha_cluster.md). You can configure load balancing using a third-party load balancer, but this procedure describes how to use the built-in load balancing features of the Gateway.
@@ -21,12 +21,12 @@ This procedure is part of [Configure the Gateway for High Availability](o_ha.md)
 3.  **Set Up KAAZING Gateway as a Load Balancer**
 4.  [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
 
-<span id="ha_balance"></span></a>To Set Up The Gateway as a Load Balancer
+To Set Up The Gateway as a Load Balancer
 --------------------------------------------------------------------------------
 
 1.  Configure a `balancer` service in each Gateway that will participate in load balancing (each cluster member). The `balancer` service has an `accept` for each URI that will be balanced across participating Gateways. These are the public URIs that clients will use when connecting to the cluster for the first time.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <name>Echo balancer</name>
       <accept>ws://balancer.example.com:8081/echo</accept>
@@ -40,7 +40,6 @@ This procedure is part of [Configure the Gateway for High Availability](o_ha.md)
       </accept-options>
 
     </service>
-            
     ```
 
     **Important:** 
@@ -48,11 +47,9 @@ This procedure is part of [Configure the Gateway for High Availability](o_ha.md)
     -   The `ws.bind` element in `accept-options` is used to bind the public URI in the `accept` element to the local IP address of the cluster member. This allows the `accept` URIs in the `balancer` service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member (contain the local IP address of that cluster member). For more information, see [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind).
     -   For production environments, the hostname in the `accept` element must resolve in DNS to the IP addresses of every cluster member. Multiple DNS A resource records should be registered for the hostname in the `accept` URI, with each A record mapping the hostname to the IP address of one cluster member. When a client resolves the hostname of the `accept` URI in DNS, it will receive the IP address of a cluster member and connect. To register these DNS records, you will need access to the public DNS zone for the hostname, or the assistance of your network administrator or Internet Service Provider (ISP). All ISPs provide ways for their customers to update their DNS zones with new hostnames and IP addresses.
 
-    </span>
-
 2.  Configure the services of each cluster member (for example, the `echo` service) with a `balance` element for each URI accepted by the `balancer` service. Clients will use these URIs to connect to the service.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <name>Echo</name>
       <accept>ws://node1.example.com:8081/echo</accept>
@@ -77,8 +74,6 @@ This procedure is part of [Configure the Gateway for High Availability](o_ha.md)
     -   The `balance` and `accept` element URIs in a `service` must use the same port number and path. The hostnames in the URIs may be different.
     -   For information on the order of subordinate elements in a service, see the [service](../admin-reference/r_conf_service.md#service) element reference.
 
-    </span>
-
 3.  Ensure that each Gateway participating in load balancing is configured with a `cluster` service, as described in [Configure a KAAZING Gateway Cluster](p_ha_cluster.md).
 4.  Configure client applications to connect to the cluster using the URI(s) configured in the `balancer` service (for example, `ws://balancer.example.com:8081/echo` or `wss://balancer.example.com:9091/echo`).
 5.  Start all cluster members.
@@ -89,7 +84,7 @@ Example Configuration
 
 Here is an example of a Gateway configured as a cluster member and load balanced for both secure and unsecured Echo services:
 
-``` auto-links:
+``` xml
 <!-- Cluster service -->
 <cluster>
   <name>MyCluster</name>
@@ -97,7 +92,7 @@ Here is an example of a Gateway configured as a cluster member and load balanced
   <connect>udp://224.2.2.44:54327</connect>
 </cluster>
 
-<!-- Balancer service for Unsecured connections -->
+<!-- Balancer service for connections -->
 <service>
   <name>Echo balancer</name>
   <accept>ws://balancer.example.com:8081/echo</accept>
@@ -111,7 +106,7 @@ Here is an example of a Gateway configured as a cluster member and load balanced
   </accept-options>
 </service>
 
-<!-- Echo service for Unsecured connections -->
+<!-- Echo service for connections -->
 <service>
   <name>Echo</name>
   <accept>ws://node1.example.com:8081/echo</accept>
@@ -131,7 +126,7 @@ Here is an example of a Gateway configured as a cluster member and load balanced
 </service>
 ```
 
-<a name="next"></a>Next Step
+Next Step
 ----------------------------
 
 You have completed high availability configuration using the Gateway.
@@ -139,7 +134,7 @@ You have completed high availability configuration using the Gateway.
 Notes
 -----
 
--   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#demo).
+-   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#configure-a-two-member-local-demo-cluster).
 
 See Also
 --------
