@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   About Protocol Injection
 
-<a name="about_intro"></a>About Protocol Injection ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+About Protocol Injection ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 ====================================================================
 
 In many architectures, the back-end server may require specific information about the client, such as the user identity associated with a connection or session. Protocol injection enables you to securely propagate this information to your back-end server.
@@ -15,20 +15,13 @@ You may choose to use protocol injection when you want to ensure that the client
 
 The following figure shows a high-level overview of how protocol injection works with the Gateway and your back-end server.
 
-<figure>
 ![Protocol Injection](../images/f-protocol-injection-web.jpg)
-<figcaption>
-
 **Figure: Injecting Bytes into a Custom Protocol**
 
-</figcaption>
-</figure>
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Inject Bytes into a Custom Protocol](p_aaa_inject.md)
 -   [Configure Authentication and Authorization](o_aaa_config_authentication.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
-
-
