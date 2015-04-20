@@ -81,4 +81,10 @@ public class HttpProxyUpgradeIT {
         robot.finish();
     }
 
+    @Specification("http.proxy.upgrade.websocket.basic.auth")
+    @Test
+    public void upgradeBasicAuthWebSocket() throws Exception {
+        robot.finish();
+    }
+
 }
