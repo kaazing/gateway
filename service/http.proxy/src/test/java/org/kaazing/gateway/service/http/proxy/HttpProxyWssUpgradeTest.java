@@ -112,22 +112,20 @@ public class HttpProxyWssUpgradeTest {
                  InputStream in = socket.getInputStream();
                  OutputStream out = socket.getOutputStream()) {
 
-                // read and write HTTP request and response headers
+                // write and read HTTP request and response headers
                 out.write(HTTP_REQUEST);
                 SecureOriginServer.HttpHandler.parseHttpHeaders(in);
 
-                // read and write websocket text frame
-                byte[] text = TEXT_FRAME;
-                out.write(text);
+                // write and read websocket text frame
+                out.write(TEXT_FRAME);
                 readFully(in, new byte[11]);
 
-                // read and write websocket text frame
-                out.write(text);
+                // write and read websocket text frame
+                out.write(TEXT_FRAME);
                 readFully(in, new byte[11]);
 
-                // read and write websocket close frame
-                byte[] close = CLOSE_FRAME;
-                out.write(close);
+                // write and read websocket close frame
+                out.write(CLOSE_FRAME);
                 readFully(in, new byte[4]);
 
                 int eof = in.read();
@@ -174,8 +172,7 @@ public class HttpProxyWssUpgradeTest {
 
                 // read and write websocket close frame
                 readFully(in, new byte[8]);
-                byte[] close = CLOSE_FRAME;
-                out.write(close);
+                out.write(CLOSE_FRAME);
             }
         }
     }
