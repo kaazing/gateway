@@ -63,7 +63,7 @@ public class IdleTimeoutExtensionPongsIT {
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
-                        .acceptOption("ws.inactivityTimeout", "2000milliseconds")
+                        .acceptOption("ws.inactivity.timeout", "2000milliseconds")
                     .done()
                 .done();
 

@@ -60,7 +60,7 @@ public class IdleTimeoutExtensionIT {
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
-                        .acceptOption("ws.inactivityTimeout", "123secs")
+                        .acceptOption("ws.inactivity.timeout", "123secs")
                     .done()
                     .service()
                         .accept(URI.create("wsn://localhost:8001/echoNoTimeout"))
