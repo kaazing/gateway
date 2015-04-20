@@ -10,6 +10,6 @@ The following checklist provides the steps necessary to configure KAAZING Gatewa
 | # | Step                                                                                          | Topic or Reference                          |
 |---|-----------------------------------------------------------------------------------------------|---------------------------------------------|
 | 1 | Learn about injecting bytes into a custom protocol.                                           | [About Protocol Injection](c_aaa_inject.md) |
-| 2 | Inject bytes into a custom protocol for back-end servers that require additional information. |                                             |
+| 2 | Inject bytes into a custom protocol for back-end servers that require additional information. | [Inject Bytes into a Custom Protocol](p_aaa_inject.md)                                            |
 
 
