@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="abouthttps_wss"></a>About HTTPS and WSS
+About HTTPS and WSS
 ======================================================================
 
 KAAZING Gateway supports communication over HTTPS and WSS. The Gateway supports the following communication between the Gateway and the client: HTTP, HTTPS, WS, WSS. The HTTPS and WSS protocols are very similar, with both running on top of TLS/SSL over TCP connections.
@@ -15,11 +15,9 @@ The cables at the bottom of the figure show that the same is true for WebSocket 
 
 For communication between the Gateway and the back-end service, the Gateway supports TCP, TCP+TLS/SSL, UDP, WS and WSS.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Secure Network Traffic with the Gateway](o_tls.md)
 -   [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
 -   [How TLS/SSL Works with the Gateway](u_tls_works.md)
-
-
