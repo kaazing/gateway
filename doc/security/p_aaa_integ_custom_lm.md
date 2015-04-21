@@ -37,7 +37,7 @@ To Integrate an Existing Custom Login Module into the Gateway
     </login-module>
     ```
 
-4.  Enable configuration for the services that are required to use this custom login module to authenticate with the back-end server. You can do this using the `authorization-constraint` element. The following is an example of the echo service configured to use this custom login module, as shown in lines 6 through 8:
+4.  Enable configuration for the services that are required to use this custom login module to authenticate with the back-end server. You can do this using the `authorization-constraint` element. The following is an example of the echo service configured to use this custom login module:
 
     ``` xml
     <service>
@@ -72,5 +72,3 @@ See Also
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [Server API Documentation](../index.md)
-
-
