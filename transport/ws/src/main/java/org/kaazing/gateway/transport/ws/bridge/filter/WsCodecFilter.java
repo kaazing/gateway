@@ -41,6 +41,7 @@ public class WsCodecFilter extends ProtocolCodecFilter implements ExtensionAware
         super(new WsCodecFactory(wsMaxMessageSize > 0 ? wsMaxMessageSize : 0, maskSends));
     }
 
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
     public void setExtensions(IoSession session, ActiveExtensions extensions) {
         WsFrameEncoder encoder = (WsFrameEncoder) getEncoder(session);
         encoder.setExtensions(extensions);

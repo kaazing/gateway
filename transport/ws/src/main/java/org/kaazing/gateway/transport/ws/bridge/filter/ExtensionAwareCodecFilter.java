@@ -27,6 +27,7 @@ import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 /**
  * Represents a codec filter that needs to be informed about extensions.
  */
+@Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
 public interface ExtensionAwareCodecFilter {
 
     /**

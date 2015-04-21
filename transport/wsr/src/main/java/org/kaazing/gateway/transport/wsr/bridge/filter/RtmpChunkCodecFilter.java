@@ -40,7 +40,8 @@ public class RtmpChunkCodecFilter extends ProtocolCodecFilter implements Extensi
     public RtmpChunkCodecFilter() {
         super(new RtmpCodecFactory());
     }
-
+    
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
     public void setExtensions(IoSession session, ActiveExtensions extensions) {
         RtmpEncoder encoder = (RtmpEncoder) getEncoder(session);
         encoder.setEscapeSequencer(extensions.getEscapeSequencer(BINARY));

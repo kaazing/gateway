@@ -16,6 +16,8 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
+import java.util.List;
+
 import org.apache.mina.core.filterchain.IoFilter;
 
 /**
@@ -29,19 +31,34 @@ public abstract class WebSocketExtensionSpi {
     /**
      * This method is called when the extension is successfully negotiated.
      * @returns The extension header (token and optional parameters) that should be included in the WebSocket handshake
-     * response for this extension
+     *          response for this extension
      */
     public abstract ExtensionHeader getExtensionHeader();
 
     /**
-     * This method is called after the negotiated method. If allows extensions to provide a filter that will be added to
-     * the filter chain after the WebSocket codec filter and so can be used to see and modify WebSocket frames going to
-     * and from the client.
-     * @param extension Details of the negotiated extension and parameters
+     * This method allows extensions to provide a filter that will be added to the filter chain after the WebSocket codec 
+     * filter and so can be used to see and modify WebSocket frames going to and from the client. Filters are added
+     * in the order that the extensions were specified in the HTTP request, so the first extension is closest to the network
+     * (i.e. gets to see and possibly modify frames read from the client before other extensions, and  gets the final say for
+     * Frames being written to the client).
+     * @param extension    Details of the negotiated extension and parameters
      * @return A filter which is to be added to the filter chain, or null if none is to be added
      */
     public IoFilter getFilter() {
         return null;
     };
 
+    /**
+     * Some extensions may need to be executed before others. Before means on the network end of the extension chain, so
+     * the first extension sees incoming messages first and outgoing messages last. By default extensions are applied in
+     * the order specified in the HTTP request extensions header, but implementations may override this method if the
+     * extension needs to move itself to a particular position in the list.
+     * @param activeExtensions Immutable list of all negotiated extensions
+     * @param currentPosition  Position this extension currently occupies in the list (zero-based)
+     * @return                 - position this extension should be moved to (zero-based)
+     */
+    public int order(List<WebSocketExtensionSpi> activeExtensions, int currentPosition) {
+        return currentPosition;
+    }
+    
 }

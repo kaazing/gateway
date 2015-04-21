@@ -52,6 +52,7 @@ public abstract class WsMessage extends Message {
         return buf;
     }
     
+    @Deprecated // TODO: remove when we move to WebSocketExtensionSpi
     public final ExtensionHeader getExtension() {
         return extension;
     }
@@ -80,6 +81,7 @@ public abstract class WsMessage extends Message {
                 Utils.sameOrEquals(this.buf, that.buf));
     }
     
+    @Deprecated // TODO: remove when we move to WebSocketExtensionSpi
     public final void setExtension(ExtensionHeader extension) {
         this.extension = extension;
     }

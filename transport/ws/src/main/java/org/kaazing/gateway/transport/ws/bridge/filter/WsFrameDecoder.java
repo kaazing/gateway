@@ -54,12 +54,14 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         this(allocator, maxMessageSize, null);
     }
 
+    // TODO: remove extensions parameter
     WsFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxMessageSize, ActiveExtensions extensions) {
         super(allocator);
         this.maxMessageSize = maxMessageSize;
         setExtensions(extensions);
     }
     
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
     void setExtensions(ActiveExtensions extensions) {
         if (extensions != null) {
             if (extensions.canDecode(BINARY) || extensions.canDecode(TEXT)) {

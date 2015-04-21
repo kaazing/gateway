@@ -72,13 +72,23 @@ public final class WebSocketExtensionFactory {
         return factory.negotiate(extension, address);
     }
     
+    /**
+     * 
+     * @param address  ResourceAddress for the WebSocket connection for which extensions are being negotiated
+     * @param session  HttpSession upon which the WebSocket upgrade handshake is occurring
+     * @param headerName Name of the HTTP header conveying extensions (e.g. "sec-websocket-extensions")
+     * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
+     *                                  any comma-separated list is already done by the HTTP transport layer)
+     * @return object representing the list of negotiated  WebSocketExtensionSpi instances
+     * @throws ProtocolException
+     */
     public ActiveExtensions negotiateWebSocketExtensions(ResourceAddress address,
                                                          HttpAcceptSession session,
                                                          String headerName,
-                                                         List<String> clientRequestedExtensions,
-                                                         List<String> serverWsExtensions) throws ProtocolException {
-        // TODO: implement this method, based loosely on WsExtensionUtils.negotiateWebSocketExtensions. Note that 
-        // as commented in that method we do not need to have any notion of mandatory extensions the client must negotiate.
+                                                         List<String> clientRequestedExtensions) throws ProtocolException {
+        // TODO: implement this method, based loosely on WsExtensionUtils.negotiateWebSocketExtensions (it will replace
+        // that method). Note that (as commented in that method) we do not need to have any notion of mandatory extensions 
+        // the client must negotiate.
         throw new UnsupportedOperationException ();
         //return ActiveExtensions.EMPTY;
     }

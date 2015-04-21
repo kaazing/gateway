@@ -16,9 +16,7 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import java.io.IOException;
 import java.net.ProtocolException;
-import java.util.Comparator;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 
@@ -43,18 +41,17 @@ public abstract class WebSocketExtensionFactorySpi {
      */
     public abstract String getExtensionName();
     
-    public abstract Comparator<ExtensionHeader> getComparator();
-    
     /**
      * This method is called when the extension is requested by the client during the WebSocket handshake. 
      * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
      * @param address    WebSocket resource address on which the handshake is taking place
-     * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
+     * @return         - WebSocketExtensionSpi instance representing the active, negotiated extension,
      *                   or null if the extension request from the client is rejected but the websocket
      *                   connection need not be failed.
-     * @throws ProtocolException  If the extension header is invalid be negotiated due to invalid extension parameters
-     *                      (protocol violation).
-     *                      parameters. Throwing this exception will result in failing the WebSocket connection.
+     * @throws ProtocolException 
+     *                   If the extension header is invalid for example invalid extension parameters
+     *                   (protocol violation). Throwing this exception will result in failing the WebSocket 
+     *                   connection.
      */
     public abstract WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
             throws ProtocolException;

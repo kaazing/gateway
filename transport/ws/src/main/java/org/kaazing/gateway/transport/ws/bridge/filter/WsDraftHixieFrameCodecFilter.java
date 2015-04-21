@@ -42,6 +42,7 @@ public class WsDraftHixieFrameCodecFilter extends ProtocolCodecFilter implements
         super(new WsCodecFactory(wsMaxMessageSize > 0 ? wsMaxMessageSize : 0));
     }
 
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
     public void setExtensions(IoSession session, ActiveExtensions extensions) {
         WsDraftHixieFrameEncoder encoder = (WsDraftHixieFrameEncoder) getEncoder(session);
         encoder.setExtensions(extensions);
