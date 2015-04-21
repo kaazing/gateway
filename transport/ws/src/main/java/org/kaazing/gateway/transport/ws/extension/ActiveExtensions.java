@@ -38,30 +38,32 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
-public class ActiveWsExtensions {
-    public static final ActiveWsExtensions EMPTY = new ActiveWsExtensions(new ArrayList<Extension>(0), Extension.EndpointKind.SERVER);
-    private static final TypedAttributeKey<ActiveWsExtensions> WS_EXTENSIONS_KEY 
-           = new TypedAttributeKey<>(ActiveWsExtensions.class, "activeWsExtensions");
+// TODO: rename to ActiveWebSocketExtensions, make it hold a list of WebSocketExtension instances
+// instead of ExtensionHeaders, remove deprecated methods
+public class ActiveExtensions {
+    public static final ActiveExtensions EMPTY = new ActiveExtensions(new ArrayList<ExtensionHeader>(0), ExtensionHeader.EndpointKind.SERVER);
+    private static final TypedAttributeKey<ActiveExtensions> WS_EXTENSIONS_KEY 
+           = new TypedAttributeKey<>(ActiveExtensions.class, "activeWsExtensions");
 
     
-    private final List<Extension> extensions;
-    private final List<Extension> binaryDecodingExtensions;
-    private final List<Extension> textDecodingExtensions;
-    private final List<Extension> binaryEncodingExtensions;
-    private final List<Extension> textEncodingExtensions;
+    private final List<ExtensionHeader> extensions;
+    private final List<ExtensionHeader> binaryDecodingExtensions;
+    private final List<ExtensionHeader> textDecodingExtensions;
+    private final List<ExtensionHeader> binaryEncodingExtensions;
+    private final List<ExtensionHeader> textEncodingExtensions;
     private final EscapeSequencer binaryEscapeSequencer;
     private final EscapeSequencer textEscapeSequencer;
     
     private final byte[] commonBytes;
     
-    private Extension escapedDecodingExtension = null;
+    private ExtensionHeader escapedDecodingExtension = null;
 
-    public ActiveWsExtensions(List<Extension> negotiatedExtensions, Extension.EndpointKind endpointKind) {
+    public ActiveExtensions(List<ExtensionHeader> negotiatedExtensions, ExtensionHeader.EndpointKind endpointKind) {
         extensions = new ArrayList<>(negotiatedExtensions.size());
-        SortedSet<Extension> sorted = new TreeSet<>(new Comparator<Extension>(){
+        SortedSet<ExtensionHeader> sorted = new TreeSet<>(new Comparator<ExtensionHeader>(){
 
             @Override
-            public int compare(Extension o1, Extension o2) {
+            public int compare(ExtensionHeader o1, ExtensionHeader o2) {
                 assert o1 != null && o2 != null : "cannot negotiate a null extension"; 
                 return o1.getOrdering().compareTo(o2.getOrdering());
             }
@@ -75,7 +77,7 @@ public class ActiveWsExtensions {
         textEncodingExtensions = new ArrayList<>(extensions.size());
         byte[] commonBytes = new byte[0];
         int commonCount = 0;
-        for (Extension extension : negotiatedExtensions) {
+        for (ExtensionHeader extension : negotiatedExtensions) {
             if (extension.canDecode(endpointKind, BINARY)) {
                 binaryDecodingExtensions.add(extension);
             }
@@ -96,11 +98,14 @@ public class ActiveWsExtensions {
     }
 
     // for unit tests and gateway.management
-    public List<Extension> asList() {
+    // TODO: change signature to 
+    //       public List<WebSocketExtensionSpi> asList()
+
+    public List<ExtensionHeader> asList() {
         return Collections.unmodifiableList(extensions);
     }
 
-    
+    @Deprecated
     public boolean canDecode(Kind messageKind) {
         switch(messageKind) {
         case BINARY:
@@ -119,8 +124,9 @@ public class ActiveWsExtensions {
      * @return          true if the payload matched a decoding extension so was decoded (even if it was an escape frame
      *                  and so was not written to decoder output), else false.
      */
+    @Deprecated
     public boolean decode(IoBufferEx payload, Kind messageKind, ProtocolDecoderOutput out) {
-        List<Extension> decodingExtensions = null;
+        List<ExtensionHeader> decodingExtensions = null;
         switch(messageKind) {
         case BINARY:
             decodingExtensions = binaryDecodingExtensions;
@@ -144,7 +150,7 @@ public class ActiveWsExtensions {
             }
         }
     
-        for (Extension extension : decodingExtensions) {
+        for (ExtensionHeader extension : decodingExtensions) {
             byte[] controlBytes = extension.getControlBytes();
             if ( !startsWith(payload, controlBytes) ) {
                 continue;
@@ -167,18 +173,21 @@ public class ActiveWsExtensions {
         return false;
     }
 
-    public static ActiveWsExtensions get(IoSession session) {
-        ActiveWsExtensions extensions = WS_EXTENSIONS_KEY.get(session);
+    public static ActiveExtensions get(IoSession session) {
+        ActiveExtensions extensions = WS_EXTENSIONS_KEY.get(session);
         return extensions == null ? EMPTY : extensions; 
     }
     
+    @Deprecated
     public EscapeSequencer getEscapeSequencer(Kind messageKind) {
         return messageKind == TEXT ? textEscapeSequencer : binaryEscapeSequencer;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Extension> T getExtension(Class<T> extensionClass) {
-        for (Extension extension : extensions) {
+    // TODO: change signature to 
+    //       public <T extends webSocketExtensionSpi> T getExtension(Class<T> extensionClass)
+    public <T extends ExtensionHeader> T getExtension(Class<T> extensionClass) {
+        for (ExtensionHeader extension : extensions) {
             if ( extensionClass == extension.getClass() ) {
                 return (T)extension;
             }
@@ -186,26 +195,26 @@ public class ActiveWsExtensions {
         return null;
     }
     
-    public boolean hasExtension(Class<? extends Extension> extensionClass) {
+    public boolean hasExtension(Class<? extends ExtensionHeader> extensionClass) {
         return getExtension(extensionClass) != null;
     }
     
-    public static ActiveWsExtensions merge(ActiveWsExtensions extensions1, ActiveWsExtensions extensions2,
-            Extension.EndpointKind endpointKind) {
+    public static ActiveExtensions merge(ActiveExtensions extensions1, ActiveExtensions extensions2,
+            ExtensionHeader.EndpointKind endpointKind) {
         if (extensions1 == EMPTY) {
             return extensions2;
         }
         if (extensions2 == EMPTY) {
             return extensions1;
         }
-        List<Extension> merged = new ArrayList<>(extensions1.extensions.size() + extensions2.extensions.size());
+        List<ExtensionHeader> merged = new ArrayList<>(extensions1.extensions.size() + extensions2.extensions.size());
         merged.addAll(extensions1.extensions);
         merged.addAll(extensions2.extensions);
-        return new ActiveWsExtensions(merged, endpointKind);
+        return new ActiveExtensions(merged, endpointKind);
     }
     
     public void removeBridgeFilters(IoFilterChain filterChain) {
-        for (Extension extension : extensions) {
+        for (ExtensionHeader extension : extensions) {
             extension.removeBridgeFilters(filterChain);
         }
     }
@@ -219,16 +228,16 @@ public class ActiveWsExtensions {
     }
     
     public void updateBridgeFilters(IoFilterChain filterChain) {
-        for (Extension extension : extensions) {
+        for (ExtensionHeader extension : extensions) {
             extension.updateBridgeFilters(filterChain);
         }
     }
     
-    public static byte[] getCommonBytes(List<Extension> extensions, Extension.EndpointKind endpointKind) {
+    public static byte[] getCommonBytes(List<ExtensionHeader> extensions, ExtensionHeader.EndpointKind endpointKind) {
         byte[] commonBytes = new byte[0];
         int commonCount = 0;
         boolean first = true;
-        for (Extension extension : extensions) {
+        for (ExtensionHeader extension : extensions) {
             byte[] controlBytes = extension.getControlBytes();
             if (first) {
                 commonBytes = controlBytes.clone();

@@ -43,7 +43,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsProtocol;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.wseb.filter.EncodingFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
@@ -191,7 +191,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         final IoSession session = bridgeFilterChain.getSession();
-        final ActiveWsExtensions extensions = ActiveWsExtensions.get(wsebSession);
+        final ActiveExtensions extensions = ActiveExtensions.get(wsebSession);
 
         codec.setExtensions(session, extensions);
     }

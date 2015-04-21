@@ -30,7 +30,7 @@ import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
-import org.kaazing.gateway.transport.ws.extension.Extension;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -453,7 +453,7 @@ public class WsFrameEncodingSupport {
      * @return
      */
     private static byte doEncodeOpcode(byte b, WsMessage message) {
-        Extension extension = message.getExtension();
+        ExtensionHeader extension = message.getExtension();
         Kind kind = extension == null ? message.getKind() : extension.getEncodedKind(message);
 
         switch (kind) {
@@ -508,7 +508,7 @@ public class WsFrameEncodingSupport {
     }
 
     private static IoBufferEx getBytes(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {   
-        Extension extension = message.getExtension();
+        ExtensionHeader extension = message.getExtension();
         if (extension != null) {
             int length = 0;
             byte[] controlBytes = message.getExtension().getControlBytes();

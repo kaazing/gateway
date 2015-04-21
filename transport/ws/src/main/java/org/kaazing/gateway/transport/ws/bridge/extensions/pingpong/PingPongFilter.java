@@ -29,14 +29,14 @@ import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
-import org.kaazing.gateway.transport.ws.extension.ExtensionBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 
 /**
  * This filter is used when the x-kaazing-ping-pong extension is active, to set the extension instance on outgoing PING or
  * PONG messages of style client, to cause them to be encoded as extension messages visible to the Kaazing client libraries.  
  */
 class PingPongFilter extends WsFilterAdapter {
-    private static final PingPongExtension EXTENSION = new PingPongExtension(new ExtensionBuilder(WsExtensions.PING_PONG));
+    private static final PingPongExtension EXTENSION = new PingPongExtension(new ExtensionHeaderBuilder(WsExtensions.PING_PONG));
     
     private static final PingPongFilter INSTANCE = new PingPongFilter();
     

@@ -79,7 +79,7 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.io.IoMessage;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.extension.Extension;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionParameter;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -1858,11 +1858,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     */
                     protocolAttributes = new JSONObject();
 
-                    List<Extension> extensions = wsBridgeSession.getWsExtensions().asList();
+                    List<ExtensionHeader> extensions = wsBridgeSession.getWsExtensions().asList();
                     if (extensions != null && extensions.size() > 0) {
                         JSONObject jsonObj = new JSONObject();
 
-                        for (Extension extension : extensions) {
+                        for (ExtensionHeader extension : extensions) {
                             String token = extension.getExtensionToken();
 
                             JSONArray paramsArray = null;

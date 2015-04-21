@@ -31,7 +31,7 @@ public abstract class WebSocketExtensionSpi {
      * @returns The extension header (token and optional parameters) that should be included in the WebSocket handshake
      * response for this extension
      */
-    public abstract Extension getExtension();
+    public abstract ExtensionHeader getExtensionHeader();
 
     /**
      * This method is called after the negotiated method. If allows extensions to provide a filter that will be added to

@@ -44,7 +44,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-public interface Extension {
+public interface ExtensionHeader {
     enum EndpointKind { CLIENT, SERVER }
 
     String getExtensionToken();

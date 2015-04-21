@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import static org.kaazing.gateway.transport.ws.extension.Extension.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind.SERVER;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,7 @@ import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated // This will be replaced by WebSocketExtensionFactory
 public class WsExtensionUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(WsExtensionUtils.class);
     
@@ -39,10 +40,10 @@ public class WsExtensionUtils {
         
     }
     
-    public static List<byte[]> getEscapeSequences(List<Extension> extensions) {
+    public static List<byte[]> getEscapeSequences(List<ExtensionHeader> extensions) {
         List<byte[]> result = new ArrayList<>();
         if ( extensions != null ) {
-            for ( Extension extension: extensions ) {
+            for ( ExtensionHeader extension: extensions ) {
                 result.add(extension.getControlBytes());
             }
         }
@@ -55,8 +56,8 @@ public class WsExtensionUtils {
                                                                             List<String> clientRequestedExtensions,
                                                                             List<String> serverWsExtensions) {
         if (clientRequestedExtensions != null) {
-            List<Extension> wsSupportedExtensions = toWsExtensions(serverWsExtensions);
-            List<Extension> wsRequestedExtensions = toWsExtensions(clientRequestedExtensions);
+            List<ExtensionHeader> wsSupportedExtensions = toWsExtensions(serverWsExtensions);
+            List<ExtensionHeader> wsRequestedExtensions = toWsExtensions(clientRequestedExtensions);
     
             // Since the client may have provided parameters in their
             // extensions, we retain the common requested extensions, not
@@ -68,6 +69,7 @@ public class WsExtensionUtils {
                 // shared extension be found; this is indicated by NOT having
                 // null in the serverWsExtensions list.  (How's that for a
                 // subtle semantic?)
+// TODO: remove this "subtle semantic" in CE 5.0 since it is in fact never used in the 4.0 code base. It was originally added as part of the APNS work.
                 //
                 // If this happens, then we need to tell the caller to close
                 // the session.
@@ -76,10 +78,10 @@ public class WsExtensionUtils {
                 }
     
             } else {
-                List<Extension> wsAcceptedExtensions = new ArrayList<>(wsRequestedExtensions.size());
+                List<ExtensionHeader> wsAcceptedExtensions = new ArrayList<>(wsRequestedExtensions.size());
     
-                for (Extension candidate : wsRequestedExtensions) {
-                    Extension accepted = ExtensionBuilder.create(address, candidate);
+                for (ExtensionHeader candidate : wsRequestedExtensions) {
+                    ExtensionHeader accepted = ExtensionHeaderBuilder.create(address, candidate);
                     WsExtensionValidation validation = accepted.checkValidity();
                     if (validation.isValid()) {
                         wsAcceptedExtensions.add(accepted);
@@ -93,7 +95,7 @@ public class WsExtensionUtils {
     
                 //TODO: This is where we can add server-initiated coordinated extension parameters.
     
-                for (Extension ext : wsAcceptedExtensions) {
+                for (ExtensionHeader ext : wsAcceptedExtensions) {
                     session.addWriteHeader(headerName, ext.toString());
                 }
     
@@ -105,7 +107,7 @@ public class WsExtensionUtils {
     }
 
 
-    public static List<Extension> toWsExtensions(List<String> extensionTokens) {
+    public static List<ExtensionHeader> toWsExtensions(List<String> extensionTokens) {
         if (extensionTokens == null) {
             throw new NullPointerException("extensionTokens");
         }
@@ -114,10 +116,10 @@ public class WsExtensionUtils {
             return new ArrayList<>();
         }
     
-        List<Extension> exts = new ArrayList<>(extensionTokens.size());
+        List<ExtensionHeader> exts = new ArrayList<>(extensionTokens.size());
         for (String extensionToken : extensionTokens) {
             if (extensionToken != null) {
-                exts.add(new ExtensionBuilder(extensionToken).toWsExtension());
+                exts.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
             }
         }
     

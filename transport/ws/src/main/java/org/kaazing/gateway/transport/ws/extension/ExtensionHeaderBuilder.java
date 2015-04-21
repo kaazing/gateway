@@ -41,6 +41,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
+ * This class assists in parsing a WebSocket xtensions HTTP header which has the following syntax (a comma-separated list
+ * Of extensions with optional parameters):
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -53,25 +55,26 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-public class ExtensionBuilder implements Extension {
-    // TODO: Allocate control bytes for each active extension? (add setControlBytes method to WsExtension)
-    //private static int nextControlBytes = 0;
+public class ExtensionHeaderBuilder implements ExtensionHeader {
     
     private String extensionToken;
     private Map<String, ExtensionParameter> parametersByName = new LinkedHashMap<>();
 
-    public ExtensionBuilder(String extensionToken) {
-        if (extensionToken == null) {
+    /**
+     * @param extension  One of the comma-separated list of extensions from a WebSocket extensions HTTP header
+     */
+    public ExtensionHeaderBuilder(String extension) {
+        if (extension == null) {
             throw new NullPointerException("extensionToken");
         }
 
         // Look for any parameters in the given token
-        int idx = extensionToken.indexOf(';');
+        int idx = extension.indexOf(';');
         if (idx == -1) {
-            this.extensionToken = extensionToken;
+            this.extensionToken = extension;
 
         } else {
-            String[] elts = extensionToken.split(";");
+            String[] elts = extension.split(";");
             this.extensionToken = elts[0].trim();
 
             for (int i = 1; i < elts.length; i++) {
@@ -92,7 +95,7 @@ public class ExtensionBuilder implements Extension {
         }
     }
 
-    public ExtensionBuilder(Extension extension) {
+    public ExtensionHeaderBuilder(ExtensionHeader extension) {
         this.extensionToken = extension.getExtensionToken();
         List<ExtensionParameter> parameters = extension.getParameters();
         for ( ExtensionParameter p: parameters) {
@@ -119,16 +122,16 @@ public class ExtensionBuilder implements Extension {
         return new WsExtensionValidation();
     }
 
-    public Extension toWsExtension() {
+    public ExtensionHeader toExtensionHeader() {
         return this;
     }
 
-    public ExtensionBuilder setExtensionToken(String token) {
+    public ExtensionHeaderBuilder setExtensionToken(String token) {
         this.extensionToken = token;
         return this;
     }
 
-    public ExtensionBuilder append(ExtensionParameter parameter) {
+    public ExtensionHeaderBuilder append(ExtensionParameter parameter) {
         if ( !parametersByName.containsKey(parameter.getName()) ) {
             parametersByName.put(parameter.getName(), parameter);
         }
@@ -149,9 +152,9 @@ public class ExtensionBuilder implements Extension {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof ExtensionBuilder)) return false;
+        if (o == null || !(o instanceof ExtensionHeaderBuilder)) return false;
 
-        ExtensionBuilder that = (ExtensionBuilder) o;
+        ExtensionHeaderBuilder that = (ExtensionHeaderBuilder) o;
 
         return !(extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null);
 
@@ -163,15 +166,15 @@ public class ExtensionBuilder implements Extension {
     }
 
     public void appendParameter(String parameterContents) {
-       append(new WsExtensionParameterBuilder(parameterContents));
+       append(new ExtensionParameterBuilder(parameterContents));
     }
 
     public void appendParameter(String parameterName, String parameterValue) {
-        append(new WsExtensionParameterBuilder(parameterName, parameterValue));
+        append(new ExtensionParameterBuilder(parameterName, parameterValue));
     }
 
-    public static Extension create(ResourceAddress address, Extension extension) {
-        Extension ext;
+    public static ExtensionHeader create(ResourceAddress address, ExtensionHeader extension) {
+        ExtensionHeader ext;
     
         if (extension.getExtensionToken().equals(WsExtensions.IDLE_TIMEOUT)) {
             IdleTimeoutExtension idleTimeoutExt = new IdleTimeoutExtension(extension,

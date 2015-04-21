@@ -34,19 +34,19 @@ package org.kaazing.gateway.transport.ws.extension;
  *            ;'token' ABNF.
  * </pre>
  */
-public class WsExtensionParameterBuilder implements ExtensionParameter {
+public class ExtensionParameterBuilder implements ExtensionParameter {
 
     private String name;
     private String value;
 
-    public WsExtensionParameterBuilder() {
+    public ExtensionParameterBuilder() {
     }
 
-    public WsExtensionParameterBuilder(String name) {
+    public ExtensionParameterBuilder(String name) {
         this(name, null);
     }
 
-    public WsExtensionParameterBuilder(String name, String value) {
+    public ExtensionParameterBuilder(String name, String value) {
         this.name = name;
         this.value = value;
     }
@@ -55,7 +55,7 @@ public class WsExtensionParameterBuilder implements ExtensionParameter {
         return name;
     }
 
-    public WsExtensionParameterBuilder setName(String name) {
+    public ExtensionParameterBuilder setName(String name) {
         this.name = name;
         return this;
     }
@@ -64,7 +64,7 @@ public class WsExtensionParameterBuilder implements ExtensionParameter {
         return value;
     }
 
-    public WsExtensionParameterBuilder setValue(String value) {
+    public ExtensionParameterBuilder setValue(String value) {
         this.value = value;
         return this;
     }
@@ -89,7 +89,7 @@ public class WsExtensionParameterBuilder implements ExtensionParameter {
             return false;
         }
 
-        WsExtensionParameterBuilder that = (WsExtensionParameterBuilder) o;
+        ExtensionParameterBuilder that = (ExtensionParameterBuilder) o;
         return this.toString().equals(that.toString());
     }
 }

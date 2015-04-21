@@ -22,7 +22,7 @@
 package org.kaazing.gateway.transport.ws.bridge.filter;
 
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 
 /**
  * Represents a codec filter that needs to be informed about extensions.
@@ -35,5 +35,5 @@ public interface ExtensionAwareCodecFilter {
      * @param extensions  the extensions to associate with this filter
      *
      */
-    void setExtensions(IoSession session, ActiveWsExtensions extensions);
+    void setExtensions(IoSession session, ActiveExtensions extensions);
 }

@@ -20,12 +20,16 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.ServiceLoader.load;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.transport.http.HttpAcceptSession;
 
 
 public final class WebSocketExtensionFactory {
@@ -47,14 +51,16 @@ public final class WebSocketExtensionFactory {
 
     /**
      * This method is called for each extension requested by the client during the WebSocket handshake. 
-     * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
+     * @param requestedExtension  Extension token and parameters from the WebSocket handshake HTTP request
+     *                            corresponding to one of the extensions in a WebSocket extensions
+     *                            HTTP header (which is a comma-separated list of extensions)
      * @param address    WebSocket resource address on which the handshake is taking place
      * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
      *                   or null if the extension is not available
      * @throws IOException  If the extension cannot be negotiated. Throwing this exception will result
      *                      in failing the WebSocket connection.
      */
-    public WebSocketExtensionSpi negotiate(Extension extension, WsResourceAddress address)
+    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address)
             throws IOException {
         String extensionName = extension.getExtensionToken();
 
@@ -64,6 +70,17 @@ public final class WebSocketExtensionFactory {
         }
 
         return factory.negotiate(extension, address);
+    }
+    
+    public ActiveExtensions negotiateWebSocketExtensions(ResourceAddress address,
+                                                         HttpAcceptSession session,
+                                                         String headerName,
+                                                         List<String> clientRequestedExtensions,
+                                                         List<String> serverWsExtensions) throws ProtocolException {
+        // TODO: implement this method, based loosely on WsExtensionUtils.negotiateWebSocketExtensions. Note that 
+        // as commented in that method we do not need to have any notion of mandatory extensions the client must negotiate.
+        throw new UnsupportedOperationException ();
+        //return ActiveExtensions.EMPTY;
     }
 
     /**

@@ -27,6 +27,7 @@ import java.util.List;
 /**
  * A meta-data interface to capture common information about WebSocket extensions.
  */
+@Deprecated // To be replaced with WebSocketExtensionFactorySpi, etc.
 public interface WsExtensions {
 
     //

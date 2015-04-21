@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
+@Deprecated // Will be removed once we move to the new WebSocket extension SPI
 public class WsExtensionValidation {
 
     public enum Status {

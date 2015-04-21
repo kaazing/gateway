@@ -29,7 +29,7 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.filter.ExtensionAwareCodecFilter;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
@@ -41,7 +41,7 @@ public class RtmpChunkCodecFilter extends ProtocolCodecFilter implements Extensi
         super(new RtmpCodecFactory());
     }
 
-    public void setExtensions(IoSession session, ActiveWsExtensions extensions) {
+    public void setExtensions(IoSession session, ActiveExtensions extensions) {
         RtmpEncoder encoder = (RtmpEncoder) getEncoder(session);
         encoder.setEscapeSequencer(extensions.getEscapeSequencer(BINARY));
     }

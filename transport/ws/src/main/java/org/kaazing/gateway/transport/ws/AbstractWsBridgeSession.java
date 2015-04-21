@@ -40,7 +40,7 @@ import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.util.BridgeSessionIterator;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -69,22 +69,22 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
 
     protected ScheduledExecutorService scheduler;
     protected DefaultLoginResult loginResult;
-    protected final ActiveWsExtensions wsExtensions;
+    protected final ActiveExtensions wsExtensions;
 
     public AbstractWsBridgeSession(int ioLayer, Thread ioThread, Executor ioExecutor, IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoBufferAllocatorEx<B> allocator,
-                                   Direction direction, DefaultLoginResult loginResult, ActiveWsExtensions wsExtensions) {
+                                   Direction direction, DefaultLoginResult loginResult, ActiveExtensions wsExtensions) {
         super(ioLayer, ioThread, ioExecutor, service, sIoProcessor, localAddress, remoteAddress, allocator, direction);
-        this.wsExtensions = wsExtensions == null ? ActiveWsExtensions.EMPTY : wsExtensions;
+        this.wsExtensions = wsExtensions == null ? ActiveExtensions.EMPTY : wsExtensions;
         this.loginResult = loginResult;
         this.sessionTimeout = new WsSessionTimeoutCommand(this);
     }
 
     public AbstractWsBridgeSession(IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<B> allocator,
-                                   Direction direction, DefaultLoginResult loginResult, ActiveWsExtensions wsExtensions) {
+                                   Direction direction, DefaultLoginResult loginResult, ActiveExtensions wsExtensions) {
         super(service, sIoProcessor, localAddress, remoteAddress, parent, allocator, direction);
-        this.wsExtensions = wsExtensions == null ? ActiveWsExtensions.EMPTY : wsExtensions;
+        this.wsExtensions = wsExtensions == null ? ActiveExtensions.EMPTY : wsExtensions;
         this.loginResult = loginResult;
         this.sessionTimeout = new WsSessionTimeoutCommand(this);
     }
@@ -131,7 +131,7 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
         cancelSessionTimeoutCommand();
     }
 
-    public ActiveWsExtensions getWsExtensions() {
+    public ActiveExtensions getWsExtensions() {
         return this.wsExtensions;
     }
 
