@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure a Chain of Login Modules
 
-<a name="config_chain"></a>Configure a Chain of Login Modules
+Configure a Chain of Login Modules
 ===================================================================================
 
 You configure one or more login modules, called a *chain of login modules*, to instruct the Gateway on how to validate user credentials with a user database and to determine a set of authorized roles. The chain of login modules decode and verify the credentials, and (along with the challenge handler) handle the challenge/response authentication sequence of events.
@@ -37,13 +37,13 @@ To Configure a Chain of Login Modules
         If you use the `Application Token` authentication scheme, you must supply your own custom login module. See [Create Custom Login Modules](p_aaa_config_custom_lm.md) and [Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md).
 
 2.  Add the `login-modules` element within the `authentication` element that you started in [Step 1](p_aaa_config_authscheme.md). The `login-modules` element is the container for one or more login modules and it defines the scope in which security policies are enforced.
-3.  Define one or more login modules to make a chain.` `
+3.  Define one or more login modules to make a chain.
 
     Each login module in the chain is responsible for doing a little piece of work and passing along information. For example, one login module might check a database, another login module might contact an LDAP directory, and so on.
 
     In the following example, the chain of login modules includes the `file` type (to handle the `jaas-config.xml` that is part of KAAZING Gateway) and the `ldap` type. For a complete security example, see the [Notes](#Notes) section.
 
-    ``` auto-links:
+    ``` xml
           <login-modules>
             <login-module>
               <type>file</type>
@@ -87,32 +87,27 @@ To Configure a Chain of Login Modules
 
 6.  Save the Gateway configuration.
 
-<a name="Notes"></a>Notes
+Notes
 -------------------------
 
-<ul>
-<li>
 The `success` element controls the behavior of the individual login modules, but the order of the login modules controls the overall behavior as the process of authentication walks down the stack. When there is more than one login-module configured in a `realm` you should carefully plan the order in which the login modules appear in the Gateway configuration because the login modules are invoked in sequence.
 
 The following table describes how the order of login modules and the setting of the `success` element controls authentication processing:
 
-| `success` values | Description                                    | On success or failure ...                                                                                                                                                                                                               |
-|------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `required`       | The `login-module` must succeed.               | If it succeeds or fails, then authentication continues to proceed down the `login-module` list.                                                                                                                                         |
+| `success` values | Description                                    | On success or failure ...                                                                                                                                                                                                            |
+|------------------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `required`       | The `login-module` must succeed.               | If it succeeds or fails, then authentication continues to proceed down the `login-module` list.                                                                                                                                      |
 | `requisite`      | The `login-module` must succeed.               | If it succeeds, then authentication continues down the `login-module` list. If it fails, then authentication stops its process down the `login-module` list and the Gateway denies the WebSocket creation request `(403 Forbidden`). |
 | `sufficient`     | The `login-module` is not required to succeed. | If it succeeds, then authentication stops its process down the `login-module` list and the Gateway opens the WebSocket connection. If it fails, authentication continues down the `login-module` list.                               |
-| `optional`       | The `login-module` is not required to succeed. | If it succeeds or fails, then authentication proceeds down the `login-module` list.                                                                                                                                                     |
+| `optional`       | The `login-module` is not required to succeed. |                                                                                                                                                                                                                                      |
 
-</li>
 **Notes:** 
 -   If a `sufficient` login module is configured and succeeds, then only the `required` and `requisite` login modules prior to that `sufficient` login module need to have succeeded for the overall authentication to succeed.
 -   If no `required` or `requisite` login modules are configured for an application, then at least one `sufficient` or `optional` login module must succeed.
 
-</span>
-</li>
-<li>
 The following code shows a complete security example:
-``` auto-links:
+
+``` xml
 <security>
   <keystore>
    <type>JCEKS</type>
@@ -159,19 +154,16 @@ The following code shows a complete security example:
 </security>
 ```
 
-</li>
-</ul>
 Next Steps
 ----------
 
 [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Authentication](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
--   [Server API Documentation](../index.md#server_api_topics)
-
-
+-   [Server API Documentation](../index.md)
