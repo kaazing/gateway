@@ -1334,7 +1334,7 @@ In the following example, the Gateway accepts on a secure URI (`wss://`) and req
 -   This configuration ensures that both the clients and the Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
 -   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.verify-client` accept option, the values for `ssl.verify-client` must be identical.
 
-#### socks.mode  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.mode![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
