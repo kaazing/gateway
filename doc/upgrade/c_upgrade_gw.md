@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Upgrade KAAZING Gateway](../index.md#security)
 
-<a name="aboutupgrades"></a>About KAAZING Gateway Releases and Upgrades
+About KAAZING Gateway Releases and Upgrades
 ==================================================================================================
 
 The KAAZING Gateway release number consists of three digits separated by dots, with software changes denoted in order of major, minor, and maintenance release numbers. For example, KAAZING Gateway release 5.*x*.*y* is represented as:
@@ -13,87 +13,18 @@ You can upgrade KAAZING Gateway to a newer Gateway release that has a higher maj
 
 You can find the release number on the Command Center console, on the KAAZING download page, in `README.txt`, or in the Gateway startup log.
 
-<a name="upgradepaths"></a>Supported Gateway Upgrade Paths
+Supported Gateway Upgrade Paths
 -----------------------------------------------------------------
 
 The following table shows the supported paths for Gateway upgrades (major and minor) and patch release updates.
 
-<table width="95%" border="1">
-<tr>
-<th scope="col">
-If your current Gateway release is ...
-</th>
-<th scope="col">
-And you want to upgrade to Gateway release ...
-</th>
-<th scope="col">
-Then follow these upgrade instructions ...
-</th>
-<th scope="col">
-And consider the impact on KAAZING client migration and backward compatibility \*
-</th>
-</tr>
-<tr>
-<td>
-3.2 or earlier
-</td>
-<td>
-4.0.*x*
-</td>
-<td>
-Contact [KAAZING Support](http://kaazing.com/services/)
-</td>
-<td>
-Contact [KAAZING Support](http://kaazing.com/services/)
-</td>
-</tr>
-<tr>
-<td>
-3.3.*x
-* 3.4.*x*
-</td>
-<td>
-3.5.*x* (for example, 3.4.1 to 3.5.11)
-</td>
-<td>
-[Upgrade the Gateway](o_upgrade.md)
-</td>
-<td>
-Recompilation of the KAAZING client code might be necessary, but code changes are not required.
-</td>
-</tr>
-<tr>
-<td>
-3.5.*x*
-</td>
-<td>
-3.5.*y* (for example, 3.5.11 to 3.5.11)
-</td>
-<td>
-[Upgrade the Gateway](o_upgrade.md)
-</td>
-<td>
-No code changes or recompilation of KAAZING client code is required.
-</td>
-</tr>
-<tr>
-<td>
-3.3.*x*
- 3.4.*x*
- 3.5.*x*
-</td>
-<td>
-4.0.*x* (for example, 3.5.11 to 4.0.3)
-</td>
-<td>
-[Upgrade the Gateway](o_upgrade.md)
-</td>
-</td>
-<td>
-Code changes and/or recompilation of KAAZING client code might be necessary.
-</td>
-</tr>
-</table>
+| If your current Gateway release is... | And you want to upgrade to Gateway release ... | Then follow these upgrade instructions ...              | And consider the impact on KAAZING client migration and backward compatibility \*               |
+|---------------------------------------|------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| 3.2 or earlier                        | 4.0.*x*                                        | Contact [KAAZING Support](http://kaazing.com/services/) | Contact [KAAZING Support](http://kaazing.com/services/)                                         |
+| 3.3.*x* 3.4.*x*                       | 3.5.*x* (for example, 3.4.1 to 3.5.11)         | [Upgrade the Gateway](o_upgrade.md)                     | Recompilation of the KAAZING client code might be necessary, but code changes are not required. |
+| 3.5.*x*                               | 3.5.*y* (for example, 3.5.11 to 3.5.11)        | [Upgrade the Gateway](o_upgrade.md)                     | No code changes or recompilation of KAAZING client code is required.                            |
+| 3.3.*x* 3.4.*x* 3.5.*x*               | 4.0.*x* (for example, 3.5.11 to 4.0.3)         | [Upgrade the Gateway](o_upgrade.md)                     |                                                                                                 |
+
 \* See [KAAZING Clients and Backward Compatibility](#client_backwardcompat)
 
 <a name="upgradeoptions"></a>Upgrade Options
