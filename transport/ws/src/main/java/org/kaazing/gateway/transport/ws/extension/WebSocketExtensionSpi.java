@@ -47,18 +47,5 @@ public abstract class WebSocketExtensionSpi {
     public IoFilter getFilter() {
         return null;
     };
-
-    /**
-     * Some extensions may need to be executed before others. Before means on the network end of the extension chain, so
-     * the first extension sees incoming messages first and outgoing messages last. By default extensions are applied in
-     * the order specified in the HTTP request extensions header, but implementations may override this method if the
-     * extension needs to move itself to a particular position in the list.
-     * @param activeExtensions Immutable list of all negotiated extensions
-     * @param currentPosition  Position this extension currently occupies in the list (zero-based)
-     * @return                 - position this extension should be moved to (zero-based)
-     */
-    public int order(List<WebSocketExtensionSpi> activeExtensions, int currentPosition) {
-        return currentPosition;
-    }
     
 }
