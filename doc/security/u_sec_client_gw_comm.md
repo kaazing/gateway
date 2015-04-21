@@ -2,14 +2,14 @@
 -   [Documentation](../index.md)
 -   What’s Involved in Secure Communication
 
-<a name="whats_involved"></a>What’s Involved in Secure Communication 
+What’s Involved in Secure Communication 
 ===========================================================================================
 
 To better understand how the security parameters that you specify in KAAZING Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`) work together, let's take a detailed look at what is involved in the secure communication between the browser and KAAZING Gateway.
 
 Suppose that a user requests content from the URL `wss://example.com:443/` (note that specifying port 443 in the URL is optional but it is included here for clarity) and that the echo service for this URL has been configured in the Gateway configuration to have a security constraint on it. For example, lines 5 to 7 in the following service element show that users who want access to the echo service must have the `AUTHORIZED` role:
 
-``` auto-links:
+``` xml
 <service>
   <accept>wss://example.com:443/</accept>
   <type>echo</type>
@@ -26,7 +26,6 @@ The following sequence diagram illustrates the interactions that occur between t
 
 **Figure: Sequence Diagram Showing Authentication with the Gateway**
 
-
 The following list describes in detail what happens under-the-hood when a client requests` wss://example.com:443`:
 
 1.  **TLS/SSL Handshake:** Because the URL that is accessed is a WSS scheme, a TLS/SSL handshake takes place in which a public and private key for `example.com` are used to establish a shared secret used to encrypt and decrypt data. After the secure connection has been set up, the client sends the request to the Gateway.
@@ -36,16 +35,12 @@ The following list describes in detail what happens under-the-hood when a client
     3.  Parses the URL that the client is trying to access and extracts the host name, which in this case is `example.com`.
     4.  Consults the configuration parameters that were supplied in the Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`) when the Gateway was started, looks for a `security` element and looks up the HTTP challenge scheme. The HTTP challenge scheme is shown in the following example:
 
-        ``` auto-links:
+        ``` xml
         <security>
-        .
-        .
-        .
+        ...
         <!-- HTTP authentication configuration -->
         <http-challenge-scheme>Application Token</http-challenge-scheme>
-        .
-        .
-        .
+        ...
         </security>
         ```
 
@@ -58,7 +53,7 @@ The following list describes in detail what happens under-the-hood when a client
     3.  Parses the URL that the user is trying to access and extracts the host name, which in this case is `example.com`.
     4.  Looks at the Gateway configuration `realm` to look up the authentication information for the request. The `realm` element is part of the `security` element in the Gateway configuration, as shown in the following example:
 
-        ``` auto-links:
+        ``` xml
         <security>
           <keystore>
             <type>JCEKS</type>
@@ -116,10 +111,10 @@ The following list describes in detail what happens under-the-hood when a client
 
 7.  **Authorization:** When all roles required by the authorization constraint are granted to the client via the realm login module, then the WebSocket connection is successfully authenticated and established.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [About Security with KAAZING Gateway](c_sec_security.md)
--   [About Enterprise Shield&trade; ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](../reverse-connectivity/o_rc_checklist.md#whatis)
+-   [About Enterprise Shield&trade; ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](../reverse-connectivity/o_rc_checklist.md)
 
 
