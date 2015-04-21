@@ -64,19 +64,19 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [socks.mode](#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.ciphers](#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [socks.ssl.protocols](#sslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.verify-client](#sockssslverifyclient) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.retry.maximum.interval](#socksretrymaxint) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.ssl.verify-client](#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.retry.maximum.interval](#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
         -   [notify-options](#notify-options-jms-only)(JMS only) 
-            -   [apns.notify.transport](#notify_apnstrnsp)
-            -   [apns.feedback.transport](#notify_apnsfeedback)
-            -   [ssl.ciphers](#notify_sslciphers)
-            -   [tcp.transport](#notify_tcptransport)
+            -   apns.notify.transport
+            -   apns.feedback.transport
+            -   ssl.ciphers
+            -   tcp.transport
         -   [realm-name](#realm-name)
         -   [authorization-constraint](#authorization-constraint)
-            -   [require-role](#requireroleopt)
-            -   [require-valid-user](#requirevaliduser)
+            -   require-role
+            -   require-valid-user
         -   [mime-mapping](r_conf_serv_defs.md#mime-mapping)
             -   extension
             -   mime-type
@@ -1653,7 +1653,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
   
 ```
 
-### notify-options (JMS only) 
+### notify-options (JMS only)
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
