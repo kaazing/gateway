@@ -23,13 +23,13 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 
-public final class IdleTimeoutExtension extends WsExtensionBuilder {
+public final class IdleTimeoutExtension extends ExtensionHeaderBuilder {
     private final long idleTimeoutMillis;
 
-    public IdleTimeoutExtension(WsExtension extension, long idleTimeoutMillis) {
+    public IdleTimeoutExtension(ExtensionHeader extension, long idleTimeoutMillis) {
         super(extension);
         appendParameter(WsExtensions.IDLE_TIMEOUT_TIMEOUT_PARAM, Long.toString(idleTimeoutMillis));
         this.idleTimeoutMillis = idleTimeoutMillis;

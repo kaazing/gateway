@@ -22,6 +22,8 @@
 package org.kaazing.gateway.transport.ws.extension;
 
 /**
+ * This class represents an extension parameter from an extension present in the extensions header of a WebSocket
+ * handshake HTTP request or response, as defined by the following syntax: 
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -34,62 +36,10 @@ package org.kaazing.gateway.transport.ws.extension;
  *            ;'token' ABNF.
  * </pre>
  */
-public class WsExtensionParameterBuilder implements WsExtensionParameter {
+public interface ExtensionParameter {
 
-    private String name;
-    private String value;
+    String getName();
+    
+    String getValue();
 
-    public WsExtensionParameterBuilder() {
-    }
-
-    public WsExtensionParameterBuilder(String name) {
-        this(name, null);
-    }
-
-    public WsExtensionParameterBuilder(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public WsExtensionParameterBuilder setName(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public WsExtensionParameterBuilder setValue(String value) {
-        this.value = value;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder b = new StringBuilder(name);
-        if ( value != null ) {
-            b.append('=').append(value);
-        }
-        return b.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null ||
-            getClass() != o.getClass()) {
-            return false;
-        }
-
-        WsExtensionParameterBuilder that = (WsExtensionParameterBuilder) o;
-        return this.toString().equals(that.toString());
-    }
 }

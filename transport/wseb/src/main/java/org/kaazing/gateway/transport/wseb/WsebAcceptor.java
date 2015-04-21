@@ -97,7 +97,7 @@ import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
@@ -571,7 +571,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 return;
             }
 
-            final ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
+            final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
             // require POST method with text/plain content-type header
             // to prevent cross-site GETs or form POSTs

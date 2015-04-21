@@ -24,11 +24,11 @@ package org.kaazing.gateway.transport.ws.extension;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind;
 
 public final class WsExtensionNegotiationResult {
     public static final WsExtensionNegotiationResult OK_EMPTY 
-              = new WsExtensionNegotiationResult(new ArrayList<WsExtension>(0), EndpointKind.SERVER);
+              = new WsExtensionNegotiationResult(new ArrayList<ExtensionHeader>(0), EndpointKind.SERVER);
 
     enum Status {
         FAILURE,
@@ -37,12 +37,12 @@ public final class WsExtensionNegotiationResult {
 
     private final Status status;
     private final String failureReason;
-    private final ActiveWsExtensions extensions;
+    private final ActiveExtensions extensions;
 
-    public WsExtensionNegotiationResult(List<WsExtension> extensions, EndpointKind endpointKind) {
+    public WsExtensionNegotiationResult(List<ExtensionHeader> extensions, EndpointKind endpointKind) {
         this.status = Status.OK;
         this.failureReason = null;
-        this.extensions = new ActiveWsExtensions(extensions, endpointKind);
+        this.extensions = new ActiveExtensions(extensions, endpointKind);
     }
 
     public WsExtensionNegotiationResult(Status status,
@@ -52,7 +52,7 @@ public final class WsExtensionNegotiationResult {
         this.extensions = null;
     }
 
-    public ActiveWsExtensions getExtensions() {
+    public ActiveExtensions getExtensions() {
         return extensions;
     }
 

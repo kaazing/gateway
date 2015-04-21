@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.util.Expectations;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
@@ -151,8 +151,6 @@ public class WsCheckAliveFilterTest {
                 oneOf(filterChain).addLast(with(FILTER_NAME), with(any(IoFilter.class)));
                 will(saveParameter(filterHolder, 1));
                 allowing(session).getConfig(); will(returnValue(sessionConfig));
-                allowing(session).getAttribute(with(typedAttributeKeyMatching(".*xtension.*")));
-                will(returnValue(ActiveWsExtensions.EMPTY));
                 oneOf(sessionConfig).setIdleTimeInMillis(IdleStatus.READER_IDLE, STANDARD_INACTIVITY_TIMEOUT_MILLIS / 2);
             }
         });

@@ -34,7 +34,7 @@ import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
@@ -97,10 +97,10 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         }
     }
     
-    public static void updateExtensions(IoFilterChain filterChain, ActiveWsExtensions extensions) {
+    public static void updateExtensions(IoFilterChain filterChain) {
         WsCheckAliveFilter filter = (WsCheckAliveFilter) filterChain.get(WsCheckAliveFilter.class);
         if (filter != null) {
-            filter.init(filterChain, extensions);
+            filter.init(filterChain);
         }
     }
 
@@ -114,7 +114,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
 
     @Override
     public void onPostAdd(IoFilterChain filterChain, String name, NextFilter nextFilter) throws Exception {
-        init(filterChain, ActiveWsExtensions.get(filterChain.getSession()));
+        init(filterChain);
     }
 
 
@@ -177,7 +177,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         return inactivityTimeoutIn;
     }
     
-    private void init(IoFilterChain filterChain, ActiveWsExtensions extensions) {
+    private void init(IoFilterChain filterChain) {
         IoSessionEx session = (IoSessionEx)filterChain.getSession();
         schedulePing(session);
     }

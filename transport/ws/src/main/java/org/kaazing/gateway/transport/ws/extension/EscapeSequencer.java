@@ -31,6 +31,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
  * payloads commencing with themselves.
  *
  */
+@Deprecated
 public class EscapeSequencer {
 
     private static byte[] EMPTY_BYTES = new byte[0];

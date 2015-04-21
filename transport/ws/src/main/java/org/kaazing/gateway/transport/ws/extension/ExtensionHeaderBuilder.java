@@ -41,6 +41,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
+ * This class assists in parsing a WebSocket xtensions HTTP header which has the following syntax (a comma-separated list
+ * Of extensions with optional parameters):
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -53,25 +55,26 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-public class WsExtensionBuilder implements WsExtension {
-    // TODO: Allocate control bytes for each active extension? (add setControlBytes method to WsExtension)
-    //private static int nextControlBytes = 0;
+public class ExtensionHeaderBuilder implements ExtensionHeader {
     
     private String extensionToken;
-    private Map<String, WsExtensionParameter> parametersByName = new LinkedHashMap<>();
+    private Map<String, ExtensionParameter> parametersByName = new LinkedHashMap<>();
 
-    public WsExtensionBuilder(String extensionToken) {
-        if (extensionToken == null) {
+    /**
+     * @param extension  One of the comma-separated list of extensions from a WebSocket extensions HTTP header
+     */
+    public ExtensionHeaderBuilder(String extension) {
+        if (extension == null) {
             throw new NullPointerException("extensionToken");
         }
 
         // Look for any parameters in the given token
-        int idx = extensionToken.indexOf(';');
+        int idx = extension.indexOf(';');
         if (idx == -1) {
-            this.extensionToken = extensionToken;
+            this.extensionToken = extension;
 
         } else {
-            String[] elts = extensionToken.split(";");
+            String[] elts = extension.split(";");
             this.extensionToken = elts[0].trim();
 
             for (int i = 1; i < elts.length; i++) {
@@ -92,10 +95,10 @@ public class WsExtensionBuilder implements WsExtension {
         }
     }
 
-    public WsExtensionBuilder(WsExtension extension) {
+    public ExtensionHeaderBuilder(ExtensionHeader extension) {
         this.extensionToken = extension.getExtensionToken();
-        List<WsExtensionParameter> parameters = extension.getParameters();
-        for ( WsExtensionParameter p: parameters) {
+        List<ExtensionParameter> parameters = extension.getParameters();
+        for ( ExtensionParameter p: parameters) {
             this.parametersByName.put(p.getName(), p);
         }
     }
@@ -104,7 +107,7 @@ public class WsExtensionBuilder implements WsExtension {
         return extensionToken;
     }
 
-    public List<WsExtensionParameter> getParameters() {
+    public List<ExtensionParameter> getParameters() {
         return Collections.unmodifiableList(new ArrayList<>(parametersByName.values()));
     }
 
@@ -119,16 +122,16 @@ public class WsExtensionBuilder implements WsExtension {
         return new WsExtensionValidation();
     }
 
-    public WsExtension toWsExtension() {
+    public ExtensionHeader toExtensionHeader() {
         return this;
     }
 
-    public WsExtensionBuilder setExtensionToken(String token) {
+    public ExtensionHeaderBuilder setExtensionToken(String token) {
         this.extensionToken = token;
         return this;
     }
 
-    public WsExtensionBuilder append(WsExtensionParameter parameter) {
+    public ExtensionHeaderBuilder append(ExtensionParameter parameter) {
         if ( !parametersByName.containsKey(parameter.getName()) ) {
             parametersByName.put(parameter.getName(), parameter);
         }
@@ -138,7 +141,7 @@ public class WsExtensionBuilder implements WsExtension {
     @Override
     public String toString() {
         StringBuilder b = new StringBuilder(extensionToken);
-        for (WsExtensionParameter wsExtensionParameter: parametersByName.values()) {
+        for (ExtensionParameter wsExtensionParameter: parametersByName.values()) {
             b.append(';').append(' ').append(wsExtensionParameter);
         }
         return b.toString();
@@ -149,9 +152,9 @@ public class WsExtensionBuilder implements WsExtension {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof WsExtensionBuilder)) return false;
+        if (o == null || !(o instanceof ExtensionHeaderBuilder)) return false;
 
-        WsExtensionBuilder that = (WsExtensionBuilder) o;
+        ExtensionHeaderBuilder that = (ExtensionHeaderBuilder) o;
 
         return !(extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null);
 
@@ -163,15 +166,15 @@ public class WsExtensionBuilder implements WsExtension {
     }
 
     public void appendParameter(String parameterContents) {
-       append(new WsExtensionParameterBuilder(parameterContents));
+       append(new ExtensionParameterBuilder(parameterContents));
     }
 
     public void appendParameter(String parameterName, String parameterValue) {
-        append(new WsExtensionParameterBuilder(parameterName, parameterValue));
+        append(new ExtensionParameterBuilder(parameterName, parameterValue));
     }
 
-    public static WsExtension create(ResourceAddress address, WsExtension extension) {
-        WsExtension ext;
+    public static ExtensionHeader create(ResourceAddress address, ExtensionHeader extension) {
+        ExtensionHeader ext;
     
         if (extension.getExtensionToken().equals(WsExtensions.IDLE_TIMEOUT)) {
             IdleTimeoutExtension idleTimeoutExt = new IdleTimeoutExtension(extension,

@@ -27,7 +27,7 @@ import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
@@ -42,7 +42,8 @@ public class WsDraftHixieFrameCodecFilter extends ProtocolCodecFilter implements
         super(new WsCodecFactory(wsMaxMessageSize > 0 ? wsMaxMessageSize : 0));
     }
 
-    public void setExtensions(IoSession session, ActiveWsExtensions extensions) {
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
+    public void setExtensions(IoSession session, ActiveExtensions extensions) {
         WsDraftHixieFrameEncoder encoder = (WsDraftHixieFrameEncoder) getEncoder(session);
         encoder.setExtensions(extensions);
     }

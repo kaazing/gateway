@@ -26,7 +26,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.gateway.transport.BridgeSession;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
@@ -41,7 +41,8 @@ public class WsCodecFilter extends ProtocolCodecFilter implements ExtensionAware
         super(new WsCodecFactory(wsMaxMessageSize > 0 ? wsMaxMessageSize : 0, maskSends));
     }
 
-    public void setExtensions(IoSession session, ActiveWsExtensions extensions) {
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
+    public void setExtensions(IoSession session, ActiveExtensions extensions) {
         WsFrameEncoder encoder = (WsFrameEncoder) getEncoder(session);
         encoder.setExtensions(extensions);
         WsFrameDecoder decoder = (WsFrameDecoder) getDecoder(session);
@@ -73,7 +74,7 @@ public class WsCodecFilter extends ProtocolCodecFilter implements ExtensionAware
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
-            return new WsFrameDecoder(allocator, wsMaxMessageSize, ActiveWsExtensions.get(session)); 
+            return new WsFrameDecoder(allocator, wsMaxMessageSize, ActiveExtensions.get(session)); 
         }
     }
 }

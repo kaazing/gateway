@@ -38,7 +38,7 @@ import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport.Opcode;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -54,13 +54,15 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         this(allocator, maxMessageSize, null);
     }
 
-    WsFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxMessageSize, ActiveWsExtensions extensions) {
+    // TODO: remove extensions parameter
+    WsFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxMessageSize, ActiveExtensions extensions) {
         super(allocator);
         this.maxMessageSize = maxMessageSize;
         setExtensions(extensions);
     }
     
-    void setExtensions(ActiveWsExtensions extensions) {
+    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
+    void setExtensions(ActiveExtensions extensions) {
         if (extensions != null) {
             if (extensions.canDecode(BINARY) || extensions.canDecode(TEXT)) {
                 binaryTextDecoder = new ExtensionsBinaryTextMessageDecoder(extensions);
@@ -322,9 +324,9 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
     };
     
     private static class ExtensionsBinaryTextMessageDecoder implements BinaryTextMessageDecoder{
-        private final ActiveWsExtensions extensions;
+        private final ActiveExtensions extensions;
         
-        private ExtensionsBinaryTextMessageDecoder(ActiveWsExtensions extensions) {
+        private ExtensionsBinaryTextMessageDecoder(ActiveExtensions extensions) {
             this.extensions = extensions;
         }
 

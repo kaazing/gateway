@@ -33,7 +33,7 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token = null;
-        WsExtensionBuilder web = new WsExtensionBuilder(token);
+        ExtensionHeaderBuilder web = new ExtensionHeaderBuilder(token);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token = "x-kaazing-foo";
-        WsExtensionBuilder web = new WsExtensionBuilder(token);
+        ExtensionHeaderBuilder web = new ExtensionHeaderBuilder(token);
         Assert.assertTrue(String.format("Expected extension token '%s', got '%s'", token, web.getExtensionToken()), web.getExtensionToken().equals(token));
         Assert.assertTrue("Expected no parameters", web.hasParameters() == false);
     }
@@ -51,22 +51,22 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token = "x-kaazing-foo; a=1; b=2; ahoy";
-        WsExtensionBuilder web = new WsExtensionBuilder(token);
+        ExtensionHeaderBuilder web = new ExtensionHeaderBuilder(token);
 
         String extName = "x-kaazing-foo";
         Assert.assertTrue(String.format("Expected extension token '%s', got '%s'", extName, web.getExtensionToken()), web.getExtensionToken().equals(extName));
         Assert.assertTrue("Expected parameters", web.hasParameters() == true);
 
-        List<WsExtensionParameter> params = web.getParameters();
+        List<ExtensionParameter> params = web.getParameters();
         Assert.assertTrue(String.format("Expected 3 parameters, got %d", params.size()), params.size() == 3);
 
-        WsExtensionParameter param = new WsExtensionParameterBuilder("a", "1");
+        ExtensionParameter param = new ExtensionParameterBuilder("a", "1");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("b", "2");
+        param = new ExtensionParameterBuilder("b", "2");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("ahoy");
+        param = new ExtensionParameterBuilder("ahoy");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
     }
 
@@ -75,22 +75,22 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token = "x-kaazing-foo; a=1; b=2; ahoy;";
-        WsExtensionBuilder web = new WsExtensionBuilder(token);
+        ExtensionHeaderBuilder web = new ExtensionHeaderBuilder(token);
 
         String extName = "x-kaazing-foo";
         Assert.assertTrue(String.format("Expected extension token '%s', got '%s'", extName, web.getExtensionToken()), web.getExtensionToken().equals(extName));
         Assert.assertTrue("Expected parameters", web.hasParameters() == true);
 
-        List<WsExtensionParameter> params = web.getParameters();
+        List<ExtensionParameter> params = web.getParameters();
         Assert.assertTrue(String.format("Expected 3 parameters, got %d", params.size()), params.size() == 3);
 
-        WsExtensionParameter param = new WsExtensionParameterBuilder("a", "1");
+        ExtensionParameter param = new ExtensionParameterBuilder("a", "1");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("b", "2");
+        param = new ExtensionParameterBuilder("b", "2");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("ahoy");
+        param = new ExtensionParameterBuilder("ahoy");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
     }
 
@@ -99,26 +99,26 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token = "x-kaazing-foo; a=1; b=2; ahoy=; yarr=rum=eyepatch=";
-        WsExtensionBuilder web = new WsExtensionBuilder(token);
+        ExtensionHeaderBuilder web = new ExtensionHeaderBuilder(token);
 
         String extName = "x-kaazing-foo";
         Assert.assertTrue(String.format("Expected extension token '%s', got '%s'", extName, web.getExtensionToken()), web.getExtensionToken().equals(extName));
         Assert.assertTrue("Expected parameters", web.hasParameters() == true);
 
-        List<WsExtensionParameter> params = web.getParameters();
+        List<ExtensionParameter> params = web.getParameters();
         Assert.assertTrue(String.format("Expected 4 parameters, got %d", params.size()), params.size() == 4);
 
-        WsExtensionParameter param = new WsExtensionParameterBuilder("a", "1");
+        ExtensionParameter param = new ExtensionParameterBuilder("a", "1");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("b", "2");
+        param = new ExtensionParameterBuilder("b", "2");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
         // We have to assume a value here of empty string.
-        param = new WsExtensionParameterBuilder("ahoy", "");
+        param = new ExtensionParameterBuilder("ahoy", "");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
 
-        param = new WsExtensionParameterBuilder("yarr", "rum=eyepatch=");
+        param = new ExtensionParameterBuilder("yarr", "rum=eyepatch=");
         Assert.assertTrue(String.format("Expected presence of param '%s'", param), params.contains(param));
     }
 
@@ -127,15 +127,15 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token1 = "x-kaazing-foo";
-        WsExtensionBuilder ext1 = new WsExtensionBuilder(token1);
+        ExtensionHeaderBuilder ext1 = new ExtensionHeaderBuilder(token1);
 
         String token2 = "x-kaazing-foo";
-        WsExtensionBuilder ext2 = new WsExtensionBuilder(token2);
+        ExtensionHeaderBuilder ext2 = new ExtensionHeaderBuilder(token2);
 
         Assert.assertTrue(String.format("Expected exts %s to %s to be equal", ext1, ext2), ext1.equals(ext2));
 
         String token3 = "x-kaazing-bar";
-        WsExtensionBuilder ext3 = new WsExtensionBuilder(token3);
+        ExtensionHeaderBuilder ext3 = new ExtensionHeaderBuilder(token3);
 
         Assert.assertTrue(String.format("Expected exts %s to %s to NOT be equal", ext2, ext3), ext2.equals(ext3) == false);
     }
@@ -145,16 +145,16 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token1 = "x-kaazing-foo; a=1; b=2";
-        WsExtensionBuilder ext1 = new WsExtensionBuilder(token1);
+        ExtensionHeaderBuilder ext1 = new ExtensionHeaderBuilder(token1);
 
         String token2 = "x-kaazing-foo; x=y";
-        WsExtensionBuilder ext2 = new WsExtensionBuilder(token2);
+        ExtensionHeaderBuilder ext2 = new ExtensionHeaderBuilder(token2);
 
         Assert.assertTrue(String.format("Expected exts %s to %s to be equal", ext1, ext2), ext1.equals(ext2));
 
         String token3 = "x-kaazing-foo";
-        WsExtensionBuilder ext3 = new WsExtensionBuilder(token3);
-        WsExtensionBuilder ext4 = new WsExtensionBuilder(ext3);
+        ExtensionHeaderBuilder ext3 = new ExtensionHeaderBuilder(token3);
+        ExtensionHeaderBuilder ext4 = new ExtensionHeaderBuilder(ext3);
         ext4.appendParameter("bar");
 
         Assert.assertTrue(String.format("Expected exts %s to %s to be equal", ext3, ext4), ext3.equals(ext4));
@@ -165,8 +165,8 @@ public class WsExtensionBuilderTest {
         throws Exception {
 
         String token1 = "x-kaazing-foo";
-        WsExtensionBuilder ext1 = new WsExtensionBuilder(token1);
-        WsExtensionBuilder ext2 = new WsExtensionBuilder(ext1);
+        ExtensionHeaderBuilder ext1 = new ExtensionHeaderBuilder(token1);
+        ExtensionHeaderBuilder ext2 = new ExtensionHeaderBuilder(ext1);
 
         Assert.assertTrue(String.format("Expected exts %s to %s to be equal", ext1, ext2), ext1.equals(ext2));
     }

@@ -30,6 +30,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
+ * This class represents an extension present in the extensions header of a WebSocket handshake HTTP request or response,
+ * as defined by the following syntax:
  * <pre>
  *     Sec-WebSocket-Extensions = extension-list
  *       extension-list = 1#extension
@@ -42,12 +44,12 @@ import org.kaazing.mina.core.session.IoSessionEx;
  *            ;'token' ABNF.
  * </pre>
  */
-public interface WsExtension {
+public interface ExtensionHeader {
     enum EndpointKind { CLIENT, SERVER }
 
     String getExtensionToken();
 
-    List<WsExtensionParameter> getParameters() ;
+    List<ExtensionParameter> getParameters() ;
 
     boolean hasParameters();
     
@@ -55,6 +57,7 @@ public interface WsExtension {
      * Tells if this extension has frames which will need decoding
      * @param endpointKind      client or server
      * @return true if this extension has frames which can flow into the given endpoint kind
+     * @deprecated - use the new ws.extension.spi instead
      */
     boolean canDecode(EndpointKind endpointKind, Kind messageKind);
 
@@ -62,26 +65,33 @@ public interface WsExtension {
      * Tells if this extension has frames which will need encoding
      * @param endpointKind      client or server
      * @return true if this extension has frames which can flow out from the given endpoint kind
+     * @deprecated - use the new ws.extension.spi instead
      */
     boolean canEncode(EndpointKind endpointKind, Kind messageKind);
 
+    /**
+     * @deprecated - use the new ws.extension.spi instead
+     */
     WsExtensionValidation checkValidity();
     
     /**
      * @param payload  The message binary payload, excluding the extension's control bytes
      * @return
+     * @deprecated - use the new ws.extension.spi instead
      */
     WsMessage decode(IoBufferEx payload);
     
     /**
      * Get the encoded payload of the message. Caller must not mutate the result.
      * @return  The payload for the encoded form of this message, excluding control bytes
+     * @deprecated - use the new ws.extension.spi instead
      */
     byte[] encode(WsMessage message);
     
     /**
      * @return The control bytes used to distinguish the extension's control frames  
      *         from other WebSocket frames, or null if the extension has no control frames.
+     * @deprecated - use the new ws.extension.spi instead
      */
     byte[] getControlBytes();
     
@@ -89,20 +99,26 @@ public interface WsExtension {
      * Reports which kind of WebSocket frame should be used to to send the given extension message on the wire
      * @param message   Extension message which is being encoded
      * @return
+     * @deprecated - use the new ws.extension.spi instead
      */
     Kind getEncodedKind(WsMessage message);
     
     /**
      * Extensions are ordered alphabetically based on the results of this method.
      * @return
+     * @deprecated - use the new ws.extension.spi instead
      */
     String getOrdering();
     
+    /**
+     * @deprecated - use the new ws.extension.spi instead
+     */
     void handleMessage(IoSessionEx session, WsMessage message);
     
     /**
      * This method should undo anything done by updateBridgeFilters (e.g. remove an extension specific filter)
      * @param filterChain
+     * @deprecated - use the new ws.extension.spi instead
      */
     void removeBridgeFilters(IoFilterChain filterChain);
     

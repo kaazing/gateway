@@ -86,7 +86,7 @@ import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
@@ -406,7 +406,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                 return;
             }
 
-            final ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
+            final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
             URI request = session.getRequestURL();
             //URI pathInfo = session.getPathInfo();
@@ -763,7 +763,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
 
             // At this point we know the wsrSession, and we can add the escaping filter
             // find the encoder from the session and give it the escape sequencer.
-            final ActiveWsExtensions extensions = ActiveWsExtensions.get(wsrSession);
+            final ActiveExtensions extensions = ActiveExtensions.get(wsrSession);
             codec.setExtensions(session, extensions);
 
 

@@ -30,13 +30,13 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
-public final class PingPongExtension extends WsExtensionBuilder {
+public final class PingPongExtension extends ExtensionHeaderBuilder {
     // We want to use valid but infrequently used UTF-8 characteers. ASCII control characters fit the bill!
     private static final byte[] CONTROL_BYTES = { (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x02 };
     
@@ -49,7 +49,7 @@ public final class PingPongExtension extends WsExtensionBuilder {
         emptyPong.setStyle(CLIENT);
     }
     
-    public PingPongExtension(WsExtension extension) {
+    public PingPongExtension(ExtensionHeader extension) {
         super(extension);
         appendParameter(Utils.toHex(CONTROL_BYTES));
     }

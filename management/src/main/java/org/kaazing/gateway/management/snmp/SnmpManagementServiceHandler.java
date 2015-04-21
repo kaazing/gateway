@@ -79,8 +79,8 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.io.IoMessage;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionParameter;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionParameter;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.gateway.transport.wsr.WsrSession;
@@ -1858,11 +1858,11 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     */
                     protocolAttributes = new JSONObject();
 
-                    List<WsExtension> extensions = wsBridgeSession.getWsExtensions().asList();
+                    List<ExtensionHeader> extensions = wsBridgeSession.getWsExtensions().asList();
                     if (extensions != null && extensions.size() > 0) {
                         JSONObject jsonObj = new JSONObject();
 
-                        for (WsExtension extension : extensions) {
+                        for (ExtensionHeader extension : extensions) {
                             String token = extension.getExtensionToken();
 
                             JSONArray paramsArray = null;
@@ -1870,7 +1870,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                             if (extension.hasParameters()) {
                                 paramsArray = new JSONArray();
 
-                                for (WsExtensionParameter param : extension.getParameters()) {
+                                for (ExtensionParameter param : extension.getParameters()) {
                                     String name = param.getName();
                                     String value = param.getValue();
 
