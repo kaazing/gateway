@@ -190,7 +190,7 @@ See [Import or export certificates and private keys](http://windows.microsoft.co
 5. Confirm that the URL matches the URL you entered and click **Add**, and then click **Close**.
 6. Close **Internet Options**.
 7. Refresh the web page.
-8. >At the prompt **There is a problem with this website's security certificate**, choose **Continue to this website (not recommended)**.
+8. At the prompt **There is a problem with this website's security certificate**, choose **Continue to this website (not recommended)**.
 9. Click **Certificate Error** in the address bar and click **View certificates**.
 10. Click **Install Certificate**, and then click **Next** in the **Certificate Import Wizard**.
 11. Select **Place all certificates in the following store**.
