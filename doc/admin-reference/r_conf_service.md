@@ -1382,7 +1382,7 @@ The following example shows a `connect-option` element with the `socks.mode` set
 </service>
 ```
 
-#### <a name="conn_sockstimeout"></a>socks.timeout  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### <a name="conn_sockstimeout"></a>socks.timeout![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1422,7 +1422,7 @@ The following example shows a `socks.timeout` that is set to 10 seconds in line 
 </service>
 ```
 
-#### <a name="sockssslciphers"></a>socks.ssl.ciphers  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### <a name="sockssslciphers"></a>socks.ssl.ciphers![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
 
@@ -1465,7 +1465,7 @@ The following example shows a `proxy` service for the DMZ Gateway in an Enterpri
 -   Typos or incorrect strings (or unsupported ciphers) in `socks.ssl.ciphers` are noticed by the Gateway when a connection is made, not on startup. These errors are only discoverable by looking at the Gateway log.
 -   TLS/SSL is used to verify the Gateway to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
 
-#### socks.ssl.verify-client  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.ssl.verify-client![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
 
@@ -1514,7 +1514,7 @@ In the following example, the DMZ Gateway accepts on a WebSocket URI and connect
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 -   See [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
 
-#### socks.retry.maximum.interval  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### socks.retry.maximum.interval![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1539,7 +1539,7 @@ The following example shows a `service` element containing a SOCKS proxy connect
 </service>
 ```
 
-#### tcp.maximum.outbound.rate  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+#### tcp.maximum.outbound.rate![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
