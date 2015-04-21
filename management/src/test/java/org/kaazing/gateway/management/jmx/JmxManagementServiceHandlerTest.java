@@ -24,7 +24,6 @@ package org.kaazing.gateway.management.jmx;
 import java.net.URI;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -57,7 +56,7 @@ public class JmxManagementServiceHandlerTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testNoJMXBindingNameConflictsOnMultiServicesUsingSameAccept() throws Exception {
         /**
          * Point of test is to make sure that the JMX bean created for the services do not throw an exception about
