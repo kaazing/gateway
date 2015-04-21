@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="overview_aaa"></a>About Authentication and Authorization
+About Authentication and Authorization
 =======================================================================================
 
 The following topics describe the concepts behind authentication and authorization with the Gateway:

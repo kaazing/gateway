@@ -2,52 +2,46 @@
 -   [Documentation](../index.md)
 -   Using the Gateway to Support High Availability
 
-<a name="ha_config"></a>Using the Gateway to Support High Availability 
+Using the Gateway to Support High Availability
 ================================================================================================
 
 You can configure KAAZING Gateway to be highly available, something that is mission critical to the success of today's enterprises. Configuring KAAZING Gateway for high availability protects applications from hardware and software failures.
 
 This document describes the various aspects of high availability configuration:
 
--   [Gateway Clustering](#ha_cluster)
--   [Load Balancing Services](#ha_balance)
--   [Clustering and Load Balancing Migration](#migrate)
--   [Configure a Two-Member Local Demo Cluster](#demo)
+-   [Gateway Clustering](#gateway-clustering)
+-   [Load Balancing Services](#load-balancing-services)
+-   [Clustering and Load Balancing Migration](#clustering-and-load-balancing-migration)
+-   [Configure a Two-Member Local Demo Cluster](#configure-a-two-member-local-demo-cluster)
 
 To resolve issues encountered when configuring high availability, see [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md).
 
-<a name="ha_cluster"></a>Gateway Clustering
+Gateway Clustering
 -------------------------------------------
 
 High availability for services is achieved by configuring multiple gateways to be part of a cluster. Combining two or more Gateways in a cluster creates a single entity from the client's point of view. A clustered configuration is an essential part of hardware and software failover preparation.
 
-### <a name="cluster_overview"></a>Overview of Gateway Clustering
+### Overview of Gateway Clustering
 
 You configure a cluster by adding the `cluster` configuration element to the `gateway-config.xml` file. In the `cluster` element, you add the address on which the Gateway instance is listening for other cluster members (typically, the local IP address of the Gateway) and the cluster group address used by all cluster members to discover other cluster members.
 
 There is no concept of cluster masters and slaves; each cluster member has its own connection to the back-end server. If a cluster member terminates unexpectedly, the KAAZING Gateway client will reconnect to the cluster.
 
 1.  The cluster members come online, discover the cluster members, and establish connections with the other cluster members. This is shown in the following figure (the back-end server is omitted):
-    <figure>
+
     ![](../images/f-ha-cluster-start-web.jpg)
-    <figcaption>
-    
-**Figure: Cluster Member Connections During Steady State**
 
-    </figcaption>
-    </figure>
+    **Figure: Cluster Member Connections During Steady State**
+
 2.  In the case when one of the cluster members terminates unexpectedly, then the KAAZING Gateway clients connected to that member will reconnect to the cluster and other members will no longer redirect to that cluster member. This is shown in the following figure:
-    <figure>
-    ![This figure shows a cluster of three members but one member has failed. The two surviving cluster members and the clients reestablish connections to each other and no longer connect to the failed node.](../images/f-ha-cluster-fail-web.jpg)
-    <figcaption>
-    
-**Figure: Cluster Member Connections After a Failure**
 
-    </figcaption>
-    </figure>
+    ![This figure shows a cluster of three members but one member has failed. The two surviving cluster members and the clients reestablish connections to each other and no longer connect to the failed node.](../images/f-ha-cluster-fail-web.jpg)
+
+    **Figure: Cluster Member Connections After a Failure**
+
 3.  When the cluster member is brought back online, it starts participating again in the cluster as usual. Clustering is used in conjunction with load balancing (via the load balancing features of the Gateway or a third-party load balancer), which is described in the [Load Balancing Services](#ha_balance) section.
 
-<span id="ha_balance"></span></a>Load Balancing Services
+Load Balancing Services
 --------------------------------------------------------
 
 KAAZING Gateway provides the `balancer` service, which allows you to balance load for requests from any Gateway service type. Services running on KAAZING Gateway support peer load balancer awareness with the `balance` element.
@@ -68,7 +62,7 @@ The load balancing process occurs as follows:
 
     **Note**: The Gateways (members) of a KAAZING Gateway cluster share information across the cluster. If a connection or one of the Gateways fails, then a client can connect to another member within the cluster.
 
-<a name="migrate"></a>Clustering and Load Balancing Migration
+Clustering and Load Balancing Migration
 -------------------------------------------------------------
 
 The following checklists describe how to migrate a KAAZING Gateway 3.3-3.5 load-balanced cluster to KAAZING Gateway 4.x. The tasks in the checklists are a part of the overall Gateway configuration migration sequence described in the [Migrate the Gateway Configuration](../upgrade/p_migrate_gwconfig.md) topic. Before you migrate your existing cluster, review the procedures in [Configure the Gateway for High Availability](o_ha.md).
@@ -89,7 +83,7 @@ The following checklists describe how to migrate a KAAZING Gateway 3.3-3.5 load-
 | 3   | Copy the `balancer` service to each cluster member.                                                                                                                                                                 | In KAAZING Gateway 3.3-3.5, there was the concept of a single Gateway running a `balancer` service on behalf of the other cluster members (a *balancer Gateway*). In KAAZING Gateway 4.x, every cluster member with a load-balanced service must include a `balancer` service.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 4   | Configure DNS to support the load-balanced cluster members.                                                                                                                                                         | The hostname in the `accept` element of each `balancer` service must resolve in DNS to the IP addresses of every cluster member. Multiple DNS A resource records should be registered for the hostname in the `accept` URI, with each A record mapping the hostname to the IP address of one cluster member. When a client resolves the hostname of the `accept` URI in DNS, the client will receive the IP address of a cluster member and connect. To register these DNS records, you will need access to the public DNS zone for the hostname, or the assistance of your network administrator or Internet Service Provider (ISP). All ISPs provide ways for their customers to update their DNS zones with new hostnames and IP addresses. **Note:** During development and testing, you might choose to alter the [hosts](http://en.wikipedia.org/wiki/Hosts_(file)) file of the cluster members instead of registering DNS records. This is not recommended for production as it can complicate troubleshooting. |
 
-<a name="demo"></a>Configure a Two-Member Local Demo Cluster
+Configure a Two-Member Local Demo Cluster
 ------------------------------------------------------------
 
 The following steps walk you through setting up a two-member cluster with load-balanced services on your local server. The local cluster will help you learn about setting up, monitoring, and managing a cluster without having to use multiple servers.
@@ -98,7 +92,7 @@ The following steps walk you through setting up a two-member cluster with load-b
     1.  Open the hosts file on your computer. For information on the location of the hosts file on your operating system, see [hosts (file)](http://en.wikipedia.org/wiki/Hosts_(file)#Location_in_the_file_system) on Wikipedia.
     2.  Add the following entries to the hosts file:
 
-        ``` auto-links:
+        ``` xml
         172.19.19.4   example.com
         172.19.19.5   example.com
 
@@ -117,14 +111,15 @@ The following steps walk you through setting up a two-member cluster with load-b
     -   Determine which active interface to use for the virtual interface. On Linux and Mac, use the command `ifconfig -a`. On Windows, use `netsh interface ipv4 show interfaces`. Active interfaces will have `status: active` in their description. Choose an active interface, and substitute its name for `eth0` (Linux), `en1` (Mac) or `Local Area Connection` (Windows) in the commands below, if necessary.
     -   For Linux, run each of the following commands:
 
-        sudo ifconfig eth0:1 172.19.19.4
+        `sudo ifconfig eth0:1 172.19.19.4`
 
-        sudo ifconfig eth0:2 172.19.19.5
+        `sudo ifconfig eth0:2 172.19.19.5`
 
         Set the default gateway with `route add default gw 172.16.120.2`.
 
         Your `ifconfig -a` output should now contain entries for each new subinterface:
 
+        ```
         eth0 Link encap:Ethernet HWaddr 5c:26:0a:14:ef:49
          ...
          eth0:1 Link encap:Ethernet HWaddr 5c:26:0a:14:ef:49
@@ -133,6 +128,7 @@ The following steps walk you through setting up a two-member cluster with load-b
          eth0:2 Link encap:Ethernet HWaddr 5c:26:0a:14:ef:49
          inet addr:172.19.19.5 Bcast:172.19.255.255 Mask:255.255.0.0
          ...
+         ```
 
         **Note:** To remove these temporary aliases, use the `down` command, for example: `sudo ifconfig eth0:1 down`
 
@@ -156,6 +152,7 @@ The following steps walk you through setting up a two-member cluster with load-b
 
         Your `ifconfig -a` output should now contain entries for each new subinterface:
 
+        ```
         en1: flags=8863<up,broadcast,smart,running,simplex,multicast> mtu 1500
          ether 68:a8:6d:1f:27:94
          inet6 fe80::6aa8:6dff:fe1f:2794%en1 prefixlen 64 scopeid 0x6
@@ -164,15 +161,17 @@ The following steps walk you through setting up a two-member cluster with load-b
          inet 172.19.19.5 netmask 0xffff0000 broadcast 172.19.255.255
          media: autoselect
          status: active
+         ```
 
     -   For Windows, run each of the following commands (this configuration can also be performed using the **Advanced TCP/IP Settings** dialog in Windows):
 
-        netsh interface ipv4 set address name="Local Area Connection" source=static addr=172.19.19.4 mask=255.255.255.0 gateway=172.16.120.2
+        `netsh interface ipv4 set address name="Local Area Connection" source=static addr=172.19.19.4 mask=255.255.255.0 gateway=172.16.120.2`
 
-        netsh interface ipv4 set address name="Local Area Connection" source=static addr=172.19.19.5 mask=255.255.255.0 gateway=172.16.120.2
+        `netsh interface ipv4 set address name="Local Area Connection" source=static addr=172.19.19.5 mask=255.255.255.0 gateway=172.16.120.2`
 
         Your `ipconfig /all` output should now contain entries for each new subinterface:
 
+        ```
         Ethernet adapter Local Area Connection:
          Connection-specific DNS Suffix . :
          Description . . . . . . . . . . . : Intel(R) PRO/1000 MT Network Connection
@@ -191,6 +190,7 @@ The following steps walk you through setting up a two-member cluster with load-b
          DHCPv6 Client DUID. . . . . . . . : 00-01-00-01-17-B1-FC-61-00-0C-29-5F-27-49
          DNS Servers . . . . . . . . . . . : 172.16.120.2
          NetBIOS over Tcpip. . . . . . . . : Enabled
+         ```
 
         **Note:** To remove these temporary aliases, use the `delete` command, for example: `netsh in ip delete address "Local Area Connection" 172.19.19.4`
 
@@ -207,13 +207,11 @@ The following steps walk you through setting up a two-member cluster with load-b
 
     -   For Mac and Linux:
 
-        ./gateway.start --config *GATEWAY\_HOME*/conf/cluster-member-1-config.xml
+        `./gateway.start --config *GATEWAY\_HOME*/conf/cluster-member-1-config.xml`
 
     -   For Windows:
 
-        gateway.start.bat --config *GATEWAY\_HOME*\\conf\\cluster-member-1-config.xml
-
-        The output should be:
+        `gateway.start.bat --config *GATEWAY\_HOME*\\conf\\cluster-member-1-config.xml`
 
 5.  From `GATEWAY_HOME/bin`, launch the second cluster member using the following command:
     -   For Mac and Linux:
@@ -224,15 +222,15 @@ The following steps walk you through setting up a two-member cluster with load-b
 
         gateway.start.bat --config *GATEWAY\_HOME*\\conf\\cluster-member-2-config.xml
 
-        The output should be:
-
         Once the second cluster member is running, the output in the command line for the first cluster member will read:
 
+        ```
         Members [2] {
          Member [172.19.19.4:5942] this
          Member [172.19.19.5:5943]
          }
          INFO Cluster member tcp://172.19.19.5:5943 is now online
+         ```
 
 6.  Run Command Center to view the cluster. For information on running Command Center, see [Monitor with Command Center](../management/p_monitor_cc.md).
 
@@ -245,7 +243,7 @@ The following steps walk you through setting up a two-member cluster with load-b
 7.  In a new Web browser tab, enter the following URL: `http://example.com:8001/`.
 8.  Click the **Demos** link and run some of the demos against the cluster. Then return to Command Center to monitor how the cluster manages client connections.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Configure the Gateway for High Availability](o_ha.md)

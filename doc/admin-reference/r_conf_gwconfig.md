@@ -7,27 +7,22 @@ Gateway-Config Reference
 
 This document describes the top-level `gateway-config` element.
 
-<a name="configuring"></a>Overview
+Overview
 ----------------------------------
 
 You must specify the `gateway-config` element in the Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) to configure KAAZING Gateway.
 
-<a name="gwconfig_elements"></a>Structure
+Structure
 -----------------------------------------
 
 Define the `gateway-config` element as the top-level element in your configuration file, under which you can specify any of the subordinate configuration elements:
 
-<ul>
-<li>
 gateway-config
-</li>
 -   [service](r_conf_service.md)
 -   [service-defaults](r_conf_serv_defs.md)
 -   [security](r_conf_security.md)
 -   [cluster](r_conf_cluster.md)
 
-</li>
-</ul>
 **Required?** Required; **Occurs:** exactly one
 
 `gateway-config` element is the root-level element for gateway configuration. `gateway-config` contains the following elements:
@@ -43,14 +38,12 @@ gateway-config
 
 The following is an example `gateway-config` element:
 
-``` auto-links:
+``` xml
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <gateway-config
     xmlns="http://xmlns.kaazing.com/2014/09/gateway">
-    .
-    .
-    .
+    ...
 
 </gateway-config>
 ```
@@ -64,6 +57,3 @@ Summary
 -------
 
 In this document, you learned about the Gateway `gateway-config` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
-
-</div>
-

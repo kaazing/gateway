@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure a KAAZING Gateway Cluster
 
-<a name="ha_config"></a>Configure a KAAZING Gateway Cluster 
+Configure a KAAZING Gateway Cluster
 =======================================================================================
 
 To create a cluster, you must configure multiple gateways to communicate with each other. This is accomplished by adding a `cluster` service to each Gateway. Once a `cluster` service is configured on each Gateway cluster member and the members are started, the clustered instances will handle connection-switching when another cluster member unexpectedly terminates. Cluster members share information about activity and which of their services are load balanced.
@@ -19,15 +19,14 @@ This procedure is part of [Configure the Gateway for High Availability](o_ha.md)
 3.  [Set Up KAAZING Gateway as a Load Balancer](p_ha_loadbalance.md)
 4.  [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
 
-<span id="cluster_config"></span></a>To Create a Cluster with the Gateway
+To Create a Cluster with the Gateway
 ----------------------------------------------------------------------------
 
 In this example, there are two Gateways. Each Gateway is listening on its IP address for incoming connections (`192.168.2.10` for the first Gateway and `192.168.2.11` for the second Gateway), and both are connecting to the cluster group address `udp://224.2.2.44:54327`.
 
 1.  On the first Gateway (`192.168.2.10`), add the following `cluster` configuration element in the Gateway configuration file (`GATEWAY_HOME/conf/gateway-config.xml`).
 
-    </p>
-    ``` auto-links:
+    ``` xml
           <cluster>
             <name>MyCluster</name>
             <accept>tcp://192.168.2.10:5942</accept>
@@ -46,7 +45,7 @@ In this example, there are two Gateways. Each Gateway is listening on its IP add
 
 2.  On the second Gateway (`192.168.2.11`), add the following `cluster` service element (note that its `name` and `connect` elements are identical to those in the `cluster` service on the first Gateway).
 
-    ``` auto-links:
+    ``` xml
               <cluster>
                 <name>MyCluster</name>
                 <accept>tcp://192.168.2.11:5942</accept>
@@ -60,7 +59,9 @@ In this example, there are two Gateways. Each Gateway is listening on its IP add
 4.  Monitor the cluster using the steps in [Monitor with Command Center](../management/p_monitor_cc.md). To monitor a cluster, the default URL is: `http://localhost:8080/commandcenter`.
 5.  When you shut down one of the instances, you should see the following message in the terminal that was used to start the remaining gateway instance:
 
+    ```
     INFO Cluster member /192.168.2.10:5942 is down
+    ```
 
 Next Step
 ---------
@@ -70,10 +71,10 @@ Next Step
 Notes
 -----
 
--   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#demo).
+-   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#configure-a-two-member-local-demo-cluster).
 -   To configure clustering in an Enterprise Shield&trade; topology, see [Configure Enterprise Shield&trade; in a Cluster](../reverse-connectivity/p_rc_cluster.md).
 
-<a name="summary"></a>Summary
+Summary
 -----------------------------
 
 In this document, you learned about configuring the Gateway for clustering. For more information about Gateway administration, see the [documentation](../index.md).

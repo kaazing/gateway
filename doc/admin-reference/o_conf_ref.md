@@ -21,5 +21,3 @@ See Also
 
 -   [Understanding KAAZING Gateway Configuration Files, Elements, and Namespaces](c_conf_concepts.md)
 
-</div>
-

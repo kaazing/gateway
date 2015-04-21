@@ -6,13 +6,13 @@ Documentation Conventions
 ================================================
 
 This topic contains the following sections:
--   [Text Conventions](#docconventions)
--   [About URI Syntax](#urlsyntax)
--   [About Ports](#aboutports)
--   [About KAAZING\_HOME](#kaazinghome)
--   [About GATEWAY\_HOME](#gatewayhome)
+-   [Text Conventions](#text-conventions)
+-   [About URI Syntax](#about-uri-syntax)
+-   [About Ports](#about-ports)
+-   [About KAAZING\_HOME](#about-kaazing_home)
+-   [About GATEWAY\_HOME](#about-gateway_home)
 
-<a name="docconventions"></a>Text Conventions
+Text Conventions
 ---------------------------------------------
 
 The following text conventions are used in the KAAZING Gateway topics:
@@ -23,11 +23,10 @@ The following text conventions are used in the KAAZING Gateway topics:
 | **bold**      | Bold typeface indicates graphical user interface elements associated with an action, or terms defined in text or the glossary. It also indicates your location in a series of steps such as in the "Before You Begin" section in any procedural topic.                                                                                                                                                                                                                                                                                                       |
 | *italic*      | Italic type indicates book titles, emphasis, or placeholder variables for which you supply particular values.                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `monospace`   | Monospace type indicates commands within a paragraph, URLs, code in examples, text that appears on the screen, or text that you enter.                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| .             
-  .             
-  .             | A vertical ellipsis indicates that a portion of an example that would normally be present is not shown.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ...             | An ellipsis indicates that a portion of an example that would normally be present is not shown.
 
-<a name="urlsyntax"></a>About URI Syntax
+
+About URI Syntax
 ----------------------------------------
 
 The Gateway documentation uses a generic URI scheme that has the following components:
@@ -57,7 +56,7 @@ In addition, you can append a query string to the URL to provide non-hierarchica
 -   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
 -   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_conf_multipleservices.md#configmultsrvcs)
 
-<a name="aboutports"></a>About Ports
+About Ports
 ------------------------------------
 
 The following table lists ports that are commonly used in the documentation.
@@ -82,14 +81,14 @@ The following table lists ports that are commonly used in the documentation.
 | 61616-61617 | Default Apache ActiveMQ TCP and SSL ports                                                                                                  |
 | 61222       | Default Apache ActiveMQ XMPP port                                                                                                          |
 
-<a name="kaazinghome"></a>About KAAZING\_HOME
+About KAAZING\_HOME
 ---------------------------------------------
 
-By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#gatewayhome) to learn more about Gateway directory destinations.
+By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
 
 This documentation assumes you are running the Gateway from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
 
-<a name="gatewayhome"></a>About GATEWAY\_HOME
+About GATEWAY\_HOME
 ---------------------------------------------
 
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:

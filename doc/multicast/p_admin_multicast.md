@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure the Gateway to Use Multicast
 
-<a name="multicast"></a>Configure the Gateway to Use Multicast
+Configure the Gateway to Use Multicast
 =======================================================================================
 
 This procedure demonstrates how to configure a service that is running on KAAZING Gateway to use a multicast address (for example, a broadcast service).
@@ -14,7 +14,7 @@ This procedure demonstrates how to configure a service that is running on KAAZIN
 
 The following example shows a service using a multicast address. In the example, data packets sent to `udp://multicast-group:port` (shown in line 7) with udp-interface `eth0` (shown in line 9) will be broadcast to all clients connected to `sse://localhost:8000/sse`.
 
-``` auto-links:
+``` xml
 <!-- Broadcast multicast messages -->
 <service>
   <accept>sse://localhost:8000/sse</accept>
@@ -36,7 +36,6 @@ The following example shows a service using a multicast address. In the example,
 </service>
 ```
 
-
 To verify this configuration, you can start the newsfeed data source that ships with KAAZING Gateway and pass the multicast URI you configured as a startup argument. To do this, perform the following steps:
 
 1.  Add the above example to `GATEWAY_HOME/conf/gateway-config.xml` but configure ` udp-interface` to `lo0` (or bind to an interface available for your system). You might need to comment out any other `service` elements using the same `accept` or `connect`.
@@ -47,11 +46,8 @@ To verify this configuration, you can start the newsfeed data source that ships 
 
 You can now configure and run a second KAAZING Gateway to serve server-sent event streams from a different host and port for the same newsfeed multicast data packets. Note that services cannot send UDP packets to an MCP acceptor, nor MCP packets to a UDP acceptor.
 
-
-<a name="see_also"></a>See Also
+See Also
 -------------------------------
 
 -   The `broadcast` element in the Service Reference.
 -   [Classful Networks](http://en.wikipedia.org/wiki/Classful_network "Follow link") for more information about Class D address classes.
-
-

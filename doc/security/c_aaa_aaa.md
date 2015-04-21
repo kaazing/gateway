@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="concepts_aaa"></a>About Authentication and Authorization
+About Authentication and Authorization
 =======================================================================================
 
 You can configure KAAZING Gateway for secure communication between clients and the Gateway to ensure that only the intended recipient of a message can read the transmitted message and can trust that the message is from the expected source. The Gateway protects your data and authenticates that users are who they say they are, and that they take only authorized actions.
@@ -14,11 +14,9 @@ KAAZING Gateway supports HTTP authentication and authorization methods and techn
 
 The Gateway also integrates with Java Authentication and Authorization Service (JAAS), which is a standards-based Java security framework and API that enables services to verify and enforce access controls on users. Being based on JAAS means that you can plug any authentication technology into the Gateway, providing the ability to upgrade your existing authentication technology or move to another provider without requiring changes to your applications.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Configure Authentication and Authorization](o_aaa_config_authentication.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
-
-
