@@ -20,6 +20,6 @@ The following topics provide conceptual information to help you understand secur
 - [About Secure Networking and the Gateway](o_sec_tls.md)
   - [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
   - [How TLS/SSL Works with the Gateway](u_tls_works.md)
-- [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md#whatis) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+- [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md#about-enterprise-shield) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 
