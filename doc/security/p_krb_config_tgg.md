@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure a Ticket Granting Gateway
 
-<a name></a>Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 =======================================================================================
 
 In this procedure, you will learn how to configure KAAZING Gateway as a Ticket Granting Gateway to proxy Kerberos protocol traffic from clients to a KDC.
@@ -21,7 +21,7 @@ To Configure a Ticket Granting Gateway
 
 1.  Define a service (preferably using the WebSocket Secure scheme, `wss://`) that provides access to the Kerberos server at the authentication connection location as shown in lines 2 and 4 in the following example. **Note:** The default port for Kerberos traffic is 88.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>wss://gateway.example.com:9002/kerberos5</accept>
       <connect>udp://kdc.example.com:88</connect>
@@ -42,18 +42,16 @@ This allows the client to access the TGG as required by `Application Negotiate` 
 Next Steps
 ----------
 
-After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md#dev_topics) documentation for developers.
+After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 
 Notes
 -----
 
 -   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
 -   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
-
-
