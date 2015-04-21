@@ -2,10 +2,11 @@
 -   [Documentation](../index.md)
 -   Secure the Gateway Using Self-Signed Certificates
 
-<a name="tls_selfsigned_proc"></a>Secure the Gateway Using Self-Signed Certificates
+Secure the Gateway Using Self-Signed Certificates
 ============================================================================================================
 
-<span class="alert">**Warning:** Using self-signed certificates can result in unpredictable behavior because various browsers, plug-ins, operating systems, and related run-time systems handle self-signed certificates differently. Resulting issues may include connectivity failures and other security issues which can be difficult to diagnose. Instead, use [trusted certificates](p_tls_trusted.md) issued from a trusted certificate authority (CA) for real-world development, test, and production environments.</span>
+**Warning:** Using self-signed certificates can result in unpredictable behavior because various browsers, plug-ins, operating systems, and related run-time systems handle self-signed certificates differently. Resulting issues may include connectivity failures and other security issues which can be difficult to diagnose. Instead, use [trusted certificates](p_tls_trusted.md) issued from a trusted certificate authority (CA) for real-world development, test, and production environments.
+
 You can configure secure networking between KAAZING Gateway and its clients and back-end servers using **self-signed certificates**. A self-signed certificate is not issued from a trusted Certificate Authority (CA), but created independently and intended for limited use between individuals that trust its autonomy.
 
 In this procedure, you will do the following:
@@ -34,7 +35,7 @@ To Secure Gateway Connections Using Self-Signed Certificates
     1.  To create the password file, create a new text file using a text editor, enter a password, and save the password file in the directory `GATEWAY_HOME/conf` with the file extension .pw (for example, mykeystore.pw).
     2.  To configure the Gateway to use the custom keystore and password file, open the `GATEWAY_HOME/conf/gateway-config.xml` file in a text editor and update the `keystore` element (contained in the `security` element) to use the new keystore and the password file you created, as shown in the following example:
 
-        ``` auto-links:
+        ``` xml
                  <keystore>
                       <type>JCEKS</type>
                       <file>mykeystore.db</file>
@@ -51,9 +52,13 @@ To Secure Gateway Connections Using Self-Signed Certificates
 
     Here is an example of how to create these components:
 
+    ```
     keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\mykeystore.db -storetype JCEKS -storepass password -alias example.com -keyalg RSA -dname "CN=example.com, OU=Example, O=Example, L=Mountain View, ST=California, C=US"
+    ```
 
-    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md). **Notes:** 
+    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md). 
+    
+    **Notes:** 
 
     -   The password value for `-storepass` is in the keystore password file that is located in the `GATEWAY_HOME/conf` folder (for example, keystore.pw). You can open the file with a text editor to read the default password and enter it in the command.
     -   This example command generates a key pair (public key and its associated private key) and wraps the public key into an X.509 self-signed certificate. Both the key pair and the certificate are stored in the keystore file and identified by `example.com` (as specified by the `-alias` parameter).
@@ -61,23 +66,21 @@ To Secure Gateway Connections Using Self-Signed Certificates
     -   The default size of generated keys is 1024 bytes. Certificate authorities are now requiring larger key sizes. To address this, you can add an optional parameter and specify the desired size, such as `-keysize 2048`.
     -   Although there are other tools available for making certificates, keytool is required because the Gateway uses the keystore database file created by keytool.
 
-    </span>
-
     The Gateway is now configured with a certificate for its host name, and you can use the host name to accept secure connections from clients over HTTPS or WSS.
 
 5.  Configure the Gateway to accept secure communication requests at the same host name used in the certificate.
 
     For example, create a new `service` element and specify the secure URL (HTTPS) in the accept parameter for the directory service, as shown in the following example:
 
-    ``` auto-links:
-             <service>
-                  <accept>https://www.example.com:9000/</accept>
-                  <type>directory</type>
-                  <properties>
-                      <directory>/base</directory>
-                      <welcome-file>index.md</welcome-file>
-                  </properties>
-              </service>
+    ``` xml
+     <service>
+          <accept>https://www.example.com:9000/</accept>
+          <type>directory</type>
+          <properties>
+              <directory>/base</directory>
+              <welcome-file>index.md</welcome-file>
+          </properties>
+      </service>
     ```
 
 6.  Save `gateway-config.xml`.
@@ -87,36 +90,31 @@ To Secure Gateway Connections Using Self-Signed Certificates
 
 8.  Once the Gateway is running, enter the secure URL in a web browser using HTTPS, for example `https://www.example.com:9000`. The browser will display a warning stating that the certificate is not trusted. The warning is the result of using a self-signed certificate instead of a trusted certificate created by a Certification Authority. Accept the untrusted certificate and proceed to the web page.
 
-    <figure>
     ![A browser displays a warning stating that the certificate is not trusted](../images/tls-browser-untrusted-cert.png)
+    **Figure: A browser displays a warning stating that the certificate is not trusted**
 
-    <figcaption>
-    
-**Figure: A browser displays a warning stating that the certificate is not trusted**
-
-
-    </figcaption>
-    </figure>
-    For information about importing a certificate into a web browser, see [Importing Self-Signed Certificates into a Web Browser](p_tls_clientapp.md#tls_import_browser).
+    For information about importing a certificate into a web browser, see [Importing Self-Signed Certificates into a Web Browser](p_tls_clientapp.md#to-import-self-signed-certificates-into-a-web-browser).
 
     At this point, you have a self-signed certificate and have configured secure networking between the Gateway and web browser clients. Now you can configure the Gateway to connect securely with the back-end server by creating a self-signed certificate for the host name of the back-end server in the **truststore** on the Gateway. The truststore contains the certificates for use between the Gateway and back-end servers.
 
 9.  Create the self-signed certificate for the server connection using the host name of the back-end server and save it in the truststore:
 
+    ```
     keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -alias offline.example.com -keyalg RSA -dname "CN=offline.example.com, OU=Example, O=Example, L=Mountain View, ST=California, C=US"
+    ```
 
     To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
 
-    Gateway is now configured with a certificate for the host name of the back-end server, and you can use the host name to connect to the back-end server over TLS/SSL. As an example, configure the Gateway to act as a back-end server proxy for the secure networking requests from the client.
+    The Gateway is now configured with a certificate for the host name of the back-end server, and you can use the host name to connect to the back-end server over TLS/SSL. As an example, configure the Gateway to act as a back-end server proxy for the secure networking requests from the client.
 
 10. Open `gateway-config.xml` again and add a new `service` element, as shown in the following example:
 
-    ``` auto-links:
-             <service>
-                  <accept>wss://www.example.com:9001/</accept>
-                  <connect>ssl://offline.example.com:61617</connect>
-                  <type>proxy</type>
-              </service>
+    ``` xml
+         <service>
+              <accept>wss://www.example.com:9001/</accept>
+              <connect>ssl://offline.example.com:61617</connect>
+              <type>proxy</type>
+          </service>
     ```
 
     The Gateway will use the new `service` element to act as a proxy for the back-end server. The `service` element contains an `accept` URL for the WSS connection from the client and a `connect` URL for the connection to the back-end server using the security protocol of the back-end server (for example, SSL).
@@ -140,10 +138,8 @@ Notes
 -   To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH,MEDIUM,ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
 -   If you choose to use a password when generating key pairs (optional), ensure that all of the keys in your keystore are secured with the same password as the keystore. If no password is provided when generating a key pair (via `-genkeypair`), you are prompted for a password. If you press RETURN at the prompt, the key password is set to the same password as that used for the keystore. [Keytool](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html) allows you to secure keys with individual passwords (via the `-keypass` option) and add them into a keystore that uses a different password (via the <span class="uri" style="white-space:nowrap;">-storepass</span> option). When the Gateway attempts to access a key in a keystore configured in this manner, the Gateway fails to start and generates a Null Pointer Exception. The command `-keypasswd` changes the password under which the private key is protected. The command `-storepasswd` changes the password used to protect the integrity of the keystore contents.
 
-<a name="see_also"></a>See Also
+See Also
 -------------------------------
 
 -   [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
 -   [How TLS/SSL Works with the Gateway](u_tls_works.md)
-
-
