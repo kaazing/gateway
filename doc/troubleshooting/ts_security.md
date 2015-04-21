@@ -98,7 +98,7 @@ The preferred name for the auth-constraint configuration option has changed to a
 
 **Cause:** When the same host and port is configured as secure in one service and not secure in another service the following error may occur:
 
-    `example.com IP:443 is configured as a secure port in a service already and cannot be bound as an unsecure port in service wss://example.com:443/echo`
+    example.com IP:443 is configured as a secure port in a service already and cannot be bound as an unsecure port in service wss://example.com:443/echo
 
 For example, the error could occur at runtime for the following configuration because there is more than one service in use and one or more of the services is behind an SSL offloader:
 
