@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure Authorization
 
-<a name="authorization"></a>Configure Authorization
+Configure Authorization
 =========================================================================
 
 After the client is authenticated, then authorization works to verify and grant access to sensitive resources. Access to services provided by KAAZING Gateway can be limited to only authorized users by setting authorization constraints. You configure the `authorization-constraint` element in the Gateway configuration to specify the user roles that are authorized to perform management operations for Gateway services. The `authorization-constraint` element contains the `require-role` element.
@@ -40,7 +40,7 @@ To Configure Authorization
 
     For example, suppose that a client requests content from an URL for which the directory service for the URL is configured to have a security (authorization) constraint.
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>http://${gateway.hostname}:${gateway.extras.port}/</accept>
 
@@ -74,12 +74,10 @@ Next Steps
 
 Ensure your clients are also configured for secure networking using Transport Layer Security (TLS) and its predecessor Secure Sockets Layer (SSL). Please see [Secure Network Traffic with the Gateway](o_tls.md) that provides the steps necessary to secure network traffic.
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   []Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
-
-
