@@ -9,7 +9,7 @@ This checklist provides the steps necessary to secure network traffic with KAAZI
 
 | Step                                                                                                                 | Topic or Reference                                                                                               |
 |----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| Learn about Transport Layer Security (TLS/SSL), and about how TLS/SSL works with the Gateway.                        | [Transport Layer Security (TLS/SSL) Concepts](c_tls.md) [How TLS/SSL Works with the Gateway](u_tls_works.md) |
+| Learn about Transport Layer Security (TLS/SSL), and about how TLS/SSL works with the Gateway.                        | [Transport Layer Security (TLS/SSL) Concepts](c_tls.md), [How TLS/SSL Works with the Gateway](u_tls_works.md) |
 | (Recommended) Use trusted certificates issued by a Certificate Authority to secure network traffic with the Gateway. | [Secure the Gateway Using Trusted Certificates](p_tls_trusted.md)                                                |
 | (Optional) Use self-signed certificates to secure network traffic with the Gateway.                                  | [Secure the Gateway Using Self-Signed Certificates](p_tls_selfsigned.md)                                         |
 | (Optional) Use self-signed certificates to secure network traffic between clients, web browsers and the Gateway.     | [Secure Clients and Web Browsers with a Self-Signed Certificate](p_tls_clientapp.md)                             |
