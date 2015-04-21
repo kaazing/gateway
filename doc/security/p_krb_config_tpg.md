@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure a Ticket Protected Gateway
 
-<a name="howto_tpg"></a>Configure a Ticket Protected Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure a Ticket Protected Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 ====================================================================================================
 
 In this procedure, you will learn how to configure KAAZING Gateway as a Ticket Protected Gateway to accept a Kerberos service ticket from a browser client.
@@ -28,7 +28,7 @@ To Configure a Ticket Protected Gateway
 
     The following example shows the Application Negotiate `http-challenge-scheme` element, a `principal` element using the correct format, and a `gss` login-module:
 
-    ``` auto-links:
+    ``` xml
     <security>
         <realm>
             <name>demo</demo>
@@ -62,18 +62,17 @@ Notes
 -----
 
 -   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_aaa_kerberos.md#gssapimech).
--   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md#dev_topics) documentation for developers.
+-   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 -   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 
 Next Steps
 ----------
 
 [Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
 -   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
-
-
