@@ -7,7 +7,7 @@ Troubleshoot KAAZING Gateway Configuration and Startup
 
 When you set up and configure KAAZING Gateway, you may encounter one of the errors described in this topic. To resolve an issue, follow the guidance provided for the associated error.
 
-<a name="all_trouble"></a></span>Troubleshooting KAAZING Gateway
+Troubleshooting KAAZING Gateway
 ---------------------------------------------------------------------
 
 This topic is part of [Troubleshoot KAAZING Gateway](o_ts.md) that groups troubleshooting topics into the categories shown in the following table:
@@ -22,18 +22,18 @@ This topic is part of [Troubleshoot KAAZING Gateway](o_ts.md) that groups troubl
 What Problem Are You Having?
 ----------------------------
 
--   [Port 8000 or 8001 Is Already in Use](#portconflict)
--   [Maximum Number of Connections Reached or Exceeded](#numconnections)
--   [Too Many Open Files Warning](#ulimit)
--   <a href="#outofmemory_error">Out of Memory Error When Starting KAAZING Gateway
--   [Error Starting KAAZING Gateway on the Microsoft Vista Operating System](#ipv6_error)
--   [Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.](#nobind)
--   [Error When Starting the Gateway: String Value [*'value'*] does not match pattern for DataSize in namespace](#invalidbuffervalue)
--   [Warning: Error on WebSocket connection](#wsmaxmsgwarn)
--   [Warning: ERROR string value '*value*' does not match pattern](#wsmaxbadvalue)
--   [Localhost Is Not Configured](#localhostnot)
--   [Demos Do Not Work When Using Fiddler Web Debugger as an HTTP Proxy](#fiddler)
--   [Error Using the Gateway to Proxy From Back-End Server over TCP to Client over WebSocket](#bytesocket)
+-   [Port 8000 or 8001 Is Already in Use](#port-8000-or-8001-is-already-in-use)
+-   [Maximum Number of Connections Reached or Exceeded](#maximum-number-of-connections-reached-or-exceeded)
+-   [Too Many Open Files Warning](#too-many-open-files-warning)
+-   [Out of Memory Error When Starting KAAZING Gateway](out-of-memory-error-when-starting-kaazing-gateway)
+-   [Error Starting KAAZING Gateway on the Microsoft Vista Operating System](#error-starting-kaazing-gateway-on-the-microsoft-vista-operating-system)
+-   [Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.](#error-unable-to-bind-to-resource-network-address--network-address-cause-address-already-in-use)
+-   [Error When Starting the Gateway: String Value [*'value'*] does not match pattern for DataSize in namespace](#error-when-starting-the-gateway-string-value-value-does-not-match-pattern-for-datasize-in-namespace)
+-   [Warning: Error on WebSocket connection](#warning-error-on-websocket-connection)
+-   [Warning: ERROR string value '*value*' does not match pattern](#warning-error-string-value-value-does-not-match-pattern)
+-   [Localhost Is Not Configured](#localhost-is-not-configured)
+-   [Demos Do Not Work When Using Fiddler Web Debugger as an HTTP Proxy](#demos-do-not-work-when-using-fiddler-web-debugger-as-an-http-proxy)
+-   [Error Using the Gateway to Proxy From Back-End Server over TCP to Client over WebSocket](#error-using-the-gateway-to-proxy-from-back-end-server-over-tcp-to-client-over-websocket)
 
 ### <a name="portconflict"></a>Port 8000 or 8001 Is Already in Use
 
