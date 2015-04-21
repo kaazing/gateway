@@ -178,10 +178,11 @@ When using self-signed certificates with web browsers, you can import the self-s
 | Mozilla Firefox | See ["This Connection is Untrusted" error message appears - What to do from Mozilla.](https://support.mozilla.org/en-US/kb/connection-untrusted-error-message?esab=a&s=self+signed+certificate&r=3&as=s)                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | Opera           | See [Security certificates](http://help.opera.com/Mac/12.10/en/certificates.html) from Opera.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
-### Microsoft Internet Explorer
+#### Microsoft Internet Explorer
 See [Import or export certificates and private keys](http://windows.microsoft.com/en-US/windows-vista/Import-or-export-certificates-and-private-keys) and [Certificate errors: FAQ](http://windows.microsoft.com/en-us/internet-explorer/certificate-errors-faq#ie=ie-10) from Microsoft. 
 
 **For Internet Explorer 8 and 9**
+
 1. Navigate to the Gateway home using an HTTPS URL.
 2. At the prompt **There is a problem with this website's security certificate**, click **Continue to this website (not recommended)**.
 3. Click **Internet Options** on the **Tools** menu.
