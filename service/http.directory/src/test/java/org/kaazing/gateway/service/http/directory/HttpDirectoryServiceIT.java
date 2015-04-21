@@ -57,7 +57,7 @@ public class HttpDirectoryServiceIT {
                                 .property("directory", "/public")
                                 // We have to use this name (which is from TransportOptionNames) instead of "http.keepalive.timeout",
                                 // see Gateway.camelCaseToDottedLowerCase.
-                                .acceptOption("http.keepaliveTimeout", "3") // seconds
+                                .acceptOption("http.keepalive.timeout", "3") // seconds
                         .done()
                         .service()
                             .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))

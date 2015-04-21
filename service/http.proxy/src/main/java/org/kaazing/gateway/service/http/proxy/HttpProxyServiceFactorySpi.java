@@ -29,9 +29,11 @@ import org.kaazing.gateway.service.ServiceFactorySpi;
 
 public class HttpProxyServiceFactorySpi extends ServiceFactorySpi {
 
+    private static final Collection<String> SERVICE_TYPES = Collections.singletonList("http.proxy");
+
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.singletonList("http.proxy");
+        return SERVICE_TYPES;
     }
 
     @Override
