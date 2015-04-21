@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Integrate an Existing Custom Login Module into the Gateway
 
-<a name="existing_lm"></a>Integrate an Existing Custom Login Module into the Gateway
+Integrate an Existing Custom Login Module into the Gateway
 =============================================================================================================
 
 KAAZING Gateway supports a plug-in mechanism for integration with custom authentication modules based on the Java `LoginModule` API. This document provides an example of how you can use your existing custom login module with the Gateway.
@@ -30,7 +30,7 @@ To Integrate an Existing Custom Login Module into the Gateway
 2.  Compile your Java custom login module file into a JAR file and place it in `GATEWAY_HOME/lib`. You can also update the `CLASSPATH` to point to the desired directory containing the JAR file.
 3.  In the Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`), add the custom login module and set the `type` to point to `class:the-fully-qualified-class-name`. For example, if you are using the sample custom login module provided with the Gateway, the fully qualified class name is `org.kaazing.demo.loginmodules.CustomLoginModule`. The following is the `login-module` entry for this sample, as shown in line 2:
 
-    ``` auto-links:
+    ``` xml
     <login-module>
       <type>class:org.kaazing.demo.loginmodules.CustomLoginModule</type>
       <success>required</success>
@@ -39,7 +39,7 @@ To Integrate an Existing Custom Login Module into the Gateway
 
 4.  Enable configuration for the services that are required to use this custom login module to authenticate with the back-end server. You can do this using the `authorization-constraint` element. The following is an example of the echo service configured to use this custom login module, as shown in lines 6 through 8:
 
-    ``` auto-links:
+    ``` xml
     <service>
       <accept>ws://localhost:8001/echo</accept>
       <accept>wss://localhost:9001/echo</accept>
@@ -66,10 +66,11 @@ Next Steps
 ----------
 
 [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [Server API Documentation](../index.md#server_api_topics)
+-   [Server API Documentation](../index.md)
 
 
