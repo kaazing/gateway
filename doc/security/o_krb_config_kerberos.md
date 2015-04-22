@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Security with KAAZING Gateway](../index.md#security)
 
-<a name="howto_kerberos"></a>Configuring Kerberos V5 Network Authentication Overview ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configuring Kerberos V5 Network Authentication Overview ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 ============================================================================================================================
 
 KAAZING Gateway can be configured to accept a Kerberos service ticket (Ticket-Protected Gateway or TPG) from a browser client using a standard `Negotiate` challenge. Additionally, if you want to combine a TPG with a Ticket Granting Gateway (TGG) to proxy Kerberos protocol traffic from clients to a KDC, then you can configure the TPG to use the `Application Negotiate` challenge, which sends the Kerberos authentication protocol traffic over WebSocket to a TGG.
@@ -16,19 +16,14 @@ This procedure is part of [Configure Kerberos V5 Network Authentication](o_krb.m
 2.  [Configure a Ticket Protected Gateway](p_krb_config_tpg.md)
 3.  [Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
 
-<a name="nas"></a>How Does the Negotiate Authentication Scheme Work?
+How Does the Negotiate Authentication Scheme Work?
 --------------------------------------------------------------------
 
 In this configuration, access to a Kerberos ticket protected service is achieved as shown in the following figure:
 
-<figure>
 ![Negotiate authentication challenge to a Kerberos ticket protected service](../images/f-authentication-web-challenge-web.jpg)
-<figcaption>
-
 **Figure: Negotiate authentication challenge to a Kerberos ticket protected service**
 
-</figcaption>
-</figure>
 1.  A client running in the browser tries to access a ticket-protected service through a Ticket Protected Gateway (TPG).
 2.  TPG sends the `Negotiate` authentication challenge to the browser. `Negotiate` is a standard feature that programs such as the web browser can leverage to request an encrypted Kerberos ticket.
 3.  The browser requests the ticket directly from the KDC.
@@ -36,19 +31,14 @@ In this configuration, access to a Kerberos ticket protected service is achieved
 5.  The browser responds to the challenge from the TPG with the encrypted ticket.
 6.  If the ticket is valid, the client is granted access the ticket-protected service through a TPG.
 
-<a name="anas"></a>How Does the Application Negotiate Authentication Scheme Work?
+How Does the Application Negotiate Authentication Scheme Work?
 ---------------------------------------------------------------------------------
 
 In this configuration, a TPG and a Ticket Granting Gateway (TGG) proxy Kerberos protocol traffic from clients to a KDC. (The TPG is configured with the `Application Negotiate` authentication scheme to challenge clients.) The configuration uses both a TPG and a TGG to send the Kerberos authentication protocol traffic over WebSocket to the Ticket-Protected Service, as shown in the following figure:
 
-<figure>
 ![Application Negotiate authentication using a TPG and a TGG to proxy Kerberos protocol traffic from clients to a KDC](../images/f-authentication-kaazing-2b-web.jpg)
-<figcaption>
-
 **Figure: Application Negotiate authentication using a TPG and a TGG to proxy Kerberos protocol traffic from clients to a KDC**
 
-</figcaption>
-</figure>
 1.  A KAAZING Gateway client running in the browser tries to access a ticket-protected service through a Ticket Protected Gateway (TPG).
 2.  The TPG sends the authentication challenge `Application Negotiate` to the browser. `Application Negotiate` is the KAAZING Gateway feature that allows a client to use the Kerberos authentication protocol over WebSocket.
 3.  The client requests a ticket from the Ticket Granting Gateway (TGG).
@@ -65,7 +55,7 @@ The following example shows a sample `gateway-config.xml` entry for using Kerber
 
 ##### Ticket Granting Gateway (TGG)
 
-``` auto-links:
+``` xml
 <service>
     <accept>wss://example.com:9000/kerberos5</accept>
     <connect>tcp://kerberos.internal.example.com:88</connect>
@@ -78,7 +68,7 @@ The following example shows a sample `gateway-config.xml` entry for using Kerber
 
 ##### Ticket Protected Gateway (TPG)
 
-``` auto-links:
+``` xml
 <security>
      <realm>
         <name>demo</demo>
@@ -111,17 +101,17 @@ Next Steps
 
 [Configure a Ticket Protected Gateway](p_krb_config_tpg.md)
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
 -   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
 -   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
 
-<a name="notes"></a>Notes
+Notes
 -------------------------
 
--   For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md#dev_topics) documentation for developers.
+-   For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 -   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 
 

@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Secure the Gateway Using Trusted Certificates
 
-<a name="tls_trusted_proc"></a>Secure the Gateway Using Trusted Certificates
+Secure the Gateway Using Trusted Certificates
 =====================================================================================================
 
 You can configure secure networking between KAAZING Gateway and its clients and back-end servers using **trusted certificates issued by a Certificate Authority**. A trusted certificate can be issued from a trusted public Certificate Authority or a Certificate Authority within your company and trusted by both your enterprise clients and servers. Using a trusted certificate also ensures that WebSocket connections are not dropped by intermediaries in the network such as proxy servers and firewalls.
@@ -13,6 +13,7 @@ In this procedure, you will do the following:
 2.  Configure the Gateway with a trusted certificate for the back-end server’s host name, and configure the Gateway with a proxy service that accepts the WebSocket Secure (`wss://`) connection on the Gateway’s host name and connects over TLS/SSL to the back-end server. This will configure the Gateway for TLS/SSL connections to back-end servers.
 
 **Note:** You could choose to configure the proxy service only, as it configures both TLS/SSL client and server connections to the Gateway, but the directory service configuration is included because it is a useful method for learning client to Gateway TLS/SSL connections.
+
 Before You Begin
 ----------------
 
@@ -36,12 +37,12 @@ To Secure Gateway Connections Using Trusted Certificates
 
     To configure the Gateway to use the custom keystore and password file, open the `GATEWAY_HOME/conf/gateway-config.xml` file in a text editor and update the `keystore` element (contained in the `security` element) to use the new keystore and the password file you created, as shown in the following example:
 
-    ``` auto-links:
-                 <keystore>
-                      <type>JCEKS</type>
-                      <file>mykeystore.db</file>
-                      <password-file>mykeystore.pw</password-file>
-                  </keystore>
+    ``` xml
+         <keystore>
+              <type>JCEKS</type>
+              <file>mykeystore.db</file>
+              <password-file>mykeystore.pw</password-file>
+          </keystore>
     ```
 
 3.  Locate the Java `keytool` utility that is part of your Java installation. It can be found in the Java bin directory. For example, `C:\Program Files\Java\jdk1.7.0_21\bin` (Windows) or `/Library/Java/home/bin` (Mac OS X).
@@ -51,7 +52,9 @@ To Secure Gateway Connections Using Trusted Certificates
 
     1.  Create a private key for the host name the Gateway will use in its `accept` element (the host name clients will use when connecting to the Gateway):
 
+        ```
         keytool -genkeypair -alias example.com -keysize 2048 -keyalg RSA-keystore "*GATEWAY\_HOME*\\conf\\keystore.db" -storetype JCEKS-storepass *password*
+        ```
 
         You will be prompted to provide information about your organization. This information is used to verify the CSR in the future.
 
@@ -59,7 +62,9 @@ To Secure Gateway Connections Using Trusted Certificates
 
     2.  Generate the CSR using the same alias:
 
+        ```
         keytool -certreq -alias example.com -file certreq.txt-keystore "*GATEWAY\_HOME*\\conf\\keystore.db" -storetype JCEKS-keyalg RSA -storepass *password*
+        ```
 
         A text file containing the CSR is stored in the same folder as keystore.db.
 
@@ -69,7 +74,9 @@ To Secure Gateway Connections Using Trusted Certificates
 
     The following example shows how to import the certificate into the default keystore, called keystore.db, located in `GATEWAY_HOME/conf`.
 
+    ```
     keytool -importcert -keystore *GATEWAY\_HOME*\\conf\\keystore.db-storetype JCEKS -storepass *password* -alias example.com -file example.cer
+    ```
 
     The Gateway is now configured with a certificate for its host name, and you can use the host name to accept secure connections from clients over HTTPS or WSS.
 
@@ -77,15 +84,15 @@ To Secure Gateway Connections Using Trusted Certificates
 
     For example, create a new directory `service` element and specify URLs that use TLS/SSL (HTTPS or WSS) in the `accept` element for the directory service, as shown in the following example:
 
-    ``` auto-links:
-                 <service>
-                      <accept>https://www.example.com:9000/</accept>
-                      <type>directory</type>
-                      <properties>
-                          <directory>/base</directory>
-                          <welcome-file>index.md</welcome-file>
-                      </properties>
-                  </service>
+    ``` xml
+         <service>
+              <accept>https://www.example.com:9000/</accept>
+              <type>directory</type>
+              <properties>
+                  <directory>/base</directory>
+                  <welcome-file>index.md</welcome-file>
+              </properties>
+          </service>
     ```
 
 7.  Save `gateway-config.xml`.
@@ -95,16 +102,9 @@ To Secure Gateway Connections Using Trusted Certificates
 
     If you configured an HTTPS service on the Gateway, enter the URL in a web browser, for example https://www.example.com:9000. The web browser will indicate that the certificate is trusted and proceed to the secure web page.
 
-    <figure>
     ![A web browser indicates that the certificate is trusted](../images/tls-browser-trusted-cert.png)
+    **Figure: A web browser indicates that the certificate is trusted**
 
-    <figcaption>
-    
-**Figure: A web browser indicates that the certificate is trusted**
-
-
-    </figcaption>
-    </figure>
     At this point, you have a trusted certificate on the Gateway and have configured secure networking between the Gateway and clients for a directory service.
 
     Now you can configure the Gateway to connect securely with the back-end server by importing a Certificate Authority-issued certificate for the host name of the back-end server into the **truststore** on the Gateway. The truststore contains the CA-issued certificates for use between the Gateway and back-end servers.
@@ -113,7 +113,9 @@ To Secure Gateway Connections Using Trusted Certificates
 
     The following example shows how to import the certificate to the truststore, called truststore.db, located in `GATEWAY_HOME/conf/`:
 
+    ```
     keytool -importcert -keystore *GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -trustcacerts -alias example.com -file certificate.cer
+    ```
 
     The Gateway is configured with a certificate for the host name of the back-end server, and you can use the host name to connect to the back-end server over TLS/SSL. As an example, configure the Gateway to act as a back-end server proxy for the secure networking requests from the client.
 
@@ -121,12 +123,12 @@ To Secure Gateway Connections Using Trusted Certificates
 
     Add a `service` element using the `proxy` type to `gateway-config.xml`, for example:
 
-    ``` auto-links:
-                 <service>
-                      <accept>wss://www.example.com:9001/</accept>
-                      <connect>ssl://offline.example.com:61617</connect>
-                      <type>proxy</type>
-                  </service>
+    ``` xml
+         <service>
+              <accept>wss://www.example.com:9001/</accept>
+              <connect>ssl://offline.example.com:61617</connect>
+              <type>proxy</type>
+          </service>
     ```
 
     The Gateway uses the new `service` element to act as a proxy for the back-end server. The `service` element contains an `accept` URL for the WSS connection from the client and a `connect` URL for the connection to the back-end server using the security protocol supported by the back-end server.
@@ -149,10 +151,8 @@ Notes
 -   To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH,MEDIUM,ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
 -   If you choose to use a password when generating key pairs (optional), ensure that all of the keys in your keystore are secured with the same password as the keystore. If no password is provided when generating a key pair (via `-genkeypair`), you are prompted for a password. If you press RETURN at the prompt, the key password is set to the same password as that used for the keystore. [Keytool](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html) allows you to secure keys with individual passwords (via the `-keypass` option) and add them into a keystore that uses a different password (via the <span class="uri" style="white-space:nowrap;">-storepass</span> option). When the Gateway attempts to access a key in a keystore configured in this manner, the Gateway fails to start and generates a Null Pointer Exception. The command `-keypasswd` changes the password under which the private key is protected. The command `-storepasswd` changes the password used to protect the integrity of the keystore contents.
 
-<a name="see_also"></a>See Also
+See Also
 -------------------------------
 
 -   [Transport Layer Security (TLS/SSL) Concepts](c_tls.md)
 -   [How TLS/SSL Works with the Gateway](u_tls_works.md)
-
-

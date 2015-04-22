@@ -2,19 +2,14 @@
 -   [Documentation](../index.md)
 -   What Happens During Authentication
 
-<a name="whathappens"></a>What Happens During Authentication
+What Happens During Authentication
 ==================================================================================
 
 The following figure shows what happens when a client application (for example, a JavaScript application running in a browser) requests a WebSocket connection to KAAZING Gateway. The request is made as part of a hosted web application that uses a third-party token provider.
 
-<figure>
 ![Challenge and response interactions between the Gateway, client, and token provider](../images/f-sso-for-kwsg-web.png)
-<figcaption>
-
 **Figure: Authentication process between a client and the Gateway**
 
-</figcaption>
-</figure>
 The figure illustrates how interactions between the client, the Gateway, and a third-party token provider result in authentication, as follows:
 
 1.  The client requests access to a protected WebSocket connection in the Gateway by clicking a link on a web page, or entering a specific URL.
@@ -25,10 +20,9 @@ The figure illustrates how interactions between the client, the Gateway, and a t
 6.  The Gateway validates the token, either permitting the WebSocket connection to proceed (`101 Protocol Upgrade`), or denying the WebSocket creation request (`403 Forbidden`).
 
 **Note:** In this example, token validation occurs between the Gateway and token provider. Also, you can perform token validation when you configure login modules in the Gateway configuration. 
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure Authentication and Authorization](o_aaa_config_authentication.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
-
-

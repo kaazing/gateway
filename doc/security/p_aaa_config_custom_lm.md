@@ -2,14 +2,14 @@
 -   [Documentation](../index.md)
 -   Create Custom Login Modules
 
-<a name="custom_lm"></a>Create Custom Login Modules
+Create Custom Login Modules
 =========================================================================
 
 Even though KAAZING Gateway provides several standard types of `login-module` implementations, you might choose to write a custom implementation. Because the JAAS interface implementation holds the authentication logic, most of the material you need to implement the `LoginModule` interface is provided in the following documentation:
 
 -   [Java Authentication and Authorization Service (JAAS) LoginModule Developer's Guide](http://docs.oracle.com/javase/7/docs/technotes/guides/security/jaas/JAASLMDevGuide.html)
 -   [Interface LoginModule class](http://docs.oracle.com/javase/7/docs/api/javax/security/auth/spi/LoginModule.html) (Java SE Developer's Documentation)
--   KAAZING Gateway [Client API Documentation](../index.md#api_topics)
+-   KAAZING Gateway [Client API Documentation](../index.md)
 
 Before You Begin
 ----------------
@@ -37,10 +37,9 @@ Next Steps
 ----------
 
 [Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md)
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
--   [Server API Documentation](../index.md#server_api_topics)
-
-
+-   [Server API Documentation](../index.md)

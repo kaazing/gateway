@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure the HTTP Challenge Scheme
 
-<a name="config_auth_scheme"></a>Configure the HTTP Challenge Scheme
+Configure the HTTP Challenge Scheme
 ==========================================================================================
 
 In this procedure, you will learn how to configure authentication by defining the `security` element and specifying the HTTP challenge scheme that protects the service.
@@ -43,7 +43,7 @@ To Configure the HTTP Challenge Scheme
 
     For example, to configure a client to respond to a custom authentication challenge and require authentication with a third-party token for the demo realm, you would configure `Application Token` in the `http-challenge-scheme` element, as shown in the following example:
 
-    ``` auto-links:
+    ``` xml
     <security>
       <keystore>
        <type>JCEKS</type>
@@ -86,12 +86,11 @@ Next Steps
 ----------
 
 [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-<a name="seealso"></a>See Also
+
+See Also
 ------------------------------
 
 -   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
-
-

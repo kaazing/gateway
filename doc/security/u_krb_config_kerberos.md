@@ -2,19 +2,14 @@
 -   [Documentation](../index.md)
 -   Using Kerberos V5 Network Authentication with the Gateway
 
-<a name="using_kerberos"></a>Using Kerberos V5 Network Authentication with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Using Kerberos V5 Network Authentication with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 =================================================================================================================================
 
 KAAZING Gateway supports the Kerberos authentication protocol, allowing you to proxy traffic to and from a KDC. This enables clients to communicate to a KDC over WebSocket. A gateway that is configured to proxy Kerberos traffic will be called a Ticket-Granting Gateway (TGG) in this section. This architecture provides all the benefits of a Kerberos-based security system to Web-based clients, without having to compromise overall site security by placing a KDC closer to the edge of the network.
 
-<figure>
 ![A gateway configured to proxy Kerberos traffic as a TGG](../images/f-kerberos5-kaazing-model-web.jpg)
-<figcaption>
-
 **Figure: the Gateway is configured to proxy Kerberos traffic as a TGG**
 
-</figcaption>
-</figure>
 1.  A KAAZING Gateway client running in a browser makes a request for a ticket from a TGG using a WebSocket-based connection.
 2.  The TGG front-ends the KDC and proxies the incoming requests to the KDC, sending a request for a ticket-granting ticket (TGT) to the AS in the KDC.
 3.  The AS returns a TGT.
@@ -26,7 +21,7 @@ KAAZING Gateway supports the Kerberos authentication protocol, allowing you to p
 
 You can configure the Gateway to use the services of a KDC to provide Kerberos authentication for ticket-protected services running on the KAAZING Gateway. In this document, we will call a gateway that is configured that way a Ticket Protected Gateway (TPG).
 
-<a name="seealso"></a>See Also
+See Also
 ------------------------------
 
 -   [Configure Kerberos V5 Network Authentication](o_krb.md)
