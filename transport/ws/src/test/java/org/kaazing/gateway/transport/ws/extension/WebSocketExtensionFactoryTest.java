@@ -169,6 +169,23 @@ public class WebSocketExtensionFactoryTest {
         Assert.assertTrue(activeExtensions.asList().isEmpty());
     }
 
+    @Test
+    public void testNegotiatedWebSocketExtensionRejectedParameter() throws ProtocolException {
+        List<String> clientRequestedExtensions = new ArrayList<>();
+        clientRequestedExtensions.add("mock");
+        context.checking(new Expectations() {
+            {
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock")), with(address));
+                will(returnValue(null));
+            }
+        });
+        ActiveExtensions activeExtensions =
+                wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
+                        clientRequestedExtensions);
+        Assert.assertEquals(0, activeExtensions.asList().size());
+        context.assertIsSatisfied();
+    }
+
     public static class MockWebSocketExtensionSpi extends WebSocketExtensionFactorySpi {
 
         static MockNegotiate mockBehavior;
