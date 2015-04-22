@@ -173,6 +173,8 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         append(new ExtensionParameterBuilder(parameterName, parameterValue));
     }
 
+    // TODO this seems like the address should not be needed
+    @Deprecated
     public static ExtensionHeader create(ResourceAddress address, ExtensionHeader extension) {
         ExtensionHeader ext;
     
