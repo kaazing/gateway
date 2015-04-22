@@ -22,6 +22,12 @@
 package org.kaazing.gateway.management.config;
 
 import static java.util.Arrays.asList;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
+import static org.kaazing.gateway.service.TransportOptionNames.INACTIVITY_TIMEOUT;
+import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
+import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCOLS;
+import static org.kaazing.gateway.service.TransportOptionNames.WS_PROTOCOL_VERSION;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -156,7 +162,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 //                      }
 //                      jsonOptions.put("ws-protocols", jsonArray);
 //                  }
-
+                    acceptOptions.remove(SUPPORTED_PROTOCOLS);
 
                     jsonOptions.put("ws.maximum.message.size", acceptOptions.remove("ws.maxMessageSize"));
 
@@ -185,7 +191,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = (URI) acceptOptions.remove("http.transport");
+                    URI httpTransport = (URI) acceptOptions.remove("http[http/1.1].transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
                     }
@@ -257,10 +263,19 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         }
                     }
 
+                    String[] sslProtocolsArray = (String[]) connectOptions.remove("ssl.protocols");
+                    if (sslProtocolsArray != null) {
+                        List<String> sslProtocols = Arrays.asList(sslProtocolsArray);
+                        if (sslProtocols.size() > 0) {
+                            jsonOptions.put("ssl.protocols", sslProtocols);
+                        }
+                    }
+
                     // NOTE: we do NOT (at least in 4.0) show the WS extensions
                     // or WS protocols to users (Command Center or otherwise), so don't send them out.
                     //WebSocketWireProtocol protocol = connectOptions.getWebSocketWireProtocol();
                     //sb.append("websocket-wire-protocol=" + protocol);
+                    connectOptions.remove(WS_PROTOCOL_VERSION);
 
                     String wsVersion = (String) connectOptions.remove("ws.version");
                     if (wsVersion != null) {
@@ -282,9 +297,40 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                         jsonOptions.put("ssl.transport", sslTransport.toString());
                     }
 
-                    URI httpTransport = (URI) connectOptions.remove("http.transport");
+                    URI httpTransport = (URI) connectOptions.remove("http[http/1.1].transport");
                     if (httpTransport != null) {
                         jsonOptions.put("http.transport", httpTransport.toString());
+                    }
+
+                    Long inactivityTimeout = (Long) connectOptions.remove(INACTIVITY_TIMEOUT);
+                    if (inactivityTimeout != null) {
+                        jsonOptions.put("ws.inactivity.timeout", inactivityTimeout);
+                    }
+
+                    Boolean sslEncryptionEnabled = (Boolean) connectOptions.remove(SSL_ENCRYPTION_ENABLED);
+                    if ((sslEncryptionEnabled != null) && Boolean.FALSE.equals(sslEncryptionEnabled)) {
+                        jsonOptions.put("ssl.encryption", "disabled");
+                    } else {
+                        jsonOptions.put("ssl.encryption", "enabled");
+                    }
+
+                    String udpInterface = (String) connectOptions.remove("udp.interface");
+                    if (udpInterface != null) {
+                        jsonOptions.put("udp.interface", udpInterface);
+                    }
+
+                    Integer httpKeepaliveTimeout = (Integer) connectOptions.remove(HTTP_KEEP_ALIVE_TIMEOUT_KEY);
+                    if (httpKeepaliveTimeout != null) {
+                        jsonOptions.put("http.keepalive.timeout", httpKeepaliveTimeout);
+                    }
+
+                    Boolean httpKeepalive = (Boolean) connectOptions.remove(HTTP_KEEP_ALIVE);
+                    if (httpKeepalive != null) {
+                        if (Boolean.FALSE.equals(httpKeepalive)) {
+                            jsonOptions.put("http.keepalive", "disabled");
+                        } else {
+                            jsonOptions.put("http.keepalive", "enabled");
+                        }
                     }
 
                     for (Entry<String, Object> entry : connectOptions.entrySet()) {
