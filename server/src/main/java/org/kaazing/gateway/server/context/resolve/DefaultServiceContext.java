@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -288,15 +289,7 @@ public class DefaultServiceContext implements ServiceContext {
     @Override
     public int hashCode() {
         if (hashCode == -1) {
-            int result = serviceType != null ? serviceType.hashCode() : 0;
-            result = 31 * result + (accepts != null ? accepts.hashCode() : 0);
-
-            String serviceName = getServiceName();
-            if (serviceName != null) {
-                result = 31 * result + serviceName.hashCode();
-            }
-
-            hashCode = result;
+            hashCode = Objects.hash(serviceType, accepts, getServiceName());
         }
         return hashCode;
     }
