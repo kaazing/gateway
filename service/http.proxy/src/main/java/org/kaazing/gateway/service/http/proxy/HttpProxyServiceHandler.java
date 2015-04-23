@@ -34,6 +34,7 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,21 +158,43 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     acceptSession.setStatus(connectSession.getStatus());
                     acceptSession.setReason(connectSession.getReason());
                     acceptSession.setVersion(connectSession.getVersion());
-                    Map<String, List<String>> headers = connectSession.getReadHeaders();
-                    for (Map.Entry<String, List<String>> e : headers.entrySet()) {
-                        String name = e.getKey();
-                        for (String value : e.getValue()) {
-                            // client<-->gateway may use keep-alive, so don't send gateway<-->origin's connection header
-                            // Note that origin server may send Connection: Upgrade
-                            if (name.equalsIgnoreCase("Connection") && value.equals("close")) {
-                                continue;
-                            }
-                            acceptSession.addWriteHeader(name, value);
-                        }
+
+                    boolean upgrade = processHopByHopHeaders(connectSession, acceptSession);
+                    // Add Connection: upgrade
+                    if (upgrade) {
+                        acceptSession.setWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
                     }
                 }
             }
         }
+    }
+
+
+    /*
+     * Write all (except hop-by-hop) request headers from source session to destination
+     * session.
+     *
+     * If the request is an upgrade one, let the Upgrade header go through as this
+     * service supports upgrade
+     */
+    private static boolean processHopByHopHeaders(HttpSession src, HttpSession dest) {
+        Set<String> hopByHopHeaders = getHopByHopHeaders(src);
+        boolean upgrade = src.getReadHeader(HEADER_UPGRADE) != null;
+        if (upgrade) {
+            hopByHopHeaders.remove(HEADER_UPGRADE);
+        }
+
+        // Add accept session headers to connect session
+        for(Map.Entry<String, List<String>> e : src.getReadHeaders().entrySet()) {
+            String name = e.getKey();
+            for(String value : e.getValue()) {
+                if (!hopByHopHeaders.contains(name)) {
+                    dest.addWriteHeader(name, value);
+                }
+            }
+        }
+
+        return upgrade;
     }
     
     
@@ -181,21 +204,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * service supports upgrade
      */
     private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
-        Set<String> hopByHopHeaders = getHopByHopHeaders(acceptSession);
-        boolean upgrade = acceptSession.getReadHeader(HEADER_UPGRADE) != null;
-        if (upgrade) {
-            hopByHopHeaders.remove(HEADER_UPGRADE);
-        }
-
-        // Add accept session headers to connect session
-        for(Map.Entry<String, List<String>> e : acceptSession.getReadHeaders().entrySet()) {
-            String name = e.getKey();
-            for(String value : e.getValue()) {
-                if (!hopByHopHeaders.contains(name)) {
-                    connectSession.addWriteHeader(name, value);
-                }
-            }
-        }
+        boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
 
         // Add Connection: upgrade or Connection: close header
         if (upgrade) {
@@ -216,8 +225,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Get all hop-by-hop headers from Connection header value.
      * Also add Connection header itself to the set
      */
-    private static Set<String> getHopByHopHeaders(HttpAcceptSession acceptSession) {
-        List<String> connectionHeaders = acceptSession.getReadHeaders(HEADER_CONNECTION);
+    private static Set<String> getHopByHopHeaders(HttpSession session) {
+        List<String> connectionHeaders = session.getReadHeaders(HEADER_CONNECTION);
         if (connectionHeaders == null) {
             connectionHeaders = Collections.emptyList();
         }
