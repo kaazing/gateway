@@ -160,7 +160,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     acceptSession.setVersion(connectSession.getVersion());
 
                     boolean upgrade = processHopByHopHeaders(connectSession, acceptSession);
-                    // Add Connection: upgrade
+                    // Add Connection: upgrade to acceptSession
                     if (upgrade) {
                         acceptSession.setWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
                     }
@@ -171,10 +171,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
 
     /*
-     * Write all (except hop-by-hop) request headers from source session to destination
+     * Write all (except hop-by-hop) headers from source session to destination
      * session.
      *
-     * If the request is an upgrade one, let the Upgrade header go through as this
+     * If the header is an upgrade one, let the Upgrade header go through as this
      * service supports upgrade
      */
     private static boolean processHopByHopHeaders(HttpSession src, HttpSession dest) {
@@ -184,7 +184,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             hopByHopHeaders.remove(HEADER_UPGRADE);
         }
 
-        // Add accept session headers to connect session
+        // Add source session headers to destination session
         for(Map.Entry<String, List<String>> e : src.getReadHeaders().entrySet()) {
             String name = e.getKey();
             for(String value : e.getValue()) {
