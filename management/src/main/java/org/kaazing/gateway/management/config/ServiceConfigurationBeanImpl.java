@@ -205,7 +205,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
                                 (key.endsWith("maxMessageSize") ||
                                  key.endsWith("inactivityTimeout") ||
                                  key.endsWith("extensions"))) {
-                            // skip over options already seen with the base ws.*
+                            // skip over options already seen with the base ws.* set of options
                             continue;
                         }
 
