@@ -22,6 +22,7 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_ENCRYPTION_ENABLED;
@@ -199,6 +200,8 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         result.put(SSL_CIPHERS, getSslCiphers());
         result.put(SSL_PROTOCOLS, getSslProtocols());
         result.put(SSL_ENCRYPTION_ENABLED, isSslEncryptionEnabled());
+
+        result.put(HTTP_SERVER_HEADER_ENABLED, isHttpServerHeaderEnabled());
 
         boolean[] clientAuth = getVerifyClientProperties();
         result.put(SSL_WANT_CLIENT_AUTH, clientAuth[0]);
@@ -380,6 +383,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
             sslEncryptionEnabled = !sslEncryptionEnabledValue.equalsIgnoreCase("disabled");
         }
         return sslEncryptionEnabled;
+    }
+
+    private boolean isHttpServerHeaderEnabled() {
+        String serverHeaderEnabled = options.get("http.server.header");
+        return serverHeaderEnabled == null || !serverHeaderEnabled.equalsIgnoreCase("disabled");
     }
 
     private String[] getSslProtocols() {

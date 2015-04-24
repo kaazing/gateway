@@ -43,6 +43,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -95,6 +96,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationParameterNames",new String[] {"p1", "p2"});
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
+        options.put("http.serverHeaderEnabled", Boolean.FALSE);
 
     }
 
@@ -137,6 +139,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEmpty(address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
         assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
+        assertTrue(address.getOption(SERVER_HEADER_ENABLED));
     }
 
     @Test
@@ -157,6 +160,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[]{"p1", "p2"}, address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
         assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
+        assertFalse(address.getOption(SERVER_HEADER_ENABLED));
     }
 
     @Test
