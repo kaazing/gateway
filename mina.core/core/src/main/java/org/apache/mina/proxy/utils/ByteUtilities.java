@@ -95,7 +95,7 @@ public class ByteUtilities {
      * 
      * @param v the short to write
      */
-    public final static byte[] writeShort(short v) {
+    public static byte[] writeShort(short v) {
         return writeShort(v, new byte[2], 0);
     }
 
@@ -107,7 +107,7 @@ public class ByteUtilities {
      * @param b the byte array to write to
      * @param offset the offset at which to start writing in the array
      */
-    public final static byte[] writeShort(short v, byte[] b, int offset) {
+    public static byte[] writeShort(short v, byte[] b, int offset) {
         b[offset] = (byte) v;
         b[offset + 1] = (byte) (v >> 8);
 
@@ -119,7 +119,7 @@ public class ByteUtilities {
      * 
      * @param v the int to write
      */
-    public final static byte[] writeInt(int v) {
+    public static byte[] writeInt(int v) {
         return writeInt(v, new byte[4], 0);
     }
 
@@ -131,7 +131,7 @@ public class ByteUtilities {
      * @param b the byte array to write to
      * @param offset the offset at which to start writing in the array
      */
-    public final static byte[] writeInt(int v, byte[] b, int offset) {
+    public static byte[] writeInt(int v, byte[] b, int offset) {
         b[offset] = (byte) v;
         b[offset + 1] = (byte) (v >> 8);
         b[offset + 2] = (byte) (v >> 16);
@@ -150,7 +150,7 @@ public class ByteUtilities {
      * @param length the number of bytes on which to operate 
      * (should be a multiple of 4)
      */
-    public final static void changeWordEndianess(byte[] b, int offset,
+    public static void changeWordEndianess(byte[] b, int offset,
             int length) {
         byte tmp;
 
@@ -174,7 +174,7 @@ public class ByteUtilities {
      * @param length the number of bytes on which to operate 
      * (should be a multiple of 2)
      */
-    public final static void changeByteEndianess(byte[] b, int offset,
+    public static void changeByteEndianess(byte[] b, int offset,
             int length) {
         byte tmp;
 
@@ -193,7 +193,7 @@ public class ByteUtilities {
      * @return the result byte array
      * @throws UnsupportedEncodingException if the string is not an OEM string
      */
-    public final static byte[] getOEMStringAsByteArray(String s)
+    public static byte[] getOEMStringAsByteArray(String s)
             throws UnsupportedEncodingException {
         return s.getBytes("ASCII");
     }
@@ -205,7 +205,7 @@ public class ByteUtilities {
      * @return the result byte array
      * @throws UnsupportedEncodingException if the string is not an UTF-16LE string
      */    
-    public final static byte[] getUTFStringAsByteArray(String s)
+    public static byte[] getUTFStringAsByteArray(String s)
             throws UnsupportedEncodingException {
         return s.getBytes("UTF-16LE");
     }
@@ -220,7 +220,7 @@ public class ByteUtilities {
      * @return the encoded string as a byte array
      * @throws UnsupportedEncodingException if encoding fails
      */
-    public final static byte[] encodeString(String s, boolean useUnicode)
+    public static byte[] encodeString(String s, boolean useUnicode)
             throws UnsupportedEncodingException {
         if (useUnicode) {
             return getUTFStringAsByteArray(s);
@@ -288,7 +288,7 @@ public class ByteUtilities {
      * @param offset the offset at which to start
      * @return the int value
      */
-    public static final int makeIntFromByte4(byte[] b) {
+    public static int makeIntFromByte4(byte[] b) {
         return makeIntFromByte4(b, 0);
     }
 
@@ -299,7 +299,7 @@ public class ByteUtilities {
      * @param offset the offset at which to start
      * @return the int value
      */
-    public static final int makeIntFromByte4(byte[] b, int offset) {
+    public static int makeIntFromByte4(byte[] b, int offset) {
         return b[offset] << 24 | (b[offset + 1] & 0xff) << 16
                 | (b[offset + 2] & 0xff) << 8 | (b[offset + 3] & 0xff);
     }
@@ -310,7 +310,7 @@ public class ByteUtilities {
      * @param b the byte array to read
      * @return the int value     
      */
-    public static final int makeIntFromByte2(byte[] b) {
+    public static int makeIntFromByte2(byte[] b) {
         return makeIntFromByte2(b, 0);
     }
 
@@ -321,7 +321,7 @@ public class ByteUtilities {
      * @param offset the offset at which to start
      * @return the int value
      */
-    public static final int makeIntFromByte2(byte[] b, int offset) {
+    public static int makeIntFromByte2(byte[] b, int offset) {
         return (b[offset] & 0xff) << 8 | (b[offset + 1] & 0xff);
     }
 
@@ -333,7 +333,7 @@ public class ByteUtilities {
      * @param testFlag the flag we search the presence of
      * @return true if testFlag is present in the flagset, false otherwise.
      */
-    public final static boolean isFlagSet(int flagSet, int testFlag) {
+    public static boolean isFlagSet(int flagSet, int testFlag) {
         return (flagSet & testFlag) > 0;
     }
 }
