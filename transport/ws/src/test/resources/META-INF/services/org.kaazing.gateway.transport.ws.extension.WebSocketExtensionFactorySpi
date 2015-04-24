@@ -1,1 +1,3 @@
 org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$MockWebSocketExtensionSpi
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$MockWebSocketExtensionSpi2
+org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest$MockWebSocketExtensionSpi3

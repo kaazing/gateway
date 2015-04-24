@@ -35,9 +35,11 @@ import org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind;
 public final class WebSocketExtensionFactory {
 
     private final Map<String, WebSocketExtensionFactorySpi> factoriesRO;
+    private final List<ExtensionHeader> supportedExtensionHeaders;
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
+        this.supportedExtensionHeaders = toWsExtensions(this.getExtensionNames());
     }
 
     /**
@@ -57,10 +59,10 @@ public final class WebSocketExtensionFactory {
      * @param address    WebSocket resource address on which the handshake is taking place
      * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
      *                   or null if the extension is not available
-     * @throws IOException  If the extension cannot be negotiated. Throwing this exception will result
+     * @throws ProtocolException  If the extension cannot be negotiated. Throwing this exception will result
      *                      in failing the WebSocket connection.
      */
-    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address) throws IOException {
+    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address) throws ProtocolException {
         String extensionName = extension.getExtensionToken();
 
         WebSocketExtensionFactorySpi factory = factoriesRO.get(extensionName);
@@ -86,9 +88,6 @@ public final class WebSocketExtensionFactory {
 
         ActiveExtensions result = ActiveExtensions.EMPTY;
         if (clientRequestedExtensions != null) {
-            // Maybe come back and cache supportedExtensionHeaders ??, but need more info on when they are loaded to
-            // decide
-            List<ExtensionHeader> supportedExtensionHeaders = toWsExtensions(this.getExtensionNames());
             List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
 
             // Since the client may have provided parameters in their
@@ -103,13 +102,12 @@ public final class WebSocketExtensionFactory {
             for (ExtensionHeader candidate : requestedExtensions) {
                 WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
                 WebSocketExtensionSpi negotiatedExtension = extension.negotiate(candidate, address);
-                // negotiated can be null if the extension doesn't want to be envolved
+                // negotiated can be null if the extension doesn't want to be active
                 if (negotiatedExtension != null) {
                     acceptedExtensions.add(candidate);
                     // negotiatedExtensions.add(negotiatedExtension);
                 }
             }
-            // TODO: This is where we can add server-initiated coordinated extension parameters.
             result = new ActiveExtensions(acceptedExtensions, EndpointKind.CLIENT);
         }
         return result;

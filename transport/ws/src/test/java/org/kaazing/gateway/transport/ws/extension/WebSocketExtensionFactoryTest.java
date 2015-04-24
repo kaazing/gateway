@@ -27,10 +27,12 @@ import java.util.List;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -42,18 +44,19 @@ public class WebSocketExtensionFactoryTest {
     private WsResourceAddress address;
     private ExtensionHeader extensionHeader;
     private MockNegotiate mockNegotiate;
-    private Mockery context;
     private WebSocketExtensionSpi webSocketExtensionSpi;
     private HttpAcceptSession session;
+
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }
+    };
 
     @Before
     public void init() {
         wsExtFactory = WebSocketExtensionFactory.newInstance();
-        context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
         address = context.mock(WsResourceAddress.class);
         extensionHeader = context.mock(ExtensionHeader.class);
         mockNegotiate = context.mock(MockNegotiate.class);
@@ -82,7 +85,6 @@ public class WebSocketExtensionFactoryTest {
         WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
         Assert.assertNotNull(extension);
         Assert.assertSame(extension, webSocketExtensionSpi);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -96,7 +98,6 @@ public class WebSocketExtensionFactoryTest {
 
         WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
         Assert.assertNull(extension);
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -114,7 +115,7 @@ public class WebSocketExtensionFactoryTest {
                         clientRequestedExtensions);
         Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
         Assert.assertEquals(1, activeExtensions.asList().size());
-        context.assertIsSatisfied();
+
     }
 
     @Test
@@ -134,7 +135,6 @@ public class WebSocketExtensionFactoryTest {
                         clientRequestedExtensions);
         Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
         Assert.assertEquals(1, activeExtensions.asList().size());
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -156,7 +156,35 @@ public class WebSocketExtensionFactoryTest {
         Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
         Assert.assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
         Assert.assertEquals(1, activeExtensions.asList().size());
-        context.assertIsSatisfied();
+    }
+
+    @Test
+    @Ignore("TODO when fix ActiveExtensions and add ordering")
+    public void testNegotiateMultipleWebSocketExtensionsWithParameter() throws ProtocolException {
+        List<String> clientRequestedExtensions = new ArrayList<>();
+        clientRequestedExtensions.add("mock; foo=2");
+        clientRequestedExtensions.add("foo");
+        clientRequestedExtensions.add("not-there2; bar=2");
+        clientRequestedExtensions.add("bar");
+        context.checking(new Expectations() {
+            {
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock").withParameter("foo=2")),
+                        with(address));
+                will(returnValue(webSocketExtensionSpi));
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("foo")), with(address));
+                will(returnValue(webSocketExtensionSpi));
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("bar")), with(address));
+                will(returnValue(webSocketExtensionSpi));
+            }
+        });
+        ActiveExtensions activeExtensions =
+                wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
+                        clientRequestedExtensions);
+        Assert.assertEquals(3, activeExtensions.asList().size());
+        Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
+        Assert.assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
+        Assert.assertEquals("foo", activeExtensions.asList().get(1).getExtensionToken());
+        Assert.assertEquals("bar", activeExtensions.asList().get(2).getExtensionToken());
     }
 
     @Test
@@ -183,7 +211,19 @@ public class WebSocketExtensionFactoryTest {
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         Assert.assertEquals(0, activeExtensions.asList().size());
-        context.assertIsSatisfied();
+    }
+
+    @Test(expected = ProtocolException.class)
+    public void testProtocolExceptionInNegotiate() throws ProtocolException {
+        List<String> clientRequestedExtensions = new ArrayList<>();
+        clientRequestedExtensions.add("mock");
+        context.checking(new Expectations() {
+            {
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock")), with(address));
+                will(throwException(new ProtocolException("Protocol Exception")));
+            }
+        });
+        wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions", clientRequestedExtensions);
     }
 
     public static class MockWebSocketExtensionSpi extends WebSocketExtensionFactorySpi {
@@ -206,9 +246,29 @@ public class WebSocketExtensionFactoryTest {
         }
 
         public interface MockNegotiate {
-            WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address);
+            WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+                    throws ProtocolException;
         }
+    }
 
+    public static class MockWebSocketExtensionSpi2 extends MockWebSocketExtensionSpi {
+
+        static MockNegotiate mockBehavior;
+
+        @Override
+        public String getExtensionName() {
+            return "foo";
+        }
+    }
+
+    public static class MockWebSocketExtensionSpi3 extends MockWebSocketExtensionSpi {
+
+        static MockNegotiate mockBehavior;
+
+        @Override
+        public String getExtensionName() {
+            return "bar";
+        }
     }
 
     /**
