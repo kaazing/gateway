@@ -24,7 +24,6 @@ package org.kaazing.gateway.management.jmx;
 import java.net.URI;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -57,7 +56,6 @@ public class JmxManagementServiceHandlerTest {
         }
     }
 
-    @Ignore
     @Test
     public void testNoJMXBindingNameConflictsOnMultiServicesUsingSameAccept() throws Exception {
         /**
@@ -67,9 +65,19 @@ public class JmxManagementServiceHandlerTest {
         boolean correctPath = false;
 
         GatewayConfigurationBuilder configBuilder = new GatewayConfigurationBuilder();
-        GatewayConfiguration gatewayConfiguration = configBuilder.service().accept(FRONTEND_URI_1)
-                .connect(BACKEND_URI_1).type(PROXY).done().service().name("sameName").accept(FRONTEND_URI_1)
-                .connect(BACKEND_URI_2).type(PROXY).done().done();
+        GatewayConfiguration gatewayConfiguration = configBuilder
+                .service()
+                    .accept(FRONTEND_URI_1)
+                    .connect(BACKEND_URI_1)
+                    .type(PROXY)
+                .done()
+                .service()
+                    .name("sameName")
+                    .accept(FRONTEND_URI_1)
+                    .connect(BACKEND_URI_2)
+                    .type(PROXY)
+                .done()
+            .done();
 
         Gateway gateway = new Gateway();
         try {
