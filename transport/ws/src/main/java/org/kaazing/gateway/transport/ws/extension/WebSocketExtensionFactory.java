@@ -21,23 +21,25 @@ import static java.util.ServiceLoader.load;
 
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
-
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind;
 
 public final class WebSocketExtensionFactory {
 
     private final Map<String, WebSocketExtensionFactorySpi> factoriesRO;
+    private final List<ExtensionHeader> supportedExtensionHeaders;
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
+        this.supportedExtensionHeaders = toWsExtensions(this.getExtensionNames());
     }
 
     /**
@@ -57,11 +59,10 @@ public final class WebSocketExtensionFactory {
      * @param address    WebSocket resource address on which the handshake is taking place
      * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
      *                   or null if the extension is not available
-     * @throws IOException  If the extension cannot be negotiated. Throwing this exception will result
+     * @throws ProtocolException  If the extension cannot be negotiated. Throwing this exception will result
      *                      in failing the WebSocket connection.
      */
-    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address)
-            throws IOException {
+    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address) throws ProtocolException {
         String extensionName = extension.getExtensionToken();
 
         WebSocketExtensionFactorySpi factory = factoriesRO.get(extensionName);
@@ -71,10 +72,10 @@ public final class WebSocketExtensionFactory {
 
         return factory.negotiate(extension, address);
     }
-    
+
     /**
      * 
-     * @param address  ResourceAddress for the WebSocket connection for which extensions are being negotiated
+     * @param address  WsResourceAddress for the WebSocket connection for which extensions are being negotiated
      * @param session  HttpSession upon which the WebSocket upgrade handshake is occurring
      * @param headerName Name of the HTTP header conveying extensions (e.g. "sec-websocket-extensions")
      * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
@@ -82,15 +83,54 @@ public final class WebSocketExtensionFactory {
      * @return object representing the list of negotiated  WebSocketExtensionSpi instances
      * @throws ProtocolException
      */
-    public ActiveExtensions negotiateWebSocketExtensions(ResourceAddress address,
-                                                         HttpAcceptSession session,
-                                                         String headerName,
-                                                         List<String> clientRequestedExtensions) throws ProtocolException {
-        // TODO: implement this method, based loosely on WsExtensionUtils.negotiateWebSocketExtensions (it will replace
-        // that method). Note that (as commented in that method) we do not need to have any notion of mandatory extensions 
-        // the client must negotiate.
-        throw new UnsupportedOperationException ();
-        //return ActiveExtensions.EMPTY;
+    public ActiveExtensions negotiateWebSocketExtensions(WsResourceAddress address, HttpAcceptSession session,
+        String headerName, List<String> clientRequestedExtensions) throws ProtocolException {
+
+        ActiveExtensions result = ActiveExtensions.EMPTY;
+        if (clientRequestedExtensions != null) {
+            List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
+
+            // Since the client may have provided parameters in their
+            // extensions, we retain the common requested extensions, not
+            // the common supported extensions as was previously done.
+            requestedExtensions.retainAll(supportedExtensionHeaders);
+
+            // get accepted extensions
+            List<ExtensionHeader> acceptedExtensions = new ArrayList<>(requestedExtensions.size());
+            // negotiated Extensions will be used when ActiveExtensions is changed to new API, so leaving it in
+            // List<WebSocketExtensionSpi> negotiatedExtensions = new ArrayList<>();
+            for (ExtensionHeader candidate : requestedExtensions) {
+                WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
+                WebSocketExtensionSpi negotiatedExtension = extension.negotiate(candidate, address);
+                // negotiated can be null if the extension doesn't want to be active
+                if (negotiatedExtension != null) {
+                    acceptedExtensions.add(candidate);
+                    // negotiatedExtensions.add(negotiatedExtension);
+                }
+            }
+            result = new ActiveExtensions(acceptedExtensions, EndpointKind.CLIENT);
+        }
+        return result;
+
+    }
+
+    private static List<ExtensionHeader> toWsExtensions(Collection<String> extensionTokens) {
+        if (extensionTokens == null) {
+            throw new NullPointerException("extensionTokens");
+        }
+
+        if (extensionTokens.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        List<ExtensionHeader> exts = new ArrayList<>(extensionTokens.size());
+        for (String extensionToken : extensionTokens) {
+            if (extensionToken != null) {
+                exts.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
+            }
+        }
+
+        return exts;
     }
 
     /**
@@ -114,7 +154,6 @@ public final class WebSocketExtensionFactory {
         ServiceLoader<WebSocketExtensionFactorySpi> services = load(WebSocketExtensionFactorySpi.class, cl);
         return newInstance(services);
     }
-
 
     private static WebSocketExtensionFactory newInstance(ServiceLoader<WebSocketExtensionFactorySpi> services) {
         Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<String, WebSocketExtensionFactorySpi>();
