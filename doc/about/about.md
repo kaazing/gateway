@@ -94,6 +94,6 @@ About GATEWAY\_HOME
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:
 
 -   If you download from [kaazing.org](http://kaazing.org) and unpack the Gateway using the standalone method, then you can unpack the download into a directory of your choice (for example, `C:\kaazing` or `/home/username/kaazing`).
--   If you fork the Gateway GitHub repository from [kaazing.org](http://kaazing.org), then you can clone to the directory of your choice.
+-   If you fork the Gateway GitHub repository (find links to repos at [kaazing.org](http://kaazing.org)), then you can clone to the directory of your choice.
 
 
