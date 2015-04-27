@@ -16,6 +16,10 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -83,8 +87,8 @@ public class WebSocketExtensionFactoryTest {
         });
 
         WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
-        Assert.assertNotNull(extension);
-        Assert.assertSame(extension, webSocketExtensionSpi);
+        assertNotNull(extension);
+        assertSame(extension, webSocketExtensionSpi);
     }
 
     @Test
@@ -97,7 +101,7 @@ public class WebSocketExtensionFactoryTest {
         });
 
         WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
-        Assert.assertNull(extension);
+        assertNull(extension);
     }
 
     @Test
@@ -113,8 +117,8 @@ public class WebSocketExtensionFactoryTest {
         ActiveExtensions activeExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
-        Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
-        Assert.assertEquals(1, activeExtensions.asList().size());
+        assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
+        assertEquals(1, activeExtensions.asList().size());
 
     }
 
@@ -133,8 +137,8 @@ public class WebSocketExtensionFactoryTest {
         ActiveExtensions activeExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
-        Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
-        Assert.assertEquals(1, activeExtensions.asList().size());
+        assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
+        assertEquals(1, activeExtensions.asList().size());
     }
 
     @Test
@@ -153,9 +157,9 @@ public class WebSocketExtensionFactoryTest {
         ActiveExtensions activeExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
-        Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
-        Assert.assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
-        Assert.assertEquals(1, activeExtensions.asList().size());
+        assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
+        assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
+        assertEquals(1, activeExtensions.asList().size());
     }
 
     @Test
@@ -180,11 +184,11 @@ public class WebSocketExtensionFactoryTest {
         ActiveExtensions activeExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
-        Assert.assertEquals(3, activeExtensions.asList().size());
-        Assert.assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
-        Assert.assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
-        Assert.assertEquals("foo", activeExtensions.asList().get(1).getExtensionToken());
-        Assert.assertEquals("bar", activeExtensions.asList().get(2).getExtensionToken());
+        assertEquals(3, activeExtensions.asList().size());
+        assertEquals("mock", activeExtensions.asList().get(0).getExtensionToken());
+        assertEquals("foo=2", activeExtensions.asList().get(0).getParameters().get(0).toString());
+        assertEquals("foo", activeExtensions.asList().get(1).getExtensionToken());
+        assertEquals("bar", activeExtensions.asList().get(2).getExtensionToken());
     }
 
     @Test
@@ -194,7 +198,7 @@ public class WebSocketExtensionFactoryTest {
         ActiveExtensions activeExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
-        Assert.assertTrue(activeExtensions.asList().isEmpty());
+        assertTrue(activeExtensions.asList().isEmpty());
     }
 
     @Test
