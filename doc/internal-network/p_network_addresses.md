@@ -21,9 +21,9 @@ To Integrate the Gateway Into an Internal Network
 
 1.  Configure network protocol bindings for all services.
 
-    You can specify default values for the accept options for all services. If you then specify values for the [accept-options](../admin-reference/r_conf_service.md#accept-options-and-connect-options) on a particular service, the service accept options supercede the default values with your specified values. If there are no explicit `accept-options` for a particular service, the service uses these default values. Using the `protocol.bind` within the [service-defaults](../admin-reference/r_conf_serv_defs.md) element in the `gateway-config.xml`, you can configure network protocol bindings for all services.
+    You can specify default values for the accept options for all services. If you then specify values for the [accept-options](../admin-reference/r_conf_service.md#accept-options-and-connect-options) on a particular service, then the service `accept-options` supercede the default values with your specified values. If there are no explicit `accept-options` for a particular service, then the service uses these default values. By using the `protocol.bind` element within the [service-defaults](../admin-reference/r_conf_serv_defs.md) element in the `gateway-config.xml`, you can configure network protocol bindings for all services.
 
-    The following example shows `ssl.encryption` disabled, `ws.maximum.message.size` set to `256k`, and sample network protocol bindings, just above the default `mime-mapping` entries, as shown in lines 2 through 9:
+    The following example shows `ssl.encryption` disabled, `ws.maximum.message.size` set to `256k`, and several network protocol bindings (`ws.bind`, `wss.bind`, `http.bind`, and `https.bind`):
 
     ``` xml
     <service-defaults>
@@ -123,6 +123,6 @@ You have configured the Gateway on an internal network. For more information abo
 Notes
 -----
 
--   The [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` an accept on a different protocol like TCP will not be affected by the `ws.bind` `accept-option`.
+-   The [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` but then accept on a different protocol (such as TCP) will not be affected by the `ws.bind` `accept-option`.
 
 
