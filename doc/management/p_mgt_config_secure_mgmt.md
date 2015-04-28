@@ -10,7 +10,7 @@ KAAZING Gateway monitoring is secured by an explicitly specified security realm 
 Before You Begin
 ----------------
 
-This procedure is part of [Monitoring KAAZING Gateway](o_admin_monitor.md):
+This procedure is part of [Monitor the Gateway](o_admin_monitor.md):
 
 1.  [Introduction to Monitoring KAAZING Gateway](o_admin_monitor.md#introduction-to-monitoring-kaazing-gateway)
 2.  **Secure KAAZING Gateway Monitoring**
@@ -53,5 +53,5 @@ To Secure Management for the Gateway
 See Also
 ------------------------------
 
--   The `management.snmp` and `management.jmx` service types in the [Service Reference](../admin-reference/r_conf_service.md#service) documentation
+-   The `management.snmp` and `management.jmx` service types in the [Service Reference](../admin-reference/r_conf_service.md) documentation
 -   [About Security with KAAZING Gateway](../security/c_sec_security.md)
