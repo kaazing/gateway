@@ -35,7 +35,7 @@ class SecureOriginServer implements Runnable {
     private final Handler handler;
     private volatile boolean stopped;
     private SSLServerSocket socket;
-    private IOException ioe;
+    private volatile IOException ioe;        // handler's exception
 
     interface Handler {
         void handle(SSLSocket sslSocket) throws IOException;
@@ -58,11 +58,14 @@ class SecureOriginServer implements Runnable {
             try(SSLSocket acceptSocket = (SSLSocket) socket.accept()) {
                 try {
                     handler.handle(acceptSocket);
-                } catch (Exception ioe) {
+                } catch (IOException ioe) {
                     ioe.printStackTrace();
+                    if (this.ioe != null) {
+                        this.ioe = ioe;
+                    }
                 }
             } catch (IOException ioe) {
-                this.ioe = ioe;
+                // no-op since socket.accept() may throw IOE
             }
         }
     }

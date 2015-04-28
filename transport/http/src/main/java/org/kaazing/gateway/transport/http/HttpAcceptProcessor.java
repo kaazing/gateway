@@ -361,7 +361,7 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
         if (httpSession != null) {
             ResourceAddress address = httpSession.getLocalAddress();
             boolean serverHeaderEnabled = address.getOption(HttpResourceAddress.SERVER_HEADER_ENABLED);
-            if (serverHeaderEnabled) {
+            if (serverHeaderEnabled && !httpResponse.hasHeader("Server")) {
                 httpResponse.setHeader("Server", "Kaazing Gateway");
             }
         }
