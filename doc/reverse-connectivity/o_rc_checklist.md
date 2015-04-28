@@ -11,7 +11,7 @@ This checklist provides the steps necessary to configure Enterprise Shield&trade
 |-----|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | 1   | Become familiar with the DMZ-to-trusted network Gateway topology. | [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md) |
 | 2   | Understand what Enterprise Shield&trade; is and how it works.         | [About Enterprise Shield&trade;](#about-enterprise-shield)                                                                     |
-| 3   | Set up a basic KAAZING Gateway configuration.                | [Setting Up KAAZING Gateway](../about/setup-guide.md)                                                                                      |
+| 3   | Set up a basic KAAZING Gateway configuration.                | [Setting Up the Gateway](../about/setup-guide.md)                                                                                      |
 | 4   | Configure Enterprise Shield&trade;.                                   | [Configure Enterprise Shield&trade;](p_rc_config.md)                                                        |
 | 5   | Configure Enterprise Shield&trade; in a cluster.                      | [Configure Enterprise Shield&trade; in a Cluster](p_rc_cluster.md)                                          |
 
@@ -41,7 +41,7 @@ With this architecture in place, you can close all inbound ports of your firewal
 **Note:** Before you configure Enterprise Shield&trade; you should have a basic understanding of the following topologies: 
 -   Standard Gateway topology:
 
-    The recommended Gateway topology has two Gateway instances connecting a client and the back-end service or message broker through two layers of network security: a firewall-protected DMZ Gateway and a firewall-protected internal Gateway. See [DMZ Gateway to Trusted Network Topology](../admin-reference/c_topologies.md) for more information.
+    The recommended Gateway topology has two Gateway instances connecting a client and the back-end service or message broker through two layers of network security: a firewall-protected DMZ Gateway and a firewall-protected internal Gateway. See [DMZ Gateway to Trusted Network Topology](../admin-reference/c_topologies.md#dmz-to-trusted-network-topology) for more information.
 
 -   Forward and reverse connections (proxies):
     -   A forward connection (forward proxy) that uses the SOCKet Secure (SOCKS) protocol and initiates a TCP, HTTP, or WS connection from a DMZ Gateway to a Gateway on the trusted network through firewalls. Configuring a forward connection is an important step to ensuring the Gateway settings are correctly set up before you attempt to reverse the connection.
