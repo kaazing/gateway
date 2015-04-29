@@ -25,6 +25,8 @@ To Inject Bytes into a Custom Protocol
 
     -   The `getName()` method should specify the name of this Principal to avoid conflicting with other Principals of the same type.
     -   The `getInjectableBytes()` returns the bytes which will be injected into the connection to the back-end server. The bytes must conform to the protocol that the server is expecting. Using this method, incorporate the identity or other information determined in step 1.
+   
+    See the [Protocol Injection](../apidoc/server/gateway/server/spi/index.html) documentation for more information.
 
 3.  In your login module's `login()` method, add the newly created `ProtocolInjection` object (which is of type Principal) into the Subject. This causes the Gateway to call its `getInjectableBytes()` method and inject the bytes into the custom protocol.
 4.  Compile your LoginModule class into a JAR file and put the JAR file in `GATEWAY_HOME/lib`.
