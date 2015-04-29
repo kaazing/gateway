@@ -49,6 +49,7 @@ To Configure Authorization
         <directory>/</directory>
         <welcome-file>index.md</welcome-file>
       </properties>
+      
       <authorization-constraint>
         <require-role>AUTHORIZED</require-role>
       </authorization-constraint>
@@ -77,7 +78,7 @@ Ensure your clients are also configured for secure networking using Transport La
 See Also
 ------------------------------
 
--   []Configure the Gateway](../admin-reference/o_conf_checklist.md)
+-   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
