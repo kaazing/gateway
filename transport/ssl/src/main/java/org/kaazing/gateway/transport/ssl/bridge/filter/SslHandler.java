@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -807,9 +808,7 @@ class SslHandler {
         }
 
         List<String> list = new ArrayList<>(names.length);
-        for (int i = 0; i < names.length; i++) {
-            list.add(names[i]);
-        }
+        Collections.addAll(list, names);
 
         return list;
     }

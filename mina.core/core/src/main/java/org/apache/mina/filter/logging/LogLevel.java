@@ -66,7 +66,7 @@ public enum LogLevel {
      * 
      * @param level The log level
      */
-    private LogLevel(int level) {
+    LogLevel(int level) {
         this.level = level;
     }
     

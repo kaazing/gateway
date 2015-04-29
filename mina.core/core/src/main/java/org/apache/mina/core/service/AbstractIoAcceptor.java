@@ -180,9 +180,7 @@ public abstract class AbstractIoAcceptor
             new ArrayList<SocketAddress>(otherLocalAddresses.length + 1);
         
         newLocalAddresses.add(firstLocalAddress);
-        for (SocketAddress a: otherLocalAddresses) {
-            newLocalAddresses.add(a);
-        }
+        Collections.addAll(newLocalAddresses, otherLocalAddresses);
         
         setDefaultLocalAddresses(newLocalAddresses);
     }
@@ -235,9 +233,7 @@ public abstract class AbstractIoAcceptor
         localAddresses.add(firstLocalAddress);
 
         if (otherLocalAddresses != null) {
-            for (SocketAddress address:otherLocalAddresses) {
-                localAddresses.add(address);
-            }
+            Collections.addAll(localAddresses, otherLocalAddresses);
         }
 
         bind(localAddresses);
