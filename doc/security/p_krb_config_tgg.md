@@ -19,7 +19,7 @@ This procedure is part of [Configure Kerberos V5 Network Authentication](o_krb.m
 To Configure a Ticket Granting Gateway
 --------------------------------------
 
-1.  Define a service (preferably using the WebSocket Secure scheme, `wss://`) that provides access to the Kerberos server at the authentication connection location as shown in lines 2 and 4 in the following example. **Note:** The default port for Kerberos traffic is 88.
+1.  Define a service (preferably using the WebSocket Secure scheme, `wss://`) that provides access to the Kerberos server at the authentication connection location as shown in the `accept` and `type` elements in following example. **Note:** The default port for Kerberos traffic is 88.
 
     ``` xml
     <service>
@@ -43,11 +43,6 @@ Next Steps
 ----------
 
 After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
-
-Notes
------
-
--   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 
 See Also
 ------------------------------
