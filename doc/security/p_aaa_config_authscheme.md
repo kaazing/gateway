@@ -48,7 +48,7 @@ To Configure the HTTP Challenge Scheme
       <keystore>
        <type>JCEKS</type>
        <file>keystore.db</file>
-        <password-file>keystore.pw</password-file>
+       <password-file>keystore.pw</password-file>
       </keystore>
 
       <truststore>
@@ -59,7 +59,7 @@ To Configure the HTTP Challenge Scheme
         <name>demo</name>
         <description>Demo</description>
         <authentication>
-          <http-challenge-scheme>Application Token<http-challenge-scheme>
+          <http-challenge-scheme>Application Token</http-challenge-scheme>
           <http-header>X-Custom-Authorization-Header</http-header>
           <http-query-parameter>myCustomAuthParam</http-query-parameter>
           <http-cookie>sampleCookie1</http-cookie>
@@ -90,7 +90,7 @@ Next Steps
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
+-   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
 -   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
