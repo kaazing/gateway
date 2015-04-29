@@ -14,7 +14,7 @@ This optional procedure is part of [Configure Authentication and Authorization](
 
 1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
 2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-    -   [Create Custom Login Modules (Optional)](p_aaa_config_custom_lm.md)
+    -   [Create a Custom Login Module (Optional)](p_aaa_config_custom_lm.md)
     -   **Integrate an Existing Custom Login Module into the Gateway (Optional)**
 
 3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
@@ -28,7 +28,7 @@ To Integrate an Existing Custom Login Module into the Gateway
     Before you begin, you need the Gateway, your Java custom login module (for demo purposes, you can use the sample custom login module called `GATEWAY_HOME/web/extras/samples/security/CustomLoginModule.java`), and the fully qualified class name of your custom login module. Note that the `GATEWAY_HOME/web/extras` directory is read-only. So, to modify the provided `CustomLoginModule.java` file, you must copy the file to your `GATEWAY_HOME/web/base` directory.
 
 2.  Compile your Java custom login module file into a JAR file and place it in `GATEWAY_HOME/lib`. You can also update the `CLASSPATH` to point to the desired directory containing the JAR file.
-3.  In the Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`), add the custom login module and set the `type` to point to `class:the-fully-qualified-class-name`. For example, if you are using the sample custom login module provided with the Gateway, the fully qualified class name is `org.kaazing.demo.loginmodules.CustomLoginModule`. The following is the `login-module` entry for this sample, as shown in line 2:
+3.  In the Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`), add the custom login module and set the `type` to point to `class:the-fully-qualified-class-name`. For example, if you are using the sample custom login module provided with the Gateway, the fully qualified class name is `org.kaazing.demo.loginmodules.CustomLoginModule`. The following is the `login-module` entry for this sample:
 
     ``` xml
     <login-module>
