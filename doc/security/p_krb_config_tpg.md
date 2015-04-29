@@ -63,7 +63,6 @@ Notes
 
 -   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_aaa_kerberos.md#gssapimech).
 -   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
--   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 
 Next Steps
 ----------
