@@ -56,4 +56,25 @@ public abstract class WebSocketExtensionFactorySpi {
     public abstract WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
             throws ProtocolException;
 
+    /**
+     * This method allows extensions to specify the order that they would like to be placed on the Filter Chain.
+     * The resulting string will allow each extension to specify a list of the names of extensions it must be immediately
+     * before in the WebSocket extensions response header, including the special extension "$" which means end of list.
+     * The WebSocket extension framework will place the extension as close to the end of the list as possible while respecting
+     * the constraints.
+     * 
+     * Example: 
+     * ping-pong has before=per-message-deflate,$
+     * per-message-deflate has before=$
+     * request sec-websockets-extensions header is "per-message-deflate,foo,ping-pong"
+     * The response header (assuming all those extensions are available) will be "foo,ping-pong,per-message-deflate")
+     *
+     * As per spec (RFC-6455) this would mean per-message-deflate is the last to see outgoing data but the first to see incoming
+     * 
+     * @return An array of Strings each containing a single token of what it would like to be ordered before, may not be null
+     */
+    public String[] orderBefore() {
+        return new String[0];
+    }
+
 }
