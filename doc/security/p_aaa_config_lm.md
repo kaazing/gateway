@@ -34,9 +34,9 @@ To Configure a Chain of Login Modules
 
     -   **Custom login modules**
 
-        If you use the `Application Token` authentication scheme, you must supply your own custom login module. See [Create Custom Login Modules](p_aaa_config_custom_lm.md) and [Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md).
+        If you use the `Application Token` authentication scheme, you must supply your own custom login module. See [Create a Custom Login Module](p_aaa_config_custom_lm.md) and [Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md).
 
-2.  Add the `login-modules` element within the `authentication` element that you started in [Step 1](p_aaa_config_authscheme.md). The `login-modules` element is the container for one or more login modules and it defines the scope in which security policies are enforced.
+2.  Add the `login-modules` element within the `authentication` element that you started in Step 1. The `login-modules` element is the container for one or more login modules and it defines the scope in which security policies are enforced.
 3.  Define one or more login modules to make a chain.
 
     Each login module in the chain is responsible for doing a little piece of work and passing along information. For example, one login module might check a database, another login module might contact an LDAP directory, and so on.
@@ -77,7 +77,7 @@ To Configure a Chain of Login Modules
 
 4.  Configure a `success` element for each login module.
 
-    If there is more than one login-module configured in a realm, then configure the semantics and processing order for a chain of login modules using the `success` element. In the example shown in the previous step, setting the `requisite` property indicates that the `file` login module must succeed. See the table in the [Notes](#Notes) section for more information about setting the `success` element.
+    If there is more than one login-module configured in a realm, then configure the semantics and processing order for a chain of login modules using the `success` element. In the example shown in the previous step, setting the `requisite` property indicates that the `file` login module must succeed. See the table in the Notes section for more information about setting the `success` element.
 
 5.  Ensure the corresponding `service` element’s `http-challenge-scheme` type aligns with the set of login modules in the Gateway configuration.
 
@@ -112,7 +112,7 @@ The following code shows a complete security example:
   <keystore>
    <type>JCEKS</type>
    <file>keystore.db</file>
-    <password-file>keystore.pw</password-file>
+   <password-file>keystore.pw</password-file>
   </keystore>
 
   <truststore>
@@ -122,7 +122,7 @@ The following code shows a complete security example:
   <realm>
     <name>demo</name>
     <authentication>
-      <http-challenge-scheme>Basic<http-challenge-scheme>
+      <http-challenge-scheme>Basic</http-challenge-scheme>
       <http-header>X-Custom-Authorization-Header</http-header>
       <http-query-parameter>myCustomAuthParam</http-query-parameter>
       <http-cookie>sampleCookie1</http-cookie>
