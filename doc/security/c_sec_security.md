@@ -31,7 +31,7 @@ Each of the security objectives is broken down into step-by-step instructions in
     See the descriptions of the `allow-origin` and `cross-site-constraint` elements in the [Service Reference](../admin-reference/r_conf_service.md#cross-site-constraint) documentation.
 
 -   **Securing Gateway Management:** For administrators, the Gateway reaches across multiple operating environments, works with major browsers, across multiple protocols, and multiple client platforms. For secure management, the Gateway provides a way to specify the protocol, network interface, and the port number on which the management agent accepts connections. Plus, you can define the user roles that are authorized to perform management operations.
--   **Using Development APIs:** For developers, the Gateway offers client APIs that leverage existing knowledge and skill sets to minimize the time and resources required to implement security features. The APIs are familiar and support multiple platforms running under multiple protocols and client libraries. The client[API](../index.md) documentation and the "HowTo’s" available for developers on the home page help to facilitate the development process.
+-   **Using Development APIs:** For developers, the Gateway offers client APIs that leverage existing knowledge and skill sets to minimize the time and resources required to implement security features. The APIs are familiar and support multiple platforms running under multiple protocols and client libraries. The client [API](../index.md) documentation and the "HowTo’s" available for developers on the home page help to facilitate the development process.
 
 See Also
 ------------------------------
