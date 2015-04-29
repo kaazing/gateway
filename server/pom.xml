@@ -61,6 +61,12 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.httpxe</artifactId>
+            <version>${httpxe.address.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.ws</artifactId>
             <version>${ws.address.version}</version>
             <scope>test</scope>
@@ -482,6 +488,7 @@
         <ssl.address.version>${project.version}</ssl.address.version>
         <tcp.address.version>${project.version}</tcp.address.version>
         <http.address.version>${project.version}</http.address.version>
+        <httpxe.address.version>${project.version}</httpxe.address.version>
         <udp.address.version>${project.version}</udp.address.version>
         <httpx.address.version>${project.version}</httpx.address.version>
         <httpxdraft.address.version>${project.version}</httpxdraft.address.version>
