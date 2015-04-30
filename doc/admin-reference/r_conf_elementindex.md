@@ -164,7 +164,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.verify-client](r_conf_service.md#accept-options-and-connect-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.ssl.verify-client](r_conf_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.transport](r_conf_service.md#protocoltransport) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
