@@ -25,14 +25,14 @@ The following table shows the supported paths for Gateway upgrades (major and mi
 | 3.5.*x*                               | 3.5.*y* (for example, 3.5.11 to 3.5.11)        | [Upgrade the Gateway](o_upgrade.md)                     | No code changes or recompilation of KAAZING client code is required.                            |
 | 3.3.*x* 3.4.*x* 3.5.*x*               | 4.0.*x* (for example, 3.5.11 to 4.0.3)         | [Upgrade the Gateway](o_upgrade.md)                     |                                                                                                 |
 
-\* See [KAAZING Clients and Backward Compatibility](#client_backwardcompat)
+\* See [KAAZING Clients and Backward Compatibility](#kaazing-clients-and-backward-compatibility)
 
 Upgrade Options
 --------------------------------------------
 
 You can use the Windows or Linux installer to install the Gateway into conventional (default) operating system locations or you can choose to unpack the .zip for Windows or .tar.gz for Linux, UNIX, or Mac) into any directory location:
 
--   Run the Windows or Linux installer to install the Gateway into conventional operating system locations and automatically run the Gateway as a service. The newer release is installed in a separate `_KAAZING\_HOME_` that is at the same level in the directory structure as the `_KAAZING\_HOME_` for the earlier release. Earlier releases are not overwritten or removed. For example, `jms/3.5` and `jms/4.0` are separate but parallel directories. [About `_KAAZING\_HOME_`](../about/about.md#about-kaazing_home) describes `_KAAZING\_HOME_` in more detail.
+-   Run the Windows or Linux installer to install the Gateway into conventional operating system locations and automatically run the Gateway as a service. The newer release is installed in a separate `_KAAZING\_HOME_` that is at the same level in the directory structure as the `_KAAZING\_HOME_` for the earlier release. Earlier releases are not overwritten or removed. For example, `jms/3.5` and `jms/4.0` are separate but parallel directories. [About `KAAZING_HOME`](../about/about.md#about-kaazing_home) describes `KAAZING_HOME` in more detail.
 
     **Note:** You cannot run both releases at the same time unless you change the ports on one or the other. You cannot run two Gateways on the same hostname and port.
 -   Unpack the .zip for Windows or .tar.gz for Linux, UNIX, or Mac and then uncompress the Gateway to any directory location and run it in place. You must take care to save user-modified files (such as the `gateway-config.xml` file) if you install the newer release in the same `_KAAZING\_HOME_` as the earlier release. Earlier releases of the Gateway will be overwritten or removed.
