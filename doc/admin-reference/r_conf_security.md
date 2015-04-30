@@ -45,7 +45,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
               - [options](#options-login-module)
                  - [debug](#options-login-module)
                  - [tryFirstToken](#options-login-module)
-- [user-principal-class](#realm)
+    - [user-principal-class](#realm)
 
 **Note:** The security elements and properties must be specified in the order shown.
 
