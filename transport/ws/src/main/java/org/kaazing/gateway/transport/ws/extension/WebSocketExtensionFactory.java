@@ -32,8 +32,7 @@ import java.util.ServiceLoader;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi.ExtensionOrderCategory;
 
 public final class WebSocketExtensionFactory {
 
@@ -41,7 +40,6 @@ public final class WebSocketExtensionFactory {
     private final List<ExtensionHeader> supportedExtensionHeaders;
     // note: extension names are in the order they would like to be on the pipeline in.
     private final List<String> extensionNames;
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketExtensionFactory.class);
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
@@ -49,18 +47,6 @@ public final class WebSocketExtensionFactory {
         LinkedList<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
         for (WebSocketExtensionFactorySpi factory : factoriesRO.values()) {
             addExtensionAtBestLocation(factory, orderedExtensions);
-        }
-        // WARN if extension ordering can not be made ideal by matching everyones requirements
-        if (!allExtensionOrderingRequirementsAreMet(orderedExtensions) && LOGGER.isWarnEnabled()) {
-            StringBuilder message =
-                    new StringBuilder(
-                            "Could not find an extension ordering to satisfy the requirements of all WebSocketExtensionSpi,")
-                            .append(" the order is: ");
-            for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
-                message.append(extension.getExtensionName()).append(" ");
-            }
-            LOGGER.warn(message.toString());
-
         }
         extensionNames = new ArrayList<>();
         for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
@@ -71,71 +57,16 @@ public final class WebSocketExtensionFactory {
 
     static void addExtensionAtBestLocation(WebSocketExtensionFactorySpi factory,
         LinkedList<WebSocketExtensionFactorySpi> orderedExtensions) {
-        int[] rankOfPotentialPositions = new int[orderedExtensions.size() + 1];
-        int i = 0;
-        // Brute force get the score for all the positions
-        do {
-            orderedExtensions.add(i, factory);
-            rankOfPotentialPositions[i] = scoreList(orderedExtensions);
-            orderedExtensions.remove(i);
-            i++;
-        } while (i <= orderedExtensions.size());
-        int bestPos = 0;
-        int bestScore = Integer.MIN_VALUE;
-        // choose the best position favoring the last entry in list in case of tie
-        for (i = 0; i < rankOfPotentialPositions.length; i++) {
-            if (rankOfPotentialPositions[i] >= bestScore) {
-                bestPos = i;
-                bestScore = rankOfPotentialPositions[i];
+        List<ExtensionOrderCategory> extensionOrderValues =
+                Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
+        int categoryId = extensionOrderValues.indexOf(factory.orderCategory());
+        int insertPosition;
+        for (insertPosition = 0; insertPosition < orderedExtensions.size(); insertPosition++) {
+            if (categoryId > extensionOrderValues.indexOf(orderedExtensions.get(insertPosition).orderCategory())) {
+                break;
             }
         }
-        orderedExtensions.add(bestPos, factory);
-    }
-
-    /*
-     * Gives a point for every order requirement is met by the list
-     */
-    private static int scoreList(List<WebSocketExtensionFactorySpi> listOfExtensionFactories) {
-        int score = 0;
-        final int numOfExtensionFactories = listOfExtensionFactories.size();
-        for (int pos = 0; pos < numOfExtensionFactories; pos++) {
-            WebSocketExtensionFactorySpi extensionFactory = listOfExtensionFactories.get(pos);
-            final String[] orderBefore = extensionFactory.orderBefore();
-            if (orderBefore != null) {
-                for (String ownRequirement : orderBefore) {
-                    final int nextPos = pos + 1;
-                    if (ownRequirement.equals("$") && nextPos == numOfExtensionFactories) {
-                        score++;
-                    } else if (ownRequirement.equals("$")) {
-                        final String[] nextExtensionsOrderBefore = listOfExtensionFactories.get(nextPos).orderBefore();
-                        if (nextExtensionsOrderBefore != null && Arrays.asList(nextExtensionsOrderBefore).contains("$")) {
-                            score++;
-                        }
-                    } else {
-                        for (int i = nextPos; i < numOfExtensionFactories; i++) {
-                            if (listOfExtensionFactories.get(i).getExtensionName().equals(ownRequirement)) {
-                                score++;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return score;
-    }
-
-    private boolean allExtensionOrderingRequirementsAreMet(LinkedList<WebSocketExtensionFactorySpi> orderedExtensions) {
-        int maxScore = 0;
-        for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
-            if (extension.orderBefore() != null) {
-                // note that the current scoring allows 2 extensions to have "$" and still be considered properly
-                // ordered,
-                // perhaps we do want to report that, perhaps we don't
-                maxScore += extension.orderBefore().length;
-            }
-        }
-        return (scoreList(orderedExtensions) == maxScore);
+        orderedExtensions.add(insertPosition, factory);
     }
 
     /**
@@ -176,7 +107,8 @@ public final class WebSocketExtensionFactory {
      * @param headerName Name of the HTTP header conveying extensions (e.g. "sec-websocket-extensions")
      * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
      *                                  any comma-separated list is already done by the HTTP transport layer)
-     * @return object representing the list of negotiated  WebSocketExtensionSpi instances
+     * @return object representing the list of negotiated  WebSocketExtensionSpi instances in the order they should appear
+     *                negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
     public ActiveWebSocketExtensions negotiateWebSocketExtensions(WsResourceAddress address, HttpAcceptSession session,

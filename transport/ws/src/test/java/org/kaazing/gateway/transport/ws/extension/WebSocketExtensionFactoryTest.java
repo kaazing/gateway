@@ -21,6 +21,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi.ExtensionOrderCategory.EMULATION;
+import static org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi.ExtensionOrderCategory.NETWORK;
 
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -318,8 +320,7 @@ public class WebSocketExtensionFactoryTest {
         Assert.assertEquals(0, ActiveWebSocketExtensions.asList().size());
     }
 
-    @Test(
-            expected = ProtocolException.class)
+    @Test(expected = ProtocolException.class)
     public void testProtocolExceptionInNegotiate() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("mock");
@@ -451,8 +452,8 @@ public class WebSocketExtensionFactoryTest {
         }
 
         @Override
-        public String[] orderBefore() {
-            return new String[]{"$"};
+        public ExtensionOrderCategory orderCategory() {
+            return NETWORK;
         }
     }
 
@@ -475,8 +476,8 @@ public class WebSocketExtensionFactoryTest {
         }
 
         @Override
-        public String[] orderBefore() {
-            return new String[]{"per-message-deflate", "$"};
+        public ExtensionOrderCategory orderCategory() {
+            return EMULATION;
         }
     }
 
