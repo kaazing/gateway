@@ -153,15 +153,15 @@ To display the certificates in the keystore, use the following command:
 
 -   If the Gateway cannot locate the keystore database file during start up, then the following exception is thrown:
 
-    `java.io.FileNotFoundException: GATEWAY\_HOME/conf/keystore.db (No such file or directory)`
+    `java.io.FileNotFoundException: GATEWAY_HOME/conf/keystore.db (No such file or directory)`
 
 -   If the Gateway cannot locate the keystore password file during start up, then the following exception is thrown:
 
-    `java.io.FileNotFoundException: GATEWAY\_HOME/conf/keystore.pw (No such file or directory)`
+    `java.io.FileNotFoundException: GATEWAY_HOME/conf/keystore.pw (No such file or directory)`
 
 -   If the Gateway cannot locate the truststore file during start up, then the following exception is thrown:
 
-    `java.io.FileNotFoundException: GATEWAY\_HOME/conf/truststore.db (No such file or directory)`
+    `java.io.FileNotFoundException: GATEWAY_HOME/conf/truststore.db (No such file or directory)`
 
 **Solution:** For all exceptions, confirm that the Gateway configuration has the correct name and location for the keystore, password, and truststore files. The keystore database file is located in `GATEWAY_HOME/conf` and referenced in the `keystore` element in `gateway-config.xml`, for example:
 
