@@ -46,7 +46,7 @@ public final class WebSocketExtensionFactory {
         // properly order the extension names
         LinkedList<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
         for (WebSocketExtensionFactorySpi factory : factoriesRO.values()) {
-            addExtensionAtBestLocation(factory, orderedExtensions);
+            addExtensionInCorrectOrder(factory, orderedExtensions);
         }
         extensionNames = new ArrayList<>();
         for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
@@ -55,7 +55,7 @@ public final class WebSocketExtensionFactory {
         this.supportedExtensionHeaders = Collections.unmodifiableList(toWsExtensions(this.getExtensionNames()));
     }
 
-    static void addExtensionAtBestLocation(WebSocketExtensionFactorySpi factory,
+    static void addExtensionInCorrectOrder(WebSocketExtensionFactorySpi factory,
         LinkedList<WebSocketExtensionFactorySpi> orderedExtensions) {
         List<ExtensionOrderCategory> extensionOrderValues =
                 Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());

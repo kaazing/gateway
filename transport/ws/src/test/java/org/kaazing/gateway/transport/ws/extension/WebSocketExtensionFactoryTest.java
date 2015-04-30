@@ -171,49 +171,49 @@ public class WebSocketExtensionFactoryTest {
         WebSocketExtensionFactorySpi pingPongWebSocketExtensionFactory = new PingPongWebSocketExtensionFactory();
 
         LinkedList<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
 
         orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
 
         orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
 
         orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
 
         orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
 
         orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionAtBestLocation(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionAtBestLocation(fooWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
+        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
         assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
         assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
         assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
