@@ -84,14 +84,15 @@ The preferred name for the auth-constraint configuration option has changed to a
 
         ``` sh-session
         2012-02-29 10:03:56,305 INFO   session.revalidate - 
-        [wsx#8] REVALIDATE COMMAND ENABLED [period=2s; timeout=2s]
+                           [wsx#8] REVALIDATE COMMAND ENABLED [period=2s; timeout=2s]
         ```
 
         The following message indicates the Gateway sent a revalidate message to the client.
 
         ``` sh-session
         2012-02-29 10:03:58,309 INFO   session.revalidate - 
-        [wsx#8] REVALIDATE COMMAND SENT: VALI /echoAuth/;a/f0tCswwNoLNfaKb4cOERYuTT56Ai6UAN?.kl=Y
+                           [wsx#8] REVALIDATE COMMAND SENT: VALI 
+        /echoAuth/;a/f0tCswwNoLNfaKb4cOERYuTT56Ai6UAN?.kl=Y
         ```
 
 ### Error: Host is Configured as a Secure Port in a Service
@@ -204,7 +205,7 @@ If there are any secure protocol schemes in `gateway-config.xml` (HTTPS, WSS, SS
 
 Enter the following `keytool` command to see if there is a certificate for the host name in the keystore:
 
-`keytool -list -v -alias *example.com* -keystore *GATEWAY\_HOME*/conf/keystore.db -storepass password -storetype JCEKS`
+`keytool -list -v -alias example.com -keystore GATEWAY_HOME/conf/keystore.db -storepass password -storetype JCEKS`
 
 You can omit the `-alias` parameter to see all certificates in the keystore or truststore.
 
