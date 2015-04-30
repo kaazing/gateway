@@ -1657,7 +1657,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
-Specify `notify-options` for the [notify](#notify-jms-only) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify-jms-only) element.
+Specify `notify-options` for the [notify](#notify-options-jms-only) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify-jms-only) element.
 
 **Note:** 
 The notify-options must be specified in the order shown in the following table.
