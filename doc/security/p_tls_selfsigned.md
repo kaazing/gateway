@@ -53,7 +53,9 @@ To Secure Gateway Connections Using Self-Signed Certificates
     Here is an example of how to create these components:
 
     ```
-    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\mykeystore.db -storetype JCEKS -storepass password -alias example.com -keyalg RSA -dname "CN=example.com, OU=Example, O=Example, L=Mountain View, ST=California, C=US"
+    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\mykeystore.db -storetype JCEKS -storepass 
+    password -alias example.com -keyalg RSA -dname "CN=example.com, OU=Example, O=Example, 
+    L=Mountain View, ST=California, C=US"
     ```
 
     To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md). 
@@ -100,7 +102,9 @@ To Secure Gateway Connections Using Self-Signed Certificates
 9.  Create the self-signed certificate for the server connection using the host name of the back-end server and save it in the truststore:
 
     ```
-    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -alias offline.example.com -keyalg RSA -dname "CN=offline.example.com, OU=Example, O=Example, L=Mountain View, ST=California, C=US"
+    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -alias 
+    offline.example.com -keyalg RSA -dname "CN=offline.example.com, OU=Example, O=Example, 
+    L=Mountain View, ST=California, C=US"
     ```
 
     To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
@@ -134,7 +138,6 @@ Notes
 -   Using a self-signed certificate for the connection between a web browser client and the Gateway requires that the web browser first connect to the Gateway using HTTPS to download the self-signed certificate. Typically, the HTTPS connection is made by configuring the Gateway with a directory service using HTTPS, such as https://example.com. The web browser will warn the user that the Gateway is using an untrusted self-signed certificate. The user must accept the self-signed certificate in the web browser in order to establish trust with the Gateway and connect using WebSocket Secure (WSS). Users may also import the self-signed certificate into their web browser. For more information, see [Secure Clients and Web Browsers with a Self-Signed Certificate](p_tls_clientapp.md).
 -   In this scenario, you are creating trust separate from a corporate or Internet Public Key Infrastructure (PKI). You might choose this configuration to test TLS/SSL with the Gateway, or you might not have a digital certificate from a CA but still want to ensure that WebSocket connections are not dropped by intermediaries such as proxy servers and firewalls.
 -   The `service` element configures a directory service on the Gateway for the secure URL you specified (for example, `https://www.example.com:9000/`) and specifies a welcome file web page. The purpose of the web page is to connect a web browser to the Gateway over HTTPS and download the self-signed certificate. If you do not have a web page, you can use index.md page in the `GATEWAY_HOME/web/base` folder.
--   The `session` element has been deprecated. For more information, see the [Session Reference](../admin-reference/r_conf_session.md) documentation.
 -   To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH,MEDIUM,ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
 -   If you choose to use a password when generating key pairs (optional), ensure that all of the keys in your keystore are secured with the same password as the keystore. If no password is provided when generating a key pair (via `-genkeypair`), you are prompted for a password. If you press RETURN at the prompt, the key password is set to the same password as that used for the keystore. [Keytool](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/keytool.html) allows you to secure keys with individual passwords (via the `-keypass` option) and add them into a keystore that uses a different password (via the <span class="uri" style="white-space:nowrap;">-storepass</span> option). When the Gateway attempts to access a key in a keystore configured in this manner, the Gateway fails to start and generates a Null Pointer Exception. The command `-keypasswd` changes the password under which the private key is protected. The command `-storepasswd` changes the password used to protect the integrity of the keystore contents.
 
