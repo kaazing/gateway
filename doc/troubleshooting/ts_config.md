@@ -131,11 +131,11 @@ ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERRO
 
 ### Warning: Error on WebSocket connection
 
-**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#ws-maximum-message-size) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
+**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaximummessagesize) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
 
 `2044-06-06 16:19:28,621 WARN  Error on WebSocket connection, closing connection: incoming message size exceeds permitted maximum of 131072 bytes (Hexdump:...)`
 
-**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_conf_service.md#ws-maximum-message-size).
+**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_conf_service.md#wsmaximummessagesize).
 
 ### Warning: ERROR string value '*value*' does not match pattern
 
@@ -143,7 +143,7 @@ ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERRO
 
 `ERROR   string value some_value does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway`
 
-**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#ws-maximum-message-size) to a valid value.
+**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaximummessagesize) to a valid value.
 
 ### Localhost Is Not Configured
 
