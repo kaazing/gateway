@@ -211,7 +211,7 @@ You can omit the `-alias` parameter to see all certificates in the keystore or t
 
 If there is no certificate for the alias you entered, keytool responds as follows:
 
-`keytool error: java.lang.Exception: Alias \<alias.com\> does not exist`
+`keytool error: java.lang.Exception: Alias <alias.com> does not exist`
 
 **Solution:** To solve this problem, create the certificate for the host name.
 
