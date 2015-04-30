@@ -35,7 +35,7 @@ What Problem Are You Having?
 -   [Demos Do Not Work When Using Fiddler Web Debugger as an HTTP Proxy](#demos-do-not-work-when-using-fiddler-web-debugger-as-an-http-proxy)
 -   [Error Using the Gateway to Proxy From Back-End Server over TCP to Client over WebSocket](#error-using-the-gateway-to-proxy-from-back-end-server-over-tcp-to-client-over-websocket)
 
-### <a name="portconflict"></a>Port 8000 or 8001 Is Already in Use
+### Port 8000 or 8001 Is Already in Use
 
 **Cause:** Port conflict is a common problem that occurs when another web server or process is already using one of the default KAAZING Gateway ports, either port 8000 (the default HTTP port to which the Gateway binds at startup) or 8001 (includes the Gateway documentation and demos).
 
@@ -46,7 +46,7 @@ What Problem Are You Having?
 3.  Restart the Gateway.
 4.  Test the port change by accessing the Gateway at `http://localhost:new-port-number/` in your browser. For example, if you changed the default port from 8000 to 8884, you can now access the Gateway home page at `http://localhost:8884/`.
 
-### <a name="numconnections"></a>Maximum Number of Connections Reached or Exceeded
+### Maximum Number of Connections Reached or Exceeded
 
 **Cause:** You have exceeded the number of allowed client connections to the Gateway. The terms of your KAAZING Gateway license specify a maximum number of allowed concurrent client connections. For example, the developer's version of the KAAZING Gateway bundle allows only a limited number of concurrent client connections.
 
@@ -60,9 +60,9 @@ ERROR Maximum number of connections exceeded. Closing connection.
 
 You have exceeded the *hard limit* of allowed connections and all new incoming connections are closed until you have upgraded the terms of your license.
 
-**Solution:** To upgrade your license, contact your Customer Support Representative.[](mailto:sales@kaazing.com).
+**Solution:** To upgrade your license, contact your [Customer Support Representative](mailto:sales@kaazing.com).
 
-### <span id="ulimit"></span></a>Too Many Open Files Warning
+### Too Many Open Files Warning
 
 **Cause:** If your server is unable to open more files to handle the number of open client connections, then the following warning message is recorded in the file `GATEWAY_HOME/log/error.log` file on UNIX or Linux:
 
@@ -83,13 +83,13 @@ By default, a UNIX or Linux user may only be able to open a maximum of a few hun
 
     -   To permanently apply the `ulimit` value, you may need to restart and reconfigure your server settings. Refer to your operating system documentation for more information.
 
-### <a name="outofmemory_error"></a>Out of Memory Error When Starting KAAZING Gateway
+### Out of Memory Error When Starting KAAZING Gateway
 
 **Cause:** An out-of-memory error can result when starting the Gateway if the maximum heap size is not set appropriately for your physical memory capacity. The default maximum heap size is only 516 MB, which typically is not sufficient for production deployment.
 
 **Solution:** Set the Java `-Xmx` option in your Gateway startup file to approximately 70% of the physical memory capacity. For example, if the physical memory capacity of the machine is 4 GB, then edit your Gateway startup script and modify the `GATEWAY_OPTS` environment variable to `-Xmx3072m`. (The default startup script is the `GATEWAY_HOME/bin/gateway.start` file.) Then start the Gateway. See [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_conf_gw_opts.md) for more information about setting the `GATEWAY_OPTS` environment variable.
 
-### <a name="ipv6_error"></a>Error Starting KAAZING Gateway on the Microsoft Vista Operating System
+### Error Starting KAAZING Gateway on the Microsoft Vista Operating System
 
 **Cause:** If you are running KAAZING Gateway on the Microsoft Vista operating system and an IPv6 address is specified for `localhost` in your `hosts` file, then you could receive the following error message:
 
@@ -108,7 +108,7 @@ java.net.SocketException: Address family not supported by protocol family: bind
 
 3.  Save the file and restart KAAZING Gateway.
 
-### <span id="nobind"></span></a>Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.
+### Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.
 
 **Cause:** On startup, the Gateway is unable to bind to the resource and returns an exception similar to the following in the log:
 
@@ -121,37 +121,37 @@ This exception can be caused by the following conditions:
 
 **Solution:** Check the [*protocol.*bind](../admin-reference/r_conf_service.md#protocolbind) element in your services (you may need to check the [service-defaults](../admin-reference/r_conf_serv_defs.md#servicedefaults) section, as well) to ensure that multiple services are not bound to same port. Also, check that secure and unsecure protocols are not bound to the same port.
 
-### <a name="invalidbuffervalue"></a>Error When Starting the Gateway: String Value [*'value*'] does not match pattern for DataSize in namespace
+### Error When Starting the Gateway: String Value [*'value*'] does not match pattern for DataSize in namespace
 
 **Cause:** When the `maximum.pending.bytes` property contains an invalid value, the following errors display when you start the Gateway:
 
 ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERROR   string value '128KB' does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway ERROR   \<xml-fragment xmlns:xsi=["http://www.w3.org/2001/XMLSchema-instance"](http://www.w3.org/2001/XMLSchema-instance)/\>
 
-**Solution:** Set the `maximum.pending.bytes` property of the [proxy](r_conf_service.md) service element to a valid value.
+**Solution:** Set the `maximum.pending.bytes` property of the [proxy](../admin-reference/r_conf_service.md#proxy) service element to a valid value.
 
-### <a name="wsmaxmsgwarn"></a>Warning: Error on WebSocket connection
+### Warning: Error on WebSocket connection
 
-**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaxmsg) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
+**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#ws-maximum-message-size) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
 
 `2044-06-06 16:19:28,621 WARN  Error on WebSocket connection, closing connection: incoming message size exceeds permitted maximum of 131072 bytes (Hexdump:...)`
 
-**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_conf_service.md#wsmaxmsg).
+**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_conf_service.md#ws-maximum-message-size).
 
-### <a name="wsmaxbadvalue"></a>Warning: ERROR string value '*value*' does not match pattern
+### Warning: ERROR string value '*value*' does not match pattern
 
 **Cause:** When the `ws.maximum.message.size` element is set to an invalid value (indicated by "*value*" in the example warning), the following warning occurs when the Gateway starts:
 
 `ERROR   string value some_value does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway`
 
-**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaxmsg) to a valid value.
+**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#ws-maximum-message-size) to a valid value.
 
-### <a name="localhostnot"></a>Localhost Is Not Configured
+### Localhost Is Not Configured
 
 **Cause:** “Localhost” is not found when you try to access KAAZING Gateway. This can happen if your browser is configured to use a proxy server.
 
 **Solution:** Make sure your proxy configuration bypasses the proxy to access `localhost`.
 
-### <a name="fiddler"></a>Demos Do Not Work When Using Fiddler Web Debugger as an HTTP Proxy
+### Demos Do Not Work When Using Fiddler Web Debugger as an HTTP Proxy
 
 **Cause:** When Fiddler is used as an HTTP proxy, it can handle both `http://` and `https://` traffic. However, to monitor the `https://` traffic, Fiddler must be able to decrypt the traffic. Fiddler can do this only if it serves a [fake] SSL certificate. When KAAZING Gateway detects that traffic is flowing through an HTTP proxy (such as Fiddler), the Gateway attempts to automatically use an SSL downstream for the emulated WebSocket because unencrypted streaming responses can be buffered by the HTTP proxy. This can cause potentially lengthy delays in message delivery. The browser automatically fails when attempting to download an `https://` URL with untrusted (fake) certificate.
 
@@ -159,7 +159,7 @@ ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERRO
 
 **See Also:** [`http://www.fiddler2.com/Fiddler/help/httpsdecryption.asp`](http://www.fiddler2.com/Fiddler/help/httpsdecryption.asp) for more information about Fiddler.
 
-### <a name="bytesocket"></a>Error Using the Gateway to Proxy from Back-End Server over TCP to Client over WebSocket
+### Error Using the Gateway to Proxy from Back-End Server over TCP to Client over WebSocket
 
 **Cause:** When the Gateway is configured as a proxy receiving binary data over TCP from a back-end server and sends that data over WebSocket to Flash. .NET, or Silverlight client applications, the client applications must use a ByteSocket client library to send and receive binary data. In this scenario, using a WebSocket client library on the client application will fail. Note: the WebSocket class in KAAZING Gateway JavaScript, Java, Objective-C, and Android clients supports binary.
 
