@@ -16,8 +16,6 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import java.util.List;
-
 import org.apache.mina.core.filterchain.IoFilter;
 
 /**
@@ -47,5 +45,5 @@ public abstract class WebSocketExtensionSpi {
     public IoFilter getFilter() {
         return null;
     };
-    
+
 }

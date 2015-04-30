@@ -38,7 +38,7 @@ import org.junit.Test;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
 import org.kaazing.gateway.transport.ws.util.Expectations;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;

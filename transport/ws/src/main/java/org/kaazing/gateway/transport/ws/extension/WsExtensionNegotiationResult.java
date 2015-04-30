@@ -37,12 +37,12 @@ public final class WsExtensionNegotiationResult {
 
     private final Status status;
     private final String failureReason;
-    private final ActiveExtensions extensions;
+    private final ActiveWebSocketExtensions extensions;
 
     public WsExtensionNegotiationResult(List<ExtensionHeader> extensions, EndpointKind endpointKind) {
         this.status = Status.OK;
         this.failureReason = null;
-        this.extensions = new ActiveExtensions(extensions, endpointKind);
+        this.extensions = new ActiveWebSocketExtensions(extensions, endpointKind);
     }
 
     public WsExtensionNegotiationResult(Status status,
@@ -52,7 +52,7 @@ public final class WsExtensionNegotiationResult {
         this.extensions = null;
     }
 
-    public ActiveExtensions getExtensions() {
+    public ActiveWebSocketExtensions getExtensions() {
         return extensions;
     }
 

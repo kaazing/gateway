@@ -31,7 +31,7 @@ import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
 import org.kaazing.gateway.transport.ws.extension.EscapeSequencer;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -47,11 +47,11 @@ public abstract class AbstractWsFrameEncoder extends ProtocolEncoderAdapter {
     protected final IoBufferAllocatorEx<?> allocator;
     protected final MessageEncoder<WsMessage> encoder;
 
-    protected ActiveExtensions extensions;
+    protected ActiveWebSocketExtensions extensions;
 
     private final CachingMessageEncoder cachingEncoder;
 
-    public void setExtensions(ActiveExtensions extensions) {
+    public void setExtensions(ActiveWebSocketExtensions extensions) {
         this.extensions = extensions;
     }
 

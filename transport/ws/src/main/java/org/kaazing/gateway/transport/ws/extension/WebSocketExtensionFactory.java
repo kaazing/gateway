@@ -23,6 +23,7 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,10 +63,10 @@ public final class WebSocketExtensionFactory {
 
         }
         extensionNames = new ArrayList<>();
-        for(WebSocketExtensionFactorySpi extension: orderedExtensions){
+        for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
             extensionNames.add(extension.getExtensionName());
         }
-        this.supportedExtensionHeaders = toWsExtensions(this.getExtensionNames());
+        this.supportedExtensionHeaders = Collections.unmodifiableList(toWsExtensions(this.getExtensionNames()));
     }
 
     static void addExtensionAtBestLocation(WebSocketExtensionFactorySpi factory,
@@ -81,7 +82,7 @@ public final class WebSocketExtensionFactory {
         } while (i <= orderedExtensions.size());
         int bestPos = 0;
         int bestScore = Integer.MIN_VALUE;
-        // get the best position favoring the last entry in list in case of tie
+        // choose the best position favoring the last entry in list in case of tie
         for (i = 0; i < rankOfPotentialPositions.length; i++) {
             if (rankOfPotentialPositions[i] >= bestScore) {
                 bestPos = i;
@@ -91,6 +92,9 @@ public final class WebSocketExtensionFactory {
         orderedExtensions.add(bestPos, factory);
     }
 
+    /*
+     * Gives a point for every order requirement is met by the list
+     */
     private static int scoreList(List<WebSocketExtensionFactorySpi> listOfExtensionFactories) {
         int score = 0;
         final int numOfExtensionFactories = listOfExtensionFactories.size();
@@ -100,18 +104,17 @@ public final class WebSocketExtensionFactory {
             if (orderBefore != null) {
                 for (String ownRequirement : orderBefore) {
                     final int nextPos = pos + 1;
-                    score--; // assume not found, but then add 2 if found
                     if (ownRequirement.equals("$") && nextPos == numOfExtensionFactories) {
-                        score += 2;
-                    }else if(ownRequirement.equals("$")){
+                        score++;
+                    } else if (ownRequirement.equals("$")) {
                         final String[] nextExtensionsOrderBefore = listOfExtensionFactories.get(nextPos).orderBefore();
-                        if(nextExtensionsOrderBefore != null && Arrays.asList(nextExtensionsOrderBefore).contains("$")){
-                            score+=2;
+                        if (nextExtensionsOrderBefore != null && Arrays.asList(nextExtensionsOrderBefore).contains("$")) {
+                            score++;
                         }
                     } else {
-                        for(int i = nextPos; i < numOfExtensionFactories; i++){
-                            if(listOfExtensionFactories.get(i).getExtensionName().equals(ownRequirement)){
-                                score+=2;
+                        for (int i = nextPos; i < numOfExtensionFactories; i++) {
+                            if (listOfExtensionFactories.get(i).getExtensionName().equals(ownRequirement)) {
+                                score++;
                                 break;
                             }
                         }
@@ -126,7 +129,8 @@ public final class WebSocketExtensionFactory {
         int maxScore = 0;
         for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
             if (extension.orderBefore() != null) {
-                // note that the current scoring allows 2 extensions to have "$" and still be considered properly ordered,
+                // note that the current scoring allows 2 extensions to have "$" and still be considered properly
+                // ordered,
                 // perhaps we do want to report that, perhaps we don't
                 maxScore += extension.orderBefore().length;
             }
@@ -189,46 +193,22 @@ public final class WebSocketExtensionFactory {
 
             // get the acceptedExtensions
             LinkedList<WebSocketExtensionSpi> acceptedExtensions = new LinkedList<>();
-            for (ExtensionHeader candidate : requestedExtensions) {
-                WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
-                WebSocketExtensionSpi acceptedExtension = extension.negotiate(candidate, address);
-                // negotiated can be null if the extension doesn't want to be active
-                if (acceptedExtension != null) {
-                    acceptedExtensions.add(acceptedExtension);
-
-                }
-            }
 
             // Orders the extensions based on SPI preferences
-
+            for (ExtensionHeader extensionType : supportedExtensionHeaders) {
+                int index = requestedExtensions.indexOf(extensionType);
+                if (index >= 0) {
+                    ExtensionHeader candidate = requestedExtensions.get(index);
+                    WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
+                    WebSocketExtensionSpi acceptedExtension = extension.negotiate(candidate, address);
+                    // negotiated can be null if the extension doesn't want to be active
+                    if (acceptedExtension != null) {
+                        acceptedExtensions.add(acceptedExtension);
+                    }
+                }
+            }
             result = new ActiveWebSocketExtensions(acceptedExtensions);
         }
-        // if (clientRequestedExtensions != null) {
-        // List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
-        //
-        // // Since the client may have provided parameters in their
-        // // extensions, we retain the common requested extensions, not
-        // // the common supported extensions as was previously done.
-        // requestedExtensions.retainAll(supportedExtensionHeaders);
-        //
-        // // get the acceptedExtensions
-        // LinkedList<WebSocketExtensionSpi> acceptedExtensions = new LinkedList<>();
-        // for (ExtensionHeader candidate : requestedExtensions) {
-        // WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
-        // WebSocketExtensionSpi acceptedExtension = extension.negotiate(candidate, address);
-        // // negotiated can be null if the extension doesn't want to be active
-        // if (acceptedExtension != null) {
-        // acceptedExtensions.add(acceptedExtension);
-        //
-        // }
-        // }
-        //
-        // //Orders the extensions based on SPI preferences
-        //
-        //
-        // result = new ActiveWebSocketExtensions(acceptedExtensions);
-        // }
-
         return result;
     }
 
