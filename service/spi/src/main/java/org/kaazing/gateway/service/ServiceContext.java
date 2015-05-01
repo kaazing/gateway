@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
@@ -39,33 +40,33 @@ import org.slf4j.Logger;
 
 public interface ServiceContext {
 
-    public static final String SESSION_FILTER_NAME = "sessiontracker";
+    String SESSION_FILTER_NAME = "sessiontracker";
 
-    public RealmContext getServiceRealm();
+    RealmContext getServiceRealm();
 
-    public String getAuthorizationMode();
+    String getAuthorizationMode();
 
-    public String getSessionTimeout();
+    String getSessionTimeout();
 
-    public String getServiceType();
+    String getServiceType();
 
-    public String getServiceName();
+    String getServiceName();
 
-    public String getServiceDescription();
+    String getServiceDescription();
 
-    public Collection<URI> getAccepts();
+    Collection<URI> getAccepts();
 
-    public Collection<URI> getBalances();
+    Collection<URI> getBalances();
 
-    public Collection<URI> getConnects();
+    Collection<URI> getConnects();
     
-    public Map<String, String> getMimeMappings();
+    Map<String, String> getMimeMappings();
 
-    public ServiceProperties getProperties();
+    ServiceProperties getProperties();
 
-    public Service getService();
+    Service getService();
 
-    public String[] getRequireRoles();
+    String[] getRequireRoles();
     
     /**
      * Return a MIME-type string for a given file extension, per the list of
@@ -73,89 +74,92 @@ public interface ServiceContext {
      * in <service-defaults>.  If the parameter is null or no MIME-type 
      * is configured for the given value, returns null.
      */
-    public String getContentType(String fileExtension);
+    String getContentType(String fileExtension);
 
-    public Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints();
+    Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints();
 
-    public File getWebDirectory();
+    File getWebDirectory();
 
-    public File getTempDirectory();
+    File getTempDirectory();
 
-    public void init() throws Exception;
+    void init() throws Exception;
 
-    public void start() throws Exception;
+    void start() throws Exception;
 
-    public void bind(Collection<URI> acceptURIs, IoHandler handler);
+    void bind(Collection<URI> acceptURIs, IoHandler handler);
 
-	public void bind(Collection<URI> acceptURIs, IoHandler handler,
-			AcceptOptionsContext acceptOptionsContext);
+	void bind(Collection<URI> acceptURIs, IoHandler handler,
+              AcceptOptionsContext acceptOptionsContext);
 	
-	public void bind(Collection<URI> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+	void bind(Collection<URI> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
     
-	public void bind(Collection<URI> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+	void bind(Collection<URI> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
 
-    public void bindConnectsIfNecessary(Collection<URI> connectURIs);
+    void bindConnectsIfNecessary(Collection<URI> connectURIs);
 
-    public void unbind(Collection<URI> acceptURIs, IoHandler handler);
+    void unbind(Collection<URI> acceptURIs, IoHandler handler);
 
-    public void unbindConnectsIfNecessary(Collection<URI> connectURIs);
+    void unbindConnectsIfNecessary(Collection<URI> connectURIs);
 
-    public void stop() throws Exception;
+    void stop() throws Exception;
 
-    public void destroy() throws Exception;
+    void destroy() throws Exception;
     
-    public ConnectFuture connect(URI connectURI, IoHandler connectHandler,
-            IoSessionInitializer<ConnectFuture> ioSessionInitializer);
+    ConnectFuture connect(URI connectURI, IoHandler connectHandler,
+                          IoSessionInitializer<ConnectFuture> ioSessionInitializer);
 
-    public Collection<IoSessionEx> getActiveSessions();
+    ConnectFuture connect(ResourceAddress address, IoHandler connectHandler,
+                          IoSessionInitializer<ConnectFuture> connectSessionInitializer);
+
+    Collection<IoSessionEx> getActiveSessions();
 	
-    public IoSessionEx getActiveSession(Long sessionId);
+    IoSessionEx getActiveSession(Long sessionId);
 	
-    public void addActiveSession(IoSessionEx session);
+    void addActiveSession(IoSessionEx session);
 	
-    public void removeActiveSession(IoSessionEx session);
+    void removeActiveSession(IoSessionEx session);
 
 //    public ClusterContext getClusterContext();
 
-    public AcceptOptionsContext getAcceptOptionsContext();
+    AcceptOptionsContext getAcceptOptionsContext();
 
-    public ConnectOptionsContext getConnectOptionsContext();
+    ConnectOptionsContext getConnectOptionsContext();
 
-    public Logger getLogger();
+    Logger getLogger();
 
-    public SchedulerProvider getSchedulerProvider();
+    SchedulerProvider getSchedulerProvider();
 
-    public String decrypt(String encrypted) throws Exception;
+    String decrypt(String encrypted) throws Exception;
 
-    public String encrypt(String plaintext) throws Exception;
+    String encrypt(String plaintext) throws Exception;
 
     /**
      * For help with the Console, indicate whether the service supports accepts
      * and accept options.
      */
-    public boolean supportsAccepts();
+    boolean supportsAccepts();
 
     /**
      * For help with the Console, indicate whether the service supports connects
      * and connect options.
      */
-    public boolean supportsConnects();
+    boolean supportsConnects();
 
     /**
      * For help with the Console, indicate whether the service supports connects
      * and connect options.
      */
-    public boolean supportsMimeMappings();
+    boolean supportsMimeMappings();
 
-    public int getProcessorCount();
+    int getProcessorCount();
 
-    public void setListsOfAcceptConstraintsByURI(List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI);
+    void setListsOfAcceptConstraintsByURI(List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI);
 
     // Used by the update.check.service, could be used by other services
-    public Map<String, Object> getServiceSpecificObjects();
+    Map<String, Object> getServiceSpecificObjects();
 
-    public IoSessionInitializer<ConnectFuture> getSessionInitializor();
+    IoSessionInitializer<ConnectFuture> getSessionInitializor();
 
-    public void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer);
+    void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer);
 
 }

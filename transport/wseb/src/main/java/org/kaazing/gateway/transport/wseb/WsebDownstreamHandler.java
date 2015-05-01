@@ -27,21 +27,15 @@ import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BI
 
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.BridgeSession;
-import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
@@ -53,7 +47,6 @@ import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
 import org.kaazing.gateway.transport.wseb.filter.EncodingFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
-import org.kaazing.gateway.transport.wseb.filter.WsebReconnectFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebTextAsBinaryEncodingCodecFilter;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
@@ -347,7 +340,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
         // TODO: same-origin requests must consider cross-origin access control
         //       internal redirect to secure resource should not trigger 403 Forbidden
-        ResourceAddress localAddress = (ResourceAddress)session.getLocalAddress();
+        ResourceAddress localAddress = session.getLocalAddress();
         URI resource = localAddress.getResource();
         Protocol resourceProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource);
         if (WsebProtocol.WSEB_SSL == resourceProtocol || WsProtocol.WSS == resourceProtocol) {

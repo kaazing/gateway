@@ -21,21 +21,24 @@
 
 package org.kaazing.gateway.server.config.parse;
 
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.util.http.DefaultUtilityHttpClient;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * Unit tests for parsing gateway-config.xml.
@@ -96,6 +99,21 @@ public class GatewayConfigParserTest {
         File configFile = null;
         try {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-kg4462.xml");
+            parser.parse(configFile);
+
+        } finally {
+            if (configFile != null) {
+                configFile.delete();
+            }
+        }
+    }
+
+    @Test
+    public void testWillParseServiceDefaults() throws Exception {
+        File configFile = null;
+        try {
+            configFile = createTempFileFromResource(
+                    "org/kaazing/gateway/server/config/parse/data/gateway-config-with-service-defaults.xml");
             parser.parse(configFile);
 
         } finally {
@@ -215,6 +233,7 @@ public class GatewayConfigParserTest {
     }
 
     @Test(expected = GatewayConfigParserException.class)
+    @Ignore("XSD no longer validates accept-options types")
     public void testInvalidWsInactivityTimeout() throws Exception {
         File configFile = null;
         try {
@@ -231,6 +250,7 @@ public class GatewayConfigParserTest {
     }
 
     @Test(expected = GatewayConfigParserException.class)
+    @Ignore("XSD no longer validates connect-options types")
     public void testInvalidWsInactivityTimeoutAsConnectOption()
             throws Exception {
         File configFile = null;

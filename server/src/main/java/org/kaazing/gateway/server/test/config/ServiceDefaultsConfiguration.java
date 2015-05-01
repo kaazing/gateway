@@ -30,6 +30,8 @@ public class ServiceDefaultsConfiguration implements Configuration<SuppressibleS
 
     private final Map<String, Suppressible<String>> acceptOptions = new HashMap<>();
     private final Map<String, String> unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
+    private final Map<String, Suppressible<String>> connectOptions = new HashMap<>();
+    private final Map<String, String> unsuppressibleConnectOptions = Suppressibles.unsuppressibleMap(connectOptions);
     private final Map<String, Suppressible<String>> mimeMappings = new HashMap<>();
     private final Map<String, String> unsuppressibleMimeMappings = Suppressibles.unsuppressibleMap(mimeMappings);
 
@@ -52,8 +54,16 @@ public class ServiceDefaultsConfiguration implements Configuration<SuppressibleS
         return unsuppressibleAcceptOptions;
     }
 
+    public Map<String, String> getConnectOptions() {
+        return unsuppressibleConnectOptions;
+    }
+
     public void addAcceptOption(String key, String value) {
         unsuppressibleAcceptOptions.put(key, value);
+    }
+
+    public void addConnectOption(String key, String value) {
+        unsuppressibleConnectOptions.put(key, value);
     }
 
     public Map<String, String> getMimeMappings() {
@@ -84,8 +94,18 @@ public class ServiceDefaultsConfiguration implements Configuration<SuppressibleS
         }
 
         @Override
+        public Map<String, Suppressible<String>> getConnectOptions() {
+            return connectOptions;
+        }
+
+        @Override
         public void addAcceptOption(String key, Suppressible<String> value) {
             acceptOptions.put(key, value);
+        }
+
+        @Override
+        public void addConnectOption(String key, Suppressible<String> value) {
+            connectOptions.put(key, value);
         }
 
         @Override

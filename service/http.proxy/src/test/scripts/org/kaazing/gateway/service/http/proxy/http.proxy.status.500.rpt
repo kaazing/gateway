@@ -17,7 +17,7 @@ read "HTTP/1.1 500 Internal Server Error\r\n"
 read "Content-Length: 25\r\n"
 read "Content-Type: text/html;charset=ISO-8859-1\r\n"
 read /Date: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
 read "Set-Cookie: JSESSIONID=E314BE3736E6A09B5FA0CFC0DDD32549; Path=/examples/; HttpOnly\r\n"
 read "\r\n"
 read "<html>Wrong Choice</html>"
@@ -51,5 +51,5 @@ write "Connection: close\r\n"
 write "\r\n"
 write "<html>Wrong Choice</html>"
 
-close
+# gateway(sender) closes the connection
 closed

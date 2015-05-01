@@ -234,21 +234,14 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
         @Override
         public boolean equals(Object o) {
             if (o == null ||
-                !(o instanceof MapEntry)) {
+                    !(o instanceof MapEntry)) {
                 return false;
             }
 
             MapEntry that = (MapEntry) o;
 
-            if (that.getKey().equals(getKey()) == false) {
-                return false;
-            }
+            return that.getKey().equals(getKey()) && that.getValue().equals(getValue());
 
-            if (that.getValue().equals(getValue()) == false) {
-                return false;
-            }
-
-            return true;
         }
 
         @Override
@@ -614,7 +607,7 @@ public class MemoryCollectionsFactory implements CollectionsFactory {
             V value = map.remove(key);
             boolean removed = (value !=  null);
             if (removed) {
-                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, (V) value);
+                EntryEvent<K, V> event = new EntryEvent<>(name, null, EntryEvent.TYPE_REMOVED, (K)key, value);
                 listenerSupport.entryRemoved(event);
             }
             return value;

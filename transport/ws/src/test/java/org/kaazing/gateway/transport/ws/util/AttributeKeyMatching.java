@@ -39,7 +39,7 @@ final class AttributeKeyMatching extends BaseMatcher<AttributeKey> {
 	@Override
 	public boolean matches(Object arg) {
 		return (arg instanceof AttributeKey) && 
-		       ((AttributeKey)arg).toString().matches(pattern);
+		       arg.toString().matches(pattern);
 	}
 
 	@Override

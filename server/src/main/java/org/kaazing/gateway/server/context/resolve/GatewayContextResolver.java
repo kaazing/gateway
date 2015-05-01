@@ -40,11 +40,13 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 import javax.management.MBeanServer;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
+
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -233,7 +235,7 @@ public class GatewayContextResolver {
                 resolveServices(servicesByURI, webDir, tempDir, serviceConfigs, securityContext,
                         realmsContext, clusterContext, serviceDefaults, schedulerProvider,
                         dependencyContexts,
-                        configuration, transportFactory, serviceFactory, resourceAddressFactory);
+                        configuration, transportFactory, serviceFactory, resourceAddressFactory, serviceDefaults);
         resolveTransports(transportFactory);
 
         BridgeServiceFactory bridgeServiceFactory = resolveBridgeServiceFactory(transportFactory);
@@ -405,6 +407,12 @@ public class GatewayContextResolver {
             acceptOptions = new DefaultAcceptOptionsContext(null, serviceAcceptOptions);
         }
 
+        DefaultConnectOptionsContext connectOptions = null;
+        ServiceConnectOptionsType serviceConnectOptions = serviceDefaults.getConnectOptions();
+        if (serviceConnectOptions != null) {
+            connectOptions = new DefaultConnectOptionsContext(null, serviceConnectOptions);
+        }
+
         Map<String, String> mimeMappings = null;
 
         MimeMappingType[] mimeMappingTypes = serviceDefaults.getMimeMappingArray();
@@ -415,7 +423,7 @@ public class GatewayContextResolver {
             }
         }
 
-        return new DefaultServiceDefaultsContext(acceptOptions, mimeMappings);
+        return new DefaultServiceDefaultsContext(acceptOptions, connectOptions, mimeMappings);
     }
 
     @SuppressWarnings("unchecked")
@@ -432,7 +440,8 @@ public class GatewayContextResolver {
                                                        Properties configuration,
                                                        TransportFactory transportFactory,
                                                        ServiceFactory serviceFactory,
-                                                       ResourceAddressFactory resourceAddressFactory)
+                                                       ResourceAddressFactory resourceAddressFactory,
+                                                       ServiceDefaultsType serviceDefaults)
             throws Exception {
 
 //        Map<String, Class<? extends Service>> serviceClasses = new HashMap<String, Class<? extends Service>>();
@@ -626,7 +635,12 @@ public class GatewayContextResolver {
             AcceptOptionsContext acceptOptionsContext = new DefaultAcceptOptionsContext(acceptOptions, defaultOptionsConfig);
 
             ServiceConnectOptionsType connectOptions = serviceConfig.getConnectOptions();
-            ConnectOptionsContext connectOptionsContext = new DefaultConnectOptionsContext(connectOptions);
+
+            ServiceConnectOptionsType defaultConnectOptions =
+                    (serviceDefaults == null) ? ServiceConnectOptionsType.Factory.newInstance() : serviceDefaults
+                            .getConnectOptions();
+            ConnectOptionsContext connectOptionsContext =
+                    new DefaultConnectOptionsContext(connectOptions, defaultConnectOptions);
 
             Key encryptionKey = null;
 
@@ -1186,7 +1200,7 @@ public class GatewayContextResolver {
 
         public SingletonConfiguration(String applicationName, Collection<AppConfigurationEntry> configurationEntries) {
             AppConfigurationEntry[] array = new AppConfigurationEntry[configurationEntries.size()];
-            this.configurationEntries = Collections.<String, AppConfigurationEntry[]>singletonMap(applicationName,
+            this.configurationEntries = Collections.singletonMap(applicationName,
                     configurationEntries.toArray(array));
         }
 

@@ -31,7 +31,7 @@ public class ProxyServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("proxy");
+        return Collections.singletonList("proxy");
     }
 
     @Override

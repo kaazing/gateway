@@ -57,7 +57,7 @@ public class HttpPipeliningIT {
 					// TransportOptionNames) instead of
 					// "http.keepalive.timeout",
 					// see Gateway.camelCaseToDottedLowerCase.
-					.acceptOption("http.keepaliveTimeout", "3")
+					.acceptOption("http.keepalive.timeout", "3")
 					// seconds
 					.done()
 					.service()

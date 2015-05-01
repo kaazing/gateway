@@ -278,7 +278,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, cause); return;
             case DEBUG : logger.debug(message, cause); return;
@@ -289,7 +289,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param); return;
             case DEBUG : logger.debug(message, param); return;
@@ -300,7 +300,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, param1, param2); return;
             case DEBUG : logger.debug(message, param1, param2); return;
@@ -311,13 +311,13 @@ public class LoggingFilter extends IoFilterAdapter {
         }
     }
 
-    public static final void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
+    public static void log(Logger logger, LogLevel eventLevel, String message, Object param1, Object param2, Object param3) {
         switch (eventLevel) {
-            case TRACE : logger.trace(message, new Object[] { param1, param2, param3 }); return;
-            case DEBUG : logger.debug(message, new Object[] { param1, param2, param3 }); return;
-            case INFO  : logger.info(message, new Object[] { param1, param2, param3 }); return;
-            case WARN  : logger.warn(message, new Object[] { param1, param2, param3 }); return;
-            case ERROR : logger.error(message, new Object[] { param1, param2, param3 }); return;
+            case TRACE : logger.trace(message, param1, param2, param3); return;
+            case DEBUG : logger.debug(message, param1, param2, param3); return;
+            case INFO  : logger.info(message, param1, param2, param3); return;
+            case WARN  : logger.warn(message, param1, param2, param3); return;
+            case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
         }
     }

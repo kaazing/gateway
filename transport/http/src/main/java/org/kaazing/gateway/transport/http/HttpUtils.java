@@ -27,7 +27,6 @@ import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_NOT_MODIFIE
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +94,7 @@ public class HttpUtils {
 		RFC822_FORMAT_PATTERN.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 
-    public static final String getHostDomain(HttpRequestMessage httpRequest) {
+    public static String getHostDomain(HttpRequestMessage httpRequest) {
 	    String host = httpRequest.getHeader("Host");
 	    int index = host.indexOf(':');
 	    if (index != -1) {
@@ -105,12 +104,12 @@ public class HttpUtils {
 	}
 
 	
-	public static final String getHostAndPort(HttpRequestMessage httpRequest, boolean secure) {
+	public static String getHostAndPort(HttpRequestMessage httpRequest, boolean secure) {
 		String authority = httpRequest.getHeader("Host");
 		return getHostAndPort(authority, secure);
 	}
 
-	public static final String getHostAndPort(String authority, boolean secure) {
+	public static String getHostAndPort(String authority, boolean secure) {
 		// default port if necessary
 		if (authority != null && authority.indexOf(':') == -1) {
 			int port = secure ? 443 : 80;
@@ -119,7 +118,7 @@ public class HttpUtils {
 		return authority;
 	}
 	
-	public static final long parseDateHeader(String header) {
+	public static long parseDateHeader(String header) {
 		if (header != null && header.length() > 0) {
 			for (DateFormat rfc822Format : RFC822_PARSE_PATTERNS) {
 				try {
@@ -140,12 +139,12 @@ public class HttpUtils {
 		throw new IllegalArgumentException("Unable to parse date header: " + header);
 	}
 	
-	public static final String formatDateHeader(long millis) {
+	public static String formatDateHeader(long millis) {
 		return RFC822_FORMAT_PATTERN.format(millis);
 	}
 
-	public static final void fileRequested(IoBufferAllocatorEx<?> allocator, HttpRequestMessage httpRequest, HttpResponseMessage httpResponse,
-			File requestFile) throws FileNotFoundException, IOException {
+	public static void fileRequested(IoBufferAllocatorEx<?> allocator, HttpRequestMessage httpRequest, HttpResponseMessage httpResponse,
+			File requestFile) throws IOException {
 		if (requestFile.isFile() && requestFile.exists()) {
 			String etag = getETagHeaderValue(requestFile);
 			String ifNoneMatch = httpRequest.getHeader("If-None-Match");
@@ -180,7 +179,7 @@ public class HttpUtils {
 	}
 	
 	// ported from httpFileRequested (above)
-    public static final void writeIfModified(HttpAcceptSession httpSession, File requestFile) throws FileNotFoundException, IOException {
+    public static void writeIfModified(HttpAcceptSession httpSession, File requestFile) throws IOException {
         if (requestFile.isFile() && requestFile.exists()) {
             String etag = getETagHeaderValue(requestFile);
             String ifNoneMatch = httpSession.getReadHeader("If-None-Match");
@@ -219,7 +218,7 @@ public class HttpUtils {
     }
     
 	// TODO: should be able to remove this once we can send File down the pipe
-	public static final IoBufferEx getBufferForFile(IoBufferAllocatorEx<?> allocator, File requestFile) throws FileNotFoundException, IOException {
+	public static IoBufferEx getBufferForFile(IoBufferAllocatorEx<?> allocator, File requestFile) throws IOException {
 		FileInputStream in = new FileInputStream(requestFile);
 		IoBufferEx out = allocator.wrap(allocator.allocate(in.available())).setAutoExpander(allocator);
 		try {
@@ -237,7 +236,7 @@ public class HttpUtils {
 		return out;
 	}
 	
-	public static final boolean hasBeenModified(HttpSession session, String etag, File requestFile) {
+	public static boolean hasBeenModified(HttpSession session, String etag, File requestFile) {
 		String ifNoneMatch = session.getReadHeader("If-None-Match");
 		String ifModifiedSince = session.getReadHeader("If-Modified-Since");
 		return hasBeenModified(requestFile, etag, ifNoneMatch, ifModifiedSince);
@@ -289,19 +288,15 @@ public class HttpUtils {
 		}
 	
 		// check modified time against file last modified
-		if (lastModified <= ifModifiedSinceDate.getTime()) {
-			return false;
-		} else {
-			return true;
-		}
+		return lastModified > ifModifiedSinceDate.getTime();
 	}
 	
-	public static final void addLastModifiedHeader(HttpSession session, File requestFile) {
+	public static void addLastModifiedHeader(HttpSession session, File requestFile) {
 		long lastModified = requestFile.lastModified();
 		session.setWriteHeader("Last-Modified", RFC822_FORMAT_PATTERN.format(lastModified));
 	}
 	
-	public static final void addExpiresHeader(HttpSession session) {
+	public static void addExpiresHeader(HttpSession session) {
 		long currentTimeMillis = System.currentTimeMillis();
 		session.setWriteHeader("Expires", RFC822_FORMAT_PATTERN.format(currentTimeMillis));
 	}
@@ -333,7 +328,7 @@ public class HttpUtils {
 		return headerValue;
 	}
 	
-	public static final void supplyScriptAsHtml(File xdBridgeFile, long startTime, String resourcePath) throws IOException {
+	public static void supplyScriptAsHtml(File xdBridgeFile, long startTime, String resourcePath) throws IOException {
 		// include the resource name as a heading to aid integration setup verification
 		String bridgeFileName = xdBridgeFile.getName();
 		String heading = bridgeFileName.substring(0, bridgeFileName.lastIndexOf('.'));
@@ -342,13 +337,13 @@ public class HttpUtils {
 		supplyBridgeFile(xdBridgeFile, startTime, resourcePath, preamble, postamble);
 	}
 	
-	public static final void supplyFile(File bridgeFile, long startTime, String resourcePath) throws IOException {
+	public static void supplyFile(File bridgeFile, long startTime, String resourcePath) throws IOException {
 		supplyBridgeFile(bridgeFile, startTime, resourcePath, null, null);
 	}
 
-	private static final void supplyBridgeFile(File xdBridgeFile, long startTime,
+	private static void supplyBridgeFile(File xdBridgeFile, long startTime,
 			String resourcePath, String preamble, String postamble)
-			throws IOException, FileNotFoundException {
+			throws IOException {
 		if (!xdBridgeFile.exists() || xdBridgeFile.lastModified() < startTime) {
 			ClassLoader loader = HttpUtils.class.getClassLoader();
 			URL resource = loader.getResource(resourcePath);
@@ -395,7 +390,7 @@ public class HttpUtils {
 		return true;
 	}
 
-	public static final String newSessionId() {
+	public static String newSessionId() {
 		// base-62, 32 chars long, random
 		int size = 32;
 		StringBuffer sessionId = new StringBuffer(size);
@@ -407,14 +402,14 @@ public class HttpUtils {
 	}
   
 	// constructs an http specific request uri with host, port (or explicit default port), and path
-    public static final URI getRequestURI(HttpRequestMessage request, IoSession session) {
+    public static URI getRequestURI(HttpRequestMessage request, IoSession session) {
         URI requestURI = request.getRequestURI();
         String host = request.getHeader("Host");
         return getRequestURI(requestURI, host, session);
     }
     
     // constructs an http specific request uri with host, port (or explicit default port), and path
-    public static final URI getRequestURI(URI requestURI, String hostHeader, IoSession session) {
+    public static URI getRequestURI(URI requestURI, String hostHeader, IoSession session) {
         boolean secure = SslUtils.isSecure(session);
         String authority = HttpUtils.getHostAndPort(hostHeader, secure);
         // Use getRawPath to get the un-decoded path; getPath returns the post-decode value.
@@ -423,7 +418,7 @@ public class HttpUtils {
         return uri;
     }
 
-    public static final URI getTransportURI(HttpRequestMessage request, IoSession session) {
+    public static URI getTransportURI(HttpRequestMessage request, IoSession session) {
         URI requestURI = request.getRequestURI();
         String hostHeader = request.getHeader("Host");
         boolean secure = SslUtils.isSecure(session);
@@ -880,7 +875,7 @@ public class HttpUtils {
     }
 
 
-    public static final boolean hasStreamingScheme(URI uri) {
+    public static boolean hasStreamingScheme(URI uri) {
         if (uri == null || uri.getScheme() == null) {
             return false;
         }

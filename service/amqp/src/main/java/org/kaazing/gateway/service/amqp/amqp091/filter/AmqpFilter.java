@@ -39,53 +39,53 @@ import org.kaazing.gateway.service.amqp.amqp091.message.AmqpTuneMessage;
 import org.kaazing.gateway.service.amqp.amqp091.message.AmqpTuneOkMessage;
 
 public interface AmqpFilter<S extends IoSession> extends IoFilter<S, AmqpMessage> {
-    public void messageReceived(NextFilter nextFilter, S session, AmqpProtocolHeaderMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpProtocolHeaderMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpProtocolHeaderMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpProtocolHeaderMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpProtocolHeaderMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpProtocolHeaderMessage message) throws Exception;
     
-    public void messageReceived(NextFilter nextFilter, S session, AmqpCloseMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpCloseMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpCloseOkMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseOkMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseOkMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpCloseOkMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseOkMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpCloseOkMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpOpenMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpOpenMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpOpenOkMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenOkMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenOkMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpOpenOkMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenOkMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpOpenOkMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpSecureMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpSecureMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpSecureOkMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureOkMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureOkMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpSecureOkMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureOkMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpSecureOkMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpStartMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpStartMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpStartOkMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartOkMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartOkMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpStartOkMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartOkMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpStartOkMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpTuneMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpTuneMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneMessage message) throws Exception;
 
-    public void messageReceived(NextFilter nextFilter, S session, AmqpTuneOkMessage message) throws Exception;
-    public void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneOkMessage message) throws Exception;
-    public void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneOkMessage message) throws Exception;
+    void messageReceived(NextFilter nextFilter, S session, AmqpTuneOkMessage message) throws Exception;
+    void messageSent(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneOkMessage message) throws Exception;
+    void filterWrite(NextFilter nextFilter, S session, WriteRequest writeRequest, AmqpTuneOkMessage message) throws Exception;
 
 
     @SuppressWarnings("unchecked")
-    public class Adapter<S extends IoSession> extends IoFilter.Adapter<S, AmqpMessage, AmqpFilter<S>> {
+    class Adapter<S extends IoSession> extends IoFilter.Adapter<S, AmqpMessage, AmqpFilter<S>> {
 
         public Adapter(AmqpFilter<S> filter) {
             super(filter);

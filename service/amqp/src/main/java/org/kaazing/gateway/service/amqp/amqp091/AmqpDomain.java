@@ -50,7 +50,7 @@ public enum AmqpDomain {
     
     private final AmqpType    type;
     
-    private AmqpDomain(AmqpType type) {
+    AmqpDomain(AmqpType type) {
         this.type = type;
     }
     

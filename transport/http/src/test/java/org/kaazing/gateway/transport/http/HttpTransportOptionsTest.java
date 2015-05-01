@@ -214,7 +214,7 @@ public class HttpTransportOptionsTest {
 
 
         Map<String, Object> bindOptions = new HashMap<>();
-        final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
+        final Map<String, Object> connectOptions = Collections.emptyMap();
 
 
         httpConnectorToAcceptor(URI.create("http://localhost:8000/path"),
@@ -290,7 +290,7 @@ public class HttpTransportOptionsTest {
 
 
         Map<String, Object> bindOptions = new HashMap<>();
-        final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
+        final Map<String, Object> connectOptions = Collections.emptyMap();
 
 
         httpConnectorToAcceptor(connectURI,
@@ -338,7 +338,7 @@ public class HttpTransportOptionsTest {
         };
 
         Map<String, Object> bindOptions = new HashMap<>();
-        final Map<String, Object> connectOptions = Collections.<String, Object>emptyMap();
+        final Map<String, Object> connectOptions = Collections.emptyMap();
 
         httpConnectorToAcceptor(uri,
                 connectHandler, acceptHandler, STANDARD_REQUEST_INITIALIZER,

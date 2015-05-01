@@ -206,7 +206,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     // TODO: put this into a utility
     // per http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars this should be UTF-8 to provide for broadest compatibility
-    private static final String decodeURL(String url) {
+    private static String decodeURL(String url) {
     	try {
 			return URLDecoder.decode(url, UTF_8);
 		} catch (UnsupportedEncodingException e) {
@@ -258,7 +258,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         requestURI = request.getRequestURI();
         parameters = request.getParameters();
 
-        String host = (String)request.getHeader("Host");
+        String host = request.getHeader("Host");
         requestURL = URI.create((secure ? "https" : "http") + "://" + host + requestURI);
 
         servicePath = URI.create(serviceURI.getPath());
@@ -537,12 +537,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     @Override
     public ResourceAddress getLocalAddress() {
-        return (ResourceAddress) super.getLocalAddress();
+        return super.getLocalAddress();
     }
     
     @Override
     public ResourceAddress getRemoteAddress() {
-        return (ResourceAddress) super.getRemoteAddress();
+        return super.getRemoteAddress();
     }
 
     public IoBufferEx getCurrentReadRequest() {

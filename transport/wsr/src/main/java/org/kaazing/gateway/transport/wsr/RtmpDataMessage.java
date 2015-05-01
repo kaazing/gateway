@@ -24,7 +24,7 @@ package org.kaazing.gateway.transport.wsr;
 
 public abstract class RtmpDataMessage extends RtmpStreamMessage {
 
-	public static enum DataKind {TEXT, BINARY, SAMPLE_ACCESS, STREAM_METADATA, DATA_START}
+	public enum DataKind {TEXT, BINARY, SAMPLE_ACCESS, STREAM_METADATA, DATA_START}
 
     public abstract String getName();
 	

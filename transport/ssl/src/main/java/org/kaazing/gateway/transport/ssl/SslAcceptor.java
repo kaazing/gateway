@@ -39,10 +39,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 import javax.annotation.Resource;
@@ -314,9 +315,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         }
 
         List<String> list = new ArrayList<>(names.length);
-        for (int i = 0; i < names.length; i++) {
-            list.add(names[i]);
-        }
+        Collections.addAll(list, names);
 
         return list;
     }

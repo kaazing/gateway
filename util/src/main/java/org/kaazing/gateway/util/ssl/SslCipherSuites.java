@@ -34,7 +34,7 @@ public class SslCipherSuites {
     protected SslCipherSuites() {
     }
 
-    private static enum CipherStrength {
+    private enum CipherStrength {
         HIGH("HIGH"),
         MEDIUM("MEDIUM"),
         LOW("LOW"),
@@ -47,7 +47,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherStrength(final String tokenName) {
+        CipherStrength(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -56,7 +56,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherKeyExchange {
+    private enum CipherKeyExchange {
         RSA("kRSA"),
         DH("kDH"),
         DHE("kEDH"),
@@ -67,7 +67,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherKeyExchange(final String tokenName) {
+        CipherKeyExchange(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -76,7 +76,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherAuthentication {
+    private enum CipherAuthentication {
         RSA("aRSA"),
         DSS("aDSS"),
         ECDH("aECDH"),
@@ -86,7 +86,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherAuthentication(final String tokenName) {
+        CipherAuthentication(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -95,7 +95,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherEncryption {
+    private enum CipherEncryption {
         RC4("RC4"),
         AES128("AES128"),
         AES256("AES256"),
@@ -105,7 +105,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherEncryption(final String tokenName) {
+        CipherEncryption(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -114,7 +114,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherMAC {
+    private enum CipherMAC {
         MD5("MD5"),
         SHA1("SHA1"),
         SHA256("SHA256"),
@@ -122,7 +122,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherMAC(final String tokenName) {
+        CipherMAC(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -131,7 +131,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherProtocolVersion {
+    private enum CipherProtocolVersion {
         SSLV3("SSLv3"),
         TLSV1("TLSv1"),
         TLSV1_1("TLSv1.1"),
@@ -139,7 +139,7 @@ public class SslCipherSuites {
 
         private final String tokenName;
 
-        private CipherProtocolVersion(final String tokenName) {
+        CipherProtocolVersion(final String tokenName) {
             this.tokenName = tokenName;
         }
 
@@ -290,7 +290,7 @@ public class SslCipherSuites {
         }
     }
 
-    private static enum CipherOp {
+    private enum CipherOp {
       ADD,        // default
       KILL,        // '!' prefix
       RIGHT_SHIFT,    // '+' prefix

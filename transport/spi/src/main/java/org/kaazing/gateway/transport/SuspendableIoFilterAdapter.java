@@ -142,7 +142,7 @@ public abstract class SuspendableIoFilterAdapter extends IoFilterAdapter {
         return suspendCount > 0;
     }
 
-    private static interface SuspendableEvent {
+    private interface SuspendableEvent {
         void fire() throws Exception;
     }
 

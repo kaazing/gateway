@@ -23,7 +23,6 @@ package org.kaazing.gateway.transport;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.hamcrest.BaseMatcher;
@@ -38,6 +37,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
@@ -153,7 +153,7 @@ public class BindingsTest {
 
         // Create bindings
         for (int i = 0; i < 10; i++) {
-            URI location = URI.create(String.format("tcp://localhost:%d", findFreePort()));
+            URI location = URI.create(String.format("tcp://localhost:%d", i));
             testBindings[i] = new Bindings.Binding(makeResourceAddress(location),
                     new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<>());
         }
@@ -197,22 +197,8 @@ public class BindingsTest {
 
     }
 
-
-
     private ResourceAddress makeResourceAddress(URI location) {
         return addressFactory.newResourceAddress(location);
-    }
-
-
-
-    /**
-     * This method returns a port number that is not currently in use.
-     */
-    private static int findFreePort() throws IOException {
-        ServerSocket server = new ServerSocket(0);
-        int port = server.getLocalPort();
-        server.close();
-        return port;
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {

@@ -17,7 +17,7 @@ read "HTTP/1.1 200 OK\r\n"
 read "Content-Length: 17\r\n"
 read "Content-Type: text/html;charset=ISO-8859-1\r\n"
 read /Date: .*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
 read "Set-Cookie: JSESSIONID=A2DA686DD40F58A3344B63CE81146785; Path=/examples/; HttpOnly\r\n"
 read "\r\n"
 read "<html>nope</html>"
@@ -50,5 +50,5 @@ write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
 write "\r\n"
 write "<html>nope</html>"
 
-close
+# gateway(sender) closes the connection
 closed

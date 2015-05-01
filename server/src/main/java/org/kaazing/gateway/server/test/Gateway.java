@@ -21,10 +21,7 @@
 
 package org.kaazing.gateway.server.test;
 
-import java.beans.BeanInfo;
-import java.beans.PropertyDescriptor;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
@@ -34,7 +31,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.management.MBeanServer;
+
 import org.kaazing.gateway.server.Launcher;
 import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
 import org.kaazing.gateway.server.config.sep2014.AuthenticationType.AuthorizationMode;
@@ -77,9 +76,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-import static java.beans.Introspector.getBeanInfo;
-import static java.lang.Character.isUpperCase;
-import static java.lang.Character.toLowerCase;
 
 public class Gateway {
 
@@ -92,21 +88,21 @@ public class Gateway {
 
     public void start(GatewayConfiguration configuration) throws Exception {
         switch (state) {
-            case STOPPED:
-                state = State.STARTING;
-                break;
+        case STOPPED:
+            state = State.STARTING;
+            break;
         }
 
         switch (state) {
-            case STARTING:
-                GatewayContext context = createGatewayContext(configuration);
-                launcher.init(context);
-                state = State.STARTED;
-                break;
+        case STARTING:
+            GatewayContext context = createGatewayContext(configuration);
+            launcher.init(context);
+            state = State.STARTED;
+            break;
         }
     }
 
-    GatewayContext createGatewayContext(GatewayConfiguration configuration) throws Exception {
+    public GatewayContext createGatewayContext(GatewayConfiguration configuration) throws Exception {
         GatewayConfigDocument gatewayConfigDocument = GatewayConfigDocument.Factory.newInstance();
         GatewayConfig gatewayConfig = gatewayConfigDocument.addNewGatewayConfig();
 
@@ -127,8 +123,7 @@ public class Gateway {
 
         GatewayContextResolver resolver = new GatewayContextResolver(securityResolver, webRootDir, tempDir,
                 jmxMBeanServer);
-        GatewayContext context = resolver.resolve(gatewayConfigDocument,
-                asProperties(configuration.getProperties()));
+        GatewayContext context = resolver.resolve(gatewayConfigDocument, asProperties(configuration.getProperties()));
         return context;
     }
 
@@ -243,6 +238,13 @@ public class Gateway {
                 appendAcceptOptions(newAcceptOption, configuredAcceptOptions);
             }
 
+            // connect options
+            Map<String, String> configuredConnectOptions = serviceDefaultsConfiguration.getConnectOptions();
+            if (!configuredConnectOptions.isEmpty()) {
+                ServiceConnectOptionsType newConnectOptions = serviceDefaults.addNewConnectOptions();
+                appendConnectOptions(newConnectOptions, configuredConnectOptions);
+            }
+
             // mime-mappings
             Map<String, String> mimeMappings = serviceDefaultsConfiguration.getMimeMappings();
             if (!mimeMappings.isEmpty()) {
@@ -260,20 +262,14 @@ public class Gateway {
 
     private void appendAcceptOptions(ServiceAcceptOptionsType newAcceptOptions,
                                      Map<String, String> configuredAcceptOptions) throws Exception {
-        BeanInfo acceptOptionsBeanInfo = getBeanInfo(ServiceAcceptOptionsType.class,
-                ServiceAcceptOptionsType.class.getSuperclass());
-        PropertyDescriptor[] acceptOptionsPropertiesInfo = acceptOptionsBeanInfo.getPropertyDescriptors();
-        for (PropertyDescriptor acceptOptionPropertyInfo : acceptOptionsPropertiesInfo) {
-            String acceptOptionPropertyName = acceptOptionPropertyInfo.getName();
-            if (acceptOptionPropertyInfo.getReadMethod().getName().startsWith("isSet")) {
-                // skip boolean isSetXXX methods
-                continue;
-            }
-            String acceptOptionName = camelCaseToDottedLowerCase(acceptOptionPropertyName);
-            String acceptOptionValue = configuredAcceptOptions.get(acceptOptionName);
-            if (acceptOptionValue != null) {
-                setAcceptOption(newAcceptOptions, acceptOptionPropertyInfo, acceptOptionValue);
-            }
+        Node domNode = newAcceptOptions.getDomNode();
+        Document ownerDocument = domNode.getOwnerDocument();
+        for (Entry<String, String> acceptOption : configuredAcceptOptions.entrySet()) {
+            Element newElement = ownerDocument
+                    .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
+            Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
+            newElement.appendChild(newTextNode);
+            domNode.appendChild(newElement);
         }
     }
 
@@ -289,23 +285,25 @@ public class Gateway {
 
     public void stop() throws Exception {
         switch (state) {
-            case STARTED:
-                state = State.STOPPING;
+        case STARTED:
+            state = State.STOPPING;
         }
 
         switch (state) {
-            case STOPPING:
-                launcher.destroy();
-                state = State.STOPPED;
-                break;
+        case STOPPING:
+            launcher.destroy();
+            state = State.STOPPED;
+            break;
         }
     }
 
-    private void appendServices(GatewayConfig newGatewayConfig, Collection<ServiceConfiguration> services) throws Exception {
+    private void appendServices(GatewayConfig newGatewayConfig, Collection<ServiceConfiguration> services)
+            throws Exception {
         // services
         for (ServiceConfiguration service : services) {
             ServiceType newService = newGatewayConfig.addNewService();
 
+            newService.setName(service.getName());
             setType(service, newService);
             setRealmName(service, newService);
 
@@ -371,27 +369,19 @@ public class Gateway {
             Map<String, String> acceptOptions = service.getAcceptOptions();
             if (!acceptOptions.isEmpty()) {
                 ServiceAcceptOptionsType newAcceptOptions = newService.addNewAcceptOptions();
-                appendAcceptOptions(newAcceptOptions, acceptOptions);
+                Node domNode = newAcceptOptions.getDomNode();
+                Document ownerDocument = domNode.getOwnerDocument();
+                for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
+                    Element newElement = ownerDocument
+                            .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
+                    Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
+                    newElement.appendChild(newTextNode);
+                    domNode.appendChild(newElement);
+                }
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-    }
-
-    private void setAcceptOption(ServiceAcceptOptionsType newAcceptOptions,
-                                 PropertyDescriptor acceptOptionPropertyInfo,
-                                 String acceptOptionValue) throws Exception {
-
-        Method setterMethod = acceptOptionPropertyInfo.getWriteMethod();
-        Class<?> acceptOptionPropertyType = acceptOptionPropertyInfo.getPropertyType();
-        if (acceptOptionPropertyType == String.class) {
-            setterMethod.invoke(newAcceptOptions, acceptOptionValue);
-        } else {
-            // assumes Enum-style naming convention for static String -> XmlObject value type
-            Method forString = acceptOptionPropertyType.getDeclaredMethod("forString", String.class);
-            Object parsedAcceptOptionValue = forString.invoke(null, acceptOptionValue);
-            setterMethod.invoke(newAcceptOptions, parsedAcceptOptionValue);
         }
     }
 
@@ -413,7 +403,15 @@ public class Gateway {
             Map<String, String> connectOptions = service.getConnectOptions();
             if (!connectOptions.isEmpty()) {
                 ServiceConnectOptionsType newConnectOptions = newService.addNewConnectOptions();
-                appendConnectOptions(newConnectOptions, connectOptions);
+                Node domNode = newConnectOptions.getDomNode();
+                Document ownerDocument = domNode.getOwnerDocument();
+                for (Entry<String, String> connectOption : connectOptions.entrySet()) {
+                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
+                            connectOption.getKey());
+                    Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
+                    newElement.appendChild(newTextNode);
+                    domNode.appendChild(newElement);
+                }
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -421,37 +419,16 @@ public class Gateway {
         }
     }
 
-    private void appendConnectOptions(ServiceConnectOptionsType newConnectOptions, Map<String, String> connectOptions) throws
-            Exception {
-        BeanInfo connectOptionsBeanInfo = getBeanInfo(ServiceConnectOptionsType.class,
-                ServiceConnectOptionsType.class.getSuperclass());
-        PropertyDescriptor[] connectOptionsPropertiesInfo = connectOptionsBeanInfo.getPropertyDescriptors();
-        for (PropertyDescriptor connectOptionPropertyInfo : connectOptionsPropertiesInfo) {
-            String connectOptionPropertyName = connectOptionPropertyInfo.getName();
-            if (connectOptionPropertyInfo.getReadMethod().getName().startsWith("isSet")) {
-                // skip boolean isSetXXX methods
-                continue;
-            }
-            String connectOptionName = camelCaseToDottedLowerCase(connectOptionPropertyName);
-            String connectOptionValue = connectOptions.get(connectOptionName);
-            if (connectOptionValue != null) {
-                setConnectOption(newConnectOptions, connectOptionPropertyInfo, connectOptionValue);
-            }
-        }
-    }
-
-    private void setConnectOption(ServiceConnectOptionsType newConnectOptions,
-                                  PropertyDescriptor connectOptionPropertyInfo,
-                                  String connectOptionValue) throws Exception {
-        Method setterMethod = connectOptionPropertyInfo.getWriteMethod();
-        Class<?> connectOptionPropertyType = connectOptionPropertyInfo.getPropertyType();
-        if (connectOptionPropertyType == String.class) {
-            setterMethod.invoke(newConnectOptions, connectOptionValue);
-        } else {
-            // assumes Enum-style naming convention for static String -> XmlObject value type
-            Method forString = connectOptionPropertyType.getDeclaredMethod("forString", String.class);
-            Object parsedConnectOptionValue = forString.invoke(null, connectOptionValue);
-            setterMethod.invoke(newConnectOptions, parsedConnectOptionValue);
+    private void appendConnectOptions(ServiceConnectOptionsType newConnectOptions, Map<String, String> connectOptions)
+            throws Exception {
+        Node domNode = newConnectOptions.getDomNode();
+        Document ownerDocument = domNode.getOwnerDocument();
+        for (Entry<String, String> connectOption : connectOptions.entrySet()) {
+            Element newElement = ownerDocument
+                    .createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
+            Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
+            newElement.appendChild(newTextNode);
+            domNode.appendChild(newElement);
         }
     }
 
@@ -474,7 +451,7 @@ public class Gateway {
     private void appendSimpleProperties(Map<String, String> properties, Node domNode, Document ownerDocument) {
         for (Entry<String, String> property : properties.entrySet()) {
             Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), property.getKey());
-            Text newTextNode = ownerDocument.createTextNode((String) property.getValue());
+            Text newTextNode = ownerDocument.createTextNode(property.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
         }
@@ -574,23 +551,6 @@ public class Gateway {
             connectOptions.setAwsSecretKey(awsSecretKey);
         }
 
-    }
-
-    private static String camelCaseToDottedLowerCase(String camelCaseName) {
-        StringBuilder dottedLowerCaseName = new StringBuilder();
-
-        for (int i = 0; i < camelCaseName.length(); i++) {
-            char camelCaseChar = camelCaseName.charAt(i);
-            // note: http.keepaliveTimeout, not http.keepalive.timeout
-            if (i < 8 && isUpperCase(camelCaseChar)) {
-                dottedLowerCaseName.append('.');
-                dottedLowerCaseName.append(toLowerCase(camelCaseChar));
-            } else {
-                dottedLowerCaseName.append(camelCaseChar);
-            }
-        }
-
-        return dottedLowerCaseName.toString();
     }
 
     private static final class SecurityContextResolver implements ContextResolver<SecurityType, DefaultSecurityContext> {

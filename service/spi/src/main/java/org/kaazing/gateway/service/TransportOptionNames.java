@@ -30,44 +30,52 @@ public interface TransportOptionNames {
     /**
      * What protocol is spoken using my session?
      */
-    public static final String NEXT_PROTOCOL = "nextProtocol"; // set at each level pointing back up.
+    String NEXT_PROTOCOL = "nextProtocol"; // set at each level pointing back up.
 
     /**
      * What WebSocket protocols does the server globally support?
      */
-    public static final String SUPPORTED_PROTOCOLS = "supportedProtocols";
+    String SUPPORTED_PROTOCOLS = "supportedProtocols";
 
     /**
      * What WebSocket inactivity timeout is defined, if any (in millis)?
      */
-    public static final String INACTIVITY_TIMEOUT = "inactivityTimeout";
+    String INACTIVITY_TIMEOUT = "inactivityTimeout";
 
     /**
      * For WebSocket connections from the gateway, what version of the WebSocket protocol should be used?
      */
-    public static final String WS_PROTOCOL_VERSION = "protocolVersion";
-    public static final String WS_LIGHTWEIGHT_SESSION = "wsn.isLightweightWsnSession";
+    String WS_PROTOCOL_VERSION = "protocolVersion";
+    String WS_LIGHTWEIGHT_SESSION = "wsn.isLightweightWsnSession";
+
+    /**
+     * To indicated persistent HTTP connections
+     */
+    String HTTP_KEEP_ALIVE = "keepAlive";
 
     /**
      * How long should we keep a HTTP session alive?  Useful for directory services.
      */
-    public static final String HTTP_KEEP_ALIVE_TIMEOUT_KEY = "keepAliveTimeout";
+    String HTTP_KEEP_ALIVE_TIMEOUT_KEY = "keepAliveTimeout";
 
     //------
 
-    public static final String SSL_CIPHERS = "ssl.ciphers";
-    public static final String SSL_PROTOCOLS = "ssl.protocols";
-    public static final String SSL_ENCRYPTION_ENABLED = "ssl.encryptionEnabled";
-    public static final String SSL_WANT_CLIENT_AUTH = "ssl.wantClientAuth";
-    public static final String SSL_NEED_CLIENT_AUTH = "ssl.needClientAuth";
-    public static final String SSL_KEY_SELECTOR = "ssl.keySelector";
+    String SSL_CIPHERS = "ssl.ciphers";
+    String SSL_PROTOCOLS = "ssl.protocols";
+    String SSL_ENCRYPTION_ENABLED = "ssl.encryptionEnabled";
+    String SSL_WANT_CLIENT_AUTH = "ssl.wantClientAuth";
+    String SSL_NEED_CLIENT_AUTH = "ssl.needClientAuth";
+    String SSL_KEY_SELECTOR = "ssl.keySelector";
 
-    public static final String TCP_MAXIMUM_OUTBOUND_RATE = "tcp.maximumOutboundRate";
+    String HTTP_SERVER_HEADER_ENABLED = "http.serverHeaderEnabled";
 
-    public static final String TCP_TRANSPORT = "tcp.transport";
-    public static final String SSL_TRANSPORT = "ssl.transport";
-    public static final String HTTP_TRANSPORT = "http.transport";
 
-    public static final String PIPE_TRANSPORT = "pipe.transport";
+    String TCP_MAXIMUM_OUTBOUND_RATE = "tcp.maximumOutboundRate";
+
+    String TCP_TRANSPORT = "tcp.transport";
+    String SSL_TRANSPORT = "ssl.transport";
+    String HTTP_TRANSPORT = "http.transport";
+
+    String PIPE_TRANSPORT = "pipe.transport";
 
 }

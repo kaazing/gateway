@@ -138,7 +138,7 @@ public class WsnBindingsTest {
 
     private TestSecurityContext getSecurityContext() throws Exception {
         return new TestSecurityContext(keyStore, keyStoreFile, keyStoreFilePath, keyStorePassword.toCharArray(),
-                                          keyStorePasswordFile, trustStore, trustStoreFile, trustStoreFilePath, (char[]) null);
+                                          keyStorePasswordFile, trustStore, trustStoreFile, trustStoreFilePath, null);
     }
 
 

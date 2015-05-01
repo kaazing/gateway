@@ -22,34 +22,14 @@
 package org.kaazing.gateway.service;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 @Deprecated
 public interface AcceptOptionsContext {
 
-    public Map<String, Object> asOptionsMap();
+    Map<String, Object> asOptionsMap();
 
-    public boolean isSslEncryptionEnabled();
-
-    public URI getInternalURI(URI externalURI);
-
-    public List<String> getWsProtocols();
-
-    public List<String> getWsExtensions();
-
-    public String[] getSslCiphers();
-    public String[] getSslProtocols();
-
-    public boolean getSslWantClientAuth();
-    public boolean getSslNeedClientAuth();
-
-    public URI getTcpTransport();
-    public URI getSslTransport();
-    public URI getHttpTransport();
-
-    public String getUdpInterface();
-    public abstract URI getPipeTransport();
+    URI getInternalURI(URI externalURI);
 
     /**
      * Add a binding to the accept-options from the given scheme to the given authority.  If a service needs to
@@ -64,54 +44,33 @@ public interface AcceptOptionsContext {
      * @param scheme
      * @param authority
      */
-    public void addBind(String scheme, String authority);
+    void addBind(String scheme, String authority);
 
     /**
      * @return the configured binds for a service
      */
-    public Map<String, String> getBinds();
+    Map<String, String> getBinds();
 
     /**
-     * @return The configured maximum WebSocket message size, or 0 meaning no limit if none is configured
+     * Set the map of options on the AcceptOptionsContext.  The options are String key/value pairs.
+     * @param options the map of String key/value pairs to set on the AcceptOptionsContext
      */
-    public int getWsMaxMessageSize();
-
+    void setOptions(Map<String, String> options);
 
     /**
-     * @return The configured WebSocket inactivity timeout (for check alive feature), in milliseconds
+     * Set the map of default options on the AcceptOptionsContext.  The options are String key/value pairs.
+     * If the given default option does not exist in the option map it is added.  Any options already set
+     * are left untouched.
+     * @param defaultOptions the map of String key/value pairs to set as the default options on the AcceptOptionsContext
      */
-    public long getWsInactivityTimeout();
+    void setDefaultOptions(Map<String, String> defaultOptions);
 
-    /**
-     *
-     * @return The configured maximum outbound rate in bytes per second. 0xFFFFFFFF (max unsigned int) means no limit.
-     */
-    public long getTcpMaximumOutboundRate();
-
-    /**
-     * @return The configured idle timeout for the given protocol scheme, or null if there is none
-     *         configured and there is no default for the scheme
-     */
-    public Integer getSessionIdleTimeout(String scheme);
-    
-    public Integer getHttpKeepaliveTimeout();
-
-    public static class Wrapper implements AcceptOptionsContext {
+    class Wrapper implements AcceptOptionsContext {
 
         private final AcceptOptionsContext delegate;
 
         public Wrapper(AcceptOptionsContext delegate) {
             this.delegate = delegate;
-        }
-
-        @Override
-        public List<String> getWsProtocols() {
-            return delegate.getWsProtocols();
-        }
-
-        @Override
-        public List<String> getWsExtensions() {
-            return delegate.getWsExtensions();
         }
 
         @Override
@@ -130,82 +89,18 @@ public interface AcceptOptionsContext {
         }
 
         @Override
-        public Integer getSessionIdleTimeout(String scheme) {
-            return delegate.getSessionIdleTimeout(scheme);
-        }
-
-        @Override
-        public int getWsMaxMessageSize() {
-            return delegate.getWsMaxMessageSize();
-        }
-
-        public long getWsInactivityTimeout() {
-            return delegate.getWsInactivityTimeout();
-        }
-
-        @Override
-        public long getTcpMaximumOutboundRate() {
-            return delegate.getTcpMaximumOutboundRate();
-        }
-
-    	@Override
-    	public String[] getSslCiphers() {
-    		return delegate.getSslCiphers();
-    	}
-
-        @Override
-        public String[] getSslProtocols() {
-            return delegate.getSslProtocols();
-        }
-
-        @Override
         public Map<String, Object> asOptionsMap() {
             return delegate.asOptionsMap();
         }
 
         @Override
-        public boolean isSslEncryptionEnabled() {
-            return delegate.isSslEncryptionEnabled();
+        public void setOptions(Map<String, String> options) {
+            delegate.setOptions(options);
         }
 
         @Override
-        public boolean getSslWantClientAuth() {
-            return delegate.getSslWantClientAuth();
-        }
-
-        @Override
-        public boolean getSslNeedClientAuth() {
-            return delegate.getSslNeedClientAuth();
-        }
-
-        @Override
-        public URI getTcpTransport() {
-            return delegate.getTcpTransport();
-        }
-
-        @Override
-        public URI getSslTransport() {
-            return delegate.getSslTransport();
-        }
-
-        @Override
-        public URI getHttpTransport() {
-            return delegate.getHttpTransport();
-        }
-
-        @Override
-        public Integer getHttpKeepaliveTimeout() {
-            return delegate.getHttpKeepaliveTimeout();
-        }
-
-        @Override
-        public String getUdpInterface() {
-            return delegate.getUdpInterface();
-        }
-
-        @Override
-        public URI getPipeTransport() {
-            return delegate.getPipeTransport();
+        public void setDefaultOptions(Map<String, String> options) {
+            delegate.setDefaultOptions(options);
         }
     }
 }

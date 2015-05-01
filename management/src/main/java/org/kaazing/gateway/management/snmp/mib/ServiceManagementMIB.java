@@ -420,7 +420,7 @@ public class ServiceManagementMIB implements MOGroup, CounterListener, AgentCapa
             } catch (Exception ex) {
                 // FIXME:  handle errors
             }
-            return new Counter64((Long) scalarValue);
+            return new Counter64(scalarValue);
         }
 
         @Override

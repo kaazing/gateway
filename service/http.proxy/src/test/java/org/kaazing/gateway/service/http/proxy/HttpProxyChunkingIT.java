@@ -47,6 +47,7 @@ public class HttpProxyChunkingIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
+                            .connectOption("http.keepalive", "disabled")
                         .done()
                     .done();
             // @formatter:on

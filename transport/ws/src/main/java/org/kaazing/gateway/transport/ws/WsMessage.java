@@ -28,7 +28,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 
 public abstract class WsMessage extends Message {
 
-    public static enum Kind {
+    public enum Kind {
         BINARY, TEXT, CONTINUATION, CLOSE, COMMAND, PING, PONG
     }
 

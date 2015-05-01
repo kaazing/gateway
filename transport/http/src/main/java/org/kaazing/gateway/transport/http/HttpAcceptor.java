@@ -104,7 +104,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.AbstractIoSessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +115,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 	
-    private static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
+    static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
     private static final String TRACE_LOGGING_FILTER = HttpProtocol.NAME + "#logging";
@@ -364,7 +363,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
-                    httpResponse.setHeader("Server", "Kaazing Gateway");
+                    HttpAcceptProcessor.setServerHeader(httpSession, httpResponse);
                     httpResponse.setHeader("Date", HttpUtils.formatDateHeader(System.currentTimeMillis()));
                     session.write(httpResponse);
                     session.close(false);
@@ -398,7 +397,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(((HttpProtocolDecoderException)cause).getHttpStatus());
-                    httpResponse.setHeader("Server", "Kaazing Gateway");
+                    HttpAcceptProcessor.setServerHeader(httpSession, httpResponse);
                     httpResponse.setHeader("Date", HttpUtils.formatDateHeader(System.currentTimeMillis()));
                     session.write(httpResponse);
                 }

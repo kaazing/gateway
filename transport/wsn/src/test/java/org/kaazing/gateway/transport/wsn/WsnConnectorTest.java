@@ -167,7 +167,7 @@ public class WsnConnectorTest {
     public void shouldCloseWsnSessionWhenTransportClosesCleanlyButUnexpectedly() throws Exception {
 
         URI location = URI.create("wsn://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
+        Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch waitForClientParentSessionCloseListenerEstabished = new CountDownLatch(1);
         IoHandler acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
@@ -243,7 +243,7 @@ public class WsnConnectorTest {
     public void shouldCorrectlyConstructLocalAndRemoteAddressesForConnectedWsnSessions() throws Exception {
 
         final URI location = URI.create("ws://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap();
+        Map<String, Object> addressOptions = Collections.emptyMap();
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         TransportTestIoHandlerAdapter acceptHandler = new TransportTestIoHandlerAdapter(1) {
 
@@ -306,13 +306,13 @@ public class WsnConnectorTest {
 
     }
 
-    @Test // (timeout = 30000)
+    @Test (timeout = 30000)
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
         long iterations = 100;
 
         final URI location = URI.create("wsn://localhost:8000/echo");
-        Map<String, Object> addressOptions = Collections.<String, Object>emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
+        Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 
 

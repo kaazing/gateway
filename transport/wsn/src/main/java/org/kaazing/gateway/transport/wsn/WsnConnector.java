@@ -65,7 +65,6 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpProtocol;
-import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpPostUpgradeFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;

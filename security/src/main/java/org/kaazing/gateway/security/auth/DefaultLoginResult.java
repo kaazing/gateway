@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.security.auth;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -81,9 +82,7 @@ public class DefaultLoginResult extends LoginResult {
 
         // Append any given challenge data to the existing list
         if (challengeData != null) {
-            for (Object datum : challengeData) {
-                loginChallengeData.add(datum);
-            }
+            Collections.addAll(loginChallengeData, challengeData);
         }
     }
 

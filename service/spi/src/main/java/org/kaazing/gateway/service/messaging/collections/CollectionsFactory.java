@@ -31,17 +31,17 @@ import org.kaazing.gateway.util.AtomicCounter;
 
 public interface CollectionsFactory {
 
-    public <K, V> IMap<K, V> getMap(String name);
+    <K, V> IMap<K, V> getMap(String name);
 
-    public <E> IQueue<E> getQueue(String name);
+    <E> IQueue<E> getQueue(String name);
 
-    public <E> IList<E> getList(String name);
+    <E> IList<E> getList(String name);
 
-    public <E> ITopic<E> getTopic(String name);
+    <E> ITopic<E> getTopic(String name);
 
-    public ILock getLock(Object obj);
+    ILock getLock(Object obj);
 
-    public <K, V> void addEntryListener(EntryListener<K,V> listener, String name);
+    <K, V> void addEntryListener(EntryListener<K, V> listener, String name);
 
-    public AtomicCounter getAtomicCounter(String name);
+    AtomicCounter getAtomicCounter(String name);
 }

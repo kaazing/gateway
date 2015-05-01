@@ -31,7 +31,7 @@ public enum WsProtocol implements Protocol {
 
     private final boolean secure;
 
-    private WsProtocol(boolean secure) {
+    WsProtocol(boolean secure) {
         this.secure = secure;
     }
 

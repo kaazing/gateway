@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.AbstractIoProcessor;
-import org.kaazing.mina.core.service.AbstractIoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?, ?>> extends AbstractIoProcessor<T> {
@@ -80,7 +79,7 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
             removeInternal(session);
         } finally {
         // look at write queue and get tail, get future and fire destroy when tail has been written
-            ((AbstractIoServiceEx)session.getService()).getListeners().fireSessionDestroyed(session);
+            session.getService().getListeners().fireSessionDestroyed(session);
         }
 
     }

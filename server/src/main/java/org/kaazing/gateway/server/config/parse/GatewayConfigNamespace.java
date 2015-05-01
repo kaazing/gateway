@@ -40,7 +40,7 @@ public enum GatewayConfigNamespace {
     private static final String NS_SEPTEMBER_2012_URI = "http://xmlns.kaazing.com/2012/09/gateway";
     private static final String NS_SEPTEMBER_2014_URI = "http://xmlns.kaazing.org/2014/09/gateway";
 
-    private GatewayConfigNamespace() {
+    GatewayConfigNamespace() {
     }
 
     public static GatewayConfigNamespace fromURI(String nsURI) {
