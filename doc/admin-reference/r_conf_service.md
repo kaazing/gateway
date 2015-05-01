@@ -1,6 +1,8 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
 -   Service Reference
+
+Service Reference
 ========================================
 
 This document describes all of the elements and properties you can use to configure KAAZING Gateway services.
