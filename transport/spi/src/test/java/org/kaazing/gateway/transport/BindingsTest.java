@@ -203,27 +203,23 @@ public class BindingsTest {
         return addressFactory.newResourceAddress(location);
     }
 
-
+    private static int rollingPorts = 1500;
 
     /**
-     * This method returns a non ephemeral port number that is not currently in use.
+     * This method returns a port number that is not currently in use.
      */
     private static int findFreePort() throws IOException {
-        int port;
         while (true) {
             try {
-                Random rand = new Random();
-                int min = 1500;
-                int randomNum = rand.nextInt((5000 - min) + 1) + min;
-                ServerSocket server = new ServerSocket(randomNum);
-                port = server.getLocalPort();
+                rollingPorts++;
+                ServerSocket server = new ServerSocket(rollingPorts);
                 server.close();
                 break;
             } catch (IOException e) {
                 // NOOP need to do loop again
             }
         }
-        return port;
+        return rollingPorts;
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {
