@@ -22,7 +22,7 @@ read "Content-Type: text/html\r\n"
 read "Date: Wed, 04 Mar 2015 02:26:37 GMT\r\n"
 read "ETag: W/\"13837-1391066078000\"\r\n"
 read "Last-Modified: Thu, 30 Jan 2014 07:14:38 GMT\r\n"
-read "Server: Kaazing Gateway\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
 read "Transfer-Encoding: chunked\r\n"
 read "Vary: Accept-Encoding\r\n"
 read "\r\n"
@@ -103,5 +103,5 @@ write "\r\n"
 write "0\r\n"
 write "\r\n"
 
-close
+# gateway(sender) closes the connection
 closed

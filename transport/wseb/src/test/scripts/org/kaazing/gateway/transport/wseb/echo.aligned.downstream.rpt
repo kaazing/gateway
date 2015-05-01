@@ -96,15 +96,11 @@ read "\r\n"
 
 read [0x01 0x30 0x30 0xff]
 
-read await WRITE_COMPLETE_A
+read [0x80 0x11]
+read "Hello, WebSocket1"
 
 read [0x80 0x11]
-read "Hello, WebSocket!"
-
-read await WRITE_COMPLETE_B
-
-read [0x80 0x11]
-read "Hello, WebSocket!"
+read "Hello, WebSocket2"
 
 # close command
 read [0x01 0x30 0x32 0xff]
@@ -136,7 +132,7 @@ write "X-Origin: http://localhost:8000\r\n"
 write "\r\n"
 
 write [0xc2 0x80 0x11]
-write "Hello, WebSocket!"
+write "Hello, WebSocket1"
 
 write [0x01 0x30 0x31 0xc3 0xbf]    # wse.reconnect
 
@@ -149,8 +145,6 @@ read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 200 OK\r\n"
 read "\r\n"
-
-read notify WRITE_COMPLETE_A
 
 write "POST "
 write ${up}
@@ -169,7 +163,7 @@ write "X-Origin: http://localhost:8000\r\n"
 write "\r\n"
 
 write [0xc2 0x80 0x11]
-write "Hello, WebSocket!"
+write "Hello, WebSocket2"
 
 write [0x01 0x30 0x32 0xc3 0xbf]    # wse.close
 write [0x01 0x30 0x31 0xc3 0xbf]    # wse.reconnect
@@ -183,8 +177,6 @@ read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 200 OK\r\n"
 read "\r\n"
-
-read notify WRITE_COMPLETE_B
 
 close
 closed

@@ -18,7 +18,7 @@ read "Cache-Control: private\r\n"
 read "Content-Type: text/html;charset=ISO-8859-1\r\n"
 read /Date: .*/ "\r\n"
 read "Expires: Wed, 31 Dec 1969 16:00:00 PST\r\n"
-read "Server: Kaazing Gateway\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
 read "Transfer-Encoding: chunked\r\n"
 read "WWW-Authenticate: Basic realm=\"Tomcat Manager Application\"\r\n"
 read "\r\n"
@@ -60,5 +60,5 @@ write "<html>Hellooo</html>\r\n"
 write "0\r\n"
 write "\r\n"
 
-close
+# gateway(sender) closes the connection
 closed

@@ -36,7 +36,7 @@ import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 
 public final class HttpInjectedDynamicResource extends HttpDynamicResource {
 
-    private static final Map<String, String> EMPTY_WRITE_HEADERS = Collections.<String, String>emptyMap();
+    private static final Map<String, String> EMPTY_WRITE_HEADERS = Collections.emptyMap();
     
     private final long startTime;
     private final String resourcePath;
@@ -95,7 +95,7 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
     }
 
     // TODO: is this still necessary now that we are above HttpSession?
-    private static final String getContentType(String fileExtension) {        
+    private static String getContentType(String fileExtension) {
         if (fileExtension == null) {
             return null;
         }

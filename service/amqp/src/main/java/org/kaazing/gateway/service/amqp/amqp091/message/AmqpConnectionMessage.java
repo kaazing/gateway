@@ -39,7 +39,7 @@ public abstract class AmqpConnectionMessage extends AmqpClassMessage {
 
     public static final String AMQP_AUTHENTICATION_MECHANISM = "amqp_authentication_mechanism";
     
-    public static enum ConnectionMethodKind {
+    public enum ConnectionMethodKind {
         START((short)10),
         START_OK((short)11),
         SECURE((short)20),
@@ -53,7 +53,7 @@ public abstract class AmqpConnectionMessage extends AmqpClassMessage {
 
         private final short methodIndex;
         
-        private ConnectionMethodKind(short methodId) {
+        ConnectionMethodKind(short methodId) {
             this.methodIndex = methodId;
         }
         

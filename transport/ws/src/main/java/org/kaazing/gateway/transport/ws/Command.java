@@ -29,15 +29,15 @@ public abstract class Command {
     private static final Command RECONNECT = new SingleInstructionCommand(0x01);
     private static final Command CLOSE = new SingleInstructionCommand(0x02);
 	
-	public static final Command noop() {
+	public static Command noop() {
 		return NOOP;
 	}
 
-	public static final Command reconnect() {
+	public static Command reconnect() {
 		return RECONNECT;
 	}
 	
-	public static final Command close() {
+	public static Command close() {
 	    return CLOSE;
 	}
 	

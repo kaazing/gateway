@@ -38,10 +38,11 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpDirectoryServiceIT {
 
-    private static String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
-    private static String CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8001/";
-    private static String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
-    private static String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
+    private static final String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
+    private static final String CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8001/";
+    private static final String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
+    private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
+    private static final String NO_SERVER_HEADER = "http://localhost:8004/";
 
     private final K3poRule robot = new K3poRule();
 
@@ -57,7 +58,7 @@ public class HttpDirectoryServiceIT {
                                 .property("directory", "/public")
                                 // We have to use this name (which is from TransportOptionNames) instead of "http.keepalive.timeout",
                                 // see Gateway.camelCaseToDottedLowerCase.
-                                .acceptOption("http.keepaliveTimeout", "3") // seconds
+                                .acceptOption("http.keepalive.timeout", "3") // seconds
                         .done()
                         .service()
                             .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
@@ -80,6 +81,14 @@ public class HttpDirectoryServiceIT {
                                 .crossOrigin().allowOrigin("*")
                             .done()
                         .done()
+                            .service()
+                            .accept(URI.create(NO_SERVER_HEADER))
+                            .type("directory")
+                            .acceptOption("http.server.header", "disabled")
+                            .property("directory", "/public")
+                            .property("welcome-file", "index.html")
+                            .crossOrigin().allowOrigin("*").done()
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -92,6 +101,12 @@ public class HttpDirectoryServiceIT {
     @Specification("get.index.check.status.code.200")
     @Test(timeout = 8000)
     public void testGetIndexAndStatusCode200() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("no.server.header")
+    @Test(timeout = 8000)
+    public void testNoServerHeader() throws Exception {
         robot.finish();
     }
 

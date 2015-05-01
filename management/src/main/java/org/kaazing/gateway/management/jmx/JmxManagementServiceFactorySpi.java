@@ -30,7 +30,7 @@ public class JmxManagementServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("management.jmx");
+        return Collections.singletonList("management.jmx");
     }
 
     @Override

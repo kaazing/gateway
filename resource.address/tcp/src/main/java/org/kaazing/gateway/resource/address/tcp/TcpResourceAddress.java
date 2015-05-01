@@ -84,7 +84,7 @@ public final class TcpResourceAddress extends ResourceAddress {
 	
 	static class TcpResourceOption<T> extends ResourceOption<T> {
 
-		static enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE }
+		enum Kind { BIND_ADDRESS, MAXIMUM_OUTBOUND_RATE }
 		
 		static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 

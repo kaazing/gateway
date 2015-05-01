@@ -31,7 +31,7 @@ public enum HttpProtocol implements Protocol {
 
     private final boolean secure;
 
-    private HttpProtocol(boolean secure) {
+    HttpProtocol(boolean secure) {
         this.secure = secure;
     }
 

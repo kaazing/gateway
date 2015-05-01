@@ -70,7 +70,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     private static final Map<AmqpType, String> typeMap = 
                                              new HashMap<>();
 
-    static enum DecoderState {
+    enum DecoderState {
         READ_PROTOCOL_HEADER, READ_FRAME, AFTER_CONNECTION
     }
 
@@ -566,8 +566,8 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         AmqpStartMessage message = new AmqpStartMessage();
         
         // Decode the parameters.
-        short     versionMajor = (short) in.getUnsigned();
-        short     versionMinor = (short) in.getUnsigned();
+        short     versionMajor = in.getUnsigned();
+        short     versionMinor = in.getUnsigned();
         AmqpTable serverProperties = getTable(in);
         String    mechanisms = getLongString(in);
         String    locales = getLongString(in);
@@ -645,9 +645,9 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         AmqpTuneMessage message = new AmqpTuneMessage();
 
         // Decode the parameters.
-        int maxChannels = (int) getUnsignedShort(in);
+        int maxChannels = getUnsignedShort(in);
         int maxFrameSize = in.getInt();
-        int heartbeatDelay = (int) getUnsignedShort(in);
+        int heartbeatDelay = getUnsignedShort(in);
 
         message.setMaxChannels(maxChannels);
         message.setMaxFrameSize(maxFrameSize);
@@ -671,9 +671,9 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
         AmqpTuneOkMessage message = new AmqpTuneOkMessage();
 
         // Decode the parameters.
-        int maxChannels = (int) getUnsignedShort(in);
+        int maxChannels = getUnsignedShort(in);
         int maxFrameSize = in.getInt();
-        int heartbeatDelay = (int) getUnsignedShort(in);
+        int heartbeatDelay = getUnsignedShort(in);
 
         message.setMaxChannels(maxChannels);
         message.setMaxFrameSize(maxFrameSize);
@@ -700,12 +700,12 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     }
     
     private static long getUnsignedInt(IoBufferEx buffer) {
-        long val = (long) (buffer.getInt() & 0xffffffffL);
+        long val = buffer.getInt() & 0xffffffffL;
         return val;
     }
 
     private static long getUnsignedInt(ByteBuffer buffer) {
-        long val = (long) (buffer.getInt() & 0xffffffffL);
+        long val = buffer.getInt() & 0xffffffffL;
         return val;
     }
 
@@ -742,7 +742,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     }
 
     private static AmqpTable getTable(IoBufferEx buffer) throws ProtocolDecoderException {
-        long len = (long)getUnsignedInt(buffer);     
+        long len = getUnsignedInt(buffer);
         long end = buffer.position() + len;  
 
         ArrayList<AmqpTableEntry> entries = new ArrayList<>();
@@ -812,7 +812,7 @@ public class AmqpMessageDecoder extends CumulativeProtocolDecoderEx {
     // 8-bit integer representing the length of the string.
     private static String getShortString(ByteBuffer buffer)
     {
-        int len = (int) (buffer.get() & 0xff);
+        int len = buffer.get() & 0xff;
 
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < len; i++)

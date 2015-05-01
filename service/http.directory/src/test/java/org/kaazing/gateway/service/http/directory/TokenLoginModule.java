@@ -72,10 +72,7 @@ public class TokenLoginModule extends BaseStateDrivenLoginModule {
     @Override
     protected boolean doLogin() throws LoginException {
         String authToken = getAuthToken();
-        if(authToken != null && authToken.equals("mogli")) {
-            return true;
-        }
-        return false;
+        return authToken != null && authToken.equals("mogli");
     }
 
     @Override

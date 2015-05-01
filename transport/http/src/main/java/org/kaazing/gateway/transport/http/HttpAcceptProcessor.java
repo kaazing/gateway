@@ -28,12 +28,13 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.future.CloseFuture;
-import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
@@ -347,6 +348,21 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
                         }
                     }
                 });
+            }
+        }
+    }
+
+    public static void setServerHeader(IoSession session, HttpResponseMessage response) {
+        DefaultHttpSession httpSession = HttpAcceptor.SESSION_KEY.get(session);
+        setServerHeader(httpSession, response);
+    }
+
+    public static void setServerHeader(DefaultHttpSession httpSession, HttpResponseMessage httpResponse) {
+        if (httpSession != null) {
+            ResourceAddress address = httpSession.getLocalAddress();
+            boolean serverHeaderEnabled = address.getOption(HttpResourceAddress.SERVER_HEADER_ENABLED);
+            if (serverHeaderEnabled && !httpResponse.hasHeader("Server")) {
+                httpResponse.setHeader("Server", "Kaazing Gateway");
             }
         }
     }

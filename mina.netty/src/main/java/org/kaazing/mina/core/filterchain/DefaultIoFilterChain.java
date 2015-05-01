@@ -644,7 +644,7 @@ public class DefaultIoFilterChain implements IoFilterChain {
         @Override
         public void filterClose(NextFilter nextFilter, IoSession session)
                 throws Exception {
-            ((AbstractIoSession) session).getProcessor().remove((AbstractIoSession) session);
+            ((AbstractIoSession) session).getProcessor().remove(session);
         }
     }
 

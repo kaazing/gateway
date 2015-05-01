@@ -31,7 +31,7 @@ public class HttpDirectoryServiceFactorySpi extends ServiceFactorySpi {
 
     @Override
     public Collection<String> getServiceTypes() {
-        return Collections.<String>singletonList("directory");
+        return Collections.singletonList("directory");
     }
 
     @Override

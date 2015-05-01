@@ -24,12 +24,15 @@ package org.kaazing.gateway.resource.address.http;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
@@ -40,6 +43,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -79,6 +83,7 @@ public class HttpResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
+        options.put("http.keepAlive", false);
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));
         options.put("http.realmName", "demo");
         options.put("http.requiredRoles", new String[] { "admin" });
@@ -91,6 +96,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.realmAuthenticationParameterNames",new String[] {"p1", "p2"});
         options.put("http.realmAuthenticationCookieNames",new String[] {"c1", "c2"});
         options.put("http.loginContextFactory", loginContextFactory);
+        options.put("http.serverHeaderEnabled", Boolean.FALSE);
 
     }
 
@@ -122,7 +128,8 @@ public class HttpResourceAddressFactorySpiTest {
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
-        assertNull(address.getOption(KEEP_ALIVE_TIMEOUT));
+        assertTrue(address.getOption(KEEP_ALIVE));
+        assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertEquals("challenge",address.getOption(REALM_AUTHORIZATION_MODE));
@@ -132,6 +139,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEmpty(address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
         assertEmpty(address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertNull(address.getOption(LOGIN_CONTEXT_FACTORY));
+        assertTrue(address.getOption(SERVER_HEADER_ENABLED));
     }
 
     @Test
@@ -141,6 +149,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertEquals("random", address.getOption(QUALIFIER));
         assertNull(address.getOption(TRANSPORT));
         assertEquals(5000L, address.getOption(KEEP_ALIVE_TIMEOUT).longValue());
+        assertFalse(address.getOption(KEEP_ALIVE));
         assertEquals("demo", address.getOption(REALM_NAME));
         assertArrayEquals(new String[] { "admin" }, address.getOption(REQUIRED_ROLES));
 
@@ -151,6 +160,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertArrayEquals(new String[]{"p1", "p2"}, address.getOption(REALM_AUTHENTICATION_PARAMETER_NAMES));
         assertArrayEquals(new String[]{"c1", "c2"}, address.getOption(REALM_AUTHENTICATION_COOKIE_NAMES));
         assertEquals(loginContextFactory, address.getOption(LOGIN_CONTEXT_FACTORY));
+        assertFalse(address.getOption(SERVER_HEADER_ENABLED));
     }
 
     @Test

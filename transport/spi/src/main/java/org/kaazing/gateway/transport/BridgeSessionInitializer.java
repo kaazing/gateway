@@ -40,5 +40,5 @@ public interface BridgeSessionInitializer<T extends IoFuture> extends IoSessionI
      *            the protocol of the parent session
      * @return the parent initializer
      */
-    public BridgeSessionInitializer<T> getParentInitializer(Protocol protocol);
+    BridgeSessionInitializer<T> getParentInitializer(Protocol protocol);
 }

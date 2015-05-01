@@ -943,12 +943,12 @@ public class AmqpMessageEncoder extends ProtocolEncoderAdapter {
             putUnsignedInt(buffer, 0);               
         }
         else {            
-            List<AmqpTableEntry> entries = (List<AmqpTableEntry>)table.getEntries();            
+            List<AmqpTableEntry> entries = table.getEntries();
             AmqpTableEntry       entry = null;
             ByteBuffer           bytes = ByteBuffer.allocate(table.getLength());
 
             for (int i = 0; i < entries.size(); i++) {
-                entry = (AmqpTableEntry)entries.get(i);
+                entry = entries.get(i);
                 
                 putShortString(bytes, entry.getKey());
                 putType(bytes, entry.getType());

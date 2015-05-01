@@ -95,7 +95,7 @@ public enum HttpStatus {
     private final String reason;
     private final String status;
 
-    private HttpStatus(int code, String reason) {
+    HttpStatus(int code, String reason) {
         this.code = code;
         this.reason = reason;
         this.status = String.valueOf(code);

@@ -29,10 +29,10 @@ import java.util.Map;
 import org.kaazing.gateway.service.ServiceProperties;
 
 public class DefaultServiceProperties implements ServiceProperties {
-    private static final Map<String, String> EMPTY_SIMPLE = Collections.<String, String>emptyMap();
+    private static final Map<String, String> EMPTY_SIMPLE = Collections.emptyMap();
     private static final Map<String, List<ServiceProperties>> EMPTY_NESTED =
-            Collections.<String, List<ServiceProperties>>emptyMap();
-    private static final List<ServiceProperties> EMPTY_LIST = Collections.<ServiceProperties>emptyList();
+            Collections.emptyMap();
+    private static final List<ServiceProperties> EMPTY_LIST = Collections.emptyList();
 
     private Map<String, String> simpleProperties = EMPTY_SIMPLE;
     private Map<String, List<ServiceProperties>> nestedProperties = EMPTY_NESTED;

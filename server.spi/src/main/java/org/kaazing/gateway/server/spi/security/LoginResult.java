@@ -39,7 +39,7 @@ public abstract class LoginResult {
     /**
      * {@code Type} describes the result type of a Gateway Login attempt.
      */
-    public static enum Type {
+    public enum Type {
 
         /**
          * Login attempt was successful.

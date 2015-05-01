@@ -44,6 +44,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
+import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
@@ -115,17 +116,17 @@ public class TestServiceContext implements ServiceContext {
 
     @Override
     public Collection<URI> getAccepts() {
-        return Collections.<URI>singletonList(acceptURI);
+        return Collections.singletonList(acceptURI);
     }
 
     @Override
     public Collection<URI> getBalances() {
-        return Collections.<URI>emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public Collection<URI> getConnects() {
-        return Collections.<URI>singletonList(connectURI);
+        return Collections.singletonList(connectURI);
     }
 
     @Override
@@ -238,8 +239,15 @@ public class TestServiceContext implements ServiceContext {
     }
 
     @Override
+    public ConnectFuture connect(ResourceAddress address,
+                                 IoHandler connectHandler,
+                                 IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
+        return connect(address.getExternalURI(), connectHandler, ioSessionInitializer);
+    }
+
+    @Override
     public Collection<IoSessionEx> getActiveSessions() {
-        return Collections.<IoSessionEx>emptyList();
+        return Collections.emptyList();
     }
 
     @Override

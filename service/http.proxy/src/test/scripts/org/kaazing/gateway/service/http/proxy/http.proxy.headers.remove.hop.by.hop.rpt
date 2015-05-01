@@ -1,0 +1,60 @@
+#
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+#
+
+connect tcp://localhost:8110
+connected
+
+write "GET / HTTP/1.1\r\n"
+write "Host: localhost:8110\r\n"
+write "Connection: Fooa, FooB\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+write "FooA: fooa\r\n"
+write "FooB: foob\r\n"
+write "\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Type: text/html;charset=UTF-8\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
+read "Transfer-Encoding: chunked\r\n"
+read "\r\n"
+read "14\r\n"
+read "<html>Hellooo</html>\r\n"
+read "0\r\n"
+read "\r\n"
+
+
+close
+closed
+
+#
+# Origin server
+#
+
+accept tcp://localhost:8080
+accepted
+connected
+
+read "GET / HTTP/1.1\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36\r\n"
+read "Host: localhost:8110\r\n"
+read "Connection: close\r\n"
+read "\r\n"
+
+write "HTTP/1.1 200 OK\r\n"
+write "Server: Apache-Coyote/1.1\r\n"
+write "Content-Type: text/html;charset=UTF-8\r\n"
+write "Transfer-Encoding: chunked\r\n"
+write "Date: Tue, 10 Feb 2015 02:17:15 GMT\r\n"
+write "Connection: FooC, FooD\r\n"
+write "FooC: fooc\r\n"
+write "FooD: food\r\n"
+write "\r\n"
+write "14\r\n"
+write "<html>Hellooo</html>\r\n"
+write "0\r\n"
+write "\r\n"
+
+closed

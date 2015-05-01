@@ -40,7 +40,7 @@ public enum AmqpProperty {
 
     private final AmqpDomain    domain;
 
-    private AmqpProperty(AmqpDomain domain) {
+    AmqpProperty(AmqpDomain domain) {
         this.domain = domain;
     }
 

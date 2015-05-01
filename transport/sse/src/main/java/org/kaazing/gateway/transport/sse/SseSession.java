@@ -110,12 +110,12 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 	
     @Override
     public ResourceAddress getLocalAddress() {
-        return (ResourceAddress) super.getLocalAddress();
+        return super.getLocalAddress();
     }
     
     @Override
     public ResourceAddress getRemoteAddress() {
-        return (ResourceAddress) super.getRemoteAddress();
+        return super.getRemoteAddress();
     }
 
 	@Override

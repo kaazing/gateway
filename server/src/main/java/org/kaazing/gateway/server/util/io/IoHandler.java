@@ -42,7 +42,7 @@ public interface IoHandler<S extends IoSession, M> {
     void messageSent(S session, M message) throws Exception;
 
     @SuppressWarnings("unchecked")
-    public class Adapter<S extends IoSession, M, H extends IoHandler<S, M>>
+    class Adapter<S extends IoSession, M, H extends IoHandler<S, M>>
             implements org.apache.mina.core.service.IoHandler {
 
         protected final H handler;
