@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.server.test.config;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppression;
@@ -35,9 +36,7 @@ public class Suppressible<T> {
         if (suppressions.length == 0) {
             this.suppressions.add(Suppression.NONE);
         } else {
-            for (Suppression suppression : suppressions) {
-                this.suppressions.add(suppression);
-            }
+            Collections.addAll(this.suppressions, suppressions);
         }
     }
 

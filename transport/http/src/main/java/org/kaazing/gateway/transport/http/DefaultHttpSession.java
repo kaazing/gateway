@@ -206,7 +206,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     // TODO: put this into a utility
     // per http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars this should be UTF-8 to provide for broadest compatibility
-    private static final String decodeURL(String url) {
+    private static String decodeURL(String url) {
     	try {
 			return URLDecoder.decode(url, UTF_8);
 		} catch (UnsupportedEncodingException e) {

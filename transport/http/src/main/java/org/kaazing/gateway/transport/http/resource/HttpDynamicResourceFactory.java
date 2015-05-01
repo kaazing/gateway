@@ -33,11 +33,11 @@ import java.util.concurrent.ConcurrentMap;
 
 public abstract class HttpDynamicResourceFactory {
 
-    public static final HttpDynamicResourceFactory newHttpDynamicResourceFactory() {
+    public static HttpDynamicResourceFactory newHttpDynamicResourceFactory() {
         return newHttpDynamicResourceFactory(currentThread().getContextClassLoader());
     }
 
-    public static final HttpDynamicResourceFactory newHttpDynamicResourceFactory(ClassLoader classLoader) {
+    public static HttpDynamicResourceFactory newHttpDynamicResourceFactory(ClassLoader classLoader) {
         ServiceLoader<HttpDynamicResourceFactorySpi> loader = loadHttpDynamicResourceFactorySpi(classLoader);
         
         // load HttpDynamicResourceFactorySpi instances

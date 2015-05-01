@@ -29,42 +29,42 @@ public class GL {
     protected GL() {
     }
 
-    public static final void info(String module, String format, Object ... args) {
+    public static void info(String module, String format, Object ... args) {
         Logger logger = LoggerFactory.getLogger(module);
         if (logger.isInfoEnabled()) {
             logger.info(format, args);
         }
     }
 
-    public static final void debug(String module, String format, Object ... args) {
+    public static void debug(String module, String format, Object ... args) {
         Logger logger = LoggerFactory.getLogger(module);
         if (logger.isDebugEnabled()) {
             logger.debug(format, args);
         }
     }
 
-    public static final void trace(String module, String format, Object ... args) {
+    public static void trace(String module, String format, Object ... args) {
         Logger logger = LoggerFactory.getLogger(module);
         if (logger.isTraceEnabled()) {
             logger.trace(format, args);
         }
     }
 
-    public static final void error(String module, String format, Object ... args) {
+    public static void error(String module, String format, Object ... args) {
         Logger logger = LoggerFactory.getLogger(module);
         if (logger.isErrorEnabled()) {
             logger.error(format, args);
         }
     }
 
-    public static final void warn(String module, String format, Object ... args) {
+    public static void warn(String module, String format, Object ... args) {
         Logger logger = LoggerFactory.getLogger(module);
         if (logger.isWarnEnabled()) {
             logger.warn(format, args);
         }
     }
 
-    public static final String identity(Object obj) {
+    public static String identity(Object obj) {
         return obj.getClass().getSimpleName() + "@" + obj.hashCode();
     }
 }

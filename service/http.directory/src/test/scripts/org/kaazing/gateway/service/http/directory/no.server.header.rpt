@@ -1,0 +1,25 @@
+#
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+#
+
+connect tcp://localhost:8004
+connected
+
+write "GET /index.html HTTP/1.1\r\n"
+write "Host: localhost:8004\r\n"
+write "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20100101 Firefox/8.0\r\nAccept: text/html, application/xhtml+xml, application/xml;q=0.9,*/*;q=0.8\r\n"
+write "\r\n"
+
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Length: 119\r\n"
+read "Content-Type: text/html\r\n"
+read /Date: .*/ "\r\n"
+read /ETag: .*/ "\r\n"
+read /Expires: .*/ "\r\n"
+read /Last-Modified: .*/ "\r\n"
+# Shouldn't have the following header
+# Server: Kaazing Gateway
+read "\r\n"
+
+close
+closed

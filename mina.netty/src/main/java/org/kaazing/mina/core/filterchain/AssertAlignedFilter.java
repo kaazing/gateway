@@ -47,7 +47,7 @@ class AssertAlignedFilter extends IoFilterAdapter {
         assertEnabled = enabled;
     }
 
-    static final boolean isAssertEnabled() {
+    static boolean isAssertEnabled() {
         return assertEnabled;
     }
 

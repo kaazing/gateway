@@ -39,7 +39,7 @@ public class NTLMUtilities implements NTLMConstants {
     /**
      * @see #writeSecurityBuffer(short, short, int, byte[], int)
      */
-    public final static byte[] writeSecurityBuffer(short length,
+    public static byte[] writeSecurityBuffer(short length,
             int bufferOffset) {
         byte[] b = new byte[8];
         writeSecurityBuffer(length, length, bufferOffset, b, 0);
@@ -61,7 +61,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param b the buffer in which we write the security buffer
      * @param offset the offset at which to write to the b buffer
      */
-    public final static void writeSecurityBuffer(short length, short allocated,
+    public static void writeSecurityBuffer(short length, short allocated,
             int bufferOffset, byte[] b, int offset) {
         ByteUtilities.writeShort(length, b, offset);
         ByteUtilities.writeShort(allocated, b, offset + 2);
@@ -79,7 +79,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param b the target byte array 
      * @param offset the offset at which to write in the array
      */
-    public final static void writeOSVersion(byte majorVersion,
+    public static void writeOSVersion(byte majorVersion,
             byte minorVersion, short buildNumber, byte[] b, int offset) {
         b[offset] = majorVersion;
         b[offset + 1] = minorVersion;
@@ -98,7 +98,7 @@ public class NTLMUtilities implements NTLMConstants {
      * 
      * @return a NTLM OS version byte buffer
      */
-    public final static byte[] getOsVersion() {
+    public static byte[] getOsVersion() {
         String os = System.getProperty("os.name");
         
         if (os == null || !os.toUpperCase().contains("WINDOWS")) {
@@ -177,7 +177,7 @@ public class NTLMUtilities implements NTLMConstants {
      * <code>NTLMConstants.DEFAULT_OS_VERSION</code> is used
      * @return the type 1 message
      */
-    public final static byte[] createType1Message(String workStation,
+    public static byte[] createType1Message(String workStation,
             String domain, Integer customFlags, byte[] osVersion) {
         byte[] msg = null;
 
@@ -240,7 +240,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @return the position where the next security buffer will be written
      * @throws IOException if writing to the ByteArrayOutputStream fails
      */
-    public final static int writeSecurityBufferAndUpdatePointer(
+    public static int writeSecurityBufferAndUpdatePointer(
             ByteArrayOutputStream baos, short len, int pointer)
             throws IOException {
         baos.write(writeSecurityBuffer(len, pointer));
@@ -253,7 +253,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param msg the type 2 message byte array
      * @return the challenge
      */
-    public final static byte[] extractChallengeFromType2Message(byte[] msg) {
+    public static byte[] extractChallengeFromType2Message(byte[] msg) {
         byte[] challenge = new byte[8];
         System.arraycopy(msg, 24, challenge, 0, 8);
         return challenge;
@@ -265,7 +265,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param msg the type 2 message byte array
      * @return the proxy flags as an int
      */
-    public final static int extractFlagsFromType2Message(byte[] msg) {
+    public static int extractFlagsFromType2Message(byte[] msg) {
         byte[] flagsBytes = new byte[4];
 
         System.arraycopy(msg, 20, flagsBytes, 0, 4);
@@ -282,7 +282,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param securityBufferOffset the offset at which to read the security buffer
      * @return a new byte array holding the data pointed by the security buffer 
      */
-    public final static byte[] readSecurityBufferTarget(
+    public static byte[] readSecurityBufferTarget(
             byte[] msg, int securityBufferOffset) {
         byte[] securityBuffer = new byte[8];
 
@@ -307,7 +307,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @throws UnsupportedEncodingException if unable to use the 
      * needed UTF-16LE or ASCII charsets 
      */
-    public final static String extractTargetNameFromType2Message(byte[] msg,
+    public static String extractTargetNameFromType2Message(byte[] msg,
             Integer msgFlags) throws UnsupportedEncodingException {
         // Read the security buffer to determine where the target name
         // is stored and what it's length is
@@ -331,7 +331,7 @@ public class NTLMUtilities implements NTLMConstants {
      * type 2 message
      * @return the target info
      */
-    public final static byte[] extractTargetInfoFromType2Message(byte[] msg,
+    public static byte[] extractTargetInfoFromType2Message(byte[] msg,
             Integer msgFlags) {
         int flags = msgFlags == null ? extractFlagsFromType2Message(msg)
                 : msgFlags;
@@ -355,7 +355,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @throws UnsupportedEncodingException if unable to use the 
      * needed UTF-16LE or ASCII charsets 
      */
-    public final static void printTargetInformationBlockFromType2Message(
+    public static void printTargetInformationBlockFromType2Message(
             byte[] msg, Integer msgFlags, PrintWriter out)
             throws UnsupportedEncodingException {
         int flags = msgFlags == null ? extractFlagsFromType2Message(msg)
@@ -416,7 +416,7 @@ public class NTLMUtilities implements NTLMConstants {
      * @param osVersion the os version of the client
      * @return the type 3 message
      */
-    public final static byte[] createType3Message(String user, String password,
+    public static byte[] createType3Message(String user, String password,
             byte[] challenge, String target, String workstation,
             Integer serverFlags, byte[] osVersion) {
         byte[] msg = null;
