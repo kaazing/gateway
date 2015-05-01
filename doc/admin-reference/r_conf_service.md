@@ -1,7 +1,7 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
 -   Service Reference
-
+#sslprotocols-and-sockssslprotocols
 Service Reference 
 ========================================
 
@@ -1005,7 +1005,7 @@ If an incoming message from a client exceeds the value of `ws.maximum.message.si
 
 ##### Example
 
-The following example sets a maximum incoming message limit of 64 kilobytes, as shown in line 8:
+The following example sets a maximum incoming message limit of 64 kilobytes:
 
 ``` xml
 <service>
@@ -1056,7 +1056,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 
 ##### Examples
 
--   The following example shows a `proxy` service accepting a secure connection over WSS and connecting to the back-end service or message broker over TCP with the ciphers used by the encryption algorithm specified in `ssl.ciphers`. The example uses the `proxy` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+-   The following example shows a `proxy` service accepting a secure connection over WSS and connecting to the back-end service or message broker over TCP with the ciphers used by the encryption algorithm specified in `ssl.ciphers`. The example uses the `proxy` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
     ``` xml
     <service>
@@ -1119,7 +1119,7 @@ Use `ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secur
 -   Values for cipher strings are case-sensitive.
 -   Typos or incorrect strings (or unsupported ciphers) in `ssl.ciphers` are noticed by the Gateway when a connection is made, not when the Gateway is started. These errors are only discoverable by looking at the Gateway log.
 -   The `ssl.ciphers` property does not configure the ciphers used on a secure connection. It merely specified the ciphers used in the TLS/SSL certificate used to establish the secure connection.
--   For secure SOCKS connections, use[socks.ssl.ciphers](#sockssslciphers).
+-   For secure SOCKS connections, use [socks.ssl.ciphers](#sockssslciphers).
 -   TLS/SSL is used to verify the Gateway to the client. To use TLS/SSL to verify the client using the connection, use `ssl.verify-client`.
 -   Two or more services can have TLS/SSL `accept` elements with the same address and port (for example, one service might accept on `wss://example.com:9000/echo` and another service might accept on `https://example.com:9000/directory`). If `accept` elements listening on the same address and port number are also configured with the `ssl.ciphers` accept option, the values for `ssl.ciphers` must be identical.
 
@@ -1140,7 +1140,7 @@ If you configure the `ssl.protocols` or the `socks.ssl.protocols` element to ena
 
 ##### Example: Simple Configuration Using ssl.protocols to Accept TLSv1, TLSv1.2, and TLSv1.1 Connections
 
-The following example shows a `proxy` service. Because the `accept` URL the `wss://` scheme, we know that this is a secure connection. The `ssl.protocols` element in line 12 indicates that we want the Gateway to accept only TLSv1, TLSv1.2, and TLSv1.1 protocols, say, from clients over this secure connection.
+The following example shows a `proxy` service. Because the `accept` URL the `wss://` scheme, we know that this is a secure connection. The `ssl.protocols` element in the following example indicates that we want the Gateway to accept only TLSv1, TLSv1.2, and TLSv1.1 protocols, say, from clients over this secure connection.
 
 ``` xml
 <service>
@@ -1163,7 +1163,7 @@ The following example shows a `proxy` service. Because the `accept` URL the `wss
 
 ##### Example: Enterprise Shield&trade; Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2
 
-This example shows a `proxy` service in the DMZ configured for Enterprise Shield&trade;, for which the <connect> behavior is reversed. Instead of connecting to another host, the Gateway accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about Enterprise Shield&trade; and forward and reverse connectivity, see [Checklist: Configure Enterprise Shield&trade; for KAAZING Gateway](../reverse-connectivity/o_rc_checklist.md).
+This example shows a `proxy` service in the DMZ configured for Enterprise Shield&trade;, for which the <connect> behavior is reversed. Instead of connecting to another host, the Gateway accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about Enterprise Shield&trade; and forward and reverse connectivity, see [Configure Enterprise Shield&trade; for KAAZING Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 Because this configuration connects a Gateway to another Gateway in a controlled data center, the example only configures the TLSv1.2 protocol for secure connections. For this type of topology we don't expect to make any other kinds of connections.
 
@@ -1233,7 +1233,7 @@ This element allows you to enable or disable TLS/SSL encryption on incoming traf
 
 For example, if the Gateway is deployed behind a TLS/SSL offloader (a network device designed specifically for handling a company's TLS/SSL certificate traffic), where the incoming traffic to the TLS/SSL offloader is secured over HTTPS and the outgoing traffic from the TLS/SSL offloader to the Gateway is *not* secure, you can disable encryption so that the Gateway accepts the unsecured traffic on a connection that uses HTTPS/WSS. Basically, the Gateway trusts traffic from the TLS/SSL offloader and therefore the Gateway does not need to verify the connection itself.
 
-You can include the [accept-options](#svcacceptopts) element on a service that accepts over HTTPS or WSS, then disable encryption by setting the `ssl.encryption` element to `disabled`. Even when encryption is disabled, the Gateway returns the response as HTTPS/WSS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on HTTPS or WSS as secure and handles the TLS/SSL certificate verification itself.
+You can include the [accept-options](#accept-options-and-connect-options) element on a service that accepts over HTTPS or WSS, then disable encryption by setting the `ssl.encryption` element to `disabled`. Even when encryption is disabled, the Gateway returns the response as HTTPS/WSS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on HTTPS or WSS as secure and handles the TLS/SSL certificate verification itself.
 
 See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS/WSS.
 
@@ -1291,7 +1291,7 @@ The following example for an Enterprise Shield&trade; topology shows a `service`
 
 ##### Notes
 
--   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#accept-options-and-connect-options) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 
 #### ssl.verify-client
@@ -1328,7 +1328,7 @@ In the following example, the Gateway accepts on a secure URI (`wss://`) and req
 ##### Notes
 
 -   To use `ssl.verify-client` as an accept-option on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).</span>
--   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#accept-options-and-connect-options) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 -   This configuration ensures that both the clients and the Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
 -   This configuration ensures that both the clients and the Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
@@ -1338,7 +1338,7 @@ In the following example, the Gateway accepts on a secure URI (`wss://`) and req
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `socks.mode` accept-option or connect-option to initiate the Gateway connection using the SOCKet Secure (SOCKS) protocol in one of the following modes:
+Use the `socks.mode` in accept-options or connect-options to initiate the Gateway connection using the SOCKet Secure (SOCKS) protocol in one of the following modes:
 
 -   `forward`: initiates forward connectivity from the DMZ Gateway to the internal Gateway on the trusted network. Once connected, a regular full-duplex connection is established. You typically use the `forward` mode to ensure the SOCKS settings are correctly configured before you attempt to reverse the connection.
 -   `reverse`: configures the connection mode in *reverse* so that the connection is initiated from the internal Gateway on the trusted network to the DMZ Gateway to allow a connection between the client and server that is otherwise blocked by the firewall. With the reverse mode, the Gateway interprets `accept` URIs as `connect` URIs.
@@ -1347,7 +1347,7 @@ For more information about Enterprise Shield&trade; and forward and reverse conn
 
 ##### Example
 
-The following example shows a `service` element with the `socks.mode` set to `reverse`. This configuration causes the Gateway to interpret the SOCKS URI as a connect URI, as shown in line 8:
+The following example shows a `service` element with the `socks.mode` set to `reverse`. This configuration causes the Gateway to interpret the SOCKS URI as a connect URI:
 
 ``` xml
 <service>
@@ -1366,7 +1366,7 @@ The following example shows a `service` element with the `socks.mode` set to `re
 
 ##### Example
 
-The following example shows a `connect-option` element with the `socks.mode` set to `reverse`.
+The following example shows a `connect-options` element with the `socks.mode` set to `reverse`.
 
 ``` xml
 <service>
@@ -1400,12 +1400,12 @@ Note the following behavior for reverse and forward SOCKS connections:
 
 ##### Example
 
-The following example shows a `socks.timeout` that is set to 10 seconds in line 15. If the forward connection is not formed within 10 seconds, then the connection is closed and the client must initiate another connection.
+The following example shows a `socks.timeout` that is set to 10 seconds. If the forward connection is not formed within 10 seconds, then the connection is closed and the client must initiate another connection.
 
 ``` xml
 <service>
   <accept>wss://www.example.com:443/remoteService</accept>
-  <connect></connect>
+  <connect>tcp://localhost:6163</connect>
 
   <type>proxy</type>
 
@@ -1510,7 +1510,7 @@ In the following example, the DMZ Gateway accepts on a WebSocket URI and connect
 
 ##### Notes
 
--   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#svcacceptopts) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
+-   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#accept-options-and-connect-options) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 -   See [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
 
@@ -1522,7 +1522,7 @@ Use the `socks.retry.maximum.interval` accept-option in an Enterprise Shield&tra
 
 ##### Example
 
-The following example shows a `service` element containing a SOCKS proxy connection retry interval time limit of 60 seconds, as shown in line 10:
+The following example shows a `service` element containing a SOCKS proxy connection retry interval time limit of 60 seconds:
 
 ``` xml
 <service>
@@ -1636,7 +1636,7 @@ In the following example, the `ws.inactivity.timeout` property specifies that if
 
 The `ws.version` element has been deprecated. If you are using an existing configuration that includes the `ws.version` element, you can continue to use it. However, if the scheme of the URI inside the `connect` element is ws:// or wss://, then the WebSocket version defaults to rfc6455 and there is no need to explicitly set `ws.version`.
 
-The `ws.version` element was used to tell the Gateway which version of the WebSocket protocol to use for the service connections. You would specify this element only if the scheme of the URI inside the `connect` element is `ws:` or `wss:` (to indicate that the WebSocket protocol was being used). If you did not specify the `ws.version` connect-option, then the WebSocket version would default to `rfc6455`.
+The `ws.version` element was used to tell the Gateway which version of the WebSocket protocol to use for the service connections. You would specify this element only if the scheme of the URI inside the `connect` element is `ws:` or `wss:` (to indicate that the WebSocket protocol was being used). If you did not specify the `ws.version` in connect-options, then the WebSocket version defaults to `rfc6455`.
 
 ##### Example
 
@@ -1714,7 +1714,7 @@ Use the `authorization-constraint` element to configure the user roles that are 
 
 #### Example
 
-The following example of a `proxy` service element is configured with an `authorization-constraint`, as shown in lines 7 to 9. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+The following example of a `proxy` service element is configured with an `authorization-constraint`. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
 ``` xml
 <service>
@@ -1790,7 +1790,7 @@ Use cross-site-constraint to configure how a cross-origin site is allowed to acc
 
 #### Example
 
-The following example of a `proxy` service element includes a cross-site-constraint (as shown in lines 11-13), allowing access to the back-end service or message broker by the site `http://localhost:8000` (note the different port number).
+The following example of a `proxy` service element includes a cross-site-constraint, allowing access to the back-end service or message broker by the site `http://localhost:8000` (note the different port number).
 
 ``` xml
 <service>
@@ -1816,4 +1816,4 @@ The following example of a `proxy` service element includes a cross-site-constra
 Summary
 -------
 
-In this document, you learned about the Gateway service element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway service element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up the Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
