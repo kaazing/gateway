@@ -37,6 +37,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import static org.kaazing.gateway.resource.address.Comparators.compareResourceOriginAndProtocolStack;
@@ -205,12 +206,23 @@ public class BindingsTest {
 
 
     /**
-     * This method returns a port number that is not currently in use.
+     * This method returns a non ephemeral port number that is not currently in use.
      */
     private static int findFreePort() throws IOException {
-        ServerSocket server = new ServerSocket(0);
-        int port = server.getLocalPort();
-        server.close();
+        int port;
+        while (true) {
+            try {
+                Random rand = new Random();
+                int min = 1500;
+                int randomNum = rand.nextInt((5000 - min) + 1) + min;
+                ServerSocket server = new ServerSocket(randomNum);
+                port = server.getLocalPort();
+                server.close();
+                break;
+            } catch (IOException e) {
+                // NOOP need to do loop again
+            }
+        }
         return port;
     }
 
