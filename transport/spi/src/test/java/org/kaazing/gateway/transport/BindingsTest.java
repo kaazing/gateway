@@ -153,7 +153,7 @@ public class BindingsTest {
 
         // Create bindings
         for (int i = 0; i < 10; i++) {
-            URI location = URI.create(String.format("tcp://localhost:%d", findFreePort()));
+            URI location = URI.create(String.format("tcp://localhost:%d", i));
             testBindings[i] = new Bindings.Binding(makeResourceAddress(location),
                     new IoHandlerAdapter(), new BridgeSessionInitializerAdapter<>());
         }
@@ -197,29 +197,8 @@ public class BindingsTest {
 
     }
 
-
-
     private ResourceAddress makeResourceAddress(URI location) {
         return addressFactory.newResourceAddress(location);
-    }
-
-    private static int rollingPorts = 1500;
-
-    /**
-     * This method returns a port number that is not currently in use.
-     */
-    private static int findFreePort() throws IOException {
-        while (true) {
-            try {
-                rollingPorts++;
-                ServerSocket server = new ServerSocket(rollingPorts);
-                server.close();
-                break;
-            } catch (IOException e) {
-                // NOOP need to do loop again
-            }
-        }
-        return rollingPorts;
     }
 
     public static <T extends Collection<?>> void assertEmpty(T collection) {
