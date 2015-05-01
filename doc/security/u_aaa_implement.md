@@ -9,11 +9,9 @@ You implement authentication on two levels: you configure KAAZING Gateway to req
 
 At a high level, configuring authentication involves the following three steps:
 
-**On the Gateway:**
-
-1.  Configure the HTTP challenge scheme to tell the Gateway how to challenge the client.
-2.  Configure a chain of login modules to tell the Gateway how to verify the client response.
-3.  Configure a challenge handler to respond to the authentication challenge.
+1.  **On the Gateway:** Configure the HTTP challenge scheme to tell the Gateway how to challenge the client.
+2.  **On the Gateway:** Configure a chain of login modules to tell the Gateway how to verify the client response.
+3.  **On the Client:** Configure a challenge handler to respond to the authentication challenge.
 
 **Note:** For Kerberos authentication and authorization, see [Configuring Kerberos V5 Network Authentication](o_krb_config_kerberos.md).
 

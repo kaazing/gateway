@@ -10,18 +10,18 @@ By default, the Gateway uses the values in the `gateway-config.xml` and `gateway
 Before You Begin
 ----------------
 
-This procedure is part of [Configure KAAZING Gateway](o_conf_checklist.md):
+This procedure is part of [Configure the Gateway](o_conf_checklist.md):
 
 -   **Configure KAAZING Gateway**
 -   [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_conf_gw_opts.md)
--   Verify the Gateway configuration following the instructions for your deployment in [Setting Up KAAZING Gateway](../about/setup-guide.md)
+-   Verify the Gateway configuration following the instructions for your deployment in [Setting Up the Gateway](../about/setup-guide.md)
 
 To Configure the Gateway
 ---------------------------
 
 The standard way to set up and maintain your Gateway configuration is by editing the settings in the Gateway configuration file in the `GATEWAY_HOME/conf/` directory. The following steps describe how to modify one of the default configuration files `gateway-config.xml` and `gateway-config-minimal.xml,`, or you can create and edit your own configuration file.
 
-1.  Before you configure the Gateway, ensure you have followed the steps in [Setting Up KAAZING Gateway](../about/setup-guide.md) to download and install KAAZING Gateway.
+1.  Before you configure the Gateway, ensure you have followed the steps in [Setting Up the Gateway](../about/setup-guide.md) to download and install KAAZING Gateway.
 2.  Configure the Gateway using one of the following configuration files:
   -   Modify the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file.
         The `gateway-config.xml` contains a complete set of the Gateway properties, including the properties and services needed to run the Gateway documentation and out of the box demos.
@@ -31,6 +31,8 @@ The standard way to set up and maintain your Gateway configuration is by editing
         The `gateway-config-minimal.xml` (recommended) contains the minimal set of properties necessary to run the Gateway.
 
     -   Create and modify your own custom copy of a configuration file.
+      
+      **Note:** Consider using the `gateway-config.xml` file during your development and testing phase. Then, when you are ready to deploy the Gateway to your production environment, create a copy, remove any unnecessary elements from the file, and rename the file to `gateway-config-minimal.xml`. To ensure that the `gateway-config.xml` file is not used in production, rename the file (for example: `test-gateway-config.xml`).
 
 3.  At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
@@ -78,7 +80,7 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
     -   Consider configuring multiple services on the Gateway to use the same hostname and port, for example, as a way to organize multiple connection requests on the same server as the Gateway and avoid conflicts. See [Configuring Multiple Services on the Same Host and Port](c_conf_multipleservices.md) for complete information.
 
-5.  Test the Gateway configuration using the customized configuration file. For detailed instructions about starting and stopping the Gateway, see "How do I start and stop the Gateway?" in [Setting Up KAAZING Gateway](../about/setup-guide.md).
+5.  Test the Gateway configuration using the customized configuration file. For detailed instructions about starting and stopping the Gateway, see "How do I start and stop the Gateway?" in [Setting Up the Gateway](../about/setup-guide.md).
 6.  Prepare the configuration file for production.
 
     When you are ready to deploy the Gateway to your production environment, create a copy of your configuration file, remove any unnecessary elements from the file, and rename the file to `gateway-config-minimal.xml`. By default, if there is no `gateway-config.xml` file in the *GATEWAY\_HOME* directory when the Gateway is started, then the Gateway is started using `gateway-config-minimal.xml`.
@@ -94,14 +96,14 @@ Notes
 -----
 
 -   The actual location of the `GATEWAY_HOME` directory depends on your operating system and the method (standalone or installer) used to install the Gateway. To learn more about `GATEWAY_HOME`, see:
-    -   [Setting Up KAAZING Gateway](../about/setup-guide.md) for information about the directory structure that is set up during installation
+    -   [Setting Up the Gateway](../about/setup-guide.md) for information about the directory structure that is set up during installation
     -   [About Gateway Configuration](c_conf_concepts.md) for more information about the types of configuration files and their contents
--   Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This is described in [Configure the Gateway Using the `GATEWAY_OPTS` Environment Variable](p_conf_gw_opts.md).
+-   Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This is described in [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variable](p_conf_gw_opts.md).
 -   See [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/ts_config.md) for help resolving issues when you set up and configure the Gateway.
 
 See Also
 --------
 
 -   [Configuration Element Index](r_conf_elementindex.md)
--   [About KAAZING Gateway Configuration](c_conf_concepts.md)
+-   [About Gateway Configuration](c_conf_concepts.md)
 

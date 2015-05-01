@@ -51,9 +51,9 @@ The following is an example `gateway-config` element:
 Notes
 -----
 
-KAAZING Gateway configuration files must use the namespace: ` http://xmlns.kaazing.com/2014/09/gateway`. See [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#aboutnamespace) for more information about namespaces.
+KAAZING Gateway configuration files must use the namespace: ` http://xmlns.kaazing.com/2014/09/gateway`. See [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#about-kaazing-gateway-namespace-declarations) for more information about namespaces.
 
 Summary
 -------
 
-In this document, you learned about the Gateway `gateway-config` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway `gateway-config` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up the Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).

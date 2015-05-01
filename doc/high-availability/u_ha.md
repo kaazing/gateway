@@ -203,7 +203,7 @@ The following steps walk you through setting up a two-member cluster with load-b
 
     2.  Paste the configuration files into `GATEWAY_HOME/conf` folder.
 
-4.  Navigate to `GATEWAY_HOME/bin`, and launch the first cluster member using the following command, where `GATEWAY_HOME` is the full path to the directory that contains KAAZING Gateway and its components (for more information, see [Setting Up KAAZING Gateway](../about/setup-guide.md)):
+4.  Navigate to `GATEWAY_HOME/bin`, and launch the first cluster member using the following command, where `GATEWAY_HOME` is the full path to the directory that contains KAAZING Gateway and its components (for more information, see [Setting Up the Gateway](../about/setup-guide.md)):
 
     -   For Mac and Linux:
 

@@ -25,7 +25,7 @@ Setting up KAAZING Gateway on your local computer is recommended if you want to 
 
 To download and set up the Gateway on your local computer, perform the following steps:
 
-1.  Ensure your system meets the system requirements. See the [README.md](../README.md), or you can find the `README.txt` in the `_GATEWAY\_HOME_` directory if you have already unpacked the the Gateway distribution.
+1.  Ensure your system meets the system requirements. See the [README.md](../README.md), or you can find the `README.txt` in the `GATEWAY_HOME` directory if you have already unpacked the the Gateway distribution.
 2.  Download the Gateway or fork the Gateway GitHub repository from [kaazing.org](http://kaazing.org):
     -   For Linux, Unix, and Mac: kaazing-gateway-community-5.0.*x*-unix.tar.gz
     -   For Windows: kaazing-gateway-community-5.0.*x*-windows.zip
@@ -74,7 +74,7 @@ To set up a server configuration:
     1.  Edit either of the Gateway configuration file options: `gateway-config.xml` or `gateway-config-minimal.xml`, or edit your custom configuration file if you created one. The Gateway configuration files are described in detail in [About Gateway Configuration](../admin-reference/c_conf_concepts.md).
     2.  Replace `localhost` with your host name or IP address.
 
-        For example, the hostname `example.com` replaces `localhost` in the "Property defaults" section of the following Gateway configuration file:
+        For example, the hostname `example.com` replaces `localhost` as the property value for `gateway.hostname` in the following Gateway configuration file:
 
         ``` xml
         <properties>

@@ -12,7 +12,7 @@ You can monitor a Gateway or a Gateway cluster through Command Center, which is 
 Before You Begin
 ----------------
 
-This procedure is part of [Monitoring KAAZING Gateway](o_admin_monitor.md):
+This procedure is part of [Monitor the Gateway](o_admin_monitor.md):
 
 1.  [Introduction to Monitoring KAAZING Gateway](o_admin_monitor.md#introduction-to-monitoring-kaazing-gateway)
 2.  [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md)
@@ -28,7 +28,7 @@ To launch Command Center
 1.  If the Gateway is not already installed, then download the Gateway distribution from [kaazing.org](http://kaazing.org) and see [Setting Up KAAZING Gateway](../about/setup-guide.md) for help with Gateway set-up and configuration.
 2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md) for more information.
 3.  Start KAAZING Gateway.
-    -   To start the Gateway using the default Gateway configuration file supplied in `GATEWAY_HOME/conf/gateway.config.xml`, follow the instructions in [Setting Up KAAZING Gateway](../about/setup-guide.md).
+    -   To start the Gateway using the default Gateway configuration file supplied in `GATEWAY_HOME/conf/gateway.config.xml`, follow the instructions in [Setting Up the Gateway](../about/setup-guide.md).
 
         Command Center does not require any custom coding and it works immediately if you start the Gateway using the default Gateway configuration file. Once the Gateway starts, then skip to step 4.
 
@@ -38,11 +38,13 @@ To launch Command Center
         -   The directory service `commandcenter-directory`
         -   The `commandcenter` security realm
 
-        See the [Service Reference](../admin-reference/r_conf_service.md#service) documentation for information and examples. For more information about default and custom Gateway configuration files, see [Configure KAAZING Gateway](../admin-reference/p_conf_files.md).
+        See the [Service Reference](../admin-reference/r_conf_service.md) documentation for information and examples. For more information about default and custom Gateway configuration files, see [Configure KAAZING Gateway](../admin-reference/p_conf_files.md).
 
 4.  Open a Web browser and enter one of the following URLs:
     -   To monitor a cluster, the default URL is: `http://localhost:8080/commandcenter`.
-    -   For single Gateway monitoring, the default URL is: `http://localhost:8000/commandcenter` **Note:** On startup, Command Center verifies that your browser supports HTML5 and CSS3. If you are using an older browser that does not meet the requirements for Command Center, then you may receive an error message from Command Center. See the README.txt file in the *`GATEWAY_HOME`* directory where you unpacked the KAAZING Gateway distribution.
+    -   For single Gateway monitoring, the default URL is: `http://localhost:8000/commandcenter` 
+    
+    **Note:** On startup, Command Center verifies that your browser supports HTML5 and CSS3. If you are using an older browser that does not meet the requirements for Command Center, then you may receive an error message from Command Center. See the README.txt file in the *`GATEWAY_HOME`* directory where you unpacked the KAAZING Gateway distribution.
 
 5.  Log into Command Center using Administrator credentials and provide the administrator's username and password (by default, `admin/admin`). If necessary, you can find the login credentials in `GATEWAY_HOME/conf/jaas-config.xml`.
 

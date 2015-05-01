@@ -14,9 +14,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [accept](r_conf_cluster.md) (cluster)
 
-[accept](r_conf_service.md) (service)
+[accept](r_conf_service.md#service) (service)
 
-[accept-options](r_conf_service.md) (service)
+[accept-options](r_conf_service.md#accept-options-and-connect-options) (service)
 
 [accept-options](r_conf_serv_defs.md#accept-options-service-defaults) (service-defaults)
 
@@ -28,7 +28,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [amqp.proxy](r_conf_service.md#proxy-and-amqpproxy)
 
-[authentication](r_conf_security.md#realm)
+[authentication](r_conf_security.md#authentication)
 
 [authorization-constraint](r_conf_service.md#authorization-constraint)
 
@@ -56,7 +56,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [description](r_conf_security.md) (security)
 
-[description](r_conf_service.md) (service)
+[description](r_conf_service.md#service) (service)
 
 [directory](r_conf_service.md#directory) (directory)
 
@@ -64,9 +64,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [echo](r_conf_service.md#echo)
 
-[error-pages-directory](r_conf_service.md)
+[error-pages-directory](r_conf_service.md#directory)
 
-[extension](r_conf_serv_defs.md)
+[extension](r_conf_serv_defs.md#mime-mapping-service-defaults)
 
 [file](r_conf_security.md#keystore) (keystore)
 
@@ -88,7 +88,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [http.transport](r_conf_service.md#protocoltransport)
 
-[https.bind](r_conf_service.md#protocoltransport)
+[https.bind](r_conf_service.md#protocolbind)
 
 [kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](r_conf_service.md#kerberos5proxy)
 
@@ -96,7 +96,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [login-module](r_conf_security.md#login-module)
 
-[login-modules](r_conf_security.md#realm)
+[login-modules](r_conf_security.md#authentication)
 
 [management.jmx](r_conf_service.md#managementjmx)
 
@@ -110,7 +110,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [mime-mapping](r_conf_serv_defs.md#mime-mapping-service-defaults) (service defaults)
 
-[mime-type](r_conf_serv_defs.md#service-defaults)
+[mime-type](r_conf_serv_defs.md#mime-mapping-service-defaults)
 
 [name](r_conf_cluster.md#cluster) (cluster)
 
@@ -132,7 +132,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [properties](r_conf_service.md#properties)
 
-[proxy](r_conf_service.md#proxy)
+[proxy](r_conf_service.md#proxy-and-amqpproxy)
 
 [realm](r_conf_security.md#realm)
 
@@ -164,7 +164,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-[socks.ssl.verify-client](r_conf_service.md#accept-options-and-connect-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+[socks.ssl.verify-client](r_conf_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 [socks.transport](r_conf_service.md#protocoltransport) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 

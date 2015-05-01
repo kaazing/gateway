@@ -57,5 +57,5 @@ The following example shows a `cluster` service that accepts on `tcp://192.168.2
 Summary
 -------
 
-In this document, you learned about the Gateway `cluster` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway `cluster` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up the Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
 

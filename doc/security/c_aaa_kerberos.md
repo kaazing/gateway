@@ -29,6 +29,7 @@ The figure shows how a client interacts with a server that requires Kerberos aut
 3.  The client sends the TGT and the target server's name to the ticket-granting service (TGS) in the KDC to get an encrypted ticket.
 4.  The TGS examines the TGT and the client's authenticator, copies the client's identity from the TGT to a session ticket, and returns the encrypted ticket (a session ticket).
 5.  The client program then uses the session ticket to authenticate with the server, which decrypts the session ticket and validates the authenticator to which it is trying to connect.
+
     **Note:** If there is mutual verification, then the server takes the client's authenticator timestamp and encrypts it with the session key the TGS provided, and then sends that back to the client.
 
 The connection from the browser to the KDC uses TCP, not HTTP, although some Kerberos systems also support UDP. The client program runs on a machine that is logged on to a network (for example, a desktop computer logged in on a Windows domain) and has network access to the KDC.

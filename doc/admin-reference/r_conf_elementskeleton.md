@@ -17,7 +17,7 @@ You can view and link to all Gateway configuration elements and properties using
         -   [accept](r_conf_service.md#accept)
         -   [connect](r_conf_service.md#connect)
         -   [balance](r_conf_service.md#balance)
-        -   [notify](r_conf_service.md#notify)(JMS only) 
+        -   [notify](r_conf_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
         -   [type](r_conf_service.md#type)
             -   [balancer](r_conf_service.md#balancer)
             -   [broadcast](r_conf_service.md#broadcast)
@@ -37,14 +37,14 @@ You can view and link to all Gateway configuration elements and properties using
             -   [management.jmx](r_conf_service.md#managementjmx)
             -   [management.snmp](r_conf_service.md#managementsnmp)
             -   [kerberos5.proxy](r_conf_service.md#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [proxy](r_conf_service.md#proxy)
+            -   [proxy](r_conf_service.mdproxy-and-amqpproxy)
 
                 Properties:
 
                 -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy)
                 -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
                 -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
-            -   [amqp.proxy](r_conf_service.md#proxy)
+            -   [amqp.proxy](r_conf_service.mdproxy-and-amqpproxy)
 
                 Properties:
 
@@ -52,7 +52,7 @@ You can view and link to all Gateway configuration elements and properties using
                 -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
                 -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
                 -   [virtual.host](r_conf_service.md#proxy-and-amqpproxy)
-            -   [jms](r_stomp_service.md#stompjms) (JMS only) 
+            -   [jms](r_stomp_service.md#stompjms) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
             -   [jms.proxy](r_stomp_service.md#stompinterceptor)
             -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy)
 
@@ -92,7 +92,7 @@ You can view and link to all Gateway configuration elements and properties using
             -   [socks.ssl.verify-client](r_conf_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
             -   [ws.version](r_conf_service.md#wsversion-deprecated) (deprecated)
-        -   [notify-options](r_conf_service.md#notify-options-jms-only) (JMS only) 
+        -   [notify-options](r_conf_service.md#notify-options-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [apns.notify.transport](r_conf_service.md#notify-options-jms-only)
             -   [apns.feedback.transport](r_conf_service.md#notify-options-jms-only)
             -   [ssl.ciphers](r_conf_service.md#notify-options-jms-only)

@@ -9,7 +9,7 @@ This topic describes some of the most common production topologies for the KAAZI
 
 All of the topologies in this topic begin with clients on one end and the back-end service or message broker at the opposite end of the connection. It is the number and configuration of Gateway instances between the clients and the back-end service or message broker that distinguishes each Gateway topology.
 
-Developers that want to develop against the Gateway can run the Gateway locally as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
+Developers that want to develop against the Gateway can run the Gateway locally as described in [Setting Up the Gateway](../about/setup-guide.md).
 
 **Note:** Most topologies use Gateway clustering and load balancing. For information on using these features, see [Configure the Gateway for High Availability](../high-availability/o_ha.md).
 

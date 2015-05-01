@@ -18,34 +18,34 @@ Structure
 The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `security` configuration element contained in the top-level `gateway-config` element:
 
 - [gateway-config](r_conf_gwconfig.md)
-- [security](#security)
-- [keystore](#keystore)
-  - [type](#keystore)
-  - [file](#keystore)
-  - [password-file](#keystore)
-- [truststore](#truststore)
-    - [type](#truststore)
-    - [file](#truststore)
-    - [password-file](#truststore)
-- [realm](#realm_element)
-    - [name](#realm)
-    - [description](#realm)
-    - [authentication](#authentication)
+  - [security](#security)
+    - [keystore](#keystore)
+      - [type](#keystore)
+      - [file](#keystore)
+      - [password-file](#keystore)
+    - [truststore](#truststore)
+      - [type](#truststore)
+      - [file](#truststore)
+      - [password-file](#truststore)
+    - [realm](#realmf)
+      - [name](#realm)
+      - [description](#realm)
+      - [authentication](#authentication)
         - [http-challenge-scheme](#authentication)
         - [http-header](#authentication)
         - [http-query-parameter](#authentication)
         - [http-cookie](#authentication)
         - [authorization-mode](#authentication)
         - [authorization-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-       - [session-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-- [login-modules](#login-module)
-    - [login-module](#login-module)
-    - [type](#login-module)
-    - [success](#login-module)
-    - [options](#options-login-module)
-    - [debug](#options-login-module)
-    - [tryFirstToken](#options-login-module)
-- [user-principal-class](#realm)
+        - [session-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+        - [login-modules](#login-module)
+           - [login-module](#login-module)
+              - [type](#login-module)
+              - [success](#login-module)
+              - [options](#options-login-module)
+                 - [debug](#options-login-module)
+                 - [tryFirstToken](#options-login-module)
+       - [user-principal-class](#realm)
 
 **Note:** The security elements and properties must be specified in the order shown.
 
@@ -212,7 +212,7 @@ For example, suppose the client's authentication system provides authentication 
     String cookiePart = token.get(“Acme”);
     ```
 
-For more detailed information about implementation, see [Create Custom Login Modules](../security/p_aaa_config_custom_lm.md) and [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).
+For more detailed information about implementation, see [Create a Custom Login Module](../security/p_aaa_config_custom_lm.md) and [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).
 
 #### login-module
 
@@ -222,7 +222,7 @@ This element configures the login module, which communicates with a user databas
 
 | Element | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type    | The type of login module: `file`, `ldap`, `kerberos5`, `gss`, `jndi`, `keystore`, and `custom`. Note: You must use the kerberos5 and gss elements together, and in that sequence. For information about using these login-modules, see [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).                                                                                                                                                                                                                                                      |
+| type    | The type of login module: `file`, `ldap`, `kerberos5`, `gss`, `jndi`, `keystore`, and `custom`. See the `login-module` examples that follow this table. Note: You must use the `kerberos5` and `gss` elements together, and in that sequence. For information about using these login-modules, see [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md).                                                                                                                                                                                                                                                      |
 | success | The behavior of the login module at the time it validates the user's credentials. Possible values are: `required`, `requisite`, `sufficient`, and `optional`. The success status options are defined in the `javax.security.auth.login.Configuration` class. Authentication succeeds if all required and requisite login modules succeed, or if a sufficient or optional login module succeeds. The table in [Configure a Chain of Login Modules](../security/p_aaa_config_lm.md) provides more information about how the order of login modules and the setting of the success element controls authentication processing. |
 | options | The configuration options specific to the type of login module (see [options login-module](#options-login-module)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
@@ -256,7 +256,7 @@ The following example shows a `file`-based `login-module` element that uses the 
 </login-module>
 ```
 
-For information about the `file` login module options, see the table in the [options (login-module)](#loginmodule) section.
+For information about the `file` login module options, see the table in the [options (login-module)](#options-login-module) section.
 
 ##### Example of a `ldap` login module
 
@@ -311,7 +311,7 @@ The following example shows a `gss`-based `login-module` element that you define
 </login-module>
 ```
 
-For information about the `gss` login module options, see the table in the [options (login-module)](#login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_krb_config_kerberos.md) for more information.
+For information about the `gss` login module options, see the table in the [options (login-module)](#options-login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_krb_config_kerberos.md) for more information.
 
 ##### Example of a `jndi` login module
 
@@ -358,7 +358,7 @@ KAAZING Gateway also supports a plugin mechanism for integration with custom aut
 For information about creating a custom login module using this API, see:
 
 -   [Java Authentication and Authorization Service (JAAS) LoginModule Developer's Guide](http://docs.oracle.com/javase/7/docs/technotes/guides/security/jaas/JAASLMDevGuide.html).
--   [Create Custom Login Modules](../security/p_aaa_config_custom_lm.md)
+-   [Create a Custom Login Module](../security/p_aaa_config_custom_lm.md)
 -   [Integrate an Existing Custom Login Module into the Gateway](../security/p_aaa_integ_custom_lm.md)
 
 ##### Example of a Complete Security Element
@@ -416,5 +416,5 @@ The following is an example of a complete `security` element that includes a cha
 Summary
 -------
 
-In this document, you learned about the Gateway `security` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up KAAZING Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
+In this document, you learned about the Gateway `security` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up the Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
 

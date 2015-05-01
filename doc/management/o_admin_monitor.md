@@ -42,7 +42,7 @@ Here’s a high-level overview of monitoring with Command Center:
 
 See also:
 
--   [Service Reference](../admin-reference/r_conf_service.md#service) to configure the `management.snmp` service for Command Center.
+-   [Service Reference](../admin-reference/r_conf_service.md) to configure the `management.snmp` service for Command Center.
 -   [Monitor with Command Center](p_monitor_cc.md) for detailed information about monitoring a Gateway or a Gateway cluster.
 
 ### JMX
@@ -59,7 +59,7 @@ You can use JMX through any JMX-compliant console such as Java's built-in Java M
 
 See also:
 
--   [Service Reference](../admin-reference/r_conf_service.md#service) to configure the `management.jmx` service in the Gateway configuration.
+-   [Service Reference](../admin-reference/r_conf_service.md) to configure the `management.jmx` service in the Gateway configuration.
 -   [Monitor with JMX](p_monitor_jmx.md) for detailed information about monitoring with JMX.
 
 ### Secure Gateway Monitoring

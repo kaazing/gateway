@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Create Custom Login Modules
 
-Create Custom Login Modules
+Create a Custom Login Module
 =========================================================================
 
 Even though KAAZING Gateway provides several standard types of `login-module` implementations, you might choose to write a custom implementation. Because the JAAS interface implementation holds the authentication logic, most of the material you need to implement the `LoginModule` interface is provided in the following documentation:
@@ -18,7 +18,7 @@ This optional procedure is part of [Configure Authentication and Authorization](
 
 1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
 2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-    -   **Create Custom Login Modules (Optional)**
+    -   **Create a Custom Login Module (Optional)**
     -   [Integrate an Existing Custom Login Module into the Gateway (Optional)](p_aaa_integ_custom_lm.md)
 
 3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
@@ -41,5 +41,5 @@ Next Steps
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md) for more configuration information and examples
+-   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
 -   [Server API Documentation](../index.md)

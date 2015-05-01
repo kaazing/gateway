@@ -36,7 +36,7 @@ Our configuration example configures the following two services to specify that 
 
 All inbound requests can communicate with multiple services on a specific host and port, and collisions are avoided because the requests use different paths. The example uses `remoteService1` and `remoteService2`, but you can specify any name on the path so long as it conforms internet URL standards ([RFC 3986](http://tools.ietf.org/html/rfc3986)). In fact, you may chose to tailor the path to reflect the actual function of the service.
 
-**Note:** KAAZING Gateway follows the generic syntax defined for all URI schemes as defined by [RFC 3986](http://tools.ietf.org/html/rfc3986). See [About the Documentation](../about/about.md) for more information about URI schemes with the Gateway.
+**Note:** KAAZING Gateway follows the generic syntax defined for all URI schemes as defined by [RFC 3986](http://tools.ietf.org/html/rfc3986). See [Documentation Conventions](../about/about.md) for more information about URI schemes with the Gateway.
 
 The Gateway determines which of the two addresses to use when the client sends a request to connect with one of the pathnames. Thus, if a client makes a WebSocket connection to `ws://example.com:80/remoteService1`, then the Gateway reads the network headers and routes the request as configured by the `accept` in `<accept>ws://example.com:80/remoteService1</accept>`.
 
@@ -49,7 +49,7 @@ Note the following when configuring the Gateway to listen for multiple services 
 
     You cannot configure two services with the same URI scheme (for example: `<accept>ws://example.com:80/myService</accept>` because the Gateway will be unable to determine which service is the target of the request. Thus, you must differentiate the services using different paths. This differentiation only applies to URI schemes that support paths such as HTTP, HTTPS, WebSocket, WebSocket Secure, SSE, and so on. Other protocols, such as TCP and UDP do not have the notion of paths and are only aware of the host and port. Thus, only one service can listen for TCP connections such as \<accept\>tcp://example.com:80\</accept\>.
 
-    **Note:** You can work around the limitations of schemes that do not support paths by using a bind in the [`accept-options`](../admin-reference/r_conf_service.md#svcaccept) element to bind an URL or URLs on which the service accepts connections. See the [`protocol.bind`](../admin-reference/r_conf_service.md#protocolbind) documentation for more information.
+    **Note:** You can work around the limitations of schemes that do not support paths by using a bind in the [`accept-options`](../admin-reference/r_conf_service.md#accept-options-and-connect-options) element to bind an URL or URLs on which the service accepts connections. See the [`protocol.bind`](../admin-reference/r_conf_service.md#protocolbind) documentation for more information.
 
 -   The path component of the URL is mandatory.
 
