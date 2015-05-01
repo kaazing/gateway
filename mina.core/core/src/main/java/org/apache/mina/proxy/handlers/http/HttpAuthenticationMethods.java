@@ -38,7 +38,7 @@ public enum HttpAuthenticationMethods {
     
     private final int id;
     
-    private HttpAuthenticationMethods(int id) {
+    HttpAuthenticationMethods(int id) {
         this.id = id;
     }
 

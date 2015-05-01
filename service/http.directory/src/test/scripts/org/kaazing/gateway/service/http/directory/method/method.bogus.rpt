@@ -31,7 +31,6 @@ write await BARRIER
 read "HTTP/1.1 501 Not Implemented\r\n"
 read "Content-Type: text/html\r\n"
 read /Date:.*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
 read /Content-Length: .*/ "\r\n"
 read "\r\n"
 read "<html><head></head><body><h1>501 Not Implemented</h1></body></html>"

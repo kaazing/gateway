@@ -160,7 +160,7 @@ public class HttpPersistenceFilter extends HttpFilterAdapter<IoSessionEx> {
 		return super.doFilterWriteHttpContent(nextFilter, session, writeRequest, httpContent);
 	}
 
-	static final boolean isClosing(HttpStartMessage httpStart) {
+	static boolean isClosing(HttpStartMessage httpStart) {
 		switch (httpStart.getVersion()) {
 		case HTTP_1_0:
 			return true;

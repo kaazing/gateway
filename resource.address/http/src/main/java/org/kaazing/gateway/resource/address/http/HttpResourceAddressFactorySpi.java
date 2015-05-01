@@ -43,6 +43,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRANSPORT_NAME;
@@ -224,6 +225,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         if (balanceOrigin != null) {
             options.setOption(BALANCE_ORIGINS, balanceOrigin);
         }
+
+        Boolean serverHeaderEnabled = (Boolean) optionsByName.remove(SERVER_HEADER_ENABLED.name());
+        if (serverHeaderEnabled != null) {
+            options.setOption(SERVER_HEADER_ENABLED, serverHeaderEnabled);
+        }
     }
 
     protected void setAlternateOption(final URI location,
@@ -305,6 +311,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(AUTHENTICATION_IDENTIFIER, options.getOption(AUTHENTICATION_IDENTIFIER));
         address.setOption0(ENCRYPTION_KEY_ALIAS, options.getOption(ENCRYPTION_KEY_ALIAS));
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
+        address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
     }
 
 }

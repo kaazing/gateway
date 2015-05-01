@@ -187,7 +187,7 @@ public class MapEditor extends AbstractPropertyEditor {
         return new LinkedHashMap<Object, Object>();
     }
     
-    private static enum TokenType {
+    private enum TokenType {
         ENTRY_DELIM,
         KEY_VALUE_DELIM,
         KEY,

@@ -2,6 +2,7 @@ package org.kaazing.gateway.server.config.parse;
 
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_KEEP_ALIVE_TIMEOUT_KEY;
+import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 
 import java.net.URI;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 
@@ -56,7 +58,30 @@ public class ServiceDefaultsTest {
         Assert.assertTrue("socks://localhost:8000".equals(connectOptionsMap.get("tcp.transport").toString().trim()));
         Assert.assertTrue("disabled".equalsIgnoreCase((String) connectOptionsMap.get("ssl.encryption")));
 
-        Assert.assertEquals(Integer.valueOf(5), (Integer) connectOptionsMap.get(HTTP_KEEP_ALIVE_TIMEOUT_KEY));
+        Assert.assertEquals(5, connectOptionsMap.get(HTTP_KEEP_ALIVE_TIMEOUT_KEY));
         Assert.assertFalse((Boolean) connectOptionsMap.get(HTTP_KEEP_ALIVE));
+    }
+
+    @Test
+    public void testDefaultAcceptOptions() throws Exception {
+        //@formatter:off
+        GatewayConfiguration gc = new GatewayConfigurationBuilder()
+                .serviceDefaults()
+                    .acceptOption("http.server.header", "disabled")
+                .done()
+                .service()
+                    .type("echo")
+                    .name("test1")
+                    .accept(URI.create("ws://localhost:8000"))
+                .done()
+        .done();
+        //@formatter:on
+
+        Gateway gateway = new Gateway();
+        GatewayContext gatewayContext = gateway.createGatewayContext(gc);
+        ServiceContext service = (ServiceContext) gatewayContext.getServices().toArray()[0];
+        AcceptOptionsContext acceptOptionsContext = service.getAcceptOptionsContext();
+        Map<String, Object> acceptOptions = acceptOptionsContext.asOptionsMap();
+        Assert.assertFalse((Boolean) acceptOptions.get(HTTP_SERVER_HEADER_ENABLED));
     }
 }

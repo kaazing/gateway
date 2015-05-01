@@ -67,6 +67,9 @@ public interface TransportOptionNames {
     String SSL_NEED_CLIENT_AUTH = "ssl.needClientAuth";
     String SSL_KEY_SELECTOR = "ssl.keySelector";
 
+    String HTTP_SERVER_HEADER_ENABLED = "http.serverHeaderEnabled";
+
+
     String TCP_MAXIMUM_OUTBOUND_RATE = "tcp.maximumOutboundRate";
 
     String TCP_TRANSPORT = "tcp.transport";
