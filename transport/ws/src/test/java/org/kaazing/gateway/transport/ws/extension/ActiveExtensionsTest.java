@@ -22,53 +22,78 @@
 package org.kaazing.gateway.transport.ws.extension;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-public class ActiveWebSocketExtensionsTest {
+public class ActiveExtensionsTest {
 
     @Test
     public void emptyShouldReturnEmptyList() {
-        assertEquals(0, ActiveWebSocketExtensions.EMPTY.asList().size());
+        assertEquals(0, ActiveExtensions.EMPTY.asList().size());
     }
 
     @Test
     public void shouldMaintainExtensionOrder() {
-        List<WebSocketExtensionSpi> negotiatedExtensions = new ArrayList<>();
-        negotiatedExtensions.add(new WebSocketExtensionSpi() {
+        List<WebSocketExtension> negotiatedExtensions = new ArrayList<>();
+        negotiatedExtensions.add(new WebSocketExtension() {
 
             @Override
             public ExtensionHeader getExtensionHeader() {
                 return new ExtensionHeaderBuilder("1");
             }
         });
-        negotiatedExtensions.add(new WebSocketExtensionSpi() {
+        negotiatedExtensions.add(new WebSocketExtension() {
 
             @Override
             public ExtensionHeader getExtensionHeader() {
                 return new ExtensionHeaderBuilder("2");
             }
         });
-        negotiatedExtensions.add(new WebSocketExtensionSpi() {
+        negotiatedExtensions.add(new WebSocketExtension() {
 
             @Override
             public ExtensionHeader getExtensionHeader() {
                 return new ExtensionHeaderBuilder("3");
             }
         });
-        ActiveWebSocketExtensions activeExtensions = new ActiveWebSocketExtensions(negotiatedExtensions);
-        List<WebSocketExtensionSpi> maintainedList = activeExtensions.asList();
-        for(int i = 0; i < negotiatedExtensions.size(); i++){
+        ActiveExtensions activeExtensions = new ActiveExtensions(negotiatedExtensions);
+        List<WebSocketExtension> maintainedList = activeExtensions.asList();
+        for (int i = 0; i < negotiatedExtensions.size(); i++) {
             assertSame(negotiatedExtensions.get(i), maintainedList.get(i));
         }
         assertEquals(negotiatedExtensions.size(), maintainedList.size());
     }
 
     @Test
-    public
+    public void testHasExtension() {
+        List<WebSocketExtension> negotiatedExtensions = new ArrayList<>();
+        negotiatedExtensions.add(new MockWebSocketExtension());
+        ActiveExtensions activeExtensions = new ActiveExtensions(negotiatedExtensions);
+        assertTrue(activeExtensions.hasExtension(MockWebSocketExtension.class));
+        assertFalse(activeExtensions.hasExtension(FooWebSocketExtension.class));
+    }
+
+    private class MockWebSocketExtension extends WebSocketExtension {
+
+        @Override
+        public ExtensionHeader getExtensionHeader() {
+            return new ExtensionHeaderBuilder("mock");
+        }
+
+    }
+
+    private class FooWebSocketExtension extends WebSocketExtension {
+
+        @Override
+        public ExtensionHeader getExtensionHeader() {
+            return new ExtensionHeaderBuilder("foo");
+        }
+
+    }
 }

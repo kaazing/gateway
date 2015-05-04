@@ -34,7 +34,7 @@ import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;

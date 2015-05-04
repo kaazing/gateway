@@ -31,7 +31,7 @@ import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.wsr.bridge.filter.WsrBuffer;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -63,13 +63,13 @@ public class WsrSession extends AbstractWsBridgeSession<WsrSession, WsrBuffer> {
                       IoSessionEx parent, 
                       IoBufferAllocatorEx<WsrBuffer> allocator, 
                       DefaultLoginResult loginResult, 
-                      ActiveWebSocketExtensions wsExtensions) {
+                      ActiveExtensions wsExtensions) {
         super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginResult, wsExtensions);
     }
 
     public WsrSession(int ioLayer, Thread parentIoThread, Executor parentIoExecutor, IoServiceEx service, IoProcessorEx<WsrSession> processor,
             ResourceAddress localAddress, ResourceAddress remoteAddress, IoBufferAllocatorEx<WsrBuffer> allocator,
-            DefaultLoginResult loginResult, ActiveWebSocketExtensions wsExtensions) {
+            DefaultLoginResult loginResult, ActiveExtensions wsExtensions) {
         super(ioLayer, parentIoThread, parentIoExecutor, service, processor, localAddress, remoteAddress, allocator, Direction.BOTH,
                 loginResult, wsExtensions);
     }

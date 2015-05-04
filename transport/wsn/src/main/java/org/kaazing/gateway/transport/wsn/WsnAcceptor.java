@@ -122,7 +122,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameUtf8Filter;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
@@ -502,7 +502,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             final boolean isLightweightWsnSession = localAddress.getOption(WsResourceAddress.LIGHTWEIGHT);
             String sessionId = HttpUtils.newSessionId();
 
-            final ActiveWebSocketExtensions wsExtensions = ActiveWebSocketExtensions.get(session);
+            final ActiveExtensions wsExtensions = ActiveExtensions.get(session);
 
             //
             // Build a new Wsn Session.
@@ -515,7 +515,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     WsnSession typedWsnSession = (WsnSession) wsnSession;
                     typedWsnSession.setSubject(SUBJECT_TRANSFER_KEY.remove(session));
                     wsnSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, session.getAttribute(BridgeSession.NEXT_PROTOCOL_KEY));
-                    ActiveWebSocketExtensions.get(session).set(wsnSession);
+                    ActiveExtensions.get(session).set(wsnSession);
                     HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.set(wsnSession, HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session));
                     DRAFT76_KEY3_BUFFER_KEY.set(wsnSession, DRAFT76_KEY3_BUFFER_KEY.remove(session));
                     if (HttpEmptyPacketWriterFilter.writeExtraEmptyPacketRequired(wsnSession)) {
@@ -769,15 +769,15 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             // Set the extensions only once all the extensions have been negotiated.
             if (!lightWeightWsnSession) {
-                ActiveWebSocketExtensions extensions = ActiveWebSocketExtensions.get(session);
+                ActiveExtensions extensions = ActiveExtensions.get(session);
                 IoSession codecSession = session;
                 if ( !codecRequired ) {
                     // completed extended handshake case, session is a WsnSession so we must get its parent,
                     // and merge in the extensions from the original (RFC 6455) handshake
                     codecSession = ((BridgeSession) session).getParent();
                     codec = (IoFilter) codecSession.removeAttribute("codecKey");
-                    ActiveWebSocketExtensions extensionsFromOriginalHandshake = ActiveWebSocketExtensions.get(codecSession);
-                    extensions = ActiveWebSocketExtensions.merge(extensions, extensionsFromOriginalHandshake, SERVER);
+                    ActiveExtensions extensionsFromOriginalHandshake = ActiveExtensions.get(codecSession);
+                    extensions = ActiveExtensions.merge(extensions, extensionsFromOriginalHandshake, SERVER);
                 }
                 if ( codec instanceof ExtensionAwareCodecFilter) {
                     ((ExtensionAwareCodecFilter) codec).setExtensions(codecSession, extensions);
@@ -797,7 +797,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             removeFilter(filterChain, text);
             removeFilter(filterChain, WsAcceptor.CLOSE_FILTER);
             IoSession session = filterChain.getSession();
-            ActiveWebSocketExtensions extensions = ActiveWebSocketExtensions.get(session);
+            ActiveExtensions extensions = ActiveExtensions.get(session);
             if (extensions != null) {
                 extensions.removeBridgeFilters(filterChain);
             }
@@ -1119,7 +1119,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
 
                     final String wsProtocol0 = chosenProtocol;
-                    final ActiveWebSocketExtensions wsExtensions0 = extNegotiationResult.getExtensions();
+                    final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // do upgrade
                     UpgradeFuture upgradeFuture = session.upgrade(ioBridgeHandler);
@@ -1340,7 +1340,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     }
 
                     final String wsProtocol0 = wsProtocol;
-                    final  ActiveWebSocketExtensions wsExtensions0 = extNegotiationResult.getExtensions();
+                    final  ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // Encoding.TEXT is default behavior
                     switch (encoding) {
@@ -1531,7 +1531,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                    }
 
                    final String wsProtocol0 = wsProtocol;
-                   final ActiveWebSocketExtensions wsExtensions0 = extNegotiationResult.getExtensions();
+                   final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                    // Encoding.TEXT is default behavior
                    switch (encoding) {

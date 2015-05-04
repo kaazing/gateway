@@ -34,7 +34,7 @@ import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -71,7 +71,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     public WsnSession(IoServiceEx service, IoProcessorEx<WsnSession> processor, ResourceAddress localAddress,
                       ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<WsBuffer> allocator,
-                      URI httpRequestURI, DefaultLoginResult loginResult, ActiveWebSocketExtensions wsExtensions,
+                      URI httpRequestURI, DefaultLoginResult loginResult, ActiveExtensions wsExtensions,
                       WebSocketWireProtocol version) {
         super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginResult, wsExtensions);
         this.httpRequestURI = httpRequestURI;

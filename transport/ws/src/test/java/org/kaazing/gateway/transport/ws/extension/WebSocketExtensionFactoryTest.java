@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.hamcrest.BaseMatcher;
@@ -50,7 +49,7 @@ public class WebSocketExtensionFactoryTest {
     private WsResourceAddress address;
     private ExtensionHeader extensionHeader;
     private MockNegotiate mockNegotiate;
-    private WebSocketExtensionSpi webSocketExtensionSpi;
+    private WebSocketExtension webSocketExtensionSpi;
     private HttpAcceptSession session;
 
     @Rule
@@ -67,7 +66,7 @@ public class WebSocketExtensionFactoryTest {
         extensionHeader = context.mock(ExtensionHeader.class);
         mockNegotiate = context.mock(MockNegotiate.class);
         MockWebSocketExtensionSpi.setNegotiateBehavoir(mockNegotiate);
-        webSocketExtensionSpi = context.mock(WebSocketExtensionSpi.class);
+        webSocketExtensionSpi = context.mock(WebSocketExtension.class);
         session = context.mock(HttpAcceptSession.class);
     }
 
@@ -88,7 +87,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
+        WebSocketExtension extension = wsExtFactory.negotiate(extensionHeader, address);
         assertNotNull(extension);
         assertSame(extension, webSocketExtensionSpi);
     }
@@ -102,7 +101,7 @@ public class WebSocketExtensionFactoryTest {
             }
         });
 
-        WebSocketExtensionSpi extension = wsExtFactory.negotiate(extensionHeader, address);
+        WebSocketExtension extension = wsExtFactory.negotiate(extensionHeader, address);
         assertNull(extension);
     }
 
@@ -116,7 +115,7 @@ public class WebSocketExtensionFactoryTest {
                 will(returnValue(webSocketExtensionSpi));
             }
         });
-        ActiveWebSocketExtensions ActiveWebSocketExtensions =
+        ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         assertSame(webSocketExtensionSpi, ActiveWebSocketExtensions.asList().get(0));
@@ -136,7 +135,7 @@ public class WebSocketExtensionFactoryTest {
                 will(returnValue(webSocketExtensionSpi));
             }
         });
-        ActiveWebSocketExtensions ActiveWebSocketExtensions =
+        ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         assertSame(webSocketExtensionSpi, ActiveWebSocketExtensions.asList().get(0));
@@ -156,7 +155,7 @@ public class WebSocketExtensionFactoryTest {
                 will(returnValue(webSocketExtensionSpi));
             }
         });
-        ActiveWebSocketExtensions ActiveWebSocketExtensions =
+        ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         assertSame(webSocketExtensionSpi, ActiveWebSocketExtensions.asList().get(0));
@@ -164,68 +163,41 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void testOrderingMechanism() {
-        WebSocketExtensionFactorySpi fooWebSocketExtensionFactory = new FooWebSocketExtensionFactory();
-        WebSocketExtensionFactorySpi perMessageDeflateWebSocketExtensionFactory =
-                new PerMessageDeflateWebSocketExtensionFactory();
-        WebSocketExtensionFactorySpi pingPongWebSocketExtensionFactory = new PingPongWebSocketExtensionFactory();
-
-        LinkedList<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
-
-        orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
-
-        orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
-
-        orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
-
-        orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
-
-        orderedExtensions.clear();
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(perMessageDeflateWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(pingPongWebSocketExtensionFactory, orderedExtensions);
-        WebSocketExtensionFactory.addExtensionInCorrectOrder(fooWebSocketExtensionFactory, orderedExtensions);
-        assertSame(fooWebSocketExtensionFactory, orderedExtensions.get(0));
-        assertSame(pingPongWebSocketExtensionFactory, orderedExtensions.get(1));
-        assertSame(perMessageDeflateWebSocketExtensionFactory, orderedExtensions.get(2));
+    public void negotiateExtensionsShouldKeepRequestOrderWithinSameOrderCategory() throws ProtocolException {
+        List<String> clientRequestedExtensions = new ArrayList<>();
+        clientRequestedExtensions.add("ping-pong");
+        clientRequestedExtensions.add("per-message-deflate");
+        clientRequestedExtensions.add("network");
+        clientRequestedExtensions.add("foo");
+        String headerName = "Sec-Websocket-Extensions";
+        ActiveExtensions activeExtensions =
+                wsExtFactory.negotiateWebSocketExtensions(address, session, headerName, clientRequestedExtensions);
+        List<WebSocketExtension> actual = activeExtensions.asList();
+        assertEquals("foo", actual.get(0).getExtensionHeader().getExtensionToken());
+        assertEquals("ping-pong", actual.get(1).getExtensionHeader().getExtensionToken());
+        assertEquals("per-message-deflate", actual.get(2).getExtensionHeader().getExtensionToken());
+        assertEquals("network", actual.get(3).getExtensionHeader().getExtensionToken());
+        // reverse order
+        clientRequestedExtensions.clear();
+        clientRequestedExtensions.add("ping-pong");
+        clientRequestedExtensions.add("network");
+        clientRequestedExtensions.add("per-message-deflate");
+        clientRequestedExtensions.add("foo");
+        activeExtensions = wsExtFactory.negotiateWebSocketExtensions(address, session, headerName, clientRequestedExtensions);
+        actual = activeExtensions.asList();
+        assertEquals("foo", actual.get(0).getExtensionHeader().getExtensionToken());
+        assertEquals("ping-pong", actual.get(1).getExtensionHeader().getExtensionToken());
+        assertEquals("network", actual.get(2).getExtensionHeader().getExtensionToken());
+        assertEquals("per-message-deflate", actual.get(3).getExtensionHeader().getExtensionToken());
     }
 
     @Test
-    public void testNegotiateMultipleWebSocketExtensionsThatMaintainsOrder() throws ProtocolException {
+    public void negotiateShouldOrderByOrderCategory() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("foo");
         clientRequestedExtensions.add("per-message-deflate");
         clientRequestedExtensions.add("ping-pong");
-        ActiveWebSocketExtensions activeWebSocketExtensions =
+        ActiveExtensions activeWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         assertEquals(3, activeWebSocketExtensions.asList().size());
@@ -298,7 +270,7 @@ public class WebSocketExtensionFactoryTest {
     public void testNegotiateWebSocketExtensionsNotThere() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("notthere");
-        ActiveWebSocketExtensions ActiveWebSocketExtensions =
+        ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         assertTrue(ActiveWebSocketExtensions.asList().isEmpty());
@@ -314,13 +286,14 @@ public class WebSocketExtensionFactoryTest {
                 will(returnValue(null));
             }
         });
-        ActiveWebSocketExtensions ActiveWebSocketExtensions =
+        ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, session, "Sec-Websocket-Extensions",
                         clientRequestedExtensions);
         Assert.assertEquals(0, ActiveWebSocketExtensions.asList().size());
     }
 
-    @Test(expected = ProtocolException.class)
+    @Test(
+            expected = ProtocolException.class)
     public void testProtocolExceptionInNegotiate() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("mock");
@@ -343,7 +316,7 @@ public class WebSocketExtensionFactoryTest {
         }
 
         @Override
-        public WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
                 throws ProtocolException {
             return (mockBehavior == null) ? null : mockBehavior.negotiate(requestedExtension, address);
         }
@@ -353,8 +326,7 @@ public class WebSocketExtensionFactoryTest {
         }
 
         public interface MockNegotiate {
-            WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
-                    throws ProtocolException;
+            WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address) throws ProtocolException;
         }
     }
 
@@ -418,9 +390,9 @@ public class WebSocketExtensionFactoryTest {
 
     public static class FooWebSocketExtensionFactory extends WebSocketExtensionFactorySpi {
         @Override
-        public WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
                 throws ProtocolException {
-            return new WebSocketExtensionSpi() {
+            return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
                     return new ExtensionHeaderBuilder("foo");
@@ -436,9 +408,9 @@ public class WebSocketExtensionFactoryTest {
 
     public static class PerMessageDeflateWebSocketExtensionFactory extends WebSocketExtensionFactorySpi {
         @Override
-        public WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
                 throws ProtocolException {
-            return new WebSocketExtensionSpi() {
+            return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
                     return new ExtensionHeaderBuilder("per-message-deflate");
@@ -447,22 +419,47 @@ public class WebSocketExtensionFactoryTest {
         }
 
         @Override
+        public ExtensionOrderCategory getOrderCategory() {
+            return NETWORK;
+        }
+
+        @Override
         public String getExtensionName() {
             return "per-message-deflate";
         }
 
+    }
+
+    public static class NetworkWebSocketExtensionFactory extends WebSocketExtensionFactorySpi {
         @Override
-        public ExtensionOrderCategory orderCategory() {
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+                throws ProtocolException {
+            return new WebSocketExtension() {
+                @Override
+                public ExtensionHeader getExtensionHeader() {
+                    return new ExtensionHeaderBuilder("network");
+                }
+            };
+        }
+
+        @Override
+        public ExtensionOrderCategory getOrderCategory() {
             return NETWORK;
         }
+
+        @Override
+        public String getExtensionName() {
+            return "network";
+        }
+
     }
 
     public static class PingPongWebSocketExtensionFactory extends WebSocketExtensionFactorySpi {
 
         @Override
-        public WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
                 throws ProtocolException {
-            return new WebSocketExtensionSpi() {
+            return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
                     return new ExtensionHeaderBuilder("ping-pong");
@@ -471,13 +468,13 @@ public class WebSocketExtensionFactoryTest {
         }
 
         @Override
-        public String getExtensionName() {
-            return "ping-pong";
+        public ExtensionOrderCategory getOrderCategory() {
+            return EMULATION;
         }
 
         @Override
-        public ExtensionOrderCategory orderCategory() {
-            return EMULATION;
+        public String getExtensionName() {
+            return "ping-pong";
         }
     }
 

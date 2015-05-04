@@ -26,7 +26,7 @@ import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.kaazing.gateway.transport.BridgeSession;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.util.codec.PassThroughDecoder;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -37,7 +37,7 @@ public class WsebTextAsBinaryEncodingCodecFilter extends WsebEncodingCodecFilter
         super(new WsCodecFactory());
     }
 
-    public void setExtensions(IoSession session, ActiveWebSocketExtensions extensions) {
+    public void setExtensions(IoSession session, ActiveExtensions extensions) {
         WsebTextAsBinaryFrameEncoder encoder = (WsebTextAsBinaryFrameEncoder) getEncoder(session);
         encoder.setExtensions(extensions);
     }

@@ -17,9 +17,10 @@
 package org.kaazing.gateway.transport.ws.extension;
 
 import java.net.ProtocolException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-
 
 /**
  * {@link WebSocketExtensionFactorySpi} is part of <i>Service Provider Interface</i> <em>(SPI)</em> for extension developers.
@@ -27,12 +28,12 @@ import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
  * Developing an extension involves implementing:
  * <UL>
  *   <LI> a sub-class of {@link WebSocketExtensionFactorySpi}
- *   <LI> a sub-class of {@link WebSocketExtensionSpi}
+ *   <LI> a sub-class of {@link WebSocketExtension}
  *   <LI> (optional) a filter ({@link org.apache.mina.core.filterchain.IoFilter IoFilter})
  * </UL>
  * <p>
  */
-public abstract class WebSocketExtensionFactorySpi {
+public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSocketExtensionFactorySpi> {
 
     /**
      * Returns the name of the extension that this factory will create.
@@ -40,7 +41,7 @@ public abstract class WebSocketExtensionFactorySpi {
      * @return String   name of the extension
      */
     public abstract String getExtensionName();
-    
+
     /**
      * This method is called when the extension is requested by the client during the WebSocket handshake. 
      * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
@@ -53,8 +54,9 @@ public abstract class WebSocketExtensionFactorySpi {
      *                   (protocol violation). Throwing this exception will result in failing the WebSocket 
      *                   connection.
      */
-    public abstract WebSocketExtensionSpi negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+    public abstract WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
             throws ProtocolException;
+    
 
     /**
      * This method allows extensions to specify the order that they would like to be placed on the Filter Chain.
@@ -62,27 +64,38 @@ public abstract class WebSocketExtensionFactorySpi {
      * @return A {@link WebSocketExtensionFactorySpi.ExtensionOrderCategory} that specifies the extension type and where it
      * should be ordered
      */
-    public ExtensionOrderCategory orderCategory() {
+    public ExtensionOrderCategory getOrderCategory() {
         return ExtensionOrderCategory.OTHER;
     }
 
     /**
-     * An ordered enum that describes the category that an extension requests to be ordered in.  The enum is ordered by closest
-     * to the network
+     * An ordered enum that describes the category that an extension requests to be ordered in.  The enum is ordered by the order
+     * they appear in the WebSocket handshake response extensions header.  That is the nearest to the network being last, see
+     * https://tools.ietf.org/html/draft-ietf-hybi-permessage-compression-21#section-3
      */
     enum ExtensionOrderCategory{
+        /**
+         * Other, meaning not any of the other categories
+         */
+        OTHER,
+        /**
+         * Extensions which transmit websocket binary or text frames which are not application data (typically these
+         * are extension-specific control frames starting with four extension-specific control bytes). The extension must consume
+         * these frames when they are being received, or transform them into standard websocket control frames, so that prior
+         * extensions (in category OTHER) and the application do not see them.
+         */
+        EMULATION,
         /**
          * Network, meaning something that transforms the network bytes
          */
         NETWORK,
-        /**
-         * Emulation, meaning emulating a frame type that should not be exposed to the application
-         */
-        EMULATION,
-        /**
-         * Other, meaning not any of the other categories
-         */
-        OTHER
+    }
+
+    @Override
+    public int compareTo(WebSocketExtensionFactorySpi o) {
+        List<ExtensionOrderCategory> extensionOrderValues =
+                Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
+        return extensionOrderValues.indexOf(getOrderCategory()) - extensionOrderValues.indexOf(o.getOrderCategory());
     }
 
 }

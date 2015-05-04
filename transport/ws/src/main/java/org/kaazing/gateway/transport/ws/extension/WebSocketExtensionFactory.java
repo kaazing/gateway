@@ -25,10 +25,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TreeMap;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -37,40 +40,37 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi.E
 public final class WebSocketExtensionFactory {
 
     private final Map<String, WebSocketExtensionFactorySpi> factoriesRO;
-    private final List<ExtensionHeader> supportedExtensionHeaders;
-    // note: extension names are in the order they would like to be on the pipeline in.
     private final List<String> extensionNames;
+    private final Map<Integer, Set<ExtensionHeader>> extensionHeadersByCategory;
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
         // properly order the extension names
-        LinkedList<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
-        for (WebSocketExtensionFactorySpi factory : factoriesRO.values()) {
-            addExtensionInCorrectOrder(factory, orderedExtensions);
-        }
+        List<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
+        orderedExtensions.addAll(factoriesRO.values());
+        Collections.sort(orderedExtensions);
         extensionNames = new ArrayList<>();
         for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
             extensionNames.add(extension.getExtensionName());
         }
-        this.supportedExtensionHeaders = Collections.unmodifiableList(toWsExtensions(this.getExtensionNames()));
-    }
-
-    static void addExtensionInCorrectOrder(WebSocketExtensionFactorySpi factory,
-        LinkedList<WebSocketExtensionFactorySpi> orderedExtensions) {
-        List<ExtensionOrderCategory> extensionOrderValues =
-                Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
-        int categoryId = extensionOrderValues.indexOf(factory.orderCategory());
-        int insertPosition;
-        for (insertPosition = 0; insertPosition < orderedExtensions.size(); insertPosition++) {
-            if (categoryId > extensionOrderValues.indexOf(orderedExtensions.get(insertPosition).orderCategory())) {
-                break;
+        Map<Integer, Set<ExtensionHeader>>extensionHeadersByCategory = new TreeMap<>();
+        for(WebSocketExtensionFactorySpi extension: orderedExtensions){
+            List<ExtensionOrderCategory> extensionOrderValues =
+                    Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
+            Integer key = extensionOrderValues.indexOf(extension.getOrderCategory());
+            Set<ExtensionHeader> value = extensionHeadersByCategory.get(key);
+            if(value == null){
+                value = new HashSet<>();
+                extensionHeadersByCategory.put(key, value);
             }
+            String extensionToken = extension.getExtensionName();
+            value.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
         }
-        orderedExtensions.add(insertPosition, factory);
+        this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersByCategory);
     }
 
     /**
-     * Returns the names of all the supported/discovered extensions in the order they would like to be negotiated in
+     * Returns the names of all the supported/discovered extensions
      *
      * @return Collection of extension names
      */
@@ -89,7 +89,7 @@ public final class WebSocketExtensionFactory {
      * @throws ProtocolException  If the extension cannot be negotiated. Throwing this exception will result
      *                      in failing the WebSocket connection.
      */
-    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address) throws ProtocolException {
+    public WebSocketExtension negotiate(ExtensionHeader extension, WsResourceAddress address) throws ProtocolException {
         String extensionName = extension.getExtensionToken();
 
         WebSocketExtensionFactorySpi factory = factoriesRO.get(extensionName);
@@ -111,35 +111,30 @@ public final class WebSocketExtensionFactory {
      *                negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
-    public ActiveWebSocketExtensions negotiateWebSocketExtensions(WsResourceAddress address, HttpAcceptSession session,
+    public ActiveExtensions negotiateWebSocketExtensions(WsResourceAddress address, HttpAcceptSession session,
         String headerName, List<String> clientRequestedExtensions) throws ProtocolException {
 
-        ActiveWebSocketExtensions result = ActiveWebSocketExtensions.EMPTY;
+        ActiveExtensions result = ActiveExtensions.EMPTY;
         if (clientRequestedExtensions != null) {
             List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
 
-            // Since the client may have provided parameters in their
-            // extensions, we retain the common requested extensions, not
-            // the common supported extensions as was previously done.
-            requestedExtensions.retainAll(supportedExtensionHeaders);
-
             // get the acceptedExtensions
-            LinkedList<WebSocketExtensionSpi> acceptedExtensions = new LinkedList<>();
+            LinkedList<WebSocketExtension> acceptedExtensions = new LinkedList<>();
 
-            // Orders the extensions based on SPI preferences
-            for (ExtensionHeader extensionType : supportedExtensionHeaders) {
-                int index = requestedExtensions.indexOf(extensionType);
-                if (index >= 0) {
-                    ExtensionHeader candidate = requestedExtensions.get(index);
-                    WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
-                    WebSocketExtensionSpi acceptedExtension = extension.negotiate(candidate, address);
-                    // negotiated can be null if the extension doesn't want to be active
-                    if (acceptedExtension != null) {
-                        acceptedExtensions.add(acceptedExtension);
+            // Orders the extensions based on SPI preferences, and then order that they came in
+            for(Set<ExtensionHeader> extensionHeaders: extensionHeadersByCategory.values()){
+                for (ExtensionHeader candidate : requestedExtensions) {
+                    if(extensionHeaders.contains(candidate)){
+                        WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
+                        WebSocketExtension acceptedExtension = extension.negotiate(candidate, address);
+                        // negotiated can be null if the extension doesn't want to be active
+                        if (acceptedExtension != null) {
+                            acceptedExtensions.add(acceptedExtension);
+                        }
                     }
                 }
             }
-            result = new ActiveWebSocketExtensions(acceptedExtensions);
+            result = new ActiveExtensions(acceptedExtensions);
         }
         return result;
     }

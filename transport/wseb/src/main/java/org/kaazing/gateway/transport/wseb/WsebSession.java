@@ -50,7 +50,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.ws.extension.ActiveWebSocketExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -134,7 +134,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        ResourceAddress remoteAddress,
                        IoBufferAllocatorEx<WsBuffer> allocator,
                        DefaultLoginResult loginResult,
-                       ActiveWebSocketExtensions wsExtensions,
+                       ActiveExtensions wsExtensions,
                        int clientIdleTimeout,
                        long inactivityTimeout,
                        boolean validateSequenceNo,
