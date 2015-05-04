@@ -35,6 +35,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
             -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
+            -   [http.server.header](r_conf_service.md#httpserverheader)
         -   [mime-mapping](#mime-mapping-service-defaults)
             -   [extension](#mime-mapping-service-defaults)
             -   [mime-type](#mime-mapping-service-defaults)
@@ -68,6 +69,7 @@ The `service-defaults` section can contain the following accept-options:
 -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): sets the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an Enterprise Shield&trade; topology.
 -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): specifies the maximum bandwidth rate at which bytes can be written from the Gateway to a client session.
 -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout): specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified.
+-   [http.server.header](r_conf_service.md#httpserverheader): enables or disables the inclusion of the HTTP server header. By default, the Gateway writes a HTTP Server header.
 
 These `accept-options` plus examples are fully documented in the [Service Reference](r_conf_serv_defs.md#accept-options-service-defaults). Note that if you specify `accept-options` on a particular [service](r_conf_service.md), then those `accept-options` supercede any default values configured in `service-defaults`. Thus, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in service-defaults.
 
