@@ -68,6 +68,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [socks.retry.maximum.interval](#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
+            -   [http.server.header](#httpserverheader)
         -   [notify-options](#notify-options-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   apns.notify.transport
             -   apns.feedback.transport
@@ -583,7 +584,7 @@ This type of service receives a string of characters through a WebSocket connect
 -   The primary use for the `echo` service is to validate the basic gateway configuration.
 -   The default `echo` service is configured to run on a separate port to verify cross-origin access.
 
-### kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### kerberos5.proxy![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Use the `kerberos5.proxy` service to connect the Gateway to the Kerberos Key Distribution Center.
 
@@ -869,7 +870,8 @@ Use the `connect-options` element to add options to all connections for the serv
 | socks.ssl.verify-client ![This feature is available in KAAZING Gateway - Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake. |
 | socks.retry.maximum.interval ![This feature is available in KAAZING Gateway - Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | no | The maximum interval the Gateway waits before retrying if an attempt toconnect to the SOCKS proxy fails. The Gateway initially retries afterwaiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of socks.retry.maximum.interval. After the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. |
 | tcp.maximum.outbound.rate ![This feature is available in KAAZING Gateway- Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | no | Specifies the maximum bandwidth rate at which bytes can be written from the Gateway (outbound) to each client session. This option controls the rate of outbound traffic being sent per client connection for clients connecting to a service (see [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate)). |
-| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. |
+| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. | 
+| http.server.header | yes | no | Controls the inclusion of the HTTP Server header. By default, the Gateway writes a HTTP Server header (see [http.server.header](#httpserverheader)). |
 | ws.version (deprecated) | no | yes | The `ws.version` element has been deprecated. |
 
 #### *protocol*.bind
@@ -1630,6 +1632,30 @@ In the following example, the `ws.inactivity.timeout` property specifies that if
 
 -   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+
+#### http.server.header
+
+**Required?** Optional; **Occurs:** zero or more; **Values** `enabled`or `disabled`
+
+Enables or disables the inclusion of the HTTP server header. By default, the Gateway writes a HTTP server header. In general, there is no need to configure this accept option unless you want to obscure server header information.
+
+This setting is ignored for services that do not accept HTTP or WebSocket connections.
+
+**Hint:** Instead of specifying this setting on every service, consider adding it using the [service-defaults](../admin-reference/r_conf_serv_defs.md element to globally apply the setting across all services running on the Gateway.
+
+##### Example
+
+The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+
+``` xml
+  <service>
+    ...
+    <accept-options>
+      <http.server.header>disabled</http.server.header>
+    </accept-options>
+    ...
+  </service>
+```
 
 #### ws.version (deprecated)
 
