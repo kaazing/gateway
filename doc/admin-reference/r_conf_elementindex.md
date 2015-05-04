@@ -86,6 +86,8 @@ You can view and link to all Gateway configuration elements and properties using
 
 [http-query-parameter](r_conf_security.md#authentication)
 
+[http.server.header](r_conf_server.md#httpserverheader)
+
 [http.transport](r_conf_service.md#protocoltransport)
 
 [https.bind](r_conf_service.md#protocolbind)
