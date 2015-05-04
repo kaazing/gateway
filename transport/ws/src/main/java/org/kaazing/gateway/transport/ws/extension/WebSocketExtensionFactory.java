@@ -23,7 +23,6 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,16 +44,12 @@ public final class WebSocketExtensionFactory {
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
-        // properly order the extension names
-        List<WebSocketExtensionFactorySpi> orderedExtensions = new LinkedList<>();
-        orderedExtensions.addAll(factoriesRO.values());
-        Collections.sort(orderedExtensions);
-        extensionNames = new ArrayList<>();
-        for (WebSocketExtensionFactorySpi extension : orderedExtensions) {
-            extensionNames.add(extension.getExtensionName());
-        }
+        this.extensionNames = new ArrayList<>();
         Map<Integer, Set<ExtensionHeader>>extensionHeadersByCategory = new TreeMap<>();
-        for(WebSocketExtensionFactorySpi extension: orderedExtensions){
+        for(WebSocketExtensionFactorySpi extension: factoriesRO.values()){
+            // Add to extension names
+            this.extensionNames.add(extension.getExtensionName());
+            // Order the values
             List<ExtensionOrderCategory> extensionOrderValues =
                     Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
             Integer key = extensionOrderValues.indexOf(extension.getOrderCategory());
