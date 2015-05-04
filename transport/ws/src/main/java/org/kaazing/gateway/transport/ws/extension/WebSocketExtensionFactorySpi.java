@@ -17,8 +17,6 @@
 package org.kaazing.gateway.transport.ws.extension;
 
 import java.net.ProtocolException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 
