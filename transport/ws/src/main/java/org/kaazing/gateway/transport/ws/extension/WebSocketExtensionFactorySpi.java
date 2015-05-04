@@ -93,9 +93,7 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
 
     @Override
     public int compareTo(WebSocketExtensionFactorySpi o) {
-        List<ExtensionOrderCategory> extensionOrderValues =
-                Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
-        return extensionOrderValues.indexOf(getOrderCategory()) - extensionOrderValues.indexOf(o.getOrderCategory());
+        return getOrderCategory().ordinal() - o.getOrderCategory().ordinal();
     }
 
 }
