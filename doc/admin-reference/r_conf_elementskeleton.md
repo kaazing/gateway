@@ -126,7 +126,7 @@ You can view and link to all Gateway configuration elements and properties using
             -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
-            -   [http.server.header](r_conf_server.md#httpserviceheader)
+            -   [http.server.header](r_conf_service.md#httpserverheader)
         -   [mime-mapping](r_conf_serv_defs.md#mime-mapping)
             -   [extension](r_conf_serv_defs.md#mime-mapping)
             -   [mime-type](r_conf_serv_defs.md#mime-mapping)
