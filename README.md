@@ -47,7 +47,7 @@ You can also download and run this project from [kaazing.org/download](http://ka
 
 # Learning How to Use the Gateway
 
-To learn how about administering the Gateway, its configuration files, and security, see the documentation on [kaazing.org](http://kaazing.org). To contribute to the documentation source, see the [doc directory](/doc).
+To learn about administering the Gateway, its configuration files, and security, see the documentation on [kaazing.org](http://kaazing.org). To contribute to the documentation source, see the [doc directory](/doc).
 
 # Learning How to Develop Client Applications
 
@@ -59,4 +59,4 @@ To view demo client applications running against the Gateway, visit [kaazing.org
 
 # Contact
 
-The [Gateway gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.
+The [Gateway Gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.
