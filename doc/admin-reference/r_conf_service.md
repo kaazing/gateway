@@ -38,11 +38,11 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [management.jmx](#managementjmx)
             -   [management.snmp](#managementsnmp)
             -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [proxy](#proxy-and-amqpproxy)
+            -   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
-            -   [amqp.proxy](#proxy-and-amqpproxy)
+            -   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
@@ -106,7 +106,7 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a \`balancer\` service. See [balancer](#balancer) service for details.|
 |notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy), [amqp.proxy](#proxy-and-amqpproxy), [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [xmpp.proxy](#proxy-and-amqpproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), and [session](\#session).|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy-and-xmppproxy), [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy), [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), and [session](\#session).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element>. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
@@ -419,11 +419,11 @@ The type of service. One of the following:
 -   [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [management.jmx](#managementjmx)
 -   [management.snmp](#managementsnmp)
--   [amqp.proxy](#proxy-and-amqpproxy)
--   [proxy](#proxy-and-amqpproxy)
+-   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
+-   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
 -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [xmpp.proxy](#proxy-and-amqpproxy)
+-   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
 -   [session](#session)
 
 ### <span id="balancer"></span></a>balancer
