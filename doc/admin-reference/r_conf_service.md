@@ -203,7 +203,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
   <type>balancer</type>
 
   <accept-options>
-      <ws.bind>192.168.2.10:8081</ws.bind>
+    <ws.bind>192.168.2.10:8081</ws.bind>
   </accept-options>
 
 </service>
@@ -483,44 +483,44 @@ Use the `broadcast` service to relay information from a back-end service or mess
 
 -   The following example configures the `broadcast` service with the `accept` element coded inside the `properties` element. This configures the Gateway to accept connections initiated by the back-end service or message broker and broadcast messages that are sent along that connection to clients.
 
-    ``` xml
-    <service>
-      <accept>sse://localhost:8000/sse</accept>
-      <accept>sse+ssl://localhost:9000/sse</accept>
+``` xml
+<service>
+  <accept>sse://localhost:8000/sse</accept>
+  <accept>sse+ssl://localhost:9000/sse</accept>
 
-      <type>broadcast</type>
+  <type>broadcast</type>
 
-      <properties>
-        <accept>udp://localhost:50505</accept>
-      </properties>
+  <properties>
+    <accept>udp://localhost:50505</accept>
+  </properties>
 
-      <cross-site-constraint>
-        <allow-origin>http://localhost:8000</allow-origin>
-      </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>http://localhost:8000</allow-origin>
+  </cross-site-constraint>
 
-      <cross-site-constraint>
-        <allow-origin>https://localhost:9000</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>https://localhost:9000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 -   The following example configures the `broadcast` service with a `connect` element that contains the URL of the back-end service or message broker (`news.example.com:50505`) to which the Gateway connects. If you configure the Gateway in this way, then the Gateway initiates the connection to the back-end service or message broker. When the service receives information, it broadcasts it to all the SSE channels accepted from clients on `www.example.com`.
 
-    ``` xml
-    <service>
-      <accept>sse://www.example.com:8000/sse</accept>
-      <accept>sse+ssl://www.example.com:9000/sse</accept>
-      <connect>tcp://news.example.com:50505/</connect>
-      <type>broadcast</type>
+``` xml
+<service>
+  <accept>sse://www.example.com:8000/sse</accept>
+  <accept>sse+ssl://www.example.com:9000/sse</accept>
+  <connect>tcp://news.example.com:50505/</connect>
+  <type>broadcast</type>
 
-      <cross-site-constraint>
-        <allow-origin>http://www.example.com:8000</allow-origin>
-      </cross-site-constraint>
-      <cross-site-constraint>
-        <allow-origin>https://www.example.com:9000</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>http://www.example.com:8000</allow-origin>
+  </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>https://www.example.com:9000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 ### directory
 
@@ -539,19 +539,19 @@ Use the `directory` service to expose directories or files hosted on the Gateway
 
 -   The following is an example of a `service` element of type `directory` that accepts connections on localhost by default:
 
-    ``` xml
-    <service>
-      <accept>http://localhost:8000/</accept>
-      <accept>https://localhost:9000/</accept>
+``` xml
+<service>
+  <accept>http://localhost:8000/</accept>
+  <accept>https://localhost:9000/</accept>
 
-      <type>directory</type>
-      <properties>
-        <directory>/</directory>
-        <welcome-file>index.md</welcome-file>
-        <error-pages-directory>/error-pages</error-pages-directory>
-      </properties>
-    </service>
-    ```
+  <type>directory</type>
+  <properties>
+    <directory>/</directory>
+    <welcome-file>index.md</welcome-file>
+    <error-pages-directory>/error-pages</error-pages-directory>
+  </properties>
+</service>
+```
 
 #### Notes
 
@@ -619,24 +619,24 @@ Use the `management.jmx` service type to track and monitor user sessions and con
 The following example is a snippet from the default Gateway configuration file showing the JMX Management section:
 
 ``` xml
-     <service>
-        <name>JMX Management</name>
-        <description>JMX Management Service</description>
+<service>
+  <name>JMX Management</name>
+  <description>JMX Management Service</description>
 
-        <type>management.jmx</type>
+  <type>management.jmx</type>
       
-        <properties>
-            <connector.server.address>jmx://${gateway.hostname}:2020/</connector.server.address>
-        </properties>
+  <properties>
+    <connector.server.address>jmx://${gateway.hostname}:2020/</connector.server.address>
+  </properties>
 
-        <!-- secure monitoring using a security realm -->
-        <realm-name>demo</realm-name>
+  <!-- secure monitoring using a security realm -->
+ <realm-name>demo</realm-name>
 
-        <!-- configure the authorized user roles -->
-        <authorization-constraint>
-            <require-role>ADMINISTRATOR</require-role>
-        </authorization-constraint>
-     </service>
+  <!-- configure the authorized user roles -->
+  <authorization-constraint>
+    <require-role>ADMINISTRATOR</require-role>
+ </authorization-constraint>
+</service>
 ```
 
 #### Notes
@@ -655,25 +655,25 @@ Use the `management.snmp` service type to monitor a Gateway or a Gateway cluster
 The following example is a snippet from the default Gateway configuration file showing the SNMP Management section:
 
 ``` xml
-      <service>
-        <name>SNMP Management</name>
-        <description>SNMP Management Service</description>
-        <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
+<service>
+  <name>SNMP Management</name>
+  <description>SNMP Management Service</description>
+  <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
       
-        <type>management.snmp</type>
+  <type>management.snmp</type>
 
-        <!-- secure monitoring using a security realm -->
-        <realm-name>commandcenter</realm-name>
+  <!-- secure monitoring using a security realm -->
+  <realm-name>commandcenter</realm-name>
 
-        <!-- configure the authorized user roles -->
-        <authorization-constraint>
-            <require-role>ADMINISTRATOR</require-role>
-        </authorization-constraint>
+  <!-- configure the authorized user roles -->
+  <authorization-constraint>
+    <require-role>ADMINISTRATOR</require-role>
+ </authorization-constraint>
       
-        <cross-site-constraint>
-          <allow-origin>*</allow-origin>
-        </cross-site-constraint>
-      </service>
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
+</service>
 ```
 
 #### Notes
@@ -706,78 +706,78 @@ Use the `proxy` service, `amqp.proxy`, or `xmpp.proxy` to enable a client to mak
     -   `maximum.recovery.interval `property, which tells the Gateway to ping the service at `tcp://internal.example.com:port-number` every 30 seconds if the back-end service or message broker becomes unavailable.
     -   `prepared.connection.count` property, which tells the Gateway to prepare 10 connections to the back-end service or message broker specified by the `connect` element, then maintain 10 connections as clients consume each connection.
 
-    ``` xml
-    <service>
-      <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
-      <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
-      <connect>tcp://internal.example.com:port-number</connect>
+``` xml
+<service>
+  <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+  <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+  <connect>tcp://internal.example.com:port-number</connect>
 
-      <type>proxy</type>
+  <type>proxy</type>
       
-      <properties>
-        <maximum.pending.bytes>128kB</maximum.pending.bytes>
-        <maximum.recovery.interval>30</maximum.recovery.interval>
-        <prepared.connection.count>10</prepared.connection.count>
-      </properties>
+  <properties>
+    <maximum.pending.bytes>128kB</maximum.pending.bytes>
+    <maximum.recovery.interval>30</maximum.recovery.interval>
+    <prepared.connection.count>10</prepared.connection.count>
+  </properties>
 
-      <cross-site-constraint>
-        <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
-      </cross-site-constraint>
-      <cross-site-constraint>
-        <allow-origin>https://${gateway.hostname}:${gateway.base.port}</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
+  </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>https://${gateway.hostname}:${gateway.base.port}</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 -   The following example shows a service configuration section that is used to accept connections for the `proxy` service at the URL `ws://www.example.com` on port `80`. (The port is included for the sake of example. You can omit the default ports 80 or 443.).
 
-    ``` xml
-    <service>
-      <accept>ws://www.example.com:80/service</accept>
-      <connect>tcp://internal.example.com:port-number</connect>
+``` xml
+<service>
+  <accept>ws://www.example.com:80/service</accept>
+  <connect>tcp://internal.example.com:port-number</connect>
 
-      <type>proxy</type>
+  <type>proxy</type>
       
-    </service>
-    ```
+</service>
+```
 
 -   The following example configures two `amqp.proxy` services, `app1` and `app2`, and each service connects to a virtual host, `vhost1` and `vhost2`. Clients connecting via the `app1` service can access only `vhost1`, and clients on the `app2` service can access only `vhost2`.
 
-    ``` xml
-    <!-- This service connects only to the AMQP virtual host vhost1. -->
-    <service>  
-      <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
-      <connect>pipe://vhost1</connect>
+``` xml
+<!-- This service connects only to the AMQP virtual host vhost1. -->
+<service>  
+  <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
+  <connect>pipe://vhost1</connect>
 
-      <type>amqp.proxy</type>
+  <type>amqp.proxy</type>
 
-      <properties>
-        <virtual.host>/vhost1</virtual.host>
-      </properties>
-    </service>
+  <properties>
+    <virtual.host>/vhost1</virtual.host>
+  </properties>
+</service>
 
-    <!-- This service connects only to the AMQP virtual host vhost2.-->
-    <service>
-      <accept>ws://${gateway.hostname}:${gateway.port}/app2</accept>
-      <connect>pipe://vhost2</connect>
+  <!-- This service connects only to the AMQP virtual host vhost2.-->
+<service>
+  <accept>ws://${gateway.hostname}:${gateway.port}/app2</accept>
+  <connect>pipe://vhost2</connect>
       
-      <type>amqp.proxy</type>
+  <type>amqp.proxy</type>
       
-      <properties>
-        <virtual.host>/vhost2</virtual.host>
-      </properties>
-    </service>
+  <properties>
+    <virtual.host>/vhost2</virtual.host>
+  </properties>
+</service>
       
-    <!-- Proxy service accepts on named pipes to connect to the AMQP broker.-->
-    <service>
-      <accept>pipe://vhost1</accept>
-      <accept>pipe://vhost2</accept>
-      <connect>tcp://${gateway.hostname}:5672</connect>
+  <!-- Proxy service accepts on named pipes to connect to the AMQP broker.-->
+<service>
+  <accept>pipe://vhost1</accept>
+  <accept>pipe://vhost2</accept>
+  <connect>tcp://${gateway.hostname}:5672</connect>
       
-      <type>proxy</type>
+  <type>proxy</type>
       
-    </service>
-    ```
+</service>
+```
 
 #### Notes
 
@@ -950,18 +950,18 @@ Specify any of the following transports:
 In the following example, the HTTP transport is replaced with a new (`socks+ssl`) transport that is capable of doing a reverse connection using the SOCKS protocol over TLS/SSL.
 
 ``` xml
-  <service>
-    <accept>wss://gateway.example.com:443/path</accept>
-    <connect>tcp://internal.example.com:1080</connect>
+<service>
+   <accept>wss://gateway.example.com:443/path</accept>
+ <connect>tcp://internal.example.com:1080</connect>
     .
     .
     .
-    <accept-options>
-      <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
-      <socks.mode>reverse</socks.mode>
-      <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>        
-    </accept-options>
-  </service>
+  <accept-options>
+    <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>        
+  </accept-options>
+</service>
 ```
 
 ##### Example: Configuring the Transport in connect-options
@@ -969,19 +969,19 @@ In the following example, the HTTP transport is replaced with a new (`socks+ssl`
 In the following example, the `socks+ssl` transport performs a reverse connection using the SOCKS protocol over TLS/SSL.
 
 ``` xml
-   <service>
-     <accept>wss://gateway.example.com:443/path</accept>
-     <connect>wss://gateway.example.com:443/path</connect>
+<service>
+  <accept>wss://gateway.example.com:443/path</accept>
+  <connect>wss://gateway.example.com:443/path</connect>
      .
      .
      .
-     <connect-options>
-       <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
-       <socks.mode>reverse</socks.mode>
-       <socks.timeout>2 seconds</socks.timeout>
-       <ssl.verify-client>required</ssl.verify-client>    
-     </connect-options>
-   </service>
+  <connect-options>
+    <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.timeout>2 seconds</socks.timeout>
+    <ssl.verify-client>required</ssl.verify-client>    
+  </connect-options>
+</service>
 ```
 
 For more examples, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
@@ -1614,19 +1614,19 @@ Some use cases for the `ws.inactivity.timeout` property include:
 In the following example, the `ws.inactivity.timeout` property specifies that if the Gateway cannot communicate with a client over the past five-seconds, then the connection to that client will be dropped.
 
 ``` xml
-    <service>
-      <accept>ws://gateway.example.com/echo</accept>
-      <connect>ws://internal.example.com/echo</connect>
+<service>
+  <accept>ws://gateway.example.com/echo</accept>
+  <connect>ws://internal.example.com/echo</connect>
 
-      <type>echo</type>
+  <type>echo</type>
 
-     <accept-options>
-       <ws.inactivity.timeout>5s</ws.inactivity.timeout>
-     </accept-options>
-       .
-       .
-       .
-    </service>
+ <accept-options>
+   <ws.inactivity.timeout>5s</ws.inactivity.timeout>
+ </accept-options>
+   .
+   .
+   .
+</service>
 ```
 
 ##### Notes
@@ -1647,13 +1647,13 @@ This setting is ignored for services that do not accept HTTP or WebSocket connec
 ##### Example
 
 ``` xml
-  <service>
+<service>
+  ...
+  <accept-options>
+    <http.server.header>disabled</http.server.header>
+  </accept-options>
     ...
-    <accept-options>
-      <http.server.header>disabled</http.server.header>
-    </accept-options>
-    ...
-  </service>
+</service>
 ```
 
 #### ws.version (deprecated)
@@ -1669,14 +1669,13 @@ The `ws.version` element was used to tell the Gateway which version of the WebSo
 The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
 ``` xml
-  <service>
-    <accept>ws://${gateway.hostname}:8000/proxy</accept>
+<service>
+  <accept>ws://${gateway.hostname}:8000/proxy</accept>
     <connect>wss://${gateway.hostname}:5566/data</connect>
-    <connect-options>
-      <ws.version>draft-75</ws.version>
-    </connect-options>
-  </service>
-  
+  <connect-options>
+    <ws.version>draft-75</ws.version>
+  </connect-options>
+</service>
 ```
 
 ### notify-options![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
