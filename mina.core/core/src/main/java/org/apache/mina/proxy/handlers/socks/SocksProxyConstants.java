@@ -143,7 +143,7 @@ public class SocksProxyConstants {
      * @param code the reply code
      * @return the reply string
      */
-    public final static String getReplyCodeAsString(byte code) {
+    public static String getReplyCodeAsString(byte code) {
         switch (code) {
         // v4 & v4a codes
         case V4_REPLY_REQUEST_GRANTED:

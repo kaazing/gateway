@@ -222,7 +222,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         while (true);
     }
 
-    private static final void checkInitialPadding(HttpAcceptSession session) {
+    private static void checkInitialPadding(HttpAcceptSession session) {
         // check to see if we need to add a padding message to the end of
         // the sent messages
         Integer clientPadding = (Integer)session.getAttribute(SseAcceptor.CLIENT_PADDING_KEY);
@@ -253,7 +253,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         }
     }
 
-    private static final void checkBlockPadding(HttpAcceptSession session) {
+    private static void checkBlockPadding(HttpAcceptSession session) {
         // TODO: Verify if counting bytes is really necessary
         // check to see if we need to add a padding message to the end of sent messages
         long writtenBytes = session.getWrittenBytes();

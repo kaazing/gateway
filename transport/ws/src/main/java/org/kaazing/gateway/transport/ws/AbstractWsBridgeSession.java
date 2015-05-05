@@ -41,6 +41,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
+import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.ws.util.BridgeSessionIterator;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;

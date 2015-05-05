@@ -16,17 +16,15 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import java.util.List;
-
 import org.apache.mina.core.filterchain.IoFilter;
 
 /**
- * {@link WebSocketExtensionSpi} is part of <i>Service Provider Interface</i> <em>(SPI)</em> for extension developers.
+ * {@link WebSocketExtension} is part of <i>Service Provider Interface</i> <em>(SPI)</em> for extension developers.
  * When an enabled extension is successfully negotiated, an instance of this class is created using the corresponding
  * {@link WebSocketExtensionFactorySpi} that is registered through META-INF/services. This class can supply
  * a filter that can view and manipulate WebSocket traffic.
  */
-public abstract class WebSocketExtensionSpi {
+public abstract class WebSocketExtension {
 
     /**
      * This method is called when the extension is successfully negotiated.
@@ -47,5 +45,5 @@ public abstract class WebSocketExtensionSpi {
     public IoFilter getFilter() {
         return null;
     };
-    
+
 }
