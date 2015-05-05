@@ -69,7 +69,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
             -   [http.server.header](#httpserverheader)
-        -   [notify-options](#notify-options-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+        -   [notify-options](#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   apns.notify.transport
             -   apns.feedback.transport
             -   ssl.ciphers
@@ -105,7 +105,7 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element>. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
-|notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options-jms-only).|
+|notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options).|
 |realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
 |authorization-constraint|The user roles that are authorized to access the service. See [authorization-constraint](#authorization-constraint).|
 |mime-mapping|Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension. See [mime-mapping](#mime-mapping).|
@@ -244,7 +244,7 @@ For example, you might configure the URI `<notify>apns://com.example.myapp</noti
 **Note:** To configure the Gateway and iOS applications built using the KAAZING Gateway Objective-C client library to use APNs for offline notifications, see the step-by-step instructions in [Deploy APNs with KAAZING Gateway](../apns/o_apns.md). 
 #### <a name="notifyexample"></a>Example Configuration for the notify Element
 
-The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notify-options-jms-only) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
+The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notify-options) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
 `-importcert`, as described in [Deploy APNs with KAAZING Gateway](../apns/o_apns.md)).
 
 **Example Configuration for an Apple Production Environment**
@@ -386,7 +386,7 @@ The following examples show complete `notify` elements including a service for t
 
 -   There is no default value for the notify element. If you configure the `notify` element, then you must specify the URI of the Apple Push Notification Service (APNs) as its value.
 -   Configure the `notify` element after any `accept`, `connect`, and `balance` elements, and before the `type` element.
--   Configure the [notify-options](#notify-options-jms-only) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
+-   Configure the [notify-options](#notify-options) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
 -   Configure the `security` element for all APNs configurations, including both the production and development environments.
 -   In an Enterprise Shield&trade; topology, configure `notify` and `notify-options` on the [jms](r_stomp_service.md) service on an internal Gateway that is connected directly to the back-end service or message broker.
 -   Do not configure a single Gateway instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
@@ -1682,7 +1682,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
-Specify `notify-options` for the [notify](#notify-options-jms-only) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify-jms-only) element.
+Specify `notify-options` for the [notify](#notify-options) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify-jms-only) element.
 
 **Note:** 
 The notify-options must be specified in the order shown in the following table.
