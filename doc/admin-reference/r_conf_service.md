@@ -1678,7 +1678,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
   
 ```
 
-### notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### notify-options![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
