@@ -1786,7 +1786,7 @@ The following example shows a `directory` service that includes two mime-mapping
   </mime-mapping>
 
   <cross-site-constraint>
-  <allow-origin>http://localhost:8000</allow-origin>
+    <allow-origin>http://localhost:8000</allow-origin>
   </cross-site-constraint>
   <cross-site-constraint>
     <allow-origin>https://localhost:9000</allow-origin>
