@@ -248,7 +248,7 @@ This is the element for adding options to specific types of login modules. The o
 | Option        | Applies to login-module type | Description                                                                                                                                                                                                           |
 |---------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
-| tryFirstToken | `gss`                        |                                                                                                                                                                                                                       |
+| tryFirstToken | `gss`                        |    If `true`, then the login module looks in the JAAS shared state for a token using the key: `com.kaazing.gateway.server.auth.gss.token`. If `false` (the default), then the login module uses a CallbackHandler to discover the token from `LoginContext`.  |
 
 ##### Example of a `file` Login Module
 
