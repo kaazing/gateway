@@ -284,18 +284,18 @@ For information about configuring the LDAP login-module options, see the [Class 
 The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
 ``` xml
-  <login-module>
-    <type>kerberos5</type>
-    <success>required</success>
-    <options>
-      <useKeyTab>true</useKeyTab>
-      <keyTab>/etc/krb5.keytab</keyTab>
-      <principal>HTTP/localhost@LOCAL.NETWORK</principal>
-      <isInitiator>false</isInitiator>
-      <doNotPrompt>true</doNotPrompt>
-      <storeKey>true</storeKey>
-    </options>
-  </login-module>
+<login-module>
+  <type>kerberos5</type>
+  <success>required</success>
+  <options>
+    <useKeyTab>true</useKeyTab>
+    <keyTab>/etc/krb5.keytab</keyTab>
+    <principal>HTTP/localhost@LOCAL.NETWORK</principal>
+    <isInitiator>false</isInitiator>
+    <doNotPrompt>true</doNotPrompt>
+    <storeKey>true</storeKey>
+  </options>
+</login-module>
 ```
 
 For information about configuring the Kerberos login module options, see the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation. For information about how to use KAAZING Gateway with Kerberos, see [Configure Kerberos V5 Network Authentication](../security/o_krb.md).
@@ -306,8 +306,8 @@ The following example shows a `gss`-based `login-module` element that you define
 
 ``` xml
 <login-module>
-    <type>gss</type>
-    <success>required</success>
+  <type>gss</type>
+  <success>required</success>
 </login-module>
 ```
 
@@ -318,16 +318,16 @@ For information about the `gss` login module options, see the table in the [opti
 The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
 ``` xml
-  <login-module>
-    <type>jndi</type>
-    <success>required</success>
-    <options>
-      <!-- These options come directly from the JndiLoginModule javadoc;
-          these are the NIS examples -->
-      <user.provider.url>nis://NISServerHostName/NISDomain/user</user.provider.url>
-      <group.provider.url>nis://NISServerHostName/NISDomain/system/group</group.provider.url>
-    </options>
-  </login-module>
+<login-module>
+  <type>jndi</type>
+  <success>required</success>
+  <options>
+    <!-- These options come directly from the JndiLoginModule javadoc;
+        these are the NIS examples -->
+    <user.provider.url>nis://NISServerHostName/NISDomain/user</user.provider.url>
+    <group.provider.url>nis://NISServerHostName/NISDomain/system/group</group.provider.url>
+  </options>
+</login-module>
 ```
 
 For information about configuring the JNDI login-module options, see the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) documentation.
@@ -337,16 +337,16 @@ For information about configuring the JNDI login-module options, see the [JndiLo
 The following example shows a keystore-based `login-module` element. It translates the examples in the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
 ``` xml
-  <login-module>
-    <type>keystore</type>
-    <success>required</success>
-    <options>
-     <!-- These options come directly from the KeyStoreLoginModule javadoc  -->
-      <keyStoreURL>file://path/to/keystore.db</keyStoreURL>
-      <keyStorePasswordURL>file://path/to/keystore.pw</keyStorePasswordURL>
-      <keyStoreAlias>keystore-alias</keyStoreAlias>
-    </options>
-  </login-module>
+<login-module>
+  <type>keystore</type>
+  <success>required</success>
+  <options>
+   <!-- These options come directly from the KeyStoreLoginModule javadoc  -->
+    <keyStoreURL>file://path/to/keystore.db</keyStoreURL>
+    <keyStorePasswordURL>file://path/to/keystore.pw</keyStorePasswordURL>
+    <keyStoreAlias>keystore-alias</keyStoreAlias>
+  </options>
+</login-module>
 ```
 
 For information about configuring the keystore login-module options, see the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) documentation.
