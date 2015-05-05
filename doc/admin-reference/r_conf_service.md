@@ -51,7 +51,6 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
-                -   virtual.host
             -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [session](#session)
