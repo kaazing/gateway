@@ -47,9 +47,14 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
                 -   maximum.recovery.interval
                 -   prepared.connection.count
                 -   virtual.host
+            -   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise
+                -   maximum.pending.bytes
+                -   maximum.recovery.interval
+                -   prepared.connection.count
+                -   virtual.host
             -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [xmpp.proxy](#proxy-and-amqpproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+ Edition](images/enterprise-feature.png)
             -   [session](#session)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
@@ -680,13 +685,11 @@ The following example is a snippet from the default Gateway configuration file s
 -   See [Monitor with Command Center](../management/p_monitor_cc.md) for more information about monitoring with Command Center.
 
 
-### proxy and amqp.proxy
+### proxy and amqp.proxy and xmpp.proxy
 
-Use the `proxy` service or `amqp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
+Use the `proxy` service, `amqp.proxy`, or `xmpp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-##### Properties for the `proxy` Service and `amqp.proxy` Service
-
-Use the following properties with the `proxy` service and `amqp.proxy` service:
+##### Properties for the `proxy` Service and `amqp.proxy` and `xmpp.proxy` Service
 
 | Property                    | Required? | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |-----------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
