@@ -24,7 +24,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
         -   [accept](#accept)
         -   [connect](#connect)
         -   [balance](#balance)
-        -   [notify](#notify-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+        -   [notify](#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
         -   [type](#type)
             -   [balancer](#balancer)
             -   [broadcast](#broadcast)
@@ -38,18 +38,21 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [management.jmx](#managementjmx)
             -   [management.snmp](#managementsnmp)
             -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [proxy](#proxy-and-amqpproxy)
+            -   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
-            -   [amqp.proxy](#proxy-and-amqpproxy)
+            -   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
                 -   virtual.host
-            -   [jms](r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [jms.proxy](r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [xmpp.proxy](#proxy-and-amqpproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+                -   maximum.pending.bytes
+                -   maximum.recovery.interval
+                -   prepared.connection.count
+            -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [session](#session)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
@@ -68,7 +71,8 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [socks.retry.maximum.interval](#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
-        -   [notify-options](#notify-options-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [http.server.header](#httpserverheader)
+        -   [notify-options](#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
             -   apns.notify.transport
             -   apns.feedback.transport
             -   ssl.ciphers
@@ -99,12 +103,12 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |accept|The URLs on which the service accepts connections.|
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a \`balancer\` service. See [balancer](#balancer) service for details.|
-|notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify-jms-only) element for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy), [amqp.proxy](#proxy-and-amqpproxy), [jms](r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [jms.proxy](r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [xmpp.proxy](#proxy-and-amqpproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), and [session](\#session).|
+|notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy-and-xmppproxy), [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy), [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png), and [session](\#session).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element>. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
-|notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options-jms-only).|
+|notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options).|
 |realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
 |authorization-constraint|The user roles that are authorized to access the service. See [authorization-constraint](#authorization-constraint).|
 |mime-mapping|Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension. See [mime-mapping](#mime-mapping).|
@@ -199,7 +203,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
   <type>balancer</type>
 
   <accept-options>
-      <ws.bind>192.168.2.10:8081</ws.bind>
+    <ws.bind>192.168.2.10:8081</ws.bind>
   </accept-options>
 
 </service>
@@ -228,7 +232,7 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 -   See [Set Up KAAZING Gateway as a Load Balancer](../high-availability/p_ha_loadbalance.md) for a complete load balancing description and example.
 
 
-### notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
+### notify![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
 
 **Required?** Optional; **Occurs:** one or more.
 
@@ -243,7 +247,7 @@ For example, you might configure the URI `<notify>apns://com.example.myapp</noti
 **Note:** To configure the Gateway and iOS applications built using the KAAZING Gateway Objective-C client library to use APNs for offline notifications, see the step-by-step instructions in [Deploy APNs with KAAZING Gateway](../apns/o_apns.md). 
 #### <a name="notifyexample"></a>Example Configuration for the notify Element
 
-The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notify-options-jms-only) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
+The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notify-options) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
 `-importcert`, as described in [Deploy APNs with KAAZING Gateway](../apns/o_apns.md)).
 
 **Example Configuration for an Apple Production Environment**
@@ -385,9 +389,9 @@ The following examples show complete `notify` elements including a service for t
 
 -   There is no default value for the notify element. If you configure the `notify` element, then you must specify the URI of the Apple Push Notification Service (APNs) as its value.
 -   Configure the `notify` element after any `accept`, `connect`, and `balance` elements, and before the `type` element.
--   Configure the [notify-options](#notify-options-jms-only) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
+-   Configure the [notify-options](#notify-options) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
 -   Configure the `security` element for all APNs configurations, including both the production and development environments.
--   In an Enterprise Shield&trade; topology, configure `notify` and `notify-options` on the [jms](r_stomp_service.md) service on an internal Gateway that is connected directly to the back-end service or message broker.
+-   In an Enterprise Shield&trade; topology, configure `notify` and `notify-options` on the [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) service on an internal Gateway that is connected directly to the back-end service or message broker.
 -   Do not configure a single Gateway instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
 
     For example, because the production and sandbox configurations shown above in the "Example Configuration for the notify Element" use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (`com.example.myapp/DEVELOPMENT`) on its URI.
@@ -413,11 +417,11 @@ The type of service. One of the following:
 -   [kerberos5.proxy](#kerberos5) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [management.jmx](#managementjmx)
 -   [management.snmp](#managementsnmp)
--   [amqp.proxy](#proxy-and-amqpproxy)
--   [proxy](#proxy-and-amqpproxy)
--   [jms](r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [jms.proxy](r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [xmpp.proxy](#proxy-and-amqpproxy)
+-   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
+-   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
+-   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
 -   [session](#session)
 
 ### <span id="balancer"></span></a>balancer
@@ -479,44 +483,44 @@ Use the `broadcast` service to relay information from a back-end service or mess
 
 -   The following example configures the `broadcast` service with the `accept` element coded inside the `properties` element. This configures the Gateway to accept connections initiated by the back-end service or message broker and broadcast messages that are sent along that connection to clients.
 
-    ``` xml
-    <service>
-      <accept>sse://localhost:8000/sse</accept>
-      <accept>sse+ssl://localhost:9000/sse</accept>
+``` xml
+<service>
+  <accept>sse://localhost:8000/sse</accept>
+  <accept>sse+ssl://localhost:9000/sse</accept>
 
-      <type>broadcast</type>
+  <type>broadcast</type>
 
-      <properties>
-        <accept>udp://localhost:50505</accept>
-      </properties>
+  <properties>
+    <accept>udp://localhost:50505</accept>
+  </properties>
 
-      <cross-site-constraint>
-        <allow-origin>http://localhost:8000</allow-origin>
-      </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>http://localhost:8000</allow-origin>
+  </cross-site-constraint>
 
-      <cross-site-constraint>
-        <allow-origin>https://localhost:9000</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>https://localhost:9000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 -   The following example configures the `broadcast` service with a `connect` element that contains the URL of the back-end service or message broker (`news.example.com:50505`) to which the Gateway connects. If you configure the Gateway in this way, then the Gateway initiates the connection to the back-end service or message broker. When the service receives information, it broadcasts it to all the SSE channels accepted from clients on `www.example.com`.
 
-    ``` xml
-    <service>
-      <accept>sse://www.example.com:8000/sse</accept>
-      <accept>sse+ssl://www.example.com:9000/sse</accept>
-      <connect>tcp://news.example.com:50505/</connect>
-      <type>broadcast</type>
+``` xml
+<service>
+  <accept>sse://www.example.com:8000/sse</accept>
+  <accept>sse+ssl://www.example.com:9000/sse</accept>
+  <connect>tcp://news.example.com:50505/</connect>
+  <type>broadcast</type>
 
-      <cross-site-constraint>
-        <allow-origin>http://www.example.com:8000</allow-origin>
-      </cross-site-constraint>
-      <cross-site-constraint>
-        <allow-origin>https://www.example.com:9000</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>http://www.example.com:8000</allow-origin>
+  </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>https://www.example.com:9000</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 ### directory
 
@@ -535,19 +539,19 @@ Use the `directory` service to expose directories or files hosted on the Gateway
 
 -   The following is an example of a `service` element of type `directory` that accepts connections on localhost by default:
 
-    ``` xml
-    <service>
-      <accept>http://localhost:8000/</accept>
-      <accept>https://localhost:9000/</accept>
+``` xml
+<service>
+  <accept>http://localhost:8000/</accept>
+  <accept>https://localhost:9000/</accept>
 
-      <type>directory</type>
-      <properties>
-        <directory>/</directory>
-        <welcome-file>index.md</welcome-file>
-        <error-pages-directory>/error-pages</error-pages-directory>
-      </properties>
-    </service>
-    ```
+  <type>directory</type>
+  <properties>
+    <directory>/</directory>
+    <welcome-file>index.md</welcome-file>
+    <error-pages-directory>/error-pages</error-pages-directory>
+  </properties>
+</service>
+```
 
 #### Notes
 
@@ -583,7 +587,7 @@ This type of service receives a string of characters through a WebSocket connect
 -   The primary use for the `echo` service is to validate the basic gateway configuration.
 -   The default `echo` service is configured to run on a separate port to verify cross-origin access.
 
-### kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### kerberos5.proxy![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Use the `kerberos5.proxy` service to connect the Gateway to the Kerberos Key Distribution Center.
 
@@ -615,24 +619,24 @@ Use the `management.jmx` service type to track and monitor user sessions and con
 The following example is a snippet from the default Gateway configuration file showing the JMX Management section:
 
 ``` xml
-     <service>
-        <name>JMX Management</name>
-        <description>JMX Management Service</description>
+<service>
+  <name>JMX Management</name>
+  <description>JMX Management Service</description>
 
-        <type>management.jmx</type>
+  <type>management.jmx</type>
       
-        <properties>
-            <connector.server.address>jmx://${gateway.hostname}:2020/</connector.server.address>
-        </properties>
+  <properties>
+    <connector.server.address>jmx://${gateway.hostname}:2020/</connector.server.address>
+  </properties>
 
-        <!-- secure monitoring using a security realm -->
-        <realm-name>demo</realm-name>
+  <!-- secure monitoring using a security realm -->
+ <realm-name>demo</realm-name>
 
-        <!-- configure the authorized user roles -->
-        <authorization-constraint>
-            <require-role>ADMINISTRATOR</require-role>
-        </authorization-constraint>
-     </service>
+  <!-- configure the authorized user roles -->
+  <authorization-constraint>
+    <require-role>ADMINISTRATOR</require-role>
+ </authorization-constraint>
+</service>
 ```
 
 #### Notes
@@ -651,25 +655,25 @@ Use the `management.snmp` service type to monitor a Gateway or a Gateway cluster
 The following example is a snippet from the default Gateway configuration file showing the SNMP Management section:
 
 ``` xml
-      <service>
-        <name>SNMP Management</name>
-        <description>SNMP Management Service</description>
-        <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
+<service>
+  <name>SNMP Management</name>
+  <description>SNMP Management Service</description>
+  <accept>ws://${gateway.hostname}:${gateway.base.port}/snmp</accept>
       
-        <type>management.snmp</type>
+  <type>management.snmp</type>
 
-        <!-- secure monitoring using a security realm -->
-        <realm-name>commandcenter</realm-name>
+  <!-- secure monitoring using a security realm -->
+  <realm-name>commandcenter</realm-name>
 
-        <!-- configure the authorized user roles -->
-        <authorization-constraint>
-            <require-role>ADMINISTRATOR</require-role>
-        </authorization-constraint>
+  <!-- configure the authorized user roles -->
+  <authorization-constraint>
+    <require-role>ADMINISTRATOR</require-role>
+ </authorization-constraint>
       
-        <cross-site-constraint>
-          <allow-origin>*</allow-origin>
-        </cross-site-constraint>
-      </service>
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
+</service>
 ```
 
 #### Notes
@@ -679,13 +683,11 @@ The following example is a snippet from the default Gateway configuration file s
 -   See [Monitor with Command Center](../management/p_monitor_cc.md) for more information about monitoring with Command Center.
 
 
-### proxy and amqp.proxy
+### proxy and amqp.proxy and xmpp.proxy
 
-Use the `proxy` service or `amqp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
+Use the `proxy` service, `amqp.proxy`, or `xmpp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-##### Properties for the `proxy` Service and `amqp.proxy` Service
-
-Use the following properties with the `proxy` service and `amqp.proxy` service:
+##### Properties for the `proxy` Service and `amqp.proxy` and `xmpp.proxy` Service
 
 | Property                    | Required? | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |-----------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -704,78 +706,78 @@ Use the following properties with the `proxy` service and `amqp.proxy` service:
     -   `maximum.recovery.interval `property, which tells the Gateway to ping the service at `tcp://internal.example.com:port-number` every 30 seconds if the back-end service or message broker becomes unavailable.
     -   `prepared.connection.count` property, which tells the Gateway to prepare 10 connections to the back-end service or message broker specified by the `connect` element, then maintain 10 connections as clients consume each connection.
 
-    ``` xml
-    <service>
-      <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
-      <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
-      <connect>tcp://internal.example.com:port-number</connect>
+``` xml
+<service>
+  <accept>ws://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+  <accept>wss://${gateway.hostname}:${gateway.base.port}/remoteService</accept>
+  <connect>tcp://internal.example.com:port-number</connect>
 
-      <type>proxy</type>
+  <type>proxy</type>
       
-      <properties>
-        <maximum.pending.bytes>128kB</maximum.pending.bytes>
-        <maximum.recovery.interval>30</maximum.recovery.interval>
-        <prepared.connection.count>10</prepared.connection.count>
-      </properties>
+  <properties>
+    <maximum.pending.bytes>128kB</maximum.pending.bytes>
+    <maximum.recovery.interval>30</maximum.recovery.interval>
+    <prepared.connection.count>10</prepared.connection.count>
+  </properties>
 
-      <cross-site-constraint>
-        <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
-      </cross-site-constraint>
-      <cross-site-constraint>
-        <allow-origin>https://${gateway.hostname}:${gateway.base.port}</allow-origin>
-      </cross-site-constraint>
-    </service>
-    ```
+  <cross-site-constraint>
+    <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
+  </cross-site-constraint>
+  <cross-site-constraint>
+    <allow-origin>https://${gateway.hostname}:${gateway.base.port}</allow-origin>
+  </cross-site-constraint>
+</service>
+```
 
 -   The following example shows a service configuration section that is used to accept connections for the `proxy` service at the URL `ws://www.example.com` on port `80`. (The port is included for the sake of example. You can omit the default ports 80 or 443.).
 
-    ``` xml
-    <service>
-      <accept>ws://www.example.com:80/service</accept>
-      <connect>tcp://internal.example.com:port-number</connect>
+``` xml
+<service>
+  <accept>ws://www.example.com:80/service</accept>
+  <connect>tcp://internal.example.com:port-number</connect>
 
-      <type>proxy</type>
+  <type>proxy</type>
       
-    </service>
-    ```
+</service>
+```
 
 -   The following example configures two `amqp.proxy` services, `app1` and `app2`, and each service connects to a virtual host, `vhost1` and `vhost2`. Clients connecting via the `app1` service can access only `vhost1`, and clients on the `app2` service can access only `vhost2`.
 
-    ``` xml
-    <!-- This service connects only to the AMQP virtual host vhost1. -->
-    <service>  
-      <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
-      <connect>pipe://vhost1</connect>
+``` xml
+<!-- This service connects only to the AMQP virtual host vhost1. -->
+<service>  
+  <accept>ws://${gateway.hostname}:${gateway.port}/app1</accept>
+  <connect>pipe://vhost1</connect>
 
-      <type>amqp.proxy</type>
+  <type>amqp.proxy</type>
 
-      <properties>
-        <virtual.host>/vhost1</virtual.host>
-      </properties>
-    </service>
+  <properties>
+    <virtual.host>/vhost1</virtual.host>
+  </properties>
+</service>
 
-    <!-- This service connects only to the AMQP virtual host vhost2.-->
-    <service>
-      <accept>ws://${gateway.hostname}:${gateway.port}/app2</accept>
-      <connect>pipe://vhost2</connect>
+  <!-- This service connects only to the AMQP virtual host vhost2.-->
+<service>
+  <accept>ws://${gateway.hostname}:${gateway.port}/app2</accept>
+  <connect>pipe://vhost2</connect>
       
-      <type>amqp.proxy</type>
+  <type>amqp.proxy</type>
       
-      <properties>
-        <virtual.host>/vhost2</virtual.host>
-      </properties>
-    </service>
+  <properties>
+    <virtual.host>/vhost2</virtual.host>
+  </properties>
+</service>
       
-    <!-- Proxy service accepts on named pipes to connect to the AMQP broker.-->
-    <service>
-      <accept>pipe://vhost1</accept>
-      <accept>pipe://vhost2</accept>
-      <connect>tcp://${gateway.hostname}:5672</connect>
+  <!-- Proxy service accepts on named pipes to connect to the AMQP broker.-->
+<service>
+  <accept>pipe://vhost1</accept>
+  <accept>pipe://vhost2</accept>
+  <connect>tcp://${gateway.hostname}:5672</connect>
       
-      <type>proxy</type>
+  <type>proxy</type>
       
-    </service>
-    ```
+</service>
+```
 
 #### Notes
 
@@ -869,7 +871,8 @@ Use the `connect-options` element to add options to all connections for the serv
 | socks.ssl.verify-client ![This feature is available in KAAZING Gateway - Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake. |
 | socks.retry.maximum.interval ![This feature is available in KAAZING Gateway - Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | no | The maximum interval the Gateway waits before retrying if an attempt toconnect to the SOCKS proxy fails. The Gateway initially retries afterwaiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of socks.retry.maximum.interval. After the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. |
 | tcp.maximum.outbound.rate ![This feature is available in KAAZING Gateway- Enterprise Edition.](../../resources/images/enterprise-feature.png) | yes | no | Specifies the maximum bandwidth rate at which bytes can be written from the Gateway (outbound) to each client session. This option controls the rate of outbound traffic being sent per client connection for clients connecting to a service (see [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate)). |
-| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. |
+| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. | 
+| http.server.header | yes | no | Controls the inclusion of the HTTP Server header. By default, the Gateway writes a HTTP Server header. See [http.server.header](#httpserverheader). |
 | ws.version (deprecated) | no | yes | The `ws.version` element has been deprecated. |
 
 #### *protocol*.bind
@@ -947,18 +950,18 @@ Specify any of the following transports:
 In the following example, the HTTP transport is replaced with a new (`socks+ssl`) transport that is capable of doing a reverse connection using the SOCKS protocol over TLS/SSL.
 
 ``` xml
-  <service>
-    <accept>wss://gateway.example.com:443/path</accept>
-    <connect>tcp://internal.example.com:1080</connect>
+<service>
+   <accept>wss://gateway.example.com:443/path</accept>
+ <connect>tcp://internal.example.com:1080</connect>
     .
     .
     .
-    <accept-options>
-      <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
-      <socks.mode>reverse</socks.mode>
-      <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>        
-    </accept-options>
-  </service>
+  <accept-options>
+    <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>        
+  </accept-options>
+</service>
 ```
 
 ##### Example: Configuring the Transport in connect-options
@@ -966,19 +969,19 @@ In the following example, the HTTP transport is replaced with a new (`socks+ssl`
 In the following example, the `socks+ssl` transport performs a reverse connection using the SOCKS protocol over TLS/SSL.
 
 ``` xml
-   <service>
-     <accept>wss://gateway.example.com:443/path</accept>
-     <connect>wss://gateway.example.com:443/path</connect>
+<service>
+  <accept>wss://gateway.example.com:443/path</accept>
+  <connect>wss://gateway.example.com:443/path</connect>
      .
      .
      .
-     <connect-options>
-       <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
-       <socks.mode>reverse</socks.mode>
-       <socks.timeout>2 seconds</socks.timeout>
-       <ssl.verify-client>required</ssl.verify-client>    
-     </connect-options>
-   </service>
+  <connect-options>
+    <http.transport>socks+ssl://gateway.dmz.net:1080</http.transport>
+    <socks.mode>reverse</socks.mode>
+    <socks.timeout>2 seconds</socks.timeout>
+    <ssl.verify-client>required</ssl.verify-client>    
+  </connect-options>
+</service>
 ```
 
 For more examples, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
@@ -1611,25 +1614,47 @@ Some use cases for the `ws.inactivity.timeout` property include:
 In the following example, the `ws.inactivity.timeout` property specifies that if the Gateway cannot communicate with a client over the past five-seconds, then the connection to that client will be dropped.
 
 ``` xml
-    <service>
-      <accept>ws://gateway.example.com/echo</accept>
-      <connect>ws://internal.example.com/echo</connect>
+<service>
+  <accept>ws://gateway.example.com/echo</accept>
+  <connect>ws://internal.example.com/echo</connect>
 
-      <type>echo</type>
+  <type>echo</type>
 
-     <accept-options>
-       <ws.inactivity.timeout>5s</ws.inactivity.timeout>
-     </accept-options>
-       .
-       .
-       .
-    </service>
+ <accept-options>
+   <ws.inactivity.timeout>5s</ws.inactivity.timeout>
+ </accept-options>
+   .
+   .
+   .
+</service>
 ```
 
 ##### Notes
 
 -   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+
+#### http.server.header
+
+**Required?** Optional; **Occurs:** zero or more; **Values** `enabled`or `disabled`
+
+Enables or disables the inclusion of the HTTP server header. By default, the Gateway writes a HTTP server header. In general, there is no need to configure this accept option unless you want to obscure server header information.
+
+This setting is ignored for services that do not accept HTTP or WebSocket connections.
+
+**Hint:** Instead of specifying this setting on every service, consider adding it using the [service-defaults](../admin-reference/r_conf_serv_defs.md) element to globally apply the setting across all services running on the Gateway.
+
+##### Example
+
+``` xml
+<service>
+  ...
+  <accept-options>
+    <http.server.header>disabled</http.server.header>
+  </accept-options>
+    ...
+</service>
+```
 
 #### ws.version (deprecated)
 
@@ -1644,21 +1669,20 @@ The `ws.version` element was used to tell the Gateway which version of the WebSo
 The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
 ``` xml
-  <service>
-    <accept>ws://${gateway.hostname}:8000/proxy</accept>
+<service>
+  <accept>ws://${gateway.hostname}:8000/proxy</accept>
     <connect>wss://${gateway.hostname}:5566/data</connect>
-    <connect-options>
-      <ws.version>draft-75</ws.version>
-    </connect-options>
-  </service>
-  
+  <connect-options>
+    <ws.version>draft-75</ws.version>
+  </connect-options>
+</service>
 ```
 
-### notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### notify-options![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
 
-Specify `notify-options` for the [notify](#notify-options-jms-only) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify-jms-only) element.
+Specify `notify-options` for the [notify](#notify-options) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify) element.
 
 **Note:** 
 The notify-options must be specified in the order shown in the following table.
@@ -1762,7 +1786,7 @@ The following example shows a `directory` service that includes two mime-mapping
   </mime-mapping>
 
   <cross-site-constraint>
-  <allow-origin>http://localhost:8000</allow-origin>
+    <allow-origin>http://localhost:8000</allow-origin>
   </cross-site-constraint>
   <cross-site-constraint>
     <allow-origin>https://localhost:9000</allow-origin>

@@ -183,7 +183,37 @@ This is the element that associates an authenticated user with a set of authoriz
 
 Use `authentication` to configure the authentication parameters for the `realm`, which includes the challenge-scheme and the parts of the request that contain authentication information. `authentication` contains the following elements:
 
+- ##### `http-challenge-scheme` 
+  This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, `Application Negotiate`, or `Application Token`: 
+  - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges. 
+  - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../../index.md) documentation. 
+  - Use `Application Token` to allow the client to present a third-party token or custom token to be presented to your custom login module.  
+  - Use `Negotiate` or `Application Negotiate` if using Kerberos Network Authentication. For more information, see [Secure Network Traffic with the Gateway](../security/o_tls.md). 
 
+- ##### `http-header` 
+  Specifies the names of the header or headers that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)). 
+
+- ##### `http-query-parameter` 
+  Specifies the name or names of query parameters that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)).
+
+- ##### `http-cookie` 
+  Specifies the name or names of HTTP cookies that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)). 
+
+- ##### `authorization-mode` 
+  Specifies the challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in. 
+  - Use `challenge` to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.Use recycle to enable the Gateway to write its own authorization session cookie.
+  - Use `recycle`to enable the Gateway to write its own authorization session cookie. The `recycle` option is only applicable to `Basic`, `Application Basic`, `Negotiate`, and `Application Negotiate` HTTP challenge schemes. 
+  
+- ##### `authorization-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
+  For directory services, this element specifies the time interval that must elapse without service access before the Gateway challenges the client for credentials. 
+
+  For WebSocket services, this is the time interval before which the client must reauthenticate the WebSocket. If reauthentication has not occurred within the specified time, then the Gateway closes the WebSocket connection.
+  
+- ##### `session-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
+  For WebSocket services only. This is the time interval after which the Gateway closes the WebSocket connection, regardless of other settings. Effectively, the `session-timeout` element specifies the maximum lifetime of the WebSocket connection.
+
+- ##### `login-modules`
+  Specifies the container for a chain of individual login modules that communicate with a user database to validate user's credentials and to determine a set of authorized roles (see [login-module](#login-module)).
 
 #### Custom HTTP Authentication Tokens
 
@@ -238,7 +268,7 @@ This is the element for adding options to specific types of login modules. The o
 | Option        | Applies to login-module type | Description                                                                                                                                                                                                           |
 |---------------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
-| tryFirstToken | `gss`                        |                                                                                                                                                                                                                       |
+| tryFirstToken | `gss`                        |    If `true`, then the login module looks in the JAAS shared state for a token using the key: `com.kaazing.gateway.server.auth.gss.token`. If `false` (the default), then the login module uses a CallbackHandler to discover the token from `LoginContext`.  |
 
 ##### Example of a `file` Login Module
 
@@ -284,18 +314,18 @@ For information about configuring the LDAP login-module options, see the [Class 
 The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
 ``` xml
-  <login-module>
-    <type>kerberos5</type>
-    <success>required</success>
-    <options>
-      <useKeyTab>true</useKeyTab>
-      <keyTab>/etc/krb5.keytab</keyTab>
-      <principal>HTTP/localhost@LOCAL.NETWORK</principal>
-      <isInitiator>false</isInitiator>
-      <doNotPrompt>true</doNotPrompt>
-      <storeKey>true</storeKey>
-    </options>
-  </login-module>
+<login-module>
+  <type>kerberos5</type>
+  <success>required</success>
+  <options>
+    <useKeyTab>true</useKeyTab>
+    <keyTab>/etc/krb5.keytab</keyTab>
+    <principal>HTTP/localhost@LOCAL.NETWORK</principal>
+    <isInitiator>false</isInitiator>
+    <doNotPrompt>true</doNotPrompt>
+    <storeKey>true</storeKey>
+  </options>
+</login-module>
 ```
 
 For information about configuring the Kerberos login module options, see the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation. For information about how to use KAAZING Gateway with Kerberos, see [Configure Kerberos V5 Network Authentication](../security/o_krb.md).
@@ -306,8 +336,8 @@ The following example shows a `gss`-based `login-module` element that you define
 
 ``` xml
 <login-module>
-    <type>gss</type>
-    <success>required</success>
+  <type>gss</type>
+  <success>required</success>
 </login-module>
 ```
 
@@ -318,16 +348,16 @@ For information about the `gss` login module options, see the table in the [opti
 The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
 ``` xml
-  <login-module>
-    <type>jndi</type>
-    <success>required</success>
-    <options>
-      <!-- These options come directly from the JndiLoginModule javadoc;
-          these are the NIS examples -->
-      <user.provider.url>nis://NISServerHostName/NISDomain/user</user.provider.url>
-      <group.provider.url>nis://NISServerHostName/NISDomain/system/group</group.provider.url>
-    </options>
-  </login-module>
+<login-module>
+  <type>jndi</type>
+  <success>required</success>
+  <options>
+    <!-- These options come directly from the JndiLoginModule javadoc;
+        these are the NIS examples -->
+    <user.provider.url>nis://NISServerHostName/NISDomain/user</user.provider.url>
+    <group.provider.url>nis://NISServerHostName/NISDomain/system/group</group.provider.url>
+  </options>
+</login-module>
 ```
 
 For information about configuring the JNDI login-module options, see the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) documentation.
@@ -337,16 +367,16 @@ For information about configuring the JNDI login-module options, see the [JndiLo
 The following example shows a keystore-based `login-module` element. It translates the examples in the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
 ``` xml
-  <login-module>
-    <type>keystore</type>
-    <success>required</success>
-    <options>
-     <!-- These options come directly from the KeyStoreLoginModule javadoc  -->
-      <keyStoreURL>file://path/to/keystore.db</keyStoreURL>
-      <keyStorePasswordURL>file://path/to/keystore.pw</keyStorePasswordURL>
-      <keyStoreAlias>keystore-alias</keyStoreAlias>
-    </options>
-  </login-module>
+<login-module>
+  <type>keystore</type>
+  <success>required</success>
+  <options>
+   <!-- These options come directly from the KeyStoreLoginModule javadoc  -->
+    <keyStoreURL>file://path/to/keystore.db</keyStoreURL>
+    <keyStorePasswordURL>file://path/to/keystore.pw</keyStorePasswordURL>
+    <keyStoreAlias>keystore-alias</keyStoreAlias>
+  </options>
+</login-module>
 ```
 
 For information about configuring the keystore login-module options, see the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) documentation.
