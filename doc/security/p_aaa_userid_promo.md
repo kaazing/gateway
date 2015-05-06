@@ -72,7 +72,7 @@ The following procedure describes how to implement AMQP user identity promotion 
 
 3. Start (or restart) the Gateway, and then connect a new client.
 
-  After authentication succeeds, the Gateway establishes a connection to the back-end server or broker. At this point, if AmqpPrincipal is available in the Subject, then the Gateway automatically injects the AMQP credentials specified AmqpPrincipal into the AMQP protocol.
+  After authentication succeeds, the Gateway establishes a connection to the back-end server or broker. At this point, if `AmqpPrincipal` is available in the Subject, then the Gateway automatically injects the AMQP credentials specified `AmqpPrincipal` into the AMQP protocol.
   
 Congratulations! You have completed implementation for AMQP user identity promotion with the Gateway.
 
