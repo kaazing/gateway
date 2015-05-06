@@ -24,7 +24,7 @@ The AMQP message broker can perform its own authentication using the promoted id
 See Also
 -------------------------------------------------------
 
- - [Promote User Identity into the AMQP Protocol[(../p_aaa_userid_promo.md)
+ - [Promote User Identity into the AMQP Protocol](../p_aaa_userid_promo.md)
  - [Configure Authentication and Authorization](o_aaa_config_authentication.md)
  - [About Authentication and Authorization](c_aaa_aaa.html)
  - [What Happens During Authentication](u_aaa_gw_client_interactions.md)
