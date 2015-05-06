@@ -35,7 +35,7 @@ What Problem Are You Having?
 
 ### Gateway Cannot Resolve Host Name/Address
 
-**Cause:** If you use a host name in a secure URL (using HTTPS, WSS, TLS, SSL) in the Gateway configuration and the Gateway cannot resolve the host name, then it returns the following exception:
+**Cause:** If you use a host name in a secure URL (using HTTPS, WSS, SSL) in the Gateway configuration and the Gateway cannot resolve the host name, then it returns the following exception:
 
 `java.lang.RuntimeException: Unable to resolve address *hostname*.com:9000`
 
