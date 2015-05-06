@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+
+-->
+
+<gateway-config xmlns="http://xmlns.kaazing.com/2012/09/gateway">
+ 
+  <properties>
+    <property>
+      <name>gateway.hostname</name>
+      <value>example.com</value>
+    </property>
+    <property>
+      <name>node.hostname</name>
+      <value>member1.example.com</value>
+    </property>
+    <property>
+      <name>gateway.ip.address</name>
+      <value>172.19.19.4</value>
+    </property>  
+<!-- The following port number must be different for each member -->
+    <property>
+      <name>cluster.port</name>
+      <value>5942</value>
+    </property>
+    <property>
+      <name>gateway.base.port</name>
+      <value>8000</value>
+    </property>
+    <property>
+      <name>gateway.extras.port</name>
+      <value>8001</value>
+    </property>
+  </properties>
+ 
+  <!-- Gateway cluster configuration -->
+  <!-- Identical across members -->
+  <cluster>
+    <name>testCluster</name>
+    <accept>tcp://${gateway.ip.address}:${cluster.port}</accept>
+    <connect>udp://224.2.2.44:44444</connect>
+  </cluster>
+ 
+  <!-- Directory service -->
+  <service>
+    <name>extras-directory</name>
+    <description>Directory service for extras files</description>
+    <accept>http://${gateway.hostname}:${gateway.extras.port}/</accept>
+ 
+    <type>directory</type>
+ 
+    <properties>
+      <directory>/extras</directory>
+      <welcome-file>index.html</welcome-file>
+    </properties>
+ 
+    <accept-options>
+      <tcp.bind>${gateway.ip.address}:${gateway.extras.port}</tcp.bind>
+    </accept-options>
+ 
+    <realm-name>demo</realm-name>
+   
+    <!--
+    <authorization-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </authorization-constraint>
+    -->
+  </service>
+  
+<!-- Echo Balancer -->
+  <service>
+    <name>echo balancer</name>
+    <accept>ws://${gateway.hostname}:${gateway.extras.port}/echo</accept>
+    <type>balancer</type>
+    <accept-options>
+      <tcp.bind>${gateway.ip.address}:${gateway.extras.port}</tcp.bind>
+    </accept-options>
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.extras.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+ 
+  <!-- Echo Service -->
+  <!-- Echo running on a separate port verifies cross-origin access -->
+  <service>
+    <name>echo</name>
+    <description>Echo service</description>
+    <accept>ws://${node.hostname}:${gateway.extras.port}/echo</accept>
+ 
+    <balance>ws://${gateway.hostname}:${gateway.extras.port}/echo</balance>
+ 
+    <type>echo</type>
+ 
+    <accept-options>
+      <tcp.bind>${gateway.ip.address}:${gateway.extras.port}</tcp.bind>
+    </accept-options>
+ 
+    <!--
+    <realm-name>demo</realm-name>
+ 
+    <authorization-constraint>
+      <require-role>AUTHORIZED</require-role>
+    </authorization-constraint>
+    -->
+ 
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.extras.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+ 
+<!-- Monitoring services and Security Realms -->     
+  <service>
+    <name>commandcenter-directory</name>
+    <description>Directory service for the Command Center files</description>
+    <accept>http://${gateway.hostname}:${gateway.base.port}/commandcenter</accept>
+ 
+    <type>directory</type>
+    <properties>
+      <directory>/commandcenter</directory>
+      <welcome-file>index.html</welcome-file>
+      <error-pages-directory>/error-pages</error-pages-directory>
+    </properties>
+ 
+    <accept-options>
+      <tcp.bind>${gateway.ip.address}:${gateway.base.port}</tcp.bind>
+    </accept-options>
+  </service>
+ 
+  <!-- SNMP Management Service -->
+  <service>
+    <name>SNMP Management</name>
+    <description>SNMP management service</description>
+    <accept>ws://${node.hostname}:${gateway.base.port}/snmp</accept>
+    <type>management.snmp</type>
+ 
+    <accept-options>
+      <tcp.bind>${gateway.ip.address}:${gateway.base.port}</tcp.bind>
+    </accept-options>
+ 
+    <!-- secure the management using a security realm -->
+    <realm-name>commandcenter</realm-name>
+ 
+    <!-- configure the authorized user roles -->
+    <authorization-constraint>
+      <require-role>ADMINISTRATOR</require-role>
+    </authorization-constraint>
+ 
+    <cross-site-constraint>
+      <allow-origin>http://${gateway.hostname}:${gateway.base.port}</allow-origin>
+    </cross-site-constraint>
+  </service>
+ 
+  <!-- Security Configuration -->
+  <security>
+    <keystore>
+      <type>JCEKS</type>
+      <file>keystore.db</file>
+      <password-file>keystore.pw</password-file>
+    </keystore>
+ 
+    <truststore>
+      <file>truststore.db</file>
+    </truststore>
+ 
+    <realm>
+      <name>demo</name>
+      <description>Kaazing Enterprise Gateway Demo</description>
+      <authentication>
+        <http-challenge-scheme>Application Basic</http-challenge-scheme>
+ 
+        <login-modules>
+ 
+          <login-module>
+            <type>file</type>
+            <success>required</success>
+            <options>
+              <file>jaas-config.xml</file>
+            </options>
+          </login-module>
+ 
+        </login-modules>
+      </authentication>
+    </realm>
+ 
+    <realm>
+      <name>commandcenter</name>
+      <description>Command Center</description>
+ 
+      <authentication>
+ 
+        <!-- Scheme to allow us to provide a custom challenge handler -->
+        <http-challenge-scheme>Application Basic</http-challenge-scheme>
+ 
+        <http-cookie>kaazingCommandCenter</http-cookie>
+ 
+        <authorization-timeout>1800</authorization-timeout>
+        <login-modules>
+          <login-module>
+            <type>file</type>
+            <success>required</success>
+            <options>
+              <file>jaas-config.xml</file>
+            </options>
+          </login-module>
+        </login-modules>
+      </authentication>
+    </realm>
+ 
+  </security>
+ 
+</gateway-config>
