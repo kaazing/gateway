@@ -26,6 +26,6 @@ See Also
 
  - [Promote User Identity into the AMQP Protocol](../p_aaa_userid_promo.md)
  - [Configure Authentication and Authorization](o_aaa_config_authentication.md)
- - [About Authentication and Authorization](c_aaa_aaa.html)
+ - [About Authentication and Authorization](c_aaa_aaa.md)
  - [What Happens During Authentication](u_aaa_gw_client_interactions.md)
  - [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
