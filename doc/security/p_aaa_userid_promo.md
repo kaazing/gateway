@@ -30,8 +30,9 @@ The AMQP message broker can perform its own authentication using the promoted id
 
 Implementing AMQP User Identity Promotion
 -----------------------------------------------------------
+The following procedure describes how to implement AMQP user identity promotion with the Gateway
 
-**Note:** The steps in this topic assume that you already have a login module (either one supplied from the Gateway or one that you have created) that establishes the identity associated with this connection and authenticates it.
+**Note:** The steps in this topic assume that you already have a LoginModule specifically for the purpose of user identity promotion. The LoginModule (either one supplied from the Gateway or one that you have created) establishes the identity associated with this connection and authenticates it.
 
 1. In your login module, instantiate a new object of type `com.kaazing.gateway.server.spi.AmqpPrincipal` and add it to the Subject. This is typically done in the `commit()` method. For example:
   ``` xml
