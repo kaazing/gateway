@@ -39,6 +39,6 @@ See Also
 -   [About HTTPS and WSS](c_sec_https_wss.md)
 -   [About Authentication and Authorization](c_aaa_aaa.md)
 -   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
--   [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md#about-enterprise-shield)
+-   [About Enterprise Shield™](../reverse-connectivity/o_rc_checklist.md#about-enterprise-shield)
 
 To learn more about other administrative or developer tasks, refer to the [API documentation](../index.md).
