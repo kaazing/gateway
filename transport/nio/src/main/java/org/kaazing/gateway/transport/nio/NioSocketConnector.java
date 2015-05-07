@@ -45,6 +45,7 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.mina.core.service.IoConnectorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
@@ -62,6 +63,7 @@ public class NioSocketConnector extends AbstractNioConnector {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private NioSocketAcceptor tcpAcceptor;
+    private BridgeConnector proxyConnector;
 
     public NioSocketConnector(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
@@ -82,6 +84,11 @@ public class NioSocketConnector extends AbstractNioConnector {
         this.tcpAcceptor = tcpAcceptor;
     }
 
+    @Resource(name = "proxy.connector")
+    public void setProxyConnector(BridgeConnector proxyConnector) {
+        this.proxyConnector = proxyConnector;
+    }
+
     @Override
     protected ResourceAddressFactory initResourceAddressFactory() {
         return resourceAddressFactory;
@@ -97,6 +104,12 @@ public class NioSocketConnector extends AbstractNioConnector {
             ResourceAddress address, IoHandler handler,
             IoSessionInitializer<T> initializer) {
 
+        if (proxyConnector != null) {
+            ConnectFuture future = proxyConnector.connect(address, handler, initializer);
+            if (future != null) {
+                return future;
+            }
+        }
         return super.connectInternal(address, handler, initializer);
     }
 
