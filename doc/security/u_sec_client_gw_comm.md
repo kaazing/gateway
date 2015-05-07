@@ -115,6 +115,6 @@ See Also
 ------------------------------
 
 -   [About Security with KAAZING Gateway](c_sec_security.md)
--   [About Enterprise Shield&trade; ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](../reverse-connectivity/o_rc_checklist.md)
+-   [About Enterprise Shield™ ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)](../reverse-connectivity/o_rc_checklist.md)
 
 
