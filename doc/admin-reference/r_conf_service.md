@@ -391,7 +391,7 @@ The following examples show complete `notify` elements including a service for t
 -   Configure the `notify` element after any `accept`, `connect`, and `balance` elements, and before the `type` element.
 -   Configure the [notify-options](#notify-options) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
 -   Configure the `security` element for all APNs configurations, including both the production and development environments.
--   In an Enterprise Shield&trade; topology, configure `notify` and `notify-options` on the [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) service on an internal Gateway that is connected directly to the back-end service or message broker.
+-   In an Enterprise Shield™ topology, configure `notify` and `notify-options` on the [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_stomp_service.md) service on an internal Gateway that is connected directly to the back-end service or message broker.
 -   Do not configure a single Gateway instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
 
     For example, because the production and sandbox configurations shown above in the "Example Configuration for the notify Element" use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (`com.example.myapp/DEVELOPMENT`) on its URI.
@@ -984,7 +984,7 @@ In the following example, the `socks+ssl` transport performs a reverse connectio
 </service>
 ```
 
-For more examples, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+For more examples, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 #### ws.maximum.message.size
 
@@ -1136,7 +1136,7 @@ The `ssl.protocols` and `socks.ssl.protocols` elements are optional, and in gene
 
 If you configure these elements, then you must explicitly name the TLS/SSL protocols you want to enable. If you do not configure the `ssl.protocols` or `socks.ssl.protocols` element, or you configure either element but do not specify any protocols, then the default value is taken from the underlying JVM. The protocol values are case-sensitive.
 
-Typically, you configure the `ssl.protocols` or `socks.ssl.protocols` in the `accept-options` for inbound requests from clients. You might also specify these elements in the `connect-options` for an Enterprise Shield&trade; configuration, although this is less common because Gateway-to-Gateway communication usually occurs in a controlled environment and the TLS/SSL protocol you use is controlled. The `ssl.protocols` and `socks.ssl.protocols` elements are more useful in the `accept-options` when accepting requests from clients that are not in your direct control.
+Typically, you configure the `ssl.protocols` or `socks.ssl.protocols` in the `accept-options` for inbound requests from clients. You might also specify these elements in the `connect-options` for an Enterprise Shield™ configuration, although this is less common because Gateway-to-Gateway communication usually occurs in a controlled environment and the TLS/SSL protocol you use is controlled. The `ssl.protocols` and `socks.ssl.protocols` elements are more useful in the `accept-options` when accepting requests from clients that are not in your direct control.
 
 **Note:** These elements were introduced in KAAZING Gateway release 4.0.6 and can be used for configurations running KAAZING Gateway 4.0.6 or later releases. For configurations running KAAZING Gateway 4.0.5 or earlier releases, you can disable the SSLv3 protocol by disabling SSLv3 ciphers with `><ssl.ciphers>!SSLv3</ssl.ciphers>`. See [ssl.ciphers](#sslciphers) for more information.
 
@@ -1165,9 +1165,9 @@ The following example shows a `proxy` service. Because the `accept` URL the `wss
 </service>
 ```
 
-##### Example: Enterprise Shield&trade; Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2
+##### Example: Enterprise Shield™ Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2
 
-This example shows a `proxy` service in the DMZ configured for Enterprise Shield&trade;, for which the <connect> behavior is reversed. Instead of connecting to another host, the Gateway accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about Enterprise Shield&trade; and forward and reverse connectivity, see [Configure Enterprise Shield&trade; for KAAZING Gateway](../reverse-connectivity/o_rc_checklist.md).
+This example shows a `proxy` service in the DMZ configured for Enterprise Shield™, for which the <connect> behavior is reversed. Instead of connecting to another host, the Gateway accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about Enterprise Shield™ and forward and reverse connectivity, see [Configure Enterprise Shield™ for KAAZING Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 Because this configuration connects a Gateway to another Gateway in a controlled data center, the example only configures the TLSv1.2 protocol for secure connections. For this type of topology we don't expect to make any other kinds of connections.
 
@@ -1195,9 +1195,9 @@ The prefix for this example is `socks.ssl`, rather than just `ssl` to explicitly
 </service>
 ```
 
-##### Example: Enterprise Shield&trade; Configuration Using ssl.protocols and socks.ssl.protocols
+##### Example: Enterprise Shield™ Configuration Using ssl.protocols and socks.ssl.protocols
 
-This example combines the previous two examples to show an Enterprise Shield&trade; configuration in which `ssl.protocols` is specified in the accept-options, and `socks.ssl.protocols` is specified in the connect-options.
+This example combines the previous two examples to show an Enterprise Shield™ configuration in which `ssl.protocols` is specified in the accept-options, and `socks.ssl.protocols` is specified in the connect-options.
 
 On the frontplane, the Gateway accepts connections from clients only using the TLSv1, TLSv1.2, and TLSv1.1 protocols. On the backplane, the Gateway only accepts (reverse) connections using the protocol TLSv1.2 (from another Gateway).
 
@@ -1265,7 +1265,7 @@ Alternatively, the IP address can be used in the configuration parameters. You c
 
 ##### Example: Using ssl.encrption in connect-options
 
-The following example for an Enterprise Shield&trade; topology shows a `service` element containing several `connect-options` including an `ssl.encryption` option that disables encryption.
+The following example for an Enterprise Shield™ topology shows a `service` element containing several `connect-options` including an `ssl.encryption` option that disables encryption.
 
 ``` xml
 <service>
@@ -1347,7 +1347,7 @@ Use the `socks.mode` in accept-options or connect-options to initiate the Gatewa
 -   `forward`: initiates forward connectivity from the DMZ Gateway to the internal Gateway on the trusted network. Once connected, a regular full-duplex connection is established. You typically use the `forward` mode to ensure the SOCKS settings are correctly configured before you attempt to reverse the connection.
 -   `reverse`: configures the connection mode in *reverse* so that the connection is initiated from the internal Gateway on the trusted network to the DMZ Gateway to allow a connection between the client and server that is otherwise blocked by the firewall. With the reverse mode, the Gateway interprets `accept` URIs as `connect` URIs.
 
-For more information about Enterprise Shield&trade; and forward and reverse connectivity, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+For more information about Enterprise Shield™ and forward and reverse connectivity, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 ##### Example
 
@@ -1434,7 +1434,7 @@ Use `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the
 
 ##### Example for SOCKS Ciphers
 
-The following example shows a `proxy` service for the DMZ Gateway in an Enterprise Shield&trade; topology. The Gateway receives secure client connections (`wss://`) and specifies the ciphers used on the accept URI (`DEFAULT`), but does not require mutual verification from the clients (`ssl.verify-client`). In addition, the internal Gateway connects over SOCKS and TLS/SSL (`socks+ssl://`) to the DMZ Gateway, specifies the ciphers used (`NULL`), and requires mutual verification (`socks.ssl.verify-client`). For more information about forward and reverse connectivity, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+The following example shows a `proxy` service for the DMZ Gateway in an Enterprise Shield™ topology. The Gateway receives secure client connections (`wss://`) and specifies the ciphers used on the accept URI (`DEFAULT`), but does not require mutual verification from the clients (`ssl.verify-client`). In addition, the internal Gateway connects over SOCKS and TLS/SSL (`socks+ssl://`) to the DMZ Gateway, specifies the ciphers used (`NULL`), and requires mutual verification (`socks.ssl.verify-client`). For more information about forward and reverse connectivity, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 ``` xml
 <service>
@@ -1473,7 +1473,7 @@ The following example shows a `proxy` service for the DMZ Gateway in an Enterpri
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** required, optional, none
 
-In an Enterprise Shield&trade; topology over `socks+ssl://`, the DMZ Gateway provides the internal Gateway with a digital certificate that the internal Gateway uses to verify the DMZ Gateway’s identity before establishing the secure connection. For added security, you can use the `socks.ssl.verify-client` option on the DMZ Gateway to require that the internal Gateway provide a digital certificate to establish a secure connection. This configuration ensures that both the DMZ Gateway and internal Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification.
+In an Enterprise Shield™ topology over `socks+ssl://`, the DMZ Gateway provides the internal Gateway with a digital certificate that the internal Gateway uses to verify the DMZ Gateway’s identity before establishing the secure connection. For added security, you can use the `socks.ssl.verify-client` option on the DMZ Gateway to require that the internal Gateway provide a digital certificate to establish a secure connection. This configuration ensures that both the DMZ Gateway and internal Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification.
 
 | If you configure the socks.ssl.verify-client option with the value ... | Then ...                                                                                                                                                                                                                                                                                                    |
 |------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -1481,7 +1481,7 @@ In an Enterprise Shield&trade; topology over `socks+ssl://`, the DMZ Gateway pro
 | `optional`                                                             | A certificate is not required, but if a client provides a certificate then the DMZ Gateway attempts to verify it. If the verification fails, then the client is not allowed to connect.                                                                                                                     |
 | `none`                                                                 | The client recognizes that a certificate is not required and it does not send a certificate. All clients can connect to the secure service on the DMZ Gateway.                                                                                                                                              |
 
-For more information, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+For more information, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 ##### Example
 
@@ -1516,13 +1516,13 @@ In the following example, the DMZ Gateway accepts on a WebSocket URI and connect
 
 -   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#accept-options-and-connect-options) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
--   See [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
+-   See [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/p_rc_config.md) to learn how to require the internal Gateway to provide TLS/SSL certificates.</a>
 
 #### socks.retry.maximum.interval![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `socks.retry.maximum.interval` accept-option in an Enterprise Shield&trade; topology to set the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt. The internal Gateway initially retries after waiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of `socks.retry.maximum.interval`. Once the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+Use the `socks.retry.maximum.interval` accept-option in an Enterprise Shield™ topology to set the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt. The internal Gateway initially retries after waiting for 500ms; the subsequent wait intervals are as follows: 1s, 2s, 4s, and so on up to the value of `socks.retry.maximum.interval`. Once the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 ##### Example
 
@@ -1607,7 +1607,7 @@ Some use cases for the `ws.inactivity.timeout` property include:
 
 -   Detect a lost cellular (or Mobile) connection or a lost Wi-Fi connection.
 -   Detect a half-closed connection over WebSocket, such as a silent network failure over WebSocket between Gateways.
--   Detect a network failure between the DMZ and Internal Gateway over WebSocket, such as for an Enterprise Shield&trade; topology using forward and reverse connectivity.
+-   Detect a network failure between the DMZ and Internal Gateway over WebSocket, such as for an Enterprise Shield™ topology using forward and reverse connectivity.
 
 ##### Example
 
