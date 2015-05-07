@@ -97,12 +97,6 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.resource.address.httpxe</artifactId>
-            <version>${httpxe.address.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wsdraft</artifactId>
             <version>${wsdraft.address.version}</version>
             <scope>test</scope>
