@@ -261,7 +261,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
             // Block Padding is required
             session.write(SseEncoder.BLOCK_PADDING_MESSAGE);
-            session.setAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(writtenBytes+4096));
+            session.setAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);
         }
     }
 

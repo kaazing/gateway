@@ -69,7 +69,7 @@ public class ExecutorFilterRegressionTest extends TestCase {
         //executor.setKeepAliveTime(3, TimeUnit.SECONDS);
 
         for (int i = 0; i < loop; i++) {
-            Integer objI = new Integer(i);
+            Integer objI = i;
 
             for (int j = end; j >= 0; j--) {
                 filter.messageReceived(nextFilter, sessions[j], objI);

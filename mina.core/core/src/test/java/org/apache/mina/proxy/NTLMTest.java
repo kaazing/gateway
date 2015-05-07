@@ -171,7 +171,7 @@ public class NTLMTest extends TestCase {
         assertEquals(expectedTargetInfoBlock, asHex(targetInfo));
 
         assertEquals("DOMAIN", NTLMUtilities.extractTargetNameFromType2Message(
-                challengePacket, new Integer(serverFlags)));
+                challengePacket, serverFlags));
 
         serverFlags = 0x00000001 | 0x00000200;
         String msgType3 = asHex(NTLMUtilities.createType3Message("user",
