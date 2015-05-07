@@ -386,7 +386,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
 
         // Prevent wildcards in the first part
-        if (parts[0].indexOf("*") != -1 && parts[0].indexOf("-") != -1) {
+        if (parts[0].contains("*") && parts[0].contains("-")) {
             throw new IllegalArgumentException(
                     "Invalid wildcard in the entry for cluster configuration, first part of the address cannot contain a " +
                             "wildcard: "
@@ -414,7 +414,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private String[] processEntryPart(String entry, String ipPart) {
 
         // No wild cards
-        if (ipPart.indexOf("*") == -1 && ipPart.indexOf("-") == -1) {
+        if (!ipPart.contains("*") && !ipPart.contains("-")) {
             String[] resolvedParts = new String[1];
             resolvedParts[0] = ipPart;
             return resolvedParts;
@@ -430,7 +430,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
 
         // process ranges
-        if (ipPart.indexOf("-") != -1) {
+        if (ipPart.contains("-")) {
             String[] rangeParts = ipPart.split("-");
             if (rangeParts.length != 2) {
                 throw new IllegalArgumentException("Invalid wildcard in the entry for cluster configuration: " + entry);
