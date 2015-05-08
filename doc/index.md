@@ -27,7 +27,6 @@ For Developers
 -   [Build Microsoft .NET and Silverlight WebSocket Clients](dev-dotnet/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build WebSocket C Clients](dev-c/o_dev_c_websocket.md)
 -   [Build WebSocket Clients with Google Web Toolkit](dev-gwt/p_dev_gwt.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement a WebSocket Protocol Client](dev-protocol/p_protocol_client.md)
 
 #### AMQP Clients
 
