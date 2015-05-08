@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.util;
 
+import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
 import static java.lang.Runtime.getRuntime;
 
@@ -97,7 +98,13 @@ public enum InternalSystemProperty {
 
     // management
     MANAGEMENT_SESSION_THRESHOLD
-            ("org.kaazing.gateway.management.SESSION_THRESHOLD", "500");
+            ("org.kaazing.gateway.management.SESSION_THRESHOLD", "500"),
+
+    /**
+     * Internal system property describing whether Agrona is enabled or not
+     */
+    AGRONA_ENABLED
+            ("org.kaazing.gateway.management.AGRONA_ENABLED");
 
     private final String name;
     private final String defaultValue;
@@ -113,6 +120,19 @@ public enum InternalSystemProperty {
 
     public String getProperty(Properties configuration) {
         return configuration.getProperty(name, defaultValue);
+    }
+
+    /**
+     * Method returning an internal configuration boolean value
+     * @param configuration
+     * @return
+     */
+    public boolean getBooleanProperty(Properties configuration) {
+        String value = getProperty(configuration);
+        if (value == null) {
+            return false;
+        }
+        return parseBoolean(value);
     }
 
     public Integer getIntProperty(Properties configuration) {

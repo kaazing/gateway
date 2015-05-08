@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
@@ -65,6 +66,7 @@ import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.impl.DefaultMonitoringEntityFactoryBuilderStub;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.CollectOnlyManagementServiceStrategy;
 import org.kaazing.gateway.management.service.FullManagementServiceStrategy;
@@ -100,6 +102,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
@@ -248,6 +251,12 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
     // This implementation needs to be passed to the management filter.
     private final MonitoringEntityFactory monitoringEntityFactory;
+    private Properties configuration;
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
 
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
@@ -284,7 +293,14 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         systemDataProvider = SystemDataProviderFactory.createProvider();
 
         // We create a new monitoring entity factory using the factory builder.
-        MonitoringEntityFactoryBuilder factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+        MonitoringEntityFactoryBuilder factoryBuilder;
+
+        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
+            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+        }
+        else {
+            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
+        }
         monitoringEntityFactory = factoryBuilder.build();
     }
 
@@ -634,7 +650,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     private ManagementFilter addManagementFilter(ServiceContext serviceContext, ServiceManagementBean serviceBean) {
-        ManagementFilter managementFilter = new ManagementFilter(serviceBean);
+        ManagementFilter managementFilter = new ManagementFilter(serviceBean, monitoringEntityFactory);
         managementFilters.put(serviceContext, managementFilter);
         return managementFilter;
     }
