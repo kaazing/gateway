@@ -12,6 +12,7 @@ Whereas the WebSocket standard takes care of core security by providing a frame 
 For successful and secure communication, you must configure the Gateway to secure the back-end systems, servers, and applications, secure data traffic as it travels on the network, configure your clients to handle authentication requests, and configure authentication and authorization. The following figure shows end-to-end security in a Gateway environment.
 
 ![End-to-End Security in a Gateway Environment](../images/figures/ig-figure-cropped-05.png)
+
 **Figure: End-to-End Security in the Gateway Environment**
 
 Each of the security objectives is broken down into step-by-step instructions in the Gateway documentation:
