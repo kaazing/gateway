@@ -48,11 +48,11 @@ public class DemuxingProtocolDecoderBugTest
     private static void doTest(IoSession session) throws Exception
     {
         ProtocolDecoderOutput mock = EasyMock.createMock(ProtocolDecoderOutput.class);
-        mock.write(Character.valueOf('A'));
-        mock.write(Character.valueOf('B'));
-        mock.write(Integer.valueOf(1));
-        mock.write(Integer.valueOf(2));
-        mock.write(Character.valueOf('C'));
+        mock.write('A');
+        mock.write('B');
+        mock.write(1);
+        mock.write(2);
+        mock.write('C');
         EasyMock.replay(mock);
 
         IoBuffer buffer = IoBuffer.allocate(1000);
@@ -79,7 +79,7 @@ public class DemuxingProtocolDecoderBugTest
 
         public MessageDecoderResult decode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception
         {
-            out.write(Character.valueOf((char)in.get()));
+            out.write((char) in.get());
             return MessageDecoderResult.OK;
         }
     }

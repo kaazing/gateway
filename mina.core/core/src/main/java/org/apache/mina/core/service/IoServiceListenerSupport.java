@@ -167,7 +167,7 @@ public class IoServiceListenerSupport {
         }
 
         // If already registered, ignore.
-        if (managedSessions.putIfAbsent(Long.valueOf(session.getId()), session) != null) {
+        if (managedSessions.putIfAbsent(session.getId(), session) != null) {
             return;
         }
 
@@ -202,7 +202,7 @@ public class IoServiceListenerSupport {
      */
     public void fireSessionDestroyed(IoSession session) {
         // Try to remove the remaining empty session set after removal.
-        if (managedSessions.remove(Long.valueOf(session.getId())) == null) {
+        if (managedSessions.remove(session.getId()) == null) {
             return;
         }
 

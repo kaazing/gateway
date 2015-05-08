@@ -7,7 +7,6 @@
         <version>develop-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>mina-legal</artifactId>
     <name>Apache MINA Legal</name>
     <packaging>jar</packaging>

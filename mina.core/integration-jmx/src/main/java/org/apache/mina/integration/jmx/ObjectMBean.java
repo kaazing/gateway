@@ -676,11 +676,11 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
     private Class<?> convertType(Class<?> type, String attrName, Class<?> attrType, boolean writable) {
         if (attrName != null && (attrType == Long.class || attrType == long.class)) {
             if (attrName.endsWith("Time") &&
-                    attrName.indexOf("Total") < 0 &&
-                    attrName.indexOf("Min") < 0 &&
-                    attrName.indexOf("Max") < 0 &&
-                    attrName.indexOf("Avg") < 0 &&
-                    attrName.indexOf("Average") < 0 &&
+                    !attrName.contains("Total") &&
+                    !attrName.contains("Min") &&
+                    !attrName.contains("Max") &&
+                    !attrName.contains("Avg") &&
+                    !attrName.contains("Average") &&
                     !propertyDescriptors.containsKey(attrName + "InMillis")) {
                 return Date.class;
             }
@@ -732,11 +732,11 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
         
         if (attrName != null && v instanceof Long) {
             if (attrName.endsWith("Time") &&
-                    attrName.indexOf("Total") < 0 &&
-                    attrName.indexOf("Min") < 0 &&
-                    attrName.indexOf("Max") < 0 &&
-                    attrName.indexOf("Avg") < 0 &&
-                    attrName.indexOf("Average") < 0 &&
+                    !attrName.contains("Total") &&
+                    !attrName.contains("Min") &&
+                    !attrName.contains("Max") &&
+                    !attrName.contains("Avg") &&
+                    !attrName.contains("Average") &&
                     !propertyDescriptors.containsKey(attrName + "InMillis")) {
                 long time = (Long) v;
                 if (time <= 0) {
@@ -989,11 +989,11 @@ public class ObjectMBean<T> implements ModelMBean, MBeanRegistration {
 
         if ((attrType == Long.class || attrType == long.class)) {
             if (attrName.endsWith("Time") &&
-                    attrName.indexOf("Total") < 0 &&
-                    attrName.indexOf("Min") < 0 &&
-                    attrName.indexOf("Max") < 0 &&
-                    attrName.indexOf("Avg") < 0 &&
-                    attrName.indexOf("Average") < 0 &&
+                    !attrName.contains("Total") &&
+                    !attrName.contains("Min") &&
+                    !attrName.contains("Max") &&
+                    !attrName.contains("Avg") &&
+                    !attrName.contains("Average") &&
                     !propertyDescriptors.containsKey(attrName + "InMillis")) {
                 return PropertyEditorFactory.getInstance(Date.class);
             }
