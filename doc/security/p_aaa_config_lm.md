@@ -101,7 +101,7 @@ The following table describes how the order of login modules and the setting of 
 | `sufficient`     | The `login-module` is not required to succeed. | If it succeeds, then authentication stops its process down the `login-module` list and the Gateway opens the WebSocket connection. If it fails, authentication continues down the `login-module` list.                               |
 | `optional`       | The `login-module` is not required to succeed. | If it succeeds or fails, then authentication proceeds down the `login-module` list.                                                                                                                                                  |
 
-**Notes:** 
+**In addition:** 
 -   If a `sufficient` login module is configured and succeeds, then only the `required` and `requisite` login modules prior to that `sufficient` login module need to have succeeded for the overall authentication to succeed.
 -   If no `required` or `requisite` login modules are configured for an application, then at least one `sufficient` or `optional` login module must succeed.
 
