@@ -106,6 +106,7 @@ To Secure Gateway Connections Using Trusted Certificates
     If you configured an HTTPS service on the Gateway, enter the URL in a web browser, for example https://www.example.com:9000. The web browser will indicate that the certificate is trusted and proceed to the secure web page.
 
     ![A web browser indicates that the certificate is trusted](../images/tls-browser-trusted-cert.png)
+    
     **Figure: A web browser indicates that the certificate is trusted**
 
     At this point, you have a trusted certificate on the Gateway and have configured secure networking between the Gateway and clients for a directory service.
