@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Security with KAAZING Gateway
 
-Promote User Identity into the AMQP Protocol![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Promote User Identity into the AMQP Protocol![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ================================================
 
 This topic describes User Identity Promotion and how to promote credentials into the AMQP protocol for back-end servers or brokers that require additional information. AMQP user identity promotion uses AMQP 0-9-1 and KAAZING Gateway.
@@ -17,6 +17,7 @@ User identity promotion enables the Gateway to securely propagate (promote) the 
 Thus, the AMQP message broker receives the credentials from the Gateway, which is a trusted source, and the credentials cannot be manipulated by users. The following figure shows a high-level overview of how protocol injection works with the Gateway and your AMQP message broker.
 
 ![Promoting User Credentials into the AMQP Protocol](../images/f-amqp-user-creds-web.png)
+
 **Figure: Promoting User Credentials into the AMQP Protocol**
   
 The AMQP message broker can perform its own authentication using the promoted identity. Note that it is not necessary for the credentials injected into the AMQP protocol to exactly match the user's identity. You need to supply only what is required for the AMQP message broker. For example:
