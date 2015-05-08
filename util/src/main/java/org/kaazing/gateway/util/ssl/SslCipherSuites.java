@@ -173,7 +173,7 @@ public class SslCipherSuites {
                          boolean fips) {
             this.name = name;
             this.nickname = nickname;
-            this.strengthBits = Integer.valueOf(strengthBits);
+            this.strengthBits = strengthBits;
             this.strength = strength;
             this.keyExchange = keyExchange;
             this.authentication = authentication;

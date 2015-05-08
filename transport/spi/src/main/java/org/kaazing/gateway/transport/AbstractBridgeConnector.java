@@ -57,23 +57,23 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
 
     @Override
     public final ConnectFuture connect(ResourceAddress address, IoHandler handler, IoSessionInitializer<? extends ConnectFuture> initializer) {
-        
+
         // connect only address with matching scheme
         URI location = address.getResource();
         String schemeName = location.getScheme();
         if (!canConnect(schemeName)) {
             throw new IllegalArgumentException(format("Unexpected scheme \"%s\" for URI: %s", schemeName, location));
         }
-        
+
         if (started.get() == false) {
-        	synchronized (started) {
+            synchronized (started) {
                 if (started.get() == false) {
-	                init();
-	            	started.set(true);
+                    init();
+                    started.set(true);
                 }
-        	}
+            }
         }
-    	
+
         return connectInternal(address, handler, initializer);
     }
 

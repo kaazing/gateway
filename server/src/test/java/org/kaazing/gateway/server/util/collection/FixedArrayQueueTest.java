@@ -31,7 +31,7 @@ public class FixedArrayQueueTest {
     public void addAndPollShouldReplayInOrder() {
         Queue<Integer> queue = new FixedArrayQueue<>(5);
         for (int i = 0; i < 5; i++) {
-            queue.add(new Integer(i));
+            queue.add(i);
         }
         for (int i = 0; i < 5; i++) {
             assertEquals(new Integer(i), queue.poll());
@@ -50,7 +50,7 @@ public class FixedArrayQueueTest {
     public void offerAndPeekShouldReplayInOrder() {
         Queue<Integer> queue = new FixedArrayQueue<>(5);
         for (int i = 0; i < 5; i++) {
-            assertTrue(queue.offer(new Integer(i)));
+            assertTrue(queue.offer(i));
         }
         for (int i = 0; i < 5; i++) {
             assertEquals(new Integer(i), queue.peek());

@@ -45,14 +45,18 @@ A set of client APIs are provided in the following repos.
 
 You can also download and run this project from [kaazing.org/download](http://kaazing.org/download/)
 
+# Learning How to Use the Gateway
+
+To learn about administering the Gateway, its configuration files, and security, see the documentation on [kaazing.org](http://kaazing.org). To contribute to the documentation source, see the [doc directory](/doc).
+
 # Learning How to Develop Client Applications
 
-To learn how to develop client applications using the distribution, see the documentation on [kaazing.org](http://kaazing.org).
+To learn how to develop client applications using the Gateway, see the documentation on [kaazing.org](http://kaazing.org).
 
 # View a Running Demo
 
-Live demos are hosted at [kaazing.org/demos](http://kaazing.org/demos/)
+To view demo client applications running against the Gateway, visit [kaazing.org/demos](http://kaazing.org/demos/).
 
 # Contact
 
-The [Gateway gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project 
+The [Gateway Gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.
