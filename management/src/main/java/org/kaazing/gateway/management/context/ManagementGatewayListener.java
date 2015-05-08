@@ -22,6 +22,7 @@
 package org.kaazing.gateway.management.context;
 
 import javax.annotation.Resource;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -64,6 +65,17 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
         if (!(serviceContext.getService() instanceof ManagementService)) {
             managementContext.addServiceManagementBean(serviceContext);
             addSessionInitializer(serviceContext.getService(), serviceContext);
+        }
+    }
+
+    @Override
+    public void destroyingService(ServiceContext serviceContext) {
+        // We need to manually close the management context because we don't use a
+        // try-with-resources block in order to be invoked by the JVM
+        try {
+            managementContext.close();
+        } catch (Exception e) {
+            throw (RuntimeException) e;
         }
     }
 

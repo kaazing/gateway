@@ -33,26 +33,24 @@ import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
  *
  * This interface exposes the API for retrieving monitoring entities.
  */
-public interface MonitoringEntityFactory {
+public interface MonitoringEntityFactory extends AutoCloseable {
 
     /**
      * Method returning a BooleanMonitoringEntity object
-     * @param type - MonitoringImplementationType
      * @return - BooleanMonitoringEntity
      */
-    BooleanMonitoringEntity makeBooleanMonitoringEntity(MonitoringImplementationType type);
+    BooleanMonitoringEntity makeBooleanMonitoringEntity();
 
     /**
      * Method returning a LongMonitoringCounter object
-     * @param type - MonitoringImplementationType
+     * @param label - the name associated to the counter
      * @return - LongMonitoringCounter
      */
-    LongMonitoringCounter makeLongMonitoringCounter(MonitoringImplementationType type);
+    LongMonitoringCounter makeLongMonitoringCounter(String name);
 
     /**
      * Method returning a StringMonitoringEntity object
-     * @param type - MonitoringImplementationType
      * @return - StringMonitoringEntity
      */
-    StringMonitoringEntity makeStringMonitoringEntity(MonitoringImplementationType type);
+    StringMonitoringEntity makeStringMonitoringEntity();
 }

@@ -21,22 +21,17 @@
 
 package org.kaazing.gateway.management.monitoring.configuration;
 
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+
 /**
- * This interface represents the abstraction layer for configuring common monitoring entities resources, e.g. shared
- * memory configurations for Agrona
- *
+ * This interface represents the abstraction layer for creating the monitoring entity factory {@link MonitoringEntityFactory},
+ * with the specific underlying implementation, e.g. Agrona
  */
-public interface MonitoringResourcesConfig {
+public interface MonitoringEntityFactoryBuilder {
 
     /**
-     * Method performing the initial monitoring resources configuration (if needed)
-     * @return
+     * Creates the monitoring entity factory
+     * @return the monitoring entity factory
      */
-    void initializeResources();
-
-    /**
-     * Method performing the monitoring resources cleanup (if needed)
-     * @return
-     */
-    void cleanupResources();
+    MonitoringEntityFactory build();
 }
