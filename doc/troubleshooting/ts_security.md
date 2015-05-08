@@ -49,7 +49,7 @@ The preferred name for the auth-constraint configuration option has changed to a
 
 **Solution:** Change your Gateway configuration to use the `authorization-constraint` element as described in the [authorization-constraint](../admin-reference/r_conf_service.md#authorization-constraint) element for Gateway services.
 
-### WebSocket Stays Connected Too Long When It Should Fail Due to an Authorization Timeout![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### WebSocket Stays Connected Too Long When It Should Fail Due to an Authorization Timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Cause:** WebSocket stays connected when you expected it to fail due to an authorization timeout.
 
