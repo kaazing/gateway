@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Security with KAAZING Gateway
 
-Implement Protocol Injection![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Implement Protocol Injection![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ===========================================================================
 
 This topic describes Protocol Injection and how to configure KAAZING Gateway to implement protocol injection:
@@ -21,6 +21,7 @@ You may choose to use protocol injection when you want to ensure that the client
 The following figure shows a high-level overview of how protocol injection works with the Gateway and your back-end server.
 
 ![Protocol Injection](../images/f-protocol-injection-web.jpg)
+
 **Figure: Injecting Bytes into a Custom Protocol**
 
 You can see a complete example of a sample login module that uses protocol injection by opening: `GATEWAY_HOME/web/extras/samples/security/IdentityInjectionLoginModule.java`.
