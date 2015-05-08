@@ -36,8 +36,8 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
         - [http-query-parameter](#authentication)
         - [http-cookie](#authentication)
         - [authorization-mode](#authentication)
-        - [authorization-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-        - [session-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+        - [authorization-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+        - [session-timeout](#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
         - [login-modules](#login-module)
            - [login-module](#login-module)
               - [type](#login-module)
@@ -204,12 +204,12 @@ Use `authentication` to configure the authentication parameters for the `realm`,
   - Use `challenge` to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.Use recycle to enable the Gateway to write its own authorization session cookie.
   - Use `recycle`to enable the Gateway to write its own authorization session cookie. The `recycle` option is only applicable to `Basic`, `Application Basic`, `Negotiate`, and `Application Negotiate` HTTP challenge schemes. 
   
-- ##### `authorization-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
+- ##### `authorization-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
   For directory services, this element specifies the time interval that must elapse without service access before the Gateway challenges the client for credentials. 
 
   For WebSocket services, this is the time interval before which the client must reauthenticate the WebSocket. If reauthentication has not occurred within the specified time, then the Gateway closes the WebSocket connection.
   
-- ##### `session-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) 
+- ##### `session-timeout`![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
   For WebSocket services only. This is the time interval after which the Gateway closes the WebSocket connection, regardless of other settings. Effectively, the `session-timeout` element specifies the maximum lifetime of the WebSocket connection.
 
 - ##### `login-modules`
