@@ -108,7 +108,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private final Set<HttpConnectFilter> allConnectFilters;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    private final ThreadLocal<PersistentConnectionPool> persistentConnectionsStore;
+    private final PersistentConnectionPool persistentConnectionsStore;
     private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
 
@@ -121,12 +121,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         connectFiltersByProtocol.put(PROTOCOL_HTTPXE_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT)));
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
-        this.persistentConnectionsStore = new VicariousThreadLocal<PersistentConnectionPool>() {
-            @Override
-            protected PersistentConnectionPool initialValue() {
-                return new PersistentConnectionPool(logger);
-            }
-        };
+        this.persistentConnectionsStore = new PersistentConnectionPool(logger);
         this.ioExecutors = new ConcurrentHashSet<>();
     }
     
@@ -214,7 +209,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
             final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
 
-        IoSession transportSession = persistentConnectionsStore.get().take(address.getTransport());
+        IoSession transportSession = persistentConnectionsStore.take(address.getTransport());
         if (transportSession != null) {
             connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
         } else {

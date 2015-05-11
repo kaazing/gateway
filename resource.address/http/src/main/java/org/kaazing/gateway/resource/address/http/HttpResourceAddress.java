@@ -41,6 +41,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     public static final ResourceOption<Boolean> KEEP_ALIVE = new HttpKeepAliveOption();
     public static final ResourceOption<Integer> KEEP_ALIVE_TIMEOUT = new HttpKeepAliveTimeoutOption();
+    public static final ResourceOption<Integer> KEEP_ALIVE_MAX_CONNECTIONS = new HttpKeepAliveMaxConnectionsOption();
+
     public static final ResourceOption<String> REALM_NAME = new HttpRealmNameOption();
     public static final ResourceOption<String> REALM_AUTHORIZATION_MODE = new HttpRealmAuthorizationModeOption();
     public static final ResourceOption<String> REALM_CHALLENGE_SCHEME = new HttpRealmChallengeSchemeOption();
@@ -65,6 +67,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();
+    private Integer keepAliveMaxConnections = KEEP_ALIVE_MAX_CONNECTIONS.defaultValue();
     private String[] requiredRoles = REQUIRED_ROLES.defaultValue();
     private String realmName;
     private String realmAuthorizationMode = REALM_AUTHORIZATION_MODE.defaultValue();
@@ -99,6 +102,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) keepAlive;
                 case KEEP_ALIVE_TIMEOUT:
                     return (V) keepAliveTimeout;
+                case KEEP_ALIVE_MAX_CONNECTIONS:
+                    return (V) keepAliveMaxConnections;
                 case REQUIRED_ROLES:
                     return (V) requiredRoles;
                 case REALM_NAME:
@@ -154,6 +159,9 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return;
                 case KEEP_ALIVE_TIMEOUT:
                     keepAliveTimeout = (Integer) value;
+                    return;
+                case KEEP_ALIVE_MAX_CONNECTIONS:
+                    keepAliveMaxConnections = (Integer) value;
                     return;
                 case REQUIRED_ROLES:
                     requiredRoles = (String[]) value;
@@ -220,7 +228,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 	
 	static class HttpResourceOption<T> extends ResourceOption<T> {
 		
-	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, REQUIRED_ROLES, REALM_NAME,
+	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_MAX_CONNECTIONS, REQUIRED_ROLES, REALM_NAME,
             REALM_AUTHORIZATION_MODE, REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
             REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
@@ -245,6 +253,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpKeepAliveTimeoutOption extends HttpResourceOption<Integer> {
         private HttpKeepAliveTimeoutOption() {
             super(Kind.KEEP_ALIVE_TIMEOUT, "keepAliveTimeout", 30);
+        }
+    }
+
+    private static final class HttpKeepAliveMaxConnectionsOption extends HttpResourceOption<Integer> {
+        private HttpKeepAliveMaxConnectionsOption() {
+            super(Kind.KEEP_ALIVE_MAX_CONNECTIONS, "keepalive.max.connections", 5);
         }
     }
 

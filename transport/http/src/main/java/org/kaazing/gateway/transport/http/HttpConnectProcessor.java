@@ -53,9 +53,9 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
     public static final IoBufferEx WRITE_COMPLETE = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(0));
     private static final String FILTER_PREFIX = HttpProtocol.NAME + "#";
-    private final ThreadLocal<PersistentConnectionPool> persistentConnectionPool;
+    private final PersistentConnectionPool persistentConnectionPool;
 
-    HttpConnectProcessor(ThreadLocal<PersistentConnectionPool> persistentConnectionPool) {
+    HttpConnectProcessor(PersistentConnectionPool persistentConnectionPool) {
         this.persistentConnectionPool = persistentConnectionPool;
     }
 
@@ -233,16 +233,15 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         boolean serverToClose = hasCloseHeader(session.getReadHeaders(HEADER_CONNECTION));
         boolean upgrade = session.getStatus() == INFO_SWITCHING_PROTOCOLS;
 
-        if (http10 || gatewayToClose || serverToClose || upgrade) {
-            // will not recycle the transport session, but may need to close the transport
-            if (gatewayToClose) {
-                // close transport connection when write complete
-                parent.close(false);
-            } else if (serverToClose) {
-                // Let server close transport session. Add idle filter to close the connection,
-                // in case server doesn't close it.
-                persistentConnectionPool.get().addIdleFilter(parent, keepAliveTimeout);
-            }
+        if (http10 || gatewayToClose) {
+            // close transport connection when write complete
+            super.removeInternal(session);
+        } else if (serverToClose) {
+            // Let server close transport session. Add idle filter to close the connection,
+            // in case server doesn't close it.
+            persistentConnectionPool.addIdleFilter(parent, keepAliveTimeout);
+        } else if (upgrade) {
+            // the connection will be upgraded
         } else {
             if ("chunked".equals(session.getWriteHeader("Transfer-Encoding"))) {
                 // write the empty chunk
@@ -267,7 +266,10 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             // TODO should we make sure that complete response is read before recycling ??
 
             // recycle the transport connection
-            persistentConnectionPool.get().recycle(parent, keepAliveTimeout);
+            if (!persistentConnectionPool.recycle(parent, keepAliveTimeout)) {
+                // Not added to keepalive connection pool. so just close the transport connection
+                super.removeInternal(session);
+            }
         }
     }
 

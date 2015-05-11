@@ -1253,6 +1253,12 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="http.keepalive.max.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="5">
+                <annotation>
+                    <documentation>
+                    </documentation>
+                </annotation>
+            </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>
                     <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
