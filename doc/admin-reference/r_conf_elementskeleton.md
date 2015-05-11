@@ -41,26 +41,26 @@ You can view and link to all Gateway configuration elements and properties using
 
                 Properties:
 
-                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
-                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
-                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [maximum.pending.bytes](r_conf_service.md#maximumpendingbytes)
+                -   [maximum.recovery.interval](r_conf_service.md#maximumrecoveryinterval)
+                -   [prepared.connection.count](r_conf_service.md#preparedconnectioncount)
             -   [amqp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
 
                 Properties:
 
-                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
-                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
-                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
-                -   [virtual.host](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [maximum.pending.bytes](r_conf_service.md#maximumpendingbytes)
+                -   [maximum.recovery.interval](r_conf_service.md#maximumrecoveryinterval)
+                -   [prepared.connection.count](r_conf_service.md#preparedconnectioncount)
+                -   [virtual.host](r_conf_service.md#virtualhost)
             -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
             -   [jms.proxy](r_conf_jms.md#jmsproxy)
             -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
 
                 Properties:
 
-                -   [maximum.pending.bytes](r_conf_service.md#proxy-maximumpendingbytes)
-                -   [maximum.recovery.interval](r_conf_service.md#proxy-maximumrecoveryinterval)
-                -   [prepared.connection.count](r_conf_service.md#proxy-preparedconnectioncount)
+                -   [maximum.pending.bytes](r_conf_service.md#maximumpendingbytes)
+                -   [maximum.recovery.interval](r_conf_service.md#maximumrecoveryinterval)
+                -   [prepared.connection.count](r_conf_service.md#preparedconnectioncount)
             -   [session](r_conf_service.md#session_svc)
 
         -   [properties](r_conf_service.md#properties)
