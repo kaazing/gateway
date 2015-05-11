@@ -28,6 +28,10 @@ You can view and link to all Gateway configuration elements and properties using
 
 [amqp.proxy](r_conf_service.md#proxy-and-amqpproxy)
 
+[apns.feedback.transport](r_conf_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+
+[apns.feedback.transport](r_conf_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+
 [authentication](r_conf_security.md#authentication)
 
 [authorization-constraint](r_conf_service.md#authorization-constraint)
@@ -92,6 +96,10 @@ You can view and link to all Gateway configuration elements and properties using
 
 [https.bind](r_conf_service.md#protocolbind)
 
+[jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+
+[jms.proxy](r_conf_jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+
 [kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)](r_conf_service.md#kerberos5proxy)
 
 [keystore](r_conf_security.md#keystore)
@@ -119,6 +127,10 @@ You can view and link to all Gateway configuration elements and properties using
 [name](r_conf_security.md#realm) (security)
 
 [name](r_conf_service.md#service) (service)
+
+[notify](r_conf_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+
+[notify-options](r_conf_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [options](r_conf_service.md#directory) (directory)
 
@@ -174,6 +186,8 @@ You can view and link to all Gateway configuration elements and properties using
 
 [ssl.ciphers](r_conf_service.md#sslciphers)
 
+[ssl.ciphers](r_conf_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+
 [ssl.encryption](r_conf_service.md#sslencryption)
 
 [ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
@@ -189,6 +203,8 @@ You can view and link to all Gateway configuration elements and properties using
 [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [tcp.transport](r_conf_service.md#protocoltransport)
+
+[tcp.transport](r_conf_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [truststore](r_conf_security.md#truststore)
 
@@ -220,3 +236,4 @@ You can view and link to all Gateway configuration elements and properties using
 
 [wss.bind](r_conf_service.md#protocolbind)
 
+[xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
