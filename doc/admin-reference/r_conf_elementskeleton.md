@@ -53,8 +53,8 @@ You can view and link to all Gateway configuration elements and properties using
                 -   [prepared.connection.count](r_conf_service.md#preparedconnectioncount)
                 -   [virtual.host](r_conf_service.md#virtualhost)
             -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-            -   [jms.proxy](r_conf_jms.md#jmsproxy)
-            -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+            -   [jms.proxy](r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
                 Properties:
 
@@ -93,11 +93,11 @@ You can view and link to all Gateway configuration elements and properties using
             -   [socks.ssl.verify-client](r_conf_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
             -   [ws.version](r_conf_service.md#wsversion-deprecated) (deprecated)
-        -   [notify-options](r_conf_service.md#notify-options-jms-only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [apns.notify.transport](r_conf_service.md#notify-options-jms-only)
-            -   [apns.feedback.transport](r_conf_service.md#notify-options-jms-only)
-            -   [ssl.ciphers](r_conf_service.md#notify-options-jms-only)
-            -   [tcp.transport](r_conf_service.md#notify-options-jms-only)
+        -   [notify-options](r_conf_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [apns.feedback.transport](r_conf_service.md#notify-options)
+            -   [apns.feedback.transport](r_conf_service.md#notify-options)
+            -   [ssl.ciphers](r_conf_service.md#notify-options)
+            -   [tcp.transport](r_conf_service.md#notify-options)
         -   [realm-name](r_conf_service.md#realm-name)
         -   [authorization-constraint](r_conf_service.md#authorization-constraint)
             -   [require-role](r_conf_service.md#authorization-constraint)
