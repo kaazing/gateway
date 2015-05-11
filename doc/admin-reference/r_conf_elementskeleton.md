@@ -37,24 +37,24 @@ You can view and link to all Gateway configuration elements and properties using
             -   [management.jmx](r_conf_service.md#managementjmx)
             -   [management.snmp](r_conf_service.md#managementsnmp)
             -   [kerberos5.proxy](r_conf_service.md#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [proxy](r_conf_service.mdproxy-and-amqpproxy)
+            -   [proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
 
                 Properties:
 
-                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy)
-                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
-                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
-            -   [amqp.proxy](r_conf_service.mdproxy-and-amqpproxy)
+                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+            -   [amqp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
 
                 Properties:
 
-                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy)
-                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
-                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
-                -   [virtual.host](r_conf_service.md#proxy-and-amqpproxy)
-            -   [jms](r_stomp_service.md#stompjms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-            -   [jms.proxy](r_stomp_service.md#stompinterceptor)
-            -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy)
+                -   [maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+                -   [virtual.host](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
+            -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+            -   [jms.proxy](r_conf_jms.md#jmsproxy)
+            -   [xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy)
 
                 Properties:
 
