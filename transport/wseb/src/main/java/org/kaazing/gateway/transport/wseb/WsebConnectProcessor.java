@@ -63,7 +63,7 @@ import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
+class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebConnectProcessor.class);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";

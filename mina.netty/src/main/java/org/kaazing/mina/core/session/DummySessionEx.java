@@ -94,6 +94,10 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     public DummySessionEx(Thread thread, Executor executor) {
+        this(thread, executor,  null);
+    }
+    
+    public DummySessionEx(Thread thread, Executor executor, IoProcessorEx<AbstractIoSessionEx> processor) {
         super(0, thread, executor, new ShareableWriteRequest());
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
@@ -148,7 +152,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
 
         service = acceptor;
 
-        processor = new IoProcessorEx<AbstractIoSessionEx>() {
+        this.processor = processor != null ? processor : new IoProcessorEx<AbstractIoSessionEx>() {
             public void add(AbstractIoSessionEx session) {
                 // Do nothing
             }

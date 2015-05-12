@@ -142,7 +142,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
                 // detaching the writer nulls the parent reference
-                    session.detachWriter(writer);
+                session.detachWriter(writer);
                 boolean attached = session.attachPendingWriter();
                 if (!attached) {
                     session.scheduleTimeout(scheduler);

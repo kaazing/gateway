@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
@@ -38,6 +39,7 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.transport.BridgeAcceptProcessor;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
@@ -48,7 +50,12 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
+import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
+import org.kaazing.gateway.transport.ws.WsMessage;
+import org.kaazing.gateway.transport.ws.WsPingMessage;
+import org.kaazing.gateway.transport.ws.WsPongMessage;
+import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
@@ -57,6 +64,7 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
+import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.slf4j.Logger;
@@ -124,6 +132,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     };
     private ScheduledFuture<?> timeoutFuture;
+    
+    private IoSessionEx transportSession;
 
     public WsebSession(int ioLayer,
                        Thread ioThread,
@@ -143,7 +153,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               ioThread,
               ioExecutor,
               service,
-              processor,
+              new WsebSessionProcessor(),
               localAddress,
               remoteAddress,
               allocator,
@@ -159,6 +169,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.validateSequenceNo = validateSequenceNo;
         this.readerSequenceNo = sequenceNo+1;
         this.writerSequenceNo = sequenceNo+1;
+        this.transportSession = new TransportSession(this);
     }
 
     @Override
@@ -475,6 +486,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     boolean compareAndSetReconnecting(boolean expected, boolean newValue) {
         return reconnecting.compareAndSet(expected, newValue);
     }
+    
+    IoSessionEx getTransportSession() {
+        return transportSession;
+    }
 
     void issuePingRequest() {
         if (LOGGER.isDebugEnabled()) {
@@ -704,6 +719,201 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     long nextWriterSequenceNo() {
         return writerSequenceNo;
     }
+    
+    static class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
 
+        WsebSessionProcessor() {
+        }
+
+        @Override
+        protected void removeInternal(WsebSession session) {
+            session.getTransportSession().close(false);
+        }
+
+        @Override
+        protected void flushInternal(final WsebSession session) {
+            final IoSessionEx transport = session.getTransportSession();
+            if (transport.isClosing()) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(String.format("WsebSessionProcessor.flushInternal: returning because transport (%s) " +
+                                                       "is closing", transport));
+                }
+                return;
+            }
+
+            IoFilterChain filterChain = session.getFilterChain();
+
+            // we can still have a current write request during the transition between writers
+            WriteRequest currentWriteRequest = session.getCurrentWriteRequest();
+            if (currentWriteRequest != null) {
+                session.setCurrentWriteRequest(null);
+            }
+
+            // get write request queue and process it
+            final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
+            do {
+                WriteRequest request =  writeRequestQueue.poll(session);
+                if (request == null) {
+                    break;
+                }
+
+                // identity compare for our marker as a command to reconnect the
+                // stream
+                if (WsebSession.isReconnectRequest(request)) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(String.format("RECONNECT_REQUEST detected: passing to wseb transport session %d", transport.getId()));
+                    }
+                    // Bypass the filter chain since WebSocket extension filters should not see this special request
+                    // WsebAccept(or Connect)Processor will deal with it
+                    transport.getWriteRequestQueue().offer(transport, request);
+                    continue;
+                }
+
+                // get message and compare to types we can process
+                Object message = request.getMessage();
+                if (message instanceof IoBufferEx) {
+                    IoBufferEx buf = (IoBufferEx) message;
+                    try {
+                        // stop if parent already closing
+                        if (transport.isClosing()) {
+                            session.setCurrentWriteRequest(request);
+                            break;
+                        }
+
+                        // hold current remaining bytes so we know how much was
+                        // written
+                        int remaining = buf.remaining();
+
+                        if (remaining == 0) {
+                            throw new IllegalStateException("Unexpected empty buffer");
+                        }
+
+                        // convert from session+buffer to message
+                        if (buf instanceof WsBuffer) {
+                            // reuse previously constructed message if available
+                            WsBuffer wsBuffer = (WsBuffer)buf;
+                            WsMessage wsebMessage = wsBuffer.getMessage();
+                            if (wsebMessage == null) {
+                                WsMessage newWsebMessage;
+                                if (wsBuffer.getKind() == WsBuffer.Kind.TEXT) {
+                                    //if the connection is mixed transport, send textmessage
+                                    newWsebMessage = new WsTextMessage(buf);
+                                }
+                                else {
+                                    newWsebMessage = new WsBinaryMessage(buf);
+                                }
+
+                                if (wsBuffer.isAutoCache()) {
+                                    // buffer is cached on parent, continue with derived caching
+                                    newWsebMessage.initCache();
+                                }
+                                boolean wasUpdated = wsBuffer.setMessage(newWsebMessage);
+                                wsebMessage = wasUpdated ? newWsebMessage : wsBuffer.getMessage();
+                            }
+                            // flush the buffer out to the session
+                             flushNowInternal(transport, wsebMessage, wsBuffer, filterChain, request);
+                        }
+                        else {
+                            // flush the buffer out to the session
+                            flushNowInternal(transport, new WsBinaryMessage(buf), buf, filterChain, request);
+                        }
+
+                        // increment session written bytes
+                        int written = remaining;
+                        session.increaseWrittenBytes(written, System.currentTimeMillis());
+                    }
+                    catch (Exception e) {
+                        request.getFuture().setException(e);
+                    }
+                }
+                else if (WsebSession.isPingRequest(request) || WsebSession.isPongRequest(request)) {
+                    boolean ping = WsebSession.isPingRequest(request);
+                    if (LOGGER.isDebugEnabled()) {
+                        String poing = ping ? "PING" : "PONG";
+                        LOGGER.debug(String.format("%s_REQUEST detected on wsebSession %s: sending %s",
+                                poing, session, poing));
+                    }
+                    try {
+                        // stop if parent already closing
+                        if (transport.isClosing()) {
+                            break;
+                        }
+                        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+                        IoBufferEx emptyBuf = allocator.wrap(allocator.allocate(0));
+                        emptyBuf.mark();
+                        WsMessage emptyPoing = ping ? new WsPingMessage(emptyBuf) : new WsPongMessage(emptyBuf);
+                        // The following causes ClassCastException in stomp decoder in messageSent in JMS edition (see KG-9329)
+                        // flushNowInternal(writer, emptyPoing, emptyBuf, filterChain, request);
+                        transport.write(emptyPoing);
+                    }
+                    finally {
+                        session.setCurrentWriteRequest(null);
+                    }
+                    break;
+                }
+                else {
+                    throw new IllegalStateException("Don't know how to handle message of type '" + message.getClass().getName() + "'.  Are you missing a protocol encoder?");
+                }
+            }
+            while (true);
+        }
+    }
+    
+    static class TransportProcessor implements IoProcessorEx<TransportSession> {
+        private final IoProcessorEx<WsebSession> processor;
+        
+        TransportProcessor(IoProcessorEx<WsebSession> processor) {
+            this.processor = processor;
+        }
+
+        @Override
+        public boolean isDisposing() {
+            return processor.isDisposing();
+        }
+
+        @Override
+        public boolean isDisposed() {
+            return processor.isDisposed();
+        }
+
+        @Override
+        public void dispose() {
+            processor.dispose ();
+        }
+
+        @Override
+        public void add(TransportSession session) {
+            // should never be called
+        }
+
+        @Override
+        public void flush(TransportSession session) {
+            processor.flush(session.getWsebSession());
+            
+        }
+
+        @Override
+        public void updateTrafficControl(TransportSession session) {
+            processor.updateTrafficControl(session.getWsebSession());
+            
+        }
+
+        @Override
+        public void remove(TransportSession session) {
+            processor.remove(session.getWsebSession());
+        }
+    }
+    
+    static class TransportSession extends DummySessionEx {
+        private final WsebSession wsebSession;
+        
+        TransportSession(WsebSession wsebSession) {
+            this.wsebSession = wsebSession;
+        }
+        
+        WsebSession getWsebSession() {
+            return wsebSession;
+        }
+    }
 
 }

@@ -44,7 +44,7 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
+class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = "text/plain; charset=utf-8";
 

@@ -53,7 +53,7 @@ import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
+class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebDownstreamHandler.class);
 
