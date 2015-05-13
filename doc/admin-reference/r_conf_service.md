@@ -38,25 +38,21 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [management.jmx](#managementjmx)
             -   [management.snmp](#managementsnmp)
             -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
+            -   [proxy](#proxy-and-amqpproxy-and-jmsproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
-            -   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
+            -   [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
                 -   virtual.host
-            -   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-                -   maximum.pending.bytes
-                -   maximum.recovery.interval
-                -   prepared.connection.count
             -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [session](#session)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
-            -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
+            -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
             -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](#wsmaximummessagesize)
             -   [http.keepalive.timeout](#httpkeepalivetimeout)
@@ -102,11 +98,11 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |description|A description of the service is optional.|
 |accept|The URLs on which the service accepts connections.|
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
-|balance|The URI that is balanced by a \`balancer\` service. See [balancer](#balancer) service for details.|
+|balance|The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.|
 |notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy-and-xmppproxy), [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy), [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [session](\#session).|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy), [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [session](\#session).|
 |properties|The service type-specific properties.|
-|accept-options|Options for the `accept` element>. See [accept-options](#accept-options-and-connect-options).|
+|accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
 |notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options).|
 |realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
@@ -417,11 +413,10 @@ The type of service. One of the following:
 -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 -   [management.jmx](#managementjmx)
 -   [management.snmp](#managementsnmp)
--   [amqp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
--   [proxy](#proxy-and-amqpproxy-and-xmppproxy)
+-   [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy)
+-   [proxy](#proxy-and-amqpproxy-and-jmsproxy)
 -   [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
--   [xmpp.proxy](#proxy-and-amqpproxy-and-xmppproxy)
 -   [session](#session)
 
 ### <span id="balancer"></span></a>balancer
@@ -683,11 +678,11 @@ The following example is a snippet from the default Gateway configuration file s
 -   See [Monitor with Command Center](../management/p_monitor_cc.md) for more information about monitoring with Command Center.
 
 
-### proxy and amqp.proxy and xmpp.proxy
+### proxy and amqp.proxy and jms.proxy
 
-Use the `proxy` service, `amqp.proxy`, or `xmpp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
+Use the `proxy` service or `amqp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-The following descriptions will help you understand when and how to configure properties for the `proxy` Service, `amqp.proxy`, and `xmpp.proxy` service.
+The following descriptions will help you understand when and how to configure properties for the `proxy` Service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
 #### `maximum.pending.bytes`
 
@@ -916,7 +911,7 @@ Use the `connect-options` element to add options to all connections for the serv
 
 #### *protocol*.bind
 
-**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be ws, wss, http, https, ssl, tcp, or udp
+**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be ws, wss, http, https, socks, ssl, tcp, or udp
 
 Use the `protocol.bind` element to configure network protocol bindings for your Gateway services. Configure `protocol.bind` as an accept-option or a connect-option to bind a URI or URIs on which the Gateway can accept or make connections. The Gateway binds the URI or port or IP address specified in the `protocol.bind` element to bind the public URI in the `accept` or `connect` element to the URI or port or IP address
 
@@ -972,7 +967,7 @@ In the following example, the `ws.bind` and `wss.bind`elements in accept-options
 
 #### *protocol*.transport
 
-**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be pipe, tcp, ssl, or http.
+**Required?** Optional; **Occurs:** zero or more; **Where** `protocol` can be http, ssl, tcp, pipe, and socks.
 
 Use the `protocol.transport` accept-option or connect-option to replace the default transport with a new transport. This allows you to change the behavior of the connection without affecting the protocol stack above the transport. For example, a TCP transport normally connects to a remote IP address and port number. However, you could replace that, for instance, with an in-memory (pipe) transport that communicates with another service in the same Gateway.
 
@@ -1204,7 +1199,7 @@ The following example shows a `proxy` service. Because the `accept` URL the `wss
 </service>
 ```
 
-##### Example: Enterprise Shield™ Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2
+##### Example: Enterprise Shield™ Configuration Using socks.ssl.protocols to Accept Reverse Connections on TLSv1.2 ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 This example shows a `proxy` service in the DMZ configured for Enterprise Shield™, for which the <connect> behavior is reversed. Instead of connecting to another host, the Gateway accepts connections instead. Thus, the setting is configured as `connect-options` in this example. For more information about Enterprise Shield™ and forward and reverse connectivity, see [Configure Enterprise Shield™ for KAAZING Gateway](../reverse-connectivity/o_rc_checklist.md).
 
@@ -1234,7 +1229,7 @@ The prefix for this example is `socks.ssl`, rather than just `ssl` to explicitly
 </service>
 ```
 
-##### Example: Enterprise Shield™ Configuration Using ssl.protocols and socks.ssl.protocols
+##### Example: Enterprise Shield™ Configuration Using ssl.protocols and socks.ssl.protocols ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 This example combines the previous two examples to show an Enterprise Shield™ configuration in which `ssl.protocols` is specified in the accept-options, and `socks.ssl.protocols` is specified in the connect-options.
 
