@@ -112,7 +112,7 @@ For secure communication with the Gateway, consider configuring for the followin
 -   **Secure network traffic** Configure Transport Layer Security (TLS, also known as SSL) for secure communications channels to access the Gateway by setting up certificates. See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information.
 -   **Limit access to services** Use Cross-Origin Resource Sharing to control access to Gateway services based on the origin of an application by configuring cross-site constraints in the `gateway-config.xml` file. See [Configure the HTTP Challenge Scheme](../security/p_aaa_config_authscheme.md) for more information.
 -   **Configure authentication and authorization** with constraints to limit access to Gateway services to authenticated and authorized users. See [Configure Authentication and Authorization](../security/o_aaa_config_authentication.md) for more information.
--   **Configure Kerberos network authentication** ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) for network authentication and communication between trusted hosts on untrusted networks. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) for more information.
+-   **Configure Kerberos network authentication** ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) for network authentication and communication between trusted hosts on untrusted networks. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) for more information.
 
 Uninstall KAAZING Gateway
 -------------------------------------------------------
