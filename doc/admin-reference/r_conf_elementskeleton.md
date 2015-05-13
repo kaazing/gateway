@@ -37,14 +37,14 @@ You can view and link to all Gateway configuration elements and properties using
             -   [management.jmx](r_conf_service.md#managementjmx)
             -   [management.snmp](r_conf_service.md#managementsnmp)
             -   [kerberos5.proxy](r_conf_service.md#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [proxy](r_conf_service.md#proxy-and-amqpproxy)
+            -   [proxy](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
                 Properties:
 
                 -   [maximum.pending.bytes](r_conf_service.md#maximumpendingbytes)
                 -   [maximum.recovery.interval](r_conf_service.md#maximumrecoveryinterval)
                 -   [prepared.connection.count](r_conf_service.md#preparedconnectioncount)
-            -   [amqp.proxy](r_conf_service.md#proxy-and-amqpproxy)
+            -   [amqp.proxy](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
                 Properties:
 
