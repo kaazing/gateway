@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Security with KAAZING Gateway
 
-Implement Protocol Injection![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+Implement Protocol Injection
 ===========================================================================
 
 This topic describes Protocol Injection and how to configure KAAZING Gateway to implement protocol injection:
