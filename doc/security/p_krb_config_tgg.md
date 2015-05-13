@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure a Ticket Granting Gateway
 
-Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =======================================================================================
 
 In this procedure, you will learn how to configure KAAZING Gateway as a Ticket Granting Gateway to proxy Kerberos protocol traffic from clients to a KDC.

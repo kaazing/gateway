@@ -72,7 +72,7 @@ Notes
 -----
 
 -   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#configure-a-two-member-local-demo-cluster).
--   To configure clustering in an Enterprise Shield&trade; topology, see [Configure Enterprise Shield&trade; in a Cluster](../reverse-connectivity/p_rc_cluster.md).
+-   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_rc_cluster.md).
 
 Summary
 -----------------------------

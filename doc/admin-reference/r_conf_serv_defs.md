@@ -20,7 +20,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
 -   [gateway-config](r_conf_gwconfig.md)
     -   [service-defaults](#service-defaults)
         -   [accept-options](#accept-options-service-defaults)
-            -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
+            -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
             -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize)
             -   [http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout)
@@ -28,13 +28,14 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
             -   [ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
             -   [ssl.encryption](r_conf_service.md#sslencryption)
             -   [ssl.verify-client](r_conf_service.md#sslverify-client)
-            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols)
             -   [socks.ssl.verify-client](r_conf_service.md#sockssslverify-client)
-            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+            -   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout)
+            -   [http.server.header](r_conf_service.md#httpserverheader)
         -   [mime-mapping](#mime-mapping-service-defaults)
             -   [extension](#mime-mapping-service-defaults)
             -   [mime-type](#mime-mapping-service-defaults)
@@ -53,7 +54,7 @@ Each `service-defaults` element can contain any of the following subordinate ele
 
 The `service-defaults` section can contain the following accept-options:
 
--   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
+-   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
 -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
 -   [ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize): configures the maximum incoming WebSocket message size allowed by the Gateway
 -   [http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout): configures the duration the Gateway waits between responding to an HTTP or HTTPS connection request and the subsequent request
@@ -61,13 +62,14 @@ The `service-defaults` section can contain the following accept-options:
 -   [ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections.
 -   [ssl.encryption](r_conf_service.md#sslencryption): signals KAAZING Gateway to enable or disable encryption on incoming traffic.
 -   [ssl.verify-client](r_conf_service.md#sslverify-client): implements a mutual verification pattern where, in addition to the Gateway presenting a certificate to the client, the client also presents a certificate to the Gateway so that the Gateway can verify the client's authenticity.
--   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): initiates the Gateway connection using the SOCKet Secure (SOCKS) protocol in forward or reverse mode.
--   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): uses `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL).
+-   [socks.mode](r_conf_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): initiates the Gateway connection using the SOCKet Secure (SOCKS) protocol in forward or reverse mode.
+-   [socks.ssl.ciphers](r_conf_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): uses `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL).
 -   [socks.ssl.protocols](r_conf_service.md#sslprotocols-and-sockssslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections using the SOCKS protocol.
 -   [socks.ssl.verify-client](r_conf_service.md#sockssslverify-client): implements a mutual verification pattern (same as `ssl.verify-client`) over the SOCKS protocol.
--   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): sets the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an Enterprise Shield&trade; topology.
--   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png): specifies the maximum bandwidth rate at which bytes can be written from the Gateway to a client session.
+-   [socks.retry.maximum.interval](r_conf_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): sets the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an Enterprise Shield™ topology.
+-   [tcp.maximum.outbound.rate](r_conf_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): specifies the maximum bandwidth rate at which bytes can be written from the Gateway to a client session.
 -   [ws.inactivity.timeout](r_conf_service.md#wsinactivitytimeout): specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified.
+-   [http.server.header](r_conf_service.md#httpserverheader): enables or disables the inclusion of the HTTP server header. By default, the Gateway writes a HTTP Server header.
 
 These `accept-options` plus examples are fully documented in the [Service Reference](r_conf_serv_defs.md#accept-options-service-defaults). Note that if you specify `accept-options` on a particular [service](r_conf_service.md), then those `accept-options` supercede any default values configured in `service-defaults`. Thus, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in service-defaults.
 

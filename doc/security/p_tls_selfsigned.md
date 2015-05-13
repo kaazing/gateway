@@ -93,6 +93,7 @@ To Secure Gateway Connections Using Self-Signed Certificates
 8.  Once the Gateway is running, enter the secure URL in a web browser using HTTPS, for example `https://www.example.com:9000`. The browser will display a warning stating that the certificate is not trusted. The warning is the result of using a self-signed certificate instead of a trusted certificate created by a Certification Authority. Accept the untrusted certificate and proceed to the web page.
 
     ![A browser displays a warning stating that the certificate is not trusted](../images/tls-browser-untrusted-cert.png)
+    
     **Figure: A browser displays a warning stating that the certificate is not trusted**
 
     For information about importing a certificate into a web browser, see [Importing Self-Signed Certificates into a Web Browser](p_tls_clientapp.md#to-import-self-signed-certificates-into-a-web-browser).
