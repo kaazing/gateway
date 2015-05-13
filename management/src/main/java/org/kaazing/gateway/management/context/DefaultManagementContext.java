@@ -21,18 +21,23 @@
 
 package org.kaazing.gateway.management.context;
 
+import static org.kaazing.gateway.management.service.ServiceManagementBeanFactory.newServiceManagementBeanFactory;
+
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.annotation.Resource;
+
 import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.ManagementServiceHandler;
 import org.kaazing.gateway.management.ManagementStrategy;
@@ -59,6 +64,10 @@ import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.gateway.GatewayManagementBeanImpl;
 import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.impl.DefaultMonitoringEntityFactoryBuilderStub;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.CollectOnlyManagementServiceStrategy;
 import org.kaazing.gateway.management.service.FullManagementServiceStrategy;
 import org.kaazing.gateway.management.service.ManagementServiceStrategy;
@@ -93,9 +102,9 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
-import static org.kaazing.gateway.management.service.ServiceManagementBeanFactory.newServiceManagementBeanFactory;
 
 public class DefaultManagementContext implements ManagementContext, DependencyContext {
     public static final int DEFAULT_SUMMARY_DATA_NOTIFICATION_INTERVAL = 5000; // 5 seconds by default
@@ -211,6 +220,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     // injected at startup
     private SchedulerProvider schedulerProvider;
     private GatewayContext gatewayContext;
+    private Properties configuration;
 
     // The provider for system data. Depending on whether we have Sigar support or not,
     // this may or may not return useful data.
@@ -238,6 +248,10 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             new ConcurrentHashMap<>();
 
     private final ServiceManagementBeanFactory serviceManagmentBeanFactory = newServiceManagementBeanFactory();
+
+    // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
+    // This implementation needs to be passed to the management filter.
+    private MonitoringEntityFactory monitoringEntityFactory;
 
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
@@ -278,6 +292,12 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     public void setSchedulerProvider(SchedulerProvider schedulerProvider) {
         this.schedulerProvider = schedulerProvider;
         this.managementExecutorService = schedulerProvider.getScheduler("management", true);
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+        buildMonitoringEntityFactory();
     }
 
     @Override
@@ -620,9 +640,30 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     private ManagementFilter addManagementFilter(ServiceContext serviceContext, ServiceManagementBean serviceBean) {
-        ManagementFilter managementFilter = new ManagementFilter(serviceBean);
+        ManagementFilter managementFilter = new ManagementFilter(serviceBean, monitoringEntityFactory);
         managementFilters.put(serviceContext, managementFilter);
         return managementFilter;
+    }
+
+    /**
+     * Method instantiating a monitoring entity factory builder and building an actual
+     * monitoring entity factory based on the AGRONA_ENABLED parameter
+     *
+     * The monitoring entity factory builder is initialized here and not in the constructor
+     * in order to have the configuration Properties object injected
+     *
+     */
+    private void buildMonitoringEntityFactory() {
+        // We create a new monitoring entity factory using the factory builder.
+        MonitoringEntityFactoryBuilder factoryBuilder;
+
+        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
+            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+        }
+        else {
+            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
+        }
+        monitoringEntityFactory = factoryBuilder.build();
     }
 
     @Override
@@ -632,6 +673,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             // Service Management Beans are created in initing, getManagementFilter is done
             // on service start through session initializer
             ServiceManagementBean serviceBean = serviceManagementBeans.get(serviceContext);
+            //Initializing monitoring entity factory in order to be able to pass it on to the management filter
             managementFilter = addManagementFilter(serviceContext, serviceBean);
         }
 
@@ -841,5 +883,16 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
                 localGatewayHostAndPid);
 
         gatewayManagementBeans.put(localGatewayHostAndPid, gatewayManagementBean);
+    }
+
+    @Override
+    public void close() {
+        // Stopping here if no monitoring entity factory was built
+        if (monitoringEntityFactory == null) {
+            return;
+        }
+        // We need to manually close the monitoring entity factory because we don't use a
+        // try-with-resources block in order to be invoked by the JVM
+        monitoringEntityFactory.close();
     }
 }

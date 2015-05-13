@@ -24,6 +24,8 @@ package org.kaazing.gateway.management.filter;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.context.ManagementContext;
+import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.IoFilterAdapter;
@@ -43,14 +45,17 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * management).
  */
 public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
+    private static final String CURRENT_NUMBER_OF_SESSIONS = "currentNumberOfSessions";
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
+    private LongMonitoringCounter counter;
 
-    public ManagementFilter(ServiceManagementBean serviceBean) {
+    public ManagementFilter(ServiceManagementBean serviceBean, MonitoringEntityFactory monitoringEntityFactory) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
+        counter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_SESSIONS);
     }
 
     public ServiceManagementBean getServiceBean() {
@@ -66,6 +71,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         managementContext.getManagementFilterStrategy()
                 .doSessionClosed(managementContext, serviceBean, session.getId(), Utils.getManagementSessionType(session));
         managementContext.decrementOverallSessionCount();
+        counter = counter.decrement();
 
         super.doSessionClosed(nextFilter, session);
     }
@@ -105,5 +111,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         // Because strategy may change during execution of this method, refetch it when we need it.
         managementContext.getManagementFilterStrategy()
                 .doSessionCreated(managementContext, serviceBean, session, Utils.getManagementSessionType(session));
+        counter = counter.increment();
     }
 }
