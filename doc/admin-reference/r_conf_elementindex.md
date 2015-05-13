@@ -26,7 +26,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [allow-origin](r_conf_service.md#cross-site-constraint)
 
-[amqp.proxy](r_conf_service.md#proxy-and-amqpproxy)
+[amqp.proxy](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [apns.feedback.transport](r_conf_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
@@ -112,9 +112,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [management.snmp](r_conf_service.md#managementsnmp)
 
-[maximum.pending.bytes](r_conf_service.md#proxy-and-amqpproxy)
+[maximum.pending.bytes](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
-[maximum.recovery.interval](r_conf_service.md#proxy-and-amqpproxy)
+[maximum.recovery.interval](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [mime-mapping](r_conf_service.md#mime-mapping) (service)
 
@@ -142,11 +142,11 @@ You can view and link to all Gateway configuration elements and properties using
 
 [pipe.transport](r_conf_service.md#protocoltransport)
 
-[prepared.connection.count](r_conf_service.md#proxy-and-amqpproxy)
+[prepared.connection.count](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [properties](r_conf_service.md#properties)
 
-[proxy](r_conf_service.md#proxy-and-amqpproxy)
+[proxy](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [realm](r_conf_security.md#realm)
 
@@ -222,7 +222,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [user-principal-class](r_conf_security.md#realm)
 
-[virtual.host](r_conf_service.md#proxy-and-amqpproxy)
+[virtual.host](r_conf_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [welcome-file](r_conf_service.md#directory)
 
