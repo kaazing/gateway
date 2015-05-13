@@ -69,14 +69,8 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     }
 
     @Override
-    public void destroyingService(ServiceContext serviceContext) {
-        // We need to manually close the management context because we don't use a
-        // try-with-resources block in order to be invoked by the JVM
-        try {
-            managementContext.close();
-        } catch (Exception e) {
-            throw (RuntimeException) e;
-        }
+    public void stoppedGateway() {
+        managementContext.close();
     }
 
     private void addSessionInitializer(Service service, ServiceContext serviceContext) {

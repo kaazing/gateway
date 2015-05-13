@@ -893,10 +893,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         }
         // We need to manually close the monitoring entity factory because we don't use a
         // try-with-resources block in order to be invoked by the JVM
-        try {
-            monitoringEntityFactory.close();
-        } catch (Exception e) {
-            throw (RuntimeException) e;
-        }
+        monitoringEntityFactory.close();
     }
 }

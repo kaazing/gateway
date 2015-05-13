@@ -33,7 +33,7 @@ import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
  *
  * This interface exposes the API for retrieving monitoring entities.
  */
-public interface MonitoringEntityFactory extends AutoCloseable {
+public interface MonitoringEntityFactory {
 
     /**
      * Method returning a BooleanMonitoringEntity object
@@ -53,4 +53,9 @@ public interface MonitoringEntityFactory extends AutoCloseable {
      * @return - StringMonitoringEntity
      */
     StringMonitoringEntity makeStringMonitoringEntity();
+
+    /**
+     * Cleans up the monitoring entities
+     */
+    void close();
 }

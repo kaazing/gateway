@@ -43,7 +43,7 @@ import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public interface ManagementContext extends AutoCloseable {
+public interface ManagementContext {
 
     int getManagementSessionCount();
 
@@ -169,4 +169,6 @@ public interface ManagementContext extends AutoCloseable {
     ManagementFilter getManagementFilter(ServiceContext serviceContext);
 
     void createGatewayManagementBean();
+
+    void close();
 }

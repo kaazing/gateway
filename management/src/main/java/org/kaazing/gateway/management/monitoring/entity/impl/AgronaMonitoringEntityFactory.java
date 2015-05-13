@@ -58,7 +58,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
 
     @Override
     public BooleanMonitoringEntity makeBooleanMonitoringEntity() {
-        // TODO Auto-generated method stub
+        // TODO Implement the boolean monitoring entity when needed
         return null;
     }
 
@@ -76,7 +76,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
 
     @Override
     public StringMonitoringEntity makeStringMonitoringEntity() {
-        // TODO Auto-generated method stub
+        // TODO Implement the String monitoring entity when needed
         return null;
     }
 

@@ -29,7 +29,7 @@ import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntity
 public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         // TODO Auto-generated method stub
 
     }
