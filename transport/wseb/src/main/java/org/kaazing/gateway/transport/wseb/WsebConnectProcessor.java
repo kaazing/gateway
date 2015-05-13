@@ -86,7 +86,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     @Override
     protected void flushInternal(final WsebSession session) {
-        IoFilterChain filterChain = session.getFilterChain();
+        IoFilterChain filterChain = session.getTransportSession().getFilterChain();
 
         // get parent and check if null (no attached http session)
         final HttpConnectSession writer = (HttpConnectSession)session.getWriter();
@@ -105,7 +105,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         }
         
         // get write request queue and process it
-        final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
+        final WriteRequestQueue writeRequestQueue = session.getTransportSession().getWriteRequestQueue();
         do {
             // get current request in the event that it was not complete last
             // iteration
@@ -160,8 +160,10 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
             // get message and compare to types we can process
             Object message = request.getMessage();
-            if (message instanceof IoBufferEx) {
-                IoBufferEx buffer = (IoBufferEx) message;
+            if (message instanceof WsMessage) {
+                WsMessage frame = (WsMessage) message;
+                IoBufferEx buffer = frame.getBytes();
+
 
                 try {
                     // hold current remaining bytes so we know how much was
@@ -185,29 +187,8 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                         break;
                     }
 
-                    // convert from session+buffer to message
-                    // reuse previously constructed message if available
-                    WsBuffer wsBuffer = (WsBuffer)buffer;
-                    WsMessage wsebMessage = wsBuffer.getMessage();
-                    if (wsebMessage == null) {
-                        // cache newly constructed message (atomic update)
-                        // Note: avoid duplicate() to support zero-copy
-                        WsMessage newWsebMessage = new WsBinaryMessage(buffer);
-                        boolean wasUpdated = wsBuffer.setMessage(newWsebMessage);
-                        wsebMessage = wasUpdated ? newWsebMessage : wsBuffer.getMessage();
-                    }
-
-                    // TODO: thread safety
-                    // reconnect parent.close(false) above triggers flush of pending
-                    // writes before closing the HTTP session, and in the interim
-                    // parent.isClosing() returns false until the close begins
-                    // since this flush method is gated by parent being null
-                    // or closing, there is a race condition that would permit
-                    // writing data to the parent during this interim state
-                    // resulting in a WriteToClosedSessionException and losing data
-
                     // flush the buffer out to the session
-                    lastWrite = flushNowInternal(writer, wsebMessage, wsBuffer, filterChain, request);
+                    lastWrite = flushNowInternal(writer, frame, buffer, filterChain, request);
 
                     // increment session written bytes
                     int written = remaining;

@@ -731,10 +731,22 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void flushInternal(final WsebSession session) {
+            // get parent and check if null (no attached http session)
+            final HttpSession writer = (HttpSession)session.getWriter();
+            if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
+                    && writer == null || writer.isClosing()) {
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because writer (%s) " +
+                                                       "is null or writer is closing(%s)",
+                            writer, writer==null ? "n/a" : Boolean.valueOf(writer.isClosing()) ));
+                }
+                return;
+            }
+            
             final IoSessionEx transport = session.getTransportSession();
             if (transport.isClosing()) {
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(String.format("WsebSessionProcessor.flushInternal: returning because transport (%s) " +
+                    LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because transport (%s) " +
                                                        "is closing", transport));
                 }
                 return;
@@ -895,7 +907,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 wseSession.close(true);
             }
         }
-        
+                
     };
     
     static class TransportProcessor implements IoProcessorEx<TransportSession> {
