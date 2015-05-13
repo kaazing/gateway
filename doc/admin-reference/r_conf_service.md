@@ -38,11 +38,11 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [management.jmx](#managementjmx)
             -   [management.snmp](#managementsnmp)
             -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [proxy](#proxy-and-amqpproxy-and-jmsproxy)
+            -   [proxy](#proxy-amqpproxy-and-jmsproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
-            -   [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy)
+            -   [amqp.proxy](#proxy-amqpproxy-and-jmsproxy)
                 -   maximum.pending.bytes
                 -   maximum.recovery.interval
                 -   prepared.connection.count
@@ -100,7 +100,7 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.|
 |notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-and-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy), [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [session](\#session).|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [session](\#session).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
@@ -413,8 +413,8 @@ The type of service. One of the following:
 -   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 -   [management.jmx](#managementjmx)
 -   [management.snmp](#managementsnmp)
--   [amqp.proxy](#proxy-and-amqpproxy-and-jmsproxy)
--   [proxy](#proxy-and-amqpproxy-and-jmsproxy)
+-   [amqp.proxy](#proxy-amqpproxy-and-jmsproxy)
+-   [proxy](#proxy-amqpproxy-and-jmsproxy)
 -   [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 -   [session](#session)
@@ -678,9 +678,9 @@ The following example is a snippet from the default Gateway configuration file s
 -   See [Monitor with Command Center](../management/p_monitor_cc.md) for more information about monitoring with Command Center.
 
 
-### proxy and amqp.proxy and jms.proxy
+### proxy, amqp.proxy, and jms.proxy
 
-Use the `proxy` service or `amqp.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
+Use the `proxy` service, `amqp.proxy`, or `jms.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
 The following descriptions will help you understand when and how to configure properties for the `proxy` Service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
