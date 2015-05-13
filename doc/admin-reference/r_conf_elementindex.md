@@ -235,5 +235,3 @@ You can view and link to all Gateway configuration elements and properties using
 [ws.version](r_conf_service.md#wsversion-deprecated) (deprecated)
 
 [wss.bind](r_conf_service.md#protocolbind)
-
-[xmpp.proxy](r_conf_service.md#proxy-and-amqpproxy-and-xmppproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
