@@ -734,7 +734,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             // get parent and check if null (no attached http session)
             final HttpSession writer = (HttpSession)session.getWriter();
             if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
-                    && writer == null || writer.isClosing()) {
+                    && (writer == null || writer.isClosing()) ) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because writer (%s) " +
                                                        "is null or writer is closing(%s)",
