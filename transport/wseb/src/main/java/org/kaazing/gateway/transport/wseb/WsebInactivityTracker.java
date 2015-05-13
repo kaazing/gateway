@@ -47,7 +47,7 @@ import org.slf4j.Logger;
 class WsebInactivityTracker implements IoSessionIdleTracker {
     private static final String CHECK_ALIVE_FILTER = WsebProtocol.NAME + "#checkalive";
     private static final TypedAttributeKey<Boolean> ALREADY_TRACKED = new TypedAttributeKey<>(
-            WsebInactivityTracker.class, "inactivitySession");
+            WsebInactivityTracker.class, "tracked");
     
     private final Logger logger;
     private final IoSessionIdleTracker idleTracker = new DefaultIoSessionIdleTracker();
@@ -74,7 +74,7 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
     }
     
     private void addSession0(IoSessionEx wsebSession) {
-        if (ALREADY_TRACKED.get(wsebSession)) {
+        if (ALREADY_TRACKED.get(wsebSession, false)) {
             // Expected for downstream reconnects
             return;
         }

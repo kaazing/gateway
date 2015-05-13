@@ -96,7 +96,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
     public DummySessionEx(Thread thread, Executor executor) {
         this(thread, executor,  null);
     }
-    
+
     public DummySessionEx(Thread thread, Executor executor, IoProcessorEx<? extends IoSessionEx> processor) {
         super(0, thread, executor, new ShareableWriteRequest());
         // Initialize dummy service.

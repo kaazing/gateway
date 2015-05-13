@@ -166,11 +166,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // written
                     int remaining = buf.remaining();
 
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
-
-
                     // TODO: thread safety
                     // reconnect parent.close(false) above triggers flush of pending
                     // writes before closing the HTTP session, and in the interim
