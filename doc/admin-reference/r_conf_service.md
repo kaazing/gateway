@@ -680,9 +680,9 @@ The following example is a snippet from the default Gateway configuration file s
 
 ### proxy, amqp.proxy, and jms.proxy
 
-Use the `proxy` service, `amqp.proxy`, or `jms.proxy` to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
+Use the `proxy`, `amqp.proxy`, or `jms.proxy` service to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-The following descriptions will help you understand when and how to configure properties for the `proxy` Service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
+The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
 #### `maximum.pending.bytes`
 
