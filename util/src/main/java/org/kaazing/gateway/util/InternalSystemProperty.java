@@ -104,7 +104,7 @@ public enum InternalSystemProperty {
      * Internal system property describing whether Agrona is enabled or not
      */
     AGRONA_ENABLED
-            ("org.kaazing.gateway.management.AGRONA_ENABLED");
+            ("org.kaazing.gateway.management.AGRONA_ENABLED", "false");
 
     private final String name;
     private final String defaultValue;

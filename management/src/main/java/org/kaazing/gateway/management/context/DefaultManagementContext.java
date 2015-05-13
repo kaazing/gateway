@@ -220,6 +220,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     // injected at startup
     private SchedulerProvider schedulerProvider;
     private GatewayContext gatewayContext;
+    private Properties configuration;
 
     // The provider for system data. Depending on whether we have Sigar support or not,
     // this may or may not return useful data.
@@ -250,13 +251,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
     // This implementation needs to be passed to the management filter.
-    private final MonitoringEntityFactory monitoringEntityFactory;
-    private Properties configuration;
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
-    }
+    private MonitoringEntityFactory monitoringEntityFactory;
 
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
@@ -291,23 +286,17 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
                 new SummaryManagementIntervalImpl(DEFAULT_SYSTEM_SUMMARY_DATA_NOTIFICATION_INTERVAL);
 
         systemDataProvider = SystemDataProviderFactory.createProvider();
-
-        // We create a new monitoring entity factory using the factory builder.
-        MonitoringEntityFactoryBuilder factoryBuilder;
-
-        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
-            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
-        }
-        else {
-            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
-        }
-        monitoringEntityFactory = factoryBuilder.build();
     }
 
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider schedulerProvider) {
         this.schedulerProvider = schedulerProvider;
         this.managementExecutorService = schedulerProvider.getScheduler("management", true);
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -655,6 +644,27 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         return managementFilter;
     }
 
+    /**
+     * Method instantiating a monitoring entity factory builder and building an actual
+     * monitoring entity factory based on the AGRONA_ENABLED parameter
+     *
+     * The monitoring entity factory builder is initialized here and not in the constructor
+     * in order to have the configuration Properties object injected
+     *
+     */
+    private void buildMonitoringEntityFactory() {
+        // We create a new monitoring entity factory using the factory builder.
+        MonitoringEntityFactoryBuilder factoryBuilder;
+
+        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
+            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+        }
+        else {
+            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
+        }
+        monitoringEntityFactory = factoryBuilder.build();
+    }
+
     @Override
     public ManagementFilter getManagementFilter(ServiceContext serviceContext) {
         ManagementFilter managementFilter = managementFilters.get(serviceContext);
@@ -662,6 +672,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             // Service Management Beans are created in initing, getManagementFilter is done
             // on service start through session initializer
             ServiceManagementBean serviceBean = serviceManagementBeans.get(serviceContext);
+            //Initializing monitoring entity factory in order to be able to pass it on to the management filter
+            buildMonitoringEntityFactory();
             managementFilter = addManagementFilter(serviceContext, serviceBean);
         }
 
@@ -875,6 +887,10 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     @Override
     public void close() {
+        // Stopping here if no monitoring entity factory was built
+        if (monitoringEntityFactory == null) {
+            return;
+        }
         // We need to manually close the monitoring entity factory because we don't use a
         // try-with-resources block in order to be invoked by the JVM
         try {
