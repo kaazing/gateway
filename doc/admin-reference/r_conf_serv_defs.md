@@ -20,7 +20,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
 -   [gateway-config](r_conf_gwconfig.md)
     -   [service-defaults](#service-defaults)
         -   [accept-options](#accept-options-service-defaults)
-            -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
+            -   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
             -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize)
             -   [http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout)
@@ -54,7 +54,7 @@ Each `service-defaults` element can contain any of the following subordinate ele
 
 The `service-defaults` section can contain the following accept-options:
 
--   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
+-   [*protocol*.bind](r_conf_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
 -   [*protocol*.transport](r_conf_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
 -   [ws.maximum.message.size](r_conf_service.md#wsmaximummessagesize): configures the maximum incoming WebSocket message size allowed by the Gateway
 -   [http.keepalive.timeout](r_conf_service.md#httpkeepalivetimeout): configures the duration the Gateway waits between responding to an HTTP or HTTPS connection request and the subsequent request
