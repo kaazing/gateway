@@ -297,6 +297,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+        buildMonitoringEntityFactory();
     }
 
     @Override
@@ -673,7 +674,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             // on service start through session initializer
             ServiceManagementBean serviceBean = serviceManagementBeans.get(serviceContext);
             //Initializing monitoring entity factory in order to be able to pass it on to the management filter
-            buildMonitoringEntityFactory();
             managementFilter = addManagementFilter(serviceContext, serviceBean);
         }
 
