@@ -8,6 +8,7 @@ What Happens During Authentication
 The following figure shows what happens when a client application (for example, a JavaScript application running in a browser) requests a WebSocket connection to KAAZING Gateway. The request is made as part of a hosted web application that uses a third-party token provider.
 
 ![Challenge and response interactions between the Gateway, client, and token provider](../images/f-sso-for-kwsg-web.png)
+
 **Figure: Authentication process between a client and the Gateway**
 
 The figure illustrates how interactions between the client, the Gateway, and a third-party token provider result in authentication, as follows:

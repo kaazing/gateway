@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   [Security with KAAZING Gateway](../index.md#security)
 
-About Kerberos V5 Network Authentication ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+About Kerberos V5 Network Authentication ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =============================================================================================================
 
 Kerberos provides user authentication or single sign-on (SSO) functionality by providing communication between trusted hosts on untrusted networks. Kerberos—named after Cerberus, the three-headed guard dog of the underworld in Greek mythology—is a ticket-based network authentication protocol in which clients send a request to a trusted <a name="kdc"></a>Key Distribution Center (KDC) for credentials to access another server. The credentials are encrypted using secret-key cryptography and no cleartext passwords are ever sent over the network. Additionally, Kerberos provides for mutual authentication between clients and servers and single sign-on.
