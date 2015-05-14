@@ -35,6 +35,6 @@ public class LongEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Long.valueOf(0);
+        return (long) 0;
     }
 }

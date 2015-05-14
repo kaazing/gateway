@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure Enterprise Shield&trade; with the Gateway
 
-Configure Enterprise Shield&trade; with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure Enterprise Shield&trade; with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ==========================================================================================
 
 This checklist provides the steps necessary to configure Enterprise Shield&trade; in your KAAZING Gateway architecture.

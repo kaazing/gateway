@@ -2,12 +2,13 @@
 -   [Documentation](../index.md)
 -   Using Kerberos V5 Network Authentication with the Gateway
 
-Using Kerberos V5 Network Authentication with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Using Kerberos V5 Network Authentication with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================================================================================================================
 
 KAAZING Gateway supports the Kerberos authentication protocol, allowing you to proxy traffic to and from a KDC. This enables clients to communicate to a KDC over WebSocket. A gateway that is configured to proxy Kerberos traffic will be called a Ticket-Granting Gateway (TGG) in this section. This architecture provides all the benefits of a Kerberos-based security system to Web-based clients, without having to compromise overall site security by placing a KDC closer to the edge of the network.
 
 ![A gateway configured to proxy Kerberos traffic as a TGG](../images/f-kerberos5-kaazing-model-web.jpg)
+
 **Figure: the Gateway is configured to proxy Kerberos traffic as a TGG**
 
 1.  A KAAZING Gateway client running in a browser makes a request for a ticket from a TGG using a WebSocket-based connection.

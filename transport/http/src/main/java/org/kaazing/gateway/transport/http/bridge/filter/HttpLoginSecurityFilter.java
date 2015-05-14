@@ -190,7 +190,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                 // Ignore the common "all modules ignored case", it just gums
                 // up the logs whilst adding no value.
-                if (le.getMessage().indexOf("all modules ignored") == -1) {
+                if (!le.getMessage().contains("all modules ignored")) {
                     log("Login failed: " + le.getMessage(), le);
                 }
             }

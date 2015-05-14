@@ -309,7 +309,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
             // Block Padding is required
             session.write(WsebFrameEncoder.BLOCK_PADDING_MESSAGE);
-            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(writtenBytes+4096));
+            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);
         }
     }
 

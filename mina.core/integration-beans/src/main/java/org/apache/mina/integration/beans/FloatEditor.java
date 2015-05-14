@@ -38,6 +38,6 @@ public class FloatEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Float.valueOf(0f);
+        return 0f;
     }
 }

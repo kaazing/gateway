@@ -50,7 +50,7 @@ public class CircularQueueTest extends TestCase {
             // make expansion happen
             int oldCapacity = q.capacity();
             for (int j = q.capacity(); j >= 0; j--) {
-                q.offer(new Integer(++pushCount));
+                q.offer(++pushCount);
             }
 
             assertTrue(q.capacity() > oldCapacity);
@@ -60,7 +60,7 @@ public class CircularQueueTest extends TestCase {
 
     private void testRotation0(CircularQueue<Integer> q) {
         for (int i = 0; i < q.capacity() * 7 / 4; i++) {
-            q.offer(new Integer(++pushCount));
+            q.offer(++pushCount);
             assertEquals(++popCount, q.poll().intValue());
         }
     }
@@ -69,12 +69,12 @@ public class CircularQueueTest extends TestCase {
         CircularQueue<Integer> q = new CircularQueue<Integer>();
         // Create a queue with 5 elements and capacity 8;
         for (int i = 0; i < 5; i++) {
-            q.offer(new Integer(i));
+            q.offer(i);
         }
 
-        q.add(0, new Integer(100));
-        q.add(3, new Integer(200));
-        q.add(7, new Integer(300));
+        q.add(0, 100);
+        q.add(3, 200);
+        q.add(7, 300);
 
         Iterator<Integer> i = q.iterator();
         assertEquals(8, q.size());
@@ -99,11 +99,11 @@ public class CircularQueueTest extends TestCase {
     public void testRandomAddOnRotatedQueue() {
         CircularQueue<Integer> q = getRotatedQueue();
 
-        q.add(0, new Integer(100)); // addFirst
-        q.add(2, new Integer(200));
-        q.add(4, new Integer(300));
-        q.add(10, new Integer(400));
-        q.add(12, new Integer(500)); // addLast
+        q.add(0, 100); // addFirst
+        q.add(2, 200);
+        q.add(4, 300);
+        q.add(10, 400);
+        q.add(12, 500); // addLast
 
         Iterator<Integer> i = q.iterator();
         assertEquals(13, q.size());
@@ -135,7 +135,7 @@ public class CircularQueueTest extends TestCase {
 
         // Create a queue with 5 elements and capacity 8;
         for (int i = 0; i < 5; i++) {
-            q.offer(new Integer(i));
+            q.offer(i);
         }
 
         q.remove(0);
@@ -207,19 +207,19 @@ public class CircularQueueTest extends TestCase {
 
         // Ensure capacity: 16
         for (int i = 0; i < 16; i++) {
-            q.offer(new Integer(-1));
+            q.offer(-1);
         }
         q.clear();
 
         // Rotate it
         for (int i = 0; i < 12; i++) {
-            q.offer(new Integer(-1));
+            q.offer(-1);
             q.poll();
         }
 
         // Now push items
         for (int i = 0; i < 8; i++) {
-            q.offer(new Integer(i));
+            q.offer(i);
         }
 
         return q;
