@@ -756,9 +756,15 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
             // get write request queue and process it
             final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
+            WriteFuture lastWrite = null;
             do {
                 WriteRequest request =  writeRequestQueue.poll(session);
                 if (request == null) {
+                    if (lastWrite == null) {
+                        // queue was empty, make sure WsebAcceptProcessor / WsebConnectProcessor flush is called 
+                        // to handle padding for initial downstream response
+                        ((AbstractIoSessionEx) transport).getProcessor().flush(transport);
+                    }
                     break;
                 }
 
@@ -819,11 +825,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                                 wsebMessage = wasUpdated ? newWsebMessage : wsBuffer.getMessage();
                             }
                             // flush the buffer out to the session
-                            flushNowInternal(transport, wsebMessage, wsBuffer, filterChain, request);
+                            lastWrite = flushNowInternal(transport, wsebMessage, wsBuffer, filterChain, request);
                         }
                         else {
                             // flush the buffer out to the session
-                            flushNowInternal(transport, new WsBinaryMessage(buf), buf, filterChain, request);
+                            lastWrite = flushNowInternal(transport, new WsBinaryMessage(buf), buf, filterChain, request);
                         }
                     }
                     catch (Exception e) {
