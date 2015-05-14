@@ -37,8 +37,10 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  */
 public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFactoryBuilder {
 
+    private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
+    private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
     private static final String MONITOR_DIR_DESCRIPTION = "Monitoring directory";
-    private static final String MONITOR_DIR_NAME = "monitor";
+    private static final String MONITOR_DIR_NAME = "/kaazing";
     private static final String MONITOR_FILE_NAME = "monitor";
     private static final int MONITOR_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
     private static final int MONITOR_COUNTER_LABELS_BUFFER_LENGTH = 32 * MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
@@ -87,13 +89,13 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
      * @return the monitoring directory name
      */
     private String getMonitoringDirName() {
-        String monitoringDirName = MONITOR_DIR_NAME;
+        String monitoringDirName = IoUtil.tmpDirName() + MONITOR_DIR_NAME;
 
-        if ("Linux".equalsIgnoreCase(System.getProperty("os.name"))) {
-            final File devShmDir = new File("/dev/shm");
+        if ("Linux".equalsIgnoreCase(System.getProperty(OS_NAME_SYSTEM_PROPERTY))) {
+            final File devShmDir = new File(LINUX_DEV_SHM_DIRECTORY);
 
             if (devShmDir.exists()) {
-                monitoringDirName = "/dev/shm/kaazing";
+                monitoringDirName = LINUX_DEV_SHM_DIRECTORY + monitoringDirName;
             }
         } else {
             File monitoringDir = new File(MONITOR_DIR_NAME);
