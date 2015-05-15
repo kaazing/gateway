@@ -30,44 +30,37 @@ public class DefaultLongMonitoringCounterStub implements LongMonitoringCounter {
 
     @Override
     public LongMonitoringCounter increment() {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public LongMonitoringCounter incrementByValue(long value) {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public LongMonitoringCounter decrement() {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public LongMonitoringCounter decrementByValue(long value) {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public LongMonitoringCounter setValue(long value) {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
     @Override
     public long getValue() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public LongMonitoringCounter reset() {
-        // TODO Auto-generated method stub
-        return null;
+        return this;
     }
 
 }

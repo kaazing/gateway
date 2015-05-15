@@ -64,9 +64,8 @@ import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.gateway.GatewayManagementBeanImpl;
 import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.configuration.impl.DefaultMonitoringEntityFactoryBuilderStub;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringEntityFactoryInjectorImpl;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.CollectOnlyManagementServiceStrategy;
 import org.kaazing.gateway.management.service.FullManagementServiceStrategy;
@@ -102,7 +101,6 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
@@ -647,7 +645,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     /**
      * Method instantiating a monitoring entity factory builder and building an actual
-     * monitoring entity factory based on the AGRONA_ENABLED parameter
+     * monitoring entity factory
      *
      * The monitoring entity factory builder is initialized here and not in the constructor
      * in order to have the configuration Properties object injected
@@ -655,15 +653,9 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
      */
     private void buildMonitoringEntityFactory() {
         // We create a new monitoring entity factory using the factory builder.
-        MonitoringEntityFactoryBuilder factoryBuilder;
 
-        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
-            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
-        }
-        else {
-            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
-        }
-        monitoringEntityFactory = factoryBuilder.build();
+        MonitoringEntityFactoryInjector monitoringEntityFactoryInjector = new MonitoringEntityFactoryInjectorImpl(configuration);
+        monitoringEntityFactory = monitoringEntityFactoryInjector.makeMonitoringEntityFactory();
     }
 
     @Override

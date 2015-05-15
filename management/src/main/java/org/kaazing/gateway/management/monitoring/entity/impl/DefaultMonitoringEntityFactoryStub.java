@@ -30,25 +30,20 @@ public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFacto
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public BooleanMonitoringEntity makeBooleanMonitoringEntity() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        // TODO Auto-generated method stub
         return new DefaultLongMonitoringCounterStub();
     }
 
     @Override
     public StringMonitoringEntity makeStringMonitoringEntity() {
-        // TODO Auto-generated method stub
         return null;
     }
 

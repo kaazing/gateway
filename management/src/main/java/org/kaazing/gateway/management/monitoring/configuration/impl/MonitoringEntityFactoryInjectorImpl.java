@@ -19,18 +19,34 @@
  * under the License.
  */
 
-
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
+import java.util.Properties;
 
-public class DefaultMonitoringEntityFactoryBuilderStub implements MonitoringEntityFactoryBuilder {
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.util.InternalSystemProperty;
+
+public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFactoryInjector {
+
+    Properties configuration;
+
+    public MonitoringEntityFactoryInjectorImpl(Properties configuration) {
+        this.configuration = configuration;
+    }
 
     @Override
-    public MonitoringEntityFactory build() {
-        return new DefaultMonitoringEntityFactoryStub();
+    public MonitoringEntityFactory makeMonitoringEntityFactory() {
+        MonitoringEntityFactoryBuilder factoryBuilder;
+
+        if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
+            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+        }
+        else {
+            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
+        }
+        return factoryBuilder.build();
     }
 
 }

@@ -19,18 +19,20 @@
  * under the License.
  */
 
+package org.kaazing.gateway.management.monitoring.configuration;
 
-package org.kaazing.gateway.management.monitoring.configuration.impl;
-
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
 
-public class DefaultMonitoringEntityFactoryBuilderStub implements MonitoringEntityFactoryBuilder {
 
-    @Override
-    public MonitoringEntityFactory build() {
-        return new DefaultMonitoringEntityFactoryStub();
-    }
+/**
+ * This interface represents the factory for returning the specific MonitoringEntityFactory
+ * based on which types can be instantiated
+ */
+public interface MonitoringEntityFactoryInjector {
 
+    /**
+     * Creates the monitoring entity factory
+     * @return the monitoring entity factory
+     */
+    MonitoringEntityFactory makeMonitoringEntityFactory();
 }
