@@ -47,17 +47,13 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
-import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.future.WriteFutureEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
@@ -79,14 +75,16 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     @Override
     protected void removeInternal(WsebSession session) {
-        WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
-        writeRequestQueue.offer(session, CLOSE_REQUEST);
+        IoSessionEx transportSession = session.getTransportSession();
+        WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
+        writeRequestQueue.offer(transportSession, CLOSE_REQUEST);
         flushInternal(session);
     }
 
     @Override
     protected void flushInternal(final WsebSession session) {
-        IoFilterChain filterChain = session.getTransportSession().getFilterChain();
+        IoSessionEx transportSession = session.getTransportSession();
+        IoFilterChain filterChain = transportSession.getFilterChain();
 
         // get parent and check if null (no attached http session)
         final HttpConnectSession writer = (HttpConnectSession)session.getWriter();
@@ -105,7 +103,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         }
         
         // get write request queue and process it
-        final WriteRequestQueue writeRequestQueue = session.getTransportSession().getWriteRequestQueue();
+        final WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
         do {
             // get current request in the event that it was not complete last
             // iteration
@@ -114,7 +112,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
             // if we have no more requests then we are done flushing the queue
             if (request == null) {
                 // if request is null get next one off the queue
-                request = writeRequestQueue.poll(session);
+                request = writeRequestQueue.poll(transportSession);
                 if (request == null) {
                     break;
                 }
@@ -125,7 +123,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
             if (request == CLOSE_REQUEST) {
                 // TODO: resolve infinite loop problem
-                if (session.isClosing()) {
+                if (transportSession.getCloseFuture().isClosed()) {
                     break;
                 }
 

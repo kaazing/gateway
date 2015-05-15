@@ -25,12 +25,16 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.junit.rules.RuleChain.outerRule;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.future.ConnectFuture;
 import org.junit.After;
 import org.junit.Before;
@@ -94,6 +98,16 @@ public class WsebConnectorIT {
         tcpConnector.setTcpAcceptor(tcpAcceptor);
         httpConnector.setBridgeServiceFactory(bridgeServiceFactory);
         httpConnector.setResourceAddressFactory(resourceAddressFactory);
+        
+        // Initialize log4j using a properties file available on the class path
+        String log4jPropertiesResourceName = "log4j-diagnostic.properties";
+        Properties log4j = new Properties();
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
+        if (in == null) {
+            throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
+        }
+        log4j.load(in);
+        PropertyConfigurator.configure(log4j);
     }
 
     @After
@@ -109,11 +123,10 @@ public class WsebConnectorIT {
     // TODO: remove this once we enable spec test ControlIT
     @Test
     public void shouldReplyPongToPing() throws Exception {
-        connect("wse://localhost:8011/path", null, new IoHandlerAdapter<IoSessionEx>() {
+        ConnectFuture connected = connect("wse://localhost:8011/path", null, new IoHandlerAdapter<IoSessionEx>() {
             
         });
         //future.getSession().write(new WsebBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
-
         robot.finish();
     }
     

@@ -690,7 +690,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return writerSequenceNo;
     }
     
-    private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new BridgeAcceptProcessor<WsebSession>() {
+    private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
+    
+    private final static class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
 
         @Override
         protected void removeInternal(WsebSession session) {
@@ -812,7 +814,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     };
     
-    private static final IoHandlerAdapter<TransportSession> transportHandler  = new IoHandlerAdapter<TransportSession>() {
+    private static final IoHandlerAdapter<TransportSession> transportHandler  = new TransportHandler();
+    
+    private static class TransportHandler extends IoHandlerAdapter<TransportSession> {
 
 
         @Override
@@ -884,6 +888,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 
     };
     
+    /**
+     * This processor, set on the TransportSession, just delegates to WsebAcceptProcessor or WsebConnectProcessor.
+     * We cannot set those directly as the processor on the TransportSession because of parameterized type mismatches.
+     */
     static class TransportProcessor implements IoProcessorEx<TransportSession> {
         private final IoProcessorEx<WsebSession> processor;
         

@@ -68,15 +68,6 @@ write flush
 
 write notify PING_SENT
 
-write await PONG_RECEIVED
-
-# close command
-write [0x01 0x30 0x32 0xff]
-# reconnect command
-write [0x01 0x30 0x31 0xff]
-write close
-
-
 # wseb upstream request from proxy service wse connect
 
 accept http://localhost:8011/path/;e/ub/QD12TQhXT6I5KeCrDe6g0IC9qoDkIioh
@@ -90,9 +81,20 @@ read version "HTTP/1.1"
 # read header "Content-Type" "application/octet-stream"
 read header "X-Sequence-No" ${wse:asString(sequence + 1)}
 
-# Pong reply frame
 read await PING_SENT
+
+# NOOP (not in wse spec server.send.ping/response.rpt but valid)
 read [0x01 0x30 0x30 0xff]
+
+# PONG reply
 read [0x8a 0x00]
-read notify PONG_RECEIVED
+
+#read [0x01 0x30 0x31 0xFF]
+#read closed
+
+#write status "200" "OK"
+#write version "HTTP/1.1"
+#write header content-length
+#write close
+
 
