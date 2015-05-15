@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure Enterprise Shield&trade;
 
-Configure Enterprise Shield&trade; ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure Enterprise Shield&trade; ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ======================================================================
 
 In this procedure you will learn how to configure Enterprise Shield&trade; for KAAZING Gateway to allow a connection from the DMZ to the trusted network without the need to open any inbound firewall ports. By configuring Enterprise Shield&trade;, you can close all externally facing ports entirely, providing maximum security and zero attack vectors for malicious users seeking to exploit ports in your firewall.

@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure Enterprise Shield&trade; in a Cluster?
 
-Configure Enterprise Shield&trade; in a Cluster ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+Configure Enterprise Shield&trade; in a Cluster ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ===================================================================================
 
 To add Enterprise Shield&trade; to your cluster configuration, you can start out by following the guidelines described in the [Configure Enterprise Shield&trade;](p_rc_config.md) topic. After that, the key is to configure Enterprise Shield&trade; on each cluster member, and create an equivalent number of cluster members on the DMZ and the trusted network.

@@ -14,6 +14,7 @@ In addition, configuring the Gateway with TLS/SSL ensures that network intermedi
 -   TLS/SSL requires that a separate secure session be established for each hop (gateway) in the network path. Consequently, you must configure separate TLS/SSL connections between the client and the Gateway and the back-end server and the Gateway. You use a separate certificate for each connection. You can choose to configure one or both secure connections. See the following figure for an example of the separate secure sessions established with the Gateway.
 
 ![the Gateway uses TLS to secure network traffic with clients and back-end servers](../images/f-TLS-client-gateway-server.jpg)
+
 **Figure: The Gateway Uses one TLS/SSL Certificate to Secure Network Traffic With Clients and a Separate TLS/SSL Certificate to Secure Network Traffic With Back-end Servers**
 
 If you are new to network security and TLS/SSL, see [Transport Layer Security (TLS/SSL) Concepts](c_tls.md).

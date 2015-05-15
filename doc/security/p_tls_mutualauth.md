@@ -62,7 +62,7 @@ To Configure Clients to Provide TLS/SSL Certificates
 
 **Notes:** 
 -   To use `ssl.verify-client` as an `accept-option` on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).
--   For more examples, including how to require clients to provide certificates in an Enterprise Shield&trade; topology, see [Configure Enterprise Shield&trade;](../reverse-connectivity/p_rc_config.md) and the [ssl.verify-client](../admin-reference/r_conf_service.md#sslverify-client) accept-option.
+-   For more examples, including how to require clients to provide certificates in an Enterprise Shield™ topology, see [Configure Enterprise Shield™](../reverse-connectivity/p_rc_config.md) and the [ssl.verify-client](../admin-reference/r_conf_service.md#sslverify-client) accept-option.
 
 Next Step
 ---------
@@ -72,15 +72,15 @@ To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gate
 Notes
 -----
 
--   This procedure is recommended for added security in an Enterprise Shield&trade; topology. See [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md) for more topics and information.
--   Consider configuring the [socks.ssl.verify-client](../admin-reference/r_conf_service.md#sockssslverify-client) connect-option for end-to-end security in an Enterprise Shield&trade; topology.
+-   This procedure is recommended for added security in an Enterprise Shield™ topology. See [About Enterprise Shield™](../reverse-connectivity/o_rc_checklist.md) for more topics and information.
+-   Consider configuring the [socks.ssl.verify-client](../admin-reference/r_conf_service.md#sockssslverify-client) connect-option for end-to-end security in an Enterprise Shield™ topology.
 -   A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
 -   To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH, MEDIUM, ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
 
 See Also
 --------
 
--   [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md)
+-   [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md)
 -   [Service Reference](../admin-reference/r_conf_service.md)
 
 

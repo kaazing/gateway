@@ -35,7 +35,7 @@ What Problem Are You Having?
 
 ### Gateway Cannot Resolve Host Name/Address
 
-**Cause:** If you use a host name in a secure URL (using HTTPS, WSS, TLS, SSL) in the Gateway configuration and the Gateway cannot resolve the host name, then it returns the following exception:
+**Cause:** If you use a host name in a secure URL (using HTTPS, WSS, SSL) in the Gateway configuration and the Gateway cannot resolve the host name, then it returns the following exception:
 
 `java.lang.RuntimeException: Unable to resolve address *hostname*.com:9000`
 
@@ -49,7 +49,7 @@ The preferred name for the auth-constraint configuration option has changed to a
 
 **Solution:** Change your Gateway configuration to use the `authorization-constraint` element as described in the [authorization-constraint](../admin-reference/r_conf_service.md#authorization-constraint) element for Gateway services.
 
-### WebSocket Stays Connected Too Long When It Should Fail Due to an Authorization Timeout![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### WebSocket Stays Connected Too Long When It Should Fail Due to an Authorization Timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Cause:** WebSocket stays connected when you expected it to fail due to an authorization timeout.
 

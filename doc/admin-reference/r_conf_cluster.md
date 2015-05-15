@@ -52,7 +52,7 @@ The following example shows a `cluster` service that accepts on `tcp://192.168.2
 
 ### Notes
 
--   To configure clustering in an Enterprise Shield&trade; topology, see [Configure Enterprise Shield&trade; in a Cluster](../reverse-connectivity/p_rc_cluster.md).
+-   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_rc_cluster.md).
 
 Summary
 -------
