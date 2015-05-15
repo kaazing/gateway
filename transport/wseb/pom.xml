@@ -39,6 +39,12 @@
         <!-- test dependencies -->
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>specification.wse</artifactId>
+            <version>${k3po.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxe</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

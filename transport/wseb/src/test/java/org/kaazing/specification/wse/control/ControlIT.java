@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.connector;
+package org.kaazing.specification.wse.control;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.future.ConnectFuture;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -53,7 +54,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public class WsebConnectorIT {
+public class ControlIT {
 
     private final K3poRule robot = new K3poRule();
 
@@ -104,15 +105,17 @@ public class WsebConnectorIT {
         wseConnector.dispose();
         schedulerProvider.shutdownNow();
     }
-
-    @Specification("shouldReplyPongToPing")
-    // TODO: remove this once we enable spec test ControlIT
+    @Specification("server.send.ping/response")
     @Test
-    public void shouldReplyPongToPing() throws Exception {
-        connect("wse://localhost:8011/path", null, new IoHandlerAdapter<IoSessionEx>() {
+    @Ignore // Issue #188: Specification.WSE - Should we relax the MUST requirement on upstream Content-Type header?
+    // TODO: when this test is enabled, remove WsebConnectorIT.shouldReplyPongToPing
+    public void serverSendPing() throws Exception {
+        connect("wse://localhost:8011//path", null, new IoHandlerAdapter<IoSessionEx>() {
             
         });
-        //future.getSession().write(new WsebBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
+        
+        // Example code to write data:
+        // future.getSession().write(new WsebBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
 
         robot.finish();
     }

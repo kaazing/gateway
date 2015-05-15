@@ -106,8 +106,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebSession.class);
-    private static final WriteRequest PING_REQUEST = new DefaultWriteRequestEx(new Object());
-    private static final WriteRequest PONG_REQUEST = new DefaultWriteRequestEx(new Object());
     private static final WriteRequest RECONNECT_REQUEST = new DefaultWriteRequestEx(new Object());
 
     private long readerSequenceNo;
@@ -493,36 +491,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     
     IoSessionEx getTransportSession() {
         return transportSession;
-    }
-
-    void issuePingRequest() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("enqueuePingRequest on WsebSession %s", this));
-        }
-        WriteRequestQueue writeRequestQueue = getWriteRequestQueue();
-        writeRequestQueue.offer(this, PING_REQUEST);
-        if (!isWriteSuspended()) {
-            getProcessor().flush(this);
-        }
-    }
-
-    static boolean isPingRequest(WriteRequest request) {
-        return request == PING_REQUEST;
-    }
-
-    void issuePongRequest() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("enqueuePongRequest on WsebSession %s", this));
-        }
-        WriteRequestQueue writeRequestQueue = getWriteRequestQueue();
-        writeRequestQueue.offer(this, PONG_REQUEST);
-        if (!isWriteSuspended()) {
-            getProcessor().flush(this);
-        }
-    }
-
-    static boolean isPongRequest(WriteRequest request) {
-        return request == PONG_REQUEST;
     }
 
     void enqueueReconnectRequest() {

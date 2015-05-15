@@ -170,10 +170,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     // written
                     int remaining = buffer.remaining();
 
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
-                    
                     if (writer == null) {
                         session.setCurrentWriteRequest(request);
                         initWriter(session);
@@ -204,28 +200,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 }
                 catch (Exception e) {
                     request.getFuture().setException(e);
-                }
-            }
-            else if (WsebSession.isPingRequest(request) || WsebSession.isPongRequest(request)) {
-                if (writer == null) {
-                    initWriter(session);
-                    break;
-                }
-                boolean ping = WsebSession.isPingRequest(request);
-                if (LOGGER.isDebugEnabled()) {
-                    String poing = ping ? "PING" : "PONG";
-                    LOGGER.debug(String.format("%s_REQUEST detected on wsebSession %s: sending %s",
-                            poing, session, poing));
-                }
-                try {
-                    IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-                    IoBufferEx emptyBuf = allocator.wrap(allocator.allocate(0));
-                    emptyBuf.mark();
-                    WsMessage emptyPoing = ping ? new WsPingMessage(emptyBuf) : new WsPongMessage(emptyBuf);
-                    lastWrite = flushNowInternal(writer, emptyPoing, emptyBuf, filterChain, request);
-                }
-                finally {
-                    session.setCurrentWriteRequest(null);
                 }
             }
             else
