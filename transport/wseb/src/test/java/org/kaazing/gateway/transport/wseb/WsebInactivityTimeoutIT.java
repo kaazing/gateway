@@ -40,7 +40,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WsebInactivityTimeoutIT {
 
-    private final K3poRule robot = new K3poRule();
+    private final K3poRule k3po = new K3poRule();
     private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -62,18 +62,24 @@ public class WsebInactivityTimeoutIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+    public TestRule chain = outerRule(k3po).around(gateway).around(timeout);
 
     @Specification("echo.inactivity.timeout.should.close")
     @Test
     public void testEchoInactiveTimeoutShouldCloseConnection() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
     @Specification("echo.inactivity.timeout.should.not.ping.old.client")
     @Test
     public void testEchoInactiveTimeoutShouldNotPingOldClient() throws Exception {
-        robot.finish();
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("ping.on.longpolling.request")
+    public void shouldReceivePingOnLongPollingRequest() throws Exception {
+        k3po.finish();
     }
 
 }
