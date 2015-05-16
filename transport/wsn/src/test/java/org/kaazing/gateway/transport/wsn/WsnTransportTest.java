@@ -30,14 +30,12 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -61,7 +59,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnTransportTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
 
@@ -82,11 +80,6 @@ public class WsnTransportTest {
 //	private ServiceContext serviceContext;
 //	private ServiceRegistry serviceRegistry;
 
-    @BeforeClass
-    public static void debugging() throws Exception {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-    }
-
 	@Before
 	public void init() {
 //        serviceRegistry = new ServiceRegistry();
@@ -96,7 +89,7 @@ public class WsnTransportTest {
 		schedulerProvider = new SchedulerProvider();
 
 		addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
 		serviceFactory = new BridgeServiceFactory(transportFactory);
 
 		tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

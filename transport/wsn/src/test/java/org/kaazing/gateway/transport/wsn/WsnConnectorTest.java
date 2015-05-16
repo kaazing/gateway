@@ -73,7 +73,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnConnectorTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private SchedulerProvider schedulerProvider;
 
@@ -105,7 +105,7 @@ public class WsnConnectorTest {
         schedulerProvider = new SchedulerProvider();
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
         serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();

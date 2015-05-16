@@ -40,7 +40,7 @@ public class MethodExecutionTrace extends TestWatcher {
 
     /**
      * Use this constructor to set up a particular log4j configuration using a properties file,
-     * e.g. to use MemoryAppender.
+     * or null if you do not want to load any log4j configuration properties.
      * See gateway.server src/test/resources/log4j-trace.properties for an example.
      * @param log4jConfigPropertiesFileName
      */
@@ -62,8 +62,13 @@ public class MethodExecutionTrace extends TestWatcher {
         }
     }
 
+    /**
+     * This constructor will configure log4j using the log4j-trace.properties file from the
+     * test.util jar, which uses MemoryAppender so failed tests will print out the trace level log messages
+     * to help diagnose the failure.
+     */
     public MethodExecutionTrace() {
-        this(null);
+        this("log4j-trace.properties");
     }
 
     @Override
