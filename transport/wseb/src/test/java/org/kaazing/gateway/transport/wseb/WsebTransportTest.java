@@ -67,7 +67,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
@@ -87,12 +87,6 @@ public class WsebTransportTest {
 	private HttpAcceptor httpAcceptor;
 	private WsebAcceptor wsebAcceptor;
 	
-
-    @BeforeClass
-    public static void debugging() throws Exception {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-    }
-
 	@Before
 	public void init() {
 		schedulerProvider = new SchedulerProvider();

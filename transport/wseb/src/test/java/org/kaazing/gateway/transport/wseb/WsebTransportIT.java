@@ -79,7 +79,6 @@ public class WsebTransportIT {
     @Test
     public void testEchoAlignedDownstream() throws Exception {
         robot.finish();
-        throw new RuntimeException("TEMP");
     }
 
     @Specification("echo.aligned.downstream.with.sequence.number")
