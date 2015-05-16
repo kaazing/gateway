@@ -67,7 +67,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));

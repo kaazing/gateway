@@ -21,10 +21,14 @@
 
 package org.kaazing.test.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.internal.AssumptionViolatedException;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * This class can be used to print out a message at the start and end of each test method in a JUnit test class
@@ -32,48 +36,49 @@ import org.junit.runners.model.FrameworkMethod;
     @Rule
     public MethodRule testExecutionTrace = new MethodExecutionTrace();
  */
-public class MethodExecutionTrace extends TestWatchman {
-    //if we ever want the full test name (including method),
-    //we can call the public static method which retrieves this
-    //variable. This variable is set in the starting method, and
-    //and unset in the fail/success methods
-    private static String currentFullTestName;
-
-    public static String getFullTestName() {
-        return currentFullTestName;
-    }
-
+public class MethodExecutionTrace extends TestWatcher {
+    
     /**
      * Use this constructor to set up a particular log4j configuration using a properties file,
      * e.g. to use MemoryAppender.
      * See gateway.server src/test/resources/log4j-trace.properties for an example.
      * @param log4jConfigPropertiesFileName
      */
-    public MethodExecutionTrace(String log4jConfigPropertiesFileName) {
+    public MethodExecutionTrace(String log4jPropertiesResourceName) {
         MemoryAppender.initialize();
-        if (log4jConfigPropertiesFileName != null) {
-            PropertyConfigurator.configure(log4jConfigPropertiesFileName);
+        if (log4jPropertiesResourceName != null) {
+            // Initialize log4j using a properties file available on the class path
+            Properties log4j = new Properties();
+            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
+            if (in == null) {
+                throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName));
+            }
+            try {
+                log4j.load(in);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName), e);
+            }
+            PropertyConfigurator.configure(log4j);
         }
     }
-
+    
     public MethodExecutionTrace() {
         this(null);
     }
 
     @Override
-    public void starting(FrameworkMethod method) {
-        currentFullTestName = getFullMethodName(method);
-        System.out.println(currentFullTestName + " starting");
+    public void starting(Description description) {
+        System.out.println(description.getDisplayName() + " starting");
     }
 
     @Override
-    public void failed(Throwable e, FrameworkMethod method) {
+    public void failed(Throwable e, Description description) {
         if (e instanceof AssumptionViolatedException) {
             System.out.println(String.format("%s skipped programmatically with reason: %s",
-                    getFullMethodName(method) , e.getMessage()));
+                    getFullMethodName(description) , e.getMessage()));
         }
         else {
-            System.out.println(getFullMethodName(method) + " FAILED with exception " + e);
+            System.out.println(getFullMethodName(description) + " FAILED with exception " + e);
             e.printStackTrace();
             System.out.println("=================== BEGIN STORED LOG MESSAGES ===========================");
             MemoryAppender.printAllMessages();
@@ -82,11 +87,11 @@ public class MethodExecutionTrace extends TestWatchman {
     }
 
     @Override
-    public void succeeded(FrameworkMethod method) {
-            System.out.println(getFullMethodName(method) + " " + "success");
+    public void succeeded(Description description) {
+            System.out.println(getFullMethodName(description) + " " + "success");
     }
 
-    private String getFullMethodName(FrameworkMethod method) {
-        return method.getMethod().getDeclaringClass().getSimpleName() + "." + method.getName();
+    private String getFullMethodName(Description description) {
+        return description.getTestClass().getSimpleName() + "." + description.getMethodName();
     }
 }

@@ -19,11 +19,12 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.connector;
+package org.kaazing.specification.wse.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -35,23 +36,26 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-public class WsebConnectorIT {
+public class CloseIT {
 
-    private final K3poRule robot = new K3poRule();
+    private final K3poRule robot = new K3poRule()
+    .setScriptRoot("org/kaazing/specification/wse/closing");
     private final WsebConnectorRule connector = new WsebConnectorRule();
     private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
 
     @Rule
     public TestRule chain = outerRule(connector).around(robot).around(timeout);
-
-    @Specification("shouldReplyPongToPing")
-    // TODO: remove this once we enable spec test ControlIT
+    
+    
+    
+    @Specification("client.send.close/response")
     @Test
-    public void shouldReplyPongToPing() throws Exception {
-        connector.connect("wse://localhost:8011/path", null, new IoHandlerAdapter<IoSessionEx>() {
+    @Ignore // Issue #188: WsebConnector should set Content-Type header on the upstream request
+    public void shouldEchoClientCloseFrame() throws Exception {
+        connector.connect("wse://localhost:8080//path", null, new IoHandlerAdapter<IoSessionEx>() {
             
         });
-        //future.getSession().write(new WsebBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
+        
         robot.finish();
     }
     

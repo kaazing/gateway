@@ -44,7 +44,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -76,7 +76,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsCloseTransportTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
 
 //    private static final boolean DEBUG = false;
     private static final boolean DEBUG = true;
