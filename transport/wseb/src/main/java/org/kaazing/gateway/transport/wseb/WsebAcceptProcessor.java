@@ -261,7 +261,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                 finally {
                     session.setCurrentWriteRequest(null);
                 }
-                break;
             }
             else {
                 throw new IllegalStateException("Don't know how to handle message of type '" + message.getClass().getName() + "'.  Are you missing a protocol encoder?");
