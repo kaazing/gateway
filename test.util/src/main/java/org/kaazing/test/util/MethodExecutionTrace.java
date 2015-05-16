@@ -37,7 +37,7 @@ import org.junit.runner.Description;
     public MethodRule testExecutionTrace = new MethodExecutionTrace();
  */
 public class MethodExecutionTrace extends TestWatcher {
-    
+
     /**
      * Use this constructor to set up a particular log4j configuration using a properties file,
      * e.g. to use MemoryAppender.
@@ -61,7 +61,7 @@ public class MethodExecutionTrace extends TestWatcher {
             PropertyConfigurator.configure(log4j);
         }
     }
-    
+
     public MethodExecutionTrace() {
         this(null);
     }
