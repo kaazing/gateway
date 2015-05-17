@@ -853,7 +853,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 session.write(emptyPong);
                 break;
             case CLOSE:
-                wsebSession.getProcessor().remove(wsebSession);
+                wsebSession.close(false);
                 break;
             case CONTINUATION:
                 break;

@@ -40,9 +40,8 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportIT {
-    @Rule 
-    public MethodExecutionTrace trace = new MethodExecutionTrace();
-
+    private TestRule trace = new MethodExecutionTrace();
+    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -70,10 +69,9 @@ public class WsebTransportIT {
         }
     };
 
-    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+    public TestRule chain = outerRule(trace).around(timeout).around(robot).around(gateway);
 
     @Specification("echo.aligned.downstream")
     @Test

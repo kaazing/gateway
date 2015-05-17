@@ -84,7 +84,7 @@ public class MethodExecutionTrace extends TestWatcher {
         }
         else {
             System.out.println(getFullMethodName(description) + " FAILED with exception " + e);
-            e.printStackTrace();
+            e.printStackTrace(System.out);
             System.out.println("=================== BEGIN STORED LOG MESSAGES ===========================");
             MemoryAppender.printAllMessages();
             System.out.println("=================== END STORED LOG MESSAGES ===========================");
