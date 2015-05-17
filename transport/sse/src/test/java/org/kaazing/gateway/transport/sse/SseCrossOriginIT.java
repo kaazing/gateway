@@ -36,10 +36,8 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class SseCrossOriginIT {
-    private TestRule trace = new MethodExecutionTrace();
     private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
     private final K3poRule robot = new K3poRule();
 
@@ -63,7 +61,7 @@ public class SseCrossOriginIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(trace).around(timeout).around(robot).around(gateway);
+    public TestRule chain = outerRule(timeout).around(robot).around(gateway);
 
     @Specification("sse.connect.from.bridge.and.get.data")
     @Test
