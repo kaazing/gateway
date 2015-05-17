@@ -61,6 +61,6 @@ read notify CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
 read "data:Kobe is greater than Griffen\n"
 read "data:\n"
 read "\n"
-read notify TEST_OVER
 close
 closed
+read notify TEST_OVER
