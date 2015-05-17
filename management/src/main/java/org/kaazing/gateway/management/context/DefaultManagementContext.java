@@ -644,7 +644,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     /**
-     * Method instantiating a monitoring entity factory builder and building an actual
+     * Method instantiating a monitoring entity factory injector and building an actual
      * monitoring entity factory
      *
      * The monitoring entity factory builder is initialized here and not in the constructor
@@ -652,7 +652,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
      *
      */
     private void buildMonitoringEntityFactory() {
-        // We create a new monitoring entity factory using the factory builder.
+        // We create a new monitoring entity factory using the factory injector.
 
         MonitoringEntityFactoryInjector monitoringEntityFactoryInjector = new MonitoringEntityFactoryInjectorImpl(configuration);
         monitoringEntityFactory = monitoringEntityFactoryInjector.makeMonitoringEntityFactory();

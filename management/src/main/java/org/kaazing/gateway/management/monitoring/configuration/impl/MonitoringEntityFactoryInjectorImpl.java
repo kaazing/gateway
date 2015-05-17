@@ -30,7 +30,10 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 
 public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFactoryInjector {
 
-    Properties configuration;
+    /**
+     * Configuration parameter
+     */
+    private Properties configuration;
 
     public MonitoringEntityFactoryInjectorImpl(Properties configuration) {
         this.configuration = configuration;
