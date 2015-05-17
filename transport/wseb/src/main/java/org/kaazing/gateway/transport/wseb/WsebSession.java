@@ -742,10 +742,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 // stream
                 if (WsebSession.isReconnectRequest(request)) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(String.format("RECONNECT_REQUEST detected: passing to wseb frame session %d", transport.getId()));
+                        LOGGER.debug(format("RECONNECT_REQUEST detected on wseb session %d: passing to wseb processor",
+                                session.getId()));
                     }
-                    // Bypass the filter chain since WebSocket extension filters should not see this special request
-                    // WsebAccept(or Connect)Processor will deal with it
+                    // Bypass the filter chain since WebSocket extension filters should not see this special request.
+                    // WsebAccept(or Connect)Processor will deal with it.
                     transport.getWriteRequestQueue().offer(transport, request);
                     if (!transport.isWriteSuspended()) {
                         ((AbstractIoSessionEx) transport).getProcessor().flush(transport);
