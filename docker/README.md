@@ -16,5 +16,7 @@ To release you must have push rights to the [kaazing docker hub organization](ht
 You can launch a container using the docker image produced by this build by running 
 
 ```bash
-docker run --rm -p 8080:8080 -h hostname kaazing/unstable-gateway:develop-SNAPSHOT
+docker run --rm -p 8080:8080 -h <hostname> kaazing/unstable-gateway:develop-SNAPSHOT
 ```
+
+where hostname points to your [docker host ip address](https://docs.docker.com/articles/basics/#bind-docker-to-another-hostport-or-a-unix-socket).  You will then want to add the <hostname> and docker host ip address to your etc/hosts.
