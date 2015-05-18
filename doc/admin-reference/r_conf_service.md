@@ -87,6 +87,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
 
 service
 -------------------------------------
+Configure all Gateways with one or more services for which you want to provide reverse connectivity. Each service element contains an accept URI on which the service listens on for client connections and a connect. Configuration is the same for all services.
 
 Each `service` can contain any of the subordinate elements listed in the following table.
 
@@ -154,6 +155,8 @@ The URLs on which the service accepts connections (see [Supported URL schemes](#
     -   tcp
     -   udp
 
+- Normally an `accept` element in a service definition instructs the Gateway to listen on the port for incoming connections. However, with Enterprise Shield™, instead of listening, the internal (trusted) Gateway initiates a reverse connection to the DMZ Gateway. The reverse connection is achieved by configuring the internal Gateway service to act as a SOCKS client, sending remote bind requests to the DMZ Gateway. This tells the remote side to listen for connections on a particular host and port. That way, when clients' connection requests come in to the DMZ Gateway, the Gateway matches them up with SOCKS bind requests.
+
 ### connect
 
 **Required?** Yes; **Occurs:** At least once.
@@ -179,6 +182,10 @@ The URL of a back-end service or message broker to which the proxy service (for 
     -   ssl
     -   tcp
     -   udp
+
+- Normally a `connect` element in a service definition instructs the DMZ Gateway to establish an outgoing physical network connection to the specified URI on a remote host machine for each client as it connects to the service. However, with a reverse connection, instead of connecting, the DMZ Gateway listens for an incoming bind request from the internal, trusted Gateway. If a bind request matching the specified connect URI is received, then a reverse connection is formed. The reverse connection is achieved by configuring the DMZ Gateway service to act as a SOCKS server, receiving remote bind requests from the Enterprise Gateway. For example: `<connect>tcp://127.0.0.1:3102</connect>`.
+
+In a cluster, you configure a UDP connect URI that cluster members use to join the cluster. For example: <connect>udp://224.2.2.44:44444</connect>
 
 ### balance
 
