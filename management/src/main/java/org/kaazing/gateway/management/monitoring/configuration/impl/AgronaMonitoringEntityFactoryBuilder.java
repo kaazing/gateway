@@ -39,7 +39,6 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
 
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
-    private static final String MONITOR_DIR_DESCRIPTION = "Monitoring directory";
     private static final String MONITOR_DIR_NAME = "/kaazing";
     private static final String MONITOR_FILE_NAME = "monitor";
     private static final int MONITOR_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
@@ -97,9 +96,6 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
             if (devShmDir.exists()) {
                 monitoringDirName = LINUX_DEV_SHM_DIRECTORY + monitoringDirName;
             }
-        } else {
-            File monitoringDir = new File(MONITOR_DIR_NAME);
-            IoUtil.ensureDirectoryExists(monitoringDir, MONITOR_DIR_DESCRIPTION);
         }
 
         return monitoringDirName;
