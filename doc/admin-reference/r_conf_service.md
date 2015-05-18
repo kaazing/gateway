@@ -905,7 +905,7 @@ Use the `connect-options` element to add options to all connections for the serv
 | socks.ssl.verify-client ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake. |
 | socks.retry.maximum.interval ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | no | The maximum interval the Gateway waits before retrying if an attempt toconnect to the SOCKS proxy fails. See [socks.retry.maximum.interval](#socksretrymaximuminterval).  |
 | tcp.maximum.outbound.rate ![This feature is available in KAAZING Gateway- Enterprise Edition.](../images/enterprise-feature.png) | yes | no | Specifies the maximum bandwidth rate at which bytes can be written from the Gateway (outbound) to each client session. This option controls the rate of outbound traffic being sent per client connection for clients connecting to a service (see [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate)). |
-| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)). You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed. | 
+| ws.inactivity.timeout | yes | yes | Specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified (see [ws.inactivity.timeout](#wsinactivitytimeout)).  | 
 | http.server.header | yes | no | Controls the inclusion of the HTTP Server header. By default, the Gateway writes a HTTP Server header. See [http.server.header](#httpserverheader). |
 | ws.version (deprecated) | no | yes | The `ws.version` element has been deprecated. |
 
@@ -1565,6 +1565,11 @@ Setting `socks.retry.maximum.interval` handles cases where the DMZ Gateway has n
 
 Once the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
+For most cases, setting `socks.retry.maximum.interval` to 60 seconds is recommended because it:
+- Reduces the amount of time between retry attempts to connect to the DMZ Gateway.
+- Makes it less likely the Gateway goes into a quiesced mode at startup. (At startup: the value set for the `socks.timeout` element determines how long the reverse-port is bound before going into the heartbeat/quiesced mode.)
+- Avoids the situation where it appears that the system is not working when things are simply paused or delayed.
+
 ##### Example
 
 The following example shows a `service` element containing a SOCKS proxy connection retry interval time limit of 60 seconds:
@@ -1672,7 +1677,7 @@ In the following example, the `ws.inactivity.timeout` property specifies that if
 
 ##### Notes
 
--   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly.
+-   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly. For most environments,  60 seconds is the recommended setting for `ws.inactivity.timeout`.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
 
 #### http.server.header
