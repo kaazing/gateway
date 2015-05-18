@@ -1436,6 +1436,8 @@ The following example shows a `connect-options` element with the `socks.mode` se
 
 Use the `socks.timeout` connect-option to specify the length of time (in seconds) to wait for a SOCKS connection to form before closing the connection. If you do not specify `socks.timeout` for your Gateway configuration, then a timeout is not enforced.
 
+You must set `socks.timeout` to be longer than `socks.retry.maximum.interval` to ensure a connection does not fail because it does not wait long enough for the retry interval from the trusted, internal gateway to the DMZ gateway. 
+
 Note the following behavior for reverse and forward SOCKS connections:
 
 -   For *reverse* connections (`socks.mode` is set to *reverse*), the time you specify for `socks.timeout` determines how long pending connection requests on the DMZ Gateway wait for the internal Gateway to initiate a reverse connection.
