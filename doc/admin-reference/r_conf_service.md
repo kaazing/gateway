@@ -1439,6 +1439,10 @@ Note the following behavior for reverse and forward SOCKS connections:
 
     If the network connection or the SOCKS handshake does not succeed within the time specified by `socks.timeout`, then the connection to the client fails and the connection is closed.
 
+A best practice recommendation is to use the `wsn://` scheme or `wsn+ssl://` scheme (WebSocket Native and SSL) for secure connections. The `wsn://` scheme instructs the Gateway to only initiate or accept native WebSocket connections. Normally, when communication with clients, a `ws://` or `wss://` scheme is used. That will attempt native WebSocket connectivity, but will fallback to emulation if required to ensure successful connectivity.
+
+However, between the internal and DMZ Gateways it is a controlled network so you should use native WebSocket. If a connection fails, using `wsn://` forces a retry of a native WebSocket connection rather than attempting to fallback to emulation.
+
 ##### Example
 
 The following example shows a `socks.timeout` that is set to 10 seconds. If the forward connection is not formed within 10 seconds, then the connection is closed and the client must initiate another connection.
