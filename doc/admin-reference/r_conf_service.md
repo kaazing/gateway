@@ -61,6 +61,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [ssl.encryption](#sslencryption)
             -   [ssl.verify-client](#sslverify-client)
             -   [socks.mode](#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [socks.timeout](#sockstimeout)
             -   [socks.ssl.ciphers](#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.protocols](#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.verify-client](#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
