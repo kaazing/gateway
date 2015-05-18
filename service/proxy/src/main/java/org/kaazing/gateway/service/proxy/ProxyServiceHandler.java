@@ -21,20 +21,33 @@
 
 package org.kaazing.gateway.service.proxy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
     private final Logger logger = LoggerFactory.getLogger(ProxyServiceHandler.class);
+    private final List<ProxyServiceExtensionSpi> extensions;
 
     public ProxyServiceHandler() {
         super();
+        extensions = new ArrayList<ProxyServiceExtensionSpi>();
+    }
+
+    // package private method for registering proxy service extensions so that
+    // the proxy service interallly manages the extensions
+    void registerExtension(ProxyServiceExtensionSpi extension) {
+        assert extension != null;
+        extensions.add(extension);
     }
 
     @Override
@@ -108,6 +121,13 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
                 } else {
                     AttachedSessionManager attachedSessionManager = attachSessions(acceptSession, connectedSession);
                     flushQueuedMessages(acceptSession, attachedSessionManager);
+
+                    // notify extensions that the proxied connection is ready
+                    IoSessionEx acceptSessionEx = (IoSessionEx)acceptSession;
+                    IoSessionEx connectedSessionEx = (IoSessionEx)connectedSession;
+                    for (ProxyServiceExtensionSpi extension : extensions) {
+                        extension.proxiedConnectionEstablished(acceptSessionEx, connectedSessionEx);
+                    }
                 }
             } else {
                 logger.warn("Connection to " + getConnectURIs().iterator().next() + " failed ["+acceptSession+"->]");
