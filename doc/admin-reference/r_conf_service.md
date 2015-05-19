@@ -1577,11 +1577,11 @@ Use the `socks.retry.maximum.interval` accept-option in an Enterprise Shield™ 
 
 Setting `socks.retry.maximum.interval` handles cases where the DMZ Gateway has not started but the internal Gateway keeps trying to connect to the DMZ Gateway. The setting is the maximum backoff interval. The internal Gateway initially retries after waiting for 500ms, and the subsequent wait intervals start at 100ms, then continue at 200ms, then 400ms, and continue doubling until reaching the specified maximum interval.
 
-Once the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
+Once the maximum interval is reached, the Gateway continues to reconnect to the SOCKS proxy at the maximum interval. If no maximum is specified, then the default maximum retry interval is 30 seconds. For more information about configuring the SOCKS proxy, see [Configure Enterprise Shield™ with the Gateway](../reverse-connectivity/o_rc_checklist.md).
 
 For most cases, setting `socks.retry.maximum.interval` to 60 seconds is recommended because it:
 - Reduces the amount of time between retry attempts to connect to the DMZ Gateway.
-- Makes it less likely the Gateway goes into a quiesced mode at startup. (At startup: the value set for the `socks.timeout` element determines how long the reverse-port is bound before going into the heartbeat/quiesced mode.)
+- Makes it less likely that services in the DMZ Gateway go into a quiesced mode at startup. (At startup: the value set for the `socks.timeout` element in the DMZ Gateway determines how long the reverse-port is bound before going into the heartbeat/quiesced mode.)
 - Avoids the situation where it appears that the system is not working when things are simply paused or delayed.
 
 ##### Example
@@ -1691,7 +1691,8 @@ In the following example, the `ws.inactivity.timeout` property specifies that if
 
 ##### Notes
 
--   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly. For most environments,  60 seconds is the recommended setting for `ws.inactivity.timeout`.
+-   Set the time interval to a value that is at least double the expected maximum network round-trip time between the Gateway and any client. Otherwise, clients may be disconnected unexpectedly. 
+-   A reasonable starting point is to set `ws.inactivity.timeout` to 60 seconds, and then adjust the value higher or lower based on your environment. For example, if you know a firewall in your environment will terminate idle connections after 30 minutes, then you could increase the value of this setting to 25 minutes.
 -   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
 
 #### http.server.header
