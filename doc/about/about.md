@@ -8,6 +8,7 @@ Documentation Conventions
 This topic contains the following sections:
 -   [Text Conventions](#text-conventions)
 -   [About URI Syntax](#about-uri-syntax)
+-   [About File Extensions](#about-file-extensions)
 -   [About Ports](#about-ports)
 -   [About KAAZING\_HOME](#about-kaazing_home)
 -   [About GATEWAY\_HOME](#about-gateway_home)
@@ -50,11 +51,11 @@ For example, the following URI schemes are used in the documentation:
 In addition, you can append a query string to the URL to provide non-hierarchical information. The query string follows a question mark (?) appended to the URL. For example, you can use this query string when configuring security for your Gateway (as described in the [Security Reference](../admin-reference/r_conf_security.md)).
 
 **Note:** In the example URLs, the `${gateway.hostname}` syntax allows you to define property values once and then the values are propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file that uses the dollar-sign and curly brace format (such as `${gateway.hostname}`) with a property. In the Gateway configuration, you can configure property defaults such as `gateway.hostname`, `gateway.base.port`, `gateway.extras.port`.
-### See Also
 
--   [Service Reference](../admin-reference/r_conf_service.md) for information about specifying URLs with the accept and connect elements.
--   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
--   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_conf_multipleservices.md#configmultsrvcs)
+About File Extensions
+----------------------------------------
+Many examples in the documentation use the `.net domain` (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Simply replace any instances of "example.com" in the configuration with your domain or hostname.
+
 
 About Ports
 ------------------------------------
@@ -96,4 +97,9 @@ This is the directory that contains KAAZING Gateway and its components. The defa
 -   If you download from [kaazing.org](http://kaazing.org) and unpack the Gateway using the standalone method, then you can unpack the download into a directory of your choice (for example, `C:\kaazing` or `/home/username/kaazing`).
 -   If you fork the Gateway GitHub repository (find links to repos at [kaazing.org](http://kaazing.org)), then you can clone to the directory of your choice.
 
+### See Also
+
+-   [Service Reference](../admin-reference/r_conf_service.md) for information about specifying URLs with the accept and connect elements.
+-   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
+-   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_conf_multipleservices.md#configmultsrvcs)
 

@@ -1,0 +1,71 @@
+-   [Home](../../index.md)
+-   [Documentation](../index.md)
+-   Security with KAAZING Gateway
+
+Common Enterprise Shield™ Use Cases ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+=====================================
+
+This topic provides a high-level overview of some common Enterprise Shield™ use cases.
+
+Before You Begin
+--------------------------------------
+
+This procedure is part of [Configure Enterprise Shield™ for KAAZING Gateway](o_rc_checklist.md):
+
+1.  [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md#DMZ_to_Internal)
+2.  [About Enterprise Shield™](o_rc_checklist.md#whatis)
+3.  **Common Enterprise Shield™ Use Cases**
+4.  [Setting Up the Gateway]((../about/setup-guide.md)
+5.  [Walkthrough: Configure Enterprise Shield™](p_rc_config.md)
+
+The use case configurations described in this topic vary depending on the level of security, such as if the Gateways are clustered for high availability, whether network transports are used, and so on. Also, the sample topologies use two Gateway services instead of just one to demonstrate the Enterprise Shield™ reverse connectivity behavior in a configuration with multiple services.
+
+Each of the Enterprise Shield™ use cases configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), and then extends that topology to a cluster configuration. To configure Enterprise Shield™ and control Gateway operation, you configure elements in the Gateway configuration (gateway-config.xml) file. For complete information about Gateway configuration, see [Understanding KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md). Also, to see the complete Gateway configuration files used for these use cases, you can link to their `kaazing.org` locations that are included in each use case description that follows.
+
+<a name="usecase1"></a>Use Case 1: Test Drive Enterprise Shield™
+------------------------------------------------------------------
+
+This is the simplest Enterprise Shield™ architecture for the purpose of prototyping and evaluating how this feature can meet your business needs. No security is configured, which reduces the complexity of setting up this architecture. Also, it is easy to demonstrate this configuration on a single host environment, such as a laptop.
+
+<figure style="margin-left:0px;">
+![Use Case 1: Test Drive Enterprise Shield™](../images/es_usecase1.png)
+<figcaption>
+**Figure 1: Test Drive Enterprise Shield™**
+</figcaption>
+</figure>
+The complete configuration files are available on `kaazing.org` at:
+
+-   Single pair of Gateways: `enterprise-shield-use-case-1-single.xml`
+-   Cluster of Gateways: `enterprise-shield-use-case-1-cluster.xml`
+
+<a name="usecase2"></a>Use Case 2: Security Over the Web
+--------------------------------------------------------
+
+This topology demonstrates the architecture for secure communication over the Web that uses TLS between the client and the DMZ Gateway (represented by locks). The communication in the data center is unsecure. A production deployment should always use security for connections over the Web. Use this topology when you want secure Web communication, but network transport security is not a requirement between the DMZ and the trusted network.
+
+<figure style="margin-left:0px;">
+![Use Case 2: Security Over the Web](../images/es_usecase2.png)
+<figcaption>
+**Figure 2: Security Over the Web**
+</figcaption>
+</figure>
+This use case configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), then extends the topology to a cluster configuration. The complete configuration files are available on `kaazing.org` at:
+
+-   Single pair of Gateways: `enterprise-shield-use-case-2-single.xml`
+-   Cluster of Gateways: `enterprise-shield-use-case-2-cluster.xml`
+
+<a name="usecase3"></a>Use Case 3: Maximum (End-to-End) Transport Security
+--------------------------------------------------------------------------
+
+This topology provides the most secure connections into the enterprise. It is also a best practice recommendation for maximum security of an Enterprise Shield™ production configuration, because it provides security on the Web (same as Use Case 2) and it also secures the transport between the Gateways running on the DMZ and the trusted network. In this topology, the Gateway in the internal trusted network and a DMZ Gateway collaborate so that inbound ports of the firewall can be closed. Doing so provides a barrier to unauthorized users but still allows full bidirectional access.
+
+<figure style="margin-left:0px;">
+![Use Case 3: Maximum (End-to-End) Transport Security](../images/es_usecase3.png)
+<figcaption>
+**Figure 3: Maximum (End-to-End) Transport Security**
+</figcaption>
+</figure>
+To configure this Enterprise Shield™ topology on a single pair of Gateways and then extend it to a cluster, follow the detailed steps in [Walkthrough: Configure Enterprise Shield™](p_rc_config.md) and see the complete configuration files at `kaazing.org`:
+
+-   Single pair of Gateways: `enterprise-shield-use-case-3-single.xml`
+-   Cluster of Gateways: `enterprise-shield-use-case-3-cluster.xml`
