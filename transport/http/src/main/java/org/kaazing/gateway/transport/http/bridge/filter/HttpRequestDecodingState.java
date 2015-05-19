@@ -88,21 +88,21 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 
 	};
 
-	private static final DecodingState READ_CONTENT = new DecodingState() {
-		@Override
-		public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-			HttpContentMessage content = new HttpContentMessage((IoBufferEx) in.duplicate(), false);
-			out.write(content);
-			in.position(in.limit());
-			return this;
-		}
+    private static final DecodingState READ_CONTENT = new DecodingState() {
+        @Override
+        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+            HttpContentMessage content = new HttpContentMessage((IoBufferEx) in.duplicate(), false);
+            out.write(content);
+            in.position(in.limit());
+            return this;
+        }
 
-		@Override
-		public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
+        @Override
+        public DecodingState finishDecode(ProtocolDecoderOutput out) throws Exception {
 //            out.write(TERMINATOR);
-			return null;
-		}
-	};
+            return null;
+        }
+    };
 
 	private final DecodingState READ_REQUEST_MESSAGE = new DecodingStateMachine(allocator) {
 
@@ -188,46 +188,46 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 	            httpRequest.setHeader(HEADER_CONTENT_TYPE, contentTypeParam);
 	        }
 
-	        if ((version == HttpVersion.HTTP_1_1) && isChunked(httpRequest)) {
-				httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-				out.write(httpRequest);
-				return READ_CHUNK;
-			} else {
-				long length = getContentLength(httpRequest);
-				String lengthValue = httpRequest.getHeader(HEADER_CONTENT_LENGTH);
-				if (length > 0) {
-					if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
-						return new FixedLengthDecodingState(allocator, (int) length) {
+            if ((version == HttpVersion.HTTP_1_1) && isChunked(httpRequest)) {
+                httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                out.write(httpRequest);
+                return READ_CHUNK;
+            } else {
+                long length = getContentLength(httpRequest);
+                String lengthValue = httpRequest.getHeader(HEADER_CONTENT_LENGTH);
+                if (length > 0) {
+                    if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
+                        return new FixedLengthDecodingState(allocator, (int) length) {
 
-							@Override
-							protected DecodingState finishDecode(IoBuffer product, ProtocolDecoderOutput out) throws Exception {
-								HttpContentMessage content = new HttpContentMessage((IoBufferEx) product, true);
-								httpRequest.setContent(content);
-								out.write(httpRequest);
-								return null;
-							}
-						};
-					} else {
-						// up-streaming
-						httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-						out.write(httpRequest);
-						return new MaximumLengthDecodingState(length);
-					}
-				} else if (lengthValue == null && HttpPersistenceFilter.isClosing(httpRequest)) {
-					// missing content length
-					httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-					out.write(httpRequest);
+                            @Override
+                            protected DecodingState finishDecode(IoBuffer product, ProtocolDecoderOutput out) throws Exception {
+                                HttpContentMessage content = new HttpContentMessage((IoBufferEx) product, true);
+                                httpRequest.setContent(content);
+                                out.write(httpRequest);
+                                return null;
+                            }
+                        };
+                    } else {
+                        // up-streaming
+                        httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                        out.write(httpRequest);
+                        return new MaximumLengthDecodingState(length);
+                    }
+                } else if (lengthValue == null && HttpPersistenceFilter.isClosing(httpRequest)) {
+                    // missing content length
+                    httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+                    out.write(httpRequest);
 
-					// deliver each received IoBuffer as an HttpContentMessage until end-of-session
-					return READ_CONTENT;
-				}
+                    // deliver each received IoBuffer as an HttpContentMessage until end-of-session
+                    return READ_CONTENT;
+                }
 
-				// assume no content following
-				out.write(httpRequest);
+                // assume no content following
+                out.write(httpRequest);
 
-				return null;
-			}
-		}
+                return null;
+            }
+        }
 
 		private long getContentLength(HttpRequestMessage httpRequest) throws ProtocolDecoderException {
 			String lengthValue = httpRequest.getHeader(HEADER_CONTENT_LENGTH);
