@@ -638,7 +638,9 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     private ManagementFilter addManagementFilter(ServiceContext serviceContext, ServiceManagementBean serviceBean) {
-        ManagementFilter managementFilter = new ManagementFilter(serviceBean, monitoringEntityFactory);
+        ManagementFilter managementFilter = new ManagementFilter(serviceBean,
+                                                                 monitoringEntityFactory,
+                                                                 serviceContext.getServiceName());
         managementFilters.put(serviceContext, managementFilter);
         return managementFilter;
     }

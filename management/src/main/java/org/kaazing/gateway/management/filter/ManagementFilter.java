@@ -45,17 +45,19 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * management).
  */
 public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
-    private static final String CURRENT_NUMBER_OF_SESSIONS = "currentNumberOfSessions";
+    private static final String CURRENT_NUMBER_OF_SESSIONS = "-current-number-of-sessions";
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private LongMonitoringCounter counter;
 
-    public ManagementFilter(ServiceManagementBean serviceBean, MonitoringEntityFactory monitoringEntityFactory) {
+    public ManagementFilter(ServiceManagementBean serviceBean,
+                            MonitoringEntityFactory monitoringEntityFactory,
+                            String serviceName) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
-        counter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_SESSIONS);
+        counter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName + CURRENT_NUMBER_OF_SESSIONS);
     }
 
     public ServiceManagementBean getServiceBean() {
