@@ -121,6 +121,7 @@ public class Draft76SafariExtendedHandshakeTestIT {
 
 	@Specification("replayDraft76HandshakeCapturedFromDesktopSafariExpectingA101Response")
 	@Test(timeout = 1500)
+	@org.junit.Ignore
 	//KG-8523 NullPointerException
 	public void replayDraft76HandshakeCapturedFromDesktopSafariExpectingA101Response()
 			throws Exception {
@@ -129,6 +130,7 @@ public class Draft76SafariExtendedHandshakeTestIT {
 	
 	@Specification("doDraft76HandshakeExpectingASynthetic101Response")
 	@Test(timeout = 1500)
+	@org.junit.Ignore
 	//KG-8523 NullPointerException
 	//Original method name:replayInitialRequestResponseCycleForDraft76HandshakeExpectingASynthetic101ResponseWithExtendedHandshakeProtocolConfirmed
 	public void doDraft76HandshakeExpectingASynthetic101Response()

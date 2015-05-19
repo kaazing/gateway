@@ -338,11 +338,12 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 		}
 	};
 
-    private final DecodingState READ_CONTENT = new DecodingState() {
+    private static final DecodingState READ_CONTENT = new DecodingState() {
         @Override
         public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-            HttpContentMessage content = new HttpContentMessage((IoBufferEx) in, false);
-            out.write(content);
+			HttpContentMessage content = new HttpContentMessage((IoBufferEx) in.duplicate(), false);
+			out.write(content);
+			in.position(in.limit());
             return this;
         }
 
