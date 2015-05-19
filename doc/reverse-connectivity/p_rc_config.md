@@ -152,11 +152,10 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
     -   Configure [ws.inactivity.timeout](../admin-reference/r_conf_service.md#wsinactivitytimeout) to detect network failures between the DMZ and internal Gateway:
 
-    ``` auto-links:
-    <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
-    ```
-
-        Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection and retries if communication with the DMZ Gateway is not possible for a period of 60 seconds.
+       ``` auto-links:
+        <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
+       ```
+      Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection and retries if communication with the DMZ Gateway is not possible for a period of 60 seconds.
 
 The App1 service is set up on the internal Gateway. Now let’s set up the App2 service.
 
@@ -324,11 +323,11 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
         For added security, you can use the `socks.ssl.verify-client` connect option to require the internal Gateway to provide a client digital certificate to establish a secure connection. This configuration establishes mutual authentication by ensuring that both the DMZ Gateway and internal Gateway are verified via TLS/SSL before transmitting data.
 
     -   Configure [ws.inactivity.timeout](../admin-reference/r_conf_service.md#wsinactivitytimeout) to detect network failures between the DMZ and internal Gateways:
-    ``` auto-links:
-    <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
-    ```
-
-        Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection if communication with the DMZ Gateway is not possible for a period of 60 seconds.
+    
+      ``` auto-links:
+        <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
+      ```
+      Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection if communication with the DMZ Gateway is not possible for a period of 60 seconds.
 
 ### Set up the App2 service on the DMZ Gateway
 
