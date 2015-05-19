@@ -148,6 +148,9 @@ public class MIBConstants {
             new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5, 1, 0});
     public static final OID oidServiceDefaultsMimeMappings =
             new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5, 2, 0});
+    // TODO: add connect-options to service-defaults
+//    public static final OID oidServiceDefaultsConnectOptions =
+//            new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 5, 3, 0});
 
     public static final OID oidVersionInfo =
             new OID(new int[]{1, 3, 6, 1, 4, 1, KAAZING_ENTERPRISE_ID, 1, 6});

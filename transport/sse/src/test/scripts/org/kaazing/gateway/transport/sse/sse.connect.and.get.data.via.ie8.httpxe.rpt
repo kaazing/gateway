@@ -78,6 +78,3 @@ read /:.*/ "\n"
 read "\n"
 read "data:Kobe is greater than Griffen\n"
 read "\n"
-
-close
-closed

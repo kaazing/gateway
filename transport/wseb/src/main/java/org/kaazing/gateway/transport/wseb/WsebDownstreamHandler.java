@@ -312,7 +312,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (clientPadding != null) {
             int paddingSize = Integer.parseInt(clientPadding);
             session.setAttribute(WsebAcceptor.CLIENT_PADDING_KEY, paddingSize);
-            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(0));
+            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, (long) 0);
 
             if (paddingSize == 0) {
                 session.setWriteHeader("X-Content-Type-Options", "nosniff");
@@ -323,7 +323,7 @@ public class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         String clientBlockPadding = session.getParameter(".kbp");
         if (clientBlockPadding != null) {
             int paddingSize = Integer.parseInt(clientBlockPadding);
-            session.setAttribute(WsebAcceptor.CLIENT_BLOCK_PADDING_KEY, new Integer(paddingSize));
+            session.setAttribute(WsebAcceptor.CLIENT_BLOCK_PADDING_KEY, paddingSize);
             session.setWriteHeader("Content-Encoding", "gzip");
         }
 

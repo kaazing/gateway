@@ -92,9 +92,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
 
         Set<Class<?>> newEnvelopeTypes =
             new IdentityHashSet<Class<?>>();
-        for (Class<?> c: envelopeTypes) {
-            newEnvelopeTypes.add(c);
-        }
+        Collections.addAll(newEnvelopeTypes, envelopeTypes);
         this.envelopeTypes = Collections.unmodifiableSet(newEnvelopeTypes);
     }
 

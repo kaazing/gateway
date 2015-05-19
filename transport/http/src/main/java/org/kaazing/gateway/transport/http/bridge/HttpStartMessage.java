@@ -275,17 +275,17 @@ public abstract class HttpStartMessage extends HttpMessage {
 	            sameOrEquals(this.content, that.content));
 	}
 
-    static final boolean sameOrEquals(Object this_, Object that) {
+    static boolean sameOrEquals(Object this_, Object that) {
         return (this_ == that) || (this_ != null && this_.equals(that));
     }
 
-    public static final <K, V> boolean sameOrEquals(Map<K, V> this_, Map<K, V> that) {
+    public static <K, V> boolean sameOrEquals(Map<K, V> this_, Map<K, V> that) {
         return (this_ == that) ||
                 (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) ||
                 (this_ != null && this_.equals(that));
     }
 
-    static final <T> boolean sameOrEquals(Collection<T> this_, Collection<T> that) {
+    static <T> boolean sameOrEquals(Collection<T> this_, Collection<T> that) {
         return (this_ == that) ||
                 (this_ == null && that.isEmpty()) || (that == null && this_.isEmpty()) ||
                 (this_ != null && this_.equals(that));

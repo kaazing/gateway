@@ -79,7 +79,7 @@ public class CumulativeProtocolDecoderTest {
 
         decoder.decode(session, buf, session.getDecoderOutput());
         assertEquals(1, session.getDecoderOutputQueue().size());
-        assertEquals(new Integer(1), session.getDecoderOutputQueue().poll());
+        assertEquals(1, session.getDecoderOutputQueue().poll());
         assertEquals(buf.limit(), buf.position());
     }
 
@@ -97,7 +97,7 @@ public class CumulativeProtocolDecoderTest {
         List<Object> expected = new ArrayList<Object>();
         
         for (int i = 0; i < 4; i++) {
-            expected.add(new Integer(i));
+            expected.add(i);
         }
         
         assertEquals(expected, session.getDecoderOutputQueue());
@@ -167,7 +167,7 @@ public class CumulativeProtocolDecoderTest {
                 return false;
             }
 
-            out.write(new Integer(in.getInt()));
+            out.write(in.getInt());
             return true;
         }
 

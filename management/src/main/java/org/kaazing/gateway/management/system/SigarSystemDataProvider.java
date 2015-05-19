@@ -154,7 +154,7 @@ public class SigarSystemDataProvider implements SystemDataProvider {
             for (int i = 0; i < names.length; i++) {
                 String nicName = names[i];
 
-                if (nicName.indexOf(":") >= 0) {
+                if (nicName.contains(":")) {
                     continue;
                 }
 

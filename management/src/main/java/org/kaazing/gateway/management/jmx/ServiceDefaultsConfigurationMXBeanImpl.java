@@ -47,6 +47,11 @@ public class ServiceDefaultsConfigurationMXBeanImpl implements ServiceDefaultsCo
     }
 
     @Override
+    public String getConnectOptions() {
+        return serviceDefaultsConfigurationBean.getConnectOptions();
+    }
+
+    @Override
     public String getMimeMappings() {
         return serviceDefaultsConfigurationBean.getMimeMappings();
     }

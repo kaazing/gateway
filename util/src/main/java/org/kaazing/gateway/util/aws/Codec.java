@@ -32,12 +32,12 @@ public class Codec {
     private static final byte[] TO_HEX =
             new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-    public static final String encodeHexString(byte[] data) {
+    public static String encodeHexString(byte[] data) {
         byte[] out = encodeHex(data);
         return new String(out);
     }
 
-    public static final byte[] encodeHex(byte[] data) {
+    public static byte[] encodeHex(byte[] data) {
         int len = data.length;
         byte[] out = new byte[len << 1];
         byte cur = 0;
@@ -56,7 +56,7 @@ public class Codec {
     private static final byte[] TO_BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".getBytes();
     private static final byte BASE64_PADDING_BYTE = (byte) '=';
 
-    public static final String base64Decode(String data) {
+    public static String base64Decode(String data) {
         if (data == null) {
             return null;
         }
@@ -64,7 +64,7 @@ public class Codec {
         return decodeBase64(data).asCharBuffer().toString();
     }
 
-    public static final String base64Encode(byte[] data) {
+    public static String base64Encode(byte[] data) {
         if (data == null) {
             return null;
         }
@@ -72,7 +72,7 @@ public class Codec {
         return encodeBase64String(ByteBuffer.wrap(data));
     }
 
-    public static final String encodeBase64String(ByteBuffer in) {
+    public static String encodeBase64String(ByteBuffer in) {
         int length = in.remaining();
         ByteBuffer buf = ByteBuffer.allocate((int) Math.ceil(length / 3.0) * 4);
         for (int remaining = in.remaining(); remaining > 0;) {
@@ -118,7 +118,7 @@ public class Codec {
         return new String(buf.array());
     }
 
-    public static final ByteBuffer decodeBase64(String input) {
+    public static ByteBuffer decodeBase64(String input) {
         if (input == null) {
             return null;
         }

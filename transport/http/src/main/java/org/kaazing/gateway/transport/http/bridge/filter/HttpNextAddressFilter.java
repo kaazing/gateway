@@ -79,8 +79,15 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         // where cache-control headers were ignored by some http client stacks
         httpRequest.removeParameter(".kn");
 
-        ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest);
+        String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
+        ResourceAddress candidateAddress = createCandidateAddress(session, httpRequest, nextProtocol);
         Binding binding = bindings.getBinding(candidateAddress);
+        if (binding == null) {
+            // try with null nextProtocol as this request may be websocket request but
+            // is handled by origin server via http.proxy service
+            candidateAddress = createCandidateAddress(session, httpRequest, null);  // null nextProtocol
+            binding = bindings.getBinding(candidateAddress);
+        }
         ResourceAddress localAddress = (binding != null) ? binding.bindAddress() : null;
         if (localAddress != null) {
             httpRequest.setExternalURI(candidateAddress.getExternalURI());
@@ -110,7 +117,8 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         }
     }
 
-    private ResourceAddress createCandidateAddress(IoSession session, HttpRequestMessage httpRequest) {
+    private ResourceAddress createCandidateAddress(IoSession session, HttpRequestMessage httpRequest,
+                String nextProtocol) {
 
         URI requestURI = httpRequest.getRequestURI();
         String authority = httpRequest.getHeader(HEADER_HOST);
@@ -122,7 +130,6 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         }
 
         URI candidateURI = URI.create(format("%s://%s/", scheme, authority)).resolve(requestURI);
-        String nextProtocol = httpRequest.getHeader(HEADER_X_NEXT_PROTOCOL);
 
         ResourceAddress transport = LOCAL_ADDRESS.get(session);
         if (transport == null) {

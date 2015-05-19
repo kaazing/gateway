@@ -219,7 +219,7 @@ public class ProxyConnector extends AbstractIoConnector {
      * 
      * @param connector the connector to use
      */
-    private final void setConnector(final SocketConnector connector) {
+    private void setConnector(final SocketConnector connector) {
         if (connector == null) {
             throw new NullPointerException("connector cannot be null");
         }

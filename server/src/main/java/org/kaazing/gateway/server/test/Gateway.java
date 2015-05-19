@@ -303,6 +303,7 @@ public class Gateway {
         for (ServiceConfiguration service : services) {
             ServiceType newService = newGatewayConfig.addNewService();
 
+            newService.setName(service.getName());
             setType(service, newService);
             setRealmName(service, newService);
 

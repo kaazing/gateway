@@ -31,7 +31,6 @@ write await BARRIER
 read "HTTP/1.1 414 Request URI Too Long\r\n"
 read "Content-Type: text/html\r\n"
 read /Date:.*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
 read /Content-Length: .*/ "\r\n"
 
 close

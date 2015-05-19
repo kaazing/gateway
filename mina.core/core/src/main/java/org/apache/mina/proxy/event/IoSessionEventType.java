@@ -33,7 +33,7 @@ public enum IoSessionEventType {
      */
     private final int id;
     
-    private IoSessionEventType(int id) {
+    IoSessionEventType(int id) {
         this.id = id;
     }
     

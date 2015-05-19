@@ -261,7 +261,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                 finally {
                     session.setCurrentWriteRequest(null);
                 }
-                break;
             }
             else {
                 throw new IllegalStateException("Don't know how to handle message of type '" + message.getClass().getName() + "'.  Are you missing a protocol encoder?");
@@ -270,7 +269,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         while (true);
     }
 
-    private static final void checkInitialPadding(HttpAcceptSession session) {
+    private static void checkInitialPadding(HttpAcceptSession session) {
         // check to see if we need to add a padding message to the end of
         // the sent messages
         Integer clientPadding = (Integer)session.getAttribute(WsebAcceptor.CLIENT_PADDING_KEY);
@@ -301,7 +300,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         }
     }
 
-    private static final void checkBlockPadding(HttpAcceptSession session) {
+    private static void checkBlockPadding(HttpAcceptSession session) {
         // TODO: Verify if counting bytes is really necessary
         // check to see if we need to add a padding message to the end of sent messages
         long writtenBytes = session.getWrittenBytes();
@@ -309,7 +308,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
             // Block Padding is required
             session.write(WsebFrameEncoder.BLOCK_PADDING_MESSAGE);
-            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(writtenBytes+4096));
+            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);
         }
     }
 
