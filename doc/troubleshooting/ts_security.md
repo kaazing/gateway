@@ -82,14 +82,14 @@ The preferred name for the auth-constraint configuration option has changed to a
 
         The following message indicates the revalidate system for WebSocket is enabled.
 
-        ``` sh-session
+        ``` bash
         2012-02-29 10:03:56,305 INFO   session.revalidate - 
                            [wsx#8] REVALIDATE COMMAND ENABLED [period=2s; timeout=2s]
         ```
 
         The following message indicates the Gateway sent a revalidate message to the client.
 
-        ``` sh-session
+        ``` bash
         2012-02-29 10:03:58,309 INFO   session.revalidate - 
                            [wsx#8] REVALIDATE COMMAND SENT: VALI 
         /echoAuth/;a/f0tCswwNoLNfaKb4cOERYuTT56Ai6UAN?.kl=Y
