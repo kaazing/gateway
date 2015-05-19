@@ -19,78 +19,100 @@ package org.kaazing.gateway.transport.ws.extension;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.ServiceLoader.load;
 
-import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TreeMap;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.transport.http.HttpAcceptSession;
-
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi.ExtensionOrderCategory;
 
 public final class WebSocketExtensionFactory {
 
     private final Map<String, WebSocketExtensionFactorySpi> factoriesRO;
+    private final Map<Integer, Set<ExtensionHeader>> extensionHeadersByCategory;
 
     private WebSocketExtensionFactory(Map<String, WebSocketExtensionFactorySpi> factoriesRO) {
         this.factoriesRO = factoriesRO;
-    }
-
-    /**
-     * Returns the names of all the supported/discovered extensions.
-     *
-     * @return Collection of extension names
-     */
-    public Collection<String> getExtensionNames() {
-        return factoriesRO.keySet();
-    }
-
-    /**
-     * This method is called for each extension requested by the client during the WebSocket handshake. 
-     * @param requestedExtension  Extension token and parameters from the WebSocket handshake HTTP request
-     *                            corresponding to one of the extensions in a WebSocket extensions
-     *                            HTTP header (which is a comma-separated list of extensions)
-     * @param address    WebSocket resource address on which the handshake is taking place
-     * @return           WebSocketExtensionSpi instance representing the active, negotiated extension
-     *                   or null if the extension is not available
-     * @throws IOException  If the extension cannot be negotiated. Throwing this exception will result
-     *                      in failing the WebSocket connection.
-     */
-    public WebSocketExtensionSpi negotiate(ExtensionHeader extension, WsResourceAddress address)
-            throws IOException {
-        String extensionName = extension.getExtensionToken();
-
-        WebSocketExtensionFactorySpi factory = factoriesRO.get(extensionName);
-        if (factory == null) {
-            return null;
+        Map<Integer, Set<ExtensionHeader>>extensionHeadersByCategory = new TreeMap<>();
+        for(WebSocketExtensionFactorySpi extension: factoriesRO.values()){
+            // Order the values
+            List<ExtensionOrderCategory> extensionOrderValues =
+                    Arrays.asList(WebSocketExtensionFactorySpi.ExtensionOrderCategory.values());
+            Integer key = extensionOrderValues.indexOf(extension.getOrderCategory());
+            Set<ExtensionHeader> value = extensionHeadersByCategory.get(key);
+            if(value == null){
+                value = new HashSet<>();
+                extensionHeadersByCategory.put(key, value);
+            }
+            String extensionToken = extension.getExtensionName();
+            value.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
         }
-
-        return factory.negotiate(extension, address);
+        this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersByCategory);
     }
-    
+
     /**
      * 
-     * @param address  ResourceAddress for the WebSocket connection for which extensions are being negotiated
-     * @param session  HttpSession upon which the WebSocket upgrade handshake is occurring
-     * @param headerName Name of the HTTP header conveying extensions (e.g. "sec-websocket-extensions")
+     * @param address  WsResourceAddress for the WebSocket connection for which extensions are being negotiated
      * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
      *                                  any comma-separated list is already done by the HTTP transport layer)
-     * @return object representing the list of negotiated  WebSocketExtensionSpi instances
+     * @return object representing the list of negotiated  WebSocketExtensionSpi instances in the order they should appear
+     *                negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
-    public ActiveExtensions negotiateWebSocketExtensions(ResourceAddress address,
-                                                         HttpAcceptSession session,
-                                                         String headerName,
-                                                         List<String> clientRequestedExtensions) throws ProtocolException {
-        // TODO: implement this method, based loosely on WsExtensionUtils.negotiateWebSocketExtensions (it will replace
-        // that method). Note that (as commented in that method) we do not need to have any notion of mandatory extensions 
-        // the client must negotiate.
-        throw new UnsupportedOperationException ();
-        //return ActiveExtensions.EMPTY;
+    public ActiveExtensions negotiateWebSocketExtensions(WsResourceAddress address, List<String> clientRequestedExtensions)
+            throws ProtocolException {
+
+        ActiveExtensions result = ActiveExtensions.EMPTY;
+        if (clientRequestedExtensions != null) {
+            List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
+
+            // get the acceptedExtensions
+            LinkedList<WebSocketExtension> acceptedExtensions = new LinkedList<>();
+
+            // Orders the extensions based on SPI preferences, and then order that they came in
+            for(Set<ExtensionHeader> extensionHeaders: extensionHeadersByCategory.values()){
+                for (ExtensionHeader candidate : requestedExtensions) {
+                    if(extensionHeaders.contains(candidate)){
+                        WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
+                        WebSocketExtension acceptedExtension = extension.negotiate(candidate, address);
+                        // negotiated can be null if the extension doesn't want to be active
+                        if (acceptedExtension != null) {
+                            acceptedExtensions.add(acceptedExtension);
+                        }
+                    }
+                }
+            }
+            result = new ActiveExtensions(acceptedExtensions);
+        }
+        return result;
+    }
+
+    private static List<ExtensionHeader> toWsExtensions(Collection<String> extensionTokens) {
+        if (extensionTokens == null) {
+            throw new NullPointerException("extensionTokens");
+        }
+
+        if (extensionTokens.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        List<ExtensionHeader> exts = new ArrayList<>(extensionTokens.size());
+        for (String extensionToken : extensionTokens) {
+            if (extensionToken != null) {
+                exts.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
+            }
+        }
+
+        return exts;
     }
 
     /**
@@ -114,7 +136,6 @@ public final class WebSocketExtensionFactory {
         ServiceLoader<WebSocketExtensionFactorySpi> services = load(WebSocketExtensionFactorySpi.class, cl);
         return newInstance(services);
     }
-
 
     private static WebSocketExtensionFactory newInstance(ServiceLoader<WebSocketExtensionFactorySpi> services) {
         Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<String, WebSocketExtensionFactorySpi>();

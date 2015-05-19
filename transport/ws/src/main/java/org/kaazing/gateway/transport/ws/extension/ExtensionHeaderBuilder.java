@@ -21,24 +21,16 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import static org.kaazing.gateway.transport.ws.WsMessage.Kind.TEXT;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.WsMessage.Kind;
-import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
 import org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout.IdleTimeoutExtension;
 import org.kaazing.gateway.transport.ws.bridge.extensions.pingpong.PingPongExtension;
-import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
  * This class assists in parsing a WebSocket xtensions HTTP header which has the following syntax (a comma-separated list
@@ -116,12 +108,6 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         return !parametersByName.isEmpty();
     }
 
-    @Override
-    public WsExtensionValidation checkValidity() {
-        // By default, all extensions are valid
-        return new WsExtensionValidation();
-    }
-
     public ExtensionHeader toExtensionHeader() {
         return this;
     }
@@ -173,6 +159,8 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         append(new ExtensionParameterBuilder(parameterName, parameterValue));
     }
 
+    // TODO this seems like the address should not be needed
+    @Deprecated
     public static ExtensionHeader create(ResourceAddress address, ExtensionHeader extension) {
         ExtensionHeader ext;
     
@@ -192,51 +180,4 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         return ext;
     }
 
-    @Override
-    public boolean canDecode(EndpointKind endpointKind, Kind messageKind) {
-        return false;
-    }
-
-    @Override
-    public boolean canEncode(EndpointKind endpointKind, Kind messageKind) {
-        return false;
-    }
-
-    @Override
-    public WsMessage decode(IoBufferEx payload) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public byte[] encode(WsMessage message) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public byte[] getControlBytes() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Kind getEncodedKind(WsMessage message) {
-        return TEXT;
-    }
-    
-    @Override
-    public String getOrdering() {
-        return getExtensionToken();
-    }
-
-    @Override
-    public void handleMessage(IoSessionEx session, WsMessage message) {
-    }
-
-    @Override
-    public void removeBridgeFilters(IoFilterChain filterChain) {
-    }
-
-    @Override
-    public void updateBridgeFilters(IoFilterChain filterChain) {
-    }
-    
 }
