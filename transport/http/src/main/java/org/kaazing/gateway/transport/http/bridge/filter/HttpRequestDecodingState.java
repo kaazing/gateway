@@ -193,33 +193,27 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
 				out.write(httpRequest);
 				return READ_CHUNK;
 			} else {
+				long length = getContentLength(httpRequest);
 				String lengthValue = httpRequest.getHeader(HEADER_CONTENT_LENGTH);
-				if (lengthValue != null) {
-					long length = parseContentLength(lengthValue);
+				if (length > 0) {
+					if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
+						return new FixedLengthDecodingState(allocator, (int) length) {
 
-					if (length > 0) {
-						if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
-							return new FixedLengthDecodingState(allocator, (int) length) {
-
-								@Override
-								protected DecodingState finishDecode(IoBuffer product, ProtocolDecoderOutput out) throws Exception {
-									HttpContentMessage content = new HttpContentMessage((IoBufferEx) product, true);
-									httpRequest.setContent(content);
-									out.write(httpRequest);
-									return null;
-								}
-							};
-						} else {
-							// up-streaming
-							httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
-							out.write(httpRequest);
-							return new MaximumLengthDecodingState(length);
-						}
+							@Override
+							protected DecodingState finishDecode(IoBuffer product, ProtocolDecoderOutput out) throws Exception {
+								HttpContentMessage content = new HttpContentMessage((IoBufferEx) product, true);
+								httpRequest.setContent(content);
+								out.write(httpRequest);
+								return null;
+							}
+						};
 					} else {
+						// up-streaming
+						httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
 						out.write(httpRequest);
-						return null;
+						return new MaximumLengthDecodingState(length);
 					}
-				} else if (HttpPersistenceFilter.isClosing(httpRequest)) {
+				} else if (lengthValue == null && HttpPersistenceFilter.isClosing(httpRequest)) {
 					// missing content length
 					httpRequest.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
 					out.write(httpRequest);
