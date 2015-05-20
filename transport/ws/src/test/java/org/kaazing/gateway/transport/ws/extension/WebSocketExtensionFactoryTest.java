@@ -47,6 +47,7 @@ public class WebSocketExtensionFactoryTest {
     private WsResourceAddress address;
     private MockNegotiate mockNegotiate;
     private WebSocketExtension webSocketExtensionSpi;
+    private WebSocketExtension webSocketExtensionSpi2;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -62,10 +63,11 @@ public class WebSocketExtensionFactoryTest {
         mockNegotiate = context.mock(MockNegotiate.class);
         MockWebSocketExtensionSpi.setNegotiateBehavoir(mockNegotiate);
         webSocketExtensionSpi = context.mock(WebSocketExtension.class);
+        webSocketExtensionSpi2 = context.mock(WebSocketExtension.class, "webSocketExtensionSpi2");
     }
 
     @Test
-    public void testNegotiateExtFound() throws IOException {
+    public void shouldNegotiateOneExtension() throws IOException {
         context.checking(new Expectations() {
             {
                 oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock")), with(address));
@@ -80,11 +82,9 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void testNegotiateExtNameNotFound() throws IOException {
+    public void shouldNotNegotiateNonExistentExtension() throws IOException {
         context.checking(new Expectations() {
             {
-                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("nonexistant")), with(address));
-                will(returnValue(null));
             }
         });
 
@@ -95,24 +95,28 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void testNegotiateWebSocketExtensions() throws ProtocolException {
+    public void shouldNegotiateMultipleExtensions() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
-        clientRequestedExtensions.add("mock");
+        clientRequestedExtensions.add("mock2");
+        clientRequestedExtensions.add("mock1");
         context.checking(new Expectations() {
             {
-                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock")), with(address));
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock1")), with(address));
                 will(returnValue(webSocketExtensionSpi));
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock2")), with(address));
+                will(returnValue(webSocketExtensionSpi2));
             }
         });
         ActiveExtensions ActiveWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions);
-        assertSame(webSocketExtensionSpi, ActiveWebSocketExtensions.asList().get(0));
-        assertEquals(1, ActiveWebSocketExtensions.asList().size());
+        assertEquals(2, ActiveWebSocketExtensions.asList().size());
+        assertSame(webSocketExtensionSpi2, ActiveWebSocketExtensions.asList().get(0));
+        assertSame(webSocketExtensionSpi, ActiveWebSocketExtensions.asList().get(1));
 
     }
 
     @Test
-    public void testNegotiateWebSocketExtensionsWithSomeMissing() throws ProtocolException {
+    public void shouldNegotiateOnlyExistingxtensions() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("not-there");
         clientRequestedExtensions.add("mock");
@@ -130,7 +134,7 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void testNegotiateWebSocketExtensionsWithParameter() throws ProtocolException {
+    public void shouldNegotiateExtensionsWithParameter() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("not-there");
         clientRequestedExtensions.add("mock; foo=2");
@@ -149,7 +153,7 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void negotiateExtensionsShouldKeepRequestOrderWithinSameOrderCategory() throws ProtocolException {
+    public void negotiateExtensionsShouldKeepRequestedOrderWithinSameOrderCategory() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("ping-pong");
         clientRequestedExtensions.add("per-message-deflate");
@@ -240,16 +244,7 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test
-    public void testNegotiateWebSocketExtensionsNotThere() throws ProtocolException {
-        List<String> clientRequestedExtensions = new ArrayList<>();
-        clientRequestedExtensions.add("notthere");
-        ActiveExtensions ActiveWebSocketExtensions =
-                wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions);
-        assertTrue(ActiveWebSocketExtensions.asList().isEmpty());
-    }
-
-    @Test
-    public void testNegotiatedWebSocketExtensionRejectedParameter() throws ProtocolException {
+    public void shouldNotNegotiateWebSocketExtensionWhenFactoryReturnsNull() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("mock");
         context.checking(new Expectations() {
@@ -264,7 +259,7 @@ public class WebSocketExtensionFactoryTest {
     }
 
     @Test(expected = ProtocolException.class)
-    public void testProtocolExceptionInNegotiate() throws ProtocolException {
+    public void shouldThrowProtocolExceptionDuringNegotiateIfThrownByFactorySPI() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
         clientRequestedExtensions.add("mock");
         context.checking(new Expectations() {

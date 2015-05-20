@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Appender;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.After;
 import org.junit.Assert;
@@ -53,8 +52,8 @@ import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
-import org.kaazing.gateway.server.test.MethodExecutionTrace;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * Unit tests for resolving gateway-config.xml.
@@ -71,13 +70,8 @@ public class GatewayContextResolverTest {
     private File keyStorePasswordFile;
     private File trustStoreFile;
 
-    private static boolean DEBUG = false;
-
     @BeforeClass
     public static void init() {
-        if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-        }
 
         parser = new GatewayConfigParser();
 
@@ -312,6 +306,12 @@ public class GatewayContextResolverTest {
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
     }
+    
+    // Should inject resources into WebSocket extensions
+    // See Mock
+    @Test
+    public void shouldInjectResourcesIntoExtensions();
+    
 
     // The following replaces code we used to have GatewayContextResolverTest (rev 25379) that created a log4j Hierarchy
     // and called LogManager.setRepositorySelector in an effort to force log4j to return instances of our BufferedLogger

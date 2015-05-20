@@ -92,6 +92,8 @@ import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Transport;
 import org.kaazing.gateway.transport.TransportFactory;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
@@ -256,6 +258,8 @@ public class GatewayContextResolver {
                 tempDir,
                 clusterContext,
                 schedulerProvider);
+        
+        WebSocketExtensionFactory webSocketExtensionFactory = WebSocketExtensionFactory.newInstance();
 
         // create map of injectable resources
         Map<String, Object> injectables = new HashMap<>();
@@ -272,6 +276,7 @@ public class GatewayContextResolver {
         injectables.put("bridgeServiceFactory", bridgeServiceFactory);
         injectables.put("resourceAddressFactory", resourceAddressFactory);
         injectables.put("transportFactory", transportFactory);
+        injectables.put("webSocketExtensionFactory", webSocketExtensionFactory);
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
@@ -1217,6 +1222,7 @@ public class GatewayContextResolver {
 
     private void injectResources(Collection<ServiceContext> services,
                                  BridgeServiceFactory bridgeServiceFactory,
+                                 WebSocketExtensionFactory webSocketExtensionFactory,
                                  Map<String, Object> dependencyContexts,
                                  Map<String, Object> injectables) {
 
@@ -1245,6 +1251,11 @@ public class GatewayContextResolver {
 
         // inject bridge service factory
         injectResources(bridgeServiceFactory, injectables);
+        
+        // inject websocket extensions
+        for (WebSocketExtensionFactorySpi factory : webSocketExtensionFactory.availableExtensions()) {
+            injectResources(factory, injectables);
+        }
 
         // in case any of the DependencyContexts have dependencies on each other,
         // or the other resources added to the map, inject resources for them as well.

@@ -26,7 +26,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class WsExtensionBuilderTest {
+public class ExtensionHeaderBuilderTest {
 
     @Test(expected = NullPointerException.class)
     public void shouldNotBuildExtensionNullToken()

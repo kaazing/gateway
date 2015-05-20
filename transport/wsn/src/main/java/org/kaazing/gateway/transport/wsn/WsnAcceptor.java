@@ -123,6 +123,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameUtf8Filter;
 import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
@@ -197,6 +198,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
     public WsnAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -217,10 +219,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         this.bridgeServiceFactory = bridgeServiceFactory;
     }
 
-
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory factory) {
         this.resourceAddressFactory = factory;
+    }
+
+    @Resource(name = "webSocketExtensionFactory")
+    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
+        this.webSocketExtensionFactory = factory;
     }
 
     @Override
