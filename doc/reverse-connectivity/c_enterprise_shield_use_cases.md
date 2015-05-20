@@ -15,12 +15,12 @@ This procedure is part of [Configure Enterprise Shield™ for KAAZING Gateway](o
 1.  [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md#DMZ_to_Internal)
 2.  [About Enterprise Shield™](o_rc_checklist.md#whatis)
 3.  **Common Enterprise Shield™ Use Cases**
-4.  [Setting Up the Gateway]((../about/setup-guide.md)
+4.  [Setting Up the Gateway](../about/setup-guide.md)
 5.  [Walkthrough: Configure Enterprise Shield™](p_rc_config.md)
 
 The use case configurations described in this topic vary depending on the level of security, such as if the Gateways are clustered for high availability, whether network transports are used, and so on. Also, the sample topologies use two Gateway services instead of just one to demonstrate the Enterprise Shield™ reverse connectivity behavior in a configuration with multiple services.
 
-Each of the Enterprise Shield™ use cases configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), and then extends that topology to a cluster configuration. To configure Enterprise Shield™ and control Gateway operation, you configure elements in the Gateway configuration (gateway-config.xml) file. For complete information about Gateway configuration, see [Understanding KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md). Also, to see the complete Gateway configuration files used for these use cases, you can link to their `kaazing.org` locations that are included in each use case description that follows.
+Each of the Enterprise Shield™ use cases configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), and then extends that topology to a cluster configuration. To configure Enterprise Shield™ and control Gateway operation, you configure elements in the Gateway configuration (gateway-config.xml) file. For complete information about Gateway configuration, see [Understanding KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md). Also, the complete Gateway configuration files used for these use cases are available on `kaazing.org`. The configuration file names are included in each use case description that follows.
 
 <a name="usecase1"></a>Use Case 1: Test Drive Enterprise Shield™
 ------------------------------------------------------------------
