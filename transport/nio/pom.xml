@@ -6,10 +6,9 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.23</version>
+        <version>5.0.1.24</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
     <description>Nonblocking i/o transport</description>

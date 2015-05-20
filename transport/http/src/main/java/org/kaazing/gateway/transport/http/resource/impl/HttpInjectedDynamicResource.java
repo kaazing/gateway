@@ -95,7 +95,7 @@ public final class HttpInjectedDynamicResource extends HttpDynamicResource {
     }
 
     // TODO: is this still necessary now that we are above HttpSession?
-    private static final String getContentType(String fileExtension) {        
+    private static String getContentType(String fileExtension) {
         if (fileExtension == null) {
             return null;
         }

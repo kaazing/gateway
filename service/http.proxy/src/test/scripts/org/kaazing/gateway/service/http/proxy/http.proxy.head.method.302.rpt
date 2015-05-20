@@ -16,7 +16,7 @@ write "\r\n"
 read "HTTP/1.1 302 Found\r\n"
 read /Date: .*/ "\r\n"
 read "Location: http://localhost:8110/manager/\r\n"
-read "Server: Kaazing Gateway\r\n"
+read "Server: Apache-Coyote/1.1\r\n"
 read "Transfer-Encoding: chunked\r\n"
 read "\r\n"
 

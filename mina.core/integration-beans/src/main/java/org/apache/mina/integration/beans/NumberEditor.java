@@ -66,6 +66,6 @@ public class NumberEditor extends AbstractPropertyEditor {
     
     @Override
     protected Object defaultValue() {
-        return Integer.valueOf(0);
+        return 0;
     }
 }

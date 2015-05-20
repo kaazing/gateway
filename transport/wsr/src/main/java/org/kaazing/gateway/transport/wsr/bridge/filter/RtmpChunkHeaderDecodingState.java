@@ -94,7 +94,7 @@ public abstract class RtmpChunkHeaderDecodingState implements DecodingState {
         }
     }
     
-    private final DecodingState decodeChunkHeader(final int chunkStreamId, int chunkType, IoBufferEx buf, ProtocolDecoderOutput out) throws Exception {
+    private DecodingState decodeChunkHeader(final int chunkStreamId, int chunkType, IoBufferEx buf, ProtocolDecoderOutput out) throws Exception {
         
         switch (chunkType) {
         case 0: {

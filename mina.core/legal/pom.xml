@@ -4,10 +4,9 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>mina-build</artifactId>
-        <version>5.0.1.23</version>
+        <version>5.0.1.24</version>
     </parent>
 
-    <groupId>org.kaazing</groupId>
     <artifactId>mina-legal</artifactId>
     <name>Apache MINA Legal</name>
     <packaging>jar</packaging>

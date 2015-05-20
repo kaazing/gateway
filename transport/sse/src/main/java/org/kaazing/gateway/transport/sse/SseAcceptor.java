@@ -486,7 +486,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             if (clientPadding != null) {
                 int paddingSize = Integer.parseInt(clientPadding);
                 httpSession.setAttribute(CLIENT_PADDING_KEY, paddingSize);
-                httpSession.setAttribute(BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(0));
+                httpSession.setAttribute(BYTES_WRITTEN_ON_LAST_FLUSH_KEY, (long) 0);
 
                 if (paddingSize == 0) {
                     httpSession.setWriteHeader("X-Content-Type-Options", "nosniff");
@@ -497,7 +497,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             String clientBlockPadding = httpSession.getParameter(".kbp");
             if (clientBlockPadding != null) {
                 int paddingSize = Integer.parseInt(clientBlockPadding);
-                httpSession.setAttribute(CLIENT_BLOCK_PADDING_KEY, new Integer(paddingSize));
+                httpSession.setAttribute(CLIENT_BLOCK_PADDING_KEY, paddingSize);
                 httpSession.setWriteHeader("Content-Encoding", "gzip");
             }
 
