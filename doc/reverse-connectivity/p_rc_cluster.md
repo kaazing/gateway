@@ -11,12 +11,10 @@ This step extends the use case to configure an Enterprise Shield™ configuratio
 
 In Figure 1, there are two Gateways running in the DMZ and a matching set of two Gateways on the trusted network. Thus, each internal Gateway is paired to one explicit cluster member in the DMZ.
 
-<figure style="margin-left:0px;">
 ![Gateway Topology Showing Reverse Connectivity in a Cluster](../images/f-es-maxsecurity-cluster.png)
-<figcaption>
+
 **Figure 1: Enterprise Shield™ Topology Configured for High Availability**
-</figcaption>
-</figure>
+
 The key to making the Enterprise Shield™ configuration highly available is to configure clustering on each cluster member, and have an equivalent number of cluster members in the DMZ and the trusted network.
 
 The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_ha_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_conf_cluster.md) element.
