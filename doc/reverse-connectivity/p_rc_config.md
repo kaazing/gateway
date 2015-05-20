@@ -52,7 +52,7 @@ Step 4: Configure the Internal Gateway
 Perform the following steps to set up the App1 and App2 services on the internal Gateway.
 
 **Notes:**
--   The examples in this walkthrough use the `.net` domain (such as `tcp://gateway.example.net:8080>tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Wherever a URI uses `example` in the domain name, you should replace that with your own company name.
+-   The examples in this walkthrough use the `.net` domain (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Wherever a URI uses `example` in the domain name, you should replace that with your own company name.
 -   Network security is improved by using separate NICs (Network Interface Cards) for the [frontplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane) and [backplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane). Although it's not necessary to have multiple NICs for Enterprise Shield™ to work, this walkthrough assumes separate frontplane and backplane NICs. The configuration defines default values for these interfaces once in the properties element using easily identifiable names and the values are propagated throughout the entire configuration when the Gateway starts. See [About the Documentation](../about/about.md) for more information about variables.
 
 
