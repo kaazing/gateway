@@ -30,7 +30,7 @@ The following example shows a service using a multicast address. In the example,
   <cross-site-constraint>
     <allow-origin>http://localhost:8000</allow-origin>
   </cross-site-constraint>
-  
+
   <cross-site-constraint>
     <allow-origin>https://localhost:9000</allow-origin>
   </cross-site-constraint>
