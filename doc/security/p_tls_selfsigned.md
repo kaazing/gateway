@@ -53,14 +53,14 @@ To Secure Gateway Connections Using Self-Signed Certificates
     Here is an example of how to create these components:
 
     ```
-    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\mykeystore.db -storetype JCEKS -storepass 
-    password -alias example.com -keyalg RSA -dname "CN=example.com, OU=Example, O=Example, 
+    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\mykeystore.db -storetype JCEKS -storepass
+    password -alias example.com -keyalg RSA -dname "CN=example.com, OU=Example, O=Example,
     L=Mountain View, ST=California, C=US"
     ```
 
-    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md). 
-    
-    **Notes:** 
+    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
+
+    **Notes:**
 
     -   The password value for `-storepass` is in the keystore password file that is located in the `GATEWAY_HOME/conf` folder (for example, keystore.pw). You can open the file with a text editor to read the default password and enter it in the command.
     -   This example command generates a key pair (public key and its associated private key) and wraps the public key into an X.509 self-signed certificate. Both the key pair and the certificate are stored in the keystore file and identified by `example.com` (as specified by the `-alias` parameter).
@@ -88,12 +88,12 @@ To Secure Gateway Connections Using Self-Signed Certificates
 6.  Save `gateway-config.xml`.
 7.  Verify that the certificate is valid by starting the Gateway. If the Gateway does not start, it might not be accepting the same host name used in the certificate. Check the directory service in `gateway-config.xml` and confirm that the host name in the `service` element’s `accept-domain` matches the host name used in the certificate. If they do not match, update the `accept-domain` in `gateway-config.xml`, save the file, and then start the Gateway.
 
-    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
+    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
 
 8.  Once the Gateway is running, enter the secure URL in a web browser using HTTPS, for example `https://www.example.com:9000`. The browser will display a warning stating that the certificate is not trusted. The warning is the result of using a self-signed certificate instead of a trusted certificate created by a Certification Authority. Accept the untrusted certificate and proceed to the web page.
 
     ![A browser displays a warning stating that the certificate is not trusted](../images/tls-browser-untrusted-cert.png)
-    
+
     **Figure: A browser displays a warning stating that the certificate is not trusted**
 
     For information about importing a certificate into a web browser, see [Importing Self-Signed Certificates into a Web Browser](p_tls_clientapp.md#to-import-self-signed-certificates-into-a-web-browser).
@@ -103,12 +103,12 @@ To Secure Gateway Connections Using Self-Signed Certificates
 9.  Create the self-signed certificate for the server connection using the host name of the back-end server and save it in the truststore:
 
     ```
-    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -alias 
-    offline.example.com -keyalg RSA -dname "CN=offline.example.com, OU=Example, O=Example, 
+    keytool -genkeypair -keystore C:\\*GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit -alias
+    offline.example.com -keyalg RSA -dname "CN=offline.example.com, OU=Example, O=Example,
     L=Mountain View, ST=California, C=US"
     ```
 
-    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
+    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
 
     The Gateway is now configured with a certificate for the host name of the back-end server, and you can use the host name to connect to the back-end server over TLS/SSL. As an example, configure the Gateway to act as a back-end server proxy for the secure networking requests from the client.
 
