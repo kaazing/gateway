@@ -30,7 +30,7 @@ Traditionally, web architectures require that you open inbound ports to allow co
 
 Using Enterprise Shield™, you can close all inbound ports in your firewall, thus closing the entry points available to untrusted users and eliminating your attack surface vulnerability.
 
-To implement Enterprise Shield™, you configure an additional Gateway in the DMZ, which receives a reverse connection from within the trusted network. With this architecture, a client can talk to the back-end service or message broker through a firewall. Another benefit of Enterprise Shield™ is that your architecture remains valid, without requiring changes. For example, neither the client nor the back-end service or message broker are aware of the reverse connection because it is completely transparent to the rest of the architecture. Clients that are outside the firewall connect as usual to the DMZ Gateway.
+To implement Enterprise Shield™, you configure a Gateway in the DMZ, which receives a reverse connection from within the trusted network. With this architecture, a client can talk to the back-end service or message broker through a firewall. Another benefit of Enterprise Shield™ is that your architecture remains valid, without requiring changes. For example, neither the client nor the back-end service or message broker are aware of the reverse connection because it is completely transparent to the rest of the architecture. Clients that are outside the firewall connect as usual to the DMZ Gateway.
 
 ![Simple Topology Showing a Reverse Connection](../images/f-dmz-trustednetwork-860-02.png)
 
