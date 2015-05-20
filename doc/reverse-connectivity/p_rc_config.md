@@ -26,14 +26,10 @@ Step 1: What You Will Accomplish
 
 At the end of this walkthrough, you will have configured a maximum security Enterprise Shield™ topology.
 
-<figure style="margin-left:0px;">
 ![Use Case 3: Maximum (End-to-End) Transport Security](../images/es_usecase3.png)
-<figcaption>
 
 **Figure: Maximum (End-to-End) Transport Security**
 
-</figcaption>
-</figure>
 In this topology, the Gateway on the internal trusted network and a DMZ Gateway collaborate so that inbound ports of the firewall can be closed. Doing so provides a barrier to unauthorized users but still allows full bidirectional access. It works because of the collaboration between the internal Gateway and DMZ Gateway. The internal Gateway is configured to be totally opaque and hides all internal DNS names, IP addresses, and so on. The internal Gateway completes the connection initiated through a client request by accessing the outbound ports on the DMZ Gateway. There are no changes to any application logic.
 
 Step 2: Before You Begin
