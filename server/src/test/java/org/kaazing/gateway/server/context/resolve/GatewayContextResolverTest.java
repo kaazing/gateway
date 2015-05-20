@@ -21,6 +21,9 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,6 +56,9 @@ import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.transport.MockWsAcceptor;
+import org.kaazing.gateway.transport.MockWsConnector;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -147,44 +153,36 @@ public class GatewayContextResolverTest {
 
     @Test
     public void testLowerCaseOfResolvedServices() throws Exception {
-        File configFile = null;
-        try {
-            configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
-            org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
-            GatewayContext ctx = resolver.resolve(doc);
+        configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
+        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+        GatewayContext ctx = resolver.resolve(doc);
 
-            Collection<? extends ServiceContext> services = ctx.getServices();
-            for (ServiceContext service : services) {
-                // validate that the accepts have lower-case host names
-                Collection<URI> acceptURIs = service.getAccepts();
-                for (URI acceptURI : acceptURIs) {
-                    Assert.assertTrue(acceptURI.getHost().equals(acceptURI.getHost().toLowerCase()));
-                }
+        Collection<? extends ServiceContext> services = ctx.getServices();
+        for (ServiceContext service : services) {
+            // validate that the accepts have lower-case host names
+            Collection<URI> acceptURIs = service.getAccepts();
+            for (URI acceptURI : acceptURIs) {
+                Assert.assertTrue(acceptURI.getHost().equals(acceptURI.getHost().toLowerCase()));
+            }
 
-                // validate that the cross-site-constraints have lower-case host names
-                Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
-                        service.getCrossSiteConstraints();
-                for (URI key : crossSiteConstraints.keySet()) {
-                    Map<String, ? extends CrossSiteConstraintContext> crossSiteConstraintsByURI = crossSiteConstraints.get(key);
-                    for (CrossSiteConstraintContext crossSiteConstraint : crossSiteConstraintsByURI.values()) {
-                        String allowOrigin = crossSiteConstraint.getAllowOrigin();
-                        if (!"*".equals(allowOrigin)) {
-                            URI originURI = URI.create(allowOrigin);
-                            Assert.assertTrue(originURI.getHost().equals(originURI.getHost().toLowerCase()));
-                        }
+            // validate that the cross-site-constraints have lower-case host names
+            Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+                    service.getCrossSiteConstraints();
+            for (URI key : crossSiteConstraints.keySet()) {
+                Map<String, ? extends CrossSiteConstraintContext> crossSiteConstraintsByURI = crossSiteConstraints.get(key);
+                for (CrossSiteConstraintContext crossSiteConstraint : crossSiteConstraintsByURI.values()) {
+                    String allowOrigin = crossSiteConstraint.getAllowOrigin();
+                    if (!"*".equals(allowOrigin)) {
+                        URI originURI = URI.create(allowOrigin);
+                        Assert.assertTrue(originURI.getHost().equals(originURI.getHost().toLowerCase()));
                     }
                 }
-            }
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
             }
         }
     }
 
     @Test // KG-2250/KG-2251
     public void testWrongKeystoreType() throws Exception {
-        File configFile = null;
         boolean sawExpectedEx = false;
 
         String expectedLogMessage = "Exception .* caught loading file .*keystore.db.* you may need to specify " +
@@ -206,11 +204,6 @@ public class GatewayContextResolverTest {
             }
             final List<LoggingEvent> grepResult = inspector.grep(org.apache.log4j.Level.ERROR, expectedLogMessage);
             Assert.assertEquals("Expected to find a matching error message", 1, grepResult.size());
-
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
         }
 
         Assert.assertTrue(String.format("Did not see expected IOException with message '%s'", expected), sawExpectedEx);
@@ -218,7 +211,6 @@ public class GatewayContextResolverTest {
 
     @Test // KG-2250/KG-2251
     public void testWrongTruststoreType() throws Exception {
-        File configFile = null;
         boolean sawExpectedEx = false;
 
         String expectedLogMessage = "Exception .* caught loading file .*truststore-JCEKS.db.* you may need to specify " +
@@ -241,21 +233,15 @@ public class GatewayContextResolverTest {
             final List<LoggingEvent> grepResult = inspector.grep(org.apache.log4j.Level.ERROR, expectedLogMessage);
             Assert.assertEquals("Expected to find a matching error message", 1, grepResult.size());
 
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
-        }
+        } 
 
         Assert.assertTrue(String
                 .format("Did not see expected IllegalArgumentException with message '%s'", expected), sawExpectedEx);
     }
 
     @Test // KG-5510
-    public void shouldAcceptKeyStoreFileAbsolutePath()
-            throws Exception {
-
-        File configFile =
+    public void shouldAcceptKeyStoreFileAbsolutePath() throws Exception {
+        configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
                                 "-files.xml",
                         keyStoreFile.getAbsolutePath(),
@@ -267,10 +253,8 @@ public class GatewayContextResolverTest {
     }
 
     @Test // KG-5510
-    public void shouldAcceptKeyStorePasswordFileAbsolutePath()
-            throws Exception {
-
-        File configFile =
+    public void shouldAcceptKeyStorePasswordFileAbsolutePath() throws Exception {
+        configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
                                 "-files.xml",
                         "keystore.db",
@@ -282,10 +266,8 @@ public class GatewayContextResolverTest {
     }
 
     @Test // KG-5510
-    public void shouldAcceptTrustStoreFileAbsolutePath()
-            throws Exception {
-
-        File configFile =
+    public void shouldAcceptTrustStoreFileAbsolutePath() throws Exception {
+        configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-abs-path-security" +
                                 "-files.xml",
                         "keystore.db",
@@ -298,9 +280,8 @@ public class GatewayContextResolverTest {
 
     // See http://jira.kaazing.wan/browse/KG-7237
     @Test(expected = RuntimeException.class)
-    public void shouldNotResolveDuplicateRealms()
-            throws Exception {
-        File configFile =
+    public void shouldNotResolveDuplicateRealms() throws Exception {
+        configFile =
                 createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-duplicate-realms.xml");
         GatewayConfigDocument doc = parser.parse(configFile);
         Assert.assertNotNull(doc);
@@ -310,7 +291,25 @@ public class GatewayContextResolverTest {
     // Should inject resources into WebSocket extensions
     // See Mock
     @Test
-    public void shouldInjectResourcesIntoExtensions();
+    public void shouldInjectResourcesIntoExtensions() throws Exception {
+        configFile = createTempFileFromResource("gateway/conf/gateway-config-ws.xml");
+        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+        GatewayContext ctx = resolver.resolve(doc);
+
+        Collection<? extends ServiceContext> services = ctx.getServices();
+        for (ServiceContext service : services) {
+
+        }
+        DefaultTransportContext transport = ctx.getTransportForScheme("ws");
+        MockWsAcceptor acceptor = (MockWsAcceptor)transport.getAcceptor();
+        MockWsConnector connector = (MockWsConnector)transport.getConnector();
+        assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
+        assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
+        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory ()
+                instanceof WebSocketExtensionFactory);
+        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory ()
+                instanceof WebSocketExtensionFactory);
+    }
     
 
     // The following replaces code we used to have GatewayContextResolverTest (rev 25379) that created a log4j Hierarchy

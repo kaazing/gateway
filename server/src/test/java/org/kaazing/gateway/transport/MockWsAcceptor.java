@@ -21,57 +21,50 @@
 
 package org.kaazing.gateway.transport;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Resource;
 
-import org.kaazing.gateway.resource.address.Protocol;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.WsConnector;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
+import org.kaazing.mina.core.future.UnbindFuture;
 
-final class MockWsTransport extends Transport {
+/**
+ * Used for testing resource injection (see GatewayContextResolverTest)
+ */
+public final class MockWsAcceptor implements BridgeAcceptor {
+    
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
-    private static final Map<String, Protocol> WS_PROTOCOLS;
-    private final WsAcceptor acceptor;
-    private final BridgeConnector connector;
- 
-
-    static {
-        Map<String, Protocol> map = new HashMap<>();
-        map.put("ws", null);
-        WS_PROTOCOLS = Collections.unmodifiableMap(map);
+    @Resource(name = "webSocketExtensionFactory")
+    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
+        this.webSocketExtensionFactory = factory;
     }
-
-
-    MockWsTransport() {
-        acceptor = new MockWsAcceptor();
-        connector = new MockWsConnector();
+    
+    public WebSocketExtensionFactory getWebSocketExtensionFactory() {
+        return webSocketExtensionFactory;
     }
 
     @Override
-    public BridgeAcceptor getAcceptor() {
-        return acceptor;
+    public void dispose() {
+        
     }
 
     @Override
-    public BridgeConnector getConnector() {
-        return connector;
+    public void bind(ResourceAddress address,
+                     IoHandler handler,
+                     BridgeSessionInitializer<? extends IoFuture> initializer) {
+      
     }
 
     @Override
-    public BridgeAcceptor getAcceptor(ResourceAddress address) {
+    public UnbindFuture unbind(ResourceAddress address) {
         return null;
     }
 
     @Override
-    public BridgeConnector getConnector(ResourceAddress address) {
+    public IoHandler getHandler(ResourceAddress address) {
         return null;
-    }
-
-    @Override
-    public Map<String, Protocol> getProtocols() {
-        return WS_PROTOCOLS;
     }
 
 }
