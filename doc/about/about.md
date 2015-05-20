@@ -52,7 +52,7 @@ In addition, you can append a query string to the URL to provide non-hierarchica
 
 **Note:** In the example URLs, the `${gateway.hostname}` syntax allows you to define property values once and then the values are propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file that uses the dollar-sign and curly brace format (such as `${gateway.hostname}`) with a property. In the Gateway configuration, you can configure property defaults such as `gateway.hostname`, `gateway.base.port`, `gateway.extras.port`.
 
-About About Domain Names
+About Domain Names
 ----------------------------------------
 Many examples in the documentation use the `.net domain` (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Simply replace any instances of "example.com" in the configuration with your domain or hostname.
 
