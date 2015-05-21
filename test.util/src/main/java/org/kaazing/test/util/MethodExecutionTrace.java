@@ -32,35 +32,17 @@ import org.junit.runner.Description;
 
 /**
  * This class can be used to print out a message at the start and end of each test method in a JUnit test class
- * by including the following at the start of the class:
-    @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+ * by including the following at the start of the class:<pre>
+ *    @Rule
+ *    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+ * </pre>
+ * It can also be chained with other rules, for example:<pre>
+ *    private MethodRule trace = new MethodExecutionTrace();
+ *    @Rule
+ *    public TestRule chain = outerRule(trace).around(robot).around(gateway);
+ * </pre>
  */
 public class MethodExecutionTrace extends TestWatcher {
-
-    /**
-     * Use this constructor to set up a particular log4j configuration using a properties file,
-     * or null if you do not want to load any log4j configuration properties.
-     * See gateway.server src/test/resources/log4j-trace.properties for an example.
-     * @param log4jConfigPropertiesFileName
-     */
-    public MethodExecutionTrace(String log4jPropertiesResourceName) {
-        MemoryAppender.initialize();
-        if (log4jPropertiesResourceName != null) {
-            // Initialize log4j using a properties file available on the class path
-            Properties log4j = new Properties();
-            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-            if (in == null) {
-                throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-            }
-            try {
-                log4j.load(in);
-            } catch (IOException e) {
-                throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName), e);
-            }
-            PropertyConfigurator.configure(log4j);
-        }
-    }
 
     /**
      * This constructor will configure log4j using the log4j-trace.properties file from the
@@ -68,7 +50,34 @@ public class MethodExecutionTrace extends TestWatcher {
      * to help diagnose the failure.
      */
     public MethodExecutionTrace() {
+        // TODO: consider using or exposing programmatic configuration instead,
+        // see https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/BasicConfigurator.html instead
         this("log4j-trace.properties");
+    }
+
+    /**
+     * Use this constructor to set up a particular log4j configuration using a properties file
+     * available on the classpath, or null if you do not want to load any log4j configuration
+     * properties.
+     * @param log4jPropertiesResourceName
+     */
+    public MethodExecutionTrace(String log4jPropertiesResourceName) {
+        MemoryAppender.initialize();
+        if (log4jPropertiesResourceName != null) {
+            // Initialize log4j using a properties file available on the class path
+            Properties log4j = new Properties();
+            try (
+                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName)
+            ) {
+                if (in == null) {
+                    throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName));
+                }
+                log4j.load(in);
+                PropertyConfigurator.configure(log4j);
+            } catch (IOException e) {
+                throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName), e);
+            }
+        }
     }
 
     @Override
