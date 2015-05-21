@@ -25,21 +25,15 @@ import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
-import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /*
  * A pool for reusable persistent transport connections. HttpConnector
@@ -51,26 +45,14 @@ public class PersistentConnectionPool {
     private static final String IDLE_FILTER = HttpProtocol.NAME + "#idle";
 
     // transport address -> set of persistent connections
-    private final ThreadLocal<Map<ResourceAddress, Set<IoSession>>> connections;
+    private final Map<HttpResourceAddress, Set<IoSession>> connections;
     private final Logger logger;
-    private final CloseListener closeListener;
     private final HttpConnectIdleFilter idleFilter;
 
-    // http address -> no of idle connections
-    private final ConcurrentMap<ResourceAddress, AtomicInteger> maxConnections;
-
-
     PersistentConnectionPool(Logger logger) {
-        this.connections = new VicariousThreadLocal<Map<ResourceAddress, Set<IoSession>>>() {
-            @Override
-            protected Map<ResourceAddress, Set<IoSession>> initialValue() {
-                return new HashMap<>();
-            }
-        };
+        this.connections = new HashMap<>();
         this.logger = logger;
-        this.closeListener = new CloseListener(this);
-        this.idleFilter = new HttpConnectIdleFilter(this, logger);
-        this.maxConnections = new ConcurrentHashMap<>();
+        this.idleFilter = new HttpConnectIdleFilter(logger);
     }
 
     /*
@@ -80,21 +62,26 @@ public class PersistentConnectionPool {
      * @return true if the idle connection is cached for reuse
      *         false otherwise
      */
-    public boolean recycle(IoSession session, Integer keepAliveTimeout) {
-        assert keepAliveTimeout != null;
+    public boolean recycle(DefaultHttpSession httpSession) {
+        if (!add(httpSession)) {
+            return false;
+        }
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Recycling (adding to pool) http connect persistent connection %s", session));
+            logger.debug(String.format("Caching persistent connection: http address=%s, transport session=%s",
+                    httpSession.getRemoteAddress(), httpSession.getParent()));
         }
-        ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
-        Set<IoSession> sessions = connections.get().get(address);
-        if (sessions == null) {
-            sessions = new HashSet<>();
-            connections.get().put(address, sessions);
-        }
-        sessions.add(session);
-        CloseFuture closeFuture = session.getCloseFuture();
-        closeFuture.addListener(closeListener);
-        addIdleFilter(session, keepAliveTimeout);
+        HttpResourceAddress serverAddress = (HttpResourceAddress)httpSession.getRemoteAddress();
+        IoSession transportSession = httpSession.getParent();
+
+        // Take care of transport session close
+        CloseFuture closeFuture = transportSession.getCloseFuture();
+        closeFuture.addListener(new CloseListener(this, serverAddress, logger));
+
+        // Track transport session idle
+        transportSession.getFilterChain().addLast(IDLE_FILTER, idleFilter);
+        int keepAliveTimeout = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
+        transportSession.getConfig().setBothIdleTime(keepAliveTimeout);
+
         return true;
     }
 
@@ -104,23 +91,93 @@ public class PersistentConnectionPool {
      * @return a reusable IoSession for the address
      *         otherwise null
      */
-    public IoSession take(ResourceAddress address) {
-        Set<IoSession> sessions = connections.get().get(address);
-        if (sessions != null && !sessions.isEmpty()) {
-            IoSession session = sessions.iterator().next();
-            sessions.remove(session);
-
+    public IoSession take(HttpResourceAddress serverAddress) {
+        IoSession transportSession = removeThreadLocal(serverAddress);
+        if (transportSession != null) {
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Reusing (removing from pool) http connect persistent connection %s", session));
+                logger.debug(String.format("Reusing cached persistent connection: http address=%s, transport session=%s",
+                        serverAddress, transportSession));
             }
-            session.getCloseFuture().removeListener(closeListener);
+            transportSession.getConfig().setBothIdleTime(0);
+            transportSession.getFilterChain().remove(IDLE_FILTER);
+        }
+
+        return transportSession;
+    }
+
+
+
+    /*
+     * If a session is closed, it will be removed from this pool using this
+     * CloseFuture listener
+     */
+    private static class CloseListener implements IoFutureListener<CloseFuture> {
+
+        private final PersistentConnectionPool store;
+        private final HttpResourceAddress serverAddress;
+        private final Logger logger;
+
+        CloseListener(PersistentConnectionPool store, HttpResourceAddress serverAddress, Logger logger) {
+            this.store = store;
+            this.serverAddress = serverAddress;
+            this.logger = logger;
+        }
+
+        @Override
+        public void operationComplete(CloseFuture future) {
+            IoSessionEx session = (IoSessionEx) future.getSession();
+            store.remove(serverAddress, session);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Removed cached persistent connection: http address=%s, transport session=%s",
+                        serverAddress, session));
+            }
+        }
+    }
+
+    /*
+     * Filter to detect if a persistent connection is idle
+     */
+    private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
+        private final Logger logger;
+
+        HttpConnectIdleFilter(Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Idle cached persistent connection: transport session=%s", session));
+            }
             session.getConfig().setBothIdleTime(0);
             session.getFilterChain().remove(IDLE_FILTER);
 
-            return session;
+            // Transport connection will be removed from pool in an listener of CloseFuture
+            session.close(false);
         }
+    }
 
-        return null;
+    private boolean add(DefaultHttpSession httpSession) {
+        HttpResourceAddress serverAddress = (HttpResourceAddress)httpSession.getRemoteAddress();
+        int max = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
+        IoSession transportSession = httpSession.getParent();
+
+        synchronized (connections) {
+            Set<IoSession> transportSessions = connections.get(serverAddress);
+            if (transportSessions == null) {
+                transportSessions = new HashSet<>();
+                connections.put(serverAddress, transportSessions);
+            }
+            if (transportSessions.size() < max) {
+                transportSessions.add(transportSession);
+                return true;
+            }
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Not caching persistent connection: http address=%s, transport session=%s",
+                    serverAddress, transportSession));
+        }
+        return false;
     }
 
     /*
@@ -130,107 +187,26 @@ public class PersistentConnectionPool {
      * @return a reusable IoSession for the address
      *         otherwise null
      */
-    public void remove(IoSession session) {
-        ResourceAddress address = BridgeSession.REMOTE_ADDRESS.get(session);
-        Set<IoSession> sessions = connections.get().get(address);
-        if (sessions != null && !sessions.isEmpty()) {
-            boolean removed = sessions.remove(session);
-            if (removed && logger.isDebugEnabled()) {
-                logger.debug(String.format("Removed http connect persistent connection %s", session));
+    private void remove(HttpResourceAddress serverAddress, IoSession session) {
+        synchronized (connections) {
+            Set<IoSession> transportSessions = connections.get(serverAddress);
+            transportSessions.remove(session);
+        }
+    }
+
+    private IoSession removeThreadLocal(HttpResourceAddress serverAddress) {
+        synchronized (connections) {
+            Set<IoSession> transportSessions = connections.get(serverAddress);
+            if (transportSessions != null) {
+                for (IoSession transportSession : transportSessions) {
+                    if (((IoSessionEx) transportSession).getIoThread() == Thread.currentThread()) {
+                        transportSessions.remove(transportSession);
+                        return transportSession;
+                    }
+                }
             }
         }
+        return null;
     }
-
-    public void addIdleFilter(IoSession session, int keepAliveTimeout ) {
-        session.getConfig().setBothIdleTime(keepAliveTimeout);
-        session.getFilterChain().addLast(IDLE_FILTER, idleFilter);
-    }
-
-    /*
-     * If a session is closed, it will be removed from this pool using this
-     * CloseFuture listener
-     */
-    private static class CloseListener implements IoFutureListener<CloseFuture> {
-
-        private final PersistentConnectionPool store;
-
-        CloseListener(PersistentConnectionPool store) {
-            this.store = store;
-        }
-
-        @Override
-        public void operationComplete(CloseFuture future) {
-            IoSessionEx session = (IoSessionEx) future.getSession();
-            store.remove(session);
-        }
-    }
-
-    /*
-     * Filter to detect if a persistent connection is idle
-     */
-    private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
-        private final PersistentConnectionPool pool;
-        private final Logger logger;
-
-        HttpConnectIdleFilter(PersistentConnectionPool pool, Logger logger) {
-            this.pool = pool;
-            this.logger = logger;
-        }
-
-        @Override
-        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Idle http connect persistent connection %s", session));
-            }
-            pool.remove(session);
-            session.close(false);
-            super.sessionIdle(nextFilter, session, status);
-        }
-    }
-
-    /*
-
-    private boolean addToMax(ResourceAddress serverAddress) {
-
-        int configuredMax = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
-        System.out.println("ConfiguedMax = " + configuredMax);
-        AtomicInteger existingMax = maxConnections.get(serverAddress);
-        if (existingMax == null) {
-            existingMax = new AtomicInteger(0);
-            maxConnections.putIfAbsent(serverAddress, new AtomicInteger(0));
-        }
-
-        int old = existingMax.get();
-        System.out.println("existingMax = " + old);
-
-        if (old + 1 >= configuredMax || !existingMax.compareAndSet(old, old + 1)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private void removeMax() {
-
-        ResourceAddress serverAddress = session.getRemoteAddress();
-        int configuredMax = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
-        System.out.println("ConfiguedMax = " + configuredMax);
-        AtomicInteger existingMax = maxConnections.get(serverAddress);
-        if (existingMax == null) {
-            existingMax = new AtomicInteger(0);
-            maxConnections.putIfAbsent(serverAddress, new AtomicInteger(0));
-        }
-
-        int old = existingMax.get();
-        System.out.println("existingMax = " + old);
-
-        if (old + 1 >= configuredMax || !existingMax.compareAndSet(old, old + 1)) {
-            // close transport connection when write complete
-            super.removeInternal(session);
-            return;
-        }
-    }
-
-    */
 
 }

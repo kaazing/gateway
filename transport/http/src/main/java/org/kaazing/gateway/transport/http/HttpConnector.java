@@ -63,6 +63,7 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -142,7 +143,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     @Override
     protected IoProcessorEx<DefaultHttpSession> initProcessor() {
-        return new HttpConnectProcessor(persistentConnectionsStore);
+        return new HttpConnectProcessor(persistentConnectionsStore, logger);
     }
 
     @Override
@@ -209,7 +210,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
             final ResourceAddress address, final IoHandler handler, final IoSessionInitializer<T> initializer) {
 
-        IoSession transportSession = persistentConnectionsStore.take(address.getTransport());
+        IoSession transportSession = persistentConnectionsStore.take((HttpResourceAddress)address);
         if (transportSession != null) {
             connectUsingExistingTransport(connectFuture, address, transportSession, handler, initializer);
         } else {

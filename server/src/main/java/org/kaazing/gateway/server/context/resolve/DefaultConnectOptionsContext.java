@@ -107,7 +107,7 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
         result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
-        result.put("keepalive.max.connections", getHttpKeepaliveMaxConnections());
+        result.put("http.keepalive.max.connections", getHttpKeepaliveMaxConnections());
 
         // for now just put in the rest of the options as strings
         for (Entry<String, String> entry : options.entrySet()) {

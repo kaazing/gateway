@@ -61,7 +61,7 @@ public class ServiceDefaultsTest {
 
         Assert.assertEquals(5, connectOptionsMap.get(HTTP_KEEP_ALIVE_TIMEOUT_KEY));
         Assert.assertFalse((Boolean) connectOptionsMap.get(HTTP_KEEP_ALIVE));
-        Assert.assertEquals(7, connectOptionsMap.get("keepalive.max.connections"));
+        Assert.assertEquals(7, connectOptionsMap.get("http.keepalive.max.connections"));
     }
 
     @Test
