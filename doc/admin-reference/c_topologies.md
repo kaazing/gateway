@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Common KAAZING Gateway Production Topologies
 
-Common KAAZING Gateway Production Topologies 
+Common KAAZING Gateway Production Topologies
 ========================================================================
 
 This topic describes some of the most common production topologies for the KAAZING Gateway. It is intended to familiarize network administrators and systems software developers with general KAAZING Gateway production deployments. Your actual production deployment of the Gateway will likely be some variation of the topologies covered here.
@@ -11,7 +11,7 @@ All of the topologies in this topic begin with clients on one end and the back-e
 
 Developers that want to develop against the Gateway can run the Gateway locally as described in [Setting Up the Gateway](../about/setup-guide.md).
 
-**Note:** Most topologies use Gateway clustering and load balancing. For information on using these features, see [Configure the Gateway for High Availability](../high-availability/o_ha.md).
+**Note:** Most topologies use Gateway clustering and load balancing. For information on using these features, see [Configure the Gateway for High Availability](../high-availability/o_high_availability.md).
 
 This topic covers the following information:
 
@@ -41,12 +41,12 @@ Deploying this topology involves the following:
 3.  Configure the DMZ Gateway to listen on a public URI for clients, such as `wss://example.com:443/path`.
 4.  Configure KAAZING Gateway clients to connect to the DMZ Gateway using the public URI. Once the clients are connected to the DMZ Gateway, full duplex, bidirectional communication is established and communication flows in both directions simultaneously.
 
-This topology is typically deployed using Gateway clustering and load balancing. For more information, see [Configure the Gateway for High Availability](../high-availability/o_ha.md). Load balancing can also be performed by a third party load balancer.
+This topology is typically deployed using Gateway clustering and load balancing. For more information, see [Configure the Gateway for High Availability](../high-availability/o_high_availability.md). Load balancing can also be performed by a third party load balancer.
 
 Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ---------------------------------------------------------------------
 
-Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../reverse-connectivity/o_rc_checklist.md#about-enterprise-shield).
+Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../enterprise-shield/o_enterprise_shield_checklist.md#about-enterprise-shield).
 
 Virtual Private Connection
 --------------------------------------------
@@ -63,5 +63,3 @@ KAAZING Gateway topologies use TLS/SSL to ensure that network intermediaries, su
 When using TLS/SSL with Gateway topologies, the Gateway must provide KAAZING Gateway clients (built using KAAZING Gateway libraries) with the certificate for the domain name in the URI that the clients use to connect to the Gateway. If TLS/SSL is deployed between Gateway instances, then certificates must be used for the hostnames in the URIs used by the connected Gateway instances.
 
 For more information, see [TLS/SSL with the Gateway Example](../security/u_tls_works.md#tlsssl-with-the-gateway-example) and [Secure Network Traffic with the Gateway](../security/o_tls.md).
-
-
