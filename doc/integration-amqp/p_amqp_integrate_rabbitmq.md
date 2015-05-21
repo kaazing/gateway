@@ -30,7 +30,7 @@ To Integrate RabbitMQ Messaging
 
 2.  Download and install the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
 3.  Open the configuration file for the Gateway, located at `GATEWAY_HOME/conf/gateway-config.xml`.
-4.  Locate the [amqp.proxy](../admin-reference/r_conf_service.md#proxy) service:
+4.  Locate the [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy) service:
 
     ``` xml
       <service>
@@ -56,7 +56,7 @@ To Integrate RabbitMQ Messaging
     </service>
     ```
 
-    Note that the connect element uses the default AMQP port 5672. For information on other properties that may be configured for the `amqp.proxy` service, see [amqp.proxy](../admin-reference/r_conf_service.md#proxy).
+    Note that the connect element uses the default AMQP port 5672. For information on other properties that may be configured for the `amqp.proxy` service, see [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy).
 
 5.  Start the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
 6.  Test the Gateway RabbitMQ integration.
@@ -70,6 +70,6 @@ To Integrate RabbitMQ Messaging
 See Also
 --------
 
--   For general troubleshooting information, see [Troubleshoot the Gateway](../troubleshooting/o_ts.md).
+-   For general troubleshooting information, see [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md).
 -   For information on AMQP and RabbitMQ, see [AMQP 0-9-1 Model Explained](https://www.rabbitmq.com/tutorials/amqp-concepts.html), [RabbitMQ Documentation](https://www.rabbitmq.com/documentation.html), [Downloading and Installing RabbitMQ](https://www.rabbitmq.com/download.html).
 -   [Running Erlang on Mac OS X](http://rudamoura.com/erlang-on-mac.html "Running Erlang/OTP on Mac OS X").
