@@ -35,7 +35,7 @@ public class MonitoringEntityFactoryInjectorTest {
     
     private static final String AGRONA_ENABLED = "org.kaazing.gateway.management.AGRONA_ENABLED";
 
-	@Test
+    @Test
     public void testMonitoringEntityFactoryInjectorAgronaEnabledUnset() {
         MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(new Properties());
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
@@ -46,7 +46,7 @@ public class MonitoringEntityFactoryInjectorTest {
     public void testMonitoringEntityFactoryInjectorAgronaEnabledFalse() {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(false));
-		MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
+        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
         assertTrue(monitoringEntityFactory instanceof DefaultMonitoringEntityFactoryStub);
     }
@@ -55,7 +55,7 @@ public class MonitoringEntityFactoryInjectorTest {
     public void testMonitoringEntityFactoryInjectorAgronaEnabledTrue() {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(true));
-		MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
+        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
         assertTrue(monitoringEntityFactory instanceof AgronaMonitoringEntityFactory);
     }
