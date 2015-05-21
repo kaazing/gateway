@@ -9,7 +9,7 @@ This checklist provides the steps necessary to configure Enterprise Shield™ in
 
 | #   | Step                                                            | Topic or Reference                                                                   |
 | --- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1   | Become familiar with Gateway topologies                         | [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md)   |
+| 1   | Become familiar with Gateway topologies                         | [Common Gateway Production Topologies](../admin-reference/c_topologies.md)   |
 | 2   | Understand how Enterprise Shield™ works                         | [About Enterprise Shield™](#about-enterprise-shield)                                 |
 | 3   | Determine which Enterprise Shield™ topology is for you          | [Common Enterprise Shield™ Use Cases](c_enterprise_shield_use_cases.md)              |
 | 4   | Download and set up KAAZING Gateway                             | [Setting Up the Gateway](../about/setup-guide.md)                                    |
