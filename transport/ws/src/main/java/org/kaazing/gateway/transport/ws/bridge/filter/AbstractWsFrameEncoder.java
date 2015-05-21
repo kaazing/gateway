@@ -32,7 +32,6 @@ import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
-import org.kaazing.gateway.transport.ws.extension.EscapeSequencer;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -79,38 +78,14 @@ public abstract class AbstractWsFrameEncoder extends ProtocolEncoderAdapter {
 
     protected IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
 
-        IoBufferEx buf = message.getBytes();
-        byte[] escapeBytes = null;
-        boolean escaping = false;
-        // TODO: fix WsMessage inheritance hierarchy so WsCommandMessage doesn't have getBytes method
-        if (buf != null && extensions != null ) {
-            EscapeSequencer escapeSequencer = extensions.getEscapeSequencer(message.getKind());
-            if (escapeSequencer != null) {
-                escapeBytes = escapeSequencer.getEscapeBytes(buf);
-                escaping = escapeBytes.length > 0;
-            }
-        }
-
         switch (message.getKind()) {
             case CONTINUATION:
-                if (escaping) {
-                    return doContinuationEscapedEncode(allocator, flags, message, escapeBytes);
-                } else {
-                    return doContinuationEncode(allocator, flags, message);
-                }
+                return doContinuationEncode(allocator, flags, message);
             case BINARY: {
-                if (escaping) {
-                    return doBinaryEscapedEncode(allocator, flags, message, escapeBytes);
-                } else {
-                    return doBinaryEncode(allocator, flags, message);
-                }
+                return doBinaryEncode(allocator, flags, message);
             }
             case TEXT: {
-                if (escaping) {
-                    return doTextEscapedEncode(allocator, flags, message, escapeBytes);
-                } else {
-                    return doTextEncode(allocator, flags, message);
-                }
+                return doTextEncode(allocator, flags, message);
             }
             case PING: {
                 return doBinaryEncode(allocator, flags, message);
@@ -125,12 +100,6 @@ public abstract class AbstractWsFrameEncoder extends ProtocolEncoderAdapter {
                 throw new IllegalStateException("Unrecognized frame type: " + message.getKind());
         }
     }
-
-    protected abstract IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) ;
-
-    protected abstract IoBufferEx doContinuationEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) ;
-
-    protected abstract IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) ;
 
     protected abstract IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) ;
 

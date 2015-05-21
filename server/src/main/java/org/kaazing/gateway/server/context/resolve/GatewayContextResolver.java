@@ -258,7 +258,7 @@ public class GatewayContextResolver {
                 tempDir,
                 clusterContext,
                 schedulerProvider);
-        
+
         WebSocketExtensionFactory webSocketExtensionFactory = WebSocketExtensionFactory.newInstance();
 
         // create map of injectable resources
@@ -280,9 +280,10 @@ public class GatewayContextResolver {
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
-                bridgeServiceFactory,
-                dependencyContexts,
-                injectables);
+                    bridgeServiceFactory,
+                    webSocketExtensionFactory,
+                    dependencyContexts,
+                    injectables);
 
         return gatewayContext;
     }
@@ -1251,7 +1252,7 @@ public class GatewayContextResolver {
 
         // inject bridge service factory
         injectResources(bridgeServiceFactory, injectables);
-        
+
         // inject websocket extensions
         for (WebSocketExtensionFactorySpi factory : webSocketExtensionFactory.availableExtensions()) {
             injectResources(factory, injectables);

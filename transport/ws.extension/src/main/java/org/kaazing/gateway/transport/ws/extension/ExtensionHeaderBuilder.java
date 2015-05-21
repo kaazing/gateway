@@ -106,7 +106,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         return !parametersByName.isEmpty();
     }
 
-    public ExtensionHeader toExtensionHeader() {
+    public ExtensionHeader done() {
         return this;
     }
 

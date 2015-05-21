@@ -55,7 +55,7 @@ public final class WebSocketExtensionFactory {
                 extensionHeadersByCategory.put(key, value);
             }
             String extensionToken = extension.getExtensionName();
-            value.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
+            value.add(new ExtensionHeaderBuilder(extensionToken).done());
         }
         this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersByCategory);
     }
@@ -113,7 +113,7 @@ public final class WebSocketExtensionFactory {
         List<ExtensionHeader> exts = new ArrayList<>(extensionTokens.size());
         for (String extensionToken : extensionTokens) {
             if (extensionToken != null) {
-                exts.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
+                exts.add(new ExtensionHeaderBuilder(extensionToken).done());
             }
         }
 

@@ -16,6 +16,8 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
+import static java.lang.String.format;
+
 import java.net.ProtocolException;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -92,6 +94,11 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
     @Override
     public int compareTo(WebSocketExtensionFactorySpi o) {
         return getOrderCategory().ordinal() - o.getOrderCategory().ordinal();
+    }
+    
+    @Override
+    public String toString() {
+        return format("%s, order category: %s", getExtensionName (), getOrderCategory()); 
     }
 
 }

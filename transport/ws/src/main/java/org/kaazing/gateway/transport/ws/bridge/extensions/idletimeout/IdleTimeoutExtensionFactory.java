@@ -21,33 +21,23 @@
 
 package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 
-import org.apache.mina.core.filterchain.IoFilter;
+import java.net.ProtocolException;
+
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
-import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
-import org.kaazing.gateway.transport.ws.extension.ExtensionParameterBuilder;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 
-public final class IdleTimeoutExtension extends WebSocketExtension  {
-    static final String IDLE_TIMEOUT_EXTENSION_TOKEN = "x-kaazing-idle-timeout";
-    private static final String IDLE_TIMEOUT_TIMEOUT_PARAM = "timeout";
-    private final long idleTimeoutMillis;
-    private final ExtensionHeader extension;
+public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactorySpi {
 
-    public IdleTimeoutExtension(ExtensionHeader extension, long idleTimeoutMillis) {
-        this.idleTimeoutMillis = idleTimeoutMillis;
-        this.extension = new ExtensionHeaderBuilder(extension).append(
-                new ExtensionParameterBuilder(IDLE_TIMEOUT_TIMEOUT_PARAM, Long.toString(idleTimeoutMillis)))
-                .done();
+    @Override
+    public String getExtensionName() {
+        return IdleTimeoutExtension.IDLE_TIMEOUT_EXTENSION_TOKEN;
     }
 
     @Override
-    public ExtensionHeader getExtensionHeader() {
-        return extension;
+    public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
+        return new IdleTimeoutExtension(header, address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT));
     }
-
-    @Override
-    public IoFilter getFilter() {
-        return new IdleTimeoutFilter(idleTimeoutMillis);
-    };
 
 }

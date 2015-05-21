@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -50,6 +51,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
@@ -58,7 +60,10 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.MockWsAcceptor;
 import org.kaazing.gateway.transport.MockWsConnector;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -296,10 +301,6 @@ public class GatewayContextResolverTest {
         org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
-        Collection<? extends ServiceContext> services = ctx.getServices();
-        for (ServiceContext service : services) {
-
-        }
         DefaultTransportContext transport = ctx.getTransportForScheme("ws");
         MockWsAcceptor acceptor = (MockWsAcceptor)transport.getAcceptor();
         MockWsConnector connector = (MockWsConnector)transport.getConnector();
@@ -386,5 +387,30 @@ public class GatewayContextResolverTest {
             return false;
         }
     } // end BufferedAppender
+    
+    public static class MockWebSocketExtensionFactorySpi extends WebSocketExtensionFactorySpi {
+
+        static MockNegotiate mockBehavior;
+
+        @Override
+        public String getExtensionName() {
+            return "mock";
+        }
+
+        @Override
+        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+                throws ProtocolException {
+            return (mockBehavior == null) ? null : mockBehavior.negotiate(requestedExtension, address);
+        }
+
+        static void setNegotiateBehavoir(MockNegotiate behavoir) {
+            mockBehavior = behavoir;
+        }
+
+        public interface MockNegotiate {
+            WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address) throws ProtocolException;
+        }
+    }
+
 
 }

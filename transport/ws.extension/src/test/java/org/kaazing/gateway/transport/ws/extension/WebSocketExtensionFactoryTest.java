@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.hamcrest.BaseMatcher;
@@ -38,7 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest.MockWebSocketExtensionSpi.MockNegotiate;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactoryTest.MockWebSocketExtensionFactorySpi.MockNegotiate;
 
 public class WebSocketExtensionFactoryTest {
 
@@ -60,9 +61,15 @@ public class WebSocketExtensionFactoryTest {
         wsExtFactory = WebSocketExtensionFactory.newInstance();
         address = context.mock(WsResourceAddress.class);
         mockNegotiate = context.mock(MockNegotiate.class);
-        MockWebSocketExtensionSpi.setNegotiateBehavoir(mockNegotiate);
+        MockWebSocketExtensionFactorySpi.setNegotiateBehavoir(mockNegotiate);
         webSocketExtensionSpi = context.mock(WebSocketExtension.class);
         webSocketExtensionSpi2 = context.mock(WebSocketExtension.class, "webSocketExtensionSpi2");
+    }
+    
+    @Test
+    public void shouldReportAvailableExtensions() {
+        Collection<WebSocketExtensionFactorySpi> available = wsExtFactory.availableExtensions();
+        assertEquals(5, available.size());
     }
 
     @Test
@@ -96,22 +103,19 @@ public class WebSocketExtensionFactoryTest {
     @Test
     public void shouldNegotiateMultipleExtensions() throws ProtocolException {
         List<String> clientRequestedExtensions = new ArrayList<>();
-        clientRequestedExtensions.add("mock2");
-        clientRequestedExtensions.add("mock1");
+        clientRequestedExtensions.add("foo");
+        clientRequestedExtensions.add("mock");
         context.checking(new Expectations() {
             {
-                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock1")), with(address));
+                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock")), with(address));
                 will(returnValue(webSocketExtensionSpi));
-                oneOf(mockNegotiate).negotiate(with(new ExtensionHeaderTokenMatcher("mock2")), with(address));
-                will(returnValue(webSocketExtensionSpi2));
             }
         });
         List<WebSocketExtension> activeWebSocketExtensions =
                 wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions);
         assertEquals(2, activeWebSocketExtensions.size());
-        assertSame(webSocketExtensionSpi2, activeWebSocketExtensions.get(0));
+        assertEquals("foo", activeWebSocketExtensions.get(0).getExtensionHeader().getExtensionToken());
         assertSame(webSocketExtensionSpi, activeWebSocketExtensions.get(1));
-
     }
 
     @Test
@@ -268,7 +272,7 @@ public class WebSocketExtensionFactoryTest {
         wsExtFactory.negotiateWebSocketExtensions(address, clientRequestedExtensions);
     }
 
-    public static class MockWebSocketExtensionSpi extends WebSocketExtensionFactorySpi {
+    public static class MockWebSocketExtensionFactorySpi extends WebSocketExtensionFactorySpi {
 
         static MockNegotiate mockBehavior;
 
@@ -357,7 +361,7 @@ public class WebSocketExtensionFactoryTest {
             return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
-                    return new ExtensionHeaderBuilder("foo").toExtensionHeader();
+                    return new ExtensionHeaderBuilder("foo").done();
                 }
             };
         }
@@ -375,7 +379,7 @@ public class WebSocketExtensionFactoryTest {
             return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
-                    return new ExtensionHeaderBuilder("per-message-deflate").toExtensionHeader();
+                    return new ExtensionHeaderBuilder("per-message-deflate").done();
                 }
             };
         }
@@ -399,7 +403,7 @@ public class WebSocketExtensionFactoryTest {
             return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
-                    return new ExtensionHeaderBuilder("network").toExtensionHeader();
+                    return new ExtensionHeaderBuilder("network").done();
                 }
             };
         }
@@ -424,7 +428,7 @@ public class WebSocketExtensionFactoryTest {
             return new WebSocketExtension() {
                 @Override
                 public ExtensionHeader getExtensionHeader() {
-                    return new ExtensionHeaderBuilder("ping-pong").toExtensionHeader();
+                    return new ExtensionHeaderBuilder("ping-pong").done();
                 }
             };
         }

@@ -22,9 +22,10 @@
 
 -->
 
-<gateway-config xmlns="http://xmlns.kaazing.com/2012/08/gateway">
+<gateway-config xmlns="http://xmlns.kaazing.org/2014/09/gateway">
 
     <service>
+        <name>echo</name>
 
         <accept>tcp://localhost:8001</accept>
 

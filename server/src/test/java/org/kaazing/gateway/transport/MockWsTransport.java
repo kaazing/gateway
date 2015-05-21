@@ -27,13 +27,11 @@ import java.util.Map;
 
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.WsConnector;
 
 final class MockWsTransport extends Transport {
 
     private static final Map<String, Protocol> WS_PROTOCOLS;
-    private final WsAcceptor acceptor;
+    private final BridgeAcceptor acceptor;
     private final BridgeConnector connector;
  
 

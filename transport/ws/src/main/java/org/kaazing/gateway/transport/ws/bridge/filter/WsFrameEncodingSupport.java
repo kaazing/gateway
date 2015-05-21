@@ -30,7 +30,6 @@ import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
-import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -168,223 +167,6 @@ public class WsFrameEncodingSupport {
 	}
 
 
-    /**
-	 * Encode WebSocket message as a single frame, with escape bytes as a prefix message.
-	 */
-    public static IoBufferEx doEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-
-        IoBufferEx ioBuf = getBytes(allocator, flags, message);
-        ByteBuffer buf = ioBuf.buf();
-
-    	boolean mask = false; // FIXME enable masking for WsnConnector
-    	boolean fin = message.isFin();
-    	int maskValue = 0;	  // TODO random mask
-
-    	int position = buf.position();
-    	int remaining = buf.remaining();
-
-    	int offset = 2 + (mask ? 4 : 0) + calculateLengthSize(remaining);
-        final int escapeMessageOffset = 2 + (mask ? 4 : 0) + calculateLengthSize(escapedBytes.length);
-        final int escapedMessageLength = escapedBytes.length;
-        int totalOffset = escapeMessageOffset + escapedMessageLength + offset;
-
-        if (((flags & FLAG_ZERO_COPY) != 0) && (position >= totalOffset)) {
-            if (!isCacheEmpty(message)) {
-                throw new IllegalStateException("Cache must be empty: flags = " + flags);
-            }
-
-            // Note: duplicate first to represent different transport layer (no parallel encoding)
-            ByteBuffer b = buf.duplicate();
-            b.position(position - totalOffset);
-            b.mark();
-            byte escapedB1 = (byte) (fin ? 0x80 : 0x00);
-            byte escapedB2 = (byte) (mask ? 0x80 : 0x00);
-            escapedB1 = doEncodeOpcode(escapedB1, message);
-            escapedB2 |= lenBits(escapedBytes.length);
-            b.put(escapedB1).put(escapedB2);
-            doEncodeLength(b, escapedBytes.length);
-    		byte b1 = (byte) (fin ? 0x80 : 0x00);
-    		byte b2 = (byte) (mask ? 0x80 : 0x00);
-    	    if (mask) {
-            	b.putInt(maskValue);
-            }
-            b.put(escapedBytes);
-
-    		b1 = doEncodeOpcode(b1, message);
-    		b2 |= lenBits(remaining);
-
-    		b.put(b1).put(b2);
-
-    		doEncodeLength(b, remaining);
-
-            if (mask) {
-            	b.putInt(maskValue);
-            }
-            b.position(b.position() + remaining);
-            b.limit(b.position());
-            b.reset();
-            return allocator.wrap(b, flags);
-    	} else {
-    		ByteBuffer b = allocator.allocate(totalOffset + remaining, flags);
-
-    		int start = b.position();
-
-            byte escapedB1 = (byte) (fin ? 0x80 : 0x00);
-    		byte escapedB2 = (byte) (mask ? 0x80 : 0x00);
-
-    		escapedB1 = doEncodeOpcode(escapedB1, message);
-    		escapedB2 |= lenBits(escapedBytes.length);
-
-    		b.put(escapedB1).put(escapedB2);
-
-    		doEncodeLength(b, escapedBytes.length);
-
-    		if (mask) {
-    			b.putInt(maskValue);
-    		}
-
-            b.put(escapedBytes);
-
-    		byte b1 = (byte) (fin ? 0x80 : 0x00);
-    		byte b2 = (byte) (mask ? 0x80 : 0x00);
-
-    		b1 = doEncodeOpcode(b1, message);
-    		b2 |= lenBits(remaining);
-
-    		b.put(b1).put(b2);
-
-    		doEncodeLength(b, remaining);
-
-    		if (mask) {
-    			b.putInt(maskValue);
-    		}
-
-            // reset buffer position after write in case of reuse
-            // (KG-8125) if shared, duplicate to ensure we don't affect other threads
-            if (ioBuf.isShared()) {
-                b.put(buf.duplicate());
-            }
-            else {
-                int bufPos = buf.position();
-                b.put(buf);
-                buf.position(bufPos);
-            }
-            b.limit(b.position());
-            b.position(start);
-            return allocator.wrap(b, flags);
-    	}
-	}
-
-
-    /**
-	 * Encode WebSocket message as a single frame, with escape bytes as a prefix message.
-     * @param shared TODO
-	 */
-    public static IoBufferEx doEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes, int maskValue) {
-
-        IoBufferEx ioBuf = getBytes(allocator, flags, message);
-        ByteBuffer buf = ioBuf.buf();
-
-    	boolean mask = true;
-    	boolean fin = message.isFin();
-
-    	int position = buf.position();
-    	int remaining = buf.remaining();
-
-    	int offset = 2 + (mask ? 4 : 0) + calculateLengthSize(remaining);
-        final int escapeMessageOffset = 2 + (mask ? 4 : 0) + calculateLengthSize(escapedBytes.length);
-        final int escapedMessageLength = escapedBytes.length;
-        int totalOffset = escapeMessageOffset + escapedMessageLength + offset;
-
-        if (((flags & FLAG_ZERO_COPY) != 0) && (position >= totalOffset)) {
-            if (!isCacheEmpty(message)) {
-                throw new IllegalStateException("Cache must be empty: flags = " + flags);
-            }
-
-            // Note: duplicate first to represent different transport layer (no parallel encoding)
-            ByteBuffer b = buf.duplicate();
-            b.position(position - totalOffset);
-            b.mark();
-            byte escapedB1 = (byte) (fin ? 0x80 : 0x00);
-            byte escapedB2 = (byte) (mask ? 0x80 : 0x00);
-            escapedB1 = doEncodeOpcode(escapedB1, message);
-            escapedB2 |= lenBits(escapedBytes.length);
-            b.put(escapedB1).put(escapedB2);
-            doEncodeLength(b, escapedBytes.length);
-    		byte b1 = (byte) (fin ? 0x80 : 0x00);
-    		byte b2 = (byte) (mask ? 0x80 : 0x00);
-    	    if (mask) {
-            	b.putInt(maskValue);
-            }
-            b.put(escapedBytes);
-
-    		b1 = doEncodeOpcode(b1, message);
-    		b2 |= lenBits(remaining);
-
-    		b.put(b1).put(b2);
-
-    		doEncodeLength(b, remaining);
-
-            if (mask) {
-            	b.putInt(maskValue);
-            }
-            b.position(b.position() + remaining);
-            b.limit(b.position());
-            b.reset();
-            return allocator.wrap(b, flags);
-    	} else {
-    		ByteBuffer b = allocator.allocate(totalOffset + remaining, flags);
-
-    		int start = b.position();
-
-            byte escapedB1 = (byte) (fin ? 0x80 : 0x00);
-    		byte escapedB2 = (byte) (mask ? 0x80 : 0x00);
-
-    		escapedB1 = doEncodeOpcode(escapedB1, message);
-    		escapedB2 |= lenBits(escapedBytes.length);
-
-    		b.put(escapedB1).put(escapedB2);
-
-    		doEncodeLength(b, escapedBytes.length);
-
-    		if (mask) {
-    			b.putInt(maskValue);
-    		}
-
-            b.put(escapedBytes);
-
-    		byte b1 = (byte) (fin ? 0x80 : 0x00);
-    		byte b2 = (byte) (mask ? 0x80 : 0x00);
-
-    		b1 = doEncodeOpcode(b1, message);
-    		b2 |= lenBits(remaining);
-
-    		b.put(b1).put(b2);
-
-    		doEncodeLength(b, remaining);
-
-    		if (mask) {
-    			b.putInt(maskValue);
-    		}
-
-            // reset buffer position after write in case of reuse
-            // (KG-8125) if shared, duplicate to ensure we don't affect other threads
-            if (ioBuf.isShared()) {
-                b.put(buf.duplicate());
-            }
-            else {
-                int bufPos = buf.position();
-                b.put(buf);
-                buf.position(bufPos);
-            }
-
-            b.limit(b.position());
-    		b.position(start);
-            return allocator.wrap(b, flags);
-    	}
-	}
-
-
     protected enum Opcode {
     	CONTINUATION(0),
     	TEXT(1),
@@ -453,8 +235,7 @@ public class WsFrameEncodingSupport {
      * @return
      */
     private static byte doEncodeOpcode(byte b, WsMessage message) {
-        ExtensionHeader extension = message.getExtension();
-        Kind kind = extension == null ? message.getKind() : extension.getEncodedKind(message);
+        Kind kind = message.getKind();
 
         switch (kind) {
         case CONTINUATION:
@@ -508,20 +289,6 @@ public class WsFrameEncodingSupport {
     }
 
     private static IoBufferEx getBytes(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {   
-        ExtensionHeader extension = message.getExtension();
-        if (extension != null) {
-            int length = 0;
-            byte[] controlBytes = message.getExtension().getControlBytes();
-            length += controlBytes.length;
-            byte[] extensionPayload = message.getExtension().encode(message);
-            length += extensionPayload.length;
-            ByteBuffer payload = allocator.allocate(length); 
-            int offset = payload.position();
-            payload.put(controlBytes).put(extensionPayload);
-            payload.flip();
-            payload.position(offset);
-            return allocator.wrap(payload, flags);
-        }
         switch(message.getKind()) {
         case CLOSE:
             int length = 0;

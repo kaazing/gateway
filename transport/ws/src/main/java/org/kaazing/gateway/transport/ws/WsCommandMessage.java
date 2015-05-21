@@ -23,6 +23,7 @@ package org.kaazing.gateway.transport.ws;
 
 
 public class WsCommandMessage extends WsMessage {
+    // TODO: fix WsMessage inheritance hierarchy so WsCommandMessage doesn't have getBytes method
 
     public static final WsMessage NOOP = new WsCommandMessage(Command.noop());
     public static final WsMessage RECONNECT = new WsCommandMessage(Command.reconnect());

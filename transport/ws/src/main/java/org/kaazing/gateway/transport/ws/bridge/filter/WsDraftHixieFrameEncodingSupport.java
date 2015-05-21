@@ -44,75 +44,10 @@ public class WsDraftHixieFrameEncodingSupport {
      static final byte CLOSE_TYPE_BYTE = (byte) 0xff;
      static final byte CLOSE_TERMINATOR_BYTE = (byte) 0x00;
 
-    public static IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        int escapedOffset = 1;
-        int escapedMessageLength = escapedBytes.length;
-        int escapedPadding = 1;
-        int textOffset = 1;
-        int textPadding = 1;
-        int totalOffset = escapedOffset + escapedMessageLength + escapedPadding + textOffset;
-
-        IoBufferEx ioBuf = message.getBytes();
-        ByteBuffer buf = ioBuf.buf();
-        int position = buf.position();
-
-        if (((flags & FLAG_ZERO_COPY) != 0) &&
-            (position >= totalOffset) && 
-            ((buf.capacity() - buf.limit()) >= textPadding)) {
-            if (!isCacheEmpty(message)) {
-                throw new IllegalStateException("Cache must be empty: flags = " + flags);
-            }
-
-            // Note: duplicate first to represent different transport layer (no parallel encoding)
-            int remaining = buf.remaining();
-            ByteBuffer text = buf.duplicate();
-            text.position(position - totalOffset);
-            text.limit(text.limit() + textPadding);
-            text.mark();
-            text.put(TEXT_TYPE_BYTE);
-            text.put(escapedBytes);
-            text.put(TEXT_TERMINATOR_BYTE);
-            text.put(TEXT_TYPE_BYTE);
-            text.position(text.position() + remaining);
-            text.put(TEXT_TERMINATOR_BYTE);
-            text.reset();
-            return allocator.wrap(text, flags);
-        } else {
-
-            ByteBuffer text = allocator.allocate(escapedOffset + escapedMessageLength + escapedPadding +
-                    textOffset + buf.remaining() + textPadding, flags);
-            int offset = text.position();
-            text.put(TEXT_TYPE_BYTE);
-            text.put(escapedBytes);
-            text.put(TEXT_TERMINATOR_BYTE);
-            text.put(TEXT_TYPE_BYTE);
-
-            // (KG-8125) if shared, duplicate to ensure we don't affect other threads
-            if (ioBuf.isShared()) {
-                text.put(buf.duplicate());
-            }
-            else {
-                int bufPos = buf.position();
-                text.put(buf);
-                buf.position(bufPos);
-            }
-
-            text.put(TEXT_TERMINATOR_BYTE);
-            text.flip();
-            text.position(offset);
-            // note: defer wrap until position and limit correct (needed by SimpleSharedBuffer)
-            return allocator.wrap(text, flags);
-        }
-    }
-
     public static IoBufferEx doSpecifiedLengthTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
         return doEscapedEncode(allocator, flags, message, escapedBytes, SPECIFIED_LENGTH_TEXT_TYPE_BYTE);
     }
 
-    public static IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapedEncode(allocator, flags, message, escapedBytes, BINARY_TYPE_BYTE);
-    }
-    
     private static IoBufferEx doEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes, byte opCode) {
         IoBufferEx ioBuf = message.getBytes();
         ByteBuffer buf = ioBuf.buf();

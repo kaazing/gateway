@@ -119,7 +119,7 @@ public class WsExtensionUtils {
         List<ExtensionHeader> exts = new ArrayList<>(extensionTokens.size());
         for (String extensionToken : extensionTokens) {
             if (extensionToken != null) {
-                exts.add(new ExtensionHeaderBuilder(extensionToken).toExtensionHeader());
+                exts.add(new ExtensionHeaderBuilder(extensionToken).done());
             }
         }
     
