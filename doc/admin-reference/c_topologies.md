@@ -1,8 +1,8 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Common KAAZING Gateway Production Topologies
+-   Common Gateway Production Topologies
 
-Common KAAZING Gateway Production Topologies 
+Common Gateway Production Topologies 
 ========================================================================
 
 This topic describes some of the most common production topologies for the KAAZING Gateway. It is intended to familiarize network administrators and systems software developers with general KAAZING Gateway production deployments. Your actual production deployment of the Gateway will likely be some variation of the topologies covered here.
