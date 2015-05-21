@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Documentation Conventions
 
-Documentation Conventions 
+Documentation Conventions
 ================================================
 
 This topic contains the following sections:
@@ -42,19 +42,19 @@ For example, the following URI schemes are used in the documentation:
 
 `sse://localhost:8000/sse`
 
--   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_conf_service.md#note_supportedURLschemes) for the complete list.
+-   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_configure_gateway_service.md#note_supportedURLschemes) for the complete list.
 -   The **host** specifies where to connect and can be a hostname or domain name, or an IP address.
 -   The **port** specifies the port number to ask for. This portion of the URI scheme is optional if you are using a default port, such as port 80 for http or port 443 for https. For example, when using the http scheme you do not need to specify port 80.
 -   The **path** refers to the path of the resource. At a minimum you must specify the root path (`/`). Thus, `http://example.com/` is a legal address, but `http://example.com` is not, even though in practice the final slash "`/`” is added automatically.
 
-In addition, you can append a query string to the URL to provide non-hierarchical information. The query string follows a question mark (?) appended to the URL. For example, you can use this query string when configuring security for your Gateway (as described in the [Security Reference](../admin-reference/r_conf_security.md)).
+In addition, you can append a query string to the URL to provide non-hierarchical information. The query string follows a question mark (?) appended to the URL. For example, you can use this query string when configuring security for your Gateway (as described in the [Security Reference](../admin-reference/r_configure_gateway_security.md)).
 
 **Note:** In the example URLs, the `${gateway.hostname}` syntax allows you to define property values once and then the values are propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file that uses the dollar-sign and curly brace format (such as `${gateway.hostname}`) with a property. In the Gateway configuration, you can configure property defaults such as `gateway.hostname`, `gateway.base.port`, `gateway.extras.port`.
 ### See Also
 
--   [Service Reference](../admin-reference/r_conf_service.md) for information about specifying URLs with the accept and connect elements.
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md) for information about specifying URLs with the accept and connect elements.
 -   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
--   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_conf_multipleservices.md#configmultsrvcs)
+-   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_configure_gateway_multiple_services.md#configmultsrvcs)
 
 About Ports
 ------------------------------------
@@ -95,5 +95,3 @@ This is the directory that contains KAAZING Gateway and its components. The defa
 
 -   If you download from [kaazing.org](http://kaazing.org) and unpack the Gateway using the standalone method, then you can unpack the download into a directory of your choice (for example, `C:\kaazing` or `/home/username/kaazing`).
 -   If you fork the Gateway GitHub repository (find links to repos at [kaazing.org](http://kaazing.org)), then you can clone to the directory of your choice.
-
-

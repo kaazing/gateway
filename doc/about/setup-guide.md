@@ -41,7 +41,7 @@ To download and set up the Gateway on your local computer, perform the following
     -   For Ubuntu (Upstart): `sudo start kaazing-gateway-community-5.0.x-platform`
     -   For Linux, UNIX, or Mac: run the `gateway.start` script by navigating to the `GATEWAY_HOME/bin` directory where you installed the Gateway and enter `./gateway.start` on the command line.
 
-    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. To verify that the Gateway started correctly as a service, look at the log file in `GATEWAY_HOME/log/service.log` that is generated when the service is started or stopped. If the server does not start successfully, see [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/ts_config.md) or contact your administrator.
+    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. To verify that the Gateway started correctly as a service, look at the log file in `GATEWAY_HOME/log/service.log` that is generated when the service is started or stopped. If the server does not start successfully, see [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/p_troubleshoot_gateway_configuration.md) or contact your administrator.
 
 5.  Verify the Gateway setup.
 
@@ -50,7 +50,7 @@ To download and set up the Gateway on your local computer, perform the following
 You are now done setting up the Gateway locally.
 
 -   To start building your first application, see the [For Developers](../index.md#dev_topics) documentation topics.
--   For more information about configuration settings and to perform additional Gateway configuration, see [About Gateway Configuration](../admin-reference/c_conf_concepts.md).
+-   For more information about configuration settings and to perform additional Gateway configuration, see [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md).
 -   For real-world demos, see <http://kaazing.org/>.
 -   To uninstall the Gateway, see the [Uninstall KAAZING Gateway](#uninstall-kaazing-gateway) section at the end of this document.
 
@@ -71,7 +71,7 @@ To set up a server configuration:
     -   To stop the Gateway on Linux, UNIX, and Mac, kill the process at the command line, or use the Linux or Ubuntu (Upstart) service `stop` command.
 
 3.  Navigate to the `GATEWAY_HOME/conf/` directory and edit the Gateway configuration to update the value of the `gateway.hostname` property by replacing `localhost` with your host name or IP address.
-    1.  Edit either of the Gateway configuration file options: `gateway-config.xml` or `gateway-config-minimal.xml`, or edit your custom configuration file if you created one. The Gateway configuration files are described in detail in [About Gateway Configuration](../admin-reference/c_conf_concepts.md).
+    1.  Edit either of the Gateway configuration file options: `gateway-config.xml` or `gateway-config-minimal.xml`, or edit your custom configuration file if you created one. The Gateway configuration files are described in detail in [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md).
     2.  Replace `localhost` with your host name or IP address.
 
         For example, the hostname `example.com` replaces `localhost` as the property value for `gateway.hostname` in the following Gateway configuration file:
@@ -110,13 +110,11 @@ By default, the Gateway listens for non-encrypted traffic. Secure communication 
 For secure communication with the Gateway, consider configuring for the following levels of security:
 
 -   **Secure network traffic** Configure Transport Layer Security (TLS, also known as SSL) for secure communications channels to access the Gateway by setting up certificates. See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information.
--   **Limit access to services** Use Cross-Origin Resource Sharing to control access to Gateway services based on the origin of an application by configuring cross-site constraints in the `gateway-config.xml` file. See [Configure the HTTP Challenge Scheme](../security/p_aaa_config_authscheme.md) for more information.
--   **Configure authentication and authorization** with constraints to limit access to Gateway services to authenticated and authorized users. See [Configure Authentication and Authorization](../security/o_aaa_config_authentication.md) for more information.
--   **Configure Kerberos network authentication** ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) for network authentication and communication between trusted hosts on untrusted networks. See [Configure Kerberos V5 Network Authentication](../security/o_krb.md) for more information.
+-   **Limit access to services** Use Cross-Origin Resource Sharing to control access to Gateway services based on the origin of an application by configuring cross-site constraints in the `gateway-config.xml` file. See [Configure the HTTP Challenge Scheme](../security/p_authentication_config_http_challenge_scheme.md) for more information.
+-   **Configure authentication and authorization** with constraints to limit access to Gateway services to authenticated and authorized users. See [Configure Authentication and Authorization](../security/o_auth_configure.md) for more information.
+-   **Configure Kerberos network authentication** ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) for network authentication and communication between trusted hosts on untrusted networks. See [Configure Kerberos V5 Network Authentication](../security/o_auth_configure.md) for more information.
 
 Uninstall KAAZING Gateway
 -------------------------------------------------------
 
 Uninstall the Gateway by stopping all the services and deleting the directory that contains the Gateway files.
-
-

@@ -23,7 +23,7 @@ This topic contains the following sections:
 Behavior and Configuration Options in the Gateway
 ---------------------------------------------------------------------------
 
-The following Gateway configuration details are of interest to client developers. In the following descriptions, the term *proxying service* is used to mean any service configured on the Gateway that proxies client messages to and from a back-end service, such the [proxy](r_conf_service.md) service, or a protocol-specific service.
+The following Gateway configuration details are of interest to client developers. In the following descriptions, the term *proxying service* is used to mean any service configured on the Gateway that proxies client messages to and from a back-end service, such the [proxy](r_configure_gateway_service.md) service, or a protocol-specific service.
 
 ### Proxy Binary Messages
 
@@ -85,5 +85,3 @@ See Also
 --------
 
 KAAZING Gateway [Client API documentation](../index.md).
-
-

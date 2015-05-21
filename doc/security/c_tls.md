@@ -35,5 +35,3 @@ The following figure shows how the Gateway uses TLS/SSL to secure network traffi
 
 -   [Secure Network Traffic with the Gateway](o_tls.md)
 -   [How TLS/SSL Works with the Gateway](u_tls_works.md)
-
-

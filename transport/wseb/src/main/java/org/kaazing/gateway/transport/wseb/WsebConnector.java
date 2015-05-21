@@ -66,6 +66,7 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
+import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -237,6 +238,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     public void initializeSession(IoSession session, T future) {
                         WsebSession wseSession = (WsebSession) session;
                         wseSession.setHandler(handler);
+                        
+                        // TODO: add extension filters when we adopt the new webSocket extension SPI
+                        wseSession.getTransportSession().getFilterChain().fireSessionCreated();
+                        wseSession.getTransportSession().getFilterChain().fireSessionOpened();
 
                         if (initializer != null) {
                             initializer.initializeSession(session, future);
@@ -473,17 +478,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
             WsMessage wsebMessage = (WsMessage) message;
             IoBufferEx messageBytes = wsebMessage.getBytes();
+            IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
             
-            if (wsebSession.getInactivityTimeout() > 0) {
-                WsebInactivityTracker.messageReceived(wsebSession, wsebMessage);
-            }
-
             switch (wsebMessage.getKind()) {
-            case BINARY:
-            case TEXT:
-                IoFilterChain filterChain = wsebSession.getFilterChain();
-                filterChain.fireMessageReceived(messageBytes);
-                break;
             case COMMAND:
                 for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {
                     if (command == Command.reconnect()) {
@@ -497,19 +494,15 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     else if (command == Command.close()) {
                         // Following should take care of sending CLOSE response and closing reader (downstream)
                         // Close case was not handled before 3.5.9
-                        wsebSession.close(false);
+                        filterChain.fireMessageReceived(new WsCloseMessage());
                         break;
                     }
                     // no-op (0x00) - continue reading commands
                 }
                 break;
-            case PING:
-                wsebSession.issuePongRequest();
-                break;
-            case PONG:
-                break;
             default:
-                throw new IllegalArgumentException("Unrecognized message kind: " + wsebMessage.getKind());
+                filterChain.fireMessageReceived(wsebMessage);
+                break;
             }
         }
 

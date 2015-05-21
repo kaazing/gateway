@@ -45,7 +45,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -67,7 +67,7 @@ public class SslTransportTest {
     private static final String NEXT_PROTOCOL = "nextProtocol";
 
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
     private static final long NETWORK_OPERATION_WAIT_MILLIS = TimeUnit.SECONDS.toMillis(NETWORK_OPERATION_WAIT_SECS);

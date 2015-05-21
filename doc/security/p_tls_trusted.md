@@ -53,7 +53,7 @@ To Secure Gateway Connections Using Trusted Certificates
     1.  Create a private key for the host name the Gateway will use in its `accept` element (the host name clients will use when connecting to the Gateway). Substitute your *GATEWAY_HOME* and *password* in the example:
 
         ```
-        keytool -genkeypair -alias example.com -keysize 2048 -keyalg RSA-keystore 
+        keytool -genkeypair -alias example.com -keysize 2048 -keyalg RSA-keystore
         "GATEWAY_HOME\conf\keystore.db" -storetype JCEKS-storepass password
         ```
 
@@ -64,7 +64,7 @@ To Secure Gateway Connections Using Trusted Certificates
     2.  Generate the CSR using the same alias:
 
         ```
-        keytool -certreq -alias example.com -file certreq.txt-keystore 
+        keytool -certreq -alias example.com -file certreq.txt-keystore
         "GATEWAY_HOME\conf\keystore.db" -storetype JCEKS-keyalg RSA -storepass password
         ```
 
@@ -77,7 +77,7 @@ To Secure Gateway Connections Using Trusted Certificates
     The following example shows how to import the certificate into the default keystore, called keystore.db, located in `GATEWAY_HOME/conf`.
 
     ```
-    keytool -importcert -keystore GATEWAY_HOME\conf\keystore.db-storetype JCEKS -storepass password 
+    keytool -importcert -keystore GATEWAY_HOME\conf\keystore.db-storetype JCEKS -storepass password
     -alias example.com -file example.cer
     ```
 
@@ -101,12 +101,12 @@ To Secure Gateway Connections Using Trusted Certificates
 7.  Save `gateway-config.xml`.
 8.  Verify that the certificate is valid by starting the Gateway. If the Gateway does not start, it might not be accepting the same host name used in the certificate. Check the directory service in `gateway-config.xml` and confirm that the domain name in the `service` element’s `accept` domain matches the domain name used in the certificate. If they do not match, update the `accept` domain in `gateway-config.xml`, save the file, and then start the Gateway.
 
-    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
+    To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
 
     If you configured an HTTPS service on the Gateway, enter the URL in a web browser, for example https://www.example.com:9000. The web browser will indicate that the certificate is trusted and proceed to the secure web page.
 
     ![A web browser indicates that the certificate is trusted](../images/tls-browser-trusted-cert.png)
-    
+
     **Figure: A web browser indicates that the certificate is trusted**
 
     At this point, you have a trusted certificate on the Gateway and have configured secure networking between the Gateway and clients for a directory service.
@@ -118,7 +118,7 @@ To Secure Gateway Connections Using Trusted Certificates
     The following example shows how to import the certificate to the truststore, called truststore.db, located in `GATEWAY_HOME/conf/`:
 
     ```
-    keytool -importcert -keystore *GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit 
+    keytool -importcert -keystore *GATEWAY\_HOME*\\conf\\truststore.db -storepass changeit
     -trustcacerts -alias example.com -file certificate.cer
     ```
 
@@ -143,7 +143,7 @@ To Secure Gateway Connections Using Trusted Certificates
 Next Steps
 ----------
 
-To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
+To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
 
 Notes
 -----
