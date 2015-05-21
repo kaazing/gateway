@@ -63,6 +63,8 @@ connected
 
 write await CREATED
 
+write await FIRST_UPSTREAM_COMPLETED
+
 write "POST "
 write ${down}
 write " HTTP/1.1\r\n"
@@ -145,6 +147,8 @@ read "Server: Kaazing Gateway\r\n"
 read "\r\n"
 read "HTTP/1.1 200 OK\r\n"
 read "\r\n"
+
+read notify FIRST_UPSTREAM_COMPLETED
 
 write "POST "
 write ${up}

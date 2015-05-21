@@ -29,6 +29,7 @@
         <maven.compiler.testTarget>1.7</maven.compiler.testTarget>
         <animal.sniffer.signature.artifactId>java17</animal.sniffer.signature.artifactId>
         <hazelcast.version>1.9.4.8</hazelcast.version>
+        <k3po.version>2.0.0</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
@@ -97,7 +98,7 @@
             <dependency>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po.junit</artifactId>
-                <version>2.0.0</version>
+                <version>${k3po.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -407,7 +408,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>${k3po.version}</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>

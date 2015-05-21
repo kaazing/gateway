@@ -25,7 +25,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceFactory;
@@ -33,7 +33,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class CreateServiceTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     @Test
     public void createTestService() {
