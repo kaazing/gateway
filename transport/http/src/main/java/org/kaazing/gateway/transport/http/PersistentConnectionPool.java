@@ -26,6 +26,7 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
@@ -43,16 +44,20 @@ import java.util.Set;
 public class PersistentConnectionPool {
 
     private static final String IDLE_FILTER = HttpProtocol.NAME + "#idle";
+    private static final TypedAttributeKey<HttpResourceAddress> SERVER_ADDRESS =
+            new TypedAttributeKey<>(PersistentConnectionPool.class, "address");
 
     // transport address -> set of persistent connections
     private final Map<HttpResourceAddress, Set<IoSession>> connections;
     private final Logger logger;
     private final HttpConnectIdleFilter idleFilter;
+    private final CloseListener closeListener;
 
     PersistentConnectionPool(Logger logger) {
         this.connections = new HashMap<>();
         this.logger = logger;
         this.idleFilter = new HttpConnectIdleFilter(logger);
+        this.closeListener = new CloseListener(this, logger);
     }
 
     /*
@@ -68,14 +73,16 @@ public class PersistentConnectionPool {
         }
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Caching persistent connection: http address=%s, transport session=%s",
-                    httpSession.getRemoteAddress(), httpSession.getParent()));
+                    httpSession.getRemoteAddress().getResource(), httpSession.getParent()));
         }
         HttpResourceAddress serverAddress = (HttpResourceAddress)httpSession.getRemoteAddress();
         IoSession transportSession = httpSession.getParent();
 
+        SERVER_ADDRESS.set(transportSession, serverAddress);
+
         // Take care of transport session close
         CloseFuture closeFuture = transportSession.getCloseFuture();
-        closeFuture.addListener(new CloseListener(this, serverAddress, logger));
+        closeFuture.addListener(closeListener);
 
         // Track transport session idle
         transportSession.getFilterChain().addLast(IDLE_FILTER, idleFilter);
@@ -96,10 +103,15 @@ public class PersistentConnectionPool {
         if (transportSession != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Reusing cached persistent connection: http address=%s, transport session=%s",
-                        serverAddress, transportSession));
+                        serverAddress.getResource(), transportSession));
             }
             transportSession.getConfig().setBothIdleTime(0);
             transportSession.getFilterChain().remove(IDLE_FILTER);
+            CloseFuture closeFuture = transportSession.getCloseFuture();
+            closeFuture.removeListener(closeListener);
+
+            SERVER_ADDRESS.remove(transportSession);
+
         }
 
         return transportSession;
@@ -114,22 +126,21 @@ public class PersistentConnectionPool {
     private static class CloseListener implements IoFutureListener<CloseFuture> {
 
         private final PersistentConnectionPool store;
-        private final HttpResourceAddress serverAddress;
         private final Logger logger;
 
-        CloseListener(PersistentConnectionPool store, HttpResourceAddress serverAddress, Logger logger) {
+        CloseListener(PersistentConnectionPool store, Logger logger) {
             this.store = store;
-            this.serverAddress = serverAddress;
             this.logger = logger;
         }
 
         @Override
         public void operationComplete(CloseFuture future) {
             IoSessionEx session = (IoSessionEx) future.getSession();
+            HttpResourceAddress serverAddress = SERVER_ADDRESS.get(session);
             store.remove(serverAddress, session);
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Removed cached persistent connection: http address=%s, transport session=%s",
-                        serverAddress, session));
+                        serverAddress.getResource(), session));
             }
         }
     }
@@ -175,7 +186,7 @@ public class PersistentConnectionPool {
         }
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Not caching persistent connection: http address=%s, transport session=%s",
-                    serverAddress, transportSession));
+                    serverAddress.getResource(), transportSession));
         }
         return false;
     }
