@@ -139,7 +139,7 @@ Notes
 See Also
 --------
 
--   [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md).
+-   [Common Gateway Production Topologies](../admin-reference/c_topologies.md).
 -   For information on the order of subordinate elements in a service, see the [service](../admin-reference/r_conf_service.md#service) element reference.
 
 
