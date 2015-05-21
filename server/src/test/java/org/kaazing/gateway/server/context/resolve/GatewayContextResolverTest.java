@@ -21,7 +21,9 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.apache.log4j.Appender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.junit.After;
@@ -51,6 +55,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
@@ -58,6 +63,7 @@ import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.MockWsAcceptor;
 import org.kaazing.gateway.transport.MockWsConnector;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
@@ -238,7 +244,7 @@ public class GatewayContextResolverTest {
             final List<LoggingEvent> grepResult = inspector.grep(org.apache.log4j.Level.ERROR, expectedLogMessage);
             Assert.assertEquals("Expected to find a matching error message", 1, grepResult.size());
 
-        } 
+        }
 
         Assert.assertTrue(String
                 .format("Did not see expected IllegalArgumentException with message '%s'", expected), sawExpectedEx);
@@ -292,11 +298,11 @@ public class GatewayContextResolverTest {
         Assert.assertNotNull(doc);
         resolver.resolve(doc);
     }
-    
-    // Should inject resources into WebSocket extensions
-    // See Mock
+
+    // NOTE: this relies on org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi
+    // and org.kaazing.gateway.transport.TransportFactorySpi in src/test/META-INF/services
     @Test
-    public void shouldInjectResourcesIntoExtensions() throws Exception {
+    public void shouldInjectWebSocketExtensionFactoryIntoWsAcceptorAndConnector() throws Exception {
         configFile = createTempFileFromResource("gateway/conf/gateway-config-ws.xml");
         org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
@@ -306,12 +312,33 @@ public class GatewayContextResolverTest {
         MockWsConnector connector = (MockWsConnector)transport.getConnector();
         assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
         assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
-        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory ()
+        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory()
                 instanceof WebSocketExtensionFactory);
-        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory ()
+        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory()
                 instanceof WebSocketExtensionFactory);
+        assertSame(acceptor.getWebSocketExtensionFactory(), connector.getWebSocketExtensionFactory());
     }
-    
+
+    // NOTE: this relies on org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi
+    // and org.kaazing.gateway.transport.TransportFactorySpi in src/test/META-INF/services
+    @Test
+    public void shouldInjectResourcesIntoExtensions() throws Exception {
+        configFile = createTempFileFromResource("gateway/conf/gateway-config-ws.xml");
+        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
+        GatewayContext ctx = resolver.resolve(doc);
+
+        DefaultTransportContext transport = ctx.getTransportForScheme("ws");
+        MockWsAcceptor acceptor = (MockWsAcceptor)transport.getAcceptor();
+        WebSocketExtensionFactory factory = acceptor.getWebSocketExtensionFactory();
+        List<WebSocketExtensionFactorySpi> available = new ArrayList<WebSocketExtensionFactorySpi>(factory.availableExtensions());
+        assertEquals(1, available.size());
+        MockWebSocketExtensionFactorySpi extension = (MockWebSocketExtensionFactorySpi) available.get(0);
+        assertNotNull(extension.getBridgeServiceFactory());
+        assertNotNull(extension.getResourceAddressFactory());
+        assertTrue(extension.getBridgeServiceFactory() instanceof BridgeServiceFactory);
+        assertTrue(extension.getResourceAddressFactory() instanceof ResourceAddressFactory);
+    }
+
 
     // The following replaces code we used to have GatewayContextResolverTest (rev 25379) that created a log4j Hierarchy
     // and called LogManager.setRepositorySelector in an effort to force log4j to return instances of our BufferedLogger
@@ -387,10 +414,13 @@ public class GatewayContextResolverTest {
             return false;
         }
     } // end BufferedAppender
-    
+
     public static class MockWebSocketExtensionFactorySpi extends WebSocketExtensionFactorySpi {
 
         static MockNegotiate mockBehavior;
+
+        private BridgeServiceFactory bridgeServiceFactory;
+        private ResourceAddressFactory resourceAddressFactory;
 
         @Override
         public String getExtensionName() {
@@ -410,6 +440,25 @@ public class GatewayContextResolverTest {
         public interface MockNegotiate {
             WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address) throws ProtocolException;
         }
+
+        public ResourceAddressFactory getResourceAddressFactory() {
+            return resourceAddressFactory;
+        }
+
+        @Resource(name = "resourceAddressFactory")
+        public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
+            this.resourceAddressFactory = resourceAddressFactory;
+        }
+
+        public BridgeServiceFactory getBridgeServiceFactory() {
+            return bridgeServiceFactory;
+        }
+
+        @Resource(name = "bridgeServiceFactory")
+        public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
+            this.bridgeServiceFactory = bridgeServiceFactory;
+        }
+
     }
 
 
