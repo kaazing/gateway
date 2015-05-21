@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -38,7 +38,6 @@ import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport.Opcode;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.CumulativeProtocolDecoderEx;
@@ -51,23 +50,8 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
     private long currentMessageSize;           // accumulates frame sizes of a message
 
     WsFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxMessageSize) {
-        this(allocator, maxMessageSize, null);
-    }
-
-    // TODO: remove extensions parameter
-    WsFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxMessageSize, ActiveExtensions extensions) {
         super(allocator);
         this.maxMessageSize = maxMessageSize;
-        setExtensions(extensions);
-    }
-    
-    @Deprecated // Will be removed once we move over to WebSocketExtensionSpi (codecs will no longer need to worry about extensions)
-    void setExtensions(ActiveExtensions extensions) {
-        if (extensions != null) {
-            if (extensions.canDecode(BINARY) || extensions.canDecode(TEXT)) {
-                binaryTextDecoder = new ExtensionsBinaryTextMessageDecoder(extensions);
-            }
-        }
     }
 
     @Override
@@ -75,7 +59,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         if (in.remaining() < 2) {
             return false;
         }
-        
+
         in.mark();
 
         byte opcodeByte = in.get();
@@ -83,7 +67,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
 
         int i = (opcodeByte & 0x0f);
         Opcode opcode;
-        
+
         try {
             opcode = Opcode.valueOf(i);
         }
@@ -94,15 +78,15 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         // FIN bit validation for opcode
         boolean fin = (opcodeByte & 0x80) != 0;
         validateOpcodeUsingFin(opcode, fin);
-        
+
         byte maskAndPayloadLenByte = in.get();
         boolean masked = (maskAndPayloadLenByte & 0x80) != 0;
         int payloadLenByte = maskAndPayloadLenByte & 0x7f;
-        
-        // calculate actual payload length by checking if there is 
+
+        // calculate actual payload length by checking if there is
         // extended payload length
         long frameSize = 0;
-        
+
         if (payloadLenByte < 126) {
             frameSize = payloadLenByte;
         }
@@ -132,16 +116,16 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         if (opcode == Opcode.CONTINUATION || opcode == Opcode.TEXT || opcode == Opcode.BINARY) {
             validateMessageSize(currentMessageSizeCandidate);
         }
-        
+
         // actual payload length plus additional 4 bytes if masked
         long totalRemainingBytesNeeded = (masked ? 4 : 0) + frameSize;
         if (in.remaining() < totalRemainingBytesNeeded) {
             in.reset();
             return false;
         }
-        
+
         int mask = masked ? in.getInt() : 0;
-        
+
         IoBufferEx buf = in.getSlice((int) frameSize);
         if (mask != 0) {
             unmask(buf.buf(), mask);
@@ -209,6 +193,8 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
                     throw new ProtocolDecoderException("Expected FIN for "+opcode+" frame");
                 }
                 break;
+        default:
+            break;
         }
     }
 
@@ -227,7 +213,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
             }
         }
     }
-    
+
     /*
      * Unmask a buffer in place
      */
@@ -235,7 +221,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
         if (!buf.hasRemaining()) {
             return;
         }
-        
+
         byte b;
         int start = buf.position();
         int remainder = buf.remaining() % 4;
@@ -291,6 +277,8 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
                 case PONG:
                 case CLOSE:
                     throw new ProtocolDecoderException("Invalid "+opcode+" frame payload length = "+frameSize);
+            default:
+                break;
             }
         }
 
@@ -299,11 +287,11 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
             throw new ProtocolDecoderException("Invalid CLOSE frame payload length = "+frameSize);
         }
     }
-    
+
     private interface BinaryTextMessageDecoder {
         void decodeWsMessage(IoBufferEx payload, Kind messageKind, boolean fin, ProtocolDecoderOutput out);
     }
-    
+
     private static final BinaryTextMessageDecoder DEFAULT_BINARY_TEXT_DECODER = new BinaryTextMessageDecoder() {
         @Override
         public void decodeWsMessage(IoBufferEx payload, Kind messageKind, boolean fin, ProtocolDecoderOutput out) {
@@ -322,22 +310,6 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
             }
         }
     };
-    
-    private static class ExtensionsBinaryTextMessageDecoder implements BinaryTextMessageDecoder{
-        private final ActiveExtensions extensions;
-        
-        private ExtensionsBinaryTextMessageDecoder(ActiveExtensions extensions) {
-            this.extensions = extensions;
-        }
-
-        @Override
-        public void decodeWsMessage(IoBufferEx payload, Kind messageKind, boolean fin, ProtocolDecoderOutput out) {
-            if (!extensions.decode(payload, messageKind, out)) {
-                DEFAULT_BINARY_TEXT_DECODER.decodeWsMessage(payload, messageKind, fin, out);
-            }
-        }
-        
-    }
 
     private static void validateWireCloseCode(int statusCode) throws ProtocolDecoderException {
         if (statusCode == 1005 || statusCode == 1006) {
