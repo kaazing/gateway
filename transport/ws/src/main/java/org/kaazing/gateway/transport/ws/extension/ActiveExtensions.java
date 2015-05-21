@@ -38,7 +38,7 @@ public class ActiveExtensions{
     private static final TypedAttributeKey<ActiveExtensions> WS_EXTENSIONS_KEY = new TypedAttributeKey<>(
             ActiveExtensions.class, "activeWsExtensions");
 
-    private final List<WebSocketExtension> extensions;
+    private final List<WebSocketExtension> extensions = Collections.emptyList()
 
     public ActiveExtensions(List<WebSocketExtension> negotiatedExtensions) {
         extensions = Collections.unmodifiableList(negotiatedExtensions);

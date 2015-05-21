@@ -29,8 +29,6 @@ import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
-import org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout.IdleTimeoutExtension;
-import org.kaazing.gateway.transport.ws.bridge.extensions.pingpong.PingPongExtension;
 
 /**
  * This class assists in parsing a WebSocket xtensions HTTP header which has the following syntax (a comma-separated list
@@ -134,16 +132,14 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
     }
 
     // Default equality is by extension token, ignoring parameters.
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !(o instanceof ExtensionHeaderBuilder)) return false;
+        if (o == null || !(o instanceof ExtensionHeader)) return false;
 
-        ExtensionHeaderBuilder that = (ExtensionHeaderBuilder) o;
+        ExtensionHeader that = (ExtensionHeader) o;
 
-        return !(extensionToken != null ? !extensionToken.equals(that.extensionToken) : that.extensionToken != null);
-
+        return !(extensionToken != null ? !extensionToken.equals(that.getExtensionToken()) : that.getExtensionToken() != null);
     }
 
     @Override
@@ -157,27 +153,6 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
 
     public void appendParameter(String parameterName, String parameterValue) {
         append(new ExtensionParameterBuilder(parameterName, parameterValue));
-    }
-
-    // TODO this seems like the address should not be needed
-    @Deprecated
-    public static ExtensionHeader create(ResourceAddress address, ExtensionHeader extension) {
-        ExtensionHeader ext;
-    
-        if (extension.getExtensionToken().equals(WsExtensions.IDLE_TIMEOUT)) {
-            IdleTimeoutExtension idleTimeoutExt = new IdleTimeoutExtension(extension,
-                    address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT));
-            ext = idleTimeoutExt;
-    
-        } else if (extension.getExtensionToken().equals(WsExtensions.PING_PONG)) {
-            PingPongExtension typedExtension = new PingPongExtension(extension);
-            ext = typedExtension;
-        
-        } else {
-            ext = extension;
-        }
-    
-        return ext;
     }
 
 }

@@ -23,9 +23,9 @@ import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +69,14 @@ public final class WebSocketExtensionFactory {
      * @param address  WsResourceAddress for the WebSocket connection for which extensions are being negotiated
      * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
      *                                  any comma-separated list is already done by the HTTP transport layer)
-     * @return object representing the list of negotiated  WebSocketExtensionSpi instances in the order they should appear
-     *                negotiated in (farthest from network to closest)
+     * @return list of negotiated WebSocketExtensionSpi instances in the order they should appear
+     *         negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
-    public ActiveExtensions negotiateWebSocketExtensions(WsResourceAddress address, List<String> clientRequestedExtensions)
+    public List<WebSocketExtension> negotiateWebSocketExtensions(WsResourceAddress address, List<String> clientRequestedExtensions)
             throws ProtocolException {
 
-        ActiveExtensions result = ActiveExtensions.EMPTY;
+        List<WebSocketExtension> result = Collections.emptyList();
         if (clientRequestedExtensions != null) {
             List<ExtensionHeader> requestedExtensions = toWsExtensions(clientRequestedExtensions);
 
@@ -96,7 +96,7 @@ public final class WebSocketExtensionFactory {
                     }
                 }
             }
-            result = new ActiveExtensions(acceptedExtensions);
+            result = Collections.unmodifiableList(acceptedExtensions);
         }
         return result;
     }
@@ -141,7 +141,7 @@ public final class WebSocketExtensionFactory {
         ServiceLoader<WebSocketExtensionFactorySpi> services = load(WebSocketExtensionFactorySpi.class, cl);
         return newInstance(services);
     }
-
+    
     private static WebSocketExtensionFactory newInstance(ServiceLoader<WebSocketExtensionFactorySpi> services) {
         Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<String, WebSocketExtensionFactorySpi>();
         for (WebSocketExtensionFactorySpi service : services) {
@@ -150,4 +150,5 @@ public final class WebSocketExtensionFactory {
         }
         return new WebSocketExtensionFactory(unmodifiableMap(factories));
     }
+    
 }
