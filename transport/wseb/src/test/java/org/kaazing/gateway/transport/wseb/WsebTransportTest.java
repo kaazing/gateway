@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 
@@ -44,7 +45,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -63,7 +67,10 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(20, SECONDS));
 
     private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
 
@@ -79,12 +86,7 @@ public class WsebTransportTest {
 	private NioSocketAcceptor tcpAcceptor;
 	private HttpAcceptor httpAcceptor;
 	private WsebAcceptor wsebAcceptor;
-
-    @BeforeClass
-    public static void debugging() throws Exception {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-    }
-
+	
 	@Before
 	public void init() {
 		schedulerProvider = new SchedulerProvider();
@@ -148,7 +150,7 @@ public class WsebTransportTest {
 		}
 	}
 
-    @Test // (timeout = 30000)
+    @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
         URI location = URI.create("wse://localhost:8000/echo");
@@ -207,7 +209,7 @@ public class WsebTransportTest {
 //                "sessionClosed did not fire on the acceptor");
     }
 
-	@Test // (timeout = 30000)
+	@Test
 	public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
 		URI location = URI.create("wse://localhost:8000/echo");
