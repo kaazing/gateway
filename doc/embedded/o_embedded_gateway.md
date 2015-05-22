@@ -9,16 +9,16 @@ The following checklist provides the steps necessary to embed KAAZING Gateway in
 
 | \#  | Step                                                                                                               | Topic or Reference                                                                   |
 |-----|--------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| 1   | Configure your development environment to use the necessary Java Archive (JAR) files for embedding the Gateway. | [Set Up Your Development Environment](../embedded/p_embed_setup.md)                |
-| 2   | Embed the Gateway class into your application and create a Gateway object.                                      | [Create the Embedded Gateway Object](../embedded/p_embed_object.md)         |
-| 3   | Learn how to use the publicly available methods to configure, start, and stop the Gateway.                      | [Use the Embedded Gateway Methods](../embedded/p_embed_methods.md)          |
-| 4   | Learn how to override the default Log4j settings used by the Gateway.                                           | [Configure Logging for an Embedded Gateway](../embedded/p_embed_logging.md) |
-| 5   | Learn how to override the default management configuration using an MBean server on an embedded Gateway.        | [Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md)    |
-| 6   | Troubleshoot the most common issues that occur when using an embedded Gateway.                                  | [Troubleshoot Your Embedded Gateway](../embedded/p_embed_tshoot.md)         |
+| 1   | Configure your development environment to use the necessary Java Archive (JAR) files for embedding the Gateway. | [Set Up Your Development Environment](../embedded-gateway/p_embedded_gateway_setup.md)                |
+| 2   | Embed the Gateway class into your application and create a Gateway object.                                      | [Create the Embedded Gateway Object](../embedded-gateway/p_embedded_gateway_object.md)         |
+| 3   | Learn how to use the publicly available methods to configure, start, and stop the Gateway.                      | [Use the Embedded Gateway Methods](../embedded-gateway/p_embedded_gateway_methods.md)          |
+| 4   | Learn how to override the default Log4j settings used by the Gateway.                                           | [Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_gateway_logging.md) |
+| 5   | Learn how to override the default management configuration using an MBean server on an embedded Gateway.        | [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)    |
+| 6   | Troubleshoot the most common issues that occur when using an embedded Gateway.                                  | [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_tshoot.md)         |
 
 **Important:** 
 -   Before you can embed the Gateway, you need to install the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
--   Review the [API documentation](../apidoc/server/gateway/server/api/index.md) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
+-   Review the [API documentation](../apidoc/server/gateway/server/api/index.html) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
 
 Introduction
 ------------
@@ -45,7 +45,7 @@ Properties props = new Properties();
 props.setProperty("GATEWAY_HOME_PROPERTY", "/kaazing/");
 props.setProperty("GATEWAY_CONFIG_PROPERTY", "/kaazing/config/");
 
-// create the Gateway 
+// create the Gateway
 Gateway gateway = GatewayFactory.createGateway();
 
 // implement configuration properties
@@ -56,5 +56,3 @@ gateway.launch();
 ```
 
 Please see the remaining steps in this [checklist](#embed-kaazing-gateway-in-your-java-application) to learn how to embed the Gateway into your Java program.
-
-
