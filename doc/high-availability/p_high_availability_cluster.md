@@ -12,12 +12,12 @@ In the following procedure, two Gateway members are clustered. Additional member
 Before You Begin
 ----------------
 
-This procedure is part of [Configure the Gateway for High Availability](o_ha.md):
+This procedure is part of [Configure the Gateway for High Availability](o_high_availability.md):
 
-1.  [Using the Gateway to Support High Availability](u_ha.md)
+1.  [Using the Gateway to Support High Availability](u_high_availability.md)
 2.  **Configure a KAAZING Gateway Cluster**
-3.  [Set Up KAAZING Gateway as a Load Balancer](p_ha_loadbalance.md)
-4.  [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
+3.  [Set Up KAAZING Gateway as a Load Balancer](p_high_availability_loadbalance.md)
+4.  [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/p_troubleshoot_high_availability.md)
 
 To Create a Cluster with the Gateway
 ----------------------------------------------------------------------------
@@ -66,17 +66,15 @@ In this example, there are two Gateways. Each Gateway is listening on its IP add
 Next Step
 ---------
 
-[Set Up KAAZING Gateway as a Load Balancer](p_ha_loadbalance.md)
+[Set Up KAAZING Gateway as a Load Balancer](p_high_availability_loadbalance.md)
 
 Notes
 -----
 
--   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_ha.md#configure-a-two-member-local-demo-cluster).
--   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_rc_cluster.md).
+-   To set up a cluster locally for testing purposes, see [Configure a Two-Member Local Demo Cluster](../high-availability/u_high_availability.md#configure-a-two-member-local-demo-cluster).
+-   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../enterprise-shield/p_enterprise_shield_cluster.md).
 
 Summary
 -----------------------------
 
 In this document, you learned about configuring the Gateway for clustering. For more information about Gateway administration, see the [documentation](../index.md).
-
-
