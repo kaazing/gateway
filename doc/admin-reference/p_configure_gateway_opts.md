@@ -2,10 +2,10 @@
 -   [Documentation](../index.md)
 -   Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable
 
-<a name="aboutgateway_opts"></a>Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable 
+<a name="aboutgateway_opts"></a>Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable
 ===================================================================================================================================
 
-On occasion you might want the flexibility to change the configuration that is set up in your Gateway configuration file (see [About KAAZING Gateway Configuration Files](c_conf_concepts.md#about-kaazing-gateway-configuration-files)) or change the Java process temporarily without modifying the configuration file itself. For example, you might want to define your own startup scripts that specify different log4j configurations or different log directories. You can do that by setting the `GATEWAY_OPTS` environment variable (or any other Java option or command-line setting) to include any of the properties in the following table:
+On occasion you might want the flexibility to change the configuration that is set up in your Gateway configuration file (see [About KAAZING Gateway Configuration Files](c_configure_gateway_concepts.md#about-kaazing-gateway-configuration-files)) or change the Java process temporarily without modifying the configuration file itself. For example, you might want to define your own startup scripts that specify different log4j configurations or different log directories. You can do that by setting the `GATEWAY_OPTS` environment variable (or any other Java option or command-line setting) to include any of the properties in the following table:
 
 | Variable                     | Description                                                   |
 |------------------------------|---------------------------------------------------------------|
@@ -23,9 +23,9 @@ For `GATEWAY_OPTS` environment variable examples, see [`GATEWAY_OPTS` Environmen
 Before You Begin
 ----------------
 
-This procedure is part of [Configure the Gateway](o_conf_checklist.md):
+This procedure is part of [Configure the Gateway](o_configure_gateway_checklist.md):
 
--   [Configure KAAZING Gateway](p_conf_files.md)
+-   [Configure KAAZING Gateway](p_configure_gateway_files.md)
 -   **Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables**
 -   Verify the Gateway configuration following the instructions for your deployment in [Setting Up the Gateway](../about/setup-guide.md)
 
@@ -38,7 +38,7 @@ To Configure the `GATEWAY_OPTS` Environment Variable
     2.  To Stop the Gateway on Linux, UNIX, and Mac: use the following commands (where *process ID* is the process ID of the Gateway process):
 
         ```
-        ps –ef | grep *process name* 
+        ps –ef | grep *process name*
          kill *process ID*
         ```
 3.  Specify one or more system property values using `-Dproperty=value` with the `GATEWAY_OPTS` environment variable.
@@ -49,7 +49,6 @@ To Configure the `GATEWAY_OPTS` Environment Variable
     GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml
     -DGATEWAY_LOG_DIRECTORY=/home/myname/gateway/logs"
     ```
-    
     To learn more about using the `-Dproperty=value` switch on the Java command line, see the [Java Application Launcher documentation](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/java.html).
 
     **Notes:**
@@ -79,7 +78,7 @@ To Configure the `GATEWAY_OPTS` Environment Variable
     1.  Navigate to the `KAAZING_HOME/bin` directory where you installed the Gateway.
     2.  Run the `gateway.start` script: `./gateway.start`
 
-    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot the Gateway](../troubleshooting/o_ts.md)for help finding the problem.
+    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md)for help finding the problem.
 
 Next Step
 -------------------------
@@ -105,7 +104,6 @@ Windows Example:
 Mac Example:
 
 `$ export GATEWAY_OPTS="-DGATEWAY_HOME=/Users/johnsmith/Desktop/Gateway/"`
-
 `$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
 
 ### GATEWAY_CONFIG
@@ -113,7 +111,6 @@ Mac Example:
 Windows Example:
 
 `> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config-test.xml`
-
 `> C:\Gateway\bin\gateway.start.bat`
 
 Here is an alternative way to specify the configuration file:
@@ -217,7 +214,6 @@ Mac Example:
 See Also
 --------
 
--   [About Gateway Configuration](c_conf_concepts.md)
--   [Configure the Gateway](o_conf_checklist.md)
+-   [About Gateway Configuration](c_configure_gateway_concepts.md)
+-   [Configure the Gateway](o_configure_gateway_checklist.md)
 -   [Documentation Conventions](../about/about.md)
-
