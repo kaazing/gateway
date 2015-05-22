@@ -11,15 +11,15 @@ This walkthrough is part of [Configure Enterprise Shield™ for KAAZING Gateway]
 
 This walkthrough describes the following subjects:
 
-1.  [What You Will Accomplish](#accomplish)
-2.  [Before You Begin](#b4begin)
-3.  [Download and Set Up KAAZING Gateway](#setup)
-4.  [Configure the Internal Gateway](#configinternal)
-5.  [Configure the DMZ Gateway](#configdmz)
-6.  [Configure Security Between the DMZ and Internal Gateways](#g2gsecurity)
-7.  [Verify the Gateways are Running](#verifyconfig)
-8.  [Close Inbound ports](#closeports)
-9.  [Verify the End-to-End Configuration](#verifye2e)
+1.  [What You Will Accomplish](#what-you-will-accomplish)
+2.  [Before You Begin](#before-you-begin)
+3.  [Download and Set Up KAAZING Gateway](#download-and-set-up-kaazing-gateway)
+4.  [Configure the Internal Gateway](#configure-the-internal-gateway)
+5.  [Configure the DMZ Gateway](#configure-the-dmz-gateway)
+6.  [Configure Security Between the DMZ and Internal Gateways](#configure-security-between-the-dmz-and-internal-gateways)
+7.  [Verify the Gateways are Running](#verify-the-gateways-are-running)
+8.  [Close Inbound ports](#close-inbound-ports)
+9.  [Verify the End-to-End Configuration](#verify-the-end-to-end-configuration)
 
 Step 1: What You Will Accomplish
 ---------------------------------------------------------
@@ -40,7 +40,7 @@ This walkthrough covers Use Case 3: Maximum (End-to-End) Transport Security from
 Step 3: Download and Set Up KAAZING Gateway
 ---------------------------------------------------------------
 
-Download and set up two KAAZING Gateways, with one Gateway in the DMZ and one in the internal trusted network. This is described in [Setting Up Kaazing WebSocket Gateway](../about/setup-guide.md).
+Download and set up two KAAZING Gateways, with one Gateway in the DMZ and one in the internal trusted network. This is described in [Setting Up the Gateway](../about/setup-guide.md).
 
 Step 4: Configure the Internal Gateway
 -------------------------------------------------------------------
