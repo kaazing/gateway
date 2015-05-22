@@ -402,7 +402,7 @@ Close the inbound ports on your firewall using the instructions provided by your
 Step 9: Verify the End-to-End Configuration
 -------------------------------------------------------------------
 
-Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield™ in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#verify-the-gateways-are-running) to confirm everything is working properly.
+Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield™ in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#step-7-verify-the-gateways-are-running) to confirm everything is working properly.
 
 Congratulations, you got Enterprise Shield™ working on a single pair of (DMZ and internal) Gateways!
 
