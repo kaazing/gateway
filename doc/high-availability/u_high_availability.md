@@ -14,7 +14,7 @@ This document describes the various aspects of high availability configuration:
 -   [Clustering and Load Balancing Migration](#clustering-and-load-balancing-migration)
 -   [Configure a Two-Member Local Demo Cluster](#configure-a-two-member-local-demo-cluster)
 
-To resolve issues encountered when configuring high availability, see [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md).
+To resolve issues encountered when configuring high availability, see [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/p_troubleshoot_high_availability.md).
 
 Gateway Clustering
 -------------------------------------------
@@ -65,7 +65,7 @@ The load balancing process occurs as follows:
 Clustering and Load Balancing Migration
 -------------------------------------------------------------
 
-The following checklists describe how to migrate a KAAZING Gateway 3.3-3.5 load-balanced cluster to KAAZING Gateway 4.x. The tasks in the checklists are a part of the overall Gateway configuration migration sequence described in the [Migrate the Gateway Configuration](../upgrade/p_migrate_gwconfig.md) topic. Before you migrate your existing cluster, review the procedures in [Configure the Gateway for High Availability](o_ha.md).
+The following checklists describe how to migrate a KAAZING Gateway 3.3-3.5 load-balanced cluster to KAAZING Gateway 4.x. The tasks in the checklists are a part of the overall Gateway configuration migration sequence described in the [Migrate the Gateway Configuration](../upgrade/p_migrate_gwconfig.md) topic. Before you migrate your existing cluster, review the procedures in [Configure the Gateway for High Availability](o_high_availability.md).
 
 ### Cluster Migration Checklist
 
@@ -246,9 +246,9 @@ The following steps walk you through setting up a two-member cluster with load-b
 See Also
 ------------------------------
 
--   [Configure the Gateway for High Availability](o_ha.md)
-    -   [Configure a KAAZING Gateway Cluster](p_ha_cluster.md)
-    -   [Set Up KAAZING Gateway as a Load Balancer](p_ha_loadbalance.md)
-    -   [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/ts_ha.md)
+-   [Configure the Gateway for High Availability](o_high_availability.md)
+    -   [Configure a KAAZING Gateway Cluster](p_high_availability_cluster.md)
+    -   [Set Up KAAZING Gateway as a Load Balancer](p_high_availability_loadbalance.md)
+    -   [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/troubleshoot_high_availability.md)
 
 
