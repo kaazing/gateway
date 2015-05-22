@@ -127,6 +127,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
     The [accept-options](../admin-reference/r_conf_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because the settings change the nature of the service and affect the connections for the App1 service:
 
     -   Set [http.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the SOCKS protocol:
+    
          `                     <http.transport>${dmz.backplane.hostname}:1080</http.transport>                 `
 
         Enterprise Shield™ uses the SOCKS protocol to establish connections in reverse, connecting from the internal Gateway to the DMZ Gateway. By default, the SOCKS connection is still a forward connection, from the DMZ Gateway to the internal Gateway. The next accept-options element, `socks.mode`, is the setting you use to make the connection go in reverse.
@@ -137,7 +138,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
     -   Specify the [socks.mode](../admin-reference/r_configure_gateway_service.md#socksmode) option in reverse mode so the internal Gateway initiates a connection toward the DMZ Gateway: 
     
-    `<socks.mode>reverse</socks.mode>`
+        ` <socks.mode>reverse</socks.mode> `
 
         The reverse connection configures the internal Gateway service to send a remote bind request to the DMZ Gateway. That way, when client connection requests come to the DMZ Gateway, the DMZ Gateway matches the requests up with SOCKS bind requests from the internal Gateway. See [About Enterprise Shield™](o_enterprise_shield_checklist.md#about-enterprise-shield) to learn more about how this works.
 
@@ -149,7 +150,8 @@ The key configuration settings for the App1 service in the internal Gateway incl
          ``` xml:
          <socks.transport>           
            wsn+ssl://${dmz.backplane.hostname}:1080/shield         
-         </socks.transport>     `
+         </socks.transport>     
+         ```
 
         In most cases, using SOCKS is sufficient to establish reverse connections for Enterprise Shield™. However, in some environments, intermediaries like firewalls between the internal Gateway and the DMZ Gateway can interfere with idle connections. Therefore, the best practice is to add a WebSocket transport under the SOCKS layer because you can configure the WebSocket transport to keep idle connections alive. In fact, the next step shows you how to configure this by setting the `ws.inactivity.timeout` element.
 
@@ -157,9 +159,8 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
     -   Configure [ws.inactivity.timeout](../admin-reference/r_configure_gateway_service.md#wsinactivitytimeout) to detect network failures between the DMZ and internal Gateway:
 
-       ``` xml:
-        <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
-       ```
+       `         <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>  `
+       
       Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection and retries if communication with the DMZ Gateway is not possible for a period of 60 seconds.
 
 The App1 service is set up on the internal Gateway. Now let’s set up the App2 service.
