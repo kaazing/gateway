@@ -334,8 +334,12 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                                                                       BridgeSession.LOCAL_ADDRESS.get(httpSession));
                                                     IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
                                                     WsBufferAllocator wsAllocator = new WsBufferAllocator(parentAllocator);
+    public WsnSession(IoServiceEx service, IoProcessorEx<WsnSession> processor, ResourceAddress localAddress,
+                      ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<WsBuffer> allocator,
+                      URI httpRequestURI, DefaultLoginResult loginResult,
+                      WebSocketWireProtocol version) {
                                                     return new WsnSession(WsnConnector.this, getProcessor(), localAddress, wsnConnectAddress,
-                                                            parent, wsAllocator, httpSession.getRequestURI(), null, null, WebSocketWireProtocol.RFC_6455);
+                                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455);
                                                 }
                                             };
 

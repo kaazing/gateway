@@ -34,10 +34,14 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESS
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
 import static org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind.SERVER;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.ACTIVE_EXTENSIONS_KEY;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_WEBSOCKET_EXTENSIONS;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketProtocol;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -166,7 +170,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final String HEADER_WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
 
     private static final String HEADER_X_WEBSOCKET_PROTOCOL = "X-WebSocket-Protocol";
-    private static final String HEADER_X_WEBSOCKET_EXTENSION = WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
 
     // "secure" header keys introduced in protocol draft 76
     private static final String HEADER_SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
@@ -1075,39 +1078,20 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
 
                     // null next-protocol from client gives null local address when we only have explicitly named next-protocol binds
-                    List<String> wsExtensions = (wsLocalAddress != null) ? wsLocalAddress.getOption(EXTENSIONS) : EXTENSIONS.defaultValue();
+                    List<String> wsExtensions = (wsLocalAddress != null) ? wsLocalAddress.getOption(EXTENSIONS) :
+                        EXTENSIONS.defaultValue();
 
-                    // negotiate extension
-                    WsExtensionNegotiationResult extNegotiationResult =
-                            negotiateWebSocketExtensions(
-                                    wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                                    clientRequestedExtensions, wsExtensions);
-                    if (extNegotiationResult.isFailure()) {
-                        // This happens when the extension negotiation leads to
-                        // a fatal failure; the session should be closed because
-                        // the service REQUIRED some extension that the client
-                        // did not request.
-                        if (logger.isDebugEnabled()) {
-                            if (logger.isDebugEnabled()) {
-                                // KG-10384: make sure port is explicitly included in the request URI we use for lookup since it is always
-                                // included when the service registry is created since we force use of explicit port in accepts.
-                                // TODO: consider doing this "at the edge" when the HTTP request object (or http session) is created.
-                                URI requestURI = HttpUtils.getRequestURI(session.getRequestURL(), session.getReadHeader("Host"),
-                                        session);
-                                logger.debug(String.format(
-                                        "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                        session.getMethod(), requestURI, session, clientRequestedExtensions));
-                            }
-                        }
-                        session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                        session.setReason("WebSocket Extensions not found");
-                        session.close(false);
+                    // negotiate extensions
+                    final List<WebSocketExtension> negotiated;
+                    try {
+                        negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
+                    }
+                    catch(ProtocolException e) {
+                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                         return;
                     }
 
-
                     final String wsProtocol0 = chosenProtocol;
-                    final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // do upgrade
                     UpgradeFuture upgradeFuture = session.upgrade(ioBridgeHandler);
@@ -1117,7 +1101,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             IoSession parent = future.getSession();
                             parent.setAttribute("encoding", encoding);
                             parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                            wsExtensions0.set(parent);
+                            ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                             WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                             parent.setAttribute(WEB_SOCKET_VERSION_KEY, wsVersion);
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
@@ -1304,31 +1288,17 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     final ResourceAddress wsLocalAddress = localAddress;
 
-                    WsExtensionNegotiationResult extNegotiationResult =
-                            negotiateWebSocketExtensions(
-                                    wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                                    clientRequestedExtensions, wsLocalAddress.getOption(EXTENSIONS));
-                    if (extNegotiationResult.isFailure()) {
-                        // This happens when the extension negotiation leads to
-                        // a fatal failure; the session should be closed because
-                        // the service REQUIRED some extension that the client
-                        // did not request.
-                    if (logger.isDebugEnabled()) {
-                        if (logger.isDebugEnabled()) {
-                            URI requestURI = session.getRequestURL();
-                            logger.debug(String.format(
-                                    "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                    session.getMethod(), requestURI, session, clientRequestedExtensions));
-                        }
+                    // negotiate extensions
+                    final List<WebSocketExtension> negotiated;
+                    try {
+                        negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
                     }
-                        session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                        session.setReason("WebSocket Extensions not found");
-                        session.close(false);
+                    catch(ProtocolException e) {
+                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                         return;
                     }
 
                     final String wsProtocol0 = wsProtocol;
-                    final  ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // Encoding.TEXT is default behavior
                     switch (encoding) {
@@ -1363,7 +1333,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                     parent.write(digest);
                                 }
 
-                                wsExtensions0.set(parent);
+                                ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                                 WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                                 DRAFT76_KEY3_BUFFER_KEY.set(parent, key3Duplicate);
                                 parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_76);
@@ -1457,10 +1427,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                    List<String> clientRequestedExtensions = session.getReadHeaders(HEADER_SEC_WEBSOCKET_EXTENSION);
                    if ( clientRequestedExtensions == null ) {
-                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSION);
+                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
                    }
                    if ( clientRequestedExtensions == null ) {
-                       clientRequestedExtensions = session.getReadHeaders(WsExtensions.HEADER_WEBSOCKET_EXTENSIONS);
+                       clientRequestedExtensions = session.getReadHeaders(HEADER_WEBSOCKET_EXTENSIONS);
                    }
 
 
@@ -1495,31 +1465,18 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                    final ResourceAddress wsLocalAddress = localAddress;
 
-                   WsExtensionNegotiationResult extNegotiationResult =
-                       negotiateWebSocketExtensions(
-                               wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                               clientRequestedExtensions, wsLocalAddress.getOption(EXTENSIONS));
-                   if (extNegotiationResult.isFailure()) {
-                       // This happens when the extension negotiation leads to
-                       // a fatal failure; the session should be closed because
-                       // the service REQUIRED some extension that the client
-                       // did not request.
-                    if (logger.isDebugEnabled()) {
-                        if (logger.isDebugEnabled()) {
-                            URI requestURI = session.getRequestURL();
-                            logger.debug(String.format(
-                                    "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                    session.getMethod(), requestURI, session, clientRequestedExtensions));
-                        }
-                    }
-                       session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                       session.setReason("WebSocket Extensions not found");
-                       session.close(false);
+
+                   // negotiate extensions
+                   final List<WebSocketExtension> negotiated;
+                   try {
+                       negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
+                   }
+                   catch(ProtocolException e) {
+                       handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                        return;
                    }
 
                    final String wsProtocol0 = wsProtocol;
-                   final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                    // Encoding.TEXT is default behavior
                    switch (encoding) {
@@ -1529,7 +1486,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                        break;
                    }
 
-
                    // do upgrade
                    UpgradeFuture upgrade = session.upgrade(ioBridgeHandler);
                    upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
@@ -1538,7 +1494,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                            IoSession parent = future.getSession();
                            parent.setAttribute("encoding", encoding);
                            parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                           wsExtensions0.set(parent);
+                           ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                            parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                            WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                            parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
@@ -1612,6 +1568,30 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
             return false;
         }
+    }
+
+    private void handleExtensionNegotiationException(HttpAcceptSession session, List<String> clientRequestedExtensions,
+                                                     ProtocolException e) {
+        // This happens when the extension negotiation leads to
+        // a fatal failure; the session should be closed because
+        // the service REQUIRED some extension that the client
+        // did not request.
+        if (logger.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
+                // KG-10384: make sure port is explicitly included in the request URI we use for lookup since it is always
+                // included when the service registry is created since we force use of explicit port in accepts.
+                // TODO: consider doing this "at the edge" when the HTTP request object (or http session) is created.
+                URI requestURI = HttpUtils.getRequestURI(session.getRequestURL(), session.getReadHeader("Host"),
+                        session);
+                logger.debug(format(
+                        "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'"
+                        + " due to exception %s",
+                        session.getMethod(), requestURI, session, clientRequestedExtensions, e.toString()));
+            }
+        }
+        session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
+        session.setReason("WebSocket Extensions not found or invalid");
+        session.close(false);
     }
 
 }
