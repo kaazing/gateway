@@ -127,6 +127,6 @@ The complete configuration files for all of the Enterprise Shield™ Use Cases a
 See Also
 --------
 
--   [About KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md)
+-   [About KAAZING Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md)
 -   [Service Reference](../admin-reference/r_configure_gateway_service.md)
 -   [Cluster Reference](../admin-reference/r_configure_gateway_cluster.md)
