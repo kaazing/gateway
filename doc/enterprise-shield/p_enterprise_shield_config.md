@@ -124,7 +124,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
     </accept-options>
     ```
 
-    The [accept-options](../admin-reference/r_conf_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because the settings change the nature of the service and affect the connections for the App1 service:
+    The [accept-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because the settings change the nature of the service and affect the connections for the App1 service:
 
     -   Set [http.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the SOCKS protocol:
     
@@ -402,7 +402,7 @@ Close the inbound ports on your firewall using the instructions provided by your
 Step 9: Verify the End-to-End Configuration
 -------------------------------------------------------------------
 
-Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield™ in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#verifyconfig) to confirm everything is working properly.
+Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield™ in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#verify-the-gateways-are-running) to confirm everything is working properly.
 
 Congratulations, you got Enterprise Shield™ working on a single pair of (DMZ and internal) Gateways!
 
