@@ -6,7 +6,7 @@ Essentials
 
 -   [Documentation Conventions](about/about.md)
 -   [KAAZING Glossary](../kaazing-glossary.md)
--   [Common Gateway Production Topologies](admin-reference/c_topologies.md)
+-   [Common KAAZING Gateway Production Topologies](admin-reference/c_topologies.md)
 -   [Setting Up the Gateway](about/setup-guide.md)
 -   [Upgrade the Gateway](upgrade/o_upgrade.md)
 
