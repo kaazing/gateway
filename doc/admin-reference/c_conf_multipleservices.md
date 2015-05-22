@@ -18,7 +18,7 @@ Typically, for a network connection, you configure an IP address or configure a 
 
 In the example, the Gateway creates a socket for port 80 on the IP address resolved by the hostname `example.com` and listens for requests. Typically, the Gateway binds to (and listens on) only one socket for a given IP address and port. However, you can configure the Gateway for multiple services to the same host and port. For example, you can configure similar services to use the same IP address and port number to organize multiple connection requests on the same server as the Gateway and avoid conflicts.
 
-You configure multiple services by specifying a unique path in the URI of [`accept`](../admin-reference/r_conf_service.md#accept) or [`connect`](../admin-reference/r_conf_service.md#connect) elements. The Gateway, listening for all of these requests, can determine which service a request is targeting based on the combination of the scheme, host, port, and path.
+You configure multiple services by specifying a unique path in the URI of [`accept`](../admin-reference/r_configure_gateway_service.md#accept) or [`connect`](../admin-reference/r_configure_gateway_service.md#connect) elements. The Gateway, listening for all of these requests, can determine which service a request is targeting based on the combination of the scheme, host, port, and path.
 
 Our configuration example configures the following two services to specify that the Gateway binds to the same URL scheme, host, and port: `ws://example.com:80`. However, notice that each URL specifies a unique path: `remoteService1` and `remoteService2`.
 
@@ -49,7 +49,7 @@ Note the following when configuring the Gateway to listen for multiple services 
 
     You cannot configure two services with the same URI scheme (for example: `<accept>ws://example.com:80/myService</accept>` because the Gateway will be unable to determine which service is the target of the request. Thus, you must differentiate the services using different paths. This differentiation only applies to URI schemes that support paths such as HTTP, HTTPS, WebSocket, WebSocket Secure, SSE, and so on. Other protocols, such as TCP and UDP do not have the notion of paths and are only aware of the host and port. Thus, only one service can listen for TCP connections such as \<accept\>tcp://example.com:80\</accept\>.
 
-    **Note:** You can work around the limitations of schemes that do not support paths by using a bind in the [`accept-options`](../admin-reference/r_conf_service.md#accept-options-and-connect-options) element to bind an URL or URLs on which the service accepts connections. See the [`protocol.bind`](../admin-reference/r_conf_service.md#protocolbind) documentation for more information.
+    **Note:** You can work around the limitations of schemes that do not support paths by using a bind in the [`accept-options`](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) element to bind an URL or URLs on which the service accepts connections. See the [`protocol.bind`](../admin-reference/r_configure_gateway_service.md#protocolbind) documentation for more information.
 
 -   The path component of the URL is mandatory.
 
@@ -74,4 +74,4 @@ Note the following when configuring the Gateway to listen for multiple services 
 See Also
 --------
 
--   [Service Reference](r_conf_service.md)
+-   [Service Reference](r_configure_gateway_service.md)
