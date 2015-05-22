@@ -5,7 +5,7 @@
 Configure the Gateway on an Internal Network
 ==============================================================================================================
 
-This document describes how to configure KAAZING Gateway in an internal network using the [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind) element. In this procedure you will do the following:
+This document describes how to configure KAAZING Gateway in an internal network using the [*protocol*.bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element. In this procedure you will do the following:
 
 1.  Configure network protocol bindings for all services.
 2.  Configure the Gateway to accept traffic on multiple IP addresses.
@@ -14,14 +14,14 @@ This document describes how to configure KAAZING Gateway in an internal network 
 Before You Begin
 ----------------
 
-Read the overview of integrating the Gateway into an internal network in [About Internal Network Integration with KAAZING Gateway](u_network_addresses.md).
+Read the overview of integrating the Gateway into an internal network in [About Internal Network Integration with KAAZING Gateway](u_protocol_binding.md).
 
 To Integrate the Gateway Into an Internal Network
 ----------------------------------------------------------------------------------
 
 1.  Configure network protocol bindings for all services.
 
-    You can specify default values for the accept options for all services. If you then specify values for the [accept-options](../admin-reference/r_conf_service.md#accept-options-and-connect-options) on a particular service, then the service `accept-options` supercede the default values with your specified values. If there are no explicit `accept-options` for a particular service, then the service uses these default values. By using the `protocol.bind` element within the [service-defaults](../admin-reference/r_conf_serv_defs.md) element in the `gateway-config.xml`, you can configure network protocol bindings for all services.
+    You can specify default values for the accept options for all services. If you then specify values for the [accept-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) on a particular service, then the service `accept-options` supercede the default values with your specified values. If there are no explicit `accept-options` for a particular service, then the service uses these default values. By using the `protocol.bind` element within the [service-defaults](../admin-reference/r_configure_gateway_service_defaults.md) element in the `gateway-config.xml`, you can configure network protocol bindings for all services.
 
     The following example shows `ssl.encryption` disabled, `ws.maximum.message.size` set to `256k`, and several network protocol bindings (`ws.bind`, `wss.bind`, `http.bind`, and `https.bind`):
 
@@ -44,7 +44,7 @@ To Integrate the Gateway Into an Internal Network
     </service-defaults>
     ```
 
-    For more information, see the [Service Defaults Reference](../admin-reference/r_conf_serv_defs.md) documentation.
+    For more information, see the [Service Defaults Reference](../admin-reference/r_configure_gateway_service_defaults.md) documentation.
 
 2.  Configure the Gateway to accept traffic on multiple IP addresses.
 
@@ -123,6 +123,6 @@ You have configured the Gateway on an internal network. For more information abo
 Notes
 -----
 
--   The [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` but then accept on a different protocol (such as TCP) will not be affected by the `ws.bind` `accept-option`.
+-   The [*protocol*.bind](../admin-reference/r_configure_gateway_service_defaults.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` but then accept on a different protocol (such as TCP) will not be affected by the `ws.bind` `accept-option`.
 
 
