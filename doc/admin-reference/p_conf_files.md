@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure KAAZING Gateway
 
-Configure KAAZING Gateway 
+Configure KAAZING Gateway
 ======================================================
 
 By default, the Gateway uses the values in the `gateway-config.xml` and `gateway-config-minimal.xml` files that are located in the `GATEWAY_HOME/conf/` directory when you start the Gateway. Although you do not need to update the configuration file to run the Gateway on your local host, you must make some changes to provide services on non localhost machines.
@@ -10,10 +10,10 @@ By default, the Gateway uses the values in the `gateway-config.xml` and `gateway
 Before You Begin
 ----------------
 
-This procedure is part of [Configure the Gateway](o_conf_checklist.md):
+This procedure is part of [Configure the Gateway](o_configure_gateway_checklist.md):
 
 -   **Configure KAAZING Gateway**
--   [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_conf_gw_opts.md)
+-   [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_configure_gateway_opts.md)
 -   Verify the Gateway configuration following the instructions for your deployment in [Setting Up the Gateway](../about/setup-guide.md)
 
 To Configure the Gateway
@@ -36,8 +36,8 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
 3.  At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
-    -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_conf_concepts.md#about-kaazing-gateway-namespace-declarations).
-    -   The `service` element with the [directory](r_conf_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
+    -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_configure_gateway_concepts.md#about-kaazing-gateway-namespace-declarations).
+    -   The `service` element with the [directory](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
     Here's an example of a simple Gateway configuration file that uses the default (supplied) ports to bind the `/base` (port 8000) to the Gateway host:
 
@@ -55,7 +55,7 @@ The standard way to set up and maintain your Gateway configuration is by editing
         <error-pages-directory>/error-pages</error-pages-directory>
         <options>indexes</options>
       </properties>
-    </service> 
+    </service>
 
     </gateway-config>
     ```
@@ -74,11 +74,11 @@ The standard way to set up and maintain your Gateway configuration is by editing
         | Property defaults   | Specify default values for configuration elements. Configuring property defaults is optional but recommended because configuring the property defaults allows you to define some property values once and have the value propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file with a property using the dollar-sign and curly brace format (such as `${gateway.hostname}`).                                                                                     |
         | Service             | Define how the Gateway manages communication for that service. The Gateway is configured by default to provide services only to users on the same machine (localhost) as that on which it is running. You can define one or more services to customize the Gateway for your environment, choosing the appropriate type of service (for example, balancer, broadcast, proxy service, and so on) to signal the Gateway to accept incoming connections from clients using any supported URL scheme. |
         | Service Defaults    | Configure default values that apply to all services. Note that any options you set at the service level overrides options you set at the service defaults level. You can configure SSL encryption, protocol bindings, WebSocket message size, keep-alive timeouts, mime-type messages, and more.                                                                                                                                                                                                                                   |
-        | Security            | Configure security for the service and specify authentication and authorization for users. To better understand how the security parameters that you specify in KAAZING Gateway configuration work together, see [What's Involved in Secure Communication](../security/u_sec_client_gw_comm.md).                                                                                                                                                                                                                           |
+        | Security            | Configure security for the service and specify authentication and authorization for users. To better understand how the security parameters that you specify in KAAZING Gateway configuration work together, see [What's Involved in Secure Communication](../security/u_secure_client_gateway_communication.md).                                                                                                                                                                                                                           |
         | Management          | Use the management section to configure a management agent, such as Java's built-in Java Management and Monitoring Console (JConsole), to monitor, track and manage user sessions. For secure management, you can specify the protocol, network interface, and the port number on which the management agent accepts connections, and you can define the user roles that are authorized to perform management operations.                                                                                                          |
         | Additional Services | UDP broadcast service, proxy service, session service, multicast addressing, network address mappings, and more.                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-    -   Consider configuring multiple services on the Gateway to use the same hostname and port, for example, as a way to organize multiple connection requests on the same server as the Gateway and avoid conflicts. See [Configuring Multiple Services on the Same Host and Port](c_conf_multipleservices.md) for complete information.
+    -   Consider configuring multiple services on the Gateway to use the same hostname and port, for example, as a way to organize multiple connection requests on the same server as the Gateway and avoid conflicts. See [Configuring Multiple Services on the Same Host and Port](c_configure_gateway_multiple_services.md) for complete information.
 
 5.  Test the Gateway configuration using the customized configuration file. For detailed instructions about starting and stopping the Gateway, see "How do I start and stop the Gateway?" in [Setting Up the Gateway](../about/setup-guide.md).
 6.  Prepare the configuration file for production.
@@ -90,20 +90,20 @@ The standard way to set up and maintain your Gateway configuration is by editing
 Next Step
 -------------------------
 
-[Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_conf_gw_opts.md) is optional. It is an alternative method for configuration the Gateway.
+[Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variables](p_configure_gateway_opts.md) is optional. It is an alternative method for configuration the Gateway.
 
 Notes
 -----
 
 -   The actual location of the `GATEWAY_HOME` directory depends on your operating system and the method (standalone or installer) used to install the Gateway. To learn more about `GATEWAY_HOME`, see:
     -   [Setting Up the Gateway](../about/setup-guide.md) for information about the directory structure that is set up during installation
-    -   [About Gateway Configuration](c_conf_concepts.md) for more information about the types of configuration files and their contents
--   Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This is described in [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variable](p_conf_gw_opts.md).
--   See [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/ts_config.md) for help resolving issues when you set up and configure the Gateway.
+    -   [About Gateway Configuration](c_configure_gateway_concepts.md) for more information about the types of configuration files and their contents
+-   Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This is described in [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variable](p_configure_gateway_opts.md).
+-   See [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/troubleshoot_gateway_configuration.md) for help resolving issues when you set up and configure the Gateway.
 
 See Also
 --------
 
--   [Configuration Element Index](r_conf_elementindex.md)
--   [About Gateway Configuration](c_conf_concepts.md)
+-   [Configuration Element Index](r_configure_gateway_element_index.md)
+-   [About Gateway Configuration](c_configure_gateway_concepts.md)
 
