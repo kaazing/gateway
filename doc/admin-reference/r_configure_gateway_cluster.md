@@ -10,14 +10,14 @@ This document describes the elements and properties you can configure in the KAA
 Overview
 ----------------------------------
 
-You can use the optional `cluster` element to configure a Gateway to participate in a KAAZING Gateway cluster. Once a cluster service is configured on each Gateway cluster member and the members are started, the clustered instances will handle connection-switching when another cluster member unexpectedly terminates. Cluster members share information about activity and which of their services are load balanced. See [Overview of Gateway Clustering](../high-availability/u_ha.md#overview-of-gateway-clustering) for more information about high availability and clustering.
+You can use the optional `cluster` element to configure a Gateway to participate in a KAAZING Gateway cluster. Once a cluster service is configured on each Gateway cluster member and the members are started, the clustered instances will handle connection-switching when another cluster member unexpectedly terminates. Cluster members share information about activity and which of their services are load balanced. See [Overview of Gateway Clustering](../high-availability/u_high_availability.md#overview-of-gateway-clustering) for more information about high availability and clustering.
 
 Structure
 ------------------------------------
 
 The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) defines the following configuration elements contained in the top-level `gateway-config` element:
 
--   [gateway-config](r_conf_gwconfig.md)
+-   [gateway-config](r_configure_gateway_gwconfig.md)
     -   [cluster](#cluster)
         -   name
         -   accept
@@ -52,10 +52,9 @@ The following example shows a `cluster` service that accepts on `tcp://192.168.2
 
 ### Notes
 
--   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_rc_cluster.md).
+-   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_enterprise_shield_cluster.md).
 
 Summary
 -------
 
 In this document, you learned about the Gateway `cluster` configuration element and how to specify it in your Gateway configuration file. For more information about the location of the configuration files and starting the Gateway, see [Setting Up the Gateway](../about/setup-guide.md). For more information about KAAZING Gateway administration, see the [documentation](../index.md).
-
