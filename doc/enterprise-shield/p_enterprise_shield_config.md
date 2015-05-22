@@ -12,14 +12,14 @@ This walkthrough is part of [Configure Enterprise Shield™ for KAAZING Gateway]
 This walkthrough describes the following subjects:
 
 1.  [What You Will Accomplish](#step-1-what-you-will-accomplish)
-2.  [Before You Begin](#before-you-begin)
-3.  [Download and Set Up KAAZING Gateway](#download-and-set-up-kaazing-gateway)
-4.  [Configure the Internal Gateway](#configure-the-internal-gateway)
-5.  [Configure the DMZ Gateway](#configure-the-dmz-gateway)
-6.  [Configure Security Between the DMZ and Internal Gateways](#configure-security-between-the-dmz-and-internal-gateways)
-7.  [Verify the Gateways are Running](#verify-the-gateways-are-running)
-8.  [Close Inbound ports](#close-inbound-ports)
-9.  [Verify the End-to-End Configuration](#verify-the-end-to-end-configuration)
+2.  [Before You Begin](#step-2-before-you-begin)
+3.  [Download and Set Up KAAZING Gateway](#step-3-download-and-set-up-kaazing-gateway)
+4.  [Configure the Internal Gateway](#step-4-configure-the-internal-gateway)
+5.  [Configure the DMZ Gateway](#step-5-configure-the-dmz-gateway)
+6.  [Configure Security Between the DMZ and Internal Gateways](#step-6-configure-security-between-the-dmz-and-internal-gateways)
+7.  [Verify the Gateways are Running](#step-7-verify-the-gateways-are-running)
+8.  [Close Inbound ports](#step-8-close-inbound-ports)
+9.  [Verify the End-to-End Configuration](#step-9-verify-the-end-to-end-configuration)
 
 Step 1: What You Will Accomplish
 ---------------------------------------------------------
