@@ -17,6 +17,6 @@ The Gateway also integrates with Java Authentication and Authorization Service (
 See Also
 ------------------------------
 
--   [Configure Authentication and Authorization](o_aaa_config_authentication.md)
--   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
+-   [Configure Authentication and Authorization](o_auth_configure.md)
+-   [What Happens During Authentication](u_authentication_gateway_client_interactions.md)
+-   [How Authentication and Authorization Work with the Gateway](u_auth_how_it_works_with_the_gateway.md)
