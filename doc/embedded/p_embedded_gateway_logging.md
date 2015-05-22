@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Configure Logging for an Embedded Gateway
 
-Configure Logging for an Embedded Gateway 
+Configure Logging for an Embedded Gateway
 =======================================================================
 
 The default logging configuration for embedded Gateway uses the runtime logging tool log4j, and log4j logging is configured using the XML file log4j-config.xml in `GATEWAY_HOME/conf/`. You can make the following modifications to this configuration:
@@ -14,14 +14,14 @@ The default logging configuration for embedded Gateway uses the runtime logging 
 Before You Begin
 ----------------
 
-This procedure is part of [Embed KAAZING Gateway in Your Java Application](../embedded/o_embed.md):
+This procedure is part of [Embed KAAZING Gateway in Your Java Application](../embedded-gateway/o_embedded_gateway.md):
 
-1.  [Set Up Your Development Environment](../embedded/p_embed_setup.md)
-2.  [Create the Embedded Gateway Object](../embedded/p_embed_object.md)
-3.  [Use the Embedded Gateway Methods](../embedded/p_embed_methods.md)
+1.  [Set Up Your Development Environment](../embedded-gateway/p_embedded_gateway_setup.md)
+2.  [Create the Embedded Gateway Object](../embedded-gateway/p_embedded_gateway_object.md)
+3.  [Use the Embedded Gateway Methods](../embedded-gateway/p_embedded_gateway_methods.md)
 4.  **Configure Logging for an Embedded Gateway**
-5.  [Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md)
-6.  [Troubleshoot Your Embedded Gateway](../embedded/p_embed_tshoot.md)
+5.  [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)
+6.  [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_troubleshoot.md)
 
 To Override the Default Log4j Logging Settings
 ----------------------------------------------
@@ -33,7 +33,7 @@ Properties props = new Properties();
 
 props.setProperty("LOG4J_CONFIG_PROPERTY", "/home/kaazing/log4j.xml");
 
-/* Windows Example 
+/* Windows Example
  * props.setProperty("LOG4J_CONFIG_PROPERTY", "C:\kaazing\conf\log4j.xml");
  */
 
@@ -71,5 +71,3 @@ Next Steps
 ----------
 
 [Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md)
-
-
