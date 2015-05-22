@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Use the Embedded Gateway Methods
 
-Use the Embedded Gateway Methods 
+Use the Embedded Gateway Methods
 ================================
 
 This procedure describes how to use the methods available to the Gateway objects in your Java program.
@@ -12,12 +12,12 @@ Before You Begin
 
 This procedure is part of [Embed KAAZING Gateway in Your Java Application](../embedded/o_embed.md):
 
-1.  [Set Up Your Development Environment](../embedded/p_embed_setup.md)
-2.  [Create the Embedded Gateway Object](../embedded/p_embed_object.md)
+1.  [Set Up Your Development Environment](../embedded-gateway/p_embedded_gateway_setup.md)
+2.  [Create the Embedded Gateway Object](../embedded-gateway/p_embedded_gateway_object.md)
 3.  **Use the Embedded Gateway Methods**
-4.  [Configure Logging for an Embedded Gateway](../embedded/p_embed_logging.md)
-5.  [Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md)
-6.  [Troubleshoot Your Embedded Gateway](../embedded/p_embed_tshoot.md)
+4.  [Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_logging.md)
+5.  [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)
+6.  [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_troubleshoot.md)
 
 Embedded Gateway Methods
 -------------------------------
@@ -30,7 +30,7 @@ An embedded Gateway interface exposes the following methods:
 | [getProperties()](#getproperties-method) | Obtains the current set of properties on an embedded Gateway. | Name/value pairs for properties configured on the embedded Gateway.                                                |
 | [launch()](#launch-method)               | Starts an embedded Gateway.                                   | Nothing. Any exceptions are thrown when the Gateway starts.                                                        |
 | [destroy()](#destroy-method)             | Stops an embedded Gateway.                                    | Nothing. Any exceptions are thrown when the Gateway stops.                                                         |
-| setMBeanServer()                  | Set an MBeanServer on an embedded Gateway.                    | Nothing. For more information, see [Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md). |
+| setMBeanServer()                  | Set an MBeanServer on an embedded Gateway.                    | Nothing. For more information, see [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md). |
 
 ### Example
 
@@ -46,7 +46,7 @@ props.setProperty(Gateway.GATEWAY_CONFIG_PROPERTY, "/kaazing/config/");
 // props.setProperty("GATEWAY_HOME", "/kaazing/");
 // props.setProperty("GATEWAY_CONFIG", "/kaazing/config/");
 
-// create the Gateway 
+// create the Gateway
 Gateway gateway = GatewayFactory.createGateway();
 
 // implement configuration properties
@@ -63,7 +63,7 @@ setProperties() Method
 
 By default, the embedded Gateway uses the properties set in the `GATEWAY_HOME/conf/gateway-config.xml` configuration file. The `setProperties()` method configures property names and values for the embedded Gateway that override the settings in the default configuration file. The method is optional and you do not need to change any default settings to use the embedded Gateway.
 
-**Note:** For information on the default properties of the Gateway configuration file, see [About KAAZING Gateway Configuration File Elements and Properties](../admin-reference/c_conf_concepts.md#aboutconfelements).
+**Note:** For information on the default properties of the Gateway configuration file, see [About KAAZING Gateway Configuration File Elements and Properties](../admin-reference/c_configure_gateway_concepts.md#aboutconfelements).
 ### Syntax and Example
 
 `void setProperties(java.util.Properties properties);`
@@ -144,5 +144,3 @@ Next Steps
 ----------
 
 [Configure Logging for an Embedded Gateway](../embedded/p_embed_logging.md)
-
-
