@@ -11,7 +11,7 @@ This walkthrough is part of [Configure Enterprise Shield™ for KAAZING Gateway]
 
 This walkthrough describes the following subjects:
 
-1.  [What You Will Accomplish](#what-you-will-accomplish)
+1.  [What You Will Accomplish](#step-1-what-you-will-accomplish)
 2.  [Before You Begin](#before-you-begin)
 3.  [Download and Set Up KAAZING Gateway](#download-and-set-up-kaazing-gateway)
 4.  [Configure the Internal Gateway](#configure-the-internal-gateway)
