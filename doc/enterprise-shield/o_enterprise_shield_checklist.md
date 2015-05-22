@@ -13,8 +13,8 @@ This checklist provides the steps necessary to configure Enterprise Shield™ in
 | 2   | Understand how Enterprise Shield™ works                         | [About Enterprise Shield™](#about-enterprise-shield)                                 |
 | 3   | Determine which Enterprise Shield™ topology is for you          | [Common Enterprise Shield™ Use Cases](c_enterprise_shield_use_cases.md)              |
 | 4   | Download and set up KAAZING Gateway                             | [Setting Up the Gateway](../about/setup-guide.md)                                    |
-| 5   | Configure Enterprise Shield™                                    | [Walkthrough: Configure Enterprise Shield™](p_rc_config.md)                          |
-| 6   | Configure Enterprise Shield™ for high availability and failover | [Walkthrough: Configure Enterprise Shield™ for High Availability](p_rc_cluster.md)   |
+| 5   | Configure Enterprise Shield™                                    | [Walkthrough: Configure Enterprise Shield™](p_enterprise_shield_config.md)                          |
+| 6   | Configure Enterprise Shield™ for high availability and failover | [Walkthrough: Configure Enterprise Shield™ for High Availability](p_enterprise_shield_cluster.md)   |
 
 
 About Enterprise Shield™
@@ -42,7 +42,7 @@ With this architecture in place, you can close all inbound ports of your firewal
 
 See [Common Enterprise Shield™ Use Cases](c_enterprise_shield_use_cases.md) to gain more insight into how you might use Enterprise Shield™. This topic describes topologies that vary depending on the level of security, such as configuring Enterprise Shield™ on a single pair of Gateways, on Gateways that are clustered for high availability, whether network transports are used, and so on.
 
-[Configure Enterprise Shield™](p_rc_config.md) provides a detailed walkthrough describing how to configure KAAZING Gateway to protect your enterprise by using a reverse connection to initiate the connection from the Gateway in the internal trusted network to a DMZ Gateway.
+[Configure Enterprise Shield™](p_enterprise_shield_config.md) provides a detailed walkthrough describing how to configure KAAZING Gateway to protect your enterprise by using a reverse connection to initiate the connection from the Gateway in the internal trusted network to a DMZ Gateway.
 
 **Note:** Before you configure Enterprise Shield™ you should have a basic understanding of the following topologies:
 
