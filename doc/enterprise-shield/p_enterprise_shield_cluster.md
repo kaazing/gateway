@@ -101,7 +101,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     To configure a balancer service for DMZ App2, duplicate this block of configuration elements and substitute App2 and app2 in the name and accept elements.
 
-    The `tcp.bind` element in the `accept-options` binds the public URI in the accept element to the local IP address of the cluster member. Because `tcp.bind` contains the local IP address of that cluster member, it allows the accept URIs in the balancer service to be identical on every cluster member. For more information, see [protocol.bind] (../admin-reference/r_configure_gateway_service.md#protocolbind) and [Set Up Kaazing WebSocket Gateway as a Load Balancer](../high-availability/p_high_availability_loadbalance.md).
+    The `tcp.bind` element in the `accept-options` binds the public URI in the accept element to the local IP address of the cluster member. Because `tcp.bind` contains the local IP address of that cluster member, it allows the accept URIs in the balancer service to be identical on every cluster member. For more information, see [_protocol_.bind] (../admin-reference/r_configure_gateway_service.md#protocolbind) and [Set Up Kaazing WebSocket Gateway as a Load Balancer](../high-availability/p_high_availability_loadbalance.md).
 
 -   On the DMZ Gateway, add a balance element for each service, specifying the URI accepted by the balancer service. Clients then use these URIs to connect to the service.
 
@@ -127,6 +127,6 @@ The complete configuration files for all of the Enterprise Shield™ Use Cases a
 See Also
 --------
 
--   [About KAAZING Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md)
+-   [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md)
 -   [Service Reference](../admin-reference/r_configure_gateway_service.md)
 -   [Cluster Reference](../admin-reference/r_configure_gateway_cluster.md)
