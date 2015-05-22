@@ -253,7 +253,6 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
    ``` xml:
    <accept>wss://gateway.example.com:8443/app1</accept>
    <connect>wss://gateway.example.com:8443/app1</connect>
-
     ```
 
     Use `wss://` scheme for secure connections (and `ws://` scheme for nonsecure connections). In the example, the public URI of the connect element on the DMZ Gateway matches the URI of the accept element on the internal Gateway, creating a *logical* connection. In effect, this continues usage of the public WebSocket Secure URI---`wss://gateway.example.com:8443/app1`---as a logical connection from the client through the DMZ Gateway and to the internal Gateway.
