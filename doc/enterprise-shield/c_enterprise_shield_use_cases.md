@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Security with KAAZING Gateway
 
-Common Enterprise Shield™ Use Cases ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+Common Enterprise Shield™ Use Cases ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =====================================
 
 This topic provides a high-level overview of some common Enterprise Shield™ use cases.
@@ -10,17 +10,18 @@ This topic provides a high-level overview of some common Enterprise Shield™ us
 Before You Begin
 --------------------------------------
 
-This procedure is part of [Configure Enterprise Shield™ for KAAZING Gateway](o_rc_checklist.md):
+This procedure is part of [Configure Enterprise Shield™ for KAAZING Gateway](o_enterprise_shield_checklist.md):
 
-1.  [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md#DMZ_to_Internal)
-2.  [About Enterprise Shield™](o_rc_checklist.md#whatis)
+1.  [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md#enterprise-shield--)
+2.  [About Enterprise Shield™](o_enterprise_shield_checklist.md#about-enterprise-shield)
 3.  **Common Enterprise Shield™ Use Cases**
 4.  [Setting Up the Gateway](../about/setup-guide.md)
-5.  [Walkthrough: Configure Enterprise Shield™](p_rc_config.md)
+5.  [Walkthrough: Configure Enterprise Shield™](p_enterprise_shield_config.md)
+6.  [Walkthrough: Configure Enterprise Shield™ for High Availability](p_enterprise_shield_cluster.md)
 
 The use case configurations described in this topic vary depending on the level of security, such as if the Gateways are clustered for high availability, whether network transports are used, and so on. Also, the sample topologies use two Gateway services instead of just one to demonstrate the Enterprise Shield™ reverse connectivity behavior in a configuration with multiple services.
 
-Each of the Enterprise Shield™ use cases configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), and then extends that topology to a cluster configuration. To configure Enterprise Shield™ and control Gateway operation, you configure elements in the Gateway configuration (gateway-config.xml) file. For complete information about Gateway configuration, see [Understanding KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md). Also, the complete Gateway configuration files used for these use cases are available on `kaazing.org`. The configuration file names are included in each use case description that follows.
+Each of the Enterprise Shield™ use cases configures Enterprise Shield™ on a single pair of Gateways (DMZ and internal Gateways), and then extends that topology to a cluster configuration. To configure Enterprise Shield™ and control Gateway operation, you configure elements in the Gateway configuration (gateway-config.xml) file. For complete information about Gateway configuration, see [Understanding KAAZING Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md). Also, the complete Gateway configuration files used for these use cases are available on `kaazing.org`. The configuration file names are included in each use case description that follows.
 
 Use Case 1: Test Drive Enterprise Shield™
 ------------------------------------------------------------------
@@ -67,7 +68,7 @@ This topology provides the most secure connections into the enterprise. It is al
 
 **Figure 3: Maximum (End-to-End) Transport Security**
 
-To configure this Enterprise Shield™ topology on a single pair of Gateways and then extend it to a cluster, follow the detailed steps in [Walkthrough: Configure Enterprise Shield™](p_rc_config.md) and see the complete configuration files at `kaazing.org`:
+To configure this Enterprise Shield™ topology on a single pair of Gateways and then extend it to a cluster, follow the detailed steps in [Walkthrough: Configure Enterprise Shield™](p_enterprise_shield_config.md) and see the complete configuration files at `kaazing.org`:
 
 -   Single pair of Gateways:
   -   Internal Gateway: `enterprise-shield-use-case-3-single-internal-gw.xml`
