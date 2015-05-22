@@ -1702,7 +1702,7 @@ Enables or disables the inclusion of the HTTP server header. By default, the Gat
 
 This setting is ignored for services that do not accept HTTP or WebSocket connections.
 
-**Hint:** Instead of specifying this setting on every service, consider adding it using the [service-defaults](../admin-reference/r_conf_serv_defs.md) element to globally apply the setting across all services running on the Gateway.
+**Hint:** Instead of specifying this setting on every service, consider adding it using the [service-defaults](../admin-reference/r_configure_gateway_service_defaults.md) element to globally apply the setting across all services running on the Gateway.
 
 ##### Example
 
@@ -1726,7 +1726,7 @@ The `ws.version` element was used to tell the Gateway which version of the WebSo
 
 ##### Example
 
-The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_configure_gateway_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
 
 ``` xml
 <service>
@@ -1744,7 +1744,7 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
 
 Specify `notify-options` for the [notify](#notify-options) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify) element.
 
-**Note:** 
+**Note:**
 The notify-options must be specified in the order shown in the following table.
 
 | notify-options                                            | Required?  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -1799,7 +1799,7 @@ Use the `authorization-constraint` element to configure the user roles that are 
 
 #### Example
 
-The following example of a `proxy` service element is configured with an `authorization-constraint`. The example uses the `[proxy](r_conf_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
+The following example of a `proxy` service element is configured with an `authorization-constraint`. The example uses the `[proxy](r_configure_gateway_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
 ``` xml
 <service>
@@ -1818,7 +1818,7 @@ The following example of a `proxy` service element is configured with an `author
 
 **Required?** Optional; **Occurs:** zero or more
 
-The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_conf_serv_defs.md#mime-mapping-service-defaults). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
+The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
 
 #### Example
 
