@@ -5,7 +5,7 @@
 Walkthrough: Configure Enterprise Shield™ for High Availability ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================================================
 
-This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield™](p_rc_config.md) into a cluster configuration that has two Gateways running in the DMZ and a matching set of Gateways in the trusted network. This configuration provides maximum security and also high availability because it pairs each internal Gateway to one explicit cluster member in the DMZ to provide failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
+This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield™](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the DMZ and a matching set of Gateways in the trusted network. This configuration provides maximum security and also high availability because it pairs each internal Gateway to one explicit cluster member in the DMZ to provide failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
 
 **Note:** Enterprise Shield™ does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield™.
 
@@ -17,7 +17,7 @@ In Figure 1, there are two Gateways running in the DMZ and a matching set of two
 
 The key to making the Enterprise Shield™ configuration highly available is to configure clustering on each cluster member, and have an equivalent number of cluster members in the DMZ and the trusted network.
 
-The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_ha_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_conf_cluster.md) element.
+The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_high_availability_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_configure_gateway_cluster.md) element.
 
 -   Update the properties element to use a numbered value for the DMZ backplane variable---such as `gateway1`---to provide a unique name for the Gateway cluster pair:
 
@@ -101,7 +101,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     To configure a balancer service for DMZ App2, duplicate this block of configuration elements and substitute App2 and app2 in the name and accept elements.
 
-    The `tcp.bind` element in the `accept-options` binds the public URI in the accept element to the local IP address of the cluster member. Because `tcp.bind` contains the local IP address of that cluster member, it allows the accept URIs in the balancer service to be identical on every cluster member. For more information, see [protocol.bind and](../admin-reference/r_conf_service.md#protocolbind)[Set Up Kaazing WebSocket Gateway as a Load Balancer](../high-availability/p_ha_loadbalance.md).
+    The `tcp.bind` element in the `accept-options` binds the public URI in the accept element to the local IP address of the cluster member. Because `tcp.bind` contains the local IP address of that cluster member, it allows the accept URIs in the balancer service to be identical on every cluster member. For more information, see [protocol.bind and](../admin-reference/r_configure_gateway_service.md#protocolbind)[Set Up Kaazing WebSocket Gateway as a Load Balancer](../high-availability/p_high_availability_loadbalance.md).
 
 -   On the DMZ Gateway, add a balance element for each service, specifying the URI accepted by the balancer service. Clients then use these URIs to connect to the service.
 
@@ -128,5 +128,5 @@ See Also
 --------
 
 -   [About KAAZING Gateway Configuration](../admin-reference/c_conf_concepts.md)
--   [Service Reference](../admin-reference/r_conf_service.md)
--   [Cluster Reference](../admin-reference/r_conf_cluster.md)
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md)
+-   [Cluster Reference](../admin-reference/r_configure_gateway_cluster.md)
