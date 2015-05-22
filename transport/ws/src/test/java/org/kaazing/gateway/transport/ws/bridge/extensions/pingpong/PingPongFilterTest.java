@@ -37,10 +37,6 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 
-/**
-* NOTE: this class is a "classic" unit test for the WsCloseFilter. Overall testing of websocket close
-* handling for the wsn transport layer is in test class WsCloseTransportTest.
-*/
 public class PingPongFilterTest {
     private PingPongFilter filter;
 
