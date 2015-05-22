@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,13 +25,21 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.util.Base64;
+import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
 public class WsUtils {
 
@@ -42,14 +50,27 @@ public class WsUtils {
     public static final String SEC_WEB_SOCKET_KEY2 = "Sec-WebSocket-Key2";
     private static final String WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
+    public static final String HEADER_X_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
+    public static final String HEADER_WEBSOCKET_EXTENSIONS = "WebSocket-Extensions";
+    public static final String HEADER_SEC_WEBSOCKET_EXTENSIONS = "Sec-WebSocket-Extensions";
+
+    List<String> NATIVE_EXTENSION_HEADERS = Arrays.asList(HEADER_SEC_WEBSOCKET_EXTENSIONS,
+                                                          HEADER_WEBSOCKET_EXTENSIONS);
+
+    private static final List<WebSocketExtension> EMPTY_EXTENSIONS = Collections.emptyList();
+
+    public static final TypedAttributeKey<List<WebSocketExtension>> ACTIVE_EXTENSIONS_KEY
+        = new TypedAttributeKey<>(WsUtils.class, "active-ws-extensions", EMPTY_EXTENSIONS);
+
+
     private WsUtils() {
         // no instances
     }
-    
+
     /*
      * Parse a string as an integer according to the algorithm defined in the WebSocket protocol
      * (draft Hixie-76)
-     * 
+     *
      * @param key Sec-WeSocket-Key[1|2] key value
      * @return
      */
@@ -70,18 +91,53 @@ public class WsUtils {
         String s = digits.toString();
         // This may be greater than the max value for signed integers
         long n = Long.parseLong(s);
-        
+
         // result is the numerical value divided by the number of spaces
         return (int) (n / numSpaces);
     }
-    
+
+    /**
+     * @param extensions  Extensions whose filters are to be added, starting with the farthest from the network
+     * @param filterChain
+     * @param hasCodec
+     */
+    public static void addExtensionFilters(List<WebSocketExtension> extensions, IoFilterChain filterChain, boolean hasCodec) {
+        if (hasCodec) {
+            addExtensionFiltersAfterCodec(extensions, filterChain);
+        }
+        else {
+            // No codec, add at start of filter chain
+            for (WebSocketExtension extension: extensions) {
+                IoFilter filter;
+                if ((filter = extension.getFilter()) != null) {
+                    filterChain.addFirst(extension.getExtensionHeader().getExtensionToken(), filter);
+                }
+            }
+        }
+    }
+
+    private static void addExtensionFiltersAfterCodec(List<WebSocketExtension> extensions, IoFilterChain filterChain) {
+        for (Entry entry : filterChain.getAll()) {
+            if (ProtocolCodecFilter.class.isAssignableFrom(entry.getFilter().getClass())) {
+                // We must add the extensions starting with the closest to the network, that is, in reverse order
+                for (WebSocketExtension extension : extensions) {
+                    IoFilter filter;
+                    if ((filter = extension.getFilter()) != null) {
+                        filterChain.addAfter(entry.getName(), extension.getExtensionHeader().getExtensionToken(), filter);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
     /*
      * Compute the MD5 sum of the three WebSocket keys
      * (draft Hixie-76)
-     * 
+     *
      * @param key1    Sec-WebSocket-Key1 value
      * @param key2    Sec-WebSocket-Key2 value
-     * @param key3    8 bytes immediately following WebSocket upgrade request 
+     * @param key3    8 bytes immediately following WebSocket upgrade request
      * @return
      * @throws NoSuchAlgorithmException
      */
@@ -89,7 +145,7 @@ public class WsUtils {
         MessageDigest md5 = MessageDigest.getInstance("MD5");
 
         ByteBuffer buf = ByteBuffer.allocate(DIGEST_LENGTH);
-        
+
         buf.putInt(parseIntKey(key1));
         buf.putInt(parseIntKey(key2));
 
@@ -97,34 +153,34 @@ public class WsUtils {
         if (key3.remaining() != 8) {
             throw new WsDigestException("WebSocket key3 must be exactly 8 bytes");
         }
-        
+
         buf.put(key3);
-        
+
         buf.flip();
         byte[] input = new byte[DIGEST_LENGTH];
         buf.get(input, 0, DIGEST_LENGTH);
         byte[] digest = md5.digest(input);
-        
+
         return ByteBuffer.wrap(digest);
     }
 
     /*
      * Compute the Sec-WebSocket-Accept key (RFC-6455)
-     * 
+     *
      * @param key
      * @return
      * @throws Exception
      */
     public static String AcceptHash(String key) throws Exception {
     	String input = key + WEBSOCKET_GUID;
-    	
+
     	MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
 
     	byte[] hash = sha1.digest(input.getBytes());
     	byte[] output = Base64.encodeBase64(hash);
     	return new String(output);
     }
-    
+
     public static int calculateEncodedLengthSize(int lengthValue) {
         int ceilLog2LengthPlus1 = 32 - Integer.numberOfLeadingZeros(lengthValue);
         switch (ceilLog2LengthPlus1) {
@@ -169,19 +225,19 @@ public class WsUtils {
             throw new IllegalArgumentException("Negative length is not supported");
         }
     }
-    
+
     public static void encodeLength(ByteBuffer buf, int lengthValue) {
         int lengthInProgress = lengthValue;
-        
+
         // Length-bytes are written out in order from most to
         // least significant, but are computed most efficiently (using
         // bit shifts) from least to most significant. An integer serves
         // as a temporary storage, which is then written out in reversed
         // order.
-        
+
         int howMany = 0;
         long byteHolder = 0;
-        
+
         do {
           byteHolder <<= 8;
           byte lv = (byte)(lengthInProgress &0x7F);
@@ -189,20 +245,20 @@ public class WsUtils {
           lengthInProgress >>= 7;
           howMany++;
         } while (lengthInProgress > 0);
-        
+
         do {
           byte bv = (byte)(byteHolder & 0xFF);
-          
+
           byteHolder >>= 8;
-          
+
           // The last length byte does not have the highest bit set
           if (howMany != 1) {
             bv |= (byte)0x80;
           }
           buf.put(bv);
-          
+
         } while (--howMany > 0);
-        
+
     }
 
 
@@ -247,6 +303,15 @@ public class WsUtils {
             }
         }
         return null;
+    }
+
+    public static void removeExtensionFilters(List<WebSocketExtension> extensions, IoFilterChain filterChain) {
+        for (WebSocketExtension extension: extensions) {
+            IoFilter filter;
+            if ((filter = extension.getFilter()) != null) {
+                filterChain.remove(extension.getExtensionHeader().getExtensionToken());
+            }
+        }
     }
 
 }

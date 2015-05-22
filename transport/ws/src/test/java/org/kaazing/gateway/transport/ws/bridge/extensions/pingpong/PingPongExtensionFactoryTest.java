@@ -22,10 +22,15 @@
 package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import org.apache.mina.core.filterchain.IoFilter;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 import org.kaazing.gateway.util.Utils;
@@ -34,24 +39,27 @@ import org.kaazing.gateway.util.Utils;
 * NOTE: this class is a "classic" unit test for the WsCloseFilter. Overall testing of websocket close
 * handling for the wsn transport layer is in test class WsCloseTransportTest.
 */
-public class PingPongExtensionTest {
+public class PingPongExtensionFactoryTest {
     private static final String extensionName = "x-kaazing-ping-pong";
 
+    WsResourceAddress address;
+    PingPongExtensionFactory factory;
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
 
+    @Before
+    public void setUp() {
+        URI addressURI = URI.create("ws://localhost:2020/");
+        Map<String, Object> options = new HashMap<>();
+        options.put("ws.inactivityTimeout", 2500L);
+        address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
+        factory = new PingPongExtensionFactory();
+    }
+
     @Test
-    public void shouldAddControlBytesParameter() throws Exception {
-        PingPongExtension extension = new PingPongExtension(requested);
+    public void negotiateShouldAddTimeoutParameter() throws Exception {
+        PingPongExtension extension = (PingPongExtension) factory.negotiate(requested, address);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Utils.toHex(PingPongExtension.CONTROL_BYTES), extension.getExtensionHeader().getParameters().get(0).getName());
     }
-
-    @Test
-    public void shouldCreateIdleTimeoutFilter() {
-        PingPongExtension extension = new PingPongExtension(requested);
-        IoFilter filter = extension.getFilter();
-        assertTrue(filter instanceof PingPongFilter);
-    }
-
 
 }

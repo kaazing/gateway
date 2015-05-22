@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+O * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -20,8 +20,6 @@
  */
 
 package org.kaazing.gateway.transport.ws.bridge.filter;
-
-import static org.kaazing.gateway.transport.ws.AbstractWsControlMessage.Style.CLIENT;
 
 import java.util.Properties;
 
@@ -208,7 +206,6 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
 
     private void writePing(NextFilter nextFilter, IoSessionEx session) throws Exception {
         WsPingMessage emptyPing = new WsPingMessage();
-        emptyPing.setStyle(CLIENT);
         setReadIdleTimeInMillis(session, maxExpectedRtt);
         nextAction = NextAction.PONG;
         if (logger.isTraceEnabled()) {

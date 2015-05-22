@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
+import static org.kaazing.gateway.transport.ws.bridge.extensions.pingpong.PingPongExtension.CONTROL_BYTES;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -41,9 +43,6 @@ import org.kaazing.mina.core.write.DefaultWriteRequestEx;
  * PONG messages of style client, to cause them to be encoded as extension messages visible to the Kaazing client libraries.
  */
 class PingPongFilter extends WsFilterAdapter {
-    // We want to use valid but infrequently used UTF-8 characteers. ASCII control characters fit the bill!
-    private static final byte[] CONTROL_BYTES = { (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x02 };
-
     private static final byte[] EMPTY_PING_BYTES = { (byte)0x09, (byte)0x00 };
     private static final byte[] EMPTY_PONG_BYTES = { (byte)0x0a, (byte)0x00 };
 
@@ -55,13 +54,6 @@ class PingPongFilter extends WsFilterAdapter {
     private WsTextMessage emulatedPing;
     private WsTextMessage emulatedPong;
     private WsTextMessage escapeFrame;
-
-
-    private static final PingPongFilter INSTANCE = new PingPongFilter();
-
-    public static PingPongFilter getInstance() {
-        return INSTANCE;
-    }
 
     @Override
     public void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {

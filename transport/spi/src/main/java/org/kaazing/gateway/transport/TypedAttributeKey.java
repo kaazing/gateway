@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,21 +28,33 @@ import org.apache.mina.core.session.IoSession;
 @SuppressWarnings("unchecked")
 public class TypedAttributeKey<T> implements Serializable {
     /**
-     * The serial version UID 
+     * The serial version UID
      */
     private static final long serialVersionUID = -5633856647355355804L;
-    
-    /** 
+
+    /**
      * The attribute's name
      */
     private final String name;
+
+    private final T defaultValue;
+
 
     /**
      * Creates a new instance of TypedAttributeKey.
      */
     public TypedAttributeKey(Class<?> source, String name) {
-        this.name = source.getName() + '.' + name + '@' + Integer.toHexString(this.hashCode());
+        this(source, name, null);
     }
+
+    /**
+     * Creates a new instance of TypedAttributeKeywith a default value.
+     */
+    public TypedAttributeKey(Class<?> source, String name, T defaultValue) {
+        this.name = source.getName() + '.' + name + '@' + Integer.toHexString(this.hashCode());
+        this.defaultValue = defaultValue;
+    }
+
 
     /**
      * The String representation of this object is its constructed name.
@@ -51,7 +63,7 @@ public class TypedAttributeKey<T> implements Serializable {
     public String toString() {
         return name;
     }
-    
+
     public T set(IoSession session, T value) {
         return (T)session.setAttribute(this, value);
     }
@@ -61,13 +73,13 @@ public class TypedAttributeKey<T> implements Serializable {
     }
 
     public T get(IoSession session) {
-        return (T)session.getAttribute(this);
+        return defaultValue == null ? (T)session.getAttribute(this) : get(session, defaultValue);
     }
 
     public T get(IoSession session, T defaultValue) {
         return (T)session.getAttribute(this, defaultValue);
     }
-    
+
     public T remove(IoSession session) {
         return (T)session.removeAttribute(this);
     }
@@ -79,8 +91,9 @@ public class TypedAttributeKey<T> implements Serializable {
     public boolean replace(IoSession session, T oldValue, T newValue) {
         return session.replaceAttribute(this, oldValue, newValue);
     }
-    
+
     public boolean exists(IoSession session) {
         return session.containsAttribute(this);
     }
+
 }

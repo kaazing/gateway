@@ -22,7 +22,6 @@
 package org.kaazing.gateway.transport.ws.bridge.filter;
 
 import static org.junit.Assert.assertNotNull;
-import static org.kaazing.gateway.transport.ws.AbstractWsControlMessage.Style.CLIENT;
 
 import java.nio.ByteBuffer;
 import java.util.Properties;
@@ -47,9 +46,6 @@ import org.slf4j.Logger;
 
 public class WsCheckAliveFilterTest {
     private WsPingMessage PING = new WsPingMessage();
-    {
-        PING.setStyle(CLIENT);
-    }
     private static final String FILTER_NAME = "wsn#checkalive";
 
     private static final long STANDARD_INACTIVITY_TIMEOUT_MILLIS = Utils.parseTimeInterval("30sec", TimeUnit.MILLISECONDS);

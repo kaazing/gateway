@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ProtocolException;
 import java.net.URI;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,7 +53,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -77,7 +76,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
  */
 public class GatewayContextResolverTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private static GatewayConfigParser parser;
     private static GatewayContextResolver resolver;
@@ -94,7 +93,6 @@ public class GatewayContextResolverTest {
 
         try {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            URL keystoreDB = classLoader.getResource("keystore.db");
             File keyStoreFile = new File(classLoader.getResource("keystore.db").toURI());
 
             resolver = new GatewayContextResolver(new File(keyStoreFile.getParent()), null, null);
@@ -149,7 +147,7 @@ public class GatewayContextResolverTest {
         }
         is.close();
 
-        final String replacedContent = MessageFormat.format(baos.toString("UTF-8"), values);
+        final String replacedContent = MessageFormat.format(baos.toString("UTF-8"), (Object[])values);
         ByteArrayInputStream bais = new ByteArrayInputStream(replacedContent.getBytes("UTF-8"));
 
         FileOutputStream fos = new FileOutputStream(file);

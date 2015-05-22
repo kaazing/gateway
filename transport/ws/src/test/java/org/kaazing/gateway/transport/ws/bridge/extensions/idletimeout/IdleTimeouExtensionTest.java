@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.junit.Test;
-import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 
@@ -37,7 +36,6 @@ import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 public class IdleTimeouExtensionTest {
     private static final String extensionName = "x-kaazing-idle-timeout";
 
-    WsResourceAddress address;
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
 
     @Test

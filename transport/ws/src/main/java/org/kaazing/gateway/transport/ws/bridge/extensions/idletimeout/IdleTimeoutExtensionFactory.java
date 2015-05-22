@@ -32,7 +32,7 @@ public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactory
 
     @Override
     public String getExtensionName() {
-        return IdleTimeoutExtension.IDLE_TIMEOUT_EXTENSION_TOKEN;
+        return IdleTimeoutExtension.EXTENSION_TOKEN;
     }
 
     @Override

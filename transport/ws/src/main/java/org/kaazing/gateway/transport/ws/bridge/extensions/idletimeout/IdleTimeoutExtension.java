@@ -28,7 +28,7 @@ import org.kaazing.gateway.transport.ws.extension.ExtensionParameterBuilder;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 
 public final class IdleTimeoutExtension extends WebSocketExtension  {
-    static final String IDLE_TIMEOUT_EXTENSION_TOKEN = "x-kaazing-idle-timeout";
+    static final String EXTENSION_TOKEN = "x-kaazing-idle-timeout";
     private static final String IDLE_TIMEOUT_TIMEOUT_PARAM = "timeout";
     private final long idleTimeoutMillis;
     private final ExtensionHeader extension;

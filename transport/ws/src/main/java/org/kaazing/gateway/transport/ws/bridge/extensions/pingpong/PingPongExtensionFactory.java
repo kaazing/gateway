@@ -21,34 +21,24 @@
 
 package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
-import org.apache.mina.core.filterchain.IoFilter;
+import java.net.ProtocolException;
+
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
-import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
-import org.kaazing.gateway.transport.ws.extension.ExtensionParameterBuilder;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
-import org.kaazing.gateway.util.Utils;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 
-public final class PingPongExtension extends WebSocketExtension {
-    static final String EXTENSION_TOKEN = "x-kaazing-ping-pong";
+public final class PingPongExtensionFactory extends WebSocketExtensionFactorySpi {
 
-    // We want to use valid but infrequently used UTF-8 characteers. ASCII control characters fit the bill!
-    static final byte[] CONTROL_BYTES = { (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x02 };
-
-    private final ExtensionHeader extension;
-
-    public PingPongExtension(ExtensionHeader extension) {
-        this.extension = new ExtensionHeaderBuilder(extension).append(
-                new ExtensionParameterBuilder(Utils.toHex(CONTROL_BYTES))).done();
+    @Override
+    public String getExtensionName() {
+        return PingPongExtension.EXTENSION_TOKEN;
     }
 
     @Override
-    public ExtensionHeader getExtensionHeader() {
-        return extension;
+    public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+            throws ProtocolException {
+        return new PingPongExtension(requestedExtension);
     }
-
-    @Override
-    public IoFilter getFilter() {
-        return new PingPongFilter();
-    };
 
 }
