@@ -10,9 +10,9 @@ This checklist provides the steps necessary to monitor KAAZING Gateway:
 | \#  | Step                                                                        | Topic or Reference                                                                                         |
 |-----|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
 | 1   | Learn about monitoring KAAZING Gateway.                                | [Introduction to Monitoring KAAZING Gateway](#introduction-to-monitoring-kaazing-gateway)                                           |
-| 2   | Configure secure monitoring services.                                       | [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md)                                    |
+| 2   | Configure secure monitoring services.                                       | [Secure KAAZING Gateway Monitoring](p_monitor_configure_secure.md)                                    |
 | 3   | Monitor a Gateway or Gateway cluster.                         | [Monitor with Command Center](p_monitor_cc.md) (**Recommended**) [Monitor with JMX](p_monitor_jmx.md) |
-| 4   | Troubleshoot common problems with startup, security, clusters, and clients. | [Troubleshoot the Gateway](../troubleshooting/o_ts.md)                                                |
+| 4   | Troubleshoot common problems with startup, security, clusters, and clients. | [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md)                                                |
 
 Introduction to Monitoring KAAZING Gateway
 --------------------------------------------------------------------------
@@ -42,7 +42,7 @@ Here’s a high-level overview of monitoring with Command Center:
 
 See also:
 
--   [Service Reference](../admin-reference/r_conf_service.md) to configure the `management.snmp` service for Command Center.
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md) to configure the `management.snmp` service for Command Center.
 -   [Monitor with Command Center](p_monitor_cc.md) for detailed information about monitoring a Gateway or a Gateway cluster.
 
 ### JMX
@@ -59,9 +59,9 @@ You can use JMX through any JMX-compliant console such as Java's built-in Java M
 
 See also:
 
--   [Service Reference](../admin-reference/r_conf_service.md) to configure the `management.jmx` service in the Gateway configuration.
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md) to configure the `management.jmx` service in the Gateway configuration.
 -   [Monitor with JMX](p_monitor_jmx.md) for detailed information about monitoring with JMX.
 
 ### Secure Gateway Monitoring
 
-For secure monitoring, the Gateway provides a way to specify a security realm and authorization constraint on which each management service accepts connections. See [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md) for detailed information and an example configuration.
+For secure monitoring, the Gateway provides a way to specify a security realm and authorization constraint on which each management service accepts connections. See [Secure KAAZING Gateway Monitoring](p_monitor_configure_secure.md) for detailed information and an example configuration.
