@@ -53,7 +53,7 @@ class PingPongFilter extends WsFilterAdapter {
 
     private WsTextMessage emulatedPing;
     private WsTextMessage emulatedPong;
-    private WsTextMessage escapeFrame;
+    private WsTextMessage escapeMessage;
 
     @Override
     public void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
@@ -61,7 +61,7 @@ class PingPongFilter extends WsFilterAdapter {
         IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
         emulatedPing = createTextMessage(allocator, EMULATED_PING_FRAME_PAYLOAD);
         emulatedPong = createTextMessage(allocator, EMULATED_PONG_FRAME_PAYLOAD);
-        escapeFrame = createTextMessage(allocator, CONTROL_BYTES);
+        escapeMessage = createTextMessage(allocator, CONTROL_BYTES);
     }
 
     @Override
@@ -83,23 +83,33 @@ class PingPongFilter extends WsFilterAdapter {
         if (buf.remaining() < CONTROL_BYTES.length) {
             return wsText;
         }
-        byte[] leadingBytes = new byte[CONTROL_BYTES.length];
         int pos = buf.position();
-        buf.get(leadingBytes);
-        buf.position(pos);
-        if (Arrays.equals(CONTROL_BYTES, leadingBytes)) {
-            nextFilter.filterWrite(session, new DefaultWriteRequestEx(escapeFrame));
+        for (int i=0; i<CONTROL_BYTES.length; i++) {
+            if (buf.get(pos+i) != CONTROL_BYTES[i]) {
+                return wsText;
+            }
         }
+        nextFilter.filterWrite(session, new DefaultWriteRequestEx(escapeMessage));
         return wsText;
     }
 
     @Override
     protected void wsTextReceived(NextFilter nextFilter, IoSession session, WsTextMessage wsText) throws Exception {
         IoBufferEx buf = wsText.getBytes();
-        if (buf.remaining() >= CONTROL_BYTES.length) {
-
+        boolean skip = false;
+        if (buf.remaining() == CONTROL_BYTES.length) {
+            skip = true;
+            int pos = buf.position();
+            for (int i=0; i<CONTROL_BYTES.length; i++) {
+                if (buf.get(pos+i) != CONTROL_BYTES[i]) {
+                    skip = false;
+                    break;
+                }
+            }
         }
-        super.messageReceived(nextFilter, session, wsText);
+        if (!skip) {
+            super.wsTextReceived(nextFilter, session, wsText);
+        }
     }
 
     private WsTextMessage createTextMessage(IoBufferAllocatorEx<?> allocator, byte[] content) {

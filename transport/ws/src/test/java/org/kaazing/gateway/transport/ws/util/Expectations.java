@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,15 +45,15 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 public class Expectations extends org.jmock.Expectations {
 
     private Map<String, Object> variables = new HashMap<>();
-    
+
     public Matcher<AttributeKey> attributeKeyMatching(String regex) {
         return new AttributeKeyMatching(regex);
     }
-    
+
     public Matcher<ByteBuffer> byteBufferMatching(String regex) {
         return new ByteBufferMatching(regex);
     }
-    
+
     public Matcher<Long> integerBetween(final long min, final long max) {
         return new BaseMatcher<Long>() {
             @Override
@@ -67,7 +67,7 @@ public class Expectations extends org.jmock.Expectations {
             }
         };
     }
-    
+
     public Matcher<String> stringMatching(final String regex) {
         return new BaseMatcher<String>() {
             @Override
@@ -104,19 +104,19 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
-    
+
     public Matcher<TypedAttributeKey<?>> typedAttributeKeyMatching(String regex) {
         return new TypedAttributeKeyMatching(regex);
     }
-    
+
     public <T> Matcher<T> variable(String variableName, Class<T> clazz) {
         return new VariableMatcher<>(variableName, clazz, this);
     }
-    
+
     public Matcher<WriteRequest> hasMessage(Object message) {
         return new HasMessage(message);
     }
-    
+
     public Matcher<WriteRequest> hasMessage(Matcher<Object> message) {
         return new HasMessage(message);
     }
@@ -129,14 +129,14 @@ public class Expectations extends org.jmock.Expectations {
                 IoBuffer buf = (IoBuffer) item;
                 return (buf.remaining() == remaining);
             }
-            
+
             @Override
             public void describeTo(Description description) {
                 description.appendText(format("buffer has %d remaining bytes", remaining));
             }
         };
     }
-    
+
     public Matcher<WriteRequest> writeRequestWithMessage(final Object message) {
         return new BaseMatcher<WriteRequest>() {
             @Override
@@ -147,29 +147,29 @@ public class Expectations extends org.jmock.Expectations {
             @Override
             public void describeTo(Description arg0) {
                 arg0.appendText("write request containing a message equal to " + message);
-            }                    
+            }
         };
     }
 
     public CustomAction setSessionClosed(IoSession session) {
         return new SetIoSessionClosed(session);
     }
-    
+
     public CustomAction readBytes(final byte[] srcBytes) {
         return new ReadBytes("read bytes", srcBytes);
     }
-    
+
     public Object lookup(String variableName) {
         return variables.get(variableName);
     }
-    
+
     public <T> T lookup(String variableName, Class<T> clazz) {
         return clazz.cast(variables.get(variableName));
     }
-    
+
     public Action saveParameter(final String variableName, final int parameterIndex) {
         return new CustomAction("save parameter") {
-            
+
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
                 variables.put(variableName, invocation.getParameter(parameterIndex));
@@ -177,10 +177,10 @@ public class Expectations extends org.jmock.Expectations {
             }
         };
     }
-    
+
     public Action saveParameter(final Object[] parameterStorage, final int parameterIndex) {
         return new CustomAction("save parameter") {
-            
+
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
                 parameterStorage[0] = invocation.getParameter(parameterIndex);
@@ -188,10 +188,10 @@ public class Expectations extends org.jmock.Expectations {
             }
         };
     }
-    
+
     public Action returnVariable(final String variableName) {
         return new CustomAction("return variable") {
-            
+
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
                 return variables.get(variableName);
@@ -202,18 +202,18 @@ public class Expectations extends org.jmock.Expectations {
     private static final class HasMessage extends BaseMatcher<WriteRequest> {
 
         private final Matcher<Object> message;
-        
+
         private HasMessage(Object message) {
             this(new IsEqual<>(message));
         }
-        
+
         private HasMessage(Matcher<Object> message) {
             this.message = message;
         }
-        
+
         @Override
         public boolean matches(Object arg) {
-            return (arg instanceof WriteRequest) && 
+            return (arg instanceof WriteRequest) &&
                    (message.matches(((WriteRequest)arg).getMessage()));
         }
 
@@ -221,7 +221,7 @@ public class Expectations extends org.jmock.Expectations {
         public void describeTo(Description description) {
             description.appendText("has message ").appendValue(message);
         }
-        
+
     }
 
 }
