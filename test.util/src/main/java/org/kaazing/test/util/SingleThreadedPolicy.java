@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.http.util;
+package org.kaazing.test.util;
 
 import java.lang.reflect.Method;
 
@@ -29,7 +29,7 @@ import org.jmock.api.Invokable;
 final class SingleThreadedPolicy extends org.jmock.internal.SingleThreadedPolicy {
 
     private static final Method METHOD_OBJECT_FINALIZE;
-    
+
     static {
         try {
             METHOD_OBJECT_FINALIZE = Object.class.getDeclaredMethod("finalize");
@@ -44,14 +44,14 @@ final class SingleThreadedPolicy extends org.jmock.internal.SingleThreadedPolicy
 
         final Invokable invokable = super.synchroniseAccessTo(mockObject);
         return new Invokable() {
-            
+
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
                 Method invokedMethod = invocation.getInvokedMethod();
                 if (METHOD_OBJECT_FINALIZE.equals(invokedMethod)) {
                     return mockObject.invoke(invocation);
                 }
-                
+
                 return invokable.invoke(invocation);
             }
         };
