@@ -5,9 +5,9 @@
 Walkthrough: Configure Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ===========================================
 
-In this walkthrough, you will learn how to deploy a maximum security Enterprise Shield™ configuration, which is a recommended configuration for Enterprise Shield™ because it provides end-to-end security. This architecture, referred to as Use Case 3 in [Common Enterprise Shield™ Use Cases](c_enterprise_shield_use_cases.md), provides secure communication over the Web that uses TLS between the client and the DMZ Gateway (described in Use Case 2) and drastically reduces the attack vectors in the DMZ, creating an ultra-secure environment with which to deploy services over the public Web.
+In this walkthrough, you will learn how to deploy a maximum security Enterprise Shield™ configuration, which is a recommended configuration for Enterprise Shield because it provides end-to-end security. This architecture, referred to as Use Case 3 in [Common Enterprise Shield Use Cases](c_enterprise_shield_use_cases.md), provides secure communication over the Web that uses TLS between the client and the DMZ Gateway (described in Use Case 2) and drastically reduces the attack vectors in the DMZ, creating an ultra-secure environment with which to deploy services over the public Web.
 
-This walkthrough is part of [Configure Enterprise Shield™ for KAAZING Gateway](o_enterprise_shield_checklist.md) that links to all Enterprise Shield™ topics, including those that describe the concepts behind Enterprise Shield™ and Gateway topologies.
+This walkthrough is part of [Configure Enterprise Shield for KAAZING Gateway](o_enterprise_shield_checklist.md) that links to all Enterprise Shield topics, including those that describe the concepts behind Enterprise Shield and Gateway topologies.
 
 This walkthrough describes the following subjects:
 
@@ -24,7 +24,7 @@ This walkthrough describes the following subjects:
 Step 1: What You Will Accomplish
 ---------------------------------------------------------
 
-At the end of this walkthrough, you will have configured a maximum security Enterprise Shield™ topology.
+At the end of this walkthrough, you will have configured a maximum security Enterprise Shield topology.
 
 ![Use Case 3: Maximum (End-to-End) Transport Security](../images/es_usecase3.png)
 
@@ -35,7 +35,7 @@ In this topology, the Gateway on the internal trusted network and a DMZ Gateway 
 Step 2: Before You Begin
 ----------------------------------------------
 
-This walkthrough covers Use Case 3: Maximum (End-to-End) Transport Security from the set of [Common Enterprise Shield™ Use Cases](c_enterprise_shield_use_cases.md#usecase3) because that is the most secure example of Enterprise Shield™. By the end of this walkthrough, you will have the foundational knowledge required to understand and configure any of the Enterprise Shield™ use cases.
+This walkthrough covers Use Case 3: Maximum (End-to-End) Transport Security from the set of [Common Enterprise Shield Use Cases](c_enterprise_shield_use_cases.md#usecase3) because that is the most secure example of Enterprise Shield and it is a superset of all the other use cases. By the end of this walkthrough, you will have the foundational knowledge required to understand and configure any of the Enterprise Shield use cases.
 
 Step 3: Download and Set Up KAAZING Gateway
 ---------------------------------------------------------------
@@ -45,11 +45,13 @@ Download and set up two KAAZING Gateways, with one Gateway in the DMZ and one in
 Step 4: Configure the Internal Gateway
 -------------------------------------------------------------------
 
-Perform the following steps to set up the App1 and App2 services on the internal Gateway.
+This use case configures two Gateway services, called App1 and App2, to demonstrate the Enterprise Shield™ reverse connectivity behavior in a configuration with multiple services.
+
+Perform the following steps to set up the App1 and App2 services on the internal Gateway. 
 
 **Notes:**
--   The examples in this walkthrough use the `.net` domain (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Wherever a URI uses `example` in the domain name, you should replace that with your own company name.
--   Network security is improved by using separate NICs (Network Interface Cards) for the [frontplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane) and [backplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane). Although it's not necessary to have multiple NICs for Enterprise Shield™ to work, this walkthrough assumes separate frontplane and backplane NICs. The configuration defines default values for these interfaces once in the properties element using easily identifiable names and the values are propagated throughout the entire configuration when the Gateway starts. See [Documentation Conventions](../about/about.md) for more information about variables.
+-   The examples in this walkthrough use the `.net` domain (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Wherever a URI uses `example` in the domain name, you should replace that with your own company name or appropriate hostname.
+-   Network security is improved by using separate NICs (Network Interface Cards) for the [frontplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane) and [backplane](http://developer.kaazing.com/documentation/kaazing-glossary.html#frontplane-and-backplane). Although it's not necessary to have multiple NICs for Enterprise Shield to work, this walkthrough assumes separate frontplane and backplane NICs. The configuration defines default values for these interfaces once in the properties element using easily identifiable names and the values are propagated throughout the entire configuration when the Gateway starts. See [Documentation Conventions](../about/about.md) for more information about variables.
 
 
 The following snippet shows the App1 Service configuration in the `gateway-config.xml` file.
@@ -72,9 +74,7 @@ The following snippet shows the App1 Service configuration in the `gateway-confi
     <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
     <socks.mode>reverse</socks.mode>
     <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>
-    <socks.transport>
-      wsn+ssl://${dmz.backplane.hostname}:1080/shield
-    </socks.transport>  
+    <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>  
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
     <ssl.verify-client>required</ssl.verify-client>
   </accept-options>
@@ -102,9 +102,9 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
 3.  Connect the internal Gateway to the back-end service.
 
-    For some services, such as `proxy` or `amqp.proxy`, you configure the [connect](../admin-reference/r_configure_gateway_service.md#connect) element to connect to the back-end service used by the Gateway. Other services, such as JMS, use the [properties](../admin-reference/r_conf_jms.md) element to connect the internal Gateway to a JMS-compliant message broker.
+    Most proxy services use the [connect](../admin-reference/r_configure_gateway_service.md#connect) element to connect to the back-end service. But others, such as the JMS service, use the [properties](../admin-reference/r_conf_jms.md) element instead. 
 
-    The connect element can specify either the hostname or the IP address, and port of the back-end service:
+    The [connect](../admin-reference/r_configure_gateway_service.md#connect) element can specify either the hostname or the IP address, and port of the back-end service:
 
     `                <connect>tcp://127.0.0.1:3101</connect>          `
 
@@ -117,20 +117,18 @@ The key configuration settings for the App1 service in the internal Gateway incl
       <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       <socks.mode>reverse</socks.mode>
       <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>
-      <socks.transport>
-        wsn+ssl://${dmz.backplane.hostname}:1080/shield
-      </socks.transport>
+      <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>
       <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
     </accept-options>
     ```
 
-    The [accept-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because the settings change the nature of the service and affect the connections for the App1 service:
+    The [accept-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because these are the settings that change the nature of the service and affect the connections for the App1 service:
 
     -   Set [http.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the SOCKS protocol:
     
          `                     <http.transport>${dmz.backplane.hostname}:1080</http.transport>                 `
 
-        Enterprise Shield™ uses the SOCKS protocol to establish connections in reverse, connecting from the internal Gateway to the DMZ Gateway. By default, the SOCKS connection is still a forward connection, from the DMZ Gateway to the internal Gateway. The next accept-options element, `socks.mode`, is the setting you use to make the connection go in reverse.
+        Enterprise Shield uses the SOCKS protocol to establish connections in reverse, connecting from the internal Gateway to the DMZ Gateway. By default, the SOCKS connection is still a forward connection, from the DMZ Gateway to the internal Gateway. The next accept-options element, `socks.mode`, is the setting you use to make the connection go in reverse.
 
         Port 1080 is the convention for SOCKS connections, but you can use any port.
 
@@ -140,7 +138,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
     
         ` <socks.mode>reverse</socks.mode> `
 
-        The reverse connection configures the internal Gateway service to send a remote bind request to the DMZ Gateway. That way, when client connection requests come to the DMZ Gateway, the DMZ Gateway matches the requests up with SOCKS bind requests from the internal Gateway. See [About Enterprise Shield™](o_enterprise_shield_checklist.md#about-enterprise-shield) to learn more about how this works.
+        The reverse connection configures the internal Gateway service to send a remote bind request to the DMZ Gateway. That way, when client connection requests come to the DMZ Gateway, the DMZ Gateway matches the requests up with SOCKS bind requests from the internal Gateway. See [About Enterprise Shield](o_enterprise_shield_checklist.md#about-enterprise-shield) to learn more about how this works.
 
     -   Set [socks.retry.maximum.interval](../admin-reference/r_configure_gateway_service.md#socksretrymaximuminterval) to the maximum interval of time that you want the internal Gateway to wait before retrying a reverse connection to the DMZ Gateway after a failed attempt:
     
@@ -148,12 +146,10 @@ The key configuration settings for the App1 service in the internal Gateway incl
     -   Configure [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use `wsn+ssl` (recommended) protocol to establish the network connections from the DMZ Gateway to the internal Gateway.
     
          ``` xml:
-         <socks.transport>           
-           wsn+ssl://${dmz.backplane.hostname}:1080/shield         
-         </socks.transport>     
+         <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>     
          ```
 
-        In most cases, using SOCKS is sufficient to establish reverse connections for Enterprise Shield™. However, in some environments, intermediaries like firewalls between the internal Gateway and the DMZ Gateway can interfere with idle connections. Therefore, the best practice is to add a WebSocket transport under the SOCKS layer because you can configure the WebSocket transport to keep idle connections alive. In fact, the next step shows you how to configure this by setting the `ws.inactivity.timeout` element.
+        In most cases, using SOCKS is sufficient to establish reverse connections for Enterprise Shield. However, in some environments, intermediaries like firewalls between the internal Gateway and the DMZ Gateway can interfere with idle connections. Therefore, the best practice is to add a WebSocket transport under the SOCKS layer because you can configure the WebSocket transport to keep idle connections alive. In fact, the next step shows you how to configure this by setting the `ws.inactivity.timeout` element.
 
         See [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) for more information about using the scheme `wsn+ssl://` for the reverse connection between the internal Gateway and the DMZ Gateway.
 
@@ -182,9 +178,7 @@ The service configuration for the App2 service is exactly the same as for App1, 
     <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
     <socks.mode>reverse</socks.mode>
     <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>
-    <socks.transport>
-      wsn+ssl://${dmz.backplane.hostname}:1080/shield
-    </socks.transport>  
+    <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>  
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </accept-options>
 
@@ -201,6 +195,8 @@ You've completed configuring the internal Gateway! Now let’s configure the DMZ
 
 Step 5: Configure the DMZ Gateway
 ---------------------------------------------------------
+
+Just like Step 4: Configure the Internal Gateway, this step configures two Gateway services, called App1 and App2, in the DMZ Gateway to demonstrate the Enterprise Shield reverse connectivity behavior in a configuration with multiple services.
 
 Perform the following steps to set up the App1 and App2 services in the DMZ Gateway.
 
@@ -226,9 +222,7 @@ The following snippet shows the App1 service configuration in the gateway-config
     <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
     <socks.mode>reverse</socks.mode>
     <socks.timeout>2 seconds</socks.timeout>
-    <socks.transport>
-      wsn+ssl://${dmz.backplane.hostname}:1080/shield
-    </socks.transport>
+    <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>
     <ssl.verify-client>required</ssl.verify-client>
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </connect-options>
@@ -264,15 +258,13 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
       <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       <socks.mode>reverse</socks.mode>
       <socks.timeout>2 seconds</socks.timeout>
-      <socks.transport>
-        wsn+ssl://${dmz.backplane.hostname}:1080/shield
-      </socks.transport>
+      <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>
       <ssl.verify-client>required</ssl.verify-client>
       <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
     </connect-options>
     ```
 
-    The [connect-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because the settings change the nature of the service and affect the connectionsfor the App1 service:
+    The [connect-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) settings are the most interesting part of the configuration because those are the settings that change the nature of the service and affect the connections for the App1 service:
 
     -   Set the [http.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the SOCKS protocol:
 
@@ -280,7 +272,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
         <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       ```
 
-        Enterprise Shield™ uses the SOCKS protocol to establish connections in reverse, connecting from the internal Gateway to the DMZ Gateway. By default, the SOCKS connection is still a forward connection, from the DMZ Gateway to the internal Gateway. The next connect-options element, `socks.mode`, is the element you use to make the connection go in reverse.
+        Enterprise Shield uses the SOCKS protocol to establish connections in reverse, connecting from the internal Gateway to the DMZ Gateway. By default, the SOCKS connection is still a forward connection, from the DMZ Gateway to the internal Gateway. The next connect-options element, `socks.mode`, is the element you use to make the connection go in reverse.
 
         Port 1080 is the convention for SOCKS connections, but you can use any port.
 
@@ -290,7 +282,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
         `         <socks.mode>reverse</socks.mode>            `  
 
-        The reverse connection configures the internal Gateway service to send a remote bind request to the DMZ Gateway. That way, when client connection requests come to the DMZ Gateway, it matches the requests up with SOCKS bind requests from the internal Gateway. See [About Enterprise Shield™](o_enterprise_shield_checklist.md#about-enterprise-shield) to learn more about how this works.
+        The reverse connection configures the internal Gateway service to send a remote bind request to the DMZ Gateway. That way, when client connection requests come to the DMZ Gateway, it matches the requests up with SOCKS bind requests from the internal Gateway. See [About Enterprise Shield](o_enterprise_shield_checklist.md#about-enterprise-shield) to learn more about how this works.
 
     -   Set the [socks.timeout](../admin-reference/r_configure_gateway_service.md#conn_sockstimeout) property.
 
@@ -301,12 +293,10 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
     -   Configure [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the `wsn+ssl` protocol (recommended) to establish the network connections from the DMZ Gateway to the internal Gateway:
 
       ``` xml:
-      <socks.transport>
-        wsn+ssl://${dmz.backplane.hostname}:1080/shield
-      </socks.transport>
+      <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>
       ```
 
-        In most cases, using SOCKS is sufficient to establish reverse connections for Enterprise Shield™. However, in some environments, intermediaries like firewalls between the internal Gateway and the DMZ Gateway can interfere with idle connections. Therefore, the best practice is to add a WebSocket transport under the SOCKS layer because you can configure the WebSocket transport to keep idle connections alive. In fact, the next step shows you how to configure this by setting the `ws.inactivity.timeout` element.
+        In most cases, using SOCKS is sufficient to establish reverse connections for Enterprise Shield. However, in some environments, intermediaries like firewalls between the internal Gateway and the DMZ Gateway can interfere with idle connections. Therefore, the best practice is to add a WebSocket transport under the SOCKS layer because you can configure the WebSocket transport to keep idle connections alive. In fact, the next step shows you how to configure this by setting the `ws.inactivity.timeout` element.
 
         See [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) for more information about using the scheme `wsn+ssl://` for the reverse connection between the internal Gateway and the DMZ Gateway.
 
@@ -361,7 +351,7 @@ You've completed configuring the DMZ Gateway! Next we will configure security fo
 Step 6: Configure Security Between the DMZ and Internal Gateways
 ------------------------------------------------------------------------------------------
 
-Each Gateway maintains two databases for SSL connections: a keystore that stores SSL certificates to present to a client, and a truststore that stores keys from trusted sources. The following example shows the security block in the Gateway configuration file:
+Each Gateway maintains two stores for SSL connections: a keystore that stores SSL certificates to present to a client, and a truststore that stores keys from trusted sources. The following example shows the security block in the Gateway configuration file:
 
 ``` xml:
   <security>
@@ -402,14 +392,14 @@ Close the inbound ports on your firewall using the instructions provided by your
 Step 9: Verify the End-to-End Configuration
 -------------------------------------------------------------------
 
-Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield™ in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#step-7-verify-the-gateways-are-running) to confirm everything is working properly.
+Use a client within the DMZ to test out the internal Gateway before deploying Enterprise Shield in your production environment. You can repeat the instructions in [Step 7: Verify the Gateways are Running](#step-7-verify-the-gateways-are-running) to confirm everything is working properly.
 
-Congratulations, you got Enterprise Shield™ working on a single pair of (DMZ and internal) Gateways!
+Congratulations, you got Enterprise Shield working on a single pair of (DMZ and internal) Gateways!
 
 Next Step
 ============================
 
-Now, Enterprise Shield™ is working and all inbound ports on your firewall are closed so there is no access to the trusted network from the DMZ. No physical address information from the trusted network is exposed in the DMZ configuration. But there is an extra step to make Enterprise Shield™ highly available (recommended). See [Walkthrough: Configure Enterprise Shield™ for High Availability](p_enterprise_shield_cluster.md) to set up Enterprise Shield™ in a cluster configuration.
+Now, Enterprise Shield is working and inbound ports on your firewall are closed so there is no access to the trusted network from the DMZ. No physical address information from the trusted network is exposed in the DMZ configuration. But there is an extra step to make Enterprise Shield highly available (recommended). See [Walkthrough: Configure Enterprise Shield for High Availability](p_enterprise_shield_cluster.md) to set up Enterprise Shield in a cluster configuration.
 
 See Also
 ========
