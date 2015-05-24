@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.test.util;
+package org.kaazing.gateway.transport.test;
 
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;

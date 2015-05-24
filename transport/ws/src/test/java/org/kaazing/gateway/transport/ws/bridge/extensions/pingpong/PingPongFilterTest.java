@@ -28,17 +28,19 @@ import static org.kaazing.mina.core.buffer.SimpleBufferAllocator.BUFFER_ALLOCATO
 import java.nio.ByteBuffer;
 
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
+import org.kaazing.mina.core.session.IoSessionEx;
 
 public class PingPongFilterTest {
     private static final ByteBuffer BYTES = ByteBuffer.wrap("ABC".getBytes(UTF_8));
@@ -53,6 +55,7 @@ public class PingPongFilterTest {
         PAYLOAD_STARTING_WITH_CONTROL_BYTES = ByteBuffer.allocate(CONTROL_BYTES.length + BYTES.remaining());
         PAYLOAD_STARTING_WITH_CONTROL_BYTES.put(CONTROL_BYTES);
         PAYLOAD_STARTING_WITH_CONTROL_BYTES.put(BYTES);
+        PAYLOAD_STARTING_WITH_CONTROL_BYTES.flip();
     }
 
     @Before
@@ -64,18 +67,22 @@ public class PingPongFilterTest {
     public void filterWriteShouldEscapeTextMessageConsistingOfControlBytes() throws Exception {
         Mockery context = new Mockery();
         final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSession session = context.mock(IoSession.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
         final WriteRequest writeRequest = context.mock(WriteRequest.class);
         final WsTextMessage message = new WsTextMessage(BUFFER_ALLOCATOR.wrap(ByteBuffer.wrap(CONTROL_BYTES)));
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class);
 
         context.checking(new Expectations() {
             {
-                oneOf(writeRequest).getMessage(); will(returnValue(message));
-                //oneOf(nextFilter).filterWrite(with(session), with(hasMessageMatching(ESCAPE_MESSAGE)));
+                oneOf(filterChain).getSession(); will(returnValue(session));
+                oneOf(session).getBufferAllocator(); will(returnValue(BUFFER_ALLOCATOR));
+                allowing(writeRequest).getMessage(); will(returnValue(message));
+                oneOf(nextFilter).filterWrite(with(session), with(hasMessage(ESCAPE_MESSAGE)));
                 oneOf(nextFilter).filterWrite(session, writeRequest);
             }
         });
 
+        filter.onPreAdd(filterChain, "x-kaazing-ping-ping", nextFilter);
         filter.filterWrite(nextFilter, session, writeRequest);
         context.assertIsSatisfied();
     }
@@ -84,18 +91,22 @@ public class PingPongFilterTest {
     public void filterWriteShouldEscapeTextMessageStartingWithControlBytes() throws Exception {
         Mockery context = new Mockery();
         final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSession session = context.mock(IoSession.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
         final WriteRequest writeRequest = context.mock(WriteRequest.class);
         final WsTextMessage message = new WsTextMessage(BUFFER_ALLOCATOR.wrap(PAYLOAD_STARTING_WITH_CONTROL_BYTES));
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class);
 
         context.checking(new Expectations() {
             {
-                oneOf(writeRequest).getMessage(); will(returnValue(message));
-                //oneOf(nextFilter).filterWrite(with(session), with(hasMessageMatching(ESCAPE_MESSAGE)));
+                oneOf(filterChain).getSession(); will(returnValue(session));
+                oneOf(session).getBufferAllocator(); will(returnValue(BUFFER_ALLOCATOR));
+                allowing(writeRequest).getMessage(); will(returnValue(message));
+                oneOf(nextFilter).filterWrite(with(session), with(hasMessage(ESCAPE_MESSAGE)));
                 oneOf(nextFilter).filterWrite(session, writeRequest);
             }
         });
 
+        filter.onPreAdd(filterChain, "x-kaazing-ping-ping", nextFilter);
         filter.filterWrite(nextFilter, session, writeRequest);
         context.assertIsSatisfied();
     }
