@@ -19,7 +19,9 @@
  * under the License.
  */
 
-package org.kaazing.test.util;
+package org.kaazing.gateway.transport.test;
+
+import static org.kaazing.gateway.util.Utils.asString;
 
 import java.nio.ByteBuffer;
 

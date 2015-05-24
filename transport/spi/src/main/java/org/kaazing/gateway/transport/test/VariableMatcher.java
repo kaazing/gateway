@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.test.util;
+package org.kaazing.gateway.transport.test;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

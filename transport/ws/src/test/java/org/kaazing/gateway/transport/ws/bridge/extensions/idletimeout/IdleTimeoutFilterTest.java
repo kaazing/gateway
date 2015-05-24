@@ -26,8 +26,8 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IdleStatus;
 import org.jmock.Mockery;
 import org.junit.Test;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.util.Expectations;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 

@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.ws.util;
+package org.kaazing.gateway.transport.test;
 
 import static java.lang.String.format;
 
