@@ -5,7 +5,7 @@
 Common Enterprise Shield™ Use Cases ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =====================================
 
-This topic provides a high-level overview of some common Enterprise Shield use cases.
+This topic provides a high-level overview of some common Enterprise Shield™ use cases.
 
 Before You Begin
 --------------------------------------
