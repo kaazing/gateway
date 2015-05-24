@@ -5,17 +5,17 @@
 Walkthrough: Configure Enterprise Shield™ for High Availability ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================================================
 
-This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield™](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the DMZ and a matching set of Gateways in the trusted network. This configuration provides maximum security and also high availability because it pairs each internal Gateway to one explicit cluster member in the DMZ to provide failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
+This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the DMZ and a matching set of Gateways in the trusted network. This configuration provides maximum security and also high availability because it pairs each internal Gateway to one explicit cluster member in the DMZ to provide failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
 
-**Note:** Enterprise Shield™ does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield™.
+**Note:** Enterprise Shield does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield.
 
 In Figure 1, there are two Gateways running in the DMZ and a matching set of two Gateways on the trusted network. Thus, each internal Gateway is paired to one explicit cluster member in the DMZ.
 
 ![Gateway Topology Showing Reverse Connectivity in a Cluster](../images/f-es-maxsecurity-cluster.png)
 
-**Figure 1: Enterprise Shield™ Topology Configured for High Availability**
+**Figure 1: Enterprise Shield Topology Configured for High Availability**
 
-The key to making the Enterprise Shield™ configuration highly available is to configure clustering on each cluster member, and have an equivalent number of cluster members in the DMZ and the trusted network.
+The key to making the Enterprise Shield configuration highly available is to configure clustering on each cluster member, and have an equivalent number of cluster members in the DMZ and the trusted network.
 
 The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_high_availability_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_configure_gateway_cluster.md) element.
 
@@ -118,11 +118,11 @@ The following steps provide a high-level overview about cluster configuration. S
     ```
 
 -   Start each Gateway and verify the cluster is running.
--   Repeat these steps for each cluster pair you want to add to the Enterprise Shield™ topology.
+-   Repeat these steps for each cluster pair you want to add to the Enterprise Shield topology.
 
     Remember to use unique hostnames, IP addresses, and ports for each cluster pair. For example, for Gateway Cluster Pair 2 you might use `gateway2.example.dmz.net`, and for Gateway Cluster Pair 3 use `gateway3.example.dmz.net`.
 
-The complete configuration files for all of the Enterprise Shield™ Use Cases are located on `kaazing.org`.
+The complete configuration files for all of the Enterprise Shield Use Cases are located on `kaazing.org`.
 
 See Also
 --------
