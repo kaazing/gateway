@@ -59,21 +59,22 @@ public final class WebSocketExtensionFactory {
         }
         this.extensionHeadersByCategory = unmodifiableMap(extensionHeadersByCategory);
     }
-    
+
     public Collection<WebSocketExtensionFactorySpi> availableExtensions() {
         return factoriesRO.values();
     }
 
     /**
-     * 
+     *
      * @param address  WsResourceAddress for the WebSocket connection for which extensions are being negotiated
-     * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of 
+     * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of
      *                                  any comma-separated list is already done by the HTTP transport layer)
      * @return list of negotiated WebSocketExtensionSpi instances in the order they should appear
      *         negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
-    public List<WebSocketExtension> negotiateWebSocketExtensions(WsResourceAddress address, List<String> clientRequestedExtensions)
+    public List<WebSocketExtension> negotiateWebSocketExtensions(WsResourceAddress address,
+                                                                 List<String> clientRequestedExtensions)
             throws ProtocolException {
 
         List<WebSocketExtension> result = Collections.emptyList();
@@ -141,7 +142,7 @@ public final class WebSocketExtensionFactory {
         ServiceLoader<WebSocketExtensionFactorySpi> services = load(WebSocketExtensionFactorySpi.class, cl);
         return newInstance(services);
     }
-    
+
     private static WebSocketExtensionFactory newInstance(ServiceLoader<WebSocketExtensionFactorySpi> services) {
         Map<String, WebSocketExtensionFactorySpi> factories = new HashMap<String, WebSocketExtensionFactorySpi>();
         for (WebSocketExtensionFactorySpi service : services) {
@@ -150,5 +151,5 @@ public final class WebSocketExtensionFactory {
         }
         return new WebSocketExtensionFactory(unmodifiableMap(factories));
     }
-    
+
 }

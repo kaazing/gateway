@@ -24,7 +24,6 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 import static org.kaazing.gateway.transport.ws.bridge.extensions.pingpong.PingPongExtension.CONTROL_BYTES;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;

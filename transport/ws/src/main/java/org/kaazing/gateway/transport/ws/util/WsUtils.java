@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.ws.util;
 
+import java.net.ProtocolException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,11 +34,13 @@ import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.util.Base64;
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
@@ -279,6 +282,20 @@ public class WsUtils {
                 return null;
             }
         }
+    }
+
+    public static List<WebSocketExtension> negotiateExtensionsAndSetResponseHeader(
+                                                        WebSocketExtensionFactory factory,
+                                                        WsResourceAddress address,
+                                                        List<String> requestedExtensions,
+                                                        HttpAcceptSession session,
+                                                        String extendionsHeaderName)
+        throws ProtocolException {
+            List<WebSocketExtension> negotiated = factory.negotiateWebSocketExtensions(address, requestedExtensions);
+            for (WebSocketExtension extension : negotiated) {
+                session.addWriteHeader(extendionsHeaderName, extension.getExtensionHeader().toString());
+            }
+            return negotiated;
     }
 
 

@@ -58,7 +58,6 @@ import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -136,7 +135,6 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -503,14 +501,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // We remember the http uri from the session below us.
             //
             final URI httpUri = (URI) session.getAttribute(HTTP_REQUEST_URI_KEY);
-
-            //
-            // Create the re-validation address to bind to, and re-validation uri to associate with the WsnSession.
-            //
-            final boolean isLightweightWsnSession = localAddress.getOption(WsResourceAddress.LIGHTWEIGHT);
-            String sessionId = HttpUtils.newSessionId();
-
-            final List<WebSocketExtension> wsExtensions = ACTIVE_EXTENSIONS_KEY.get(session);
 
             //
             // Build a new Wsn Session.
@@ -1076,15 +1066,12 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     final ResourceAddress wsLocalAddress = localAddress;
 
-
-                    // null next-protocol from client gives null local address when we only have explicitly named next-protocol binds
-                    List<String> wsExtensions = (wsLocalAddress != null) ? wsLocalAddress.getOption(EXTENSIONS) :
-                        EXTENSIONS.defaultValue();
-
                     // negotiate extensions
                     final List<WebSocketExtension> negotiated;
                     try {
-                        negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
+                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1291,7 +1278,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     // negotiate extensions
                     final List<WebSocketExtension> negotiated;
                     try {
-                        negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
+                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1469,7 +1458,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                    // negotiate extensions
                    final List<WebSocketExtension> negotiated;
                    try {
-                       negotiated = webSocketExtensionFactory.negotiateWebSocketExtensions((WsResourceAddress) wsLocalAddress, clientRequestedExtensions);
+                       negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                               webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                               session, HEADER_X_WEBSOCKET_EXTENSIONS);
                    }
                    catch(ProtocolException e) {
                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
