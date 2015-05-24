@@ -70,7 +70,8 @@ public abstract class WsMessage extends Message {
 
         WsMessage that = (WsMessage) obj;
         return (that.getKind() == this.getKind() && that.fin == this.fin &&
-                Utils.sameOrEquals(this.buf.buf(), that.buf.buf())); // IoBufferEx has no equals method
+                Utils.sameOrEquals(this.buf == null ? null : this.buf.buf(),
+                        that.buf == null ? null : that.buf.buf())); // IoBufferEx has no equals method
     }
 
     @Override
