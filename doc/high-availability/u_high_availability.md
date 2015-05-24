@@ -249,6 +249,6 @@ See Also
 -   [Configure the Gateway for High Availability](o_high_availability.md)
     -   [Configure a KAAZING Gateway Cluster](p_high_availability_cluster.md)
     -   [Set Up KAAZING Gateway as a Load Balancer](p_high_availability_loadbalance.md)
-    -   [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/troubleshoot_high_availability.md)
+    -   [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/p_troubleshoot_high_availability.md)
 
 
