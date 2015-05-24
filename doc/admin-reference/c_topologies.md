@@ -24,7 +24,7 @@ This topic covers the following information:
 DMZ to Trusted Network Topology
 -------------------------------------------------------------
 
-In this topology, client to back-end service or message broker connections are protected by two layers of network security, a firewall-protected DMZ and a firewall-protected Trusted Network. A Gateway or Gateway cluster is deployed in the firewall-protected DMZ peripheral network to service requests from KAAZING Gateway clients on the Web. The DMZ Gateway connects through a firewall to a second Gateway deployed in the internal, Trusted Network. The Internal Gateway connects to the back-end service or message broker.
+In this topology, client to back-end service or message broker connections are protected by two layers of network security, a firewall-protected DMZ and a firewall-protected trusted network. A Gateway or Gateway cluster is deployed in the firewall-protected DMZ peripheral network to service requests from KAAZING Gateway clients on the Web. The DMZ Gateway connects through a firewall to a second Gateway deployed in the internal, trusted network. The Internal Gateway connects to the back-end service or message broker.
 
 Here is an example of the topology.
 
