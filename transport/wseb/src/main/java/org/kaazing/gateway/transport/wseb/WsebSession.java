@@ -132,7 +132,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     };
     private ScheduledFuture<?> timeoutFuture;
-    
+
     private TransportSession transportSession;
 
     public WsebSession(int ioLayer,
@@ -144,7 +144,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        ResourceAddress remoteAddress,
                        IoBufferAllocatorEx<WsBuffer> allocator,
                        DefaultLoginResult loginResult,
-                       ActiveExtensions wsExtensions,
                        int clientIdleTimeout,
                        long inactivityTimeout,
                        boolean validateSequenceNo,
@@ -158,8 +157,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               remoteAddress,
               allocator,
               Direction.BOTH,
-              loginResult,
-              wsExtensions);
+              loginResult);
         this.attachingWrite = new AtomicBoolean(false);
         this.readSession = new AtomicReference<>();
         this.pendingNewWriter = new AtomicReference<>();
@@ -487,7 +485,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     boolean compareAndSetReconnecting(boolean expected, boolean newValue) {
         return reconnecting.compareAndSet(expected, newValue);
     }
-    
+
     IoSessionEx getTransportSession() {
         return transportSession;
     }
@@ -688,9 +686,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     long nextWriterSequenceNo() {
         return writerSequenceNo;
     }
-    
+
     private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
-    
+
     private final static class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
 
         @Override
@@ -701,7 +699,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         protected void flushInternal(final WsebSession session) {
             // get parent and check if null (no attached http session)
-            final HttpSession writer = (HttpSession)session.getWriter();
+            final HttpSession writer = session.getWriter();
             if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
                     && (writer == null || writer.isClosing()) ) {
                 if (LOGGER.isTraceEnabled()) {
@@ -711,7 +709,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 }
                 return;
             }
-            
+
             final IoSessionEx transport = session.getTransportSession();
             if (transport.isClosing()) {
                 if (LOGGER.isTraceEnabled()) {
@@ -730,7 +728,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 WriteRequest request =  writeRequestQueue.poll(session);
                 if (request == null) {
                     if (lastWrite == null) {
-                        // queue was empty, make sure WsebAcceptProcessor / WsebConnectProcessor flush is called 
+                        // queue was empty, make sure WsebAcceptProcessor / WsebConnectProcessor flush is called
                         // to handle padding for initial downstream response
                         ((AbstractIoSessionEx) transport).getProcessor().flush(transport);
                     }
@@ -813,9 +811,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             while (true);
         }
     };
-    
+
     private static final IoHandlerAdapter<TransportSession> transportHandler  = new TransportHandler();
-    
+
     private static class TransportHandler extends IoHandlerAdapter<TransportSession> {
 
 
@@ -885,16 +883,16 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 wseSession.close(true);
             }
         }
-                
+
     };
-    
+
     /**
      * This processor, set on the TransportSession, just delegates to WsebAcceptProcessor or WsebConnectProcessor.
      * We cannot set those directly as the processor on the TransportSession because of parameterized type mismatches.
      */
     static class TransportProcessor implements IoProcessorEx<TransportSession> {
         private final IoProcessorEx<WsebSession> processor;
-        
+
         TransportProcessor(IoProcessorEx<WsebSession> processor) {
             this.processor = processor;
         }
@@ -922,13 +920,13 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         public void flush(TransportSession session) {
             processor.flush(session.getWsebSession());
-            
+
         }
 
         @Override
         public void updateTrafficControl(TransportSession session) {
             processor.updateTrafficControl(session.getWsebSession());
-            
+
         }
 
         @Override
@@ -936,20 +934,20 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             processor.remove(session.getWsebSession());
         }
     }
-    
+
     static class TransportSession extends DummySessionEx {
         private final WsebSession wsebSession;
-        
+
         TransportSession(WsebSession wsebSession, IoProcessorEx<WsebSession> processor) {
             super(wsebSession.getIoThread(), wsebSession.getIoExecutor(), new TransportProcessor(processor));
             this.wsebSession = wsebSession;
         }
-        
+
         @Override
         public IoBufferAllocatorEx<?> getBufferAllocator() {
             return wsebSession.getBufferAllocator();
         }
-        
+
         WsebSession getWsebSession() {
             return wsebSession;
         }

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -102,7 +102,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
-    
+
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
     private final ThreadLocal<IoSessionIdleTracker> currentSessionInactivityTracker
@@ -238,7 +238,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     public void initializeSession(IoSession session, T future) {
                         WsebSession wseSession = (WsebSession) session;
                         wseSession.setHandler(handler);
-                        
+
                         // TODO: add extension filters when we adopt the new webSocket extension SPI
                         wseSession.getTransportSession().getFilterChain().fireSessionCreated();
                         wseSession.getTransportSession().getFilterChain().fireSessionOpened();
@@ -265,15 +265,14 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                         @Override
                         public WsebSession call() throws Exception {
                             WsebSession wsebSession = new WsebSession(httpSession.getIoLayer(),
-                                                                      httpSession.getIoThread(), 
-                                                                      httpSession.getIoExecutor(), 
+                                                                      httpSession.getIoThread(),
+                                                                      httpSession.getIoExecutor(),
                                                                       WsebConnector.this,
-                                                                      getProcessor(), 
-                                                                      connectAddressNext, 
-                                                                      connectAddressNext, 
-                                                                      allocator, 
-                                                                      null, 
-                                                                      null, 
+                                                                      getProcessor(),
+                                                                      connectAddressNext,
+                                                                      connectAddressNext,
+                                                                      allocator,
+                                                                      null,
                                                                       0,
                                                                       connectAddressNext.getOption(INACTIVITY_TIMEOUT),
                                                                       false,            /* no sequence validation */
@@ -319,7 +318,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                     if (writeAddress != null) {
                         sessionMap.remove(writeAddress);
                     }
-                    
+
                     if (wsebSession.getInactivityTimeout() > 0) {
                         currentSessionInactivityTracker.get().removeSession(wsebSession);
                     }
@@ -449,7 +448,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             final WsebSession wsebSession = sessionMap.get(readAddress);
             assert (wsebSession != null);
             wsebSession.attachReader(readSession);
-            
+
             if (wsebSession.getInactivityTimeout() > 0) {
                 // Activate inactivity timeout only once read session is established
                 currentSessionInactivityTracker.get().addSession(wsebSession);
@@ -479,7 +478,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             WsMessage wsebMessage = (WsMessage) message;
             IoBufferEx messageBytes = wsebMessage.getBytes();
             IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
-            
+
             switch (wsebMessage.getKind()) {
             case COMMAND:
                 for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {

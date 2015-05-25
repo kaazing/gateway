@@ -21,7 +21,10 @@
 
 package org.kaazing.gateway.transport.ws.util;
 
+import static java.lang.String.format;
+
 import java.net.ProtocolException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,11 +41,13 @@ import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
+import org.slf4j.Logger;
 
 public class WsUtils {
 
@@ -263,6 +268,30 @@ public class WsUtils {
         } while (--howMany > 0);
 
     }
+
+    public static void handleExtensionNegotiationException(HttpAcceptSession session, List<String> clientRequestedExtensions,
+                                                            ProtocolException e, Logger logger) {
+           // This happens when the extension negotiation leads to
+           // a fatal failure; the session should be closed because
+           // the service REQUIRED some extension that the client
+           // did not request.
+           if (logger.isDebugEnabled()) {
+               if (logger.isDebugEnabled()) {
+                   // KG-10384: make sure port is explicitly included in the request URI we use for lookup since it is always
+                   // included when the service registry is created since we force use of explicit port in accepts.
+                   // TODO: consider doing this "at the edge" when the HTTP request object (or http session) is created.
+                   URI requestURI = HttpUtils.getRequestURI(session.getRequestURL(), session.getReadHeader("Host"),
+                           session);
+                   logger.debug(format(
+                           "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'"
+                           + " due to exception %s",
+                           session.getMethod(), requestURI, session, clientRequestedExtensions, e.toString()));
+               }
+           }
+           session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
+           session.setReason("WebSocket Extensions not found or invalid");
+           session.close(false);
+       }
 
 
     public static WebSocketWireProtocol guessWireProtocolVersion(HttpRequestMessage httpRequest) {

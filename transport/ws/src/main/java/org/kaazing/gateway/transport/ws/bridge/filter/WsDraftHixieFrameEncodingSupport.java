@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -44,67 +44,6 @@ public class WsDraftHixieFrameEncodingSupport {
      static final byte CLOSE_TYPE_BYTE = (byte) 0xff;
      static final byte CLOSE_TERMINATOR_BYTE = (byte) 0x00;
 
-    public static IoBufferEx doSpecifiedLengthTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapedEncode(allocator, flags, message, escapedBytes, SPECIFIED_LENGTH_TEXT_TYPE_BYTE);
-    }
-
-    private static IoBufferEx doEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes, byte opCode) {
-        IoBufferEx ioBuf = message.getBytes();
-        ByteBuffer buf = ioBuf.buf();
-        int position = buf.position();
-        int remaining = buf.remaining();
-
-        int escapedMessageLength = escapedBytes.length;
-        int escapedOffset = 1 + WsUtils.calculateEncodedLengthSize(escapedMessageLength);
-        int binaryOffset = 1 + WsUtils.calculateEncodedLengthSize(remaining);
-
-        int totalOffset = escapedOffset + escapedMessageLength + binaryOffset;
-
-        if (((flags & FLAG_ZERO_COPY) != 0) && (position >= totalOffset)) {
-            if (!isCacheEmpty(message)) {
-                throw new IllegalStateException("Cache must be empty: flags = " + flags);
-            }
-
-            // Note: duplicate first to represent different transport layer (no parallel encoding)
-            ByteBuffer binary = buf.duplicate();
-            binary.position(position - totalOffset);
-            binary.mark();
-            binary.put(opCode);
-            WsUtils.encodeLength(binary, escapedBytes.length);
-            binary.put(escapedBytes);
-            binary.put(opCode);
-            WsUtils.encodeLength(binary, remaining);
-            binary.position(binary.position() + remaining);
-            binary.limit(binary.position());
-            binary.reset();
-            // note: defer wrap until position and limit correct (needed by SimpleSharedBuffer)
-            return allocator.wrap(binary, flags);
-        } else {
-            ByteBuffer binary = allocator.allocate(totalOffset + remaining, flags);
-            int offset = binary.position();
-            binary.put(opCode);
-            WsUtils.encodeLength(binary, escapedBytes.length);
-            binary.put(escapedBytes);
-            binary.put(opCode);
-            WsUtils.encodeLength(binary, remaining);
-
-            // (KG-8125) if shared, duplicate to ensure we don't affect other threads
-            if (ioBuf.isShared()) {
-                binary.put(buf.duplicate());
-            }
-            else {
-                int bufPos = buf.position();
-                binary.put(buf);
-                buf.position(bufPos);
-            }
-
-            binary.flip();
-            binary.position(offset);
-            // note: defer wrap until position and limit correct (needed by SimpleSharedBuffer)
-            return allocator.wrap(binary, flags);
-        }
-    }
-
     public static IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         IoBufferEx ioBuf = message.getBytes();
         ByteBuffer buf = ioBuf.buf();
@@ -113,7 +52,7 @@ public class WsDraftHixieFrameEncodingSupport {
         int position = buf.position();
 
         if (((flags & FLAG_ZERO_COPY) != 0) &&
-            (position >= textOffset) && 
+            (position >= textOffset) &&
             ((buf.capacity() - buf.limit()) >= textPadding)) {
             if (!isCacheEmpty(message)) {
                 throw new IllegalStateException("Cache must be empty: flags = " + flags);
@@ -156,11 +95,11 @@ public class WsDraftHixieFrameEncodingSupport {
     public static IoBufferEx doSpecifiedLengthTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return doEncode(allocator, flags, message, SPECIFIED_LENGTH_TEXT_TYPE_BYTE);
     }
-    
+
     public static IoBufferEx doBinaryEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return doEncode(allocator, flags, message, BINARY_TYPE_BYTE);
     }
-    
+
     private static IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte opCode) {
         IoBufferEx ioBuf = message.getBytes();
         ByteBuffer buf = ioBuf.buf();
@@ -216,10 +155,10 @@ public class WsDraftHixieFrameEncodingSupport {
         close.position(offset);
         return allocator.wrap(close, flags);
     }
-    
+
     private  static boolean isCacheEmpty(Message message) {
         boolean emptyCache = true;
-        
+
         if (message.hasCache()) {
             ConcurrentMap<String, IoBufferEx> cache = message.getCache();
             emptyCache = cache.isEmpty();

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -43,7 +43,6 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsProtocol;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.wseb.filter.EncodingFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
@@ -54,7 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebDownstreamHandler.class);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
@@ -73,7 +72,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private final ScheduledExecutorService scheduler;
     private IoSessionIdleTracker inactivityTracker = null;
     private final BridgeServiceFactory bridgeServiceFactory;
- 
+
     public WsebDownstreamHandler(ResourceAddress nextProtocolAddress,  WsebSession wsebSession, ScheduledExecutorService scheduler,
                                  WsebEncodingStrategy encodingStrategy, IoSessionIdleTracker inactivityTracker, BridgeServiceFactory bridgeServiceFactory) {
         this(nextProtocolAddress, wsebSession, scheduler, "application/octet-stream", encodingStrategy, inactivityTracker, bridgeServiceFactory);
@@ -147,12 +146,12 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         int clientIdleTimeout = ("20".equals(session.getParameter(".kkt"))) ? 20 : wsebSession.getClientIdleTimeout();
 
         // we don't need to send idletimeout keep-alive messages if we're already sending PINGs for inactivity timeout
-        // at high enough frequency 
-        int inactivityTimeoutInSeconds = (int) (wsebSession.getInactivityTimeout() / 1000); 
+        // at high enough frequency
+        int inactivityTimeoutInSeconds = (int) (wsebSession.getInactivityTimeout() / 1000);
         if (inactivityTimeoutInSeconds == 0 || inactivityTimeoutInSeconds > clientIdleTimeout) {
             session.getConfig().setWriterIdleTime(clientIdleTimeout / 2);
         }
-        
+
         // most clients use GET for downstream (empty POST okay too)
         // defer attach writer to message received for non-empty POSTs (such as Flash client)
         String contentLength = session.getReadHeader(HttpHeaders.HEADER_CONTENT_LENGTH);
@@ -189,11 +188,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (encoding != null) {
             bridgeFilterChain.addBefore(CODEC_FILTER, ENCODING_FILTER, encoding);
         }
-
-        final IoSession session = bridgeFilterChain.getSession();
-        final ActiveExtensions extensions = ActiveExtensions.get(wsebSession);
-
-        codec.setExtensions(session, extensions);
     }
 
     public void removeBridgeFilters(IoFilterChain filterChain) {
