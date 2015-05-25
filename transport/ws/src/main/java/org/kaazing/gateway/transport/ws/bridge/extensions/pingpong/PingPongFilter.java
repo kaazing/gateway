@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
+import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
@@ -45,14 +46,18 @@ class PingPongFilter extends WsFilterAdapter {
     private static final byte[] EMPTY_PING_BYTES = { (byte)0x09, (byte)0x00 };
     private static final byte[] EMPTY_PONG_BYTES = { (byte)0x0a, (byte)0x00 };
 
-    private static final byte[] EMULATED_PING_FRAME_PAYLOAD = ByteBuffer.allocate(CONTROL_BYTES.length + EMPTY_PING_BYTES.length)
+    private final static int EMULATED_PAYLOAD_LENGTH = CONTROL_BYTES.length + EMPTY_PING_BYTES.length;
+    private static final byte[] EMULATED_PING_FRAME_PAYLOAD = ByteBuffer.allocate(EMULATED_PAYLOAD_LENGTH)
             .put(CONTROL_BYTES).put(EMPTY_PING_BYTES).array();
-    private static final byte[] EMULATED_PONG_FRAME_PAYLOAD = ByteBuffer.allocate(CONTROL_BYTES.length + EMPTY_PONG_BYTES.length)
+    private static final byte[] EMULATED_PONG_FRAME_PAYLOAD = ByteBuffer.allocate(EMULATED_PAYLOAD_LENGTH)
             .put(CONTROL_BYTES).put(EMPTY_PONG_BYTES).array();
 
     private WsTextMessage emulatedPing;
     private WsTextMessage emulatedPong;
     private WsTextMessage escapeMessage;
+    private WsPingMessage nativePing = new WsPingMessage();
+    private WsPongMessage nativePong = new WsPongMessage();
+    private boolean lastFrameWasEscape = false;
 
     @Override
     public void onPreAdd(IoFilterChain parent, String name, NextFilter nextFilter) throws Exception {
@@ -92,23 +97,68 @@ class PingPongFilter extends WsFilterAdapter {
         return wsText;
     }
 
+    // Reply to native ping (from browser's native websocket layer) with native pong
+    @Override
+    protected void wsPingReceived(NextFilter nextFilter, IoSession session, WsPingMessage wsPing) throws Exception {
+        WsPongMessage reply = new WsPongMessage(wsPing.getBytes());
+        nextFilter.filterWrite(session, new DefaultWriteRequestEx(reply));
+    }
+
+    // Swallow native pong (from browser's native websocket layer) because it's not from our client
+    @Override
+    protected void wsPongReceived(NextFilter nextFilter, IoSession session, WsPongMessage wsPong) throws Exception {
+    }
+
     @Override
     protected void wsTextReceived(NextFilter nextFilter, IoSession session, WsTextMessage wsText) throws Exception {
         IoBufferEx buf = wsText.getBytes();
-        boolean skip = false;
-        if (buf.remaining() == CONTROL_BYTES.length) {
-            skip = true;
-            int pos = buf.position();
+        boolean startsWithControlBytes = false;
+        int pos = buf.position();
+        int length = buf.remaining();
+        if (length >= CONTROL_BYTES.length) {
+            startsWithControlBytes = true;
             for (int i=0; i<CONTROL_BYTES.length; i++) {
                 if (buf.get(pos+i) != CONTROL_BYTES[i]) {
-                    skip = false;
+                    startsWithControlBytes = false;
                     break;
                 }
             }
         }
-        if (!skip) {
-            super.wsTextReceived(nextFilter, session, wsText);
+        if (lastFrameWasEscape) {
+            if (!startsWithControlBytes) {
+                protocolError(nextFilter, session);
+                return;
+            }
         }
+        else {
+            if (startsWithControlBytes) {
+                if (length == CONTROL_BYTES.length) {
+                    lastFrameWasEscape = true;
+                    return;
+                }
+                // Must be emulated ping or pong
+                if (buf.remaining() == EMULATED_PAYLOAD_LENGTH) {
+                    if (!(buf.get(pos+CONTROL_BYTES.length+1) == 0x00)) {
+                        protocolError(nextFilter, session);
+                        return;
+                    }
+                    switch(buf.get(pos+CONTROL_BYTES.length)) {
+                        case 0x09:
+                            super.wsPingReceived(nextFilter, session, nativePing);
+                            return;
+                        case 0x0a:
+                            super.wsPongReceived(nextFilter, session, nativePong);
+                            return;
+                        default:
+                            break;
+                    }
+                }
+                protocolError(nextFilter, session);
+                return;
+            }
+        }
+        lastFrameWasEscape = false;
+        super.wsTextReceived(nextFilter, session, wsText);
     }
 
     private WsTextMessage createTextMessage(IoBufferAllocatorEx<?> allocator, byte[] content) {
@@ -120,6 +170,11 @@ class PingPongFilter extends WsFilterAdapter {
         payload.position(offset);
         WsTextMessage result = new WsTextMessage(allocator.wrap(payload, IoBufferEx.FLAG_SHARED));
         return result;
+    }
+
+    private void protocolError(NextFilter nextFilter, IoSession session) {
+        nextFilter.filterWrite(session, new DefaultWriteRequestEx(WsCloseMessage.PROTOCOL_ERROR));
+        session.close(true);
     }
 
 }

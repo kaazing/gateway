@@ -37,7 +37,10 @@ public final class IdleTimeoutExtensionFactory extends WebSocketExtensionFactory
 
     @Override
     public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
-        return new IdleTimeoutExtension(header, address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT));
+        long inactivityTimeout = address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT);
+        return inactivityTimeout > 0 ?
+            new IdleTimeoutExtension(header, address.getOption(WsResourceAddress.INACTIVITY_TIMEOUT)) :
+                null;
     }
 
 }

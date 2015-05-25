@@ -22,12 +22,12 @@
 package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -42,24 +42,28 @@ public class IdleTimeouExtensionFactoryTest {
     private static final String extensionName = "x-kaazing-idle-timeout";
     private static final Long TIMEOUT = 2500L;
 
-    WsResourceAddress address;
-    IdleTimeoutExtensionFactory factory;
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
-
-    @Before
-    public void setUp() {
-        URI addressURI = URI.create("ws://localhost:2020/");
-        Map<String, Object> options = new HashMap<>();
-        options.put("ws.inactivityTimeout", 2500L);
-        address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
-        factory = new IdleTimeoutExtensionFactory();
-    }
 
     @Test
     public void negotiateShouldAddTimeoutParameter() throws Exception {
+        URI addressURI = URI.create("ws://localhost:2020/");
+        Map<String, Object> options = new HashMap<>();
+        options.put("ws.inactivityTimeout", 2500L);
+        WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
+        IdleTimeoutExtensionFactory factory = new IdleTimeoutExtensionFactory();
         IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, address);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Long.toString(TIMEOUT), extension.getExtensionHeader().getParameters().get(0).getValue());
+    }
+
+    @Test
+    public void shouldNotNegotiateWhenNoInactivityTimeoutIsSet() throws Exception {
+        URI addressURI = URI.create("ws://localhost:2020/");
+        Map<String, Object> options = new HashMap<>();
+        WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
+        IdleTimeoutExtensionFactory factory = new IdleTimeoutExtensionFactory();
+        IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, address);
+        assertNull(extension);
     }
 
 }
