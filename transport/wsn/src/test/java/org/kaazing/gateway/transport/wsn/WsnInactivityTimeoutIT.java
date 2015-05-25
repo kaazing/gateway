@@ -65,7 +65,7 @@ public class WsnInactivityTimeoutIT {
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
-                        .acceptOption("ws.inactivity.timeout", "200sec")
+                        .acceptOption("ws.inactivity.timeout", "2sec")
                     .done()
                     .service()
                         .accept(URI.create("ws://localhost:80/echo80"))
