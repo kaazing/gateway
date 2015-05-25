@@ -128,6 +128,26 @@ public class WsCheckAliveFilterTest {
     }
 
     @Test
+    public void moveIfFeatureEnabled() throws Exception {
+        Mockery context = new Mockery();
+        final Logger logger = context.mock(Logger.class);
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class, "filterChain");
+        final IoFilterChain toFilterChain = context.mock(IoFilterChain.class, "toFilterChain");
+
+        final WsCheckAliveFilter filter = new WsCheckAliveFilter(STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(filterChain).remove(FILTER_NAME); will(returnValue(filter));
+                oneOf(logger).isDebugEnabled(); will(returnValue(true));
+                oneOf(logger).debug(with(any(String.class)));
+                oneOf(toFilterChain).addLast(FILTER_NAME, filter);
+            }
+        });
+        WsCheckAliveFilter.moveIfFeatureEnabled(filterChain, toFilterChain, FILTER_NAME, STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+    }
+
+    @Test
     public void postAddShouldSchedulePingWithTimeoutEqualsHalfWsIntactivityTimeout() throws Exception {
         Mockery context = new Mockery();
         final Logger logger = context.mock(Logger.class);
@@ -154,6 +174,26 @@ public class WsCheckAliveFilterTest {
         WsCheckAliveFilter filter = (WsCheckAliveFilter)filterHolder[0];
         filter.onPostAdd(filterChain, FILTER_NAME, nextFilter);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void postRemoveShouldUnsetReadIdleTimeout() throws Exception {
+        Mockery context = new Mockery();
+        final Logger logger = context.mock(Logger.class);
+        final NextFilter nextFilter = context.mock(NextFilter.class);
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
+        final IoSessionConfigEx sessionConfig = context.mock(IoSessionConfigEx.class);
+
+        final WsCheckAliveFilter filter = new WsCheckAliveFilter(STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+
+        context.checking(new Expectations() {
+            {
+                allowing(session).getConfig(); will(returnValue(sessionConfig));
+                oneOf(sessionConfig).setIdleTimeInMillis(IdleStatus.READER_IDLE, 0);
+            }
+        });
+        filter.onPostRemove(filterChain, FILTER_NAME, nextFilter);
     }
 
     @Test
