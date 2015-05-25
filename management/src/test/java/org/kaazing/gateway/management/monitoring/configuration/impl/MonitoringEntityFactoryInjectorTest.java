@@ -39,6 +39,7 @@ public class MonitoringEntityFactoryInjectorTest {
     public void testMonitoringEntityFactoryInjectorAgronaEnabledUnset() {
         MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(new Properties());
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
+        monitoringEntityFactory.close();
         assertTrue(monitoringEntityFactory instanceof DefaultMonitoringEntityFactoryStub);
     }
 
@@ -48,6 +49,7 @@ public class MonitoringEntityFactoryInjectorTest {
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(false));
         MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
+        monitoringEntityFactory.close();
         assertTrue(monitoringEntityFactory instanceof DefaultMonitoringEntityFactoryStub);
     }
 
@@ -57,6 +59,7 @@ public class MonitoringEntityFactoryInjectorTest {
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(true));
         MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
         MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
+        monitoringEntityFactory.close();
         assertTrue(monitoringEntityFactory instanceof AgronaMonitoringEntityFactory);
     }
 }
