@@ -23,11 +23,13 @@ package org.kaazing.gateway.transport.ws.bridge.filter;
 
 import java.util.Properties;
 
+import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
@@ -94,6 +96,17 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         }
     }
 
+    public static void moveIfFeatureEnabled(IoFilterChain fromChain, IoFilterChain toChain,
+                                            String filterName, long inactivityTimeout, Logger logger) {
+        if (inactivityTimeout > 0) {
+            IoFilter filter = fromChain.remove(filterName);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Moving %s filter %s to child filter chain", filterName, filter));
+            }
+            toChain.addLast(filterName, filter);
+        }
+    }
+
     public static void updateExtensions(IoFilterChain filterChain) {
         WsCheckAliveFilter filter = (WsCheckAliveFilter) filterChain.get(WsCheckAliveFilter.class);
         if (filter != null) {
@@ -114,6 +127,12 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         init(filterChain);
     }
 
+    @Override
+    public void onPreRemove(IoFilterChain filterChain,
+                            String name,
+                            NextFilter nextFilter) {
+        filterChain.getSession().getConfig().setReaderIdleTime(0);
+    }
 
     @Override
     protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
@@ -149,8 +168,16 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 session.getConfig().setReaderIdleTime(0);
 
                 // Make sure we don't attempt WS CLOSE handshake in wsn case (want to close the transport immediately)
-                // TODO: remove this once we eliminate WsCloseFilter
-                IoFilterChain filterChain = session.getFilterChain();
+                // Alter this once we eliminate WsCloseFilter
+                IoFilterChain filterChain;
+                if (session instanceof AbstractBridgeSession<?,?>
+                        && ((AbstractBridgeSession<?,?>) session).getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
+                    // Extended handshake case, WsCloseFilter is on the parent session
+                    filterChain = ((AbstractBridgeSession<?,?>) session).getParent().getFilterChain();
+                }
+                else {
+                    filterChain = session.getFilterChain();
+                }
                 if (filterChain.contains(WsAcceptor.CLOSE_FILTER)) {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }

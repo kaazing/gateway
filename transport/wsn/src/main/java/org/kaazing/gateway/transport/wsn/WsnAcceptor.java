@@ -27,13 +27,11 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
-import static org.kaazing.gateway.transport.ws.extension.ExtensionHeader.EndpointKind.SERVER;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.ACTIVE_EXTENSIONS_KEY;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
@@ -79,6 +77,7 @@ import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -750,8 +749,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 filterChain.addLast(WsAcceptor.CLOSE_FILTER, new WsCloseFilter(wsVersion, configuration, logger, scheduler));
             }
 
-            // Use ping and pong, if available, to detect and close dead connections (KG-6379)
-            if (codecRequired) { // do NOT include the filter on the upper ws session (extended handshake case)
+            // Set the extensions on whichever WsnSession they were negotiated (light weight or wsx).
+            List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
+            if (extensions != null) {
+                WsUtils.addExtensionFilters(extensions, filterChain, codecRequired);
+            }
+
+            // Use ping and pong, if available, to detect and close dead connections.
+            if (codecRequired) {
                 if (rfc) {
                     WsCheckAliveFilter.addIfFeatureEnabled(filterChain, CHECK_ALIVE_FILTER, localAddress.getOption(INACTIVITY_TIMEOUT), logger);
                 }
@@ -763,11 +768,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     }
                 }
             }
-
-            // Set the extensions on whichever WsnSession they were negotiated (light weight or wsx).
-            List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
-            if (extensions != null) {
-                WsUtils.addExtensionFilters(extensions, filterChain, codecRequired);
+            else {
+                // Extended handshake. Move WsCheckAliveFilter from the parent (which is the lightweight wsn session
+                // with the ws codec) onto this session's filter chain, so ping pong extension (if negotiated) has a
+                // chance to transform its pings.
+                if (rfc) {
+                    IoSession parent = ((AbstractBridgeSession<?,?>) filterChain.getSession()).getParent();
+                    WsCheckAliveFilter.moveIfFeatureEnabled(parent.getFilterChain(), filterChain, CHECK_ALIVE_FILTER, localAddress.getOption(INACTIVITY_TIMEOUT), logger);
+                }
             }
         }
 

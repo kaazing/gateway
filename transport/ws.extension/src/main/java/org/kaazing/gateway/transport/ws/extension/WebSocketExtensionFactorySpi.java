@@ -43,20 +43,20 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
     public abstract String getExtensionName();
 
     /**
-     * This method is called when the extension is requested by the client during the WebSocket handshake. 
+     * This method is called when the extension is requested by the client during the WebSocket handshake.
      * @param requestedExtension  Extension token and parameters from the WebSocket handshake request
      * @param address    WebSocket resource address on which the handshake is taking place
      * @return         - WebSocketExtensionSpi instance representing the active, negotiated extension,
      *                   or null if the extension request from the client is rejected but the websocket
      *                   connection need not be failed.
-     * @throws ProtocolException 
+     * @throws ProtocolException
      *                   If the extension header is invalid for example invalid extension parameters
-     *                   (protocol violation). Throwing this exception will result in failing the WebSocket 
+     *                   (protocol violation). Throwing this exception will result in failing the WebSocket
      *                   connection.
      */
     public abstract WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
             throws ProtocolException;
-    
+
 
     /**
      * This method allows extensions to specify the order that they would like to be placed on the Filter Chain.
@@ -73,7 +73,7 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
      * they appear in the WebSocket handshake response extensions header.  That is the nearest to the network being last, see
      * https://tools.ietf.org/html/draft-ietf-hybi-permessage-compression-21#section-3
      */
-    enum ExtensionOrderCategory{
+    public enum ExtensionOrderCategory{
         /**
          * Other, meaning not any of the other categories
          */
@@ -95,10 +95,10 @@ public abstract class WebSocketExtensionFactorySpi implements Comparable<WebSock
     public int compareTo(WebSocketExtensionFactorySpi o) {
         return getOrderCategory().ordinal() - o.getOrderCategory().ordinal();
     }
-    
+
     @Override
     public String toString() {
-        return format("%s, order category: %s", getExtensionName (), getOrderCategory()); 
+        return format("%s, order category: %s", getExtensionName (), getOrderCategory());
     }
 
 }

@@ -36,6 +36,11 @@ public final class PingPongExtensionFactory extends WebSocketExtensionFactorySpi
     }
 
     @Override
+    public ExtensionOrderCategory getOrderCategory() {
+        return ExtensionOrderCategory.NETWORK;
+    }
+
+    @Override
     public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
             throws ProtocolException {
         return new PingPongExtension(requestedExtension);
