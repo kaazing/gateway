@@ -10,13 +10,13 @@ When you set up and configure KAAZING Gateway, you may encounter one of the erro
 Troubleshooting KAAZING Gateway
 ---------------------------------------------------------------------
 
-This topic is part of [Troubleshoot KAAZING Gateway](o_ts.md) that groups troubleshooting topics into the categories shown in the following table:
+This topic is part of [Troubleshoot KAAZING Gateway](o_troubleshoot.md) that groups troubleshooting topics into the categories shown in the following table:
 
 | What Problem Are You Having?  | Topic or Reference                                                          |
 |-------------------------------|-----------------------------------------------------------------------------|
 | **Configuration and startup** | **Troubleshoot KAAZING Gateway Configuration and Startup**            |
-| Clusters and load balancing   | [Troubleshoot KAAZING Gateway Cluster and Load Balancing](ts_ha.md) |
-| Security                      | [Troubleshoot KAAZING Gateway Security](ts_security.md)             |
+| Clusters and load balancing   | [Troubleshoot KAAZING Gateway Cluster and Load Balancing](p_troubleshoot_high_availability.md) |
+| Security                      | [Troubleshoot KAAZING Gateway Security](p_troubleshoot_security.md)             |
 | Clients                       | [Troubleshoot Your Clients](p_dev_troubleshoot.md)                        |
 
 What Problem Are You Having?
@@ -87,7 +87,7 @@ By default, a UNIX or Linux user may only be able to open a maximum of a few hun
 
 **Cause:** An out-of-memory error can result when starting the Gateway if the maximum heap size is not set appropriately for your physical memory capacity. The default maximum heap size is only 516 MB, which typically is not sufficient for production deployment.
 
-**Solution:** Set the Java `-Xmx` option in your Gateway startup file to approximately 70% of the physical memory capacity. For example, if the physical memory capacity of the machine is 4 GB, then edit your Gateway startup script and modify the `GATEWAY_OPTS` environment variable to `-Xmx3072m`. (The default startup script is the `GATEWAY_HOME/bin/gateway.start` file.) Then start the Gateway. See [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_conf_gw_opts.md) for more information about setting the `GATEWAY_OPTS` environment variable.
+**Solution:** Set the Java `-Xmx` option in your Gateway startup file to approximately 70% of the physical memory capacity. For example, if the physical memory capacity of the machine is 4 GB, then edit your Gateway startup script and modify the `GATEWAY_OPTS` environment variable to `-Xmx3072m`. (The default startup script is the `GATEWAY_HOME/bin/gateway.start` file.) Then start the Gateway. See [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_configure_gateway_opts.md) for more information about setting the `GATEWAY_OPTS` environment variable.
 
 ### Error Starting KAAZING Gateway on the Microsoft Vista Operating System
 
@@ -119,7 +119,7 @@ This exception can be caused by the following conditions:
 -   The port being bound is in use by another external process running on the host, such as an Apache HTTP server.
 -   The port listed in the error has already been bound to another incompatible protocol in the `gateway-config.xml`. For example, you cannot bind HTTP and HTTPS to the same host and port combination.
 
-**Solution:** Check the [*protocol.*bind](../admin-reference/r_conf_service.md#protocolbind) element in your services (you may need to check the [service-defaults](../admin-reference/r_conf_serv_defs.md#servicedefaults) section, as well) to ensure that multiple services are not bound to same port. Also, check that secure and unsecure protocols are not bound to the same port.
+**Solution:** Check the [*protocol.*bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element in your services (you may need to check the [service-defaults](../admin-reference/r_configure_gateway_service_defaults.md#servicedefaults) section, as well) to ensure that multiple services are not bound to same port. Also, check that secure and unsecure protocols are not bound to the same port.
 
 ### Error When Starting the Gateway: String Value [*'value*'] does not match pattern for DataSize in namespace
 
@@ -127,15 +127,15 @@ This exception can be caused by the following conditions:
 
 ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERROR   string value '128KB' does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway ERROR   \<xml-fragment xmlns:xsi=["http://www.w3.org/2001/XMLSchema-instance"](http://www.w3.org/2001/XMLSchema-instance)/\>
 
-**Solution:** Set the `maximum.pending.bytes` property of the [proxy](../admin-reference/r_conf_service.md#proxy-and-amqpproxy) service element to a valid value.
+**Solution:** Set the `maximum.pending.bytes` property of the [proxy](../admin-reference/r_configure_gateway_service.md#proxy-and-amqpproxy) service element to a valid value.
 
 ### Warning: Error on WebSocket connection
 
-**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaximummessagesize) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
+**Cause:** When a message incoming from a client to the Gateway exceeds the maximum size either specified by [`ws.maximum.message.size`](../admin-reference/r_configure_gateway_service.md#wsmaximummessagesize) or by the default Gateway configuration of 128k, the following warning is written to the Gateway log:
 
 `2044-06-06 16:19:28,621 WARN  Error on WebSocket connection, closing connection: incoming message size exceeds permitted maximum of 131072 bytes (Hexdump:...)`
 
-**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_conf_service.md#wsmaximummessagesize).
+**Solution:** To resolve this issue, the client can reconnect to the Gateway. If you wish to adjust the maximum message size that the Gateway can accept from a client, see [ws.maximum.message.size](../admin-reference/r_configure_gateway_service.md#wsmaximummessagesize).
 
 ### Warning: ERROR string value '*value*' does not match pattern
 
@@ -143,7 +143,7 @@ ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERRO
 
 `ERROR   string value some_value does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway`
 
-**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_conf_service.md#wsmaximummessagesize) to a valid value.
+**Solution:** Open the `GATEWAY_HOME/conf/gateway-config.xml` and set the [`ws.maximum.message.size`](../admin-reference/r_configure_gateway_service.md#wsmaximummessagesize) to a valid value.
 
 ### Localhost Is Not Configured
 
@@ -164,5 +164,3 @@ ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERRO
 **Cause:** When the Gateway is configured as a proxy receiving binary data over TCP from a back-end server and sends that data over WebSocket to Flash. .NET, or Silverlight client applications, the client applications must use a ByteSocket client library to send and receive binary data. In this scenario, using a WebSocket client library on the client application will fail. Note: the WebSocket class in KAAZING Gateway JavaScript, Java, Objective-C, and Android clients supports binary.
 
 **Solution:** Include a ByteBuffer class (included with all of the APIs) that provides an automatically expanding byte buffer for ByteSocket.
-
-
