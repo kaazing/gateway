@@ -10,12 +10,12 @@ In this procedure, you will learn how to configure authentication by defining th
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
 1.  **Configure the HTTP Challenge Scheme**
-2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-4.  [Configure Authorization](p_aaa_config_authorization.md)
+2.  [Configure a Chain of Login Modules](p_auth_configure_login_module.md)
+3.  [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
+4.  [Configure Authorization](p_authorization_configure.md)
 
 To Configure the HTTP Challenge Scheme
 --------------------------------------
@@ -76,21 +76,21 @@ Notes
 -----
 
 -   Use the `Basic` and `Application Basic` schemes to provide a quick and easy-to-implement method, requiring only a username and password for authentication. However, these are the least secure schemes and are subject to several threats, not least of which is the fact that the username/password can easily be sniffed in transit by an attacker.
--   Use the `Negotiate` or `Application Negotiate` schemes when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_krb_config_kerberos.md).
--   Use the `Application Token` scheme when you need a custom token to be presented to your custom login module. See [Create a Custom Login Module](p_aaa_config_custom_lm.md) for configuration information. `Application Token` provides strong authentication because you can implement your own custom scheme that is cryptographically protected to challenge the client. When you configure custom authentication with the `Application Token` element, you must also:
-    -   Configure a custom login module in the Gateway that defines how to encode/decode the token challenge data, and code the matching challenge handler on the client. See [Create a Custom Login Module](p_aaa_config_custom_lm.md) for more information.
-    -   Create a custom challenge handler on the client to support the custom login module. See [Configure a Challenge Handler on the Client](p_aaa_config_ch.md) for more information.
+-   Use the `Negotiate` or `Application Negotiate` schemes when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_auth_configure_config_kerberos.md).
+-   Use the `Application Token` scheme when you need a custom token to be presented to your custom login module. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for configuration information. `Application Token` provides strong authentication because you can implement your own custom scheme that is cryptographically protected to challenge the client. When you configure custom authentication with the `Application Token` element, you must also:
+    -   Configure a custom login module in the Gateway that defines how to encode/decode the token challenge data, and code the matching challenge handler on the client. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for more information.
+    -   Create a custom challenge handler on the client to support the custom login module. See [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md) for more information.
 -   In addition to securing networking with the Gateway as described in [Secure Network Traffic with the Gateway](../security/o_tls.md), using a cryptographic hash function such as [bcrypt](http://en.wikipedia.org/wiki/Bcrypt) or a key derivation function such as [PBKDF2](http://en.wikipedia.org/wiki/PBKDF2) to protect passwords is highly recommended.
 
 Next Steps
 ----------
 
-[Configure a Chain of Login Modules](p_aaa_config_lm.md)
+[Configure a Chain of Login Modules](p_auth_configure_login_module.md)
 
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [About Authentication and Authorization](c_aaa_aaa.md)
--   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+-   [About Authentication and Authorization](c_auth_about.md)
+-   [What Happens During Authentication](u_authentication_gateway_client_interactions.md)
+-   [How Authentication and Authorization Work with the Gateway](u_auth_how_it_works_with_the_gateway.md)
