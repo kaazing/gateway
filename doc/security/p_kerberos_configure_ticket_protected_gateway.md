@@ -10,11 +10,11 @@ In this procedure, you will learn how to configure KAAZING Gateway as a Ticket P
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Kerberos V5 Network Authentication](o_krb.md):
+This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_krb_config_kerberos.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
 2.  **Configure a Ticket Protected Gateway**
-3.  [Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
+3.  [Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
 
 To Configure a Ticket Protected Gateway
 ---------------------------------------
@@ -61,17 +61,17 @@ To Configure a Ticket Protected Gateway
 Notes
 -----
 
--   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_aaa_kerberos.md#gssapimech).
+-   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_authentication_kerberos.md#gssapimech).
 -   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 
 Next Steps
 ----------
 
-[Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
+[Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
 
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
--   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+-   [About Kerberos V5 Network Authentication](c_authentication_kerberos.md)
+-   [Using Kerberos V5 Network Authentication with the Gateway](u_kerberos_configure.md)
