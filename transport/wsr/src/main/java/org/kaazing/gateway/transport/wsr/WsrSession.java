@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -31,7 +31,6 @@ import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
 import org.kaazing.gateway.transport.wsr.bridge.filter.WsrBuffer;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -55,23 +54,22 @@ public class WsrSession extends AbstractWsBridgeSession<WsrSession, WsrBuffer> {
     private ResourceAddress rtmpAddress;
     private final TimeoutCommand timeout = new TimeoutCommand(this);
 
-    
-    public WsrSession(IoServiceEx service, 
-                      IoProcessorEx<WsrSession> processor, 
+
+    public WsrSession(IoServiceEx service,
+                      IoProcessorEx<WsrSession> processor,
                       ResourceAddress localAddress,
-                      ResourceAddress remoteAddress, 
-                      IoSessionEx parent, 
-                      IoBufferAllocatorEx<WsrBuffer> allocator, 
-                      DefaultLoginResult loginResult, 
-                      ActiveExtensions wsExtensions) {
-        super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginResult, wsExtensions);
+                      ResourceAddress remoteAddress,
+                      IoSessionEx parent,
+                      IoBufferAllocatorEx<WsrBuffer> allocator,
+                      DefaultLoginResult loginResult) {
+        super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.BOTH, loginResult);
     }
 
     public WsrSession(int ioLayer, Thread parentIoThread, Executor parentIoExecutor, IoServiceEx service, IoProcessorEx<WsrSession> processor,
             ResourceAddress localAddress, ResourceAddress remoteAddress, IoBufferAllocatorEx<WsrBuffer> allocator,
-            DefaultLoginResult loginResult, ActiveExtensions wsExtensions) {
+            DefaultLoginResult loginResult) {
         super(ioLayer, parentIoThread, parentIoExecutor, service, processor, localAddress, remoteAddress, allocator, Direction.BOTH,
-                loginResult, wsExtensions);
+                loginResult);
     }
 
     @Override

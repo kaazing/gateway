@@ -29,10 +29,9 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
-import static org.kaazing.gateway.transport.ws.extension.WsExtensionUtils.negotiateWebSocketExtensions;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
+import java.net.ProtocolException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -85,9 +84,8 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
-import org.kaazing.gateway.transport.ws.extension.ActiveExtensions;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.transport.wsr.bridge.filter.RtmpChunkCodecFilter;
@@ -130,6 +128,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
     public WsrAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -145,6 +144,11 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
         this.resourceAddressFactory = resourceAddressFactory;
+    }
+
+    @Resource(name = "webSocketExtensionFactory")
+    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
+        this.webSocketExtensionFactory = factory;
     }
 
     @Resource(name = "schedulerProvider")
@@ -376,37 +380,19 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
             final ResourceAddress wsrLocalAddress = resourceAddress;
 
             // negotiate WebSocket extensions
-            List<String> clientRequestedWsExtensions =  session.getReadHeaders(WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS);
+            List<String> clientRequestedExtensions =  session.getReadHeaders(WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
 
-
-            // null next-protocol from client gives null local address when we only have explicitly named next-protocol binds
-            List<String> wsExtensions = (wsrLocalAddress != null) ? wsrLocalAddress.getOption(EXTENSIONS) : EXTENSIONS.defaultValue();
-
-            WsExtensionNegotiationResult extNegotiationResult =
-                negotiateWebSocketExtensions(
-                wsrLocalAddress, session,
-                WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS,
-                clientRequestedWsExtensions, wsExtensions);
-            if (extNegotiationResult.isFailure()) {
-                // This happens when the extension negotiation leads to
-                // a fatal failure; the session should be closed because
-                // the service REQUIRED some extension that the client
-                // did not request.
-                if (logger.isDebugEnabled()) {
-                    if (logger.isDebugEnabled()) {
-                        URI requestURI = session.getRequestURL();
-                        logger.debug(String.format(
-                                "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                session.getMethod(), requestURI, session, clientRequestedWsExtensions));
-                    }
-                }
-                session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                session.setReason("WebSocket Extensions not found");
-                session.close(false);
+            // negotiate extensions
+            final List<WebSocketExtension> negotiated;
+            try {
+                negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                        webSocketExtensionFactory, (WsResourceAddress) wsrLocalAddress, clientRequestedExtensions,
+                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
+            }
+            catch(ProtocolException e) {
+                WsUtils.handleExtensionNegotiationException(session, clientRequestedExtensions, e, logger);
                 return;
             }
-
-            final ActiveExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
             URI request = session.getRequestURL();
             //URI pathInfo = session.getPathInfo();
@@ -457,7 +443,8 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                             wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                             ((AbstractWsBridgeSession)wsSession).setSubject(session.getSubject());
                             wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                            wsExtensions0.set(wsSession);
+                            // TODO: add websocket extension filters from negotiated (or set an attribute
+                            // and do in addBridgeFilters)
                         }
                     }, new Callable<WsrSession>() {
                         @Override
@@ -467,7 +454,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                             ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
                             WsrSession wsrSession = new WsrSession(
                                     session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsrAcceptor.this, getProcessor(),
-                                    localAddress, remoteAddress, wsrAllocator, loginContext.getLoginResult(), wsExtensions0);
+                                    localAddress, remoteAddress, wsrAllocator, loginContext.getLoginResult());
                             wsrSession.setBridgeServiceFactory(bridgeServiceFactory);
                             wsrSession.setResourceAddressFactory(resourceAddressFactory);
                             wsrSession.setScheduler(scheduler);
@@ -761,12 +748,6 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
             wsrSession.setParent(session);
             SESSION_KEY.set(session, wsrSession);
 
-            // At this point we know the wsrSession, and we can add the escaping filter
-            // find the encoder from the session and give it the escape sequencer.
-            final ActiveExtensions extensions = ActiveExtensions.get(wsrSession);
-            codec.setExtensions(session, extensions);
-
-
             // In order to address KG-2167 and related issues, we need to
             // start the scheduled commands at a point in the session when we have a
             // valid WSR session.
@@ -835,6 +816,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
         filterChain.addLast("rtmp", codec);
         // filterChain.addLast("rtmp.window", windowFilter);
         //filterChain.addLast("rtmp.crossOrigin", crossOriginFilter);
+        // TODO: add websocket extension filters
     }
 
     @Override
