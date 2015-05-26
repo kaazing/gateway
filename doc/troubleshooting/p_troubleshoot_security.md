@@ -10,12 +10,12 @@ When you configure security for KAAZING Gateway, you may encounter one of the fo
 Troubleshooting KAAZING Gateway
 ---------------------------------------------------------------------
 
-This topic is part of [Troubleshoot the Gateway](o_ts.md) that groups troubleshooting topics into the categories shown in the following table:
+This topic is part of [Troubleshoot the Gateway](o_troubleshoot.md) that groups troubleshooting topics into the categories shown in the following table:
 
 | What Problem Are You Having? | Topic or Reference                                                             |
 |------------------------------|--------------------------------------------------------------------------------|
-| Configuration and startup    | [Troubleshoot KAAZING Gateway Configuration and Startup](ts_config.md) |
-| Clusters and load balancing  | [Troubleshoot KAAZING Gateway Cluster and Load Balancing](ts_ha.md)    |
+| Configuration and startup    | [Troubleshoot KAAZING Gateway Configuration and Startup](p_troubleshoot_gateway_configuration.md) |
+| Clusters and load balancing  | [Troubleshoot KAAZING Gateway Cluster and Load Balancing](p_troubleshoot_high_availability.md)    |
 | **Security**                 | **Troubleshoot KAAZING Gateway Security**                                |
 | Clients                      | [Troubleshoot Your Clients](p_dev_troubleshoot.md)                           |
 
@@ -47,7 +47,7 @@ What Problem Are You Having?
 
 The preferred name for the auth-constraint configuration option has changed to authorization-constraint for clarity. Please update your configuration file accordingly.
 
-**Solution:** Change your Gateway configuration to use the `authorization-constraint` element as described in the [authorization-constraint](../admin-reference/r_conf_service.md#authorization-constraint) element for Gateway services.
+**Solution:** Change your Gateway configuration to use the `authorization-constraint` element as described in the [authorization-constraint](../admin-reference/r_configure_gateway_service.md#authorization-constraint) element for Gateway services.
 
 ### WebSocket Stays Connected Too Long When It Should Fail Due to an Authorization Timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
@@ -59,7 +59,7 @@ The preferred name for the auth-constraint configuration option has changed to a
 
     There are two ways to specify the time interval before which the client must reauthenticate itself:
 
-    -   Configure an [`authorization-timeout`](../admin-reference/r_conf_security.md#auth_timeout) in your the Gateway configuration, as described in the `security` section of this document.
+    -   Configure an [`authorization-timeout`](../admin-reference/r_configure_gateway_security.md#auth_timeout) in your the Gateway configuration, as described in the `security` section of this document.
     -   Specify the maximum age with the `LoginResult.setAuthorizationTimeout` method in your custom login module, as described in the Service Provider Interface in the [Server API Documentation](../index.md#server_api_topics).
 
     You can use one or both of the preceding methods to specify an authorization timeout. If you use both methods, then the Gateway sets the authorization timeout to be the lesser of the two values.
@@ -123,7 +123,7 @@ Service 2 (where `wss:example.com:443` is configured as not secure by disabling 
       </service>
 ```
 
-**Solution:** Configure a service being offloaded as a separate service (that uses a different port number) and disable [ssl.encryption](../admin-reference/r_conf_service.md#sslencryption).
+**Solution:** Configure a service being offloaded as a separate service (that uses a different port number) and disable [ssl.encryption](../admin-reference/r_configure_gateway_service.md#sslencryption).
 
 ### No Import Certificate Prompt in Browser
 
@@ -131,7 +131,7 @@ Service 2 (where `wss:example.com:443` is configured as not secure by disabling 
 
 **Solution:** Configure the Gateway with a `directory` service that accepts an HTTPS address (for example, `https://example.com:9000`), and navigate to that address using a web browser.
 
-**See Also:** [Secure the Gateway Using Self-Signed Certificates](../security/p_tls_selfsigned.md) for information about how to import a self-signed certificate into your browser, and see the [directory](../admin-reference/r_conf_service.md#directory) service reference for information about configuring a directory service.
+**See Also:** [Secure the Gateway Using Self-Signed Certificates](../security/p_tls_selfsigned.md) for information about how to import a self-signed certificate into your browser, and see the [directory](../admin-reference/r_configure_gateway_service.md#directory) service reference for information about configuring a directory service.
 
 ### Missing Certificate Entry in Keystore When Starting the Gateway
 
