@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   What’s Involved in Secure Communication
 
-What’s Involved in Secure Communication 
+What’s Involved in Secure Communication
 ===========================================================================================
 
 To better understand how the security parameters that you specify in KAAZING Gateway configuration (for example, `GATEWAY_HOME/conf/gateway-config.xml`) work together, let's take a detailed look at what is involved in the secure communication between the browser and KAAZING Gateway.
@@ -100,7 +100,7 @@ The following list describes in detail what happens under-the-hood when a client
         </security>
         ```
 
-        See the [Security Reference](../admin-reference/r_conf_security.md) documentation for more information about configuring the `security` element and its properties.
+        See the [Security Reference](../admin-reference/r_configure_gateway_security.md) documentation for more information about configuring the `security` element and its properties.
 
     5.  Checks the `realm` information to see which login modules are associated with it and passes them the encoded credentials.
     6.  Uses the realm login modules to authenticate the client’s credentials and establish the list of authorized roles. For example, `AUTHORIZED`. Because this realm uses a login module that is based on the Gateway token-based authentication protocol, the Gateway expects the client’s credentials to be a token.
@@ -114,7 +114,5 @@ The following list describes in detail what happens under-the-hood when a client
 See Also
 ------------------------------
 
--   [About Security with KAAZING Gateway](c_sec_security.md)
--   [About Enterprise Shield™ ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)](../reverse-connectivity/o_rc_checklist.md)
-
-
+-   [About Security with KAAZING Gateway](c_security_about.md)
+-   [About Enterprise Shield™ ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)](../enterprise-shield/o_enterprise_shield_checklist.md)
