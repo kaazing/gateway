@@ -17,6 +17,6 @@ The following topics describe how to troubleshoot clients built using the KAAZIN
 | Java                 | [Troubleshoot Your Java Client](../dev-java/p_dev_java_tshoot.md) and                                 [Display Logs for the Java Client](../dev-java/p_dev_java_logging.md)                             |
 | Google Web Toolkit   | [Google Web Toolkit: Troubleshooting](../dev-gwt/p_dev_gwt.md#troubleshooting)                   |
 
-Also, see [Troubleshoot the Gateway](o_ts.md) for help troubleshooting your configuration, clusters, and security.
+Also, see [Troubleshoot the Gateway](o_troubleshoot.md) for help troubleshooting your configuration, clusters, and security.
 
 
