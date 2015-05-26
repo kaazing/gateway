@@ -25,8 +25,6 @@ You can configure the Gateway to use the services of a KDC to provide Kerberos a
 See Also
 ------------------------------
 
--   [Configure Kerberos V5 Network Authentication](o_krb.md)
-    -   [Configure a Ticket Protected Gateway](p_krb_config_tpg.md)
-    -   [Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
-
-
+-   [Configure Kerberos V5 Network Authentication](o_auth_configure.md)
+    -   [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
+    -   [Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
