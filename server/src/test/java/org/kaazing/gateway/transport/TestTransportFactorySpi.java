@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public final class MockWsTransportFactorySpi extends TransportFactorySpi {
+public final class TestTransportFactorySpi extends TransportFactorySpi {
 
     private final Collection<String> WS_SCHEMES = Collections.unmodifiableCollection(
             Arrays.asList("ws", "wss"));
@@ -43,6 +43,6 @@ public final class MockWsTransportFactorySpi extends TransportFactorySpi {
 
     @Override
     public Transport newTransport(Map<String, ?> configuration) {
-        return new MockWsTransport();
+        return new TestTransport();
     }
 }

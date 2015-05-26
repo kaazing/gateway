@@ -30,6 +30,7 @@ import org.kaazing.gateway.server.context.TransportContext;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.Transport;
 import org.slf4j.Logger;
 
 public class DefaultTransportContext implements TransportContext<ResourceAddress> {
@@ -37,12 +38,14 @@ public class DefaultTransportContext implements TransportContext<ResourceAddress
     private final String name;
     private final BridgeAcceptor acceptor;
     private final BridgeConnector connector;
+    private final Transport transport;
     private static final Logger LOGGER = Launcher.getGatewayStartupLogger();
 
-    public DefaultTransportContext(String name, BridgeAcceptor acceptor, BridgeConnector connector) {
+    public DefaultTransportContext(String name, Transport transport) {
         this.name = name;
-        this.acceptor = acceptor;
-        this.connector = connector;
+        this.transport = transport;
+        this.acceptor = transport.getAcceptor();
+        this.connector = transport.getConnector();
     }
 
     @Override
@@ -116,6 +119,10 @@ public class DefaultTransportContext implements TransportContext<ResourceAddress
 
     public BridgeConnector getConnector() {
         return connector;
+    }
+
+    public Transport getTransport() {
+        return transport;
     }
 
 }

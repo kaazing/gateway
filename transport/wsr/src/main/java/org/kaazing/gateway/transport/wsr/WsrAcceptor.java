@@ -76,6 +76,7 @@ import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.ObjectLoggingFilter;
+import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -84,6 +85,7 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
@@ -146,9 +148,9 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
         this.resourceAddressFactory = resourceAddressFactory;
     }
 
-    @Resource(name = "webSocketExtensionFactory")
-    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
-        this.webSocketExtensionFactory = factory;
+    @Resource(name = "ws.acceptor")
+    public void setWsAcceptor(WsAcceptor acceptor) {
+        this.webSocketExtensionFactory = acceptor.getWebSocketExtensionFactory();
     }
 
     @Resource(name = "schedulerProvider")

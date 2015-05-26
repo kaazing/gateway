@@ -21,40 +21,30 @@
 
 package org.kaazing.gateway.transport;
 
-import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.mina.core.future.UnbindFuture;
 
 /**
  * Used for testing resource injection (see GatewayContextResolverTest)
  */
-public final class MockWsAcceptor implements BridgeAcceptor {
-    
-    private WebSocketExtensionFactory webSocketExtensionFactory;
-
-    @Resource(name = "webSocketExtensionFactory")
-    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
-        this.webSocketExtensionFactory = factory;
-    }
-    
-    public WebSocketExtensionFactory getWebSocketExtensionFactory() {
-        return webSocketExtensionFactory;
-    }
+public final class TestAcceptor implements BridgeAcceptor {
+    public Collection<?> extensions = Arrays.asList(new TestTransportExtension());
 
     @Override
     public void dispose() {
-        
+
     }
 
     @Override
     public void bind(ResourceAddress address,
                      IoHandler handler,
                      BridgeSessionInitializer<? extends IoFuture> initializer) {
-      
+
     }
 
     @Override

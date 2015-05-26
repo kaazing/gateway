@@ -37,11 +37,6 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.transport.ws.extension</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>gateway.security</artifactId>
             <version>${project.version}</version>
         </dependency>

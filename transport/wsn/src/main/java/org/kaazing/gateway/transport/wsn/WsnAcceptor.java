@@ -223,9 +223,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         this.resourceAddressFactory = factory;
     }
 
-    @Resource(name = "webSocketExtensionFactory")
-    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
-        this.webSocketExtensionFactory = factory;
+    @Resource(name = "ws.acceptor")
+    public void setWsAcceptor(WsAcceptor acceptor) {
+        this.webSocketExtensionFactory = acceptor.getWebSocketExtensionFactory();
     }
 
     @Override

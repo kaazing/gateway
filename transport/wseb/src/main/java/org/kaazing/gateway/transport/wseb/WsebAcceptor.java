@@ -92,6 +92,7 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
@@ -211,9 +212,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         this.resourceAddressFactory = resourceAddressFactory;
     }
 
-    @Resource(name = "webSocketExtensionFactory")
-    public void setWebSocketExtensionFactory(WebSocketExtensionFactory factory) {
-        this.webSocketExtensionFactory = factory;
+    @Resource(name = "ws.acceptor")
+    public void setWsAcceptor(WsAcceptor acceptor) {
+        this.webSocketExtensionFactory = acceptor.getWebSocketExtensionFactory();
     }
 
     @Resource(name = "schedulerProvider")

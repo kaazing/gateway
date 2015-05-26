@@ -178,7 +178,7 @@ public class WsCloseTransportTest {
         wsnAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
         wsnAcceptor.setResourceAddressFactory(resourceAddressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
-        wsnAcceptor.setWebSocketExtensionFactory(WebSocketExtensionFactory.newInstance());
+        wsnAcceptor.setWsAcceptor(wsAcceptor);
         if (wsAcceptCloseTimeout != null) {
             wsnAcceptor.setConfiguration(wsAcceptProperties);
         }

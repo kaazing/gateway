@@ -21,9 +21,7 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +30,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ProtocolException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -42,8 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Resource;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.spi.LoggingEvent;
@@ -55,20 +50,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.MockWsAcceptor;
-import org.kaazing.gateway.transport.MockWsConnector;
-import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
+import org.kaazing.gateway.transport.TestTransportExtension;
+import org.kaazing.gateway.transport.TestAcceptor;
+import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -300,40 +290,17 @@ public class GatewayContextResolverTest {
     // NOTE: this relies on org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi
     // and org.kaazing.gateway.transport.TransportFactorySpi in src/test/META-INF/services
     @Test
-    public void shouldInjectWebSocketExtensionFactoryIntoWsAcceptorAndConnector() throws Exception {
-        configFile = createTempFileFromResource("gateway/conf/gateway-config-ws.xml");
+    public void shouldInjectResourcesIntoTransportExtensions() throws Exception {
+        configFile = createTempFileFromResource("gateway/conf/gateway-config-test-transport.xml");
         org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
         GatewayContext ctx = resolver.resolve(doc);
 
         DefaultTransportContext transport = ctx.getTransportForScheme("ws");
-        MockWsAcceptor acceptor = (MockWsAcceptor)transport.getAcceptor();
-        MockWsConnector connector = (MockWsConnector)transport.getConnector();
-        assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
-        assertNotNull("WebSocketExtensionFactory should be injected", acceptor.getWebSocketExtensionFactory());
-        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory()
-                instanceof WebSocketExtensionFactory);
-        assertTrue("Should be instance of WebSocketExtensionFactory", acceptor.getWebSocketExtensionFactory()
-                instanceof WebSocketExtensionFactory);
-        assertSame(acceptor.getWebSocketExtensionFactory(), connector.getWebSocketExtensionFactory());
-    }
-
-    // NOTE: this relies on org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi
-    // and org.kaazing.gateway.transport.TransportFactorySpi in src/test/META-INF/services
-    @Test
-    public void shouldInjectResourcesIntoExtensions() throws Exception {
-        configFile = createTempFileFromResource("gateway/conf/gateway-config-ws.xml");
-        org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
-        GatewayContext ctx = resolver.resolve(doc);
-
-        DefaultTransportContext transport = ctx.getTransportForScheme("ws");
-        MockWsAcceptor acceptor = (MockWsAcceptor)transport.getAcceptor();
-        WebSocketExtensionFactory factory = acceptor.getWebSocketExtensionFactory();
-        List<WebSocketExtensionFactorySpi> available = new ArrayList<WebSocketExtensionFactorySpi>(factory.availableExtensions());
-        assertEquals(1, available.size());
-        MockWebSocketExtensionFactorySpi extension = (MockWebSocketExtensionFactorySpi) available.get(0);
-        assertNotNull(extension.getBridgeServiceFactory());
+        TestAcceptor acceptor = (TestAcceptor)transport.getAcceptor();
+        TestTransportExtension extension = (TestTransportExtension) acceptor.extensions.iterator().next();
+        assertNotNull(extension.getTransportFactory());
         assertNotNull(extension.getResourceAddressFactory());
-        assertTrue(extension.getBridgeServiceFactory() instanceof BridgeServiceFactory);
+        assertTrue(extension.getTransportFactory() instanceof TransportFactory);
         assertTrue(extension.getResourceAddressFactory() instanceof ResourceAddressFactory);
     }
 
@@ -412,52 +379,6 @@ public class GatewayContextResolverTest {
             return false;
         }
     } // end BufferedAppender
-
-    public static class MockWebSocketExtensionFactorySpi extends WebSocketExtensionFactorySpi {
-
-        static MockNegotiate mockBehavior;
-
-        private BridgeServiceFactory bridgeServiceFactory;
-        private ResourceAddressFactory resourceAddressFactory;
-
-        @Override
-        public String getExtensionName() {
-            return "mock";
-        }
-
-        @Override
-        public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
-                throws ProtocolException {
-            return (mockBehavior == null) ? null : mockBehavior.negotiate(requestedExtension, address);
-        }
-
-        static void setNegotiateBehavoir(MockNegotiate behavoir) {
-            mockBehavior = behavoir;
-        }
-
-        public interface MockNegotiate {
-            WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address) throws ProtocolException;
-        }
-
-        public ResourceAddressFactory getResourceAddressFactory() {
-            return resourceAddressFactory;
-        }
-
-        @Resource(name = "resourceAddressFactory")
-        public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
-            this.resourceAddressFactory = resourceAddressFactory;
-        }
-
-        public BridgeServiceFactory getBridgeServiceFactory() {
-            return bridgeServiceFactory;
-        }
-
-        @Resource(name = "bridgeServiceFactory")
-        public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
-            this.bridgeServiceFactory = bridgeServiceFactory;
-        }
-
-    }
 
 
 }

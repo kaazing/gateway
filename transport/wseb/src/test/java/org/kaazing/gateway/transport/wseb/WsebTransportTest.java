@@ -54,6 +54,7 @@ import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.NioSocketConnector;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.util.Utils;
@@ -119,7 +120,8 @@ public class WsebTransportTest {
 		wsebAcceptor.setResourceAddressFactory(addressFactory);
 		wsebAcceptor.setSchedulerProvider(schedulerProvider);
 		wsebAcceptor.setConfiguration(new Properties());
-		wsebAcceptor.setWebSocketExtensionFactory(WebSocketExtensionFactory.newInstance());
+		WsAcceptor wsAcceptor = new WsAcceptor(WebSocketExtensionFactory.newInstance());
+		wsebAcceptor.setWsAcceptor(wsAcceptor);
 
 		wsebConnector = new WsebConnector();
 		wsebConnector.setBridgeServiceFactory(serviceFactory);

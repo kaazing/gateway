@@ -19,40 +19,35 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.ws;
+package org.kaazing.gateway.transport;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.BridgeAcceptor;
-import org.kaazing.gateway.transport.BridgeConnector;
-import org.kaazing.gateway.transport.Transport;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 
-final class WsTransport extends Transport {
+final class TestTransport extends Transport {
 
-    private static final Map<String, Protocol> WS_PROTOCOLS;
+    private static final Map<String, Protocol> TEST_PROTOCOLS;
+    private final TestAcceptor acceptor;
+    private final BridgeConnector connector;
+
+    private Collection<?> extensions;
+
     static {
         Map<String, Protocol> map = new HashMap<>();
-        map.put("ws", WsProtocol.WS);
-        map.put("wss", WsProtocol.WSS);
-        WS_PROTOCOLS = Collections.unmodifiableMap(map);
+        map.put("ws", null);
+        TEST_PROTOCOLS = Collections.unmodifiableMap(map);
     }
 
-    private final WsAcceptor acceptor;
-    private final BridgeConnector connector;
-    private final WebSocketExtensionFactory extensionFactory;
 
-    WsTransport(Properties configuration) {
-        extensionFactory = WebSocketExtensionFactory.newInstance();
-        acceptor = new WsAcceptor(extensionFactory);
-        acceptor.setConfiguration(configuration);
-        connector = new WsConnector();
+    TestTransport() {
+        acceptor = new TestAcceptor();
+        connector = new TestConnector();
     }
 
     @Override
@@ -67,22 +62,22 @@ final class WsTransport extends Transport {
 
     @Override
     public BridgeAcceptor getAcceptor(ResourceAddress address) {
-        return acceptor;
+        return null;
     }
 
     @Override
     public BridgeConnector getConnector(ResourceAddress address) {
-        return connector;
-    }
-
-    @Override
-    public Collection<?> getExtensions() {
-        return extensionFactory.availableExtensions();
+        return null;
     }
 
     @Override
     public Map<String, Protocol> getProtocols() {
-        return WS_PROTOCOLS;
+        return TEST_PROTOCOLS;
+    }
+
+    @Override
+    public Collection<?> getExtensions() {
+        return acceptor.extensions;
     }
 
 }

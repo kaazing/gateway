@@ -92,8 +92,6 @@ import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Transport;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.gateway.util.GL;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.Utils;
@@ -259,8 +257,6 @@ public class GatewayContextResolver {
                 clusterContext,
                 schedulerProvider);
 
-        WebSocketExtensionFactory webSocketExtensionFactory = WebSocketExtensionFactory.newInstance();
-
         // create map of injectable resources
         Map<String, Object> injectables = new HashMap<>();
         injectables.putAll(dependencyContexts);
@@ -276,12 +272,10 @@ public class GatewayContextResolver {
         injectables.put("bridgeServiceFactory", bridgeServiceFactory);
         injectables.put("resourceAddressFactory", resourceAddressFactory);
         injectables.put("transportFactory", transportFactory);
-        injectables.put("webSocketExtensionFactory", webSocketExtensionFactory);
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
                     bridgeServiceFactory,
-                    webSocketExtensionFactory,
                     dependencyContexts,
                     injectables);
 
@@ -1148,7 +1142,7 @@ public class GatewayContextResolver {
         for (String transportName : transportFactory.getTransportNames()) {
             Transport transport = transportFactory.getTransport(transportName);
             DefaultTransportContext transportContext =
-                    new DefaultTransportContext(transportName, transport.getAcceptor(), transport.getConnector());
+                    new DefaultTransportContext(transportName, transport);
             transportContextsByName.put(transportName, transportContext);
         }
         return transportContextsByName;
@@ -1223,19 +1217,25 @@ public class GatewayContextResolver {
 
     private void injectResources(Collection<ServiceContext> services,
                                  BridgeServiceFactory bridgeServiceFactory,
-                                 WebSocketExtensionFactory webSocketExtensionFactory,
                                  Map<String, Object> dependencyContexts,
                                  Map<String, Object> injectables) {
 
         // add all of the transport-driven acceptors and connectors
-        for (DefaultTransportContext transport : transportContextsByName.values()) {
-            BridgeAcceptor acceptor = transport.getAcceptor();
+        for (DefaultTransportContext transportContext : transportContextsByName.values()) {
+            BridgeAcceptor acceptor = transportContext.getAcceptor();
             if (acceptor != null) {
-                injectables.put(transport.getName() + ".acceptor", acceptor);
+                injectables.put(transportContext.getName() + ".acceptor", acceptor);
             }
-            BridgeConnector connector = transport.getConnector();
+            BridgeConnector connector = transportContext.getConnector();
             if (connector != null) {
-                injectables.put(transport.getName() + ".connector", connector);
+                injectables.put(transportContext.getName() + ".connector", connector);
+            }
+        }
+
+        // inject into transport extensions
+        for (DefaultTransportContext transport : transportContextsByName.values()) {
+            for (Object extension: transport.getTransport().getExtensions()) {
+                injectResources(extension, injectables);
             }
         }
 
@@ -1252,11 +1252,6 @@ public class GatewayContextResolver {
 
         // inject bridge service factory
         injectResources(bridgeServiceFactory, injectables);
-
-        // inject websocket extensions
-        for (WebSocketExtensionFactorySpi factory : webSocketExtensionFactory.availableExtensions()) {
-            injectResources(factory, injectables);
-        }
 
         // in case any of the DependencyContexts have dependencies on each other,
         // or the other resources added to the map, inject resources for them as well.

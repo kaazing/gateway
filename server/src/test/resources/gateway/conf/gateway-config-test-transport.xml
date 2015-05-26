@@ -27,7 +27,7 @@
     <service>
         <name>echo</name>
 
-        <accept>tcp://localhost:8001</accept>
+        <accept>ws://localhost:8001</accept>
 
         <type>echo</type>
 

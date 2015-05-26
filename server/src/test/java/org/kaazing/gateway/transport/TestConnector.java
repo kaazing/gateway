@@ -21,55 +21,36 @@
 
 package org.kaazing.gateway.transport;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.kaazing.gateway.resource.address.Protocol;
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
-final class MockWsTransport extends Transport {
+/**
+ * Used for testing resource injection (see GatewayContextResolverTest)
+ */
+public final class TestConnector implements BridgeConnector {
 
-    private static final Map<String, Protocol> WS_PROTOCOLS;
-    private final BridgeAcceptor acceptor;
-    private final BridgeConnector connector;
- 
+    @Override
+    public void dispose() {
 
-    static {
-        Map<String, Protocol> map = new HashMap<>();
-        map.put("ws", null);
-        WS_PROTOCOLS = Collections.unmodifiableMap(map);
-    }
-
-
-    MockWsTransport() {
-        acceptor = new MockWsAcceptor();
-        connector = new MockWsConnector();
     }
 
     @Override
-    public BridgeAcceptor getAcceptor() {
-        return acceptor;
-    }
-
-    @Override
-    public BridgeConnector getConnector() {
-        return connector;
-    }
-
-    @Override
-    public BridgeAcceptor getAcceptor(ResourceAddress address) {
+    public ConnectFuture connect(ResourceAddress address,
+                                 IoHandler handler,
+                                 IoSessionInitializer<? extends ConnectFuture> initializer) {
         return null;
     }
 
     @Override
-    public BridgeConnector getConnector(ResourceAddress address) {
-        return null;
+    public void connectInit(ResourceAddress address) {
+
     }
 
     @Override
-    public Map<String, Protocol> getProtocols() {
-        return WS_PROTOCOLS;
+    public void connectDestroy(ResourceAddress address) {
+
     }
 
 }
