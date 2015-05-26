@@ -10,10 +10,10 @@ In this procedure, you will learn how to configure KAAZING Gateway as a Ticket G
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Kerberos V5 Network Authentication](o_krb.md):
+This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_krb_config_kerberos.md)
-2.  [Configure a Ticket Protected Gateway](p_krb_config_tpg.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
+2.  [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
 3.  **Configure a Ticket Granting Gateway**
 
 To Configure a Ticket Granting Gateway
@@ -47,6 +47,6 @@ After you configure the Gateway, ensure your clients are also configured for Ker
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [About Kerberos V5 Network Authentication](c_aaa_kerberos.md)
--   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+-   [About Kerberos V5 Network Authentication](c_authentication_kerberos.md)
+-   [Using Kerberos V5 Network Authentication with the Gateway](u_kerberos_configure.md)
