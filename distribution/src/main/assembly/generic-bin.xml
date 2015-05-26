@@ -63,6 +63,7 @@
         <include>org.kaazing:gateway.transport.pipe</include>
         <include>org.kaazing:gateway.transport.nio</include>
         <include>org.kaazing:gateway.transport.bio</include>
+        <include>org.kaazing:gateway.transport.ws.extension</include>
         <include>org.kaazing:gateway.transport.ws</include>
         <include>org.kaazing:gateway.transport.wsn</include>
         <include>org.kaazing:gateway.transport.wseb</include>
