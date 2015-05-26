@@ -21,13 +21,17 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+
+import uk.co.real_logic.agrona.IoUtil;
 
 public class AgronaMonitoringEntityFactoryTest {
     
@@ -40,7 +44,7 @@ public class AgronaMonitoringEntityFactoryTest {
 
         String osName = System.getProperty("os.name");
         if ("Linux".equals(osName)) {
-            String monitoringDirName = "/dev/shm/kaazing";
+            String monitoringDirName = "/dev/shm/" + IoUtil.tmpDirName() + "/kaazing";
             monitoringDir = new File(monitoringDirName);
 
             assertTrue(monitoringDir.exists());
