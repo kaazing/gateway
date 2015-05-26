@@ -10,12 +10,12 @@ You configure one or more login modules, called a *chain of login modules*, to i
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
-1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
+1.  [Configure the HTTP Challenge Scheme](p_authentication_config_http_challenge_scheme.md)
 2.  **Configure a Chain of Login Modules**
-3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-4.  [Configure Authorization](p_aaa_config_authorization.md)
+3.  [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
+4.  [Configure Authorization](p_authorization_configure.md)
 
 To Configure a Chain of Login Modules
 -------------------------------------
@@ -30,11 +30,11 @@ To Configure a Chain of Login Modules
 
     -   **Standard (public) JDK-provided login modules**
 
-        The Gateway supports `ldap`, `kerberos5`, `gss`, `jndi`, and `keystore` login modules, which are some of the most commonly used login modules for authentication and authorization purposes. In these implementations, you do not need to write your own login module solution. For information about using the `kerberos5` and `gss` `login-module` elements, see [Configuring Kerberos V5 Network Authentication](o_krb_config_kerberos.md).
+        The Gateway supports `ldap`, `kerberos5`, `gss`, `jndi`, and `keystore` login modules, which are some of the most commonly used login modules for authentication and authorization purposes. In these implementations, you do not need to write your own login module solution. For information about using the `kerberos5` and `gss` `login-module` elements, see [Configuring Kerberos V5 Network Authentication](o_auth_configure_config_kerberos.md).
 
     -   **Custom login modules**
 
-        If you use the `Application Token` authentication scheme, you must supply your own custom login module. See [Create a Custom Login Module](p_aaa_config_custom_lm.md) and [Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md).
+        If you use the `Application Token` authentication scheme, you must supply your own custom login module. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) and [Integrate an Existing Custom Login Module into the Gateway](p_auth_integrate_custom_login_module.md).
 
 2.  Add the `login-modules` element within the `authentication` element that you started in Step 1. The `login-modules` element is the container for one or more login modules and it defines the scope in which security policies are enforced.
 3.  Define one or more login modules to make a chain.
@@ -83,7 +83,7 @@ To Configure a Chain of Login Modules
 
     For example, the `file` login module may require a username and password as part of its login needs. Thus, you should probably configure the `basic` authentication scheme that is expecting the user to login with a username and password. If you configure the chain of login modules to expect only tokens (such as with a `custom` login module), then configure the `http-challenge-scheme` element for `Negotiate`, `Application Negotiate`, or `Application Token`.
 
-    **Note:** If you use the `Application Token` scheme, then you must write your own custom login module. 
+    **Note:** If you use the `Application Token` scheme, then you must write your own custom login module.
 
 6.  Save the Gateway configuration.
 
@@ -101,7 +101,7 @@ The following table describes how the order of login modules and the setting of 
 | `sufficient`     | The `login-module` is not required to succeed. | If it succeeds, then authentication stops its process down the `login-module` list and the Gateway opens the WebSocket connection. If it fails, authentication continues down the `login-module` list.                               |
 | `optional`       | The `login-module` is not required to succeed. | If it succeeds or fails, then authentication proceeds down the `login-module` list.                                                                                                                                                  |
 
-**In addition:** 
+**In addition:**
 -   If a `sufficient` login module is configured and succeeds, then only the `required` and `requisite` login modules prior to that `sufficient` login module need to have succeeded for the overall authentication to succeed.
 -   If no `required` or `requisite` login modules are configured for an application, then at least one `sufficient` or `optional` login module must succeed.
 
@@ -126,7 +126,7 @@ The following code shows a complete security example:
       <http-header>X-Custom-Authorization-Header</http-header>
       <http-query-parameter>myCustomAuthParam</http-query-parameter>
       <http-cookie>sampleCookie1</http-cookie>
-  
+
       <login-modules>
         <login-module>
           <type>file</type>
@@ -157,13 +157,13 @@ The following code shows a complete security example:
 Next Steps
 ----------
 
-[Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
+[Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
 
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [About Authentication](c_aaa_aaa.md)
--   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+-   [About Authentication](c_auth_about.md)
+-   [What Happens During Authentication](u_authentication_gateway_client_interactions.md)
+-   [How Authentication and Authorization Work with the Gateway](u_auth_how_it_works_with_the_gateway.md)
 -   [Server API Documentation](../index.md)
