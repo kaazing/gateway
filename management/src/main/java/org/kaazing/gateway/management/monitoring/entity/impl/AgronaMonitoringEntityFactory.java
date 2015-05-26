@@ -26,9 +26,7 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.kaazing.gateway.management.monitoring.entity.BooleanMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
@@ -57,12 +55,6 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     }
 
     @Override
-    public BooleanMonitoringEntity makeBooleanMonitoringEntity() {
-        // TODO Implement the boolean monitoring entity when needed
-        return null;
-    }
-
-    @Override
     public LongMonitoringCounter makeLongMonitoringCounter(String name) {
         // We create the new AtomicCounter using the CountersManager and we also add it to the list of counters
         // in order to close them when needed.
@@ -72,12 +64,6 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
         LongMonitoringCounter longMonitoringCounter = new AgronaLongMonitoringCounter(counter);
 
         return longMonitoringCounter;
-    }
-
-    @Override
-    public StringMonitoringEntity makeStringMonitoringEntity() {
-        // TODO Implement the String monitoring entity when needed
-        return null;
     }
 
     @Override
