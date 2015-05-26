@@ -7,7 +7,7 @@ About Kerberos V5 Network Authentication ![This feature is available in KAAZING 
 
 Kerberos provides user authentication or single sign-on (SSO) functionality by providing communication between trusted hosts on untrusted networks. Kerberos—named after Cerberus, the three-headed guard dog of the underworld in Greek mythology—is a ticket-based network authentication protocol in which clients send a request to a trusted <a name="kdc"></a>Key Distribution Center (KDC) for credentials to access another server. The credentials are encrypted using secret-key cryptography and no cleartext passwords are ever sent over the network. Additionally, Kerberos provides for mutual authentication between clients and servers and single sign-on.
 
-For information on how to use KAAZING Gateway with Kerberos, see [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md).
+For information on how to use KAAZING Gateway with Kerberos, see [Using Kerberos V5 Network Authentication with the Gateway](u_kerberos_configure.md).
 
 Kerberos Network Authentication Overview
 ------------------------------------------------------------------------
@@ -58,13 +58,13 @@ Authorization: Negotiate a87421000492aa874209af8bc028
 
 The Gateway decodes the `gssapi-data` and passes this information to the SPNEGO GSS-API mechanism to validate the ticket granted. When the ticket is validated, the user is allowed access, otherwise the user is challenged again.
 
-For information on how to using the Gateway and Kerberos, see [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md).
+For information on how to using the Gateway and Kerberos, see [Using Kerberos V5 Network Authentication with the Gateway](u_kerberos_configure.md).
 
 See Also
 ------------------------------
 
--   [Configure Kerberos V5 Network Authentication](o_krb.md)
-    -   [Configure a Ticket Protected Gateway](p_krb_config_tpg.md)
-    -   [Configure a Ticket Granting Gateway](p_krb_config_tgg.md)
+-   [Configure Kerberos V5 Network Authentication](o_auth_configure.md)
+    -   [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
+    -   [Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
 
--   [Using Kerberos V5 Network Authentication with the Gateway](u_krb_config_kerberos.md)
+-   [Using Kerberos V5 Network Authentication with the Gateway](u_kerberos_configure.md)
