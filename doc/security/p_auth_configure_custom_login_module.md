@@ -14,15 +14,15 @@ Even though KAAZING Gateway provides several standard types of `login-module` im
 Before You Begin
 ----------------
 
-This optional procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This optional procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
-1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
-2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
+1.  [Configure the HTTP Challenge Scheme](p_authentication_config_http_challenge_scheme.md)
+2.  [Configure a Chain of Login Modules](p_auth_configure_login_module.md)
     -   **Create a Custom Login Module (Optional)**
-    -   [Integrate an Existing Custom Login Module into the Gateway (Optional)](p_aaa_integ_custom_lm.md)
+    -   [Integrate an Existing Custom Login Module into the Gateway (Optional)](p_auth_integrate_custom_login_module.md)
 
-3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-4.  [Configure Authorization](p_aaa_config_authorization.md)
+3.  [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
+4.  [Configure Authorization](p_authorization_configure.md)
 
 To Configure Custom Login Modules
 ---------------------------------
@@ -36,10 +36,10 @@ To Configure Custom Login Modules
 Next Steps
 ----------
 
-[Integrate an Existing Custom Login Module into the Gateway](p_aaa_integ_custom_lm.md)
+[Integrate an Existing Custom Login Module into the Gateway](p_auth_integrate_custom_login_module.md)
 
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
 -   [Server API Documentation](../index.md)
