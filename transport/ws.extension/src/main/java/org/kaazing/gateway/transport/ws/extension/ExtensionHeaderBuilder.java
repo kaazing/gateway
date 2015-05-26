@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -46,7 +47,7 @@ import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
  * </pre>
  */
 public class ExtensionHeaderBuilder implements ExtensionHeader {
-    
+
     private String extensionToken;
     private Map<String, ExtensionParameter> parametersByName = new LinkedHashMap<>();
 
@@ -79,7 +80,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
                     key = elts[i].substring(0, idx).trim();
                     value = elts[i].substring(idx+1).trim();
                 }
-                
+
                 appendParameter(key, value);
             }
         }
@@ -93,10 +94,12 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
         }
     }
 
+    @Override
     public String getExtensionToken() {
         return extensionToken;
     }
 
+    @Override
     public List<ExtensionParameter> getParameters() {
         return Collections.unmodifiableList(new ArrayList<>(parametersByName.values()));
     }
@@ -139,7 +142,7 @@ public class ExtensionHeaderBuilder implements ExtensionHeader {
 
         ExtensionHeader that = (ExtensionHeader) o;
 
-        return !(extensionToken != null ? !extensionToken.equals(that.getExtensionToken()) : that.getExtensionToken() != null);
+        return Objects.equals(extensionToken, that.getExtensionToken());
     }
 
     @Override
