@@ -10,17 +10,17 @@ Client-level (application-level) security consists of challenge handlers and log
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
-1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
-2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
+1.  [Configure the HTTP Challenge Scheme](p_authentication_config_http_challenge_scheme.md)
+2.  [Configure a Chain of Login Modules](p_auth_configure_login_module.md)
 3.  **Configure a Challenge Handler on the Client**
-4.  [Configure Authorization](p_aaa_config_authorization.md)
+4.  [Configure Authorization](p_authorization_configure.md)
 
 To Configure a Challenge Handler on the Client
 ----------------------------------------------
 
-Continuing our example from the document [What Happens During Authentication](u_aaa_gw_client_interactions.md), when a client requests access to a protected service at the host name, the Gateway:
+Continuing our example from the document [What Happens During Authentication](u_authentication_gateway_client_interactions.md), when a client requests access to a protected service at the host name, the Gateway:
 
 1.  Consults the configuration parameters that are supplied at startup and looks for the service being accessed and the `Application Token` authentication scheme.
 2.  Sends the authorization challenge to the client and includes the` WWW-Authenticate` header that challenges the client to supply login credentials, which in this case happens to be a token.
@@ -43,12 +43,12 @@ Notes
 Next Steps
 ----------
 
-[Configure Authorization](p_aaa_config_authorization.md)
+[Configure Authorization](p_authorization_configure.md)
 
 See Also
 ------------------------------
 
--   [About Authentication and Authorization](c_aaa_aaa.md)
--   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
+-   [About Authentication and Authorization](c_auth_about.md)
+-   [How Authentication and Authorization Work with the Gateway](u_auth_how_it_works_with_the_gateway.md)
 -   [Client API Documentation](../index.md#api_topics)
 -   [Server API Documentation](../index.md#server_api_topics)
