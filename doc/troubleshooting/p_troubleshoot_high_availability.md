@@ -10,13 +10,13 @@ When you configure KAAZING Gateway for high availability, you may encounter one 
 Troubleshooting KAAZING Gateway
 ---------------------------------------------------------------------
 
-This topic is part of [Troubleshoot KAAZING Gateway](o_ts.md) that groups troubleshooting topics into the categories shown in the following table:
+This topic is part of [Troubleshoot KAAZING Gateway](o_troubleshoot.md) that groups troubleshooting topics into the categories shown in the following table:
 
 | What Problem Are You Having?    | Topic or Reference                                                             |
 |---------------------------------|--------------------------------------------------------------------------------|
-| Configuration and startup       | [Troubleshoot KAAZING Gateway Configuration and Startup](ts_config.md) |
+| Configuration and startup       | [Troubleshoot KAAZING Gateway Configuration and Startup](p_troubleshoot_gateway_configuration.md) |
 | **Clusters and load balancing** | **Troubleshoot KAAZING Gateway Cluster and Load Balancing**              |
-| Security                        | [Troubleshoot KAAZING Gateway Security](ts_security.md)                |
+| Security                        | [Troubleshoot KAAZING Gateway Security](p_troubleshoot_security.md)                |
 | Clients                         | [Troubleshoot Your Clients](p_dev_troubleshoot.md)                           |
 
 What Problem Are You Having?
@@ -84,4 +84,4 @@ What Problem Are You Having?
 See Also
 --------
 
-[Configure the Gateway for High Availability](../high-availability/o_ha.md)
+[Configure the Gateway for High Availability](../high-availability/o_high_availability.md)
