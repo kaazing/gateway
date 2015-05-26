@@ -335,7 +335,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                     IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
                                                     WsBufferAllocator wsAllocator = new WsBufferAllocator(parentAllocator);
                                                     return new WsnSession(WsnConnector.this, getProcessor(), localAddress, wsnConnectAddress,
-                                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455);
+                                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455, null);
                                                 }
                                             };
 

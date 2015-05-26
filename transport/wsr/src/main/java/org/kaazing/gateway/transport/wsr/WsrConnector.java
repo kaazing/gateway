@@ -264,7 +264,7 @@ public class WsrConnector extends AbstractBridgeConnector<WsrSession> {
             					WsrSession wsrSession = new WsrSession(
             							WsrConnector.this, getProcessor(),
             							connectAddress, connectAddress, session,
-            							wsrAllocator, null);
+            							wsrAllocator, null, null);
 
             					wsrSession.setRtmpAddress(rtmpAddress);
 

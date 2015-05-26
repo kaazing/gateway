@@ -443,8 +443,8 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                             wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                             ((AbstractWsBridgeSession)wsSession).setSubject(session.getSubject());
                             wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                            // TODO: add websocket extension filters from negotiated (or set an attribute
-                            // and do in addBridgeFilters)
+                            // TODO: add websocket extension filters from negotiated or set an attribute
+                            // and do in addBridgeFilters
                         }
                     }, new Callable<WsrSession>() {
                         @Override
@@ -454,7 +454,7 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
                             ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
                             WsrSession wsrSession = new WsrSession(
                                     session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsrAcceptor.this, getProcessor(),
-                                    localAddress, remoteAddress, wsrAllocator, loginContext.getLoginResult());
+                                    localAddress, remoteAddress, wsrAllocator, loginContext.getLoginResult(), negotiated);
                             wsrSession.setBridgeServiceFactory(bridgeServiceFactory);
                             wsrSession.setResourceAddressFactory(resourceAddressFactory);
                             wsrSession.setScheduler(scheduler);

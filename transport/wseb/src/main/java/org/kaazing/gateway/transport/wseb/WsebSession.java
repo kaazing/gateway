@@ -25,6 +25,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -58,6 +59,7 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
@@ -147,7 +149,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        int clientIdleTimeout,
                        long inactivityTimeout,
                        boolean validateSequenceNo,
-                       long sequenceNo) {
+                       long sequenceNo,
+                       List<WebSocketExtension> extensions) {
         super(ioLayer,
               ioThread,
               ioExecutor,
@@ -157,7 +160,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               remoteAddress,
               allocator,
               Direction.BOTH,
-              loginResult);
+              loginResult,
+              extensions);
         this.attachingWrite = new AtomicBoolean(false);
         this.readSession = new AtomicReference<>();
         this.pendingNewWriter = new AtomicReference<>();

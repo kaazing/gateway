@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.ws;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -40,6 +41,7 @@ import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.util.BridgeSessionIterator;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -68,18 +70,20 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
 
     protected ScheduledExecutorService scheduler;
     protected DefaultLoginResult loginResult;
+    private List<WebSocketExtension> extensions;
 
     public AbstractWsBridgeSession(int ioLayer, Thread ioThread, Executor ioExecutor, IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoBufferAllocatorEx<B> allocator,
-                                   Direction direction, DefaultLoginResult loginResult) {
+                                   Direction direction, DefaultLoginResult loginResult, List<WebSocketExtension> extensions) {
         super(ioLayer, ioThread, ioExecutor, service, sIoProcessor, localAddress, remoteAddress, allocator, direction);
         this.loginResult = loginResult;
         this.sessionTimeout = new WsSessionTimeoutCommand(this);
+        this.extensions = extensions;
     }
 
     public AbstractWsBridgeSession(IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<B> allocator,
-                                   Direction direction, DefaultLoginResult loginResult) {
+                                   Direction direction, DefaultLoginResult loginResult, List<WebSocketExtension> extensions) {
         super(service, sIoProcessor, localAddress, remoteAddress, parent, allocator, direction);
         this.loginResult = loginResult;
         this.sessionTimeout = new WsSessionTimeoutCommand(this);
@@ -151,6 +155,10 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
 
     private void cancelCommand(final WsScheduledCommand command) {
         command.cancel((ScheduledFuture<?>) removeAttribute(command.getScheduledFutureKey()));
+    }
+
+    public List<WebSocketExtension> getExtensions() {
+        return extensions;
     }
 
    /**

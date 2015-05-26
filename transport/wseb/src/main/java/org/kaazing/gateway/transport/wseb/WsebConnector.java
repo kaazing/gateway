@@ -276,7 +276,8 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                       0,
                                                                       connectAddressNext.getOption(INACTIVITY_TIMEOUT),
                                                                       false,            /* no sequence validation */
-                                                                      sequenceNo);      /* starting sequence no */
+                                                                      sequenceNo,      /* starting sequence no */
+                                                                      null);
 
                                 // ability to write will be reactivated when create response returns with write address
                                 wsebSession.suspendWrite();

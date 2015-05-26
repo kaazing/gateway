@@ -650,7 +650,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
                             localAddress, remoteAddress, allocator, loginContext.getLoginResult(), clientIdleTimeout, inactivityTimeout,
-                            validateSequenceNo, sequenceNo);
+                            validateSequenceNo, sequenceNo, negotiated);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
                     newWsebSession.setBridgeServiceFactory(bridgeServiceFactory);
