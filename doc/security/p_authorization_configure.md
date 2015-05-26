@@ -10,11 +10,11 @@ After the client is authenticated, then authorization works to verify and grant 
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
-1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
-2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
+1.  [Configure the HTTP Challenge Scheme](p_authentication_config_http_challenge_scheme.md)
+2.  [Configure a Chain of Login Modules](p_auth_configure_login_module.md)
+3.  [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
 4.  **Configure Authorization**
 
 To Configure Authorization
@@ -32,7 +32,7 @@ To Configure Authorization
     -   kerberos5.proxy
     -   session
 
-    See the [Service Reference](../admin-reference/r_conf_service.md) documentation for more configuration information and examples of these services.
+    See the [Service Reference](../admin-reference/r_configure_gateway_service.md) documentation for more configuration information and examples of these services.
 
 3.  Specify a service and define an authorization constraint.
 
@@ -49,7 +49,7 @@ To Configure Authorization
         <directory>/</directory>
         <welcome-file>index.md</welcome-file>
       </properties>
-      
+
       <authorization-constraint>
         <require-role>AUTHORIZED</require-role>
       </authorization-constraint>
@@ -68,7 +68,7 @@ Notes
     | cluster-members only                         | Authentication occurs for all direct connections to Gateway services on cluster members. **Note:** This option does not protect connections made through the balancer service.                                                                                                                                                                                                                                                                                          |
     | balancer service and cluster members         | Authentication occurs whether the connection is made through the balancer service or directly to a cluster member. This is the best practice recommendation if you want to ensure that authentication occurs. With this option, consider configuring the challenge handler on the client to remember the credentials. Doing so provides the advantage of accessing the cluster member based on the credentials established through the balancer service authentication. |
 
-    For more information about configuring high availability, see [Using the Gateway to Support High Availability](../high-availability/u_ha.md) and the [balancer](../admin-reference/r_conf_service.md#balancer) service in the [Service Reference](../admin-reference/r_conf_service.md) documentation.
+    For more information about configuring high availability, see [Using the Gateway to Support High Availability](../high-availability/u_high_availability.md) and the [balancer](../admin-reference/r_configure_gateway_service.md#balancer) service in the [Service Reference](../admin-reference/r_configure_gateway_service.md) documentation.
 
 Next Steps
 ----------
@@ -78,7 +78,7 @@ Ensure your clients are also configured for secure networking using Transport La
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
--   [About Authentication and Authorization](c_aaa_aaa.md)
--   [What Happens During Authentication](u_aaa_gw_client_interactions.md)
--   [How Authentication and Authorization Work with the Gateway](u_aaa_implement.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+-   [About Authentication and Authorization](c_auth_about.md)
+-   [What Happens During Authentication](u_authentication_gateway_client_interactions.md)
+-   [How Authentication and Authorization Work with the Gateway](u_auth_how_it_works_with_the_gateway.md)
