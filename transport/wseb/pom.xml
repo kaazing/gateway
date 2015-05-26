@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.25</version>
+        <version>5.0.1.26</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.transport.wseb</artifactId>
@@ -37,6 +37,12 @@
         </dependency>
 
         <!-- test dependencies -->
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.wse</artifactId>
+            <version>${k3po.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxe</artifactId>
@@ -74,6 +80,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.service.echo</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.proxy</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

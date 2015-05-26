@@ -10,7 +10,7 @@
        <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.25</version>
+        <version>5.0.1.26</version>
     </parent>
     <artifactId>test.util</artifactId>
     <name>Test Utils</name>
@@ -56,6 +56,8 @@
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
+                            <!-- Avoid Java style copyright check for log4j-trace.properties -->
+                            <includeResources>false</includeResources>
                         </configuration>
                         <goals>
                             <goal>check</goal>

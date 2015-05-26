@@ -37,9 +37,11 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebTransportIT {
-
+    private TestRule trace = new MethodExecutionTrace();
+    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -63,14 +65,13 @@ public class WsebTransportIT {
                         .done()
                     .done();
             // @formatter:on
-            init(configuration);
+            init(configuration, "log4j-trace.properties");
         }
     };
 
-    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+    public TestRule chain = outerRule(trace).around(timeout).around(robot).around(gateway);
 
     @Specification("echo.aligned.downstream")
     @Test

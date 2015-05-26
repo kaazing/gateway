@@ -79,7 +79,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
         }
     };
 
-    private final IoProcessorEx<AbstractIoSessionEx> processor;
+    private final IoProcessorEx<? extends IoSessionEx> processor;
 
     private volatile IoHandler handler = new IoHandlerAdapter();
     private volatile SocketAddress localAddress = ANONYMOUS_ADDRESS;
@@ -94,6 +94,10 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     public DummySessionEx(Thread thread, Executor executor) {
+        this(thread, executor,  null);
+    }
+
+    public DummySessionEx(Thread thread, Executor executor, IoProcessorEx<? extends IoSessionEx> processor) {
         super(0, thread, executor, new ShareableWriteRequest());
         // Initialize dummy service.
         IoAcceptorEx acceptor = new AbstractIoAcceptorEx(
@@ -148,7 +152,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
 
         service = acceptor;
 
-        processor = new IoProcessorEx<AbstractIoSessionEx>() {
+        this.processor = processor != null ? processor : new IoProcessorEx<AbstractIoSessionEx>() {
             public void add(AbstractIoSessionEx session) {
                 // Do nothing
             }
@@ -290,7 +294,7 @@ public class DummySessionEx extends AbstractIoSessionEx {
     }
 
     @Override
-    public final IoProcessorEx<AbstractIoSessionEx> getProcessor() {
+    public final IoProcessorEx<? extends IoSessionEx> getProcessor() {
         return processor;
     }
 
