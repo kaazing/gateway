@@ -19,7 +19,7 @@ Thus, the AMQP message broker receives the credentials from the Gateway, which i
 ![Promoting User Credentials into the AMQP Protocol](../images/f-amqp-user-creds-web.png)
 
 **Figure: Promoting User Credentials into the AMQP Protocol**
-  
+
 The AMQP message broker can perform its own authentication using the promoted identity. Note that it is not necessary for the credentials injected into the AMQP protocol to exactly match the user's identity. You need to supply only what is required for the AMQP message broker. For example:
 
 - The username for AMQP may not match your system's single sign-on (SSO) username.
@@ -41,7 +41,7 @@ The following procedure describes how to implement AMQP user identity promotion 
 
   @Override
   public void initialize(Subject         subject,
-                                         CallbackHandler callbackHandler, 
+                                         CallbackHandler callbackHandler,
                                          Map<String, ?>  sharedState,
                                          Map<String, ?>  options) {
       this.subject = subject;
@@ -50,10 +50,10 @@ The following procedure describes how to implement AMQP user identity promotion 
   @Override
   public boolean commit() throws LoginException {
     // username, password, and subject are member variables
-    // that must be set earlier in other parts of the 
-    // LoginModule implementation. In this method, we use 
+    // that must be set earlier in other parts of the
+    // LoginModule implementation. In this method, we use
     // the username and password are used to create AmqpPrincipal  
-    // and add it to the Subject. The username and password will 
+    // and add it to the Subject. The username and password will
     // then be automatically injected into the AMQP protocol.
 
     AmqpPrincipal principal = new AmqpPrincipal(username, password);
@@ -61,7 +61,7 @@ The following procedure describes how to implement AMQP user identity promotion 
     return true;
   }
   ```
-  
+
    - You should add only one `AmqpPrincipal`.
    - If you add more than one `AmqpPrincipal` principal, then the Gateway uses the first one that the Java iterator happens to return to the Gateway.
 
@@ -74,12 +74,12 @@ The following procedure describes how to implement AMQP user identity promotion 
 3. Start (or restart) the Gateway, and then connect a new client.
 
   After authentication succeeds, the Gateway establishes a connection to the back-end server or broker. At this point, if `AmqpPrincipal` is available in the Subject, then the Gateway automatically injects the AMQP credentials specified `AmqpPrincipal` into the AMQP protocol.
-  
+
 Congratulations! You have completed implementation for AMQP user identity promotion with the Gateway.
 
 See Also
 -------------------------------------------------------
 
-- [Configure the Gateway](../admin-reference/o_conf_checklist.md)
-- [Configure Authentication and Authorization](o_aaa_config_authentication.md)
+- [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
+- [Configure Authentication and Authorization](o_auth_configure.md)
 - [Real-Time Interactive Guide to AMQP](../guide-amqp.md)
