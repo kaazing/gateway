@@ -10,15 +10,15 @@ KAAZING Gateway supports a plug-in mechanism for integration with custom authent
 Before You Begin
 ----------------
 
-This optional procedure is part of [Configure Authentication and Authorization](o_aaa_config_authentication.md):
+This optional procedure is part of [Configure Authentication and Authorization](o_auth_configure.md):
 
-1.  [Configure the HTTP Challenge Scheme](p_aaa_config_authscheme.md)
-2.  [Configure a Chain of Login Modules](p_aaa_config_lm.md)
-    -   [Create a Custom Login Module (Optional)](p_aaa_config_custom_lm.md)
+1.  [Configure the HTTP Challenge Scheme](p_authentication_config_http_challenge_scheme.md)
+2.  [Configure a Chain of Login Modules](p_auth_configure_login_module.md)
+    -   [Create a Custom Login Module (Optional)](p_auth_configure_custom_login_module.md)
     -   **Integrate an Existing Custom Login Module into the Gateway (Optional)**
 
-3.  [Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
-4.  [Configure Authorization](p_aaa_config_authorization.md)
+3.  [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
+4.  [Configure Authorization](p_authorization_configure.md)
 
 To Integrate an Existing Custom Login Module into the Gateway
 ----------------------------------------------------------------
@@ -44,31 +44,31 @@ To Integrate an Existing Custom Login Module into the Gateway
       <accept>ws://localhost:8001/echo</accept>
       <accept>wss://localhost:9001/echo</accept>
       <type>echo</type>
-      
+
       <authorization-constraint>
         <require-role>AUTHORIZED</require-role>
       </authorization-constraint>
-      
+
       <cross-site-constraint>
         <allow-origin>http://localhost:8000</allow-origin>
       </cross-site-constraint>
-      
+
       <cross-site-constraint>
         <allow-origin>https://localhost:9000</allow-origin>
       </cross-site-constraint>
     </service>
     ```
 
-5.  Add this login module to the chain, as described in [Configure a Chain of Login Modules](p_aaa_config_lm.md).
+5.  Add this login module to the chain, as described in [Configure a Chain of Login Modules](p_auth_configure_login_module.md).
 6.  Save `gateway-config.xml` and restart the Gateway.
 
 Next Steps
 ----------
 
-[Configure a Challenge Handler on the Client](p_aaa_config_ch.md)
+[Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md)
 
 See Also
 ------------------------------
 
--   [Configure the Gateway](../admin-reference/o_conf_checklist.md)
+-   [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
 -   [Server API Documentation](../index.md)
