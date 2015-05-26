@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wsn.extensions.test;
+package org.kaazing.gateway.transport.wseb.extensions.test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
@@ -51,7 +51,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class ExtensionWithFilterIT {
+public class WsebExtensionWithFilterIT {
 
     private TestRule trace = new MethodExecutionTrace();
     private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
@@ -63,11 +63,8 @@ public class ExtensionWithFilterIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("wsn://localhost:8001/echo"))
+                            .accept(URI.create("wse://localhost:8000/echo"))
                             .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("*")
-                            .done()
                         .done()
                     .done();
             // @formatter:on

@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeServiceFactory;

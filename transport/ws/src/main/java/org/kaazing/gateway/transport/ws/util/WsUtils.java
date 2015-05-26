@@ -353,8 +353,7 @@ public class WsUtils {
 
     public static void removeExtensionFilters(List<WebSocketExtension> extensions, IoFilterChain filterChain) {
         for (WebSocketExtension extension: extensions) {
-            IoFilter filter;
-            if ((filter = extension.getFilter()) != null) {
+            if ((extension.getFilter()) != null) {
                 filterChain.remove(extension.getExtensionHeader().getExtensionToken());
             }
         }
