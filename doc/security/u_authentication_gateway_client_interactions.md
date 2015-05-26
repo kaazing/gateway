@@ -20,10 +20,10 @@ The figure illustrates how interactions between the client, the Gateway, and a t
 5.  The client again requests a WebSocket connection to the Gateway, this time providing the third-party token (plus other challenge response data) via an authorization header in the HTTP request to the Gateway.
 6.  The Gateway validates the token, either permitting the WebSocket connection to proceed (`101 Protocol Upgrade`), or denying the WebSocket creation request (`403 Forbidden`).
 
-**Note:** In this example, token validation occurs between the Gateway and token provider. Also, you can perform token validation when you configure login modules in the Gateway configuration. 
+**Note:** In this example, token validation occurs between the Gateway and token provider. Also, you can perform token validation when you configure login modules in the Gateway configuration.
 
 See Also
 ------------------------------
 
--   [Configure Authentication and Authorization](o_aaa_config_authentication.md)
--   [About Authentication and Authorization](c_aaa_aaa.md)
+-   [Configure Authentication and Authorization](o_auth_configure.md)
+-   [About Authentication and Authorization](c_auth_about.md)
