@@ -31,10 +31,11 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /*
  * A pool for reusable persistent transport connections. HttpConnector
@@ -48,13 +49,13 @@ public class PersistentConnectionPool {
             new TypedAttributeKey<>(PersistentConnectionPool.class, "address");
 
     // transport address -> set of persistent connections
-    private final Map<HttpResourceAddress, Set<IoSession>> connections;
+    private final ConcurrentMap<HttpResourceAddress, Set<IoSession>> connections;
     private final Logger logger;
     private final HttpConnectIdleFilter idleFilter;
     private final CloseListener closeListener;
 
     PersistentConnectionPool(Logger logger) {
-        this.connections = new HashMap<>();
+        this.connections = new ConcurrentHashMap<>();
         this.logger = logger;
         this.idleFilter = new HttpConnectIdleFilter(logger);
         this.closeListener = new CloseListener(this, logger);
@@ -99,7 +100,7 @@ public class PersistentConnectionPool {
      *         otherwise null
      */
     public IoSession take(HttpResourceAddress serverAddress) {
-        IoSession transportSession = removeThreadLocal(serverAddress);
+        IoSession transportSession = removeThreadAligned(serverAddress);
         if (transportSession != null) {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Reusing cached persistent connection: http address=%s, transport session=%s",
@@ -168,22 +169,33 @@ public class PersistentConnectionPool {
         }
     }
 
+    private Set<IoSession> getTransportSessions(HttpResourceAddress serverAddress) {
+        Set<IoSession> transportSessions = connections.get(serverAddress);
+        if (transportSessions == null) {
+            HashSet<IoSession> newTransportSessions = new HashSet<>();
+            transportSessions = connections.putIfAbsent(serverAddress, newTransportSessions);
+            if (transportSessions == null) {
+                transportSessions = newTransportSessions;
+            }
+        }
+
+        return transportSessions;
+    }
+
     private boolean add(DefaultHttpSession httpSession) {
         HttpResourceAddress serverAddress = (HttpResourceAddress)httpSession.getRemoteAddress();
         int max = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
         IoSession transportSession = httpSession.getParent();
 
-        synchronized (connections) {
-            Set<IoSession> transportSessions = connections.get(serverAddress);
-            if (transportSessions == null) {
-                transportSessions = new HashSet<>();
-                connections.put(serverAddress, transportSessions);
-            }
+        Set<IoSession> transportSessions = getTransportSessions(serverAddress);
+
+        synchronized (transportSessions) {
             if (transportSessions.size() < max) {
                 transportSessions.add(transportSession);
                 return true;
             }
         }
+
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Not caching persistent connection: http address=%s, transport session=%s",
                     serverAddress.getResource(), transportSession));
@@ -191,29 +203,23 @@ public class PersistentConnectionPool {
         return false;
     }
 
-    /*
-     * Returns an existing transport session for the given resource address
-     * that can be reused
-     *
-     * @return a reusable IoSession for the address
-     *         otherwise null
-     */
     private void remove(HttpResourceAddress serverAddress, IoSession session) {
-        synchronized (connections) {
-            Set<IoSession> transportSessions = connections.get(serverAddress);
+        Set<IoSession> transportSessions = getTransportSessions(serverAddress);
+        synchronized (transportSessions) {
             transportSessions.remove(session);
         }
     }
 
-    private IoSession removeThreadLocal(HttpResourceAddress serverAddress) {
-        synchronized (connections) {
-            Set<IoSession> transportSessions = connections.get(serverAddress);
-            if (transportSessions != null) {
-                for (IoSession transportSession : transportSessions) {
-                    if (((IoSessionEx) transportSession).getIoThread() == Thread.currentThread()) {
-                        transportSessions.remove(transportSession);
-                        return transportSession;
-                    }
+    private IoSession removeThreadAligned(HttpResourceAddress serverAddress) {
+        Set<IoSession> transportSessions = getTransportSessions(serverAddress);
+
+        synchronized (transportSessions) {
+            Iterator<IoSession> it = transportSessions.iterator();
+            while(it.hasNext()) {
+                IoSessionEx session = (IoSessionEx)it.next();
+                if (session.getIoThread() == Thread.currentThread()) {
+                    it.remove();
+                    return session;
                 }
             }
         }
