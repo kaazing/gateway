@@ -46,7 +46,7 @@ This topology is typically deployed using Gateway clustering and load balancing.
 Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ---------------------------------------------------------------------
 
-Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../reverse-connectivity/o_enterprise_shield_checklist.md#about-enterprise-shield).
+Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, trusted network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../reverse-connectivity/o_enterprise_shield_checklist.md#about-enterprise-shield).
 
 Virtual Private Connection
 --------------------------------------------
