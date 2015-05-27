@@ -5,7 +5,7 @@
 Walkthrough: Configure Enterprise Shield™ for High Availability ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================================================
 
-This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the DMZ and a matching set of Gateways in the trusted network. This configuration provides maximum security and also high availability because it pairs each internal Gateway to one explicit cluster member in the DMZ to provide failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
+This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the trusted network and a matching set of Gateways in the DMZ. This configuration provides maximum security and also high availability for failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
 
 **Note:** Enterprise Shield does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield.
 
@@ -15,11 +15,11 @@ In Figure 1, there are two Gateways running in the DMZ and a matching set of two
 
 **Figure 1: Enterprise Shield Topology Configured for High Availability**
 
-The key to making the Enterprise Shield configuration highly available is to configure clustering on each cluster member, and have an equivalent number of cluster members in the DMZ and the trusted network.
+The key to making the Enterprise Shield configuration highly available is to configure clustering in the DMZ, and have a Gateway in the internal network for each Gateway in the DMZ cluster.
 
 The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_high_availability_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_configure_gateway_cluster.md) element.
 
--   Update the properties element to use a numbered value for the DMZ backplane variable---such as `gateway1`---to provide a unique name for the Gateway cluster pair:
+-   Update the properties element to use a unique value (hostname) for the DMZ backplane variable. The following example uses `gateway1`:
 
     **Internal Gateway**
 
@@ -70,8 +70,8 @@ The following steps provide a high-level overview about cluster configuration. S
 
     ``` auto-links:
     <cluster>
-      <name>tcp://${gateway.ip.address}:${cluster.port}</name>
-      <accept>172.19.20.1</accept>
+      <name>dmzCluster</name>
+      <accept>tcp://${gateway.ip.address}:${cluster.port}</accept>
       <connect>udp://224.2.2.44:44444</connect>
     </cluster>
     ```
