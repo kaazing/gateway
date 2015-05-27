@@ -82,7 +82,6 @@
         <module>transport/pipe</module>
         <module>transport/sse</module>
         <module>transport/ssl</module>
-        <module>transport/ws.extension</module>
         <module>transport/ws</module>
         <module>transport/wseb</module>
         <module>transport/wsn</module>
