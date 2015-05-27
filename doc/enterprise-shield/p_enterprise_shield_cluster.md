@@ -92,9 +92,7 @@ The following steps provide a high-level overview about cluster configuration. S
         <tcp.bind>${gateway.ip.address}:8443</tcp.bind>
       </accept-options>
 
-      <cross-site-constraint>
-        <allow-origin>*</allow-origin>
-      </cross-site-constraint>
+      ...
 
     </service>
     ```
