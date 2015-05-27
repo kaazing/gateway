@@ -79,9 +79,7 @@ The following snippet shows the App1 Service configuration in the `gateway-confi
     <ssl.verify-client>required</ssl.verify-client>
   </accept-options>
 
-  <cross-site-constraint>
-    <allow-origin>*</allow-origin>
-  </cross-site-constraint>
+  ...
 
 </service>
 ```
@@ -182,9 +180,7 @@ The service configuration for the App2 service is exactly the same as for App1, 
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </accept-options>
 
-  <cross-site-constraint>
-    <allow-origin>*</allow-origin>
-  </cross-site-constraint>
+  ...
 
 </service>
 ```
@@ -227,9 +223,7 @@ The following snippet shows the App1 service configuration in the gateway-config
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </connect-options>
 
-  <cross-site-constraint>
-    <allow-origin>*</allow-origin>
-  </cross-site-constraint>
+  ...
 
 </service>
 ```
@@ -337,9 +331,7 @@ The service configuration for the App2 service is exactly the same as for App1, 
       <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
     </connect-options>
 
-    <cross-site-constraint>
-      <allow-origin>*</allow-origin>
-    </cross-site-constraint>
+    ...
 
   </service>
 ```
