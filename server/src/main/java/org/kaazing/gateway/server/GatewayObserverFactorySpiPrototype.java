@@ -84,4 +84,9 @@ public abstract class GatewayObserverFactorySpiPrototype extends GatewayObserver
     public void startingGateway() {
         // NOOP: to be extended as desired
     }
+
+    @Override
+    public void stoppedGateway() {
+        // NOOP: to be extended as desired
+    }
 }
