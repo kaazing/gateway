@@ -132,7 +132,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
         Port 1080 is the convention for SOCKS connections, but you can use any port.
 
-        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway.
+        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway. This example uses a property (`${dmz.backplane.hostname}`) to specify the hostname, because the hostname is referenced more than once in the configuration.
 
     -   Specify the [socks.mode](../admin-reference/r_configure_gateway_service.md#socksmode) option in reverse mode so the internal Gateway initiates a connection toward the DMZ Gateway: 
     
@@ -276,7 +276,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
         Port 1080 is the convention for SOCKS connections, but you can use any port.
 
-        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway.
+        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway. This example uses a property (`${dmz.backplane.hostname}`) to specify the hostname, because the hostname is referenced more than once in the configuration.
 
     -   Specify the [socks.mode](../admin-reference/r_configure_gateway_service.md#socksmode) option in reverse mode:
 
