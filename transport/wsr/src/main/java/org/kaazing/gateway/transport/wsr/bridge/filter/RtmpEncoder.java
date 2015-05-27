@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,7 +37,6 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.kaazing.gateway.transport.bridge.CachingMessageEncoder;
-import org.kaazing.gateway.transport.ws.extension.EscapeSequencer;
 import org.kaazing.gateway.transport.wsr.RtmpBinaryDataMessage;
 import org.kaazing.gateway.transport.wsr.RtmpCommandMessage;
 import org.kaazing.gateway.transport.wsr.RtmpConnectCommandMessage;
@@ -73,23 +72,16 @@ public class RtmpEncoder extends ProtocolEncoderAdapter {
 	// TODO variable size chunks
 	private final int maximumChunkSize = MAXIMUM_CHUNK_SIZE;
 
-
-    protected EscapeSequencer escapeSequencer;
-
     private final CachingMessageEncoder cachingEncoder;
 
 	public RtmpEncoder(IoBufferAllocatorEx<?> allocator) {
 	    this(IO_MESSAGE_ENCODER, allocator);
 	}
-	
+
     public RtmpEncoder(CachingMessageEncoder cachingEncoder, IoBufferAllocatorEx<?> allocator) {
         this.cachingEncoder = cachingEncoder;
 		this.allocator = allocator;
 	}
-
-    public void setEscapeSequencer(EscapeSequencer sequencer) {
-        this.escapeSequencer = sequencer;
-    }
 
     @Override
 	public void encode(IoSession session, Object message,
@@ -234,23 +226,9 @@ public class RtmpEncoder extends ProtocolEncoderAdapter {
 
 		switch (message.getDataKind()) {
 		case BINARY: {
-
 			RtmpBinaryDataMessage binaryMessage = (RtmpBinaryDataMessage)message;
 			IoBufferEx buf = binaryMessage.getBytes();
-
-            byte[]escapeBytes = null;
-            boolean escaping = false;
-            if ( escapeSequencer != null ) {
-                escapeBytes = escapeSequencer.getEscapeBytes(buf);
-                escaping = escapeBytes.length > 0;
-            }
-
-            if ( escaping ) {
-                out.write(RtmpEncodingSupport.doBinaryEscapedEncode(allocator, buf, message, maximumChunkSize, escapeBytes));
-            } else {
-                out.write(RtmpEncodingSupport.doBinaryEncode(allocator, buf, message, maximumChunkSize));
-            }
-
+            out.write(RtmpEncodingSupport.doBinaryEncode(allocator, buf, message, maximumChunkSize));
 			break;
 		}
 		case SAMPLE_ACCESS: {

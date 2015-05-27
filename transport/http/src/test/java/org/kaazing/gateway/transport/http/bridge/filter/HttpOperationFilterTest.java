@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,12 +45,12 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpOperationFilter.HttpGetCookiesOperation;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpOperationFilter.HttpSetCookiesOperation;
-import org.kaazing.gateway.transport.http.util.Expectations;
-import org.kaazing.gateway.transport.http.util.Mockery;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.Mockery;
 
 public class HttpOperationFilterTest {
 
@@ -58,7 +58,7 @@ public class HttpOperationFilterTest {
     public void testInjectSetCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final IoFilterChain filterChain = context.mock(IoFilterChain.class);
@@ -66,7 +66,7 @@ public class HttpOperationFilterTest {
 
         context.checking(new Expectations() {
             {
-                
+
                 allowing(session).getFilterChain(); will(returnValue(filterChain));
                 allowing(filterChain).getEntry(with(aNonNull(HttpOperationFilter.class))); will(returnValue(entry));
                 allowing(entry).getName(); will(returnValue("operation"));
@@ -74,7 +74,7 @@ public class HttpOperationFilterTest {
                 oneOf(nextFilter).messageReceived(with(session), with(aNonNull(HttpRequestMessage.class)));
             }
         });
-        
+
         HttpOperationFilter filter = new HttpOperationFilter();
         HttpRequestMessage message = new HttpRequestMessage();
         message.setRequestURI(URI.create("/path/;api/set-cookies"));
@@ -86,7 +86,7 @@ public class HttpOperationFilterTest {
     public void testInjectGetCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final IoFilterChain filterChain = context.mock(IoFilterChain.class);
@@ -113,7 +113,7 @@ public class HttpOperationFilterTest {
     public void testSetCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = new DummySessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
@@ -122,7 +122,7 @@ public class HttpOperationFilterTest {
         response.setVersion(HttpVersion.HTTP_1_1);
         response.setStatus(HttpStatus.SUCCESS_OK);
         response.setHeader("Set-Cookie", "COOKIE=value;");
-        
+
         context.checking(new Expectations() {
             {
                 oneOf(nextFilter).filterWrite(with(session), with(hasMessage(response)));
@@ -212,7 +212,7 @@ public class HttpOperationFilterTest {
             public Iterable<String> simplePropertyNames() {
                 return properties.keySet();
             }
-            
+
         };
         properties.put("service.domain", ".cookie.domain");
 
@@ -225,7 +225,7 @@ public class HttpOperationFilterTest {
     public void testSetCookiesWithFragmentation() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = new DummySessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
@@ -234,7 +234,7 @@ public class HttpOperationFilterTest {
         response.setVersion(HttpVersion.HTTP_1_1);
         response.setStatus(HttpStatus.SUCCESS_OK);
         response.setHeader("Set-Cookie", "COOKIE=value;");
-        
+
         context.checking(new Expectations() {
             {
                 oneOf(nextFilter).filterWrite(with(session), with(hasMessage(response)));
@@ -259,7 +259,7 @@ public class HttpOperationFilterTest {
     public void testGetCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = new DummySessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
@@ -270,7 +270,7 @@ public class HttpOperationFilterTest {
         ByteBuffer buf = Utils.asByteBuffer("COOKIE=value\r\n");
         response.setHeader("Content-Type", "text/plain; charset=UTF-8");
         response.setContent(new HttpContentMessage(allocator.wrap(buf), true));
-        
+
         context.checking(new Expectations() {
             {
                 oneOf(nextFilter).filterWrite(with(session), with(hasMessage(response)));
@@ -290,7 +290,7 @@ public class HttpOperationFilterTest {
     public void testGetCookiesWithNoCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
-        
+
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = new DummySessionEx();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();

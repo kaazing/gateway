@@ -33,6 +33,7 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.ClusterManagementListener;
@@ -79,8 +80,9 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.io.IoMessage;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionParameter;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionParameter;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.gateway.transport.wsr.WsrSession;
@@ -201,6 +203,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         final Properties props = KaazingSNMPAgentProperties.getProperties();
         MOInputFactory configurationFactory = new MOInputFactory() {
+            @Override
             public MOInput createMOInput() {
                 return new PropertyMOInput(props, SnmpManagementServiceHandler.this);
             }
@@ -306,6 +309,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         return targetAddressName;
     }
 
+    @Override
     public Variable getVariable(String name) {
         OID oid;
         OctetString context = null;
@@ -326,79 +330,99 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                 private boolean completed;
                 private MOQuery query;
 
+                @Override
                 public boolean hasError() {
                     return false;
                 }
 
+                @Override
                 public void setErrorStatus(int errorStatus) {
                     status.setErrorStatus(errorStatus);
                 }
 
+                @Override
                 public int getErrorStatus() {
                     return status.getErrorStatus();
                 }
 
+                @Override
                 public RequestStatus getStatus() {
                     return status;
                 }
 
+                @Override
                 public MOScope getScope() {
                     return scope;
                 }
 
+                @Override
                 public VariableBinding getVariableBinding() {
                     return vb;
                 }
 
+                @Override
                 public Request getRequest() {
                     return null;
                 }
 
+                @Override
                 public Object getUndoValue() {
                     return null;
                 }
 
+                @Override
                 public void setUndoValue(Object undoInformation) {
                 }
 
+                @Override
                 public void completed() {
                     completed = true;
                 }
 
+                @Override
                 public boolean isComplete() {
                     return completed;
                 }
 
+                @Override
                 public void setTargetMO(ManagedObject managedObject) {
                 }
 
+                @Override
                 public ManagedObject getTargetMO() {
                     return null;
                 }
 
+                @Override
                 public int getIndex() {
                     return 0;
                 }
 
+                @Override
                 public void setQuery(MOQuery query) {
                     this.query = query;
                 }
 
+                @Override
                 public MOQuery getQuery() {
                     return query;
                 }
 
+                @Override
                 public SubRequestIterator repetitions() {
                     return null;
                 }
 
+                @Override
                 public void updateNextRepetition() {
                 }
 
+                @Override
                 public Object getUserObject() {
                     return null;
                 }
 
+                @Override
                 public void setUserObject(Object userObject) {
                 }
 
@@ -739,6 +763,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             // case (see DefaultPDUFactory for the implementation to copy and change.)
             PDUFactory pduFactory =
                     new PDUFactory() {
+                        @Override
                         public PDU createPDU(Target target) {
                             return new KaazingPDU();
                         }
@@ -1403,6 +1428,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
              */
             class GetSubtreeHandler implements RequestHandler {
 
+                @Override
                 public void processPdu(Request request, MOServer server) {
                     // this check is the CommandProcessor private static method 'initRequestPhase'.
                     if (request.getPhase() == Request.PHASE_INIT) {
@@ -1484,6 +1510,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                     }
                 }
 
+                @Override
                 public boolean isSupported(int pduType) {
                     return pduType == KaazingPDU.GETSUBTREE;
                 }
@@ -1591,6 +1618,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         // Run setting up the summary data schedule OFF any IO thread, if we happen to be on one now.
         managementContext.runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidSystemSummaryData.clone())
                         .append(managementBean.getGatewayManagementBean().getId());
@@ -1608,6 +1636,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         // Run setting up the summary data schedule OFF any IO thread, if we happen to be on one now.
         managementContext.runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidCpuListSummaryData.clone())
                         .append(managementBean.getGatewayManagementBean().getId());
@@ -1632,6 +1661,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         // Run setting up the summary data schedule OFF any IO thread, if we happen to be on one now.
         managementContext.runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidNicListSummaryData.clone())
                         .append(managementBean.getGatewayManagementBean().getId());
@@ -1657,6 +1687,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         // Run setting up the summary data schedule OFF any IO thread, if we happen to be on one now.
         managementContext.runManagementTask(new Runnable() {
+            @Override
             public void run() {
                 OID dataOID = ((OID) MIBConstants.oidJvmSummaryData.clone())
                         .append(managementBean.getGatewayManagementBean().getId());
@@ -1858,19 +1889,20 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
     */
                     protocolAttributes = new JSONObject();
 
-                    List<WsExtension> extensions = wsBridgeSession.getWsExtensions().asList();
+                    List<WebSocketExtension> extensions = wsBridgeSession.getExtensions();
                     if (extensions != null && extensions.size() > 0) {
                         JSONObject jsonObj = new JSONObject();
 
-                        for (WsExtension extension : extensions) {
-                            String token = extension.getExtensionToken();
+                        for (WebSocketExtension extension : extensions) {
+                            ExtensionHeader extensionHeader = extension.getExtensionHeader();
+                            String token = extensionHeader.getExtensionToken();
 
                             JSONArray paramsArray = null;
 
-                            if (extension.hasParameters()) {
+                            if (extensionHeader.hasParameters()) {
                                 paramsArray = new JSONArray();
 
-                                for (WsExtensionParameter param : extension.getParameters()) {
+                                for (ExtensionParameter param : extensionHeader.getParameters()) {
                                     String name = param.getName();
                                     String value = param.getValue();
 
@@ -2008,6 +2040,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
 
         private GatewayManagementBean gatewayBean;
 
+        @Override
         public void setGatewayBean(GatewayManagementBean gatewayBean) {
             this.gatewayBean = gatewayBean;
         }

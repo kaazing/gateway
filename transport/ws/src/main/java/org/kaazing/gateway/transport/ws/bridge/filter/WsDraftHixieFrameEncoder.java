@@ -39,19 +39,7 @@ public class WsDraftHixieFrameEncoder extends AbstractWsFrameEncoder {
         super(cachingEncoder, allocator);
     }
 
-    protected IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return WsDraftHixieFrameEncodingSupport.doTextEscapedEncode(allocator, flags, message, escapedBytes);
-    }
-
     @Override
-    protected IoBufferEx doContinuationEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
-
-    protected IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return WsDraftHixieFrameEncodingSupport.doBinaryEscapedEncode(allocator, flags, message, escapedBytes);
-    }
-
     protected IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return WsDraftHixieFrameEncodingSupport.doTextEncode(allocator, flags, message);
     }
@@ -61,10 +49,12 @@ public class WsDraftHixieFrameEncoder extends AbstractWsFrameEncoder {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 
+    @Override
     protected IoBufferEx doBinaryEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return WsDraftHixieFrameEncodingSupport.doBinaryEncode(allocator, flags, message);
     }
 
+    @Override
     protected IoBufferEx doCloseEncode(IoBufferAllocatorEx<?> allocator, int flags, WsCloseMessage message) {
         return WsDraftHixieFrameEncodingSupport.doCloseEncode(allocator, flags);
     }

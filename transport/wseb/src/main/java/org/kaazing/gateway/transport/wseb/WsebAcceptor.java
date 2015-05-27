@@ -31,16 +31,15 @@ import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
-import static org.kaazing.gateway.transport.ws.extension.WsExtensionUtils.negotiateWebSocketExtensions;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
+import java.net.ProtocolException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
@@ -93,12 +92,11 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
-import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
-import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
@@ -176,6 +174,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
@@ -211,6 +210,11 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
         this.resourceAddressFactory = resourceAddressFactory;
+    }
+
+    @Resource(name = "ws.acceptor")
+    public void setWsAcceptor(WsAcceptor acceptor) {
+        this.webSocketExtensionFactory = acceptor.getWebSocketExtensionFactory();
     }
 
     @Resource(name = "schedulerProvider")
@@ -544,35 +548,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             assert localAddress != null;
 
             final String wsProtocol0 = wsProtocol;
-            List<String> clientRequestedWsExtensions =  session.getReadHeaders(WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS);
+            List<String> clientRequestedExtensions =  session.getReadHeaders(WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
 
-
-
-            // null next-protocol from client gives null local address when we only have explicitly named next-protocol binds
-            List<String> wsExtensions = (wseLocalAddress != null) ? wseLocalAddress.getOption(EXTENSIONS) : EXTENSIONS.defaultValue();
-
-            WsExtensionNegotiationResult extNegotiationResult =
-                negotiateWebSocketExtensions(wseLocalAddress, session,
-                    WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS,
-                    clientRequestedWsExtensions, wsExtensions);
-            if (extNegotiationResult.isFailure()) {
-                // This happens when the extension negotiation leads to
-                // a fatal failure; the session should be closed because
-                // the service REQUIRED some extension that the client
-                // did not request.
-                if (logger.isDebugEnabled()) {
-                    URI requestURI = session.getRequestURL();
-                    logger.debug(String.format(
-                            "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                            session.getMethod(), requestURI, session, clientRequestedWsExtensions));
-                }
-                session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                session.setReason("WebSocket Extensions not found");
-                session.close(false);
+            // negotiate extensions
+            final List<WebSocketExtension> negotiated;
+            try {
+                negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                        webSocketExtensionFactory, (WsResourceAddress) wseLocalAddress, clientRequestedExtensions,
+                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
+            }
+            catch(ProtocolException e) {
+                WsUtils.handleExtensionNegotiationException(session, clientRequestedExtensions, e, logger);
                 return;
             }
-
-            final ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
             // require POST method with text/plain content-type header
             // to prevent cross-site GETs or form POSTs
@@ -648,12 +636,13 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                     HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.set(wsSession,
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.get(session));
-                    
-                    IoSessionEx wsExtensionsSession = wsebSession.getTransportSession();
+
+                    IoSessionEx extensionsSession = wsebSession.getTransportSession();
                     // TODO: add extension filters when we adopt the new webSocket extension SPI
-                    wsExtensions0.set(wsSession);
-                    wsExtensionsSession.getFilterChain().fireSessionCreated();
-                    wsExtensionsSession.getFilterChain().fireSessionOpened();
+                    IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
+                    WsUtils.addExtensionFilters(negotiated, extensionsFilterChain, false);
+                    extensionsFilterChain.fireSessionCreated();
+                    extensionsFilterChain.fireSessionOpened();
                 }
             }, new Callable<WsebSession>() {
                 @Override
@@ -661,8 +650,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
-                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), wsExtensions0, clientIdleTimeout, inactivityTimeout,
-                            validateSequenceNo, sequenceNo);
+                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), clientIdleTimeout, inactivityTimeout,
+                            validateSequenceNo, sequenceNo, negotiated);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
                     newWsebSession.setBridgeServiceFactory(bridgeServiceFactory);
