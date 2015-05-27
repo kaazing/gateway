@@ -44,7 +44,7 @@ To Set Up The Gateway as a Load Balancer
 
     **Important:**
 
-    -   The `ws.bind` element in `accept-options` is used to bind the public URI in the `accept` element to the local IP address of the cluster member. This allows the `accept` URIs in the `balancer` service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member (contain the local IP address of that cluster member). For more information, see [*protocol*.bind](../admin-reference/r_conf_service.md#protocolbind).
+    -   The `ws.bind` element in `accept-options` is used to bind the public URI in the `accept` element to the local IP address of the cluster member. This allows the `accept` URIs in the `balancer` service to be identical on every cluster member. Only the `ws.bind` element needs to be unique in each cluster member (contain the local IP address of that cluster member). For more information, see [*protocol*.bind](../admin-reference/r_configure_gateway_service.md#protocolbind).
     -   For production environments, the hostname in the `accept` element must resolve in DNS to the IP addresses of every cluster member. Multiple DNS A resource records should be registered for the hostname in the `accept` URI, with each A record mapping the hostname to the IP address of one cluster member. When a client resolves the hostname of the `accept` URI in DNS, it will receive the IP address of a cluster member and connect. To register these DNS records, you will need access to the public DNS zone for the hostname, or the assistance of your network administrator or Internet Service Provider (ISP). All ISPs provide ways for their customers to update their DNS zones with new hostnames and IP addresses.
 
 2.  Configure the services of each cluster member (for example, the `echo` service) with a `balance` element for each URI accepted by the `balancer` service. Clients will use these URIs to connect to the service.
@@ -139,7 +139,5 @@ Notes
 See Also
 --------
 
--   [Common Gateway Production Topologies](../admin-reference/c_topologies.md).
--   For information on the order of subordinate elements in a service, see the [service](../admin-reference/r_conf_service.md#service) element reference.
-
-
+-   [Common KAAZING Gateway Production Topologies](../admin-reference/c_topologies.md).
+-   For information about the order of subordinate elements in a service, see the [service](../admin-reference/r_configure_gateway_service.md#service) element reference.

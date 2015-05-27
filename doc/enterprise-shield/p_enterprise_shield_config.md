@@ -79,7 +79,9 @@ The following snippet shows the App1 Service configuration in the `gateway-confi
     <ssl.verify-client>required</ssl.verify-client>
   </accept-options>
 
-  ...
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
 
 </service>
 ```
@@ -130,7 +132,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
         Port 1080 is the convention for SOCKS connections, but you can use any port.
 
-        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway. Remember that this example uses a property (`${dmz.backplane.hostname}`) to specify the hostname, because the hostname is referenced more than once in the configuration.
+        **Note:** The settings for `http.transport` and `socks.mode` must match on both the DMZ Gateway and the internal Gateway.
 
     -   Specify the [socks.mode](../admin-reference/r_configure_gateway_service.md#socksmode) option in reverse mode so the internal Gateway initiates a connection toward the DMZ Gateway: 
     
@@ -180,7 +182,9 @@ The service configuration for the App2 service is exactly the same as for App1, 
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </accept-options>
 
-  ...
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
 
 </service>
 ```
@@ -223,7 +227,9 @@ The following snippet shows the App1 service configuration in the gateway-config
     <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
   </connect-options>
 
-  ...
+  <cross-site-constraint>
+    <allow-origin>*</allow-origin>
+  </cross-site-constraint>
 
 </service>
 ```
@@ -331,7 +337,9 @@ The service configuration for the App2 service is exactly the same as for App1, 
       <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
     </connect-options>
 
-    ...
+    <cross-site-constraint>
+      <allow-origin>*</allow-origin>
+    </cross-site-constraint>
 
   </service>
 ```

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.ws;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.Transport;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 
 final class WsTransport extends Transport {
 
@@ -44,13 +46,15 @@ final class WsTransport extends Transport {
 
     private final WsAcceptor acceptor;
     private final BridgeConnector connector;
+    private final WebSocketExtensionFactory extensionFactory;
 
     WsTransport(Properties configuration) {
-        acceptor = new WsAcceptor();
+        extensionFactory = WebSocketExtensionFactory.newInstance();
+        acceptor = new WsAcceptor(extensionFactory);
         acceptor.setConfiguration(configuration);
         connector = new WsConnector();
     }
-    
+
     @Override
     public BridgeAcceptor getAcceptor() {
         return acceptor;
@@ -69,6 +73,11 @@ final class WsTransport extends Transport {
     @Override
     public BridgeConnector getConnector(ResourceAddress address) {
         return connector;
+    }
+
+    @Override
+    public Collection<?> getExtensions() {
+        return extensionFactory.availableExtensions();
     }
 
     @Override

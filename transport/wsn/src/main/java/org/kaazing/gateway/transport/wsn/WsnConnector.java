@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -335,7 +335,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                     IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
                                                     WsBufferAllocator wsAllocator = new WsBufferAllocator(parentAllocator);
                                                     return new WsnSession(WsnConnector.this, getProcessor(), localAddress, wsnConnectAddress,
-                                                            parent, wsAllocator, httpSession.getRequestURI(), null, null, WebSocketWireProtocol.RFC_6455);
+                                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455, null);
                                                 }
                                             };
 
@@ -442,7 +442,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 httpSession.setWriteHeader("Origin", origin);
                 httpSession.setWriteHeader("Sec-WebSocket-Version", "13");
                 httpSession.setWriteHeader("Sec-WebSocket-Key", STATIC_WEBSOCKET_KEY); // TODO use random key?
-                
+
                 List<String> protocols = asList(wsnConnectAddress.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS));
 
                 // include next-protocol (if specified) with supported protocols
@@ -452,7 +452,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                     allProtocols.add(wsNextProtocol);
                     protocols = allProtocols;
                 }
-                
+
                 if (!protocols.isEmpty()) {
                     httpSession.setWriteHeader("Sec-WebSocket-Protocol", Utils.asCommaSeparatedString(protocols));
                 }

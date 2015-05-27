@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,11 +36,11 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
-    
+
     static protected final int cacheSize = 1024;  //cache size when read direct ByteBuffer
     static final byte BINARY_TYPE_BYTE = (byte) 0x80;
     static final byte SPECIFIED_LENGTH_TEXT_TYPE_BYTE = (byte) 0x81;
-    
+
     private static final byte[] EMPTY_PING_BYTES = new byte[]{(byte)0x89, (byte)0x7f, (byte)0x30}; //escaped
     private static final byte[] EMPTY_PONG_BYTES = new byte[]{(byte)0x8A, (byte)0x7f, (byte)0x30}; //escaped
 
@@ -51,8 +51,8 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
     public WsebFrameEscapeZeroAndNewLineEncoder(CachingMessageEncoder cachingEncoder, IoBufferAllocatorEx<?> allocator) {
         super(cachingEncoder, allocator);
     }
-    
-    
+
+
     protected final ThreadLocal<byte[]> readCacheRef = new VicariousThreadLocal<byte[]>() {
 
         @Override
@@ -60,7 +60,7 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
             return new byte[cacheSize];
         }
     };
-    
+
     private final ThreadLocal<byte[]> writeCacheRef = new VicariousThreadLocal<byte[]>() {
 
         @Override
@@ -68,7 +68,7 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
             return new byte[cacheSize * 2];
         }
     };
-    
+
     private IoBufferEx escapeZeroAndNewLine(IoBufferAllocatorEx<?> allocator, int flags, IoBufferEx decoded, ByteBuffer prefix) {
 
         if (decoded.hasArray()) {
@@ -80,18 +80,18 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
     }
 
     private IoBufferEx escapeZeroAndNewLineWithDirect(IoBufferAllocatorEx<?> allocator, int flags, IoBufferEx decoded, ByteBuffer prefix) {
-        
+
         byte[] readCache = readCacheRef.get();
         byte[] writeCache = writeCacheRef.get();
-        
+
         final int decodedInitialPosition = decoded.position();
         final int decodedLimit = decoded.limit();
-        
+
         ByteBuffer encodedBuf = null;
-        
+
         int[] encodedArrayInsertionCount = new int[1];
         ByteBuffer emptyArray = ByteBuffer.allocate(0); //pass an empty array as prefix
-        
+
         while(decoded.hasRemaining()) {
             int bytesToRead = decoded.remaining();
             if (bytesToRead > cacheSize) {
@@ -108,7 +108,7 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
                 //first escaped char found, allocate decodedBuf now, maximam size is (read so far + insertedCount + 2 * remaining data )
                 int totalSize = prefix.remaining() + currentPosition - decodedInitialPosition + encodedArrayInsertionCount[0]; //read so far + insertedCount
                 totalSize +=  2 * decoded.remaining();
-                
+
                 encodedBuf = ByteBuffer.allocateDirect(totalSize);
                 encodedBuf.put(prefix);
                 //copy data has been read from previous loops
@@ -128,12 +128,12 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
             }
             // move to next block
         }
-                
+
         if (encodedBuf != null) {
             encodedBuf.flip();
             return allocator.wrap(encodedBuf);
         }
-        
+
         //no escape char found, return prefix + decodedBuf
         decoded.position(decodedInitialPosition);
         decoded.limit(decodedLimit);
@@ -141,18 +141,18 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
           encodedBuf.put(prefix);
            encodedBuf.put(decoded.buf());
            encodedBuf.flip();
-            
+
         return allocator.wrap(encodedBuf);
     }
-    
+
     private IoBufferEx escapeZeroAndNewLineWithHeap(IoBufferAllocatorEx<?> allocator, int flags, IoBufferEx decoded, ByteBuffer prefix) {
-        
+
         byte[] decodedArray = decoded.array();
         final int decodedArrayOffset = decoded.arrayOffset();
         int decodedArrayPosition = decodedArrayOffset + decoded.position();
         final int decodedArrayInitialPosition = decodedArrayPosition;
         final int decodedArrayLimit = decodedArrayOffset + decoded.limit();
-        
+
         int[] encodedArrayInsertionCount = new int[1];
         byte[] encodedArray = null;
         encodedArray = doEscapeZeroAndNewline(decodedArray, decodedArrayInitialPosition, decodedArrayInitialPosition, decodedArrayLimit, encodedArray, encodedArrayInsertionCount, prefix);
@@ -163,55 +163,46 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
         else {
             encodedArray = Arrays.copyOf(prefix.array(), prefix.remaining() + decoded.remaining());
             System.arraycopy(decodedArray, decodedArrayInitialPosition, encodedArray, prefix.remaining(), decoded.remaining());
-               return allocator.wrap(ByteBuffer.wrap(encodedArray));           
+               return allocator.wrap(ByteBuffer.wrap(encodedArray));
         }
 
     }
 
     // quick calculate WsebFrame prefix bytes
-    protected ByteBuffer calculatePrefixBytes(int payloadLength, byte[] escapedBytes, byte opCode) {
+    protected ByteBuffer calculatePrefixBytes(int payloadLength, byte opCode) {
 
 
         int totalOffset = 2 + WsUtils.calculateEncodedLengthSize(payloadLength);
 
-        if (escapedBytes != null) {
-            totalOffset += 2 + escapedBytes.length; //KG-10449, the injected frame must include opCode (0x80 or 0x81) and length of escapedBytes (0x04), like: [opCode, Length, escapeBytes]
-        }
-
         ByteBuffer binary = ByteBuffer.allocate(totalOffset);
-        if (escapedBytes != null) {
-            binary.put(opCode);
-            WsUtils.encodeLength(binary, escapedBytes.length);
-            binary.put(escapedBytes);
-        }
         binary.put(opCode);
         WsUtils.encodeLength(binary, payloadLength);
 
         //the only possible escaped byte in prefix bytes is the last byte
-        
+
         switch(binary.get(binary.position() - 1)) {
-            case 0x00:            
+            case 0x00:
                 binary.put(binary.position() - 1,(byte) 0x7f);
                 binary.put((byte) 0x30);
             break;
-            case 0x0a:                
+            case 0x0a:
                 binary.put(binary.position() - 1,(byte) 0x7f);
                 binary.put((byte) 0x6e);
             break;
-            case 0x0d:                
+            case 0x0d:
                 binary.put(binary.position() - 1,(byte) 0x7f);
                 binary.put((byte) 0x72);
             break;
-            case 0x7f:                
+            case 0x7f:
                 binary.put(binary.position() - 1,(byte) 0x7f);
                 binary.put((byte) 0x7f);
-            break;            
+            break;
         }
         binary.flip();
         return binary;
 
     }
-    
+
     // insert escape characters into encodedArray, return number of inserted bytes
     private byte[] doEscapeZeroAndNewline(byte[] decodedArray,int decodedArrayOffset, int decodedArrayPosition,int decodedArrayLimit, byte[] encodedArray, int[] encodedArrayInsertionCount, ByteBuffer prefix) {
         int prefixLength = prefix.remaining();
@@ -291,31 +282,21 @@ public class WsebFrameEscapeZeroAndNewLineEncoder extends WsebFrameEncoder {
         return encodedArray;
     }
 
-    private IoBufferEx doEscapeEncode(IoBufferAllocatorEx<?> allocator, int flags, IoBufferEx ioBuf, byte opCode, byte[] escapedBytes) {
-        ByteBuffer prefix = calculatePrefixBytes(ioBuf.buf().remaining(), escapedBytes, opCode);
+    private IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, IoBufferEx ioBuf, byte opCode) {
+        ByteBuffer prefix = calculatePrefixBytes(ioBuf.buf().remaining(), opCode);
         return escapeZeroAndNewLine(allocator, flags, ioBuf, prefix);
     }
 
     @Override
-    protected IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {        
-        return doEscapeEncode(allocator, flags, message.getBytes(), SPECIFIED_LENGTH_TEXT_TYPE_BYTE, escapedBytes);
-    }
-
-    @Override
-    protected IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapeEncode(allocator, flags, message.getBytes(), BINARY_TYPE_BYTE, escapedBytes);
-    }
-
-    @Override
     protected IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
-        return doEscapeEncode(allocator, flags, message.getBytes(), SPECIFIED_LENGTH_TEXT_TYPE_BYTE, null);
+        return doEncode(allocator, flags, message.getBytes(), SPECIFIED_LENGTH_TEXT_TYPE_BYTE);
     }
 
     @Override
     protected IoBufferEx doBinaryEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
-        return doEscapeEncode(allocator, flags, message.getBytes(), BINARY_TYPE_BYTE, null);
+        return doEncode(allocator, flags, message.getBytes(), BINARY_TYPE_BYTE);
     }
-    
+
     @Override
     protected IoBufferEx doPingEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         WsPingMessage ping = (WsPingMessage)message;

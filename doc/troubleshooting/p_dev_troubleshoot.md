@@ -18,5 +18,3 @@ The following topics describe how to troubleshoot clients built using the KAAZIN
 | Google Web Toolkit   | [Google Web Toolkit: Troubleshooting](../dev-gwt/p_dev_gwt.md#troubleshooting)                   |
 
 Also, see [Troubleshoot the Gateway](o_troubleshoot.md) for help troubleshooting your configuration, clusters, and security.
-
-

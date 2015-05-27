@@ -70,4 +70,4 @@ To override the default logging configuration of the embedded Gateway:
 Next Steps
 ----------
 
-[Monitor and Manage an Embedded Gateway](../embedded/p_embed_monitor.md)
+[Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)

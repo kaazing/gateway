@@ -31,7 +31,7 @@ The standard way to set up and maintain your Gateway configuration is by editing
         The `gateway-config-minimal.xml` (recommended) contains the minimal set of properties necessary to run the Gateway.
 
     -   Create and modify your own custom copy of a configuration file.
-      
+
       **Note:** Consider using the `gateway-config.xml` file during your development and testing phase. Then, when you are ready to deploy the Gateway to your production environment, create a copy, remove any unnecessary elements from the file, and rename the file to `gateway-config-minimal.xml`. To ensure that the `gateway-config.xml` file is not used in production, rename the file (for example: `test-gateway-config.xml`).
 
 3.  At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
@@ -106,4 +106,3 @@ See Also
 
 -   [Configuration Element Index](r_configure_gateway_element_index.md)
 -   [About Gateway Configuration](c_configure_gateway_concepts.md)
-

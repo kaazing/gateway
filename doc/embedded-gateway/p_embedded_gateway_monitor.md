@@ -90,4 +90,4 @@ private MBeanServer mbs = null;
 Next Steps
 ----------
 
-[Troubleshoot Your Embedded Gateway](../embedded/p_embed_tshoot.md)
+[Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_troubleshoot.md)

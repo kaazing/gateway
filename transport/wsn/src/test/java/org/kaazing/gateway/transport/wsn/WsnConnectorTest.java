@@ -50,7 +50,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -61,8 +61,10 @@ import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.NioSocketConnector;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBufferAllocator;
+import  org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -73,7 +75,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnConnectorTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private SchedulerProvider schedulerProvider;
 
@@ -105,7 +107,7 @@ public class WsnConnectorTest {
         schedulerProvider = new SchedulerProvider();
 
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
         serviceFactory = new BridgeServiceFactory(transportFactory);
 
         tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
@@ -133,6 +135,8 @@ public class WsnConnectorTest {
         wsnAcceptor.setBridgeServiceFactory(serviceFactory);
         wsnAcceptor.setResourceAddressFactory(addressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
+        WsAcceptor wsAcceptor = new WsAcceptor(WebSocketExtensionFactory.newInstance());
+        wsnAcceptor.setWsAcceptor(wsAcceptor);
 
         wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
 		wsnConnector.setConfiguration(new Properties());

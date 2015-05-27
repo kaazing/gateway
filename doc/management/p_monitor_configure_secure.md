@@ -41,7 +41,7 @@ To Secure Management for the Gateway
           <authorization-constraint>
             <require-role>ADMINISTRATOR</require-role>
           </authorization-constraint>
-          
+
           <cross-site-constraint>
             <allow-origin>*</allow-origin>
           </cross-site-constraint>

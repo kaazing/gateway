@@ -49,6 +49,7 @@ To Configure the `GATEWAY_OPTS` Environment Variable
     GATEWAY_OPTS="-DGATEWAY_CONFIG=gateway-config.xml
     -DGATEWAY_LOG_DIRECTORY=/home/myname/gateway/logs"
     ```
+
     To learn more about using the `-Dproperty=value` switch on the Java command line, see the [Java Application Launcher documentation](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/java.html).
 
     **Notes:**
@@ -120,7 +121,7 @@ Here is an alternative way to specify the configuration file:
 Mac Example:
 
 `$ export GATEWAY_OPTS="-DGATEWAY_CONFIG=/Users/johnsmith/Desktop/Gateway/conf/gateway-config-test.xml"`
- 
+
 `$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
 
 Here is an alternative way to specify the configuration file:
@@ -132,7 +133,7 @@ Here is an alternative way to specify the configuration file:
 Windows Example:
 
 `> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config-test.xml -DGATEWAY_CONFIG_DIRECTORY=C:\Gateway\conf`
- 
+
  `> C:\Gateway\bin\gateway.start.bat`
 
 Mac Example:

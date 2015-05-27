@@ -153,5 +153,3 @@ Notes
 
 -   Command Center connects to each cluster member using that Gateway's `management.snmp` service. If that service is not defined in the Gateway's configuration file (such as `gateway-config.xml`), then Command Center cannot connect to the cluster member. See the [Service Reference](../admin-reference/r_configure_gateway_service.md#service) documentation for help configuring the `management.snmp` service for Command Center.
 -   In a Gateway cluster, if a cluster member’s configuration is different than the other members of the cluster, the dissimilar member is quarantined. Thus, a cluster member with no management section in the Gateway's configuration (such as `gateway-config.xml` file) will be quarantined. But because the member has no management section, Command Center cannot interact with that member. To troubleshoot common problems with startup, security, clusters, and clients, see [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md).
-
-

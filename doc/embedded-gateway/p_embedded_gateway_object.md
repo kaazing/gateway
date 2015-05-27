@@ -55,4 +55,4 @@ public class GatewayTest {
 Next Steps
 ----------
 
-[Use the Embedded Gateway Methods](../embedded/p_embed_methods.md)
+[Use the Embedded Gateway Methods](../embedded-gateway/p_embedded_gateway_methods.md)

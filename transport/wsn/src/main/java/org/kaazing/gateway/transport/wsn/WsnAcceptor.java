@@ -27,18 +27,19 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
-import static org.kaazing.gateway.transport.ws.extension.WsExtension.EndpointKind.SERVER;
-import static org.kaazing.gateway.transport.ws.extension.WsExtensionUtils.negotiateWebSocketExtensions;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.ACTIVE_EXTENSIONS_KEY;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_WEBSOCKET_EXTENSIONS;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketProtocol;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -76,6 +77,7 @@ import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -110,8 +112,6 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
-import org.kaazing.gateway.transport.ws.bridge.extensions.WsExtensions;
-import org.kaazing.gateway.transport.ws.bridge.filter.ExtensionAwareCodecFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBufferAllocator;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter;
@@ -122,8 +122,8 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameUtf8Filter;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
-import org.kaazing.gateway.transport.ws.extension.WsExtensionNegotiationResult;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
@@ -139,7 +139,8 @@ import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
-    private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY = new TypedAttributeKey<>(WsnAcceptor.class, "subject_transfer");
+    private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY
+                            = new TypedAttributeKey<>(WsnAcceptor.class, "subject_transfer");
 
     static final String CHECK_ALIVE_FILTER = WsnProtocol.NAME + "#checkalive";
 	        static final String CODEC_FILTER = WsnProtocol.NAME + "#codec";
@@ -166,13 +167,12 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final String HEADER_WEBSOCKET_PROTOCOL = "WebSocket-Protocol";
 
     private static final String HEADER_X_WEBSOCKET_PROTOCOL = "X-WebSocket-Protocol";
-    private static final String HEADER_X_WEBSOCKET_EXTENSION = WsExtensions.HEADER_X_WEBSOCKET_EXTENSIONS;
 
     // "secure" header keys introduced in protocol draft 76
     private static final String HEADER_SEC_WEBSOCKET_LOCATION = "Sec-WebSocket-Location";
     private static final String HEADER_SEC_WEBSOCKET_ORIGIN = "Sec-WebSocket-Origin";
     private static final String HEADER_SEC_WEBSOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
-    private static final String HEADER_SEC_WEBSOCKET_EXTENSION = WsExtensions.HEADER_SEC_WEBSOCKET_EXTENSIONS;
+    private static final String HEADER_SEC_WEBSOCKET_EXTENSION = WsUtils.HEADER_SEC_WEBSOCKET_EXTENSIONS;
 
     private static final String REASON_WEB_SOCKET_HANDSHAKE = "Web Socket Protocol Handshake";
     private static final String HEADER_WEBSOCKET_KEY1 = "Sec-WebSocket-Key1";
@@ -197,6 +197,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    private WebSocketExtensionFactory webSocketExtensionFactory;
 
     public WsnAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -217,10 +218,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         this.bridgeServiceFactory = bridgeServiceFactory;
     }
 
-
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory factory) {
         this.resourceAddressFactory = factory;
+    }
+
+    @Resource(name = "ws.acceptor")
+    public void setWsAcceptor(WsAcceptor acceptor) {
+        this.webSocketExtensionFactory = acceptor.getWebSocketExtensionFactory();
     }
 
     @Override
@@ -497,14 +502,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             final URI httpUri = (URI) session.getAttribute(HTTP_REQUEST_URI_KEY);
 
             //
-            // Create the re-validation address to bind to, and re-validation uri to associate with the WsnSession.
-            //
-            final boolean isLightweightWsnSession = localAddress.getOption(WsResourceAddress.LIGHTWEIGHT);
-            String sessionId = HttpUtils.newSessionId();
-
-            final ActiveWsExtensions wsExtensions = ActiveWsExtensions.get(session);
-
-            //
             // Build a new Wsn Session.
             //
             final WsnSession wsnSession = newSession(new IoSessionInitializer<IoFuture>() {
@@ -515,7 +512,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     WsnSession typedWsnSession = (WsnSession) wsnSession;
                     typedWsnSession.setSubject(SUBJECT_TRANSFER_KEY.remove(session));
                     wsnSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, session.getAttribute(BridgeSession.NEXT_PROTOCOL_KEY));
-                    ActiveWsExtensions.get(session).set(wsnSession);
+                    ACTIVE_EXTENSIONS_KEY.set(wsnSession, ACTIVE_EXTENSIONS_KEY.get(session));
                     HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.set(wsnSession, HttpMergeRequestFilter.INITIAL_HTTP_REQUEST_KEY.remove(session));
                     DRAFT76_KEY3_BUFFER_KEY.set(wsnSession, DRAFT76_KEY3_BUFFER_KEY.remove(session));
                     if (HttpEmptyPacketWriterFilter.writeExtraEmptyPacketRequired(wsnSession)) {
@@ -531,8 +528,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     IoBufferAllocatorEx<WsBuffer> allocator = wasHixieHandshake ? new WsDraftHixieBufferAllocator(parentAllocator)
                                                                                 : new WsBufferAllocator(parentAllocator, false /* masking */);
                     WsnSession newWsnSession = new WsnSession(WsnAcceptor.this, getProcessor(), localAddress, remoteAddress,
-                            session, allocator, httpRequestURI, loginContext == null ? new DefaultLoginResult() : loginContext.getLoginResult(), wsExtensions,
-                            wsVersion);
+                            session, allocator, httpRequestURI, loginContext == null ? new DefaultLoginResult() : loginContext.getLoginResult(),
+                            wsVersion, null);
 
                     IoHandler handler = getHandler(localAddress);
 
@@ -618,7 +615,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     WsPingMessage ping = (WsPingMessage) wsMessage;
                     IoBufferEx payload = ping.getBytes();
                     WsPongMessage pong = new WsPongMessage(payload);
-                    pong.setStyle(ping.getStyle());
                     session.write(pong);
                     break;
                 case PONG:
@@ -753,8 +749,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 filterChain.addLast(WsAcceptor.CLOSE_FILTER, new WsCloseFilter(wsVersion, configuration, logger, scheduler));
             }
 
-            // Use ping and pong, if available, to detect and close dead connections (KG-6379)
-            if (codecRequired) { // do NOT include the filter on the upper ws session (extended handshake case)
+            // Set the extensions on whichever WsnSession they were negotiated (light weight or wsx).
+            List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
+            if (extensions != null) {
+                WsUtils.addExtensionFilters(extensions, filterChain, codecRequired);
+            }
+
+            // Use ping and pong, if available, to detect and close dead connections.
+            if (codecRequired) {
                 if (rfc) {
                     WsCheckAliveFilter.addIfFeatureEnabled(filterChain, CHECK_ALIVE_FILTER, localAddress.getOption(INACTIVITY_TIMEOUT), logger);
                 }
@@ -766,27 +768,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     }
                 }
             }
-
-            // Set the extensions only once all the extensions have been negotiated.
-            if (!lightWeightWsnSession) {
-                ActiveWsExtensions extensions = ActiveWsExtensions.get(session);
-                IoSession codecSession = session;
-                if ( !codecRequired ) {
-                    // completed extended handshake case, session is a WsnSession so we must get its parent,
-                    // and merge in the extensions from the original (RFC 6455) handshake
-                    codecSession = ((BridgeSession) session).getParent();
-                    codec = (IoFilter) codecSession.removeAttribute("codecKey");
-                    ActiveWsExtensions extensionsFromOriginalHandshake = ActiveWsExtensions.get(codecSession);
-                    extensions = ActiveWsExtensions.merge(extensions, extensionsFromOriginalHandshake, SERVER);
+            else {
+                // Extended handshake. Move WsCheckAliveFilter from the parent (which is the lightweight wsn session
+                // with the ws codec) onto this session's filter chain, so ping pong extension (if negotiated) has a
+                // chance to transform its pings.
+                if (rfc) {
+                    IoSession parent = ((AbstractBridgeSession<?,?>) filterChain.getSession()).getParent();
+                    WsCheckAliveFilter.moveIfFeatureEnabled(parent.getFilterChain(), filterChain, CHECK_ALIVE_FILTER, localAddress.getOption(INACTIVITY_TIMEOUT), logger);
                 }
-                if ( codec instanceof ExtensionAwareCodecFilter) {
-                    ((ExtensionAwareCodecFilter) codec).setExtensions(codecSession, extensions);
-                }
-                else {
-                    throw new IllegalArgumentException(
-                            "Please use an escape-aware codec filter when escape sequences are required for extensions.");
-                }
-                extensions.updateBridgeFilters(codecSession.getFilterChain());
             }
         }
 
@@ -797,9 +786,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             removeFilter(filterChain, text);
             removeFilter(filterChain, WsAcceptor.CLOSE_FILTER);
             IoSession session = filterChain.getSession();
-            ActiveWsExtensions extensions = ActiveWsExtensions.get(session);
+            List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
             if (extensions != null) {
-                extensions.removeBridgeFilters(filterChain);
+                WsUtils.removeExtensionFilters(extensions, filterChain);
             }
         }
     };
@@ -1085,41 +1074,19 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     final ResourceAddress wsLocalAddress = localAddress;
 
-
-                    // null next-protocol from client gives null local address when we only have explicitly named next-protocol binds
-                    List<String> wsExtensions = (wsLocalAddress != null) ? wsLocalAddress.getOption(EXTENSIONS) : EXTENSIONS.defaultValue();
-
-                    // negotiate extension
-                    WsExtensionNegotiationResult extNegotiationResult =
-                            negotiateWebSocketExtensions(
-                                    wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                                    clientRequestedExtensions, wsExtensions);
-                    if (extNegotiationResult.isFailure()) {
-                        // This happens when the extension negotiation leads to
-                        // a fatal failure; the session should be closed because
-                        // the service REQUIRED some extension that the client
-                        // did not request.
-                        if (logger.isDebugEnabled()) {
-                            if (logger.isDebugEnabled()) {
-                                // KG-10384: make sure port is explicitly included in the request URI we use for lookup since it is always
-                                // included when the service registry is created since we force use of explicit port in accepts.
-                                // TODO: consider doing this "at the edge" when the HTTP request object (or http session) is created.
-                                URI requestURI = HttpUtils.getRequestURI(session.getRequestURL(), session.getReadHeader("Host"),
-                                        session);
-                                logger.debug(String.format(
-                                        "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                        session.getMethod(), requestURI, session, clientRequestedExtensions));
-                            }
-                        }
-                        session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                        session.setReason("WebSocket Extensions not found");
-                        session.close(false);
+                    // negotiate extensions
+                    final List<WebSocketExtension> negotiated;
+                    try {
+                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
+                    }
+                    catch(ProtocolException e) {
+                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                         return;
                     }
 
-
                     final String wsProtocol0 = chosenProtocol;
-                    final ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // do upgrade
                     UpgradeFuture upgradeFuture = session.upgrade(ioBridgeHandler);
@@ -1129,7 +1096,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             IoSession parent = future.getSession();
                             parent.setAttribute("encoding", encoding);
                             parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                            wsExtensions0.set(parent);
+                            ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                             WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                             parent.setAttribute(WEB_SOCKET_VERSION_KEY, wsVersion);
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
@@ -1316,31 +1283,19 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                     final ResourceAddress wsLocalAddress = localAddress;
 
-                    WsExtensionNegotiationResult extNegotiationResult =
-                            negotiateWebSocketExtensions(
-                                    wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                                    clientRequestedExtensions, wsLocalAddress.getOption(EXTENSIONS));
-                    if (extNegotiationResult.isFailure()) {
-                        // This happens when the extension negotiation leads to
-                        // a fatal failure; the session should be closed because
-                        // the service REQUIRED some extension that the client
-                        // did not request.
-                    if (logger.isDebugEnabled()) {
-                        if (logger.isDebugEnabled()) {
-                            URI requestURI = session.getRequestURL();
-                            logger.debug(String.format(
-                                    "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                    session.getMethod(), requestURI, session, clientRequestedExtensions));
-                        }
+                    // negotiate extensions
+                    final List<WebSocketExtension> negotiated;
+                    try {
+                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
                     }
-                        session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                        session.setReason("WebSocket Extensions not found");
-                        session.close(false);
+                    catch(ProtocolException e) {
+                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                         return;
                     }
 
                     final String wsProtocol0 = wsProtocol;
-                    final  ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                     // Encoding.TEXT is default behavior
                     switch (encoding) {
@@ -1375,7 +1330,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                     parent.write(digest);
                                 }
 
-                                wsExtensions0.set(parent);
+                                ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                                 WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                                 DRAFT76_KEY3_BUFFER_KEY.set(parent, key3Duplicate);
                                 parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_76);
@@ -1469,10 +1424,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                    List<String> clientRequestedExtensions = session.getReadHeaders(HEADER_SEC_WEBSOCKET_EXTENSION);
                    if ( clientRequestedExtensions == null ) {
-                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSION);
+                           clientRequestedExtensions = session.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
                    }
                    if ( clientRequestedExtensions == null ) {
-                       clientRequestedExtensions = session.getReadHeaders(WsExtensions.HEADER_WEBSOCKET_EXTENSIONS);
+                       clientRequestedExtensions = session.getReadHeaders(HEADER_WEBSOCKET_EXTENSIONS);
                    }
 
 
@@ -1507,31 +1462,20 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
                    final ResourceAddress wsLocalAddress = localAddress;
 
-                   WsExtensionNegotiationResult extNegotiationResult =
-                       negotiateWebSocketExtensions(
-                               wsLocalAddress, session, HEADER_SEC_WEBSOCKET_EXTENSION,
-                               clientRequestedExtensions, wsLocalAddress.getOption(EXTENSIONS));
-                   if (extNegotiationResult.isFailure()) {
-                       // This happens when the extension negotiation leads to
-                       // a fatal failure; the session should be closed because
-                       // the service REQUIRED some extension that the client
-                       // did not request.
-                    if (logger.isDebugEnabled()) {
-                        if (logger.isDebugEnabled()) {
-                            URI requestURI = session.getRequestURL();
-                            logger.debug(String.format(
-                                    "Rejected %s request for URI \"%s\" on session '%s': failed to negotiate client requested extensions '%s'",
-                                    session.getMethod(), requestURI, session, clientRequestedExtensions));
-                        }
-                    }
-                       session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
-                       session.setReason("WebSocket Extensions not found");
-                       session.close(false);
+
+                   // negotiate extensions
+                   final List<WebSocketExtension> negotiated;
+                   try {
+                       negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
+                               webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
+                               session, HEADER_X_WEBSOCKET_EXTENSIONS);
+                   }
+                   catch(ProtocolException e) {
+                       handleExtensionNegotiationException(session, clientRequestedExtensions, e);
                        return;
                    }
 
                    final String wsProtocol0 = wsProtocol;
-                   final ActiveWsExtensions wsExtensions0 = extNegotiationResult.getExtensions();
 
                    // Encoding.TEXT is default behavior
                    switch (encoding) {
@@ -1541,7 +1485,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                        break;
                    }
 
-
                    // do upgrade
                    UpgradeFuture upgrade = session.upgrade(ioBridgeHandler);
                    upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
@@ -1550,7 +1493,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                            IoSession parent = future.getSession();
                            parent.setAttribute("encoding", encoding);
                            parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                           wsExtensions0.set(parent);
+                           ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                            parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                            WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                            parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
@@ -1624,6 +1567,11 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
             return false;
         }
+    }
+
+    private void handleExtensionNegotiationException(HttpAcceptSession session, List<String> clientRequestedExtensions,
+                                                            ProtocolException e) {
+        WsUtils.handleExtensionNegotiationException(session, clientRequestedExtensions, e, logger);
     }
 
 }

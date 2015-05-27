@@ -1,8 +1,8 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Common Gateway Production Topologies
+-   Common KAAZING Gateway Production Topologies
 
-Common Gateway Production Topologies 
+Common KAAZING Gateway Production Topologies
 ========================================================================
 
 This topic describes some of the most common production topologies for the KAAZING Gateway. It is intended to familiarize network administrators and systems software developers with general KAAZING Gateway production deployments. Your actual production deployment of the Gateway will likely be some variation of the topologies covered here.
@@ -24,7 +24,7 @@ This topic covers the following information:
 DMZ to Trusted Network Topology
 -------------------------------------------------------------
 
-In this topology, client to back-end service or message broker connections are protected by two layers of network security, a firewall-protected DMZ and a firewall-protected trusted network. A Gateway or Gateway cluster is deployed in the firewall-protected DMZ peripheral network to service requests from KAAZING Gateway clients on the Web. The DMZ Gateway connects through a firewall to a second Gateway deployed in the internal, trusted network. The Internal Gateway connects to the back-end service or message broker.
+In this topology, client to back-end service or message broker connections are protected by two layers of network security, a firewall-protected DMZ and a firewall-protected Trusted Network. A Gateway or Gateway cluster is deployed in the firewall-protected DMZ peripheral network to service requests from KAAZING Gateway clients on the Web. The DMZ Gateway connects through a firewall to a second Gateway deployed in the internal, Trusted Network. The Internal Gateway connects to the back-end service or message broker.
 
 Here is an example of the topology.
 
@@ -46,7 +46,7 @@ This topology is typically deployed using Gateway clustering and load balancing.
 Enterprise Shield™  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ---------------------------------------------------------------------
 
-Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, trusted network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../reverse-connectivity/o_enterprise_shield_checklist.md#about-enterprise-shield).
+Enterprise Shield™ protects your enterprise network by using reverse connectivity (a reverse proxy connection) to initiate the connection from the Gateway in the internal, Trusted Network towards a DMZ Gateway. The Enterprise Shield™ topology is documented in depth in [About Enterprise Shield™](../enterprise-shield/o_enterprise_shield_checklist.md#about-enterprise-shield).
 
 Virtual Private Connection
 --------------------------------------------

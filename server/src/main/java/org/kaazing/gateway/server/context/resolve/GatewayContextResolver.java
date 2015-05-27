@@ -275,9 +275,9 @@ public class GatewayContextResolver {
         gatewayContext.getInjectables().putAll(injectables);
 
         injectResources(services,
-                bridgeServiceFactory,
-                dependencyContexts,
-                injectables);
+                    bridgeServiceFactory,
+                    dependencyContexts,
+                    injectables);
 
         return gatewayContext;
     }
@@ -1142,7 +1142,7 @@ public class GatewayContextResolver {
         for (String transportName : transportFactory.getTransportNames()) {
             Transport transport = transportFactory.getTransport(transportName);
             DefaultTransportContext transportContext =
-                    new DefaultTransportContext(transportName, transport.getAcceptor(), transport.getConnector());
+                    new DefaultTransportContext(transportName, transport);
             transportContextsByName.put(transportName, transportContext);
         }
         return transportContextsByName;
@@ -1221,14 +1221,21 @@ public class GatewayContextResolver {
                                  Map<String, Object> injectables) {
 
         // add all of the transport-driven acceptors and connectors
-        for (DefaultTransportContext transport : transportContextsByName.values()) {
-            BridgeAcceptor acceptor = transport.getAcceptor();
+        for (DefaultTransportContext transportContext : transportContextsByName.values()) {
+            BridgeAcceptor acceptor = transportContext.getAcceptor();
             if (acceptor != null) {
-                injectables.put(transport.getName() + ".acceptor", acceptor);
+                injectables.put(transportContext.getName() + ".acceptor", acceptor);
             }
-            BridgeConnector connector = transport.getConnector();
+            BridgeConnector connector = transportContext.getConnector();
             if (connector != null) {
-                injectables.put(transport.getName() + ".connector", connector);
+                injectables.put(transportContext.getName() + ".connector", connector);
+            }
+        }
+
+        // inject into transport extensions
+        for (DefaultTransportContext transport : transportContextsByName.values()) {
+            for (Object extension: transport.getTransport().getExtensions()) {
+                injectResources(extension, injectables);
             }
         }
 

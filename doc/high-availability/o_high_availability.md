@@ -13,5 +13,3 @@ This checklist provides the steps necessary to configure KAAZING Gateway for hig
 | 2   | Combine two or more Gateways into a cluster.                   | [Configure a KAAZING Gateway Cluster](p_high_availability_cluster.md)                                   |
 | 3   | Set up the Gateway as a load balancer.                      | [Set Up KAAZING Gateway as a Load Balancer](p_high_availability_loadbalance.md)                         |
 | 4   | Resolve issues encountered when configuring high availability. | [Troubleshoot KAAZING Gateway Clusters and Load Balancing](../troubleshooting/p_troubleshoot_high_availability.md) |
-
-

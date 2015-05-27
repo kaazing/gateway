@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -42,6 +42,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.slf4j.Logger;
@@ -63,6 +64,8 @@ public class WsAcceptor implements BridgeAcceptor {
 
     private static Logger logger = LoggerFactory.getLogger(WsAcceptor.class);
 
+    private final WebSocketExtensionFactory extensionFactory;
+
     private Map<String, BridgeAcceptor> wsBridgeAcceptorMap;
 
     private BridgeAcceptor wsebAcceptor;
@@ -74,7 +77,6 @@ public class WsAcceptor implements BridgeAcceptor {
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
     }
-
 
     @Resource(name = "wseb.acceptor")
     public void setWsebAcceptor(BridgeAcceptor wsebAcceptor) {
@@ -91,7 +93,8 @@ public class WsAcceptor implements BridgeAcceptor {
         this.wsrAcceptor = wsrAcceptor;
     }
 
-    public WsAcceptor() {
+    public WsAcceptor(WebSocketExtensionFactory extensionFactory) {
+        this.extensionFactory = extensionFactory;
     }
 
     @Override
@@ -105,7 +108,7 @@ public class WsAcceptor implements BridgeAcceptor {
         if (!canBind(schemeName)) {
             throw new IllegalArgumentException(format("Unexpected scheme \"%s\" for URI: %s", schemeName, location));
         }
-        
+
         // note: ignore BIND_ALTERNATE (used by delegate acceptors)
         do {
             BridgeAcceptor bridgeAcceptor = selectWsAcceptor(address);
@@ -176,7 +179,7 @@ public class WsAcceptor implements BridgeAcceptor {
             }
             address = address.getOption(ALTERNATE);
         } while (address != null);
-        
+
         return future;
     }
 
@@ -189,7 +192,11 @@ public class WsAcceptor implements BridgeAcceptor {
     @Override
     public void dispose() {
     }
-    
+
+    public WebSocketExtensionFactory getWebSocketExtensionFactory() {
+        return extensionFactory;
+    }
+
     //
     // Code for enabling a subset of these transports.
     //

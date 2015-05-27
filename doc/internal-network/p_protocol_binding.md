@@ -123,6 +123,4 @@ You have configured the Gateway on an internal network. For more information abo
 Notes
 -----
 
--   The [*protocol*.bind](../admin-reference/r_configure_gateway_service_defaults.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` but then accept on a different protocol (such as TCP) will not be affected by the `ws.bind` `accept-option`.
-
-
+-   The [*protocol*.bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element binds on the specified address, but only routes traffic for the given *protocol*. If you specify `ws.bind` but then accept on a different protocol (such as TCP) will not be affected by the `ws.bind` `accept-option`.

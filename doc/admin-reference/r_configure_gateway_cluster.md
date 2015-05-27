@@ -2,7 +2,7 @@
 -   [Documentation](../index.md)
 -   Administration with KAAZING Gateway
 
-Cluster Reference 
+Cluster Reference
 ========================================
 
 This document describes the elements and properties you can configure in the KAAZING Gateway to achieve high availability.
@@ -52,7 +52,7 @@ The following example shows a `cluster` service that accepts on `tcp://192.168.2
 
 ### Notes
 
--   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../reverse-connectivity/p_enterprise_shield_cluster.md).
+-   To configure clustering in an Enterprise Shield™ topology, see [Configure Enterprise Shield™ in a Cluster](../enterprise-shield/p_enterprise_shield_cluster.md).
 
 Summary
 -------

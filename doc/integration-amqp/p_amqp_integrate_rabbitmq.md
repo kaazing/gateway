@@ -32,6 +32,7 @@ To Integrate RabbitMQ Messaging
 3.  Open the configuration file for the Gateway, located at `GATEWAY_HOME/conf/gateway-config.xml`.
 4.  Locate the [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy) service:
 
+
     ``` xml
       <service>
         <accept>ws://${gateway.hostname}:${gateway.extras.port}/amqp</accept>

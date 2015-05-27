@@ -68,9 +68,9 @@ Identifies the keystore file that contains the certificates for the host names a
 
 | Element                                           | Description                                                                                                                                                                                |
 |---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="keystore_type"></a>type                  | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
-| <a name="keystore_file"></a>file                  | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                       |
-| <a name="keystore_passwordfile"></a>password-file | The name of the file containing the password used by the Gateway and other applications to access the keystore file.                                                                    |
+| type                  | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
+| file                  | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                       |
+| password-file | The name of the file containing the password used by the Gateway and other applications to access the keystore file.                                                                    |
 
 #### Example
 
@@ -184,6 +184,7 @@ Use `authentication` to configure the authentication parameters for the `realm`,
 
 - ##### `http-challenge-scheme`
   This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, `Application Negotiate`, or `Application Token`:
+  
   - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges. 
   - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../../index.md) documentation.
   - Use `Application Token` to allow the client to present a third-party token or custom token to be presented to your custom login module.  

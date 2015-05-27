@@ -10,7 +10,7 @@ This procedure describes how to use the methods available to the Gateway objects
 Before You Begin
 ----------------
 
-This procedure is part of [Embed KAAZING Gateway in Your Java Application](../embedded/o_embed.md):
+This procedure is part of [Embed KAAZING Gateway in Your Java Application](../embedded-gateway/o_embedded_gateway.md):
 
 1.  [Set Up Your Development Environment](../embedded-gateway/p_embedded_gateway_setup.md)
 2.  [Create the Embedded Gateway Object](../embedded-gateway/p_embedded_gateway_object.md)
@@ -143,4 +143,4 @@ gateway.destroy();
 Next Steps
 ----------
 
-[Configure Logging for an Embedded Gateway](../embedded/p_embed_logging.md)
+[Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_logging.md)

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+O * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,20 +21,19 @@
 
 package org.kaazing.gateway.transport.ws.bridge.filter;
 
-import static org.kaazing.gateway.transport.ws.AbstractWsControlMessage.Style.CLIENT;
-
 import java.util.Properties;
 
+import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
@@ -68,7 +67,7 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private NextAction nextAction = NextAction.PING;
 
     private long pingSentTime = 0;
-    
+
     private final IoFutureListener<WriteFuture> setPingTimeOnWrite = new IoFutureListener<WriteFuture>() {
         @Override
         public void operationComplete(WriteFuture future) {
@@ -96,11 +95,22 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
             }
         }
     }
-    
-    public static void updateExtensions(IoFilterChain filterChain, ActiveWsExtensions extensions) {
+
+    public static void moveIfFeatureEnabled(IoFilterChain fromChain, IoFilterChain toChain,
+                                            String filterName, long inactivityTimeout, Logger logger) {
+        if (inactivityTimeout > 0) {
+            IoFilter filter = fromChain.remove(filterName);
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Moving %s filter %s to child filter chain", filterName, filter));
+            }
+            toChain.addLast(filterName, filter);
+        }
+    }
+
+    public static void updateExtensions(IoFilterChain filterChain) {
         WsCheckAliveFilter filter = (WsCheckAliveFilter) filterChain.get(WsCheckAliveFilter.class);
         if (filter != null) {
-            filter.init(filterChain, extensions);
+            filter.init(filterChain);
         }
     }
 
@@ -114,9 +124,15 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
 
     @Override
     public void onPostAdd(IoFilterChain filterChain, String name, NextFilter nextFilter) throws Exception {
-        init(filterChain, ActiveWsExtensions.get(filterChain.getSession()));
+        init(filterChain);
     }
 
+    @Override
+    public void onPreRemove(IoFilterChain filterChain,
+                            String name,
+                            NextFilter nextFilter) {
+        filterChain.getSession().getConfig().setReaderIdleTime(0);
+    }
 
     @Override
     protected void doMessageReceived(NextFilter nextFilter, IoSessionEx session, Object message) throws Exception {
@@ -147,17 +163,25 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
             switch (nextAction) {
             case PONG:
                 logger.info("Client connection {} has been aborted because network connectivity has been lost", session);
-                
+
                 // Disable idle timeout so it doesn't fire while we're closing
                 session.getConfig().setReaderIdleTime(0);
-                
+
                 // Make sure we don't attempt WS CLOSE handshake in wsn case (want to close the transport immediately)
-                // TODO: remove this once we eliminate WsCloseFilter
-                IoFilterChain filterChain = session.getFilterChain();
+                // Alter this once we eliminate WsCloseFilter
+                IoFilterChain filterChain;
+                if (session instanceof AbstractBridgeSession<?,?>
+                        && ((AbstractBridgeSession<?,?>) session).getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
+                    // Extended handshake case, WsCloseFilter is on the parent session
+                    filterChain = ((AbstractBridgeSession<?,?>) session).getParent().getFilterChain();
+                }
+                else {
+                    filterChain = session.getFilterChain();
+                }
                 if (filterChain.contains(WsAcceptor.CLOSE_FILTER)) {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
-                
+
                 session.close(true);
                 break;
             case PING:
@@ -176,8 +200,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
         }
         return inactivityTimeoutIn;
     }
-    
-    private void init(IoFilterChain filterChain, ActiveWsExtensions extensions) {
+
+    private void init(IoFilterChain filterChain) {
         IoSessionEx session = (IoSessionEx)filterChain.getSession();
         schedulePing(session);
     }
@@ -206,10 +230,9 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
             logger.trace("WsCheckAliveFilter.pingWritten at time " + pingSentTime);
         }
     }
-    
+
     private void writePing(NextFilter nextFilter, IoSessionEx session) throws Exception {
         WsPingMessage emptyPing = new WsPingMessage();
-        emptyPing.setStyle(CLIENT);
         setReadIdleTimeInMillis(session, maxExpectedRtt);
         nextAction = NextAction.PONG;
         if (logger.isTraceEnabled()) {
