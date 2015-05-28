@@ -21,9 +21,12 @@
 
 package org.kaazing.gateway.service.amqp;
 
+import static java.util.ServiceLoader.load;
+
 import java.util.ServiceLoader;
 
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.amqp.handler.AmqpProxyServiceHandlerSpi;
 import org.kaazing.gateway.service.proxy.ProxyService;
 import org.kaazing.gateway.service.proxy.ProxyServiceHandler;
 import org.slf4j.Logger;
@@ -39,6 +42,17 @@ public class AmqpProxyService extends ProxyService {
         logger = context.getLogger();
         logger.trace("Initializing AMQP Proxy service");
         super.init(context);
+
+        ProxyServiceHandler handler = getHandler();
+        if (handler instanceof AmqpProxyServiceHandlerSpi) {
+            AmqpProxyServiceHandlerSpi amqpProxyServiceHandler = (AmqpProxyServiceHandlerSpi)handler;
+
+            // Instantiate any proxy service extensions and register them with the handler
+            ServiceLoader<AmqpProxyServiceExtensionSpi> amqpProxyServiceExtensions = load(AmqpProxyServiceExtensionSpi.class);
+            for (AmqpProxyServiceExtensionSpi amqpProxyServiceExtension : amqpProxyServiceExtensions) {
+                amqpProxyServiceHandler.registerExtension(amqpProxyServiceExtension);
+            }
+        }
     }
 
     @Override
