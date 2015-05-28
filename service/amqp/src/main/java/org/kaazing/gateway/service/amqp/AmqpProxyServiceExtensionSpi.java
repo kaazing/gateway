@@ -21,6 +21,7 @@
 package org.kaazing.gateway.service.amqp;
 
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.service.ServiceProperties;
 
 public abstract class AmqpProxyServiceExtensionSpi {
     /**
@@ -28,6 +29,8 @@ public abstract class AmqpProxyServiceExtensionSpi {
      * the extension is giving an opportunity to initialize the associated session.
      *
      * @param acceptSession - the accept side of the end-to-end proxy connection
+     * @param properties - the service properties that might contain useful values, for
+     *                     example the VIRTUAL_HOST to use
      */
-    public abstract void initAcceptSession(IoSession acceptSession);
+    public abstract void initAcceptSession(IoSession acceptSession, ServiceProperties properties);
 }

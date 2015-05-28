@@ -31,7 +31,6 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.service.amqp.AmqpProxyServiceExtensionSpi;
 import org.kaazing.gateway.service.amqp.ProxyServiceHandlerSpi;
 import org.kaazing.gateway.service.amqp.amqp091.codec.AmqpCodecFilter;
-import org.kaazing.gateway.service.proxy.ProxyServiceExtensionSpi;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
 
@@ -55,7 +54,7 @@ public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
         if (logger.isDebugEnabled()) {
             logger.debug("Session created: " + ioSession);
         }
-        
+
         super.sessionCreated(ioSession);
     }
     
@@ -81,7 +80,7 @@ public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
         // Eventually, the protocol will be available as a property of
         // the service. For time being, let's hardcode it to AMQP 0_9_1.
         ProtocolCodecFilter codec = new AmqpCodecFilter(client);
-        IoFilterChain       filterChain = session.getFilterChain();
+        IoFilterChain filterChain = session.getFilterChain();
 
         filterChain.addLast(AmqpCodecFilter.NAME, codec);
 
@@ -94,7 +93,7 @@ public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
         // acting as a client is the connect side, so !client is the accept side).
         if (!client) {
             for (AmqpProxyServiceExtensionSpi extension : extensions) {
-                extension.initAcceptSession(session);
+                extension.initAcceptSession(session, getServiceContext().getProperties());
             }
         }
     }
