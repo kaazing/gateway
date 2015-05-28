@@ -64,7 +64,7 @@ For Administrators
 -   [Configure Authentication and Authorization](security/o_aaa_config_authentication.md)
 -   [Configure Kerberos V5 Network Authentication](security/o_krb.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
--   [Configure Enterprise Shield&trade; with the Gateway](reverse-connectivity/o_rc_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Configure Enterprise Shield&trade; with the Gateway](enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Implement Protocol Injection](security/p_aaa_inject.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Implement User Identity Promotion](security/p_aaa_userid_promo.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 

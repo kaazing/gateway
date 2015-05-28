@@ -5,7 +5,7 @@
 Configure the Gateway on an Internal Network
 ==============================================================================================================
 
-This document describes how to integrate KAAZING Gateway into an internal network using the [*protocol*.bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element. In this procedure you will do the following:
+This document describes how to configure KAAZING Gateway in an internal network using the [*protocol*.bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element. In this procedure you will do the following:
 
 1.  Configure network protocol bindings for all services.
 2.  Configure the Gateway to accept traffic on multiple IP addresses.
