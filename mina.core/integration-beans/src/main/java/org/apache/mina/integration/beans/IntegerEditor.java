@@ -35,6 +35,6 @@ public class IntegerEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Integer.valueOf(0);
+        return 0;
     }
 }

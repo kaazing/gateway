@@ -148,6 +148,10 @@
             <artifactId>snmp4j</artifactId>
         </dependency>
         <dependency>
+            <groupId>uk.co.real-logic</groupId>
+            <artifactId>Agrona</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>snmp4j-agent</artifactId>
         </dependency>

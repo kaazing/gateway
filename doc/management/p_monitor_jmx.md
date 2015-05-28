@@ -5,27 +5,28 @@
 Monitor with JMX
 ===============================================================
 
-KAAZING Gateway supports Java Management Extension (JMX) access through any JMX-compliant console, such as Java's built-in Java Management and Monitoring Console ([JConsole](http://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html "Using JConsole - Java SE Monitoring and Management Guide")) or MC4J, or through any program that supports communication using the JMX protocol. The Gateway supports a `management.jmx` service to allow JMX-compliant applications to monitor current Gateway service and session state and operate on individual sessions. See the [Service Reference](../admin-reference/r_conf_service.md) for information about the JMX management service (`management.jmx`).
+KAAZING Gateway supports Java Management Extension (JMX) access through any JMX-compliant console, such as Java's built-in Java Management and Monitoring Console ([JConsole](http://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html "Using JConsole - Java SE Monitoring and Management Guide")) or MC4J, or through any program that supports communication using the JMX protocol. The Gateway supports a `management.jmx` service to allow JMX-compliant applications to monitor current Gateway service and session state and operate on individual sessions. See the [Service Reference](../admin-reference/r_configure_gateway_service.md) for information about the JMX management service (`management.jmx`).
 
 Before You Begin
 ----------------
 
-This procedure is part of [Monitor the Gateway](o_admin_monitor.md):
+This procedure is part of [Monitor the Gateway](o_monitor.md):
 
-1. [Introduction to Monitoring KAAZING Gateway](o_admin_monitor.md#introduction-to-monitoring-kaazing-gateway)
-2. [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md)
+1. [Introduction to Monitoring KAAZING Gateway](o_monitor.md#introduction-to-monitoring-kaazing-gateway)
+2. [Secure KAAZING Gateway Monitoring](p_monitor_configure_secure.md)
 3. Monitor a Gateway or Gateway cluster
     -   [Monitor with Command Center](p_monitor_cc.md) (**Recommended**)
     -   **Monitor with JMX**
-4. [Troubleshoot the Gateway](../troubleshooting/o_ts.md)
+4. [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md)
 
 To Monitor with JMX
 -------------------
 
 1.  Install and start the Gateway as described in [Setting Up the Gateway](../about/setup-guide.md). 
-    
-    **Note:** To connect to a JMX service on a Gateway running on an EC2 instance, configure the `GATEWAY_OPTS` environment variable with the `-Djava.rmi.server.hostname` property set to the IP address or hostname being used in the RMI registry. For example, `GATEWAY_OPTS="-Xmx512m -Djava.rmi.server.hostname=ec2-54-205-184-88.example-1.amazonaws.com`. See the topic [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_conf_gw_opts.md) for more information.
-2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_mgt_config_secure_mgmt.md) for more information.
+
+    **Note:** To connect to a JMX service on a Gateway running on an EC2 instance, configure the `GATEWAY_OPTS` environment variable with the `-Djava.rmi.server.hostname` property set to the IP address or hostname being used in the RMI registry. For example, `GATEWAY_OPTS="-Xmx512m -Djava.rmi.server.hostname=ec2-54-205-184-88.example-1.amazonaws.com`. See the topic [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_configure_gateway_opts.md) for more information.
+	
+2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_monitor_configure_secure.md) for more information.
 3.  Start your favorite Java monitoring console or application. This documentation uses JConsole for its examples.
 4.  Select the local process, for example `org.kaazing.gateway.server.Main` (as shown in the following screenshot), then click **Connect**. (For Windows, the local process name is `org.kaazing.gateway.server.WindowsMain`.)
 
@@ -33,7 +34,7 @@ To Monitor with JMX
 
     **Figure: Monitoring the Local Process with JConsole**
 
-    **Notes:** 
+    **Notes:**
 
     -   To connect to a *remote* process you must specify an address that uniquely represents the remote instance of the Gateway and provide the administrator's user name and password (by default, `admin`/`admin`). If there are multiple instances of the Gateway on a remote server then JMX management will be hosted on different ports.
     -   Use the following syntax to access your local Gateway as a remote process (where `hostname` is the remote hostname): `service:jmx:rmi://hostname/jndi/rmi://hostname:2020/jmxrmi`
@@ -102,7 +103,7 @@ You can also configure the Gateway to extract user information from the authenti
 </security>
 ```
 
-After you add the `userPrincipalClass` property to the [realm](../admin-reference/r_conf_security.md#realm), save the `gateway-config.xml` file and start the Gateway. You should then see notifications in JConsole of one of two types: `session.created` or `session.closed`.
+After you add the `userPrincipalClass` property to the [realm](../admin-reference/r_configure_gateway_security.md#realm), save the `gateway-config.xml` file and start the Gateway. You should then see notifications in JConsole of one of two types: `session.created` or `session.closed`.
 
 Next Step
 ---------
@@ -112,5 +113,5 @@ You have configured management with JMX for KAAZING Gateway.
 See Also
 --------
 
--   The [realm](../admin-reference/r_conf_security.md#realm) element for reference information about the `user-principal-class` property.
+-   The [realm](../admin-reference/r_configure_gateway_security.md#realm) element for reference information about the `user-principal-class` property.
 -   KAAZING Gateway [documentation](../index.md) for more information about. Gateway administration.

@@ -20,11 +20,13 @@ TLS/SSL uses certificates to establish trust between two network hosts over TCP 
 Here’s how a TLS/SSL session between a client and web server is established.
 
 ![A TLS session between a client and web server](../images/f-TLS-client-server.jpg)
+
 **Figure: A TLS/SSL session between a client and web server**
 
 The following figure shows how the Gateway uses TLS/SSL to secure network traffic with clients and back-end servers. See [How TLS/SSL Works with the Gateway](u_tls_works.md) for an in-depth discussion and examples of common TLS/SSL configurations with the Gateway.
 
 ![the Gateway uses TLS to secure network traffic with clients and back-end servers](../images/f-TLS-client-gateway-server.jpg)
+
 **Figure: The Gateway Uses one TLS/SSL Certificate to Secure Network Traffic With Clients and a Separate TLS/SSL Certificate to Secure Network Traffic With Back-end Servers**
 
 **Note:** The back-end server might be a back-end service or message broker or another Gateway. In most cases, a back-end service or message broker can be configured to ensure a connection uses TLS/SSL.
@@ -33,5 +35,3 @@ The following figure shows how the Gateway uses TLS/SSL to secure network traffi
 
 -   [Secure Network Traffic with the Gateway](o_tls.md)
 -   [How TLS/SSL Works with the Gateway](u_tls_works.md)
-
-

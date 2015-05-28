@@ -9,7 +9,7 @@ Typically, TLS/SSL is used to validate the Gateway's identity to the client and 
 
 **Note:** You instruct the Gateway to verify the KAAZING Gateway client's identity by including the `ssl.verify-client` element in the Gateway configuration. The Gateway will not establish a TLS/SSL connection (HTTPS or WSS) with the client until the identity of client has been verified.
 
-With client-side certificates, after the KAAZING Gateway client has validated the certificate from the Gateway, the Gateway responds with a challenge to the client. This challenge includes all the public keys included in the [truststore](../admin-reference/r_conf_security.md#truststore) of the Gateway. The client then attempts to find a matching private key in its keystore (or keystore equivalent based on the client operating system or web browser) and respond with that key.
+With client-side certificates, after the KAAZING Gateway client has validated the certificate from the Gateway, the Gateway responds with a challenge to the client. This challenge includes all the public keys included in the [truststore](../admin-reference/r_configure_gateway_security.md#truststore) of the Gateway. The client then attempts to find a matching private key in its keystore (or keystore equivalent based on the client operating system or web browser) and respond with that key.
 
 To prepare your clients for this client-side verification, you must create a new certificate for the client, put the public key of the certificate in the Gateway's truststore, put the private key in the client's keystore.
 
@@ -54,33 +54,31 @@ To Configure Clients to Provide TLS/SSL Certificates
               <ssl.verify-client>required</ssl.verify-client>
             </accept-options>
           </service>
-          
+
     ```
 
 5.  Start the Gateway.
 6.  Connect to the Gateway from the client using the HTTPS/WSS URI. The Gateway will provide the client with a certificate. Once the client has verified that certificate, the Gateway will request a client certificate from the client. Once the Gateway has verified the client certificate, the secure connection is established.
 
-**Notes:** 
+**Notes:**
 -   To use `ssl.verify-client` as an `accept-option` on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).
--   For more examples, including how to require clients to provide certificates in an Enterprise Shield&trade; topology, see [Configure Enterprise Shield&trade;](../reverse-connectivity/p_rc_config.md) and the [ssl.verify-client](../admin-reference/r_conf_service.md#sslverify-client) accept-option.
+-   For more examples, including how to require clients to provide certificates in an Enterprise Shield™ topology, see [Configure Enterprise Shield™](../enterprise-shield/p_enterprise_shield_config.md) and the [ssl.verify-client](../admin-reference/r_configure_gateway_service.md#sslverify-client) accept-option.
 
 Next Step
 ---------
 
-To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md)[].
+To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md)[].
 
 Notes
 -----
 
--   This procedure is recommended for added security in an Enterprise Shield&trade; topology. See [About Enterprise Shield&trade;](../reverse-connectivity/o_rc_checklist.md) for more topics and information.
--   Consider configuring the [socks.ssl.verify-client](../admin-reference/r_conf_service.md#sockssslverify-client) connect-option for end-to-end security in an Enterprise Shield&trade; topology.
+-   This procedure is recommended for added security in an Enterprise Shield™ topology. See [About Enterprise Shield™](../enterprise-shield/o_enterprise_shield_checklist.md) for more topics and information.
+-   Consider configuring the [socks.ssl.verify-client](../admin-reference/r_configure_gateway_service.md#sockssslverify-client) connect-option for end-to-end security in an Enterprise Shield™ topology.
 -   A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
 -   To support DSA certificates, you must add `ADH` to the `ssl.ciphers` element as follows: `<ssl.ciphers>HIGH, MEDIUM, ADH</ssl.ciphers>`. Do not use `ADH` with `DEFAULT`. DSA certificates are not recommended. See [Diffie-Hellman key exchange](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange#Security) for more information. If you omit the `-keyalg` switch when you create a certificate using keytool, keytool generates a DSA certificate. You should always include `-keyalg RSA` when creating a certificate using keytool.
 
 See Also
 --------
 
--   [Configure Enterprise Shield&trade; with the Gateway](../reverse-connectivity/o_rc_checklist.md)
--   [Service Reference](../admin-reference/r_conf_service.md)
-
-
+-   [Configure Enterprise Shield™ with the Gateway](../enterprise-shield/o_enterprise_shield_checklist.md)
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md)

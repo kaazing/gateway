@@ -39,17 +39,17 @@ public class CharacterEditor extends AbstractPropertyEditor {
     @Override
     protected Object toValue(String text) throws IllegalArgumentException {
         if (text.length() == 0) {
-            return Character.valueOf(Character.MIN_VALUE);
+            return Character.MIN_VALUE;
         }
         
         if (UNICODE.matcher(text).matches()) {
-            return Character.valueOf((char) Integer.parseInt(text.substring(2)));
+            return (char) Integer.parseInt(text.substring(2));
         }
         
         if (text.length() != 1) {
             throw new IllegalArgumentException("Too many characters: " + text);
         }
 
-        return Character.valueOf(text.charAt(0));
+        return text.charAt(0);
     }
 }

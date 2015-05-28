@@ -91,7 +91,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         // store last write so we can observe it
         WriteFuture lastWrite = null;
 
-        IoFilterChain filterChain = session.getFilterChain();
+        IoFilterChain filterChain = session.getTransportSession().getFilterChain();
 
         // we can still have a current write request during the transition between writers
         WriteRequest currentWriteRequest = session.getCurrentWriteRequest();
@@ -100,7 +100,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         }
 
         // get write request queue and process it
-        final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
+        final WriteRequestQueue writeRequestQueue = session.getTransportSession().getWriteRequestQueue();
         Long clientBuffer = (Long) writer.getAttribute(WsebAcceptor.CLIENT_BUFFER_KEY);
         do {
             // get current request in the event that it was not complete last
@@ -142,7 +142,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
                 // detaching the writer nulls the parent reference
-                    session.detachWriter(writer);
+                session.detachWriter(writer);
                 boolean attached = session.attachPendingWriter();
                 if (!attached) {
                     session.scheduleTimeout(scheduler);
@@ -152,8 +152,9 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
 
             // get message and compare to types we can process
             Object message = request.getMessage();
-            if (message instanceof IoBufferEx) {
-                IoBufferEx buf = (IoBufferEx) message;
+            if (message instanceof WsMessage) {
+                WsMessage frame = (WsMessage) message;
+                IoBufferEx buf = frame.getBytes();
                 try {
                     // stop if parent already closing
                     if (writer.isClosing()) {
@@ -165,11 +166,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // written
                     int remaining = buf.remaining();
 
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
-
-
                     // TODO: thread safety
                     // reconnect parent.close(false) above triggers flush of pending
                     // writes before closing the HTTP session, and in the interim
@@ -179,35 +175,8 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // writing data to the parent during this interim state
                     // resulting in a WriteToClosedSessionException and losing data
 
-                    // convert from session+buffer to message
-                    if (buf instanceof WsBuffer) {
-                        // reuse previously constructed message if available
-                        WsBuffer wsBuffer = (WsBuffer)buf;
-                        WsMessage wsebMessage = wsBuffer.getMessage();
-                        if (wsebMessage == null) {
-                            WsMessage newWsebMessage;
-                            if (wsBuffer.getKind() == WsBuffer.Kind.TEXT) {
-                                //if the connection is mixed transport, send textmessage
-                                newWsebMessage = new WsTextMessage(buf);
-                            }
-                            else {
-                                newWsebMessage = new WsBinaryMessage(buf);
-                            }
-
-                            if (wsBuffer.isAutoCache()) {
-                                // buffer is cached on parent, continue with derived caching
-                                newWsebMessage.initCache();
-                            }
-                            boolean wasUpdated = wsBuffer.setMessage(newWsebMessage);
-                            wsebMessage = wasUpdated ? newWsebMessage : wsBuffer.getMessage();
-                        }
-                        // flush the buffer out to the session
-                        lastWrite = flushNowInternal(writer, wsebMessage, wsBuffer, filterChain, request);
-                    }
-                    else {
-                        // flush the buffer out to the session
-                        lastWrite = flushNowInternal(writer, new WsBinaryMessage(buf), buf, filterChain, request);
-                    }
+                    // flush the message out to the session
+                    lastWrite = flushNowInternal(writer, frame, buf, filterChain, request);
 
                     // increment session written bytes
                     int written = remaining;
@@ -237,31 +206,6 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                 catch (Exception e) {
                     request.getFuture().setException(e);
                 }
-            }
-            else if (WsebSession.isPingRequest(request) || WsebSession.isPongRequest(request)) {
-                boolean ping = WsebSession.isPingRequest(request);
-                if (LOGGER.isDebugEnabled()) {
-                    String poing = ping ? "PING" : "PONG";
-                    LOGGER.debug(String.format("%s_REQUEST detected on wsebSession %s: sending %s",
-                            poing, session, poing));
-                }
-                try {
-                    // stop if parent already closing
-                    if (writer.isClosing()) {
-                        break;
-                    }
-                    IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-                    IoBufferEx emptyBuf = allocator.wrap(allocator.allocate(0));
-                    emptyBuf.mark();
-                    WsMessage emptyPoing = ping ? new WsPingMessage(emptyBuf) : new WsPongMessage(emptyBuf);
-                    // The following causes ClassCastException in stomp decoder in messageSent in JMS edition (see KG-9329)
-                    // flushNowInternal(writer, emptyPoing, emptyBuf, filterChain, request);
-                    writer.write(emptyPoing);
-                }
-                finally {
-                    session.setCurrentWriteRequest(null);
-                }
-                break;
             }
             else {
                 throw new IllegalStateException("Don't know how to handle message of type '" + message.getClass().getName() + "'.  Are you missing a protocol encoder?");
@@ -309,7 +253,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
             // Block Padding is required
             session.write(WsebFrameEncoder.BLOCK_PADDING_MESSAGE);
-            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, new Long(writtenBytes+4096));
+            session.setAttribute(WsebAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);
         }
     }
 

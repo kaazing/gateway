@@ -9,7 +9,6 @@
         <version>develop-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <groupId>org.kaazing</groupId>
     <artifactId>gateway.transport.nio</artifactId>
     <name>NIO Transport</name>
     <description>Nonblocking i/o transport</description>

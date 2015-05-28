@@ -26,13 +26,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.service.ServiceFactory;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyServiceTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     @Before
     public void setup() {

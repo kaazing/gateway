@@ -35,6 +35,6 @@ public class ShortEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Short.valueOf((short) 0);
+        return (short) 0;
     }
 }

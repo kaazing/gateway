@@ -27,7 +27,6 @@ For Developers
 -   [Build Microsoft .NET and Silverlight WebSocket Clients](dev-dotnet/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build WebSocket C Clients](dev-c/o_dev_c_websocket.md)
 -   [Build WebSocket Clients with Google Web Toolkit](dev-gwt/p_dev_gwt.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement a WebSocket Protocol Client](dev-protocol/p_protocol_client.md)
 
 #### AMQP Clients
 
@@ -65,9 +64,9 @@ For Administrators
 -   [Configure Authentication and Authorization](security/o_aaa_config_authentication.md)
 -   [Configure Kerberos V5 Network Authentication](security/o_krb.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
--   [Configure Enterprise Shield&trade; with the Gateway](reverse-connectivity/o_rc_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement Protocol Injection](security/o_aaa_inject.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement User Identity Promotion](security/o_aaa_userid_promo.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Configure Enterprise Shield&trade; with the Gateway](enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Implement Protocol Injection](security/p_aaa_inject.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Implement User Identity Promotion](security/p_aaa_userid_promo.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### Monitor and Troubleshoot
 

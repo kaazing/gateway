@@ -21,7 +21,7 @@ A set of client APIs are provided in the following repos.
 # Building this Project
 
 ## Requirements for building the project
-* Java 7 JDK (version 1.7.0_21) or higher
+* Java 8 JDK or higher
 * Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
 
 ## Steps for building this project

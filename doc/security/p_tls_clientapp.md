@@ -17,7 +17,7 @@ In this procedure, you will configure applications for TLS/SSL connections with 
 -   [To Use Self-Signed Certificates with Java Clients](#to-use-self-signed-certificates-with-java-clients)
 -   [To Import Self-Signed Certificates into a Web Browser](#to-import-self-signed-certificates-into-a-web-browser)
 
-**Note:** Using self-signed certificates with clients involves importing and exporting certificates from the truststore and keystore storage locations. For more information, see the [truststore](../admin-reference/r_conf_security.md#truststore) and [keystore](../admin-reference/r_conf_security.md#keystore) elements in the [Security Reference](../admin-reference/r_conf_security.md) documentation.
+**Note:** Using self-signed certificates with clients involves importing and exporting certificates from the truststore and keystore storage locations. For more information, see the [truststore](../admin-reference/r_configure_gateway_security.md#truststore) and [keystore](../admin-reference/r_configure_gateway_security.md#keystore) elements in the [Security Reference](../admin-reference/r_configure_gateway_security.md) documentation.
 Before You Begin
 ----------------
 
@@ -141,7 +141,7 @@ To add the self-signed certificate to the default truststore used by the JVM, im
 2.  Create a new truststore on the client that has as its sole content the certificate you exported on the server. The following example command uses `testing.db` as the new truststore, assumes the file is in the current directory, and uses the default password `changeit`:
 
     ```
-    keytool -importcert -keystore testing.db -storepass changeit -storetype JCEKS -alias hostname -file 
+    keytool -importcert -keystore testing.db -storepass changeit -storetype JCEKS -alias hostname -file
     hostname.cer
     ```
 
@@ -160,14 +160,14 @@ To add the self-signed certificate to the default truststore used by the JVM, im
     ``` java
         final String trustStore = new File(new File(GatewayLauncher.getGatewayHomeDir(), "conf/"),
             "truststore.db").getAbsoluteFile().toString();
-        
+
         System.setProperty("javax.net.ssl.trustStore", trustStore);
 
         final String trustStorePassword = new String(loadKeyStorePassword(new File
             (new File(GatewayLauncher.getGatewayHomeDir(), "conf/"), "keystore.pw")));
-        
+
         System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-        
+
         System.setProperty("javax.net.ssl.trustStoreType", "JCEKS");
     ```
 
@@ -186,7 +186,7 @@ When using self-signed certificates with web browsers, you can import the self-s
 | Opera           | See [Security certificates](http://help.opera.com/Mac/12.10/en/certificates.html) from Opera.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 #### Microsoft Internet Explorer
-See [Import or export certificates and private keys](http://windows.microsoft.com/en-US/windows-vista/Import-or-export-certificates-and-private-keys) and [Certificate errors: FAQ](http://windows.microsoft.com/en-us/internet-explorer/certificate-errors-faq#ie=ie-10) from Microsoft. 
+See [Import or export certificates and private keys](http://windows.microsoft.com/en-US/windows-vista/Import-or-export-certificates-and-private-keys) and [Certificate errors: FAQ](http://windows.microsoft.com/en-us/internet-explorer/certificate-errors-faq#ie=ie-10) from Microsoft.
 
 **For Internet Explorer 8 and 9**
 
@@ -212,7 +212,7 @@ See [Import or export certificates and private keys](http://windows.microsoft.co
 Next Steps
 ----------
 
-To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/ts_security.md).
+To troubleshoot TLS/SSL errors and exceptions, see [Troubleshooting KAAZING Gateway Security](../troubleshooting/p_troubleshoot_security.md).
 
 See Also
 -------------------------------
