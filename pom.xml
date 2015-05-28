@@ -86,7 +86,6 @@
         <module>transport/wseb</module>
         <module>transport/wsn</module>
         <module>transport/wsr</module>
-        <module>truststore</module>
         <module>util</module>
         <module>mina.core</module>
         <module>mina.netty</module>
@@ -197,6 +196,12 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20090211</version>
+            </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>gateway.truststore</artifactId>
+                <version>[1.0.0.0,1.1.0.0)</version>
+                <type>jar</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
