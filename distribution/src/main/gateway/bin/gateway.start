@@ -45,11 +45,11 @@ GW_HOME=`cd "$PRGDIR/.." ; pwd`
 if [ -z "$GATEWAY_OPTS" ]; then
   # Sets the Java maximum memory to 512MB
   GATEWAY_OPTS="-Xmx512m"
-  # Sets the java.security.edg to use /dev/urandom. By default /dev/random
-  # is used.  /dev/random is a blocking call which can hang on machines that
-  # experience low entropy such as linux containers and VMs.  /dev/urandom
-  # will reuse a random seed if there is not enough entropy to generate a
-  # new one. See: https://github.com/kaazing/gateway/issues/167
+  # By default, Java uses /dev/random to gather entropy data for cryptographic
+  # needs. However, using /dev/random can cause delays during Gateway startup,
+  # especially in virtualized environments. /dev/urandom does not require
+  # collection of entropy data in subsequent runs.
+  # See: https://github.com/kaazing/gateway/issues/167
   GATEWAY_OPTS="$GATEWAY_OPTS -Djava.security.egd=file:/dev/urandom"
 fi
 
