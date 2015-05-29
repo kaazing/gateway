@@ -41,9 +41,17 @@ GW_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # You can define various Java system properties by setting the value
 # of the GATEWAY_OPTS environment variable before calling this script.
-# The script itself should not be changed. For example, the setting
-# below sets the Java maximum memory to 512MB.
-[ -z "$GATEWAY_OPTS" ] && GATEWAY_OPTS="-Xmx512m"
+# The script itself should not be changed.
+if [ -z "$GATEWAY_OPTS" ]; then
+  # Sets the Java maximum memory to 512MB
+  GATEWAY_OPTS="-Xmx512m"
+  # Sets the java.security.edg to use /dev/urandom. By default /dev/random
+  # is used.  /dev/random is a blocking call which can hang on machines that
+  # experience low entropy such as linux containers and VMs.  /dev/urandom
+  # will reuse a random seed if there is not enough entropy to generate a
+  # new one. See: https://github.com/kaazing/gateway/issues/167
+  GATEWAY_OPTS="$GATEWAY_OPTS -Djava.security.egd=file:/dev/urandom"
+fi
 
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
