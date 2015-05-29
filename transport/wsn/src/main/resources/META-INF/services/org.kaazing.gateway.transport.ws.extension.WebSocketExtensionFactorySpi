@@ -1,0 +1,2 @@
+org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout.IdleTimeoutExtensionFactory
+org.kaazing.gateway.transport.ws.bridge.extensions.pingpong.PingPongExtensionFactory

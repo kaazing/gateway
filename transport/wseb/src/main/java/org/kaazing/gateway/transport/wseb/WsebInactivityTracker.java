@@ -44,35 +44,13 @@ import org.slf4j.Logger;
  * we will just set the WsCheckAliveFilter filter on the parent's filter chain, as we do for WSN, and use 
  * DefaultIoSessionIdleTracker to support idleTimeout on the TCPE session. 
  */
-public class WsebInactivityTracker implements IoSessionIdleTracker {
+class WsebInactivityTracker implements IoSessionIdleTracker {
     private static final String CHECK_ALIVE_FILTER = WsebProtocol.NAME + "#checkalive";
-    private static final TypedAttributeKey<IoSessionEx> INACTIVITY_SESSION_KEY = new TypedAttributeKey<>(
-            WsebInactivityTracker.class, "inactivitySession");
-    private static final TypedAttributeKey<WsebSession> WSEB_SESSION_KEY = new TypedAttributeKey<>(
-            WsebInactivityTracker.class, "wsebSession");
+    private static final TypedAttributeKey<Boolean> ALREADY_TRACKED = new TypedAttributeKey<>(
+            WsebInactivityTracker.class, "tracked");
     
     private final Logger logger;
     private final IoSessionIdleTracker idleTracker = new DefaultIoSessionIdleTracker();
-    
-    private static final IoFilterAdapter<IoSessionEx> CLOSE_WRITE_ADAPTER_FILTER = new IoFilterAdapter<IoSessionEx>() {
-        
-        @Override
-        protected void doFilterWrite(NextFilter nextFilter, IoSessionEx dummySession, WriteRequest writeRequest)
-                throws Exception {
-            // Handle PING write requests from WsCheckaliveFilter
-            assert writeRequest.getMessage() instanceof WsPingMessage;
-            WsebSession wsebSession = WSEB_SESSION_KEY.get(dummySession);
-            wsebSession.issuePingRequest();
-        }
-
-        @Override
-        protected void doFilterClose(NextFilter nextFilter, IoSessionEx dummySession) throws Exception {
-            // Handle session close requests from WsCheckaliveFilter
-            WsebSession wsebSession = WSEB_SESSION_KEY.get(dummySession);
-            wsebSession.close(true);
-        }
-        
-    };
     
     public WsebInactivityTracker(Logger logger) {
         this.logger = logger;
@@ -96,32 +74,22 @@ public class WsebInactivityTracker implements IoSessionIdleTracker {
     }
     
     private void addSession0(IoSessionEx wsebSession) {
-        if (INACTIVITY_SESSION_KEY.get(wsebSession) != null) {
+        if (ALREADY_TRACKED.get(wsebSession, false)) {
             // Expected for downstream reconnects
             return;
         }
-        IoSessionEx dummySession = new DummySessionEx(wsebSession.getIoThread(), wsebSession.getIoExecutor()) {
-            @Override
-            // Make the "Client connection (session) has been aborted..." message friendlier
-            public String toString() {
-                WsebSession wsebSession = WSEB_SESSION_KEY.get(this);
-                return (wsebSession != null) ? wsebSession.toString() : super.toString();
-            }
-        };
-        WSEB_SESSION_KEY.set(dummySession, (WsebSession)wsebSession);
-        INACTIVITY_SESSION_KEY.set(wsebSession, dummySession);
-        idleTracker.addSession(dummySession);
-        dummySession.getFilterChain().addFirst("closeWrite", CLOSE_WRITE_ADAPTER_FILTER);
-        WsCheckAliveFilter.addIfFeatureEnabled(dummySession.getFilterChain(), CHECK_ALIVE_FILTER, 
+        IoSessionEx transportSession = ((WsebSession)wsebSession).getTransportSession();
+        ALREADY_TRACKED.set(wsebSession, true);
+        idleTracker.addSession(transportSession);
+        WsCheckAliveFilter.addIfFeatureEnabled(transportSession.getFilterChain(), CHECK_ALIVE_FILTER, 
                 ((WsebSession)wsebSession).getLocalAddress().getOption(INACTIVITY_TIMEOUT), logger);
     }
 
     @Override
     public void removeSession(IoSessionEx wsebSession) {
-        IoSessionEx dummySession = INACTIVITY_SESSION_KEY.get(wsebSession);
-        // dummySession may not be set if wseb connection failed
-        if (dummySession != null) {
-            idleTracker.removeSession(dummySession);
+        if (ALREADY_TRACKED.get(wsebSession)) {
+            // may not be set if wseb connection failed
+            idleTracker.removeSession(((WsebSession)wsebSession).getTransportSession());
         }
     }
 
@@ -129,16 +97,5 @@ public class WsebInactivityTracker implements IoSessionIdleTracker {
     public void dispose() {
         idleTracker.dispose();
     }
-    
-    public static void messageReceived(WsebSession wsebSession, WsMessage message) {
-        // Fire message received on the dummy session, to update its last io time and 
-        // execute WsCheckAliveFilter's doMessageReceived
-        IoSessionEx dummySession = INACTIVITY_SESSION_KEY.get(wsebSession);
-        if (dummySession != null) {
-            dummySession.getFilterChain().fireMessageReceived(message);
-        }
-    }
-    
-    
     
 }

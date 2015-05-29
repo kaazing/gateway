@@ -33,18 +33,16 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.ws.Command;
+import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wseb.filter.EncodingFilter;
-import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebDecodingCodecFilter;
 import org.kaazing.gateway.util.Encoding;
-import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
+class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = "text/plain; charset=utf-8";
 
@@ -54,7 +52,6 @@ public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final ResourceAddress nextProtocolAddress;
     private final WsebSession wsebSession;
     private final IoFilter codec;
     private final IoFilter utf8;
@@ -65,7 +62,6 @@ public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding, 
                                int wsMaxMessageSize) {
-        this.nextProtocolAddress = nextProtocolAddress;
         this.wsebSession = wsebSession;
         this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize);
         this.utf8 = (utf8Encoding != null) ? new EncodingFilter(utf8Encoding) : null;
@@ -130,32 +126,15 @@ public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         WsebSession wsebSession = getSession(session);
         WsMessage wsebMessage = (WsMessage)message;
-        IoBufferEx data = wsebMessage.getBytes();
+        IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
         
-        if (wsebSession.getInactivityTimeout() > 0) {
-            WsebInactivityTracker.messageReceived(wsebSession, wsebMessage);
-        }
-
         switch (wsebMessage.getKind()) {
-        case BINARY:
-            IoFilterChain filterChain = wsebSession.getFilterChain();
-            WsebBufferAllocator allocator = (WsebBufferAllocator) wsebSession.getBufferAllocator();
-            WsBuffer wsBinaryBuffer = allocator.wrap(data.buf());
-            filterChain.fireMessageReceived(wsBinaryBuffer);
-            break;
-        case TEXT:
-            filterChain = wsebSession.getFilterChain();
-            allocator = (WsebBufferAllocator) wsebSession.getBufferAllocator();
-            WsBuffer wsTextBuffer = allocator.wrap(data.buf());
-            wsTextBuffer.setKind(WsBuffer.Kind.TEXT);
-            filterChain.fireMessageReceived(wsTextBuffer);
-            break;
         case COMMAND:
             for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {
                 if (command == Command.close()) {
                     session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
                     session.close(false);
-                    wsebSession.close(false);
+                    filterChain.fireMessageReceived(new WsCloseMessage());
                     break;
                 }
                 else if (command == Command.reconnect()) {
@@ -166,8 +145,8 @@ public class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 // no-op (0x00) - continue reading commands
             }
             break;
-        case PING:
-            wsebSession.issuePongRequest();
+        default:
+            filterChain.fireMessageReceived(wsebMessage);
             break;
         }
     }

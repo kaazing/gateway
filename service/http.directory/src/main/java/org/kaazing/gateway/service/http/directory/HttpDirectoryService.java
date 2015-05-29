@@ -80,7 +80,7 @@ public class HttpDirectoryService implements Service {
         String welcomeFile = properties.get("welcome-file");
         if (welcomeFile != null) {
             String pathSeparator = File.pathSeparator;
-            if (welcomeFile.indexOf(pathSeparator) != -1) {
+            if (welcomeFile.contains(pathSeparator)) {
                 throw new IllegalArgumentException("Unexpected character \"" + pathSeparator + "\" in welcome file: "
                         + welcomeFile);
             }

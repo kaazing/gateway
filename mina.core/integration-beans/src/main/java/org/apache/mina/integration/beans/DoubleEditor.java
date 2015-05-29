@@ -38,6 +38,6 @@ public class DoubleEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Double.valueOf(0f);
+        return (double) 0f;
     }
 }

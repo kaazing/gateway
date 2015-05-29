@@ -99,7 +99,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             String balanceePath = selectedBalanceeURI.getPath();
             String requestPath = requestURI.getPath();
             int emIndex = (requestPath != null) ? requestPath.indexOf(WsebAcceptor.EMULATED_SUFFIX) : -1;
-            if ((emIndex != -1) && (requestPath.indexOf(WsebAcceptor.EMULATED_SUFFIX + "/cookies") == -1)) {
+            if ((emIndex != -1) && (!requestPath.contains(WsebAcceptor.EMULATED_SUFFIX + "/cookies"))) {
                 balanceePath += requestPath.substring(emIndex);
             }
             String balanceeQuery = requestURI.getQuery();

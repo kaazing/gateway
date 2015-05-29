@@ -29,7 +29,7 @@ Point your browser at `http://gateway:8000` to see the WebSocket demo.
 # Building this Project
 
 ## Requirements for building the project
-* Java 8 JDK
+* Java 8 JDK or higher
 * Apache Maven 3.0.5 or higher, with the recommended settings:
 
   `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
@@ -51,6 +51,8 @@ Then to start the container, use:
   `docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT`
 
 Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker host.
+
+`192.168.2.100  dockerhost gateway`
 
 Then point your browser at `http://gateway:8000`
 
@@ -74,12 +76,12 @@ You can also download and run this project from [kaazing.org/download](http://ka
 
 # Developing Client Applications
 
-To learn how to develop client applications using the distribution, see the documentation on [kaazing.org](http://kaazing.org).
+To learn how to develop client applications using the Gateway, see the documentation on [kaazing.org](http://kaazing.org).
 
 # See a Live Demo
 
-Live demos are hosted at [kaazing.org/demos](http://kaazing.org/demos/)
+To view demo client applications running against the Gateway, visit [kaazing.org/demos](http://kaazing.org/demos/).
 
 # Contact
 
-The [Gateway gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project 
+The [Gateway Gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.transport.ws;
 
 import org.kaazing.gateway.transport.bridge.Message;
-import org.kaazing.gateway.transport.ws.extension.WsExtension;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -33,12 +32,10 @@ public abstract class WsMessage extends Message {
     }
 
     private final boolean fin;
-    
+
     public abstract Kind getKind();
 
     private IoBufferEx buf;
-    
-    private WsExtension extension = null;
 
     public WsMessage() {
         this(true);
@@ -50,10 +47,6 @@ public abstract class WsMessage extends Message {
 
     public IoBufferEx getBytes() {
         return buf;
-    }
-    
-    public final WsExtension getExtension() {
-        return extension;
     }
 
     public void setBytes(IoBufferEx buf) {
@@ -77,11 +70,8 @@ public abstract class WsMessage extends Message {
 
         WsMessage that = (WsMessage) obj;
         return (that.getKind() == this.getKind() && that.fin == this.fin &&
-                Utils.sameOrEquals(this.buf, that.buf));
-    }
-    
-    public final void setExtension(WsExtension extension) {
-        this.extension = extension;
+                Utils.sameOrEquals(this.buf == null ? null : this.buf.buf(),
+                        that.buf == null ? null : that.buf.buf())); // IoBufferEx has no equals method
     }
 
     @Override

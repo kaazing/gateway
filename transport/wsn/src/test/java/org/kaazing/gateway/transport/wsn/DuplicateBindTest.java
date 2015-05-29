@@ -33,7 +33,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 
 public class DuplicateBindTest {
 
-    @Test(timeout = 2000)
+    @Test(timeout = 10000)
     public void connectingOnService1ShouldNotGetAccessToService2() throws Exception {
         GatewayConfiguration gc = new GatewayConfigurationBuilder().service().name("echo1").type("echo")
                 .accept(URI.create("ws://localhost:8000/")).done().service().name("echo2").type("echo")

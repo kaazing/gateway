@@ -21,8 +21,11 @@
 
 package org.kaazing.gateway.service.proxy;
 
+import static java.util.ServiceLoader.load;
+
 import java.net.URI;
 import java.util.Collection;
+import java.util.ServiceLoader;
 
 import javax.annotation.Resource;
 
@@ -64,7 +67,11 @@ public class ProxyService extends AbstractProxyService<ProxyServiceHandler> {
         handler.setConnectURIs(connectURIs);
         handler.initServiceConnectManager(bridgeServiceFactory);
 
-        // Register the Gateway's connection capabilities with the handler so that session counts are tracked
+        // Instantiate any proxy service extensions and register them with the handler
+        ServiceLoader<ProxyServiceExtensionSpi> proxyServiceExtensions = load(ProxyServiceExtensionSpi.class);
+        for (ProxyServiceExtensionSpi proxyServiceExtension : proxyServiceExtensions) {
+            handler.registerExtension(proxyServiceExtension);
+        }
     }
 
     @Override

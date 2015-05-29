@@ -22,6 +22,7 @@
 package org.kaazing.gateway.transport.ssl.bridge.filter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.mina.core.filterchain.IoFilterAdapter;
@@ -183,9 +184,7 @@ public class SslCipherSelectionFilter
         }
 
         List<String> list = new ArrayList<>(names.length);
-        for (int i = 0; i < names.length; i++) {
-            list.add(names[i]);
-        }
+        Collections.addAll(list, names);
 
         return list;
     }

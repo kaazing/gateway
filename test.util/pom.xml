@@ -37,6 +37,10 @@
             <artifactId>junit</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,6 +60,8 @@
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>
+                            <!-- Avoid Java style copyright check for log4j-trace.properties -->
+                            <includeResources>false</includeResources>
                         </configuration>
                         <goals>
                             <goal>check</goal>

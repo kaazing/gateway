@@ -32,7 +32,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -40,7 +40,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpDirectoryServiceHandlerTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private Mockery mockery;
     private HttpDirectoryServiceHandler handler;

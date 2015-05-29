@@ -35,6 +35,6 @@ public class ByteEditor extends NumberEditor {
 
     @Override
     protected Object defaultValue() {
-        return Byte.valueOf((byte) 0);
+        return (byte) 0;
     }
 }

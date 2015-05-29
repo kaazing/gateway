@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,7 +22,6 @@
 package org.kaazing.gateway.transport.ws.bridge.filter;
 
 import static org.junit.Assert.assertNotNull;
-import static org.kaazing.gateway.transport.ws.AbstractWsControlMessage.Style.CLIENT;
 
 import java.nio.ByteBuffer;
 import java.util.Properties;
@@ -35,11 +34,10 @@ import org.apache.mina.core.session.IdleStatus;
 import org.jmock.Mockery;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.extension.ActiveWsExtensions;
-import org.kaazing.gateway.transport.ws.util.Expectations;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
@@ -48,9 +46,6 @@ import org.slf4j.Logger;
 
 public class WsCheckAliveFilterTest {
     private WsPingMessage PING = new WsPingMessage();
-    {
-        PING.setStyle(CLIENT);
-    }
     private static final String FILTER_NAME = "wsn#checkalive";
 
     private static final long STANDARD_INACTIVITY_TIMEOUT_MILLIS = Utils.parseTimeInterval("30sec", TimeUnit.MILLISECONDS);
@@ -133,6 +128,26 @@ public class WsCheckAliveFilterTest {
     }
 
     @Test
+    public void moveIfFeatureEnabled() throws Exception {
+        Mockery context = new Mockery();
+        final Logger logger = context.mock(Logger.class);
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class, "filterChain");
+        final IoFilterChain toFilterChain = context.mock(IoFilterChain.class, "toFilterChain");
+
+        final WsCheckAliveFilter filter = new WsCheckAliveFilter(STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(filterChain).remove(FILTER_NAME); will(returnValue(filter));
+                oneOf(logger).isDebugEnabled(); will(returnValue(true));
+                oneOf(logger).debug(with(any(String.class)));
+                oneOf(toFilterChain).addLast(FILTER_NAME, filter);
+            }
+        });
+        WsCheckAliveFilter.moveIfFeatureEnabled(filterChain, toFilterChain, FILTER_NAME, STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+    }
+
+    @Test
     public void postAddShouldSchedulePingWithTimeoutEqualsHalfWsIntactivityTimeout() throws Exception {
         Mockery context = new Mockery();
         final Logger logger = context.mock(Logger.class);
@@ -151,8 +166,6 @@ public class WsCheckAliveFilterTest {
                 oneOf(filterChain).addLast(with(FILTER_NAME), with(any(IoFilter.class)));
                 will(saveParameter(filterHolder, 1));
                 allowing(session).getConfig(); will(returnValue(sessionConfig));
-                allowing(session).getAttribute(with(typedAttributeKeyMatching(".*xtension.*")));
-                will(returnValue(ActiveWsExtensions.EMPTY));
                 oneOf(sessionConfig).setIdleTimeInMillis(IdleStatus.READER_IDLE, STANDARD_INACTIVITY_TIMEOUT_MILLIS / 2);
             }
         });
@@ -161,6 +174,26 @@ public class WsCheckAliveFilterTest {
         WsCheckAliveFilter filter = (WsCheckAliveFilter)filterHolder[0];
         filter.onPostAdd(filterChain, FILTER_NAME, nextFilter);
         context.assertIsSatisfied();
+    }
+
+    @Test
+    public void postRemoveShouldUnsetReadIdleTimeout() throws Exception {
+        Mockery context = new Mockery();
+        final Logger logger = context.mock(Logger.class);
+        final NextFilter nextFilter = context.mock(NextFilter.class);
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
+        final IoSessionConfigEx sessionConfig = context.mock(IoSessionConfigEx.class);
+
+        final WsCheckAliveFilter filter = new WsCheckAliveFilter(STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
+
+        context.checking(new Expectations() {
+            {
+                allowing(session).getConfig(); will(returnValue(sessionConfig));
+                oneOf(sessionConfig).setIdleTimeInMillis(IdleStatus.READER_IDLE, 0);
+            }
+        });
+        filter.onPostRemove(filterChain, FILTER_NAME, nextFilter);
     }
 
     @Test

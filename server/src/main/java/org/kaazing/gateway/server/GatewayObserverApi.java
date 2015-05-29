@@ -95,4 +95,9 @@ public interface GatewayObserverApi {
      */
     void startingGateway();
 
+    /**
+     * Notification that the gateway is stopped
+     */
+    void stoppedGateway();
+
 }

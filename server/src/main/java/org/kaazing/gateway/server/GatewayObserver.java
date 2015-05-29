@@ -160,4 +160,11 @@ public final class GatewayObserver implements GatewayObserverApi {
             gatewayListener.startingGateway();
         }
     }
+
+    @Override
+    public void stoppedGateway() {
+        for (GatewayObserverApi gatewayListener : gatewayListenerSpi) {
+            gatewayListener.stoppedGateway();
+        }
+    }
 }

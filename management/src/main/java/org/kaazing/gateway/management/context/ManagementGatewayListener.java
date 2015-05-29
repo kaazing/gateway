@@ -22,6 +22,7 @@
 package org.kaazing.gateway.management.context;
 
 import javax.annotation.Resource;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -65,6 +66,11 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
             managementContext.addServiceManagementBean(serviceContext);
             addSessionInitializer(serviceContext.getService(), serviceContext);
         }
+    }
+
+    @Override
+    public void stoppedGateway() {
+        managementContext.close();
     }
 
     private void addSessionInitializer(Service service, ServiceContext serviceContext) {
