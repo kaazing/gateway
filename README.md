@@ -22,34 +22,33 @@ A set of client APIs are provided in the following repos.
 
 Edit `/etc/hosts` file (or equivalent) to set gateway as the Docker host
 
-```
-docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest
-```
+`docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest`
 
-Point your browser at http://gateway:8000 to see the WebSocket demo.
+Point your browser at `http://gateway:8000` to see the WebSocket demo.
 
 # Building this Project
 
 ## Requirements for building the project
 * Java 8 JDK
 * Apache Maven 3.0.5 or higher, with the recommended settings:
+
   `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
 
 ## Steps for building this project
 
-`mvn clean install`
+To build the Gateway locally, use:
+
+  `mvn clean install`
 
 ### Building the Docker container locally
 
 To build a Docker container locally:
 
-`mvn clean install -Pdocker`
+  `mvn clean install -Pdocker`
 
 Then to start the container, use:
 
-```
-docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT
-```
+  `docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT`
 
 Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker host.
 
