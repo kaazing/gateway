@@ -56,6 +56,8 @@ Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker
 
 Then point your browser at `http://gateway:8000`
 
+For more information see the [docker](docker) directory.
+
 # Running this Project
 
 0. `cd distribution/target`
