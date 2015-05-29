@@ -18,10 +18,20 @@ A set of client APIs are provided in the following repos.
 - [JavaScript SDK for AMQP 0-9-1](https://github.com/kaazing/kaazing-amqp-0-9-1-client-javascript)
 - [Java SDK for AMQP 0-9-1](https://github.com/kaazing/amqp.client.java)
 
+# Running via Docker Image
+
+Edit /etc/hosts file (or equivalent) to set gateway as the Docker host
+
+```
+docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest
+```
+
+Point your browser at http://gateway:8000 to see the WebSocket demo.
+
 # Building this Project
 
 ## Requirements for building the project
-* Java 7 JDK (version 1.7.0_21) or higher
+* Java 8 JDK
 * Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
 
 ## Steps for building this project
@@ -45,11 +55,11 @@ A set of client APIs are provided in the following repos.
 
 You can also download and run this project from [kaazing.org/download](http://kaazing.org/download/)
 
-# Learning How to Develop Client Applications
+# Developing Client Applications
 
 To learn how to develop client applications using the distribution, see the documentation on [kaazing.org](http://kaazing.org).
 
-# View a Running Demo
+# See a Live Demo
 
 Live demos are hosted at [kaazing.org/demos](http://kaazing.org/demos/)
 
