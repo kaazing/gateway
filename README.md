@@ -18,9 +18,9 @@ A set of client APIs are provided in the following repos.
 - [JavaScript SDK for AMQP 0-9-1](https://github.com/kaazing/kaazing-amqp-0-9-1-client-javascript)
 - [Java SDK for AMQP 0-9-1](https://github.com/kaazing/amqp.client.java)
 
-# Running via Docker Image
+# Running via public Docker Image
 
-Edit /etc/hosts file (or equivalent) to set gateway as the Docker host
+Edit `/etc/hosts` file (or equivalent) to set gateway as the Docker host
 
 ```
 docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest
@@ -32,10 +32,28 @@ Point your browser at http://gateway:8000 to see the WebSocket demo.
 
 ## Requirements for building the project
 * Java 8 JDK
-* Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
+* Apache Maven 3.0.5 or higher, with the recommended settings:
+  `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
 
 ## Steps for building this project
-0. `mvn clean install`
+
+`mvn clean install`
+
+### Building the Docker container locally
+
+To build a Docker container locally:
+
+`mvn clean install -Pdocker`
+
+Then to start the container, use:
+
+```
+docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT
+```
+
+Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker host.
+
+Then point your browser at `http://gateway:8000`
 
 # Running this Project
 
