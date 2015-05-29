@@ -169,4 +169,6 @@ public interface ManagementContext {
     ManagementFilter getManagementFilter(ServiceContext serviceContext);
 
     void createGatewayManagementBean();
+
+    void close();
 }

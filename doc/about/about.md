@@ -8,6 +8,7 @@ Documentation Conventions
 This topic contains the following sections:
 -   [Text Conventions](#text-conventions)
 -   [About URI Syntax](#about-uri-syntax)
+-   [About Domain Names](#about-domain-names)
 -   [About Ports](#about-ports)
 -   [About KAAZING\_HOME](#about-kaazing_home)
 -   [About GATEWAY\_HOME](#about-gateway_home)
@@ -50,6 +51,11 @@ For example, the following URI schemes are used in the documentation:
 In addition, you can append a query string to the URL to provide non-hierarchical information. The query string follows a question mark (?) appended to the URL. For example, you can use this query string when configuring security for your Gateway (as described in the [Security Reference](../admin-reference/r_configure_gateway_security.md)).
 
 **Note:** In the example URLs, the `${gateway.hostname}` syntax allows you to define property values once and then the values are propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file that uses the dollar-sign and curly brace format (such as `${gateway.hostname}`) with a property. In the Gateway configuration, you can configure property defaults such as `gateway.hostname`, `gateway.base.port`, `gateway.extras.port`.
+
+About Domain Names
+----------------------------------------
+Many examples in the documentation use the `.net domain` (such as `tcp://gateway.example.net:8080`) to indicate internal, nonpublic URLs, and use the `.com` domain to indicate public URLs. All domains and URLs are for example purposes only. Simply replace any instances of "example.com" in the configuration with your domain or hostname.
+
 ### See Also
 
 -   [Service Reference](../admin-reference/r_configure_gateway_service.md) for information about specifying URLs with the accept and connect elements.

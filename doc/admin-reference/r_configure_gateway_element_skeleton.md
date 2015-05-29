@@ -17,7 +17,8 @@ You can view and link to all Gateway configuration elements and properties using
         -   [accept](r_configure_gateway_service.md#accept)
         -   [connect](r_configure_gateway_service.md#connect)
         -   [balance](r_configure_gateway_service.md#balance)
-        -   [notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+        -   [notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+
         -   [type](r_configure_gateway_service.md#type)
             -   [balancer](r_configure_gateway_service.md#balancer)
             -   [broadcast](r_configure_gateway_service.md#broadcast)
@@ -52,7 +53,8 @@ You can view and link to all Gateway configuration elements and properties using
                 -   [maximum.recovery.interval](r_configure_gateway_service.md#maximumrecoveryinterval)
                 -   [prepared.connection.count](r_configure_gateway_service.md#preparedconnectioncount)
                 -   [virtual.host](r_configure_gateway_service.md#virtualhost)
-            -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+
+            -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
             -   [jms.proxy](r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
                 Properties:

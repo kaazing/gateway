@@ -22,9 +22,10 @@ This procedure is part of [Monitor the Gateway](o_monitor.md):
 To Monitor with JMX
 -------------------
 
-1.  Install and start the Gateway as described in [Setting Up the Gateway](../about/setup-guide.md).
+1.  Install and start the Gateway as described in [Setting Up the Gateway](../about/setup-guide.md). 
 
     **Note:** To connect to a JMX service on a Gateway running on an EC2 instance, configure the `GATEWAY_OPTS` environment variable with the `-Djava.rmi.server.hostname` property set to the IP address or hostname being used in the RMI registry. For example, `GATEWAY_OPTS="-Xmx512m -Djava.rmi.server.hostname=ec2-54-205-184-88.example-1.amazonaws.com`. See the topic [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](../admin-reference/p_configure_gateway_opts.md) for more information.
+	
 2.  Ensure secure monitoring by verifying that your configuration specifies a security realm name and an authorization constraint. This is set up automatically if you use the default Gateway configuration. See [Secure KAAZING Gateway Monitoring](p_monitor_configure_secure.md) for more information.
 3.  Start your favorite Java monitoring console or application. This documentation uses JConsole for its examples.
 4.  Select the local process, for example `org.kaazing.gateway.server.Main` (as shown in the following screenshot), then click **Connect**. (For Windows, the local process name is `org.kaazing.gateway.server.WindowsMain`.)
