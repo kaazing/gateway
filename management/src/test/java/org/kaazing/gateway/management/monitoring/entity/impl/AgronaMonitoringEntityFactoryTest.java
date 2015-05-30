@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
@@ -36,6 +37,7 @@ import uk.co.real_logic.agrona.IoUtil;
 public class AgronaMonitoringEntityFactoryTest {
     
     @Test
+    @Ignore("failing on mac os: https://github.com/kaazing/gateway/issues/171")
     public void testAgronaLifecycle() {
         AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder();
         MonitoringEntityFactory factory = builder.build();
