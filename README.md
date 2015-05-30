@@ -18,14 +18,45 @@ A set of client APIs are provided in the following repos.
 - [JavaScript SDK for AMQP 0-9-1](https://github.com/kaazing/kaazing-amqp-0-9-1-client-javascript)
 - [Java SDK for AMQP 0-9-1](https://github.com/kaazing/amqp.client.java)
 
+# Running via public Docker Image
+
+Edit `/etc/hosts` file (or equivalent) to set gateway as the Docker host
+
+`docker run --rm -p 8000:8000 -h gateway kaazing/gateway:latest`
+
+Point your browser at `http://gateway:8000` to see the WebSocket demo.
+
 # Building this Project
 
 ## Requirements for building the project
 * Java 8 JDK or higher
-* Apache Maven 3.0.5 or higher, with the recomended MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"
+* Apache Maven 3.0.5 or higher, with the recommended settings:
+
+  `MAVEN_OPTS="-Xms768m -Xmx768m -XX:MaxPermSize=768m"`
 
 ## Steps for building this project
-0. `mvn clean install`
+
+To build the Gateway locally, use:
+
+  `mvn clean install`
+
+### Building the Docker container locally
+
+To build a Docker container locally:
+
+  `mvn clean install -Pdocker`
+
+Then to start the container, use:
+
+  `docker run --rm -p 8080:8080 -h gateway kaazing/unstable-gateway:develop-SNAPSHOT`
+
+Make sure you set `/etc/hosts` file (or equivalent) to set gateway as the Docker host.
+
+`192.168.2.100  dockerhost gateway`
+
+Then point your browser at `http://gateway:8000`
+
+For more information see the [docker](docker) directory.
 
 # Running this Project
 
@@ -45,15 +76,11 @@ A set of client APIs are provided in the following repos.
 
 You can also download and run this project from [kaazing.org/download](http://kaazing.org/download/)
 
-# Learning How to Use the Gateway
-
-To learn about administering the Gateway, its configuration files, and security, see the documentation on [kaazing.org](http://kaazing.org). To contribute to the documentation source, see the [doc directory](/doc).
-
-# Learning How to Develop Client Applications
+# Developing Client Applications
 
 To learn how to develop client applications using the Gateway, see the documentation on [kaazing.org](http://kaazing.org).
 
-# View a Running Demo
+# See a Live Demo
 
 To view demo client applications running against the Gateway, visit [kaazing.org/demos](http://kaazing.org/demos/).
 
