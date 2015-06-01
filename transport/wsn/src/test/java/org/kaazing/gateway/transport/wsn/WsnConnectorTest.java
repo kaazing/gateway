@@ -313,7 +313,7 @@ public class WsnConnectorTest {
     @Test (timeout = 30000)
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
-        long iterations = 100;
+        long iterations = 50;
 
         final URI location = URI.create("wsn://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
@@ -335,12 +335,8 @@ public class WsnConnectorTest {
                 IoSessionEx sessionEx = session;
                 System.out.println("Acceptor: received message: " + Utils.asString(buf.buf()));
                 IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-                session.write(allocator.wrap(asByteBuffer("Reply from acceptor"))).addListener(new IoFutureListener<IoFuture>() {
-                    @Override
-                    public void operationComplete(IoFuture future) {
-                        session.close(true);
-                    }
-                });
+                WriteFuture writeFuture = session.write(allocator.wrap(asByteBuffer("Reply from acceptor")));
+                writeFuture.addListener(future -> session.close(true));
             }
 
             @Override
