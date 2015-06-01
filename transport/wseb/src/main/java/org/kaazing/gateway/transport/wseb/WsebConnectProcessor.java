@@ -47,23 +47,19 @@ import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
-import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.WsPingMessage;
-import org.kaazing.gateway.transport.ws.WsPongMessage;
-import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
 import org.kaazing.mina.core.future.WriteFutureEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
+class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WsebConnectProcessor.class);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
@@ -79,14 +75,16 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     @Override
     protected void removeInternal(WsebSession session) {
-        WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
-        writeRequestQueue.offer(session, CLOSE_REQUEST);
+        IoSessionEx transportSession = session.getTransportSession();
+        WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
+        writeRequestQueue.offer(transportSession, CLOSE_REQUEST);
         flushInternal(session);
     }
 
     @Override
     protected void flushInternal(final WsebSession session) {
-        IoFilterChain filterChain = session.getFilterChain();
+        IoSessionEx transportSession = session.getTransportSession();
+        IoFilterChain filterChain = transportSession.getFilterChain();
 
         // get parent and check if null (no attached http session)
         final HttpConnectSession writer = (HttpConnectSession)session.getWriter();
@@ -105,7 +103,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         }
         
         // get write request queue and process it
-        final WriteRequestQueue writeRequestQueue = session.getWriteRequestQueue();
+        final WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
         do {
             // get current request in the event that it was not complete last
             // iteration
@@ -114,7 +112,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
             // if we have no more requests then we are done flushing the queue
             if (request == null) {
                 // if request is null get next one off the queue
-                request = writeRequestQueue.poll(session);
+                request = writeRequestQueue.poll(transportSession);
                 if (request == null) {
                     break;
                 }
@@ -125,7 +123,7 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
             if (request == CLOSE_REQUEST) {
                 // TODO: resolve infinite loop problem
-                if (session.isClosing()) {
+                if (transportSession.getCloseFuture().isClosed()) {
                     break;
                 }
 
@@ -160,18 +158,16 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
             // get message and compare to types we can process
             Object message = request.getMessage();
-            if (message instanceof IoBufferEx) {
-                IoBufferEx buffer = (IoBufferEx) message;
+            if (message instanceof WsMessage) {
+                WsMessage frame = (WsMessage) message;
+                IoBufferEx buffer = frame.getBytes();
+
 
                 try {
                     // hold current remaining bytes so we know how much was
                     // written
                     int remaining = buffer.remaining();
 
-                    if (remaining == 0) {
-                        throw new IllegalStateException("Unexpected empty buffer");
-                    }
-                    
                     if (writer == null) {
                         session.setCurrentWriteRequest(request);
                         initWriter(session);
@@ -185,29 +181,8 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                         break;
                     }
 
-                    // convert from session+buffer to message
-                    // reuse previously constructed message if available
-                    WsBuffer wsBuffer = (WsBuffer)buffer;
-                    WsMessage wsebMessage = wsBuffer.getMessage();
-                    if (wsebMessage == null) {
-                        // cache newly constructed message (atomic update)
-                        // Note: avoid duplicate() to support zero-copy
-                        WsMessage newWsebMessage = new WsBinaryMessage(buffer);
-                        boolean wasUpdated = wsBuffer.setMessage(newWsebMessage);
-                        wsebMessage = wasUpdated ? newWsebMessage : wsBuffer.getMessage();
-                    }
-
-                    // TODO: thread safety
-                    // reconnect parent.close(false) above triggers flush of pending
-                    // writes before closing the HTTP session, and in the interim
-                    // parent.isClosing() returns false until the close begins
-                    // since this flush method is gated by parent being null
-                    // or closing, there is a race condition that would permit
-                    // writing data to the parent during this interim state
-                    // resulting in a WriteToClosedSessionException and losing data
-
                     // flush the buffer out to the session
-                    lastWrite = flushNowInternal(writer, wsebMessage, wsBuffer, filterChain, request);
+                    lastWrite = flushNowInternal(writer, frame, buffer, filterChain, request);
 
                     // increment session written bytes
                     int written = remaining;
@@ -223,28 +198,6 @@ public class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 }
                 catch (Exception e) {
                     request.getFuture().setException(e);
-                }
-            }
-            else if (WsebSession.isPingRequest(request) || WsebSession.isPongRequest(request)) {
-                if (writer == null) {
-                    initWriter(session);
-                    break;
-                }
-                boolean ping = WsebSession.isPingRequest(request);
-                if (LOGGER.isDebugEnabled()) {
-                    String poing = ping ? "PING" : "PONG";
-                    LOGGER.debug(String.format("%s_REQUEST detected on wsebSession %s: sending %s",
-                            poing, session, poing));
-                }
-                try {
-                    IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
-                    IoBufferEx emptyBuf = allocator.wrap(allocator.allocate(0));
-                    emptyBuf.mark();
-                    WsMessage emptyPoing = ping ? new WsPingMessage(emptyBuf) : new WsPongMessage(emptyBuf);
-                    lastWrite = flushNowInternal(writer, emptyPoing, emptyBuf, filterChain, request);
-                }
-                finally {
-                    session.setCurrentWriteRequest(null);
                 }
             }
             else

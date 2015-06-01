@@ -42,7 +42,7 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -52,7 +52,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 public class NioSocketConnectorTest {
     private final ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     private NioSocketConnector connector = null;
     private NioSocketAcceptor acceptor = new NioSocketAcceptor(new Properties());

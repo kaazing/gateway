@@ -68,9 +68,9 @@ Identifies the keystore file that contains the certificates for the host names a
 
 | Element                                           | Description                                                                                                                                                                                |
 |---------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <a name="keystore_type"></a>type                  | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
-| <a name="keystore_file"></a>file                  | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                       |
-| <a name="keystore_passwordfile"></a>password-file | The name of the file containing the password used by the Gateway and other applications to access the keystore file.                                                                    |
+| type                  | The type (format) of the keystore file. The supported type is `JCEKS` (Java Cryptography Extension key store). If the `type` element is not specified, the Gateway throws an exception. |
+| file                  | The location of the keystore file (absolute path or path relative to the `gateway-config.xml` file).                                                                                       |
+| password-file | The name of the file containing the password used by the Gateway and other applications to access the keystore file.                                                                    |
 
 #### Example
 
@@ -144,7 +144,6 @@ This is the element that associates an authenticated user with a set of authoriz
       <http-header>X-Custom-Authorization-Header</http-header>
       <http-query-parameter>myCustomAuthParam</http-query-parameter>
       <http-cookie>sampleCookie1</http-cookie>
-
       <login-modules>
         <login-module>
           <type>file</type>
@@ -185,7 +184,8 @@ Use `authentication` to configure the authentication parameters for the `realm`,
 
 - ##### `http-challenge-scheme`
   This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, `Application Negotiate`, or `Application Token`:
-  - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges.
+  
+  - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges. 
   - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../../index.md) documentation.
   - Use `Application Token` to allow the client to present a third-party token or custom token to be presented to your custom login module.  
   - Use `Negotiate` or `Application Negotiate` if using Kerberos Network Authentication. For more information, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
@@ -200,7 +200,7 @@ Use `authentication` to configure the authentication parameters for the `realm`,
   Specifies the name or names of HTTP cookies that carry authentication data for use by the login modules in this realm. This element is optional. If you do not specify it, then the Gateway uses `<http-header>Authorization</http-header>` for the challenge response (see [Custom HTTP Authentication Tokens](#custom-http-authentication-tokens)).
 
 - ##### `authorization-mode`
-  Specifies the challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in.
+  Specifies the challenge or recycle mode the Gateway uses to handle credentials provided when the client logs in. 
   - Use `challenge` to enable the Gateway to challenge the client for credentials when none are presented. The Gateway will not write its own authorization session cookie.Use recycle to enable the Gateway to write its own authorization session cookie.
   - Use `recycle`to enable the Gateway to write its own authorization session cookie. The `recycle` option is only applicable to `Basic`, `Application Basic`, `Negotiate`, and `Application Negotiate` HTTP challenge schemes.
 
@@ -341,7 +341,7 @@ The following example shows a `gss`-based `login-module` element that you define
 </login-module>
 ```
 
-For information about the `gss` login module options, see the table in the [options (login-module)](#options-login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/o_auth_configure.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_kerberos_configure.md) for more information.
+For information about the `gss` login module options, see the table in the [options (login-module)](#options-login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/u_kerberos_configure.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_kerberos_configure.md) for more information.
 
 ##### Example of a `jndi` login module
 

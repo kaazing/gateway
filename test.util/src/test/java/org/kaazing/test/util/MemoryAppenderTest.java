@@ -25,13 +25,13 @@ import static org.kaazing.test.util.MemoryAppender.printAllMessages;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MemoryAppenderTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("target/test-classes/log4j-trace.properties"); // FIXME: shouldn't test-classes be on the classpath?
+    public TestRule testExecutionTrace = new MethodExecutionTrace("log4j-trace.properties");
 
     @Test
     public void testMemoryAppender() {

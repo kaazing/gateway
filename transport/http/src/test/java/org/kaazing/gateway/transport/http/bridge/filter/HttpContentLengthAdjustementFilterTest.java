@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,9 +28,9 @@ import org.apache.mina.core.write.DefaultWriteRequest;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 import org.kaazing.gateway.transport.http.HttpSession;
-import org.kaazing.gateway.transport.http.util.Expectations;
-import org.kaazing.gateway.transport.http.util.Mockery;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
+import org.kaazing.test.util.Mockery;
 
 public class HttpContentLengthAdjustementFilterTest {
 
@@ -39,7 +39,7 @@ public class HttpContentLengthAdjustementFilterTest {
     private HttpSession session = context.mock(HttpSession.class);
     private NextFilter nextFilter = context.mock(NextFilter.class);
     private IoFilterChain filterChain = context.mock(IoFilterChain.class);
-    
+
     @Test
     public void shouldIncreaseContentLength() throws Exception {
         final IoBuffer message = BUFFER_ALLOCATOR.wrap(BUFFER_ALLOCATOR.allocate(39));
@@ -47,19 +47,19 @@ public class HttpContentLengthAdjustementFilterTest {
         context.checking(new Expectations() { {
             oneOf(session).getWriteHeader("Content-Length"); will(returnValue("12"));
             oneOf(session).setWriteHeader("Content-Length", "51");
-            
+
             oneOf(nextFilter).filterWrite(with(session), with(hasMessage(message)));
-            
+
             oneOf(session).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).remove(with(any(HttpContentLengthAdjustmentFilter.class)));
         } });
-        
+
         HttpContentLengthAdjustmentFilter filter = new HttpContentLengthAdjustmentFilter();
         filter.filterWrite(nextFilter, session, new DefaultWriteRequest(message));
-        
+
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void shouldDefaultIncreaseContentLength() throws Exception {
         final IoBuffer message =  BUFFER_ALLOCATOR.wrap(BUFFER_ALLOCATOR.allocate(39));
@@ -68,16 +68,16 @@ public class HttpContentLengthAdjustementFilterTest {
         context.checking(new Expectations() { {
             oneOf(session).getWriteHeader("Content-Length"); will(returnValue(null));
             oneOf(session).setWriteHeader("Content-Length", "39");
-            
+
             oneOf(nextFilter).filterWrite(with(session), with(hasMessage(message)));
-            
+
             oneOf(session).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).remove(with(any(HttpContentLengthAdjustmentFilter.class)));
         } });
-        
+
         HttpContentLengthAdjustmentFilter filter = new HttpContentLengthAdjustmentFilter();
         filter.filterWrite(nextFilter, session, new DefaultWriteRequest(message));
-        
+
         context.assertIsSatisfied();
     }
 }

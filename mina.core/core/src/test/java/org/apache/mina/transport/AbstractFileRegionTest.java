@@ -86,7 +86,7 @@ public abstract class AbstractFileRegionTest extends TestCase {
                 }
             }
         });
-        acceptor.bind(new InetSocketAddress(port));
+        acceptor.bind(new InetSocketAddress("localhost", port));
         
         IoConnector connector = createConnector();
         connector.setHandler(new IoHandlerAdapter() {

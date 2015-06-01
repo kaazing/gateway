@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -26,14 +26,65 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.filterchain.IoFilterChain.Entry;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
+import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolEncoder;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.util.WsDigestException;
 import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
+import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
+import org.kaazing.mina.core.session.AbstractIoSession;
+import org.kaazing.mina.core.session.DummySessionEx;
+import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
 public class WsUtilsTest {
+
+    private Mockery context;
+    private WebSocketExtension extension1;
+    private WebSocketExtension extension2;
+    private WebSocketExtension extension3;
+    private List<WebSocketExtension> extensions;
+    private ExtensionHeader extensionHeader2;
+    private ExtensionHeader extensionHeader3;
+    private IoFilter extensionFilter2;
+    private IoFilter extensionFilter3;
+
+
+
+
+    @Before
+    public void before() {
+        context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+        extension1 = context.mock(WebSocketExtension.class, "extension1");
+        extension2 = context.mock(WebSocketExtension.class, "extension2");
+        extension3  = context.mock(WebSocketExtension.class, "extension3");
+        extensions = Arrays.asList(new WebSocketExtension[]{ extension1, extension2, extension3});
+        extensionHeader2 = context.mock(ExtensionHeader.class, "extensionHeader2");
+        extensionHeader3 = context.mock(ExtensionHeader.class, "extensionHeader3");
+        extensionFilter2 = context.mock(IoFilter.class, "extensionFilter2");
+        extensionFilter3 = context.mock(IoFilter.class, "extensionFilter3");
+
+    }
 
     @Test(expected = WsDigestException.class)
     public void testComputeHashMissingKey() throws Exception {
@@ -220,5 +271,129 @@ public class WsUtilsTest {
             }
         }
     }
+
+    @Test
+    public void shouldAddExtensionFiltersAtStartWhenNoCodec() throws Exception {
+        AbstractIoSession session = new DummySessionEx();
+        final IoFilter filter1 = context.mock(IoFilter.class, "filter1");
+        final IoFilter filter2 = context.mock(IoFilter.class, "filter2");
+
+        final IoFilterChain filterChain = new DefaultIoFilterChain(session);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(filter1).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter1).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
+                oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
+                oneOf(extensionFilter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
+                oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
+                oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
+            }
+        });
+        filterChain.addLast("filter1", filter1);
+        filterChain.addLast("filter2", filter2);
+        WsUtils.addExtensionFilters(extensions, filterChain, false);
+
+        String[] expected = new String[]{"extension3", "extension2", "filter1", "filter2"};
+        int i = 0;
+        for (Entry entry : filterChain.getAll()) {
+            assertEquals(expected[i++], entry.getName());
+        }
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void shouldAddExtensionFiltersAfterCodec() throws Exception {
+        shouldAddExtensionFiltersAfterCodec_withResult();
+    }
+
+    private IoFilterChain shouldAddExtensionFiltersAfterCodec_withResult() throws Exception {
+        final ProtocolEncoder protocolEncoder = context.mock(ProtocolEncoder.class);
+        final ProtocolDecoder protocolDecoder = context.mock(ProtocolDecoder.class);
+
+        AbstractIoSession session = new DummySessionEx();
+        final IoFilter filter1 = context.mock(IoFilter.class, "filter1");
+        final IoFilter filter2 = context.mock(IoFilter.class, "filter2");
+        final IoFilter codec = new ProtocolCodecFilter(new ProtocolCodecFactory() {
+
+            @Override
+            public ProtocolEncoder getEncoder(IoSession arg0) throws Exception {
+                return protocolEncoder;
+            }
+
+            @Override
+            public ProtocolDecoder getDecoder(IoSession arg0) throws Exception {
+                return protocolDecoder;
+            }
+        });
+
+        final IoFilterChain filterChain = new DefaultIoFilterChain(session);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
+                oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
+                oneOf(filter1).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter1).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(filter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
+                oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
+                oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
+            }
+        });
+        filterChain.addLast("filter1", filter1);
+        filterChain.addLast("codec", codec);
+        filterChain.addLast("filter2", filter2);
+        WsUtils.addExtensionFilters(extensions, filterChain, true);
+
+        String[] expected = new String[]{"filter1", "codec", "extension3", "extension2", "filter2"};
+        int i = 0;
+        for (Entry entry : filterChain.getAll()) {
+            assertEquals(expected[i++], entry.getName());
+        }
+        context.assertIsSatisfied();
+        return filterChain;
+    }
+
+    @Test
+    public void shouldRemoveExtensionFilters() throws Exception {
+        final IoFilterChain filterChain = shouldAddExtensionFiltersAfterCodec_withResult();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
+                oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
+                oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
+                oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
+                oneOf(extensionFilter2).onPreRemove(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter2).onPostRemove(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPreRemove(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+                oneOf(extensionFilter3).onPostRemove(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
+            }
+        });
+
+        WsUtils.removeExtensionFilters(extensions, filterChain);
+
+    }
+
 }
 

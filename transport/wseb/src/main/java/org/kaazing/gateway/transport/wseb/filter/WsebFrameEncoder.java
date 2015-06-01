@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -35,7 +35,6 @@ import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.AbstractWsFrameEncoder;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsDraftHixieFrameEncodingSupport;
-import org.kaazing.gateway.transport.ws.extension.EscapeSequencer;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 
@@ -72,33 +71,12 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
 
     @Override
     protected IoBufferEx doEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
-        IoBufferEx buf = message.getBytes();
-        byte[] escapeBytes = null;
-        boolean escaping = false;
-
-        // TODO: fix WsMessage inheritance hierarchy so WsCommandMessage doesn't have getBytes method
-        if (buf != null && extensions != null ) {
-            EscapeSequencer escapeSequencer = extensions.getEscapeSequencer(message.getKind());
-            if (escapeSequencer != null) {
-                escapeBytes = escapeSequencer.getEscapeBytes(buf);
-                escaping = escapeBytes.length > 0;
-            }
-        }
-
         switch (message.getKind()) {
             case BINARY: {
-                if (escaping) {
-                    return doBinaryEscapedEncode(allocator, flags, message, escapeBytes);
-                } else {
-                    return doBinaryEncode(allocator, flags, message);
-                }
+                return doBinaryEncode(allocator, flags, message);
             }
             case TEXT: {
-                if (escaping) {
-                    return doTextEscapedEncode(allocator, flags, message, escapeBytes);
-                } else {
-                    return doTextEncode(allocator, flags, message);
-                }
+                return doTextEncode(allocator, flags, message);
             }
             case COMMAND: {
                 return doCommandEncode(allocator, flags, message);
@@ -160,19 +138,7 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
         return allocator.wrap(text, flags);
     }
 
-    protected IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return WsDraftHixieFrameEncodingSupport.doSpecifiedLengthTextEscapedEncode(allocator, flags, message, escapedBytes);
-    }
-
     @Override
-    protected IoBufferEx doContinuationEscapedEncode(IoBufferAllocatorEx<?> ioBufferAllocatorEx, int i, WsMessage wsMessage, byte[] bytes) {
-        throw new UnsupportedOperationException();
-    }
-
-    protected IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return WsDraftHixieFrameEncodingSupport.doBinaryEscapedEncode(allocator, flags, message, escapedBytes);
-    }
-
     protected IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return WsDraftHixieFrameEncodingSupport.doSpecifiedLengthTextEncode(allocator, flags, message);
     }
@@ -182,10 +148,12 @@ public class WsebFrameEncoder extends AbstractWsFrameEncoder {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     protected IoBufferEx doBinaryEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return WsDraftHixieFrameEncodingSupport.doBinaryEncode(allocator, flags, message);
     }
 
+    @Override
     protected IoBufferEx doCloseEncode(IoBufferAllocatorEx<?> allocator, int flags, WsCloseMessage message) {
         return WsDraftHixieFrameEncodingSupport.doCloseEncode(allocator, flags);
     }

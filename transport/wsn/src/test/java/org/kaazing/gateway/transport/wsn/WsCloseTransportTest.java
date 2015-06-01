@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -41,10 +40,9 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -61,6 +59,7 @@ import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -76,7 +75,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsCloseTransportTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace("src/test/resources/log4j-trace.properties");
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
 //    private static final boolean DEBUG = false;
     private static final boolean DEBUG = true;
@@ -92,7 +91,7 @@ public class WsCloseTransportTest {
     private static final Integer ADAPTER_LATCH_UNEXPECTED_TIMEOUT = 2;
 
     private final ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
-    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.EMPTY_MAP);
+    TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
     private final BridgeServiceFactory bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 //    private final ServiceRegistry serviceRegistry = new ServiceRegistry();
     private WsnAcceptor wsnAcceptor;
@@ -123,15 +122,6 @@ public class WsCloseTransportTest {
         throws InterruptedException {
 
         waitForLatch(l, delay, unit, 0, failureMessage);
-    }
-
-    @Before
-    public void setUp()
-        throws Exception {
-
-        if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-        }
     }
 
     @After
@@ -188,6 +178,7 @@ public class WsCloseTransportTest {
         wsnAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
         wsnAcceptor.setResourceAddressFactory(resourceAddressFactory);
         wsnAcceptor.setSchedulerProvider(schedulerProvider);
+        wsnAcceptor.setWsAcceptor(wsAcceptor);
         if (wsAcceptCloseTimeout != null) {
             wsnAcceptor.setConfiguration(wsAcceptProperties);
         }

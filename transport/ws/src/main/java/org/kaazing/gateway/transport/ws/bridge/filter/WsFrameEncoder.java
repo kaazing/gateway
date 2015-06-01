@@ -53,19 +53,6 @@ public class WsFrameEncoder extends AbstractWsFrameEncoder {
         this.maskSends = maskSends; 
     }
 
-    protected IoBufferEx doTextEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapedMessageEncode(allocator, flags, message, escapedBytes);
-    }
-
-    @Override
-    protected IoBufferEx doContinuationEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapedMessageEncode(allocator, flags, message, escapedBytes);
-    }
-
-    protected IoBufferEx doBinaryEscapedEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        return doEscapedMessageEncode(allocator, flags, message, escapedBytes);
-    }
-
     protected IoBufferEx doTextEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message) {
         return doMessageEncode(allocator, flags, message);
     }
@@ -88,14 +75,6 @@ public class WsFrameEncoder extends AbstractWsFrameEncoder {
             return WsFrameEncodingSupport.doEncode(allocator, flags, message, prng.nextInt());
         } else {
         return WsFrameEncodingSupport.doEncode(allocator, flags, message);
-        }
-    }
-    
-    private IoBufferEx doEscapedMessageEncode(IoBufferAllocatorEx<?> allocator, int flags, WsMessage message, byte[] escapedBytes) {
-        if (maskSends) {
-            return WsFrameEncodingSupport.doEscapedEncode(allocator, flags, message, escapedBytes, prng.nextInt());
-        } else {
-            return WsFrameEncodingSupport.doEscapedEncode(allocator, flags, message, escapedBytes);
         }
     }
 }

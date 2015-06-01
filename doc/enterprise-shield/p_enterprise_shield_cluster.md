@@ -1,84 +1,132 @@
 -   [Home](../../index.md)
 -   [Documentation](../index.md)
--   Configure Enterprise Shield&trade; in a Cluster?
+-   Security with KAAZING Gateway
 
-Configure Enterprise Shield&trade; in a Cluster ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-===================================================================================
+Walkthrough: Configure Enterprise Shield™ for High Availability ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+=================================================================
 
-To add Enterprise Shield&trade; to your cluster configuration, you can start out by following the guidelines described in the [Configure Enterprise Shield&trade;](p_enterprise_shield_config.md) topic. After that, the key is to configure Enterprise Shield&trade; on each cluster member, and create an equivalent number of cluster members on the DMZ and the trusted network.
+This step extends the use case to configure an Enterprise Shield™ configuration described in [Walkthrough: Configure Enterprise Shield](p_enterprise_shield_config.md) into a cluster configuration that has two Gateways running in the trusted network and DMZ and a matching set of Gateways in the DMZ. This configuration provides maximum security and also high availability for failover (system resilience) during hardware or network failures. The complete configuration files for the cluster are available on `kaazing.org` at `enterprise-shield-use-case-3-cluster.xml`.
 
-In Figure 1, there are three Gateways running in the DMZ and a matching set of three Gateways on the trusted network. Thus, each internal Gateway is paired to one explicit cluster member in the DMZ.
+**Note:** Enterprise Shield does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield.
 
-![Gateway Topology Showing Reverse Connectivity in a Cluster](../images/f-dmz-trustednetwork-860-07.png)
-**Figure 1: Gateway Topology Configured for Enterprise Shield&trade; in a Cluster**
+In Figure 1, there are two Gateways running in the DMZ and a matching set of two Gateways on the trusted network. Thus, each internal Gateway is paired to one explicit cluster member in the DMZ.
 
-Note that Enterprise Shield&trade; does not affect the behavior of the cluster in any way. Clients initiate requests in the same way and are unaware that the cluster is configured for reverse connectivity. You connect with a client in the same way as you would for a cluster without Enterprise Shield&trade;.
+![Gateway Topology Showing Reverse Connectivity in a Cluster](../images/f-es-maxsecurity-cluster.png)
 
-The recommended method of setting up Enterprise Shield&trade; in a cluster is as follows:
+**Figure 1: Enterprise Shield Topology Configured for High Availability**
 
--   Configure a reverse connection on each cluster member.
--   Use pairing (or coupling) to match up each cluster member on the DMZ with a cluster member on the trusted network.
+The key to making the Enterprise Shield configuration highly available is to configure clustering on each cluster member in the DMZ, and have an equivalent number of cluster members in the DMZ and the trusted network.
 
-    To pair cluster members you configure the HTTP transport identically on the internal Gateway and DMZ Gateway. For example, to configure the six Gateways shown in Figure 1:
+The following steps provide a high-level overview about cluster configuration. See [Configure a KAAZING Gateway Cluster](../high-availability/p_high_availability_cluster.md) for detailed information about cluster configuration and the [cluster](../admin-reference/r_configure_gateway_cluster.md) element.
 
-    **Gateway Cluster Pair 1**
+-   Update the properties element to use a unique value for the DMZ backplane variable---such as `gateway1`---that is a unique name for the Gateway cluster pair:
 
-    On the first DMZ Gateway, configure the `connect-options` as follows:
+    **Internal Gateway**
 
-    ``` xml
-    <http.transport>
-         socks+ssl://gateway1.dmz.net:1080
-    </http.transport>
+    ``` auto-links:
+    <properties>
+
+      <!-- The Gateway in the DMZ to connect to. -->
+      <property>
+        <name>dmz.cluster.backplane.hostname</name>
+        <value>gateway1.example.dmz.net</value>
+      </property>
+
+    </properties>
     ```
 
-    On the first internal Gateway, configure the `accept-options` as follows:
+    **DMZ Gateway**
 
-    ``` xml
-    <http.transport>
-        socks+ssl://gateway1.dmz.net:1080
-    </http.transport>
+    ``` auto-links:
+    <properties>
+      <!-- The IP address of this cluster member. -->
+      <property>
+        <name>gateway.ip.address</name>
+        <value>172.19.20.1</value>
+      </property>
+
+      <!-- The port number (value) must be different for each member. -->
+      <property>
+        <name>cluster.port</name>
+        <value>5941</value>
+      </property>
+
+      <!-- The publicly addressable hostname. -->
+      <property>
+        <name>dmz.cluster.frontplane.hostname</name>
+        <value>gateway1.example.com</value>
+      </property>
+
+      <!-- The private address that the internal gateway connects to. -->
+      <property>
+        <name>dmz.cluster.backplane.hostname</name>
+         <value>gateway1.example.dmz.net</value>
+      </property>
+
+    </properties>
     ```
 
-    **Gateway Cluster Pair 2**
+-   On the DMZ Gateway, add the cluster element:
 
-    On the second DMZ Gateway, configure the `connect-options` as follows:
-
-    ``` xml
-    <http.transport>
-        socks+ssl://gateway2.dmz.net:1080
-    </http.transport>
+    ``` auto-links:
+    <cluster>
+      <name>dmzCluster</name>
+      <accept>tcp://${gateway.ip.address}:${cluster.port}</accept>
+      <connect>udp://224.2.2.44:44444</connect>
+    </cluster>
     ```
 
-    On the second internal Gateway, configure the `accept-options` as follows:
+    The accept element contains the URI on which the cluster member listens for other cluster members. The connect element contains the URI used to discover other cluster members. In this case, it uses a multicast address.
 
-    ``` xml
-    <http.transport>
-        socks+ssl://gateway2.dmz.net:1080
-    </http.transport>
+-   On the DMZ Gateway, add a balancer service for each service. The following example shows the balancer service for DMZ App1:
+
+    ``` auto-links:
+    <service>
+
+      <name>Balancer for DMZ App1</name>
+      <accept>wss://gateway.example.com:443/app1</accept>
+
+      <type>balancer</type>
+
+      <accept-options>
+        <tcp.bind>${gateway.ip.address}:443</tcp.bind>
+      </accept-options>
+
+      <cross-site-constraint>
+        <allow-origin>*</allow-origin>
+      </cross-site-constraint>
+
+    </service>
     ```
 
-    **Gateway Cluster Pair 3**
+    To configure a balancer service for DMZ App2, duplicate this block of configuration elements and substitute App2 and app2 in the name and accept elements.
 
-    On the third DMZ Gateway, configure the `connect-options` as follows:
+    The `tcp.bind` element in the `accept-options` binds the public URI in the accept element to the local IP address of the cluster member. Because `tcp.bind` contains the local IP address of that cluster member, it allows the accept URIs in the balancer service to be identical on every cluster member. For more information, see [_protocol_.bind] (../admin-reference/r_configure_gateway_service.md#protocolbind) and [Set Up Kaazing WebSocket Gateway as a Load Balancer](../high-availability/p_high_availability_loadbalance.md).
 
-    ``` xml
-    <http.transport>
-        socks+ssl://gateway3.dmz.net:1080
-    </http.transport>
+-   On the DMZ Gateway, add a balance element for each service, specifying the URI accepted by the balancer service. Clients then use these URIs to connect to the service.
+
+    **For App1, add:**
+
+    ``` auto-links:
+    <balance>wss://gateway.example.com:443/app1</balance>
     ```
 
-    On the third internal Gateway, configure the `accept-options` as follows:
+    **For App2, add:**
 
-    ``` xml
-    <http.transport>
-        socks+ssl://gateway3.dmz.net:1080
-    </http.transport>
+    ``` auto-links:
+    <balance>wss://gateway.example.com:443/app2</balance>
     ```
+
+-   Start each Gateway and verify the cluster is running.
+-   Repeat these steps for each cluster pair you want to add to the Enterprise Shield topology.
+
+    Remember to use unique hostnames, IP addresses, and ports for each cluster pair. For example, for Gateway Cluster Pair 2 you might use `gateway2.example.dmz.net`, and for Gateway Cluster Pair 3 use `gateway3.example.dmz.net`.
+
+The complete configuration files for all of the Enterprise Shield Use Cases are located on `kaazing.org`.
 
 See Also
 --------
 
--   [About Enterprise Shield&trade;](o_rc_checklist.md#about-enterprise-shield)
--   [Configure Enterprise Shield&trade;](p_enterprise_shield_config.md)
--   [Configure the Gateway for High Availability](../high-availability/o_high_availability.md)
+-   [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md)
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md)
 -   [Cluster Reference](../admin-reference/r_configure_gateway_cluster.md)
