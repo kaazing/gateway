@@ -336,7 +336,7 @@ public class WsnConnectorTest {
                 System.out.println("Acceptor: received message: " + Utils.asString(buf.buf()));
                 IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
                 WriteFuture writeFuture = session.write(allocator.wrap(asByteBuffer("Reply from acceptor")));
-                writeFuture.addListener(future -> session.close(true));
+                writeFuture.addListener(future -> session.close(false));
             }
 
             @Override
