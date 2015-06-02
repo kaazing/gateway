@@ -2,6 +2,6 @@ language: Java
 jdk:
   - oraclejdk8
 install: mvn -q clean -DskipTests -DskipITs install
-script: mvn -q clean verify -DskipITs -DfailIfNoTests=false -Dtest=WsnConnectorTest#shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions
+script: mvn test -DfailIfNoTests=false -Dtest=WsnConnectorTest#shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions
 after_success:
   - mvn -q clean cobertura:cobertura-integration-test coveralls:report
