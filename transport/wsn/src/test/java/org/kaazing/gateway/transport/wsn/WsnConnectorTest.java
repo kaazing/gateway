@@ -336,7 +336,7 @@ public class WsnConnectorTest {
                 System.out.println("Acceptor: received message: " + Utils.asString(buf.buf()));
                 IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
                 WriteFuture writeFuture = session.write(allocator.wrap(asByteBuffer("Reply from acceptor")));
-                writeFuture.addListener(future -> session.close(false));
+                writeFuture.addListener(future -> session.close(true));
             }
 
             @Override
@@ -367,9 +367,15 @@ public class WsnConnectorTest {
                 protected void doSessionClosed(IoSessionEx session) throws Exception {
                     echoReceived.countDown();
                 }
+
+                protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+                    cause.printStackTrace();
+                    System.out.println("connectHandler Caught exception");
+                }
             };
 
             ConnectFuture connectFuture = wsnConnector.connect(address, connectHandler, null);
+            System.out.println("*** test connectFuture = "+connectFuture);
             final WsnSession session = (WsnSession)connectFuture.await().getSession();
             session.write(new WsBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
             waitForLatch(echoReceived, NETWORK_OPERATION_WAIT_SECS, TimeUnit.SECONDS, "echo not received");

@@ -539,6 +539,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
                 switch (httpStatus) {
                 case INFO_SWITCHING_PROTOCOLS:
+                    logger.info("HttpConnector Got INFO_SWITCHING_PROTOCOLS");
                     // handle upgrade
                     httpSession.close(false);
                     break;
