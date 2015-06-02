@@ -100,11 +100,11 @@ public class DefaultIoFuture implements IoFuture {
                     // Wait for a notify, or if no notify is called,
                     // assume that we have a deadlock and exit the 
                     // loop to check for a potential deadlock.
-                    logger.info("Going to wait = "+waiters+" this="+this);
+                    //logger.info("Going to wait = "+waiters+" this="+this);
                     lock.wait(DEAD_LOCK_CHECK_INTERVAL);
                 } finally {
                     waiters--;
-                    logger.info("Before deadlock check = "+waiters+" this="+this);
+                    //logger.info("Before deadlock check = "+waiters+" this="+this);
                     if (!ready) {
                         checkDeadLock();
                     }
@@ -289,9 +289,9 @@ public class DefaultIoFuture implements IoFuture {
 
             result = newValue;
             ready = true;
-            logger.info("Setting value = " + newValue+" this="+this);
+            //logger.info("Setting value = " + newValue+" this="+this);
             if (waiters > 0) {
-                logger.info("Notifying waiters = "+newValue+" this="+this);
+                //logger.info("Notifying waiters = "+newValue+" this="+this);
 
                 lock.notifyAll();
             }
