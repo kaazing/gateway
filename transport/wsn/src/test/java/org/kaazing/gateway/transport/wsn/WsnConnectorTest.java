@@ -44,6 +44,7 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
+import org.jboss.netty.channel.socket.Worker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -93,13 +94,13 @@ public class WsnConnectorTest {
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     @BeforeClass
     public static void initLogging()
             throws Exception {
 
         if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
+            PropertyConfigurator.configure("src/test/resources/log4j.properties");
         }
     }
     @Before
