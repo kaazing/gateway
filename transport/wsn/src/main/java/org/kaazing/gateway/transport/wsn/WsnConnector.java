@@ -319,7 +319,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
 
                             UpgradeFuture upgrade = httpSession.upgrade(ioBridgeHandler);
-                            logger.info("Setting ioBridgeHandler for upgrade");
+                            logger.info("Setting ioBridgeHandler for upgrade ", new RuntimeException("Stack trace") );
                             upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
                                 @Override
                                 public void operationComplete(UpgradeFuture future) {

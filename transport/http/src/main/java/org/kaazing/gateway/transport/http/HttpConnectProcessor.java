@@ -191,7 +191,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         httpSession.getCloseFuture().setClosed();
 
         IoHandler upgradeHandler = httpSession.getUpgradeHandler();
-        logger.info("HttpConnectProcessor#removeInternal with upgradeHandler="+upgradeHandler);
+        logger.info("HttpConnectProcessor#removeInternal with upgradeHandler="+upgradeHandler, new RuntimeException("Stack trace"));
         if (upgradeHandler == null) {
             removeInternal0(httpSession);
         } else {

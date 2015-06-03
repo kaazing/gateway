@@ -44,6 +44,7 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.handler.demux.ExceptionHandler;
 import org.jboss.netty.channel.socket.Worker;
 import org.junit.After;
 import org.junit.Assert;
@@ -314,7 +315,7 @@ public class WsnConnectorTest {
     @Test (timeout = 30000)
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
-        long iterations = 100;
+        long iterations = 50;
 
         final URI location = URI.create("wsn://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
