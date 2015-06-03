@@ -44,6 +44,8 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.handler.demux.ExceptionHandler;
+import org.jboss.netty.channel.socket.Worker;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -99,7 +101,7 @@ public class WsnConnectorTest {
             throws Exception {
 
         if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
+            PropertyConfigurator.configure("src/test/resources/log4j.properties");
         }
     }
     @Before
@@ -335,18 +337,19 @@ public class WsnConnectorTest {
                 IoSessionEx sessionEx = session;
                 System.out.println("Acceptor: received message: " + Utils.asString(buf.buf()));
                 IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-                session.write(allocator.wrap(asByteBuffer("Reply from acceptor"))).addListener(new IoFutureListener<IoFuture>() {
-                    @Override
-                    public void operationComplete(IoFuture future) {
-                        session.close(true);
-                    }
-                });
+                WriteFuture writeFuture = session.write(allocator.wrap(asByteBuffer("Reply from acceptor")));
+                writeFuture.addListener(future -> session.close(true));
             }
 
             @Override
             public void doSessionClosed(IoSessionEx session) throws Exception {
                 acceptSessionClosed.countDown();
             }
+
+//            @Override
+//            protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+//                cause.printStackTrace();
+//            }
         };
         wsnAcceptor.bind(address, acceptHandler, null);
 
@@ -371,9 +374,15 @@ public class WsnConnectorTest {
                 protected void doSessionClosed(IoSessionEx session) throws Exception {
                     echoReceived.countDown();
                 }
+
+//                protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+//                    cause.printStackTrace();
+//                    System.out.println("connectHandler Caught exception");
+//                }
             };
 
             ConnectFuture connectFuture = wsnConnector.connect(address, connectHandler, null);
+            System.out.println("*** test connectFuture = "+connectFuture);
             final WsnSession session = (WsnSession)connectFuture.await().getSession();
             session.write(new WsBufferAllocator(SimpleBufferAllocator.BUFFER_ALLOCATOR).wrap(Utils.asByteBuffer("Message from connector")));
             waitForLatch(echoReceived, NETWORK_OPERATION_WAIT_SECS, TimeUnit.SECONDS, "echo not received");

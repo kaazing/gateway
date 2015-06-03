@@ -170,9 +170,12 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         if (transportAddress != null) {
             Executor ioExecutor = null;
             boolean ioAligned = isIoAligned();
+            //logger.info("HttpConnector ioAligned "+ioAligned);
             if (!ioAligned) {
                 ioExecutor = getIoExecutor();
             }
+            //logger.info("HttpConnector ioExecutor "+ioExecutor);
+
 
             if (ioAligned || ioExecutor == null) {
                 connectInternal0(connectFuture, address, handler, initializer);
@@ -539,6 +542,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
                 switch (httpStatus) {
                 case INFO_SWITCHING_PROTOCOLS:
+                    logger.info("HttpConnector Got INFO_SWITCHING_PROTOCOLS");
                     // handle upgrade
                     httpSession.close(false);
                     break;

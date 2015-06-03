@@ -225,8 +225,11 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                                       final IoSessionInitializer<T> initializer) {
 
         final ConnectFuture connectFuture = new DefaultConnectFuture();
+        logger.info("connectFuture = "+connectFuture);
 
         final ConnectFuture wsnConnectFuture = wsnConnectInternal(connectAddress, handler, initializer);
+        logger.info("wsnConnectFuture = "+wsnConnectFuture);
+
 
         IoFutureListener<ConnectFuture> wsnConnectListener = new IoFutureListener<ConnectFuture>() {
             @Override
@@ -316,6 +319,11 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
 
                             UpgradeFuture upgrade = httpSession.upgrade(ioBridgeHandler);
+                            if (Thread.currentThread().getName().contains("I/O")) {
+                                logger.info("Setting ioBridgeHandler for upgrade ");
+                            } else {
+                                logger.info("Setting ioBridgeHandler for upgrade ", new RuntimeException("Stack trace"));
+                            }
                             upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
                                 @Override
                                 public void operationComplete(UpgradeFuture future) {
@@ -339,6 +347,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                 }
                                             };
 
+                                            logger.info("WsnConnector#doUpgrade addListener newSession is called");
                                             return newSession(wsnSessionInitializer, wsnConnectFuture, wsnSessionFactory);
                                         }
                                     };
@@ -467,6 +476,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         @Override
         protected void doSessionOpened(IoSessionEx session) throws Exception {
+            logger.info("WsnConnector#ioBridgeHandler#doSessionOpened thread="+Thread.currentThread());
+
             IoFilterChain filterChain = session.getFilterChain();
             addBridgeFilters(filterChain);
 
@@ -558,6 +569,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
+            logger.info("WsnConnector#ioBridgeHandler#doSessionClosed thread="+Thread.currentThread());
+
             WsnSession wsnSession = SESSION_KEY.get(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
                 // TODO: require WebSocket controlled close handshake
@@ -584,7 +597,13 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             // if WebSocket handshake incomplete, fail the WsnSession connect future
             ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
             assert (wsnConnectFuture != null);
+
+            logger.info("******** wsnConnectFuture isDone=" + wsnConnectFuture.isDone()+" this="+wsnConnectFuture);
+
+
             if (!wsnConnectFuture.isDone() && httpSession.getParent().getReadBytes() < 10L) {
+                logger.info("******** wsnConnectFuture setting exception ="+" this="+wsnConnectFuture);
+
                 wsnConnectFuture.setException(new Exception("WSN connection failed"));
             }
         }

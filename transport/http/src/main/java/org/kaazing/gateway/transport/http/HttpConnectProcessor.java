@@ -48,12 +48,16 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSession> {
 
     public static final IoBufferEx WRITE_COMPLETE = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(0));
     private static final String FILTER_PREFIX = HttpProtocol.NAME + "#";
     private final ThreadLocal<PersistentConnectionPool> persistentConnectionPool;
+    private final Logger logger = LoggerFactory.getLogger(HttpConnectProcessor.class.getName());
+
 
     HttpConnectProcessor(ThreadLocal<PersistentConnectionPool> persistentConnectionPool) {
         this.persistentConnectionPool = persistentConnectionPool;
@@ -187,6 +191,11 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         httpSession.getCloseFuture().setClosed();
 
         IoHandler upgradeHandler = httpSession.getUpgradeHandler();
+        if (Thread.currentThread().getName().contains("I/O")) {
+            logger.info("HttpConnectProcessor#removeInternal with upgradeHandler=" + upgradeHandler);
+        } else {
+            logger.info("HttpConnectProcessor#removeInternal with upgradeHandler=" + upgradeHandler, new RuntimeException("Stack trace"));
+        }
         if (upgradeHandler == null) {
             removeInternal0(httpSession);
         } else {
@@ -222,6 +231,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
     private void removeInternal0(DefaultHttpSession session) {
         IoSession parent = session.getParent();
         if (parent == null || parent.isClosing()) {
+            logger.info("HttpConnectProcessor#removeInternal0 parent session is closeing = "+session);
             return;
         }
 

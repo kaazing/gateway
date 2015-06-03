@@ -27,6 +27,8 @@ import org.apache.mina.core.polling.AbstractPollingIoProcessor;
 import org.apache.mina.core.service.IoProcessor;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.util.ExceptionMonitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -283,6 +285,7 @@ public class DefaultIoFuture implements IoFuture {
             result = newValue;
             ready = true;
             if (waiters > 0) {
+
                 lock.notifyAll();
             }
         }
