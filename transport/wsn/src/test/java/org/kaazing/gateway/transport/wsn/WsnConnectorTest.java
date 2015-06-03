@@ -345,6 +345,11 @@ public class WsnConnectorTest {
             public void doSessionClosed(IoSessionEx session) throws Exception {
                 acceptSessionClosed.countDown();
             }
+
+            @Override
+            protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+                cause.printStackTrace();
+            }
         };
         wsnAcceptor.bind(address, acceptHandler, null);
 
