@@ -3,3 +3,4 @@ jdk:
   - oraclejdk8
 install: mvn -q clean -DskipTests -DskipITs install
 script: mvn test -DfailIfNoTests=false -Dtest=WsnConnectorTest#shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions
+
