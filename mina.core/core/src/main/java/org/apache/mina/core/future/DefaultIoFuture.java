@@ -92,7 +92,7 @@ public class DefaultIoFuture implements IoFuture {
      * {@inheritDoc}
      */
     public IoFuture await() throws InterruptedException {
-        logger.info("IN await " + this);
+        //logger.info("IN await " + this);
         synchronized (lock) {
             while (!ready) {
                 waiters++;

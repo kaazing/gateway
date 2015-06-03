@@ -95,7 +95,7 @@ public class WsnConnectorTest {
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     @BeforeClass
     public static void initLogging()
             throws Exception {

@@ -170,11 +170,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         if (transportAddress != null) {
             Executor ioExecutor = null;
             boolean ioAligned = isIoAligned();
-            logger.info("HttpConnector ioAligned "+ioAligned);
+            //logger.info("HttpConnector ioAligned "+ioAligned);
             if (!ioAligned) {
                 ioExecutor = getIoExecutor();
             }
-            logger.info("HttpConnector ioExecutor "+ioExecutor);
+            //logger.info("HttpConnector ioExecutor "+ioExecutor);
 
 
             if (ioAligned || ioExecutor == null) {
