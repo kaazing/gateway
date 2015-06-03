@@ -315,7 +315,7 @@ public class WsnConnectorTest {
     @Test (timeout = 30000)
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
-        long iterations = 50;
+        long iterations = 100;
 
         final URI location = URI.create("wsn://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
