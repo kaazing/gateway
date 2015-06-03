@@ -569,7 +569,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.remove(session);
             logger.info("WsnConnector#ioBridgeHandler#doSessionClosed thread="+Thread.currentThread());
 
             WsnSession wsnSession = SESSION_KEY.get(session);

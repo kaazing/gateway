@@ -346,10 +346,10 @@ public class WsnConnectorTest {
                 acceptSessionClosed.countDown();
             }
 
-            @Override
-            protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-                cause.printStackTrace();
-            }
+//            @Override
+//            protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+//                cause.printStackTrace();
+//            }
         };
         wsnAcceptor.bind(address, acceptHandler, null);
 
@@ -375,10 +375,10 @@ public class WsnConnectorTest {
                     echoReceived.countDown();
                 }
 
-                protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-                    cause.printStackTrace();
-                    System.out.println("connectHandler Caught exception");
-                }
+//                protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
+//                    cause.printStackTrace();
+//                    System.out.println("connectHandler Caught exception");
+//                }
             };
 
             ConnectFuture connectFuture = wsnConnector.connect(address, connectHandler, null);
