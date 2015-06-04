@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.gateway.service.http.proxy.SecureOriginServer.HttpHandler;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
@@ -83,7 +82,7 @@ public class HttpProxySecureTest {
                 "<html>Hellooo</html>\r\n" +
                 "0\r\n" +
                 "\r\n";
-        HttpHandler handler = new HttpHandler(response);
+        OriginServer.HttpHandler handler = new OriginServer.HttpHandler(response);
         SecureOriginServer originServer = new SecureOriginServer(8080, handler);
 
         try {

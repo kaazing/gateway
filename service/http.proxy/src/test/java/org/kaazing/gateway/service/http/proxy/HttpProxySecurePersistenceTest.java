@@ -30,7 +30,6 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.EOFException;
 import java.io.IOException;
@@ -111,7 +110,7 @@ public class HttpProxySecurePersistenceTest {
                 for(int i=0; i < 3; i++) {
                     // read and write HTTP request and response headers
                     out.write(HTTP_REQUEST);
-                    SecureOriginServer.HttpHandler.parseHttpHeaders(in);
+                    OriginServer.parseHttpHeaders(in);
                     readFully(in, new byte[31]);
                 }
 
@@ -126,7 +125,7 @@ public class HttpProxySecurePersistenceTest {
 
     }
 
-    private static class HttpServer implements SecureOriginServer.Handler {
+    private static class HttpServer implements OriginServer.Handler {
         static final byte[] HTTP_RESPONSE =
                 ("HTTP/1.1 200 OK\r\n" +
                 "Server: Apache-Coyote/1.1\r\n" +
@@ -140,14 +139,14 @@ public class HttpProxySecurePersistenceTest {
                 "\r\n").getBytes(UTF_8);
 
         @Override
-        public void handle(SSLSocket serverSocket) throws IOException {
+        public void handle(Socket serverSocket) throws IOException {
             try(Socket socket = serverSocket;
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream()) {
 
                 for(int i=0; i < 3; i++) {
                     // read and write HTTP request and response headers
-                    SecureOriginServer.HttpHandler.parseHttpHeaders(in);
+                    OriginServer.parseHttpHeaders(in);
                     out.write(HTTP_RESPONSE);
                 }
 

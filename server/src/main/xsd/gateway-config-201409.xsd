@@ -1255,7 +1255,11 @@
             </element>
             <element name="http.keepalive.max.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="5">
                 <annotation>
-                    <documentation>
+                    <documentation>Gateway caches the specified number of idle keep-alive (or persistent) connections
+                        to upstream server. Those connections will time out based on keep-alive timeout config option.
+
+                        This config option does not limit the max number of connections to upstream server that
+                        the gateway can open.
                     </documentation>
                 </annotation>
             </element>
