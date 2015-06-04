@@ -26,6 +26,8 @@ Edit `/etc/hosts` file (or equivalent) to set gateway as the Docker host
 
 Point your browser at `http://gateway:8000` to see the WebSocket demo.
 
+See Kaazing Gateway on [Docker Hub](https://registry.hub.docker.com/u/kaazing/gateway/) for more information.
+
 # Building this Project
 
 ## Requirements for building the project
