@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>community</artifactId>
-        <version>2.4</version>
+        <version>2.12</version>
     </parent>
 
     <artifactId>gateway</artifactId>
@@ -27,7 +27,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-        <animal.sniffer.signature.artifactId>java18</animal.sniffer.signature.artifactId>
         <hazelcast.version>1.9.4.8</hazelcast.version>
         <k3po.version>2.0.0</k3po.version>
         <jdom.version>1.1</jdom.version>
@@ -499,3 +498,4 @@
     </build>
 
 </project>
+
