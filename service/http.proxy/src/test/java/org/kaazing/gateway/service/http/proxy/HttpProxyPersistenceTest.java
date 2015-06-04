@@ -74,24 +74,25 @@ public class HttpProxyPersistenceTest {
             originServer.start();
             gateway.start(configuration);
 
+            // Assuming all 4 clients land on different I/O threads
             // 4 clients each send 2 requests
             Thread t1 = new Thread(new HttpClient());
+            t1.start(); t1.join();
             Thread t2 = new Thread(new HttpClient());
+            t2.start(); t2.join();
             Thread t3 = new Thread(new HttpClient());
-
-            t1.start(); t2.start(); t3.start();
-            t1.join(); t2.join(); t3.join();
+            t3.start(); t3.join();
 
             // now persistent connection pool should have 3 connecions
             assertEquals(3, handler.getConnections());
 
             Thread t4 = new Thread(new HttpClient());
-            t4.start();
-            t4.join();
+            t4.start(); t4.join();
 
-            // Since t4 client cannot use
+            // Since t4 client cannot recycle its connection as the
+            // pool reached configured max, it creates two connections
+            // for two requests
             assertEquals(5, handler.getConnections());
-
         } finally {
             gateway.stop();
             originServer.stop();
