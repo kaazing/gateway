@@ -159,6 +159,11 @@ class PersistentConnectionPool {
                         serverAddress.getResource(), transportSession, currentCount+1));
             }
             return true;
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("NOT caching persistent connection: server = %s session = %s pool = %d",
+                        serverAddress.getResource(), transportSession, currentCount));
+            }
         }
         return false;
     }
@@ -186,6 +191,11 @@ class PersistentConnectionPool {
             if (logger.isDebugEnabled()) {
                 logger.debug(String.format("Reusing cached persistent connection: server = %s  session = %s pool = %d",
                         serverAddress.getResource(), session, count));
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Cache miss - NO cached persistent connection: server = %s",
+                        serverAddress.getResource()));
             }
         }
         return session;
