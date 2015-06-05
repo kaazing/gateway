@@ -20,6 +20,7 @@
 
     <properties>
         <maven.test.skip>true</maven.test.skip>
+        <animal.sniffer.skip>true</animal.sniffer.skip>
     </properties>
 
     <dependencies>

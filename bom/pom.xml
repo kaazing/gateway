@@ -18,12 +18,6 @@
         <dependencies>
             <dependency>
                 <groupId>org.kaazing</groupId>
-                <artifactId>gateway.truststore</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.server</artifactId>
                 <version>${project.version}</version>
             </dependency>
