@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpProxyPersistenceTest {
 
     private static final int KEEP_ALIVE_TIMEOUT = 5;
-    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 3;
+    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 1;
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
@@ -62,8 +62,7 @@ public class HttpProxyPersistenceTest {
                         .type("http.proxy")
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
                         .connectOption("http.keepalive.max.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
-
-                        .done()
+                    .done()
                 .done();
         // @formatter:on
 
@@ -74,25 +73,16 @@ public class HttpProxyPersistenceTest {
             originServer.start();
             gateway.start(configuration);
 
-            // Assuming all 4 clients land on different I/O threads
-            // 4 clients each send 2 requests
+            // Assuming 2 clients land on different I/O threads
+            // 2 clients each send 2 requests
             Thread t1 = new Thread(new HttpClient());
-            t1.start(); t1.join();
             Thread t2 = new Thread(new HttpClient());
-            t2.start(); t2.join();
-            Thread t3 = new Thread(new HttpClient());
-            t3.start(); t3.join();
+            t1.start(); t2.start();
+            t1.join(); t2.join();
 
-            // now persistent connection pool should have 3 connecions
+            // now persistent connection pool can only cache 1 connection as per config
+            // t1 request1+t2 request1+non-cached connection request2 = 3 connections
             assertEquals(3, handler.getConnections());
-
-            Thread t4 = new Thread(new HttpClient());
-            t4.start(); t4.join();
-
-            // Since t4 client cannot recycle its connection as the
-            // pool reached configured max, it creates two connections
-            // for two requests
-            assertEquals(5, handler.getConnections());
         } finally {
             gateway.stop();
             originServer.stop();
