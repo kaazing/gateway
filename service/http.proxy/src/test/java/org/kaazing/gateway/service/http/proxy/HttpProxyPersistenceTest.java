@@ -73,16 +73,26 @@ public class HttpProxyPersistenceTest {
             originServer.start();
             gateway.start(configuration);
 
-            // Assuming 2 clients land on different I/O threads
-            // 2 clients each send 2 requests
+            // t1 client sends 2 requests
             Thread t1 = new Thread(new HttpClient());
-            Thread t2 = new Thread(new HttpClient());
-            t1.start(); t2.start();
-            t1.join(); t2.join();
+            t1.start(); t1.join();
+            // server should have received only one connection
+            // pool should have max configured connections = 1
+            assertEquals(1, handler.getConnections());
 
-            // now persistent connection pool can only cache 1 connection as per config
-            // t1 request1+t2 request1+non-cached connection request2 = 3 connections
-            assertEquals(3, handler.getConnections());
+            // t2 client sends 2 requests
+            Thread t2 = new Thread(new HttpClient());
+            t2.start(); t2.join();
+
+            // case 1: t2 client may pick up cached connection. In that case, gateway doesn't make
+            // new connections. So max connections would be 1
+            // case 2: t2 client may not pick up cached connection. In that case, gateway makes
+            // 2 new connections for 2 requests(note that the pool is full). So the max connections
+            // would be 3
+            int max = handler.getConnections();
+            if (max != 1 && max != 3) {
+                throw new AssertionError("Expected 1 or 3 max no of connections to server, but got="+max);
+            }
         } finally {
             gateway.stop();
             originServer.stop();
@@ -146,7 +156,6 @@ public class HttpProxyPersistenceTest {
 
                     // read and write HTTP request and response headers
                     while(OriginServer.parseHttpHeaders(in)) {
-                        Thread.sleep(500);
                         out.write(HTTP_RESPONSE);
                         out.flush();
                     }
