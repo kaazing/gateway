@@ -661,6 +661,11 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     @Override
+    public MonitoringEntityFactory getMonitoringEntityFactory() {
+        return monitoringEntityFactory;
+    }
+
+    @Override
     public ManagementFilter getManagementFilter(ServiceContext serviceContext) {
         ManagementFilter managementFilter = managementFilters.get(serviceContext);
         if (managementFilter == null) {
