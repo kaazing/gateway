@@ -23,7 +23,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     **Internal Gateway**
 
-    ``` auto-links:
+    ```autolink
     <properties>
 
       <!-- The Gateway in the DMZ to connect to. -->
