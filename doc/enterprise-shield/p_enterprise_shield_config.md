@@ -56,7 +56,7 @@ Perform the following steps to set up the App1 and App2 services on the internal
 
 The following snippet shows the App1 Service configuration in the `gateway-config.xml` file.
 
-``` xml:
+``` xml
 <properties>
   <name>dmz.backplane.hostname</name>
   <value>gateway.example.dmz.net</value>
@@ -112,7 +112,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
 
 4.  Add the [accept-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) element:
 
-    ``` xml:
+    ``` xml
     <accept-options>
       <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       <socks.mode>reverse</socks.mode>
@@ -145,7 +145,7 @@ The key configuration settings for the App1 service in the internal Gateway incl
          `             <socks.retry.maximum.interval>1 second</socks.retry.maximum.interval>         `
     -   Configure [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use `wsn+ssl` (recommended) protocol to establish the network connections from the DMZ Gateway to the internal Gateway.
     
-         ``` xml:
+         ``` xml
          <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>     
          ```
 
@@ -165,7 +165,7 @@ The App1 service is set up on the internal Gateway. Now let’s set up the App2 
 
 The service configuration for the App2 service is exactly the same as for App1, except you need to provide a unique name for this service in the `name` and `accept` elements. The following example shows a complete service configuration for App2:
 
-``` xml:
+``` xml
 <service>
 
   <name>Enterprise App2</name>
@@ -204,7 +204,7 @@ Perform the following steps to set up the App1 and App2 services in the DMZ Gate
 
 The following snippet shows the App1 service configuration in the gateway-config.xml file for the DMZ Gateway. This configuration is very similar to the App1 service configuration for the internal Gateway.
 
-``` xml:
+``` xml
 <properties>
   <name>dmz.backplane.hostname</name>
   <value>gateway.example.dmz.net</value>
@@ -244,7 +244,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
 2.  Set up a secure connection in the [accept](../admin-reference/r_configure_gateway_service.md#accept) and [connect](../admin-reference/r_configure_gateway_service.md#connect) elements by using WebSocket Secure and port 8443. For example:
 
-   ``` xml:
+   ``` xml
    <accept>wss://gateway.example.com:8443/app1</accept>
    <connect>wss://gateway.example.com:8443/app1</connect>
     ```
@@ -253,7 +253,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
 3.  Add the [connect-options](../admin-reference/r_configure_gateway_service.md#accept-options-and-connect-options) element:
 
-    ``` xml:
+    ``` xml
     <connect-options>
       <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       <socks.mode>reverse</socks.mode>
@@ -268,7 +268,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
     -   Set the [http.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the SOCKS protocol:
 
-      ``` xml:
+      ``` xml
         <http.transport>socks://${dmz.backplane.hostname}:1080</http.transport>
       ```
 
@@ -292,7 +292,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
     -   Configure [socks.transport](../admin-reference/r_configure_gateway_service.md#protocoltransport) to use the `wsn+ssl` protocol (recommended) to establish the network connections from the DMZ Gateway to the internal Gateway:
 
-      ``` xml:
+      ``` xml
       <socks.transport>wsn+ssl://${dmz.backplane.hostname}:1080/shield</socks.transport>
       ```
 
@@ -302,7 +302,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
     -   Set [ssl.verify-client](../admin-reference/r_configure_gateway_service.md#sslverify-client) to require that the internal Gateway provide a digital certificate to establish an authorized connection.
 
-        ``` xml:
+        ``` xml
         <ssl.verify-client>required</ssl.verify-client>
         ```
 
@@ -310,7 +310,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
     -   Configure [ws.inactivity.timeout](../admin-reference/r_configure_gateway_service.md#wsinactivitytimeout) to detect network failures between the DMZ and internal Gateways:
     
-      ``` xml:
+      ``` xml
         <ws.inactivity.timeout>60 seconds</ws.inactivity.timeout>
       ```
       Our example specifies that the network connection can be inactive for a maximum of 60 seconds. The internal Gateway drops the connection if communication with the DMZ Gateway is not possible for a period of 60 seconds.
@@ -319,7 +319,7 @@ The key configuration settings for the App1 service on the DMZ Gateway include t
 
 The service configuration for the App2 service is exactly the same as for App1, except you need to provide a unique name for this service in the `name`, `accept`, and `connect` elements. The following example shows a complete service configuration for App2.
 
-``` xml:
+``` xml
   <service>
 
     <name>DMZ App2</name>
@@ -353,7 +353,7 @@ Step 6: Configure Security Between the DMZ and Internal Gateways
 
 Each Gateway maintains two stores for SSL connections: a keystore that stores SSL certificates to present to a client, and a truststore that stores keys from trusted sources. The following example shows the security block in the Gateway configuration file:
 
-``` xml:
+``` xml
   <security>
 
     <keystore>
