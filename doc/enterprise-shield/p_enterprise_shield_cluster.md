@@ -23,7 +23,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     **Internal Gateway**
 
-    ```autolink
+    ```xml
     <properties>
 
       <!-- The Gateway in the DMZ to connect to. -->
@@ -37,7 +37,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     **DMZ Gateway**
 
-    ``` auto-links
+    ``` xml
     <properties>
       <!-- The IP address of this cluster member. -->
       <property>
@@ -68,7 +68,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
 -   On the DMZ Gateway, add the cluster element:
 
-    ``` auto-links:
+    ``` xml
     <cluster>
       <name>dmzCluster</name>
       <accept>tcp://${gateway.ip.address}:${cluster.port}</accept>
@@ -80,7 +80,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
 -   On the DMZ Gateway, add a balancer service for each service. The following example shows the balancer service for DMZ App1:
 
-    ``` auto-links:
+    ``` xml
     <service>
 
       <name>Balancer for DMZ App1</name>
@@ -107,13 +107,13 @@ The following steps provide a high-level overview about cluster configuration. S
 
     **For App1, add:**
 
-    ``` auto-links:
+    ``` xml
     <balance>wss://gateway.example.com:443/app1</balance>
     ```
 
     **For App2, add:**
 
-    ``` auto-links:
+    ``` xml
     <balance>wss://gateway.example.com:443/app2</balance>
     ```
 
