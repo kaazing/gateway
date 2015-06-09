@@ -37,7 +37,7 @@ The following steps provide a high-level overview about cluster configuration. S
 
     **DMZ Gateway**
 
-    ``` auto-links:
+    ``` auto-links
     <properties>
       <!-- The IP address of this cluster member. -->
       <property>
