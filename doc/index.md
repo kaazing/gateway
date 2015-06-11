@@ -16,7 +16,7 @@ For Developers
 ### Mobile
 
 -   [Build Objective-C (iOS) WebSocket Clients](../../../../ios.client/tree/develop/ws/doc/o_dev_objc.md)
--   [Build Android and Java WebSocket Clients](dev-android/o_dev_android.md)
+-   [Build Android and Java WebSocket Clients](https://github.com/kaazing/android.client/blob/develop/migrated/gateway.client.android/doc/o_dev_android.md)
 
 ### Web and Desktop
 
