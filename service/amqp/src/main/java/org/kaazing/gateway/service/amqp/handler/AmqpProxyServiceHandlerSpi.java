@@ -21,14 +21,11 @@
 
 package org.kaazing.gateway.service.amqp.handler;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.service.amqp.AmqpProxyServiceExtensionSpi;
 import org.kaazing.gateway.service.amqp.ProxyServiceHandlerSpi;
 import org.kaazing.gateway.service.amqp.amqp091.codec.AmqpCodecFilter;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
@@ -36,17 +33,6 @@ import org.slf4j.Logger;
 
 public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
     private static final String CLASS_NAME = AmqpProxyServiceHandlerSpi.class.getName();
-    private final List<AmqpProxyServiceExtensionSpi> extensions;
-
-    public AmqpProxyServiceHandlerSpi() {
-        super();
-        extensions = new ArrayList<AmqpProxyServiceExtensionSpi>();
-    }
-
-    public void registerExtension(AmqpProxyServiceExtensionSpi extension) {
-        assert extension != null;
-        extensions.add(extension);
-    }
 
     @Override
     public void sessionCreated(IoSession ioSession) {
@@ -86,15 +72,6 @@ public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
 
         if (logger.isDebugEnabled()) {
             logger.debug(CLASS_NAME + ".initFilterChain(): Add codec filter");
-        }
-
-        // hook in any AmqpProxyServiceExtensions here and give them a chance
-        // to initialize the accept side of the proxy connection (the Gateway
-        // acting as a client is the connect side, so !client is the accept side).
-        if (!client) {
-            for (AmqpProxyServiceExtensionSpi extension : extensions) {
-                extension.initAcceptSession(session, getServiceContext().getProperties());
-            }
         }
     }
 
