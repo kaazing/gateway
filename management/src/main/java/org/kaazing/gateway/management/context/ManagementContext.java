@@ -22,6 +22,7 @@
 package org.kaazing.gateway.management.context;
 
 import java.util.List;
+
 import org.kaazing.gateway.management.ManagementServiceHandler;
 import org.kaazing.gateway.management.ManagementStrategyChangeListener;
 import org.kaazing.gateway.management.SummaryManagementInterval;
@@ -29,6 +30,7 @@ import org.kaazing.gateway.management.filter.ManagementFilter;
 import org.kaazing.gateway.management.filter.ManagementFilterStrategy;
 import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.ManagementServiceStrategy;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.management.service.ServiceManagementListener;
@@ -167,6 +169,8 @@ public interface ManagementContext {
     void addServiceManagementBean(ServiceContext serviceContext);
 
     ManagementFilter getManagementFilter(ServiceContext serviceContext);
+
+    MonitoringEntityFactory getMonitoringEntityFactory();
 
     void createGatewayManagementBean();
 
