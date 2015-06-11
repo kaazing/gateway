@@ -37,6 +37,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 	
 	private static final long serialVersionUID = 1L;
 
+    static final int DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS = 2;
+
 	static final String TRANSPORT_NAME = "http";
 
     public static final ResourceOption<Boolean> KEEP_ALIVE = new HttpKeepAliveOption();
@@ -258,7 +260,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private static final class HttpKeepAliveMaxConnectionsOption extends HttpResourceOption<Integer> {
         private HttpKeepAliveMaxConnectionsOption() {
-            super(Kind.KEEP_ALIVE_MAX_CONNECTIONS, "keepalive.max.connections", 5);
+            super(Kind.KEEP_ALIVE_MAX_CONNECTIONS, "keepalive.max.connections", DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS);
         }
     }
 

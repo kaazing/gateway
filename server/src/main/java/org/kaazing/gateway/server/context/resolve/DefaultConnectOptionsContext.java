@@ -56,7 +56,6 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
     private static final long DEFAULT_WS_INACTIVITY_TIMEOUT_MILLIS = 0L;
     private static final int DEFAULT_HTTP_KEEPALIVE_TIMEOUT = 30; //seconds
-    private static final int DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS = 5;
 
     private Map<String, String> options;
 
@@ -107,7 +106,10 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
 
         result.put(HTTP_KEEP_ALIVE_TIMEOUT_KEY, getHttpKeepaliveTimeout());
         result.put(HTTP_KEEP_ALIVE, isHttpKeepaliveEnabled());
-        result.put("http.keepalive.max.connections", getHttpKeepaliveMaxConnections());
+        Integer keepaliveConnections = getHttpKeepaliveMaxConnections();
+        if (keepaliveConnections != null) {
+            result.put("http.keepalive.max.connections", keepaliveConnections);
+        }
 
         // for now just put in the rest of the options as strings
         for (Entry<String, String> entry : options.entrySet()) {
@@ -211,12 +213,15 @@ public class DefaultConnectOptionsContext implements ConnectOptionsContext {
     }
 
     private Integer getHttpKeepaliveMaxConnections() {
-        int maxConnections = DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS;
+        Integer maxConnections = null;
         String connectionsValue = options.get("http.keepalive.max.connections");
         if (connectionsValue != null) {
             int val = Integer.parseInt(connectionsValue);
             if (val > 0) {
                 maxConnections = val;
+            } else {
+                String msg = String.format("http.keepalive.max.connections = %s must be > 0", connectionsValue);
+                throw new IllegalArgumentException(msg);
             }
         }
 

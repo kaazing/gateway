@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpProxyPersistenceTest {
 
     private static final int KEEP_ALIVE_TIMEOUT = 5;
-    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 1;
+    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 2;
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
@@ -63,6 +63,7 @@ public class HttpProxyPersistenceTest {
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
                         .connectOption("http.keepalive.max.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
                     .done()
+                    .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
                 .done();
         // @formatter:on
 
@@ -73,26 +74,27 @@ public class HttpProxyPersistenceTest {
             originServer.start();
             gateway.start(configuration);
 
-            // t1 client sends 2 requests
+            // Send 4 requests concurrently
             Thread t1 = new Thread(new HttpClient());
-            t1.start(); t1.join();
-            // server should have received only one connection
-            // pool should have max configured connections = 1
-            assertEquals(1, handler.getConnections());
-
-            // t2 client sends 2 requests
             Thread t2 = new Thread(new HttpClient());
-            t2.start(); t2.join();
+            Thread t3 = new Thread(new HttpClient());
+            Thread t4 = new Thread(new HttpClient());
+            t1.start(); t2.start(); t3.start(); t4.start();
+            t1.join(); t2.join(); t3.join(); t4.join();
+            // server should have received all the 4 connections
+            // pool should have cached only max configured connections = 2
+            assertEquals(4, handler.getConnections());
 
-            // case 1: t2 client may pick up cached connection. In that case, gateway doesn't make
-            // new connections. So max connections would be 1
-            // case 2: t2 client may not pick up cached connection. In that case, gateway makes
-            // 2 new connections for 2 requests(note that the pool is full). So the max connections
-            // would be 3
-            int max = handler.getConnections();
-            if (max != 1 && max != 3) {
-                throw new AssertionError("Expected 1 or 3 max no of connections to server, but got="+max);
-            }
+            // Send 4 more requests concurrently
+            t1 = new Thread(new HttpClient());
+            t2 = new Thread(new HttpClient());
+            t3 = new Thread(new HttpClient());
+            t4 = new Thread(new HttpClient());
+            t1.start(); t2.start(); t3.start(); t4.start();
+            t1.join(); t2.join(); t3.join(); t4.join();
+            // gateway would have used 2 connections from pool and created 2 more new connections
+            // So server should have received 2 more new connections
+            assertEquals(6, handler.getConnections());
         } finally {
             gateway.stop();
             originServer.stop();
@@ -116,13 +118,10 @@ public class HttpProxyPersistenceTest {
                  InputStream in = socket.getInputStream();
                  OutputStream out = socket.getOutputStream()) {
 
-                // 2 requests per connection
-                for(int i=0; i < 2; i++) {
-                    // read and write HTTP request and response headers
-                    out.write(HTTP_REQUEST);
-                    OriginServer.parseHttpHeaders(in);
-                    readFully(in, new byte[31]);
-                }
+                // read and write HTTP request and response headers
+                out.write(HTTP_REQUEST);
+                OriginServer.parseHttpHeaders(in);
+                readFully(in, new byte[31]);
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
@@ -156,6 +155,7 @@ public class HttpProxyPersistenceTest {
 
                     // read and write HTTP request and response headers
                     while(OriginServer.parseHttpHeaders(in)) {
+                        Thread.sleep(2000);
                         out.write(HTTP_RESPONSE);
                         out.flush();
                     }

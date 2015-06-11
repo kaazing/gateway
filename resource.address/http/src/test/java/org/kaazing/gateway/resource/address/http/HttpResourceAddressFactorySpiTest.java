@@ -32,6 +32,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
@@ -132,7 +133,7 @@ public class HttpResourceAddressFactorySpiTest {
         assertNull(address.getOption(TRANSPORT));
         assertTrue(address.getOption(KEEP_ALIVE));
         assertEquals(address.getOption(KEEP_ALIVE_TIMEOUT).intValue(), 30);
-        assertEquals(address.getOption(KEEP_ALIVE_MAX_CONNECTIONS).intValue(), 5);
+        assertEquals(address.getOption(KEEP_ALIVE_MAX_CONNECTIONS).intValue(), DEFAULT_HTTP_KEEPALIVE_MAX_CONNECTIONS);
         assertNull(address.getOption(REALM_NAME));
         assertEmpty(address.getOption(REQUIRED_ROLES));
         assertEquals("challenge",address.getOption(REALM_AUTHORIZATION_MODE));

@@ -33,12 +33,10 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Objects;
 
 /*
  * A pool for reusable persistent transport connections. HttpConnector
@@ -57,10 +55,6 @@ class PersistentConnectionPool {
     // - it reduces contention compared to synchronized ServerConnections
     private final ThreadLocal<ServerConnections> connections;
 
-    // No of connections per server across ALL threads
-    private final Map<HttpResourceAddress, AtomicInteger> counts;
-
-
     private final Logger logger;
     private final HttpConnectIdleFilter idleFilter;
     private final CloseListener closeListener;
@@ -72,7 +66,6 @@ class PersistentConnectionPool {
                 return new ServerConnections();
             }
         };
-        this.counts = new ConcurrentHashMap<>();
         this.logger = logger;
         this.idleFilter = new HttpConnectIdleFilter(logger);
         this.closeListener = new CloseListener(this);
@@ -95,11 +88,13 @@ class PersistentConnectionPool {
 
         SERVER_ADDRESS.set(transportSession, serverAddress);
 
-        // Take care of transport session close
+        // Connection needs to be removed from pool upon session's close. Adding
+        // a close future listener for that
         CloseFuture closeFuture = transportSession.getCloseFuture();
         closeFuture.addListener(closeListener);
 
-        // Track transport session idle
+        // Track transport session idle so that we don't waste resources.
+        // Upstream server can take new fresh connections if gateway closes idle connections
         transportSession.getFilterChain().addLast(IDLE_FILTER, idleFilter);
         int keepAliveTimeout = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_TIMEOUT);
         transportSession.getConfig().setBothIdleTime(keepAliveTimeout);
@@ -139,56 +134,45 @@ class PersistentConnectionPool {
         HttpResourceAddress serverAddress = (HttpResourceAddress)httpSession.getRemoteAddress();
         IoSession transportSession = httpSession.getParent();
 
-        // Initialize the global server connections count
-        AtomicInteger current = counts.get(serverAddress);
-        if (current == null) {
-            AtomicInteger newCurrent = new AtomicInteger(0);
-            current = counts.putIfAbsent(serverAddress, newCurrent);
-            if (current == null) {
-                current = newCurrent;
-            }
-        }
 
-        // If there aren't enough connections cached, let us add this connection
-        int maxConnections = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
-        int currentCount = current.get();
-        if (currentCount < maxConnections && current.compareAndSet(currentCount, currentCount+1)) {
-            connections.get().add(serverAddress, transportSession);
+        ServerConnections serverConnections = connections.get();
+        boolean cached = serverConnections.add(serverAddress, transportSession);
+        if (cached) {
             if (logger.isDebugEnabled()) {
+                int cachedConnections = serverConnections.cachedConnections(serverAddress);
                 logger.debug(String.format("Caching persistent connection: server = %s session = %s pool = %d",
-                        serverAddress.getResource(), transportSession, currentCount+1));
+                        serverAddress.getResource(), transportSession, cachedConnections));
             }
             return true;
         } else {
             if (logger.isDebugEnabled()) {
+                int cachedConnections = serverConnections.cachedConnections(serverAddress);
                 logger.debug(String.format("NOT caching persistent connection: server = %s session = %s pool = %d",
-                        serverAddress.getResource(), transportSession, currentCount));
+                        serverAddress.getResource(), transportSession, cachedConnections));
             }
         }
         return false;
     }
 
     private void remove(HttpResourceAddress serverAddress, IoSession session) {
-        boolean removed = connections.get().remove(serverAddress, session);
+        ServerConnections serverConnections = connections.get();
+        boolean removed = serverConnections.remove(serverAddress, session);
         if (removed) {
-            // Connection was in the pool, so decrement the global count of
-            // server connections as it is out of the pool
-            int count = counts.get(serverAddress).decrementAndGet();
             if (logger.isDebugEnabled()) {
+                int cachedConnections = serverConnections.cachedConnections(serverAddress);
                 logger.debug(String.format("Removing cached persistent connection: server = %s session = %s pool = %d",
-                        serverAddress.getResource(), session, count));
+                        serverAddress.getResource(), session, cachedConnections));
             }
         }
-
     }
 
     private IoSession removeThreadAligned(HttpResourceAddress serverAddress) {
-        IoSession session = connections.get().removeAny(serverAddress);
+        ServerConnections serverConnections = connections.get();
+        IoSession session = serverConnections.removeAny(serverAddress);
         if (session != null) {
-            // Connection was in the pool, so decrement the global count of
-            // server connections as it is out of the pool
-            int count = counts.get(serverAddress).decrementAndGet();
+            // Connection was in the pool
             if (logger.isDebugEnabled()) {
+                int count = serverConnections.cachedConnections(serverAddress);
                 logger.debug(String.format("Reusing cached persistent connection: server = %s  session = %s pool = %d",
                         serverAddress.getResource(), session, count));
             }
@@ -248,7 +232,9 @@ class PersistentConnectionPool {
      * and the caller will take care of thread safety.
      */
     private static class ServerConnections {
-        private final Map<HttpResourceAddress, List<IoSession>> addressToConnections;
+        // IoSession[] limits the number of connections as per config
+        // null means empty spot, non null means already cached connection
+        private final Map<HttpResourceAddress, IoSession[]> addressToConnections;
 
         private ServerConnections() {
             this.addressToConnections = new HashMap<>();
@@ -256,22 +242,43 @@ class PersistentConnectionPool {
 
         /*
          * Caches the given persistent connection for the given server
+         * @return true if it is cached
+         *         false otherwise
          */
-        private void add(HttpResourceAddress serverAddress, IoSession session) {
-            List<IoSession> connections = addressToConnections.get(serverAddress);
+        private boolean add(HttpResourceAddress serverAddress, IoSession session) {
+            int maxConnections = serverAddress.getOption(HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS);
+            IoSession[] connections = addressToConnections.get(serverAddress);
             if (connections == null) {
-                connections = new ArrayList<>();
+                connections = new IoSession[maxConnections];
                 addressToConnections.put(serverAddress, connections);
             }
-            connections.add(session);
+
+            assert maxConnections == connections.length;
+            for(int i=0; i < connections.length; i++) {
+                if (connections[i] == null) {
+                    connections[i] = session;
+                    return true;
+                }
+            }
+            return false;
         }
 
         /*
          * Removes given persistent connection for the given server
+         * @return true if the session is removed from the pool
+         *         false otherwise
          */
         private boolean remove(HttpResourceAddress serverAddress, IoSession session) {
-            List<IoSession> connections = addressToConnections.get(serverAddress);
-            return (connections != null) && connections.remove(session);
+            IoSession[] connections = addressToConnections.get(serverAddress);
+            if (connections != null) {
+                for(int i=0; i < connections.length; i++) {
+                    if (connections[i] == session) {
+                        connections[i] = null;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /*
@@ -281,8 +288,32 @@ class PersistentConnectionPool {
          *         null otherwise
          */
         private IoSession removeAny(HttpResourceAddress serverAddress) {
-            List<IoSession> connections = addressToConnections.get(serverAddress);
-            return (connections == null || connections.isEmpty()) ? null : connections.remove(0);
+            IoSession[] connections = addressToConnections.get(serverAddress);
+            if (connections != null) {
+                for(int i=0; i < connections.length; i++) {
+                    if (connections[i] != null) {
+                        IoSession session = connections[i];
+                        connections[i] = null;
+                        return session;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /*
+         * Returns the current number of cached persistent connection for the server
+         *
+         * @return the current number of connections for the server
+         *         0 if there no caching for the server
+         */
+        private int cachedConnections(HttpResourceAddress serverAddress) {
+            IoSession[] connections = addressToConnections.get(serverAddress);
+            if (connections != null) {
+                return (int) Arrays.stream(connections).filter(Objects::nonNull).count();
+            }
+
+            return 0;
         }
     }
 
