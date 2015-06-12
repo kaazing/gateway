@@ -38,11 +38,11 @@ To Monitor with JMX
 
     -   To connect to a *remote* process with Jconsole or Java VisualVM, add properties such as the following to the Gateway startup file. (The property values shown are for example purposes only. The actual values might vary depending on your environment.)
       - -Dcom.sun.management
-      - -Dcom.sun.management.jmxremote.port=7199 
+      - -Dcom.sun.management.jmxremote.port=2020 
       - -Dcom.sun.management.jmxremote.ssl=false 
       - -Dcom.sun.management.jmxremote.authenticate=false
       
-      Then, connect a remote Jconsole or Java Visual VM using your hostname and port. For example, my_hostname:7199.
+      Then, connect a remote Jconsole or Java Visual VM using your hostname and port. For example, hostname:2020.
     -   Use the following syntax to access your local Gateway as a remote process (where `hostname` is the remote hostname): `service:jmx:rmi://hostname/jndi/rmi://hostname:2020/jmxrmi`
     -   Password authentication over the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) is enabled by default in JMX. Consequently, you must have a digital certificate for the hostname of the Gateway in the keystore.db file used by the Gateway. In addition, access to port 2020 must be enabled in your network for the remote monitoring agent to connect to the Gateway. For information on how to create a certificate for the hostname of the Gateway, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
