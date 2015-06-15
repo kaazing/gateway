@@ -22,7 +22,7 @@ For Developers
 
 #### WebSocket Clients
 
--   [Build JavaScript WebSocket Clients](kaazing/javascript.client/gateway/doc/o_dev_js.md)
+-   [Build JavaScript WebSocket Clients](https://github.com/kaazing/javascript.client/blob/develop/gateway/doc/o_dev_js.md)
 -   [Build Flash WebSocket Clients](dev-flash/o_dev_flash.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build Microsoft .NET and Silverlight WebSocket Clients](dev-dotnet/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build WebSocket C Clients](dev-c/o_dev_c_websocket.md)
