@@ -73,13 +73,11 @@ public class ProxyServiceExtensionTest {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    ServerSocket backendServer = new ServerSocket();
+                try (ServerSocket backendServer = new ServerSocket()) {
                     backendServer.bind(new InetSocketAddress("localhost", 8051));
                     backendReady.countDown();
                     Socket s = backendServer.accept();
                     s.close();
-                    backendServer.close();
                 } catch (Exception ex) {
                     fail("Unexpected exception in backend server: " + ex);
                 }
@@ -91,13 +89,12 @@ public class ProxyServiceExtensionTest {
         assertTrue("Backend Server failed to bind, pre-conditions not established", backendBound);
 
         // connect to the service to ensure the extension is executed
-        Socket clientSocket = new Socket("localhost", 8888);
-
-        boolean success = latch.await(5, TimeUnit.SECONDS);
-
-        clientSocket.close();
-
-        assertTrue("Failed to execute all phases of proxy service extension", success);
+        try (Socket clientSocket = new Socket("localhost", 8888)) {
+            boolean success = latch.await(5, TimeUnit.SECONDS);
+            assertTrue("Failed to execute all phases of proxy service extension", success);
+        } catch (Exception ex) {
+            fail("Unexpected exception in client connecting to server: " + ex);
+        }
     }
 
     public static class TestExtension implements ProxyServiceExtensionSpi {
