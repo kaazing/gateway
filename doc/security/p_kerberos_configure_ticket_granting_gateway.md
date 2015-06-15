@@ -12,7 +12,7 @@ Before You Begin
 
 This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_kerberos.md)
 2.  [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
 3.  **Configure a Ticket Granting Gateway**
 
