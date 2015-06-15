@@ -66,12 +66,6 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             final Object serviceRegistration = acceptSession.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY);
             final String nextProtocol = BridgeSession.NEXT_PROTOCOL_KEY.get(acceptSession);
 
-            // hook in any ProxyServiceExtensions here and give them a chance
-            // to initialize the accept side of the proxy connection
-            for (ProxyServiceExtensionSpi extension : extensions) {
-                extension.initAcceptSession(acceptSession, getServiceContext().getProperties());
-            }
-
             // TODO: implement ServiceContext.connect(Collection<URI> connectURIs, connectHandler, sessionInitializer)
             // see commented ProxyConnectManager below for implementation hint.
             // Note: simpler to randomize order into a copy before initial connect, then consume until no connectURI
@@ -106,6 +100,12 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
 
             super.sessionOpened(acceptSession);
+
+            // hook in any ProxyServiceExtensions here and give them a chance
+            // to initialize the accept side of the proxy connection
+            for (ProxyServiceExtensionSpi extension : extensions) {
+                extension.initAcceptSession(acceptSession, getServiceContext().getProperties());
+            }
         }
     }
 

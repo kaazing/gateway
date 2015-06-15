@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
@@ -44,19 +45,25 @@ import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
 
 public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSession> {
 
     public static final IoBufferEx WRITE_COMPLETE = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(ByteBuffer.allocate(0));
     private static final String FILTER_PREFIX = HttpProtocol.NAME + "#";
-    private final ThreadLocal<PersistentConnectionPool> persistentConnectionPool;
+    private static final String IDLE_FILTER = FILTER_PREFIX + "idle";
 
-    HttpConnectProcessor(ThreadLocal<PersistentConnectionPool> persistentConnectionPool) {
+    private final PersistentConnectionPool persistentConnectionPool;
+    private final HttpConnectIdleFilter idleFilter;
+
+    HttpConnectProcessor(PersistentConnectionPool persistentConnectionPool, Logger logger) {
         this.persistentConnectionPool = persistentConnectionPool;
+        this.idleFilter = new HttpConnectIdleFilter(logger);
     }
 
     protected void finishConnect(DefaultHttpSession session) {
@@ -233,16 +240,16 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         boolean serverToClose = hasCloseHeader(session.getReadHeaders(HEADER_CONNECTION));
         boolean upgrade = session.getStatus() == INFO_SWITCHING_PROTOCOLS;
 
-        if (http10 || gatewayToClose || serverToClose || upgrade) {
-            // will not recycle the transport session, but may need to close the transport
-            if (gatewayToClose) {
-                // close transport connection when write complete
-                parent.close(false);
-            } else if (serverToClose) {
-                // Let server close transport session. Add idle filter to close the connection,
-                // in case server doesn't close it.
-                persistentConnectionPool.get().addIdleFilter(parent, keepAliveTimeout);
-            }
+        if (http10 || gatewayToClose) {
+            // close transport connection when write complete
+            super.removeInternal(session);
+        } else if (serverToClose) {
+            // Let server close transport session. Add idle filter to close the connection,
+            // in case server doesn't close it.
+            parent.getConfig().setBothIdleTime(keepAliveTimeout);
+            parent.getFilterChain().addLast(IDLE_FILTER, idleFilter);
+        } else if (upgrade) {
+            // the connection will be upgraded
         } else {
             if ("chunked".equals(session.getWriteHeader("Transfer-Encoding"))) {
                 // write the empty chunk
@@ -267,7 +274,10 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             // TODO should we make sure that complete response is read before recycling ??
 
             // recycle the transport connection
-            persistentConnectionPool.get().recycle(parent, keepAliveTimeout);
+            if (!persistentConnectionPool.recycle(session)) {
+                // Not added to keepalive connection pool. so just close the transport connection
+                super.removeInternal(session);
+            }
         }
     }
 
@@ -286,6 +296,27 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             }
         }
         return false;
+    }
+
+    /*
+     * Server indicated that it would close transport session. In case it doesn't, this filter would close
+     * the connection
+     */
+    private static class HttpConnectIdleFilter extends HttpFilterAdapter<IoSessionEx> {
+        private final Logger logger;
+
+        HttpConnectIdleFilter( Logger logger) {
+            this.logger = logger;
+        }
+
+        @Override
+        public void sessionIdle(NextFilter nextFilter, IoSession session, IdleStatus status) throws Exception {
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("Server didn't close the connection within idle timeout. Closing %s", session));
+            }
+            session.close(false);
+            super.sessionIdle(nextFilter, session, status);
+        }
     }
 
 }

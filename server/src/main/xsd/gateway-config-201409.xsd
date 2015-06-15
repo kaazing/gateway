@@ -1253,6 +1253,18 @@
                     </documentation>
                 </annotation>
             </element>
+            <element name="http.keepalive.max.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
+                <annotation>
+                    <documentation>Gateway caches the specified number of idle keep-alive (or persistent) connections
+                        to upstream server in the cache of each worker. Those connections will timeout based on
+                        keep-alive timeout config option. It is recommended to keep this number small enough to let
+                        upstream servers process new incoming connections as well.
+
+                        This config option does not limit the max number of connections to upstream server that
+                        the gateway can open.
+                    </documentation>
+                </annotation>
+            </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>
                     <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
