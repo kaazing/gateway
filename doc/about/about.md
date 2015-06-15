@@ -90,7 +90,7 @@ The following table lists ports that are commonly used in the documentation.
 About KAAZING\_HOME
 ---------------------------------------------
 
-By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#about-gateway\_home) to learn more about Gateway directory destinations.
+By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
 
 This documentation assumes you are running the Gateway from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
 
