@@ -70,7 +70,7 @@ By default, the embedded Gateway uses the properties set in the `GATEWAY_HOME/co
 
 -   **properties:** The properties argument contains the name/value pairs used to configure the embedded Gateway. For example, you can set the location of GATEWAY\_HOME, and GATEWAY\_CONFIG.
 
-For a list of the properties that you can modify, see the [API Documentation](../apidoc/server/gateway/server/api/index.md).
+For a list of the properties that you can modify, see the [API Documentation](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/api/index.html).
 
 Here is an example of how to configure the GATEWAY\_HOME and GATEWAY\_CONFIG properties before running the Gateway:
 

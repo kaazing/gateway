@@ -20,7 +20,7 @@ The following checklist provides the steps necessary to embed KAAZING Gateway in
 **Important:** 
 
 -   Before you can embed the Gateway, you need to install the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
--   Review the [API documentation](../apidoc/server/gateway/server/api/index.html) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
+-   Review the [API documentation](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/api/index.html) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
 
 Introduction
 ------------
