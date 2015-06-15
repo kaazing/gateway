@@ -30,67 +30,78 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.SocketFactory;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URI;
-import java.security.KeyStore;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
 
-public class HttpProxySecurePersistenceTest {
-    private final KeyStore keyStore = TlsTestUtil.keyStore();
-    private final char[] password = TlsTestUtil.password();
-    private final KeyStore trustStore = TlsTestUtil.trustStore();
-    private final SSLSocketFactory clientSocketFactory = TlsTestUtil.clientSocketFactory();
+public class HttpProxyPersistenceTest {
 
     private static final int KEEP_ALIVE_TIMEOUT = 5;
+    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 2;
 
     @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     @Test
-    public void securePersistentConnection() throws Exception {
+    public void maxPersistentIdleConnections() throws Exception {
         Gateway gateway = new Gateway();
         // @formatter:off
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("https://localhost:8110"))
-                        .connect(URI.create("https://localhost:8080"))
+                        .accept(URI.create("http://localhost:8110"))
+                        .connect(URI.create("http://localhost:8080"))
                         .type("http.proxy")
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
+                        .connectOption("http.keepalive.max.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
                     .done()
-                    .security()
-                        .trustStore(trustStore)
-                        .keyStore(keyStore)
-                        .keyStorePassword(password)
-                    .done()
+                    .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
                 .done();
         // @formatter:on
 
-        SecureOriginServer.Handler handler = new HttpServer();
-        SecureOriginServer originServer = new SecureOriginServer(8080, handler);
+        ServerHandler handler = new ServerHandler();
+        OriginServer originServer = new OriginServer(8080, handler);
 
         try {
             originServer.start();
             gateway.start(configuration);
 
-            Socket socket = clientSocketFactory.createSocket("localhost", 8110);
-            HttpClient client = new HttpClient();
-            client.handle(socket);
+            // Send 4 requests concurrently
+            Thread t1 = new Thread(new HttpClient());
+            Thread t2 = new Thread(new HttpClient());
+            Thread t3 = new Thread(new HttpClient());
+            Thread t4 = new Thread(new HttpClient());
+            t1.start(); t2.start(); t3.start(); t4.start();
+            t1.join(); t2.join(); t3.join(); t4.join();
+            // server should have received all the 4 connections
+            // pool should have cached only max configured connections = 2
+            assertEquals(4, handler.getConnections());
+
+            // Send 4 more requests concurrently
+            t1 = new Thread(new HttpClient());
+            t2 = new Thread(new HttpClient());
+            t3 = new Thread(new HttpClient());
+            t4 = new Thread(new HttpClient());
+            t1.start(); t2.start(); t3.start(); t4.start();
+            t1.join(); t2.join(); t3.join(); t4.join();
+            // gateway would have used 2 connections from pool and created 2 more new connections
+            // So server should have received 2 more new connections
+            assertEquals(6, handler.getConnections());
         } finally {
             gateway.stop();
             originServer.stop();
         }
-
     }
 
-    private static class HttpClient {
+    private static class HttpClient implements Runnable {
         static final byte[] HTTP_REQUEST =
                 ("GET / HTTP/1.1\r\n" +
                 "Host: localhost:8110\r\n" +
@@ -101,31 +112,25 @@ public class HttpProxySecurePersistenceTest {
                 "Accept-Language: en-US,en;q=0.8\r\n" +
                 "\r\n").getBytes(UTF_8);
 
-
-        void handle(Socket clientSocket) throws IOException {
-            try (Socket socket = clientSocket;
+        @Override
+        public void run() {
+            try (Socket socket = SocketFactory.getDefault().createSocket("localhost", 8110);
                  InputStream in = socket.getInputStream();
                  OutputStream out = socket.getOutputStream()) {
 
-                for(int i=0; i < 3; i++) {
-                    // read and write HTTP request and response headers
-                    out.write(HTTP_REQUEST);
-                    OriginServer.parseHttpHeaders(in);
-                    readFully(in, new byte[31]);
-                }
-
-                // sleep so that server persistent connection times out
-                try {
-                    Thread.sleep(KEEP_ALIVE_TIMEOUT*1000 + 3);
-                } catch (Exception e) {
-                    // no-op
-                }
+                // read and write HTTP request and response headers
+                out.write(HTTP_REQUEST);
+                OriginServer.parseHttpHeaders(in);
+                readFully(in, new byte[31]);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
         }
 
     }
 
-    private static class HttpServer implements OriginServer.Handler {
+    private static class ServerHandler implements OriginServer.Handler {
+
         static final byte[] HTTP_RESPONSE =
                 ("HTTP/1.1 200 OK\r\n" +
                 "Server: Apache-Coyote/1.1\r\n" +
@@ -138,24 +143,32 @@ public class HttpProxySecurePersistenceTest {
                 "0\r\n" +
                 "\r\n").getBytes(UTF_8);
 
+        private int connections;
+
         @Override
         public void handle(Socket serverSocket) throws IOException {
-            try(Socket socket = serverSocket;
-                InputStream in = socket.getInputStream();
-                OutputStream out = socket.getOutputStream()) {
+            connections++;
+            new Thread(() -> {
+                try(Socket socket = serverSocket;
+                    InputStream in = socket.getInputStream();
+                    OutputStream out = socket.getOutputStream()) {
 
-                for(int i=0; i < 3; i++) {
                     // read and write HTTP request and response headers
-                    OriginServer.parseHttpHeaders(in);
-                    out.write(HTTP_RESPONSE);
+                    while(OriginServer.parseHttpHeaders(in)) {
+                        Thread.sleep(2000);
+                        out.write(HTTP_RESPONSE);
+                        out.flush();
+                    }
+                } catch(Exception ioe) {
+                    ioe.printStackTrace();
                 }
-
-                int eof = in.read();
-                if (eof != -1) {
-                    throw new IOException("Gateway <--> Server should close due to keep alive timeout.");
-                }
-            }
+            }).start();
         }
+
+        int getConnections() {
+            return connections;
+        }
+
     }
 
     static void readFully(InputStream in, byte b[]) throws IOException {
