@@ -19,29 +19,18 @@
  * under the License.
  */
 
-package org.kaazing.gateway.service.http.proxy;
+package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-class SecureOriginServer extends OriginServer {
-
-    SecureOriginServer(int port, Handler handler) {
-        super(port, handler);
-    }
+public class CounterManagerFactoryImpl implements CounterManagerFactory {
 
     @Override
-    void start() throws Exception {
-        SSLServerSocketFactory serverSocketFactory = TlsTestUtil.serverSocketFactory();
-        socket = serverSocketFactory.createServerSocket(port);
-        new Thread(this, "SSL Origin Server").start();
+    public ServiceSessionCounterManager makeServiceSessionCounterManager(MonitoringEntityFactory monitoringEntityFactory,
+            String serviceName) {
+        return new ServiceSessionCounterManagerImpl(monitoringEntityFactory, serviceName);
     }
 
 }

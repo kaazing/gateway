@@ -34,17 +34,13 @@ import org.slf4j.Logger;
 public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
     private static final String CLASS_NAME = AmqpProxyServiceHandlerSpi.class.getName();
 
-    public AmqpProxyServiceHandlerSpi() {
-        super();
-    }
-
     @Override
     public void sessionCreated(IoSession ioSession) {
         Logger logger = getServiceContext().getLogger();
         if (logger.isDebugEnabled()) {
             logger.debug("Session created: " + ioSession);
         }
-        
+
         super.sessionCreated(ioSession);
     }
     
@@ -70,7 +66,7 @@ public class AmqpProxyServiceHandlerSpi extends ProxyServiceHandlerSpi {
         // Eventually, the protocol will be available as a property of
         // the service. For time being, let's hardcode it to AMQP 0_9_1.
         ProtocolCodecFilter codec = new AmqpCodecFilter(client);
-        IoFilterChain       filterChain = session.getFilterChain();
+        IoFilterChain filterChain = session.getFilterChain();
 
         filterChain.addLast(AmqpCodecFilter.NAME, codec);
 
