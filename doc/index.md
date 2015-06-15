@@ -113,15 +113,15 @@ Client API Documentation
 -   [Java WebSocket Client API](apidoc/client/java/gateway/index.md)
 -   [GWT WebSocket Client API](apidoc/client/gwt/gateway/index.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-### JMS Client API Documentation ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+### JMS Client API Documentation
 
--   [KAAZING Gateway JMS Client Libraries: Supported APIs](about/kaazing-jms-api.md)
--   [JavaScript JMS Client API](apidoc/client/javascript/jms/index.md?JmsConnectionFactory)
--   [Objective-C JMS Client API](apidoc/client/ios/jms/KMStompJMS/index.md)
--   [Android JMS Client API](apidoc/client/android/jms/index.md)
--   [Flash JMS Client API](apidoc/client/flash/jms/index.md)
--   .NET and Silverlight Client API ([Kaazing.JMS](apidoc/client/dotnet/jms/html/N_Kaazing_JMS.htm)) | ([Kaazing.JMS.Stomp](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Stomp.htm)) | ([Kaazing.JMS.Util](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Util.htm)) | ([Kaazing.Security](apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm))
--   [Java JMS Client API](apidoc/client/java/jms/index.md)
+-   [KAAZING Gateway JMS Client Libraries: Supported APIs](about/kaazing-jms-api.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [JavaScript JMS Client API](apidoc/client/javascript/jms/index.md?JmsConnectionFactory) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Objective-C JMS Client API](apidoc/client/ios/jms/KMStompJMS/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Android JMS Client API](apidoc/client/android/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Flash JMS Client API](apidoc/client/flash/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   .NET and Silverlight Client API ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) ([Kaazing.JMS](apidoc/client/dotnet/jms/html/N_Kaazing_JMS.htm)) | ([Kaazing.JMS.Stomp](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Stomp.htm)) | ([Kaazing.JMS.Util](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Util.htm)) | ([Kaazing.Security](apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm))
+-   [Java JMS Client API](apidoc/client/java/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### AMQP Client API Documentation
 
@@ -136,7 +136,7 @@ Server API Documentation
 ------------------------
 
 -   [Server Provider Interface](apidoc/server/gateway/server/spi/index.md)
--   [JMS Server Security](apidoc/server/jms/server/spi/index.md)
+-   [JMS Server Security](apidoc/server/jms/server/spi/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### AWS (Amazon Web Services)
 -   [AWS (Amazon Web Services) documentation](../aws/marketplace/index.md)
