@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -20,8 +20,6 @@
  */
 
 package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
-
-import static org.kaazing.gateway.transport.ws.AbstractWsControlMessage.Style.CLIENT;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
@@ -49,21 +47,21 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
     private final long pongDelayMillis; // how long to wait before sending pong
 
     private long pongSentTime = 0;
-    
+
     private final IoFutureListener<WriteFuture> setPongTimeOnWrite = new IoFutureListener<WriteFuture>() {
         @Override
         public void operationComplete(WriteFuture future) {
             pongWritten(System.currentTimeMillis());
         }
     };
-    
+
     IdleTimeoutFilter(long inactivityTimeout) {
         assert inactivityTimeout > 0;
         // KG-7057: Assume maximum possible round-trip time is half the configured inactivity timeout, but don't let it be 0
         long maxExpectedServerToClientLatency = Math.max(inactivityTimeout / 4, 1);
         this.pongDelayMillis = inactivityTimeout - maxExpectedServerToClientLatency;
     }
-    
+
     @Override
     public void onPostAdd(IoFilterChain filterChain, String name, NextFilter nextFilter) throws Exception {
         schedulePong((IoSessionEx)filterChain.getSession());
@@ -79,7 +77,6 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
 
     protected WsMessage emptyPongMessage(IoSessionEx session) throws Exception {
         WsPongMessage pong = new WsPongMessage();
-        pong.setStyle(CLIENT);
         return pong;
     }
 
@@ -101,7 +98,7 @@ class IdleTimeoutFilter extends IoFilterAdapter<IoSessionEx>  {
             LOGGER.trace("IdleTimeoutFilter.pongWritten at time " + pongSentTime);
         }
     }
-    
+
     private void writePong(NextFilter nextFilter, IoSessionEx session) throws Exception {
         WsMessage emptyPong = emptyPongMessage(session);
         WriteFutureEx writeFuture = new DefaultWriteFutureEx(session);

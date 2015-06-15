@@ -41,8 +41,8 @@ import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.util.Expectations;
-import org.kaazing.gateway.transport.http.util.Mockery;
+import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.test.util.Mockery;
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 
 public class HttpProtocolCompatibilityFilterTest {

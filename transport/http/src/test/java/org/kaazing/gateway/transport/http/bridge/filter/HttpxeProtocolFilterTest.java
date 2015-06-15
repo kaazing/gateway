@@ -58,8 +58,8 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.util.Expectations;
-import org.kaazing.gateway.transport.http.util.Mockery;
+import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.test.util.Mockery;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 

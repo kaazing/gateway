@@ -23,7 +23,12 @@ package org.kaazing.gateway.management.filter;
 
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
+import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
+import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
+import org.kaazing.gateway.management.monitoring.entity.manager.impl.CounterManagerFactoryImpl;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.IoFilterAdapter;
@@ -46,11 +51,18 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
+    private ServiceSessionCounterManager serviceSessionCounterManager;
 
-    public ManagementFilter(ServiceManagementBean serviceBean) {
+    public ManagementFilter(ServiceManagementBean serviceBean,
+                            MonitoringEntityFactory monitoringEntityFactory,
+                            String serviceName) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
+
+        CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
+        serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory, serviceName);
+        serviceSessionCounterManager.initializeCounters();
     }
 
     public ServiceManagementBean getServiceBean() {
@@ -63,9 +75,12 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
 
     @Override
     protected void doSessionClosed(NextFilter nextFilter, IoSessionEx session) throws Exception {
+
+        ManagementSessionType managementSessionType = Utils.getManagementSessionType(session);
         managementContext.getManagementFilterStrategy()
-                .doSessionClosed(managementContext, serviceBean, session.getId(), Utils.getManagementSessionType(session));
+                .doSessionClosed(managementContext, serviceBean, session.getId(), managementSessionType);
         managementContext.decrementOverallSessionCount();
+        serviceSessionCounterManager.decrementCounters(managementSessionType);
 
         super.doSessionClosed(nextFilter, session);
     }
@@ -97,13 +112,14 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     // (per Chris B, it's to fix failures in SOCKS forward connectivity tests because events
     // like filterWrite were sometimes occurring before sessionOpened.  This method delegates
     // to the strategy objects to present the new session if desired.
-    // See svn revision 65794, 25-Jul-13.
     //
     public void newManagementSession(IoSessionEx session) throws Exception {
         managementContext.incrementOverallSessionCount();
+        ManagementSessionType managementSessionType = Utils.getManagementSessionType(session);
 
         // Because strategy may change during execution of this method, refetch it when we need it.
         managementContext.getManagementFilterStrategy()
-                .doSessionCreated(managementContext, serviceBean, session, Utils.getManagementSessionType(session));
+                .doSessionCreated(managementContext, serviceBean, session, managementSessionType);
+        serviceSessionCounterManager.incrementCounters(managementSessionType);
     }
 }

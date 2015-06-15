@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.26</version>
+        <version>5.0.1.27</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service.proxy</artifactId>
@@ -55,6 +55,12 @@
             <groupId>org.kaazing</groupId>
             <artifactId>test.util</artifactId>
             <version>[1.0.0.0,1.1.0.0)</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.server</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -10,7 +10,7 @@
        <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.26</version>
+        <version>5.0.1.27</version>
     </parent>
     <artifactId>test.util</artifactId>
     <name>Test Utils</name>
@@ -36,6 +36,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock</artifactId>
         </dependency>
     </dependencies>
 

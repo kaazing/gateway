@@ -36,10 +36,6 @@ write "X-Origin: http://localhost:8000\r\n"
 write "X-WebSocket-Version: wseb-1.0\r\n"
 write "\r\n"
 
-write notify CREATE_REQUESTED
-
-read await CREATE_REQUESTED
-
 read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: no-cache\r\n"
 read "Content-Length: 196\r\n"

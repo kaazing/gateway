@@ -79,7 +79,7 @@ To Configure the `GATEWAY_OPTS` Environment Variable
     1.  Navigate to the `KAAZING_HOME/bin` directory where you installed the Gateway.
     2.  Run the `gateway.start` script: `./gateway.start`
 
-    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md)for help finding the problem.
+    When you successfully start the Gateway, messages display in your shell or command prompt indicating the services that are hosted by the Gateway. The startup message may differ depending on your Gateway configuration. If the server does not start successfully, contact your administrator or see [Troubleshoot the Gateway](../troubleshooting/o_troubleshoot.md) for help finding the problem.
 
 Next Step
 -------------------------
@@ -105,7 +105,6 @@ Windows Example:
 Mac Example:
 
 `$ export GATEWAY_OPTS="-DGATEWAY_HOME=/Users/johnsmith/Desktop/Gateway/"`
-
 `$ /Users/johnsmith/Desktop/Gateway/bin/gateway.start`
 
 ### GATEWAY_CONFIG
@@ -113,7 +112,6 @@ Mac Example:
 Windows Example:
 
 `> SET GATEWAY_OPTS=-DGATEWAY_CONFIG=C:\Gateway\conf\gateway-config-test.xml`
-
 `> C:\Gateway\bin\gateway.start.bat`
 
 Here is an alternative way to specify the configuration file:

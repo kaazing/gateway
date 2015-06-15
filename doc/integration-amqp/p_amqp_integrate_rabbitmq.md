@@ -30,7 +30,8 @@ To Integrate RabbitMQ Messaging
 
 2.  Download and install the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
 3.  Open the configuration file for the Gateway, located at `GATEWAY_HOME/conf/gateway-config.xml`.
-4.  Locate the [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy) service:
+4.  Locate the [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy) service:
+
 
     ``` xml
       <service>
@@ -56,9 +57,9 @@ To Integrate RabbitMQ Messaging
     </service>
     ```
 
-    Note that the connect element uses the default AMQP port 5672. For information on other properties that may be configured for the `amqp.proxy` service, see [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy).
+    Note that the connect element uses the default AMQP port 5672. For information on other properties that may be configured for the `amqp.proxy` service, see [amqp.proxy](../admin-reference/r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy).
 
-5.  Start the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
+5.  Start the Gateway as described in [Setting Up the Gateway](../about/setup-guide.md).
 6.  Test the Gateway RabbitMQ integration.
 
     1.  In a browser, navigate to the out of the box demos at `http://localhost:8001/demo/`.

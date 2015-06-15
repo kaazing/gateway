@@ -82,6 +82,12 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
                         // guarantee strongly-typed buffers; this is the connect-side where
                         // the service is the client of the broker.
                         initFilterChain(connectSession, true);
+
+                        // hook in any ProxyServiceExtensions here and give them a chance
+                        // to initialize the accept side of the proxy connection
+                        for (ProxyServiceExtensionSpi extension : extensions) {
+                            extension.initConnectSession(connectSession, getServiceContext().getProperties());
+                        }
                     }
                 }
             });
@@ -94,6 +100,12 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
 
             super.sessionOpened(acceptSession);
+
+            // hook in any ProxyServiceExtensions here and give them a chance
+            // to initialize the accept side of the proxy connection
+            for (ProxyServiceExtensionSpi extension : extensions) {
+                extension.initAcceptSession(acceptSession, getServiceContext().getProperties());
+            }
         }
     }
 
