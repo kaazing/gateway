@@ -15,8 +15,16 @@ For Developers
 
 ### Mobile
 
+#### WebSocket Mobile Clients
+
 -   [Build Objective-C (iOS) WebSocket Clients](dev-objc/o_dev_objc.md)
 -   [Build Android and Java WebSocket Clients](dev-android/o_dev_android.md)
+
+#### JMS Mobile Clients
+
+-   [Walkthrough: Deploy a JavaScript JMS App as a Hybrid iOS App](dev-js/hybrid_ios_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Walkthrough: Deploy a JavaScript JMS App as a Hybrid Android App](dev-js/hybrid_android_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Walkthrough: Deploy Microsoft .NET or Silverlight JMS Clients to iOS or Android Using Xamarin](dev-dotnet/xamarin_dotnet_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### Web and Desktop
 
@@ -36,6 +44,16 @@ For Developers
 -   [Build Microsoft .NET and Silverlight AMQP Clients](dev-dotnet/o_dev_dotnet_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build Java AMQP Clients](dev-java/o_dev_java_amqp.md)
 -   [Build C AMQP Clients](dev-c/o_dev_c_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+
+#### JMS Clients
+
+-   [Build Objective-C (iOS) JMS Client API](dev-objc/o_dev_objc.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build Android JMS Client API](dev-android/o_dev_android.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build JavaScript JMS Clients](dev-js/o_dev_js.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build Flash JMS Clients](dev-flash/o_dev_flash.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build Microsoft .NET and Silverlight JMS Clients](dev-dotnet/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Walkthrough: Integrate Excel with KAAZING Gateway](dev-excel/excel_jms_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build Java JMS Clients](dev-java/o_dev_java.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### Embedded
 
@@ -64,7 +82,8 @@ For Administrators
 -   [Configure Authentication and Authorization](security/o_aaa_config_authentication.md)
 -   [Configure Kerberos V5 Network Authentication](security/o_krb.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
--   [Configure Enterprise Shield&trade; with the Gateway](enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Configure a Secure JMS Configuration](security/o_jms_secure.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Configure Enterprise Shield™ with the Gateway](enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Implement Protocol Injection](security/p_aaa_inject.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Implement User Identity Promotion](security/p_aaa_userid_promo.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
@@ -77,6 +96,12 @@ For Administrators
 
 -   [Using the Gateway to Support High Availability](high-availability/u_ha.md)
 -   [Configure the Gateway for High Availability](high-availability/o_ha.md)
+
+### JMS-Compliant Message Brokers
+-   [Integrate with JMS-Compliant Message Brokers](integration-jms/o_jms_integrate.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+
+### Apple Push Notification Service (APNs)
+-   [Deploy Apple Push Notification Service (APNs) with KAAZING Gateway](apns/o_apns.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Client API Documentation
 ------------------------
@@ -102,10 +127,21 @@ Client API Documentation
     [(Kaazing.Security)](apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm)
 -   [Java AMQP Client API](apidoc/client/java/amqp/index.md)
 
+### JMS Client API Documentation
+
+-   [KAAZING Gateway JMS Client Libraries: Supported APIs](about/kaazing-jms-api.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [JavaScript JMS Client API](apidoc/client/javascript/jms/index.md?JmsConnectionFactory) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Objective-C JMS Client API](apidoc/client/ios/jms/KMStompJMS/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Android JMS Client API](apidoc/client/android/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Flash JMS Client API](apidoc/client/flash/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   .NET and Silverlight Client API ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) ([Kaazing.JMS](apidoc/client/dotnet/jms/html/N_Kaazing_JMS.htm)) | ([Kaazing.JMS.Stomp](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Stomp.htm)) | ([Kaazing.JMS.Util](apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Util.htm)) | ([Kaazing.Security](apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm))
+-   [Java JMS Client API](apidoc/client/java/jms/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+
 Server API Documentation
 ------------------------
 
 -   [Server Provider Interface](apidoc/server/gateway/server/spi/index.md)
+-   [JMS Server Security](apidoc/server/jms/server/spi/index.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### AWS (Amazon Web Services)
 -   [AWS (Amazon Web Services) documentation](../aws/marketplace/index.md)
@@ -118,5 +154,5 @@ Specifications
 -   [HTML5 WebSocket Protocol Specification](http://tools.ietf.org/html/rfc6455)
 -   [HTML5 Server-Sent Events Specification](http://dev.w3.org/html5/eventsource/)
 -   [AMQP Protocol Specification](http://www.amqp.org/)
-
-
+-   [Java Message Service (JMS) API Specification](http://www.oracle.com/technetwork/java/docs-136352.html)
+-   [Stomp Protocol Specification, Version 1.0](http://stomp.github.io/stomp-specification-1.0.html)
