@@ -32,7 +32,7 @@ import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEnt
 import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
 
 public class MonitoringEntityFactoryInjectorTest {
-    
+
     private static final String AGRONA_ENABLED = "org.kaazing.gateway.management.AGRONA_ENABLED";
 
     @Test

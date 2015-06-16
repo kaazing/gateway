@@ -19,29 +19,19 @@
  * under the License.
  */
 
-package org.kaazing.gateway.service.http.proxy;
+package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
+import static org.junit.Assert.assertTrue;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.junit.Test;
+import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
 
-class SecureOriginServer extends OriginServer {
+public class CounterManagerFactoryImplTest {
 
-    SecureOriginServer(int port, Handler handler) {
-        super(port, handler);
+    @Test
+    public void testMakeServiceSessionCounterManager() {
+        CounterManagerFactory counterManagerFactory = new CounterManagerFactoryImpl();
+        Object serviceSessionCounterManager = counterManagerFactory.makeServiceSessionCounterManager(null, null);
+        assertTrue(serviceSessionCounterManager instanceof ServiceSessionCounterManagerImpl);
     }
-
-    @Override
-    void start() throws Exception {
-        SSLServerSocketFactory serverSocketFactory = TlsTestUtil.serverSocketFactory();
-        socket = serverSocketFactory.createServerSocket(port);
-        new Thread(this, "SSL Origin Server").start();
-    }
-
 }
