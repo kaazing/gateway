@@ -153,8 +153,6 @@ Specifications
 -   [HTML5 WebSocket API Specification](http://dev.w3.org/html5/websockets/)
 -   [HTML5 WebSocket Protocol Specification](http://tools.ietf.org/html/rfc6455)
 -   [HTML5 Server-Sent Events Specification](http://dev.w3.org/html5/eventsource/)
+-   [AMQP Protocol Specification](http://www.amqp.org/)
 -   [Java Message Service (JMS) API Specification](http://www.oracle.com/technetwork/java/docs-136352.html)
 -   [Stomp Protocol Specification, Version 1.0](http://stomp.github.io/stomp-specification-1.0.html)
--   [AMQP Protocol Specification](http://www.amqp.org/)
-
-
