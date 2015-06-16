@@ -91,7 +91,7 @@ Web-based communication between a browser and server where messages are sent and
 G
 -
 
-**<span id="gateway_home"></span></a>*GATEWAY\_HOME***![This feature is available in KAAZING Gateway - Enterprise Edition.](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/images/enterprise-feature.png)
+**<span id="gateway_home"></span></a>GATEWAY\_HOME**![This feature is available in KAAZING Gateway - Enterprise Edition.](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/images/enterprise-feature.png)
 
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:
 
@@ -173,11 +173,11 @@ A mechanism for distributing and publishing messages to multiple [JMS consumers/
 K
 -
 
-**<a name="kaazing_home"></a>*KAAZING\_HOME***![This feature is available in KAAZING Gateway - Enterprise Edition.](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/images/enterprise-feature.png)
+**<a name="kaazing_home"></a>KAAZING\_HOME**![This feature is available in KAAZING Gateway - Enterprise Edition.](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/images/enterprise-feature.png)
 
 By default, when you install or upgrade KAAZING Gateway, the *KAAZING\_HOME* directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*), a message broker home (depending on the Gateway edition you are running), and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [*GATEWAY\_HOME*](#gateway_home) to learn more about Gateway directory destinations.
 
-This documentation assumes you are running ${the.gateway} from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
+This documentation assumes you are running the Gateway from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
 
 **<a name="kwsg"></a>KAAZING Gateway**
 
