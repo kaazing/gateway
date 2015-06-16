@@ -65,7 +65,7 @@ The following procedure describes how to implement AMQP user identity promotion 
    - You should add only one `AmqpPrincipal`.
    - If you add more than one `AmqpPrincipal` principal, then the Gateway uses the first one that the Java iterator happens to return to the Gateway.
 
-  See the `AmqpPrincipal` method in the [SPI (Service Provider Interface)](../apidoc/server/gateway/server/spi/index.md) documentation for more information.
+  See the `AmqpPrincipal` method in the [SPI (Service Provider Interface)](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/spi/index.html) documentation for more information.
 
 2. Compile your LoginModule and include it in a JAR file that you put into the `GATEWAY_HOME/lib` directory.
 

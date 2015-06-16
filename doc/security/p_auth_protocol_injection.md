@@ -42,7 +42,7 @@ The following procedure describes how to inject bytes into a custom protocol. To
     -   The `getName()` method should specify the name of this Principal to avoid conflicting with other Principals of the same type.
     -   The `getInjectableBytes()` returns the bytes which will be injected into the connection to the back-end server. The bytes must conform to the protocol that the server is expecting. Using this method, incorporate the identity or other information determined in step 1.
 
-    See the [Protocol Injection](../apidoc/server/gateway/server/spi/index.html) documentation for more information.
+    See the [Protocol Injection](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/spi/index.html) documentation for more information.
 
 3.  In your login module's `login()` method, add the newly created `ProtocolInjection` object (which is of type Principal) into the Subject. This causes the Gateway to call its `getInjectableBytes()` method and inject the bytes into the custom protocol.
 4.  Compile your`LoginModule` class into a JAR file and put the JAR file in `GATEWAY_HOME/lib`.
@@ -66,7 +66,7 @@ The following procedure describes how to inject bytes into a custom protocol. To
     </security>
     ```
 
-    Note: For information about login modules, see [Configure a Chain of Login Modules](p_auth_configure_login_module.md). the Gateway includes an [SPI (Service Provider Interface)](../apidoc/server/gateway/server/spi/index.md) called `ProtocolInjection`.
+    Note: For information about login modules, see [Configure a Chain of Login Modules](p_auth_configure_login_module.md). The Gateway includes an [SPI (Service Provider Interface)](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/spi/index.html) called `ProtocolInjection`.
 
 6.  Start (or restart) the Gateway, then connect a new client.
 
@@ -79,4 +79,4 @@ See Also
 ------------------------------
 -  [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
 -  [Configure Authentication and Authorization](o_auth_configure.md)
--  [SPI (Service Provider Interface)](../apidoc/server/gateway/server/spi/index.md).
+-  [SPI (Service Provider Interface)](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/spi/index.html).
