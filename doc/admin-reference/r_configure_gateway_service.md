@@ -47,6 +47,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
                 -   maximum.recovery.interval
                 -   prepared.connection.count
                 -   virtual.host
+            -   [redis](../brokers/p_integrate_redis.md)
             -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [session](#session)
