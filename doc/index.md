@@ -6,7 +6,7 @@ Essentials
 
 -   [Documentation Conventions](about/about.md)
 -   [KAAZING Glossary](../kaazing-glossary.md)
--   [Common KAAZING Gateway Production Topologies](admin-reference/c_topologies.md)
+-   [Common KAAZING Gateway Production Topologies](https://github.com/kaazing/gateway/blob/develop/doc/admin-reference/c_topologies.md)
 -   [Setting Up the Gateway](about/setup-guide.md)
 -   [Upgrade the Gateway](upgrade/o_upgrade.md)
 
@@ -84,7 +84,7 @@ For Administrators
 ### Security
 
 -   [About Security with KAAZING Gateway](security/c_security_about.md)
--   [Configure Authentication and Authorization](security/o_aaa_config_authentication.md)
+-   [Configure Authentication and Authorization](security/o_auth_configure.md)
 -   [Configure Kerberos V5 Network Authentication](security/o_krb.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
 -   [Configure a Secure JMS Configuration](security/o_jms_secure.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
