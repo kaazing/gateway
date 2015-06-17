@@ -36,7 +36,7 @@ To Monitor with JMX
 
     **Notes:**
 
-    -   To connect to a *remote* process you must specify an address that uniquely represents the remote instance of the Gateway and provide the administrator's user name and password (by default, `admin`/`admin`). If there are multiple instances of the Gateway on a remote server then JMX management will be hosted on different ports.
+    -   To connect to a *remote* process you must specify an address that uniquely represents the remote instance of the Gateway and provide the administrator's user name and password (by default, `admin`/`admin`). If there are multiple instances of the Gateway on a remote server then JMX management is hosted on different ports.
     -   Use the following syntax to access your local Gateway as a remote process (where `hostname` is the remote hostname): `service:jmx:rmi://hostname/jndi/rmi://hostname:2020/jmxrmi`
     -   Password authentication over the Secure Sockets Layer (SSL) and Transport Layer Security (TLS) is enabled by default in JMX. Consequently, you must have a digital certificate for the hostname of the Gateway in the keystore.db file used by the Gateway. In addition, access to port 2020 must be enabled in your network for the remote monitoring agent to connect to the Gateway. For information on how to create a certificate for the hostname of the Gateway, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
@@ -114,4 +114,4 @@ See Also
 --------
 
 -   The [realm](../admin-reference/r_configure_gateway_security.md#realm) element for reference information about the `user-principal-class` property.
--   KAAZING Gateway [documentation](../index.md) for more information about. Gateway administration.
+-   KAAZING Gateway [documentation](../index.md) for more information about Gateway administration.
