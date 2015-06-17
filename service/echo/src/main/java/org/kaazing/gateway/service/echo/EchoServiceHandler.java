@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.util.LoggingUtils;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
@@ -90,11 +91,6 @@ class EchoServiceHandler extends IoHandlerAdapter<IoSessionEx> {
 
     @Override
     protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(cause.getMessage(), cause);
-        }
-        else {
-            logger.warn(cause.getMessage());
-        }
+        LoggingUtils.log(logger, cause);
     }
 }
