@@ -82,4 +82,4 @@ See Also
 
 - [Configure the Gateway](../admin-reference/o_configure_gateway_checklist.md)
 - [Configure Authentication and Authorization](o_auth_configure.md)
-- [Real-Time Interactive Guide to AMQP](../guide-amqp.md)
+- [Real-Time Interactive Guide to AMQP](https://github.com/kaazing/javascript.client/blob/develop/amqp-0-9-1/doc/guide-amqp.md)
