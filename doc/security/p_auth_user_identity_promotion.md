@@ -69,7 +69,7 @@ The following procedure describes how to implement AMQP user identity promotion 
 
 2. Compile your LoginModule and include it in a JAR file that you put into the `GATEWAY_HOME/lib` directory.
 
-  **Note:** These instructions assume the jar `com.kaazing.gateway.service.amqp.spi.AmqpPrincipal.jar` is added to the compile-time classpath of the login module.
+  **Note:** These instructions assume the jar `enterprise.gateway.amqp.spi.jar` is added to the compile-time classpath of the login module.
 
 3. Start (or restart) the Gateway, and then connect a new client.
 
