@@ -64,10 +64,7 @@ public class WsnConnectorRule implements TestRule {
         final ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(URI.create(connect), connectOptions);
 
-        ConnectFuture future = wsnConnector.connect(connectAddress, connectHandler, null);
-
-        future.await(TimeUnit.MILLISECONDS.toMillis(3000));
-        return future;
+        return wsnConnector.connect(connectAddress, connectHandler, null);
     }
 
     private final class ConnectorStatement extends Statement {
