@@ -35,7 +35,7 @@ The following procedure describes how to implement AMQP user identity promotion 
 
 **Note:** The steps in this topic assume that you already have a LoginModule specifically for the purpose of user identity promotion. The LoginModule (either one supplied from the Gateway or one that you have created) establishes the identity associated with this connection and authenticates it.
 
-1. In your login module, instantiate a new object of type `com.kaazing.gateway.server.spi.AmqpPrincipal` and add it to the Subject. This is typically done in the `commit()` method. For example:
+1. In your login module, instantiate a new object of type `com.kaazing.gateway.service.amqp.spi.AmqpPrincipal` and add it to the Subject. This is typically done in the `commit()` method. For example:
   ``` xml
   private Subject subject;
 
@@ -69,13 +69,17 @@ The following procedure describes how to implement AMQP user identity promotion 
 
 2. Compile your LoginModule and include it in a JAR file that you put into the `GATEWAY_HOME/lib` directory.
 
-  **Note:** These instructions assume the jar `com.kaazing.gateway.amqp.server.spi.jar` is added to the compile-time classpath of the login module.
+  **Note:** These instructions assume the jar `enterprise.gateway.amqp.spi.jar` is added to the compile-time classpath of the login module.
 
 3. Start (or restart) the Gateway, and then connect a new client.
 
   After authentication succeeds, the Gateway establishes a connection to the back-end server or broker. At this point, if `AmqpPrincipal` is available in the Subject, then the Gateway automatically injects the AMQP credentials specified `AmqpPrincipal` into the AMQP protocol.
 
 Congratulations! You have completed implementation for AMQP user identity promotion with the Gateway.
+
+Migrate to KAAZING Gateway 5.x
+-------------------------------------------------------
+If you wish to migrate your LoginModule that uses AMQP Identity Promotion from KAAZING WebSocket Gateway - AMQP Edition 4.x to KAAZING Gateway 5.x, you will need to follow the above the steps to change the package name from `com.kaazing.gateway.amqp.server.spi.AmqpPrincipal` to ` com.kaazing.gateway.service.amqp.spi.AmqpPrincipal`.
 
 See Also
 -------------------------------------------------------
