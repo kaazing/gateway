@@ -21,24 +21,17 @@
 
 package org.kaazing.gateway.service.proxy;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.service.ServiceFactory;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ProxyServiceTest {
     @Rule
-    public MethodRule testExecutionTrace = new MethodExecutionTrace();
-
-    @Before
-    public void setup() {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-    }
-
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    
     @Test
     public void testCreateService() throws Exception {
         ProxyService service = (ProxyService)ServiceFactory.newServiceFactory().newService("proxy");

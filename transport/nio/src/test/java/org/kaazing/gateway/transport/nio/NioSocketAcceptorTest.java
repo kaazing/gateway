@@ -46,7 +46,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
@@ -94,7 +93,6 @@ public class NioSocketAcceptorTest {
     private static final String TCP_MAXIMUM_OUTBOUND_RATE = "tcp.maximumOutboundRate";
     private static final String NEXT_PROTOCOL = "nextProtocol";
 
-
     @Rule
     public TestRule testExecutionTrace = new MethodExecutionTrace();
 
@@ -107,8 +105,6 @@ public class NioSocketAcceptorTest {
 
     @Before
     public void before() throws Exception {
-        // Avoid annoying console warnings like "No appenders could be found for logger (transport.tcp.accept)"
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
         acceptor = new NioSocketAcceptor(new Properties());
         acceptor.setSchedulerProvider(schedulerProvider = new SchedulerProvider());
         acceptor.setResourceAddressFactory(newResourceAddressFactory());
