@@ -34,7 +34,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,8 +53,6 @@ public class BroadcastServiceTest {
 
     @Before
     public void setup() {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-
         service = (BroadcastService)ServiceFactory.newServiceFactory().newService("broadcast");
         service.setSchedulerProvider(new SchedulerProvider());
     }
@@ -423,14 +420,11 @@ public class BroadcastServiceTest {
     private class SlowTestClient implements Runnable {
         private CountDownLatch latch = new CountDownLatch(1);
         private int clientNumber;
-        private boolean stopped = false;
-
         private SlowTestClient(int num) {
             clientNumber = num;
         }
 
         public void stop() {
-            stopped = true;
         }
 
         @Override

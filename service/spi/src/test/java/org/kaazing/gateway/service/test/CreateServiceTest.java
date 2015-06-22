@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.service.test;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +36,6 @@ public class CreateServiceTest {
 
     @Test
     public void createTestService() {
-        PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
 
         ServiceFactory factory = ServiceFactory.newServiceFactory();
         Service testService = factory.newService("test");

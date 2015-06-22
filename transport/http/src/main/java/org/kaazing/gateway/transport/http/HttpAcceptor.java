@@ -99,6 +99,7 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFil
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResource;
 import org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory;
+import org.kaazing.gateway.util.LoggingUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -369,13 +370,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     session.close(false);
 
                     String message = String.format("Unexpected HTTP exception: %s", cause);
-                    if (logger.isDebugEnabled()) {
-                        // note: still error level, but with extra detail about the exception
-                        logger.error(message, cause);
-                    }
-                    else {
-                        logger.error(message);
-                    }
+                    LoggingUtils.log(logger, message, cause);
                 }
 
                 httpSession.reset(cause);
@@ -384,13 +379,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 if (logger.isDebugEnabled()) {
                 // handle malformed HTTP scenario
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+                    LoggingUtils.log(logger, message, cause);
                 }
                 if(cause instanceof HttpProtocolDecoderException)
                 {
