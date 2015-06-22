@@ -63,7 +63,6 @@
         <module>security</module>
         <module>server</module>
         <module>server.api</module>
-        <module>server.demo</module>
         <module>server.spi</module>
         <module>service/spi</module>
         <module>service/amqp</module>
