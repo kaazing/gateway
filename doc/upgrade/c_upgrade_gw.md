@@ -29,10 +29,10 @@ Upgrade Options
 
 You can use the Windows or Linux installer to install the Gateway into conventional (default) operating system locations or you can choose to unpack the .zip for Windows or .tar.gz for Linux, UNIX, or Mac) into any directory location:
 
--   Run the Windows or Linux installer to install the Gateway into conventional operating system locations and automatically run the Gateway as a service. The newer release is installed in a separate `_KAAZING\_HOME_` that is at the same level in the directory structure as the `_KAAZING\_HOME_` for the earlier release. Earlier releases are not overwritten or removed. For example, `jms/4.0` and `jms/5.0` are separate but parallel directories. [About `KAAZING_HOME`](../about/about.md#about-kaazing_home) describes `KAAZING_HOME` in more detail.
+-   Run the Windows or Linux installer to install the Gateway into conventional operating system locations and automatically run the Gateway as a service. The newer release is installed in a separate `KAAZING_HOME` that is at the same level in the directory structure as the `KAAZING_HOME` for the earlier release. Earlier releases are not overwritten or removed. For example, `jms/4.0` and `jms/5.0` are separate but parallel directories. [About `KAAZING_HOME`](../about/about.md#about-kaazing_home) describes `KAAZING_HOME` in more detail.
 
     **Note:** You cannot run both releases at the same time unless you change the ports on one or the other. You cannot run two Gateways on the same hostname and port.
--   Unpack the .zip for Windows or .tar.gz for Linux, UNIX, or Mac and then uncompress the Gateway to any directory location and run it in place. You must take care to save user-modified files (such as the `gateway-config.xml` file) if you install the newer release in the same `_KAAZING\_HOME_` as the earlier release. Earlier releases of the Gateway will be overwritten or removed.
+-   Unpack the .zip for Windows or .tar.gz for Linux, UNIX, or Mac and then uncompress the Gateway to any directory location and run it in place. You must take care to save user-modified files (such as the `gateway-config.xml` file) if you install the newer release in the same `KAAZING_HOME` as the earlier release. Earlier releases of the Gateway will be overwritten or removed.
 
 Download and installation options are discussed in more detail in [Setting Up KAAZING Gateway](../about/setup-guide.md).
 
