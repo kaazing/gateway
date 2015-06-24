@@ -39,7 +39,7 @@
     <modules>
         <module>bridge</module>
         <module>bom</module>
-        <module>docker</module>
+        <!--<module>docker</module>-->
         <module>distribution</module>
         <module>management</module>
         <module>resource.address/spi</module>
@@ -63,7 +63,6 @@
         <module>security</module>
         <module>server</module>
         <module>server.api</module>
-        <module>server.demo</module>
         <module>server.spi</module>
         <module>service/spi</module>
         <module>service/amqp</module>

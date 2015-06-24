@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -48,6 +49,7 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.slf4j.Logger;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class WsUtils {
 
@@ -56,7 +58,7 @@ public class WsUtils {
     public static final String SEC_WEB_SOCKET_KEY = "Sec-WebSocket-Key";
     public static final String SEC_WEB_SOCKET_KEY1 = "Sec-WebSocket-Key1";
     public static final String SEC_WEB_SOCKET_KEY2 = "Sec-WebSocket-Key2";
-    private static final String WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    private static final byte[] WEBSOCKET_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11".getBytes(UTF_8);
 
     public static final String HEADER_X_WEBSOCKET_EXTENSIONS = "X-WebSocket-Extensions";
     public static final String HEADER_WEBSOCKET_EXTENSIONS = "WebSocket-Extensions";
@@ -172,21 +174,25 @@ public class WsUtils {
         return ByteBuffer.wrap(digest);
     }
 
-    /*
-     * Compute the Sec-WebSocket-Accept key (RFC-6455)
+    /**
+     * Compute the Sec-WebSocket-Accept header value as per RFC 6455
      *
-     * @param key
-     * @return
-     * @throws Exception
+     * @param key Sec-WebSocket-Key header value
+     * @return the expected value for Sec-WebSocket-Accept header value
      */
-    public static String AcceptHash(String key) throws Exception {
-    	String input = key + WEBSOCKET_GUID;
-
-    	MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-
-    	byte[] hash = sha1.digest(input.getBytes());
-    	byte[] output = Base64.encodeBase64(hash);
-    	return new String(output);
+    public static String acceptHash(String key) {
+        try {
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            sha1.update(key.getBytes(UTF_8));
+            sha1.update(WEBSOCKET_GUID);
+            byte[] hash = sha1.digest();
+            byte[] output = Base64.encodeBase64(hash);
+            return new String(output);
+        } catch (NoSuchAlgorithmException nsae) {
+            SecurityException se = new SecurityException();
+            se.initCause(nsae);
+            throw se;
+        }
     }
 
     public static int calculateEncodedLengthSize(int lengthValue) {
@@ -357,6 +363,12 @@ public class WsUtils {
                 filterChain.remove(extension.getExtensionHeader().getExtensionToken());
             }
         }
+    }
+
+    public static String secWebSocketKey() {
+        byte[] bytes = new byte[16];
+        ThreadLocalRandom.current().nextBytes(bytes);
+        return new String(Base64.encodeBase64(bytes));
     }
 
 }
