@@ -110,7 +110,7 @@ public class TcpExtensionFactoryTest {
      * method will return a URL whose contents will be the list of class names supplied in the constructor.
      * This avoids the need for test meta-info resources files to be available on the test class path.
      */
-    private static class TestClassLoader extends ClassLoader {
+    static class TestClassLoader extends ClassLoader {
         URL url;
         
         TestClassLoader(String... factorySpiClassNames) throws MalformedURLException {

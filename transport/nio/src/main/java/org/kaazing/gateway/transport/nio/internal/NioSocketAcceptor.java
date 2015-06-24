@@ -22,7 +22,7 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
-import static org.kaazing.gateway.transport.AbstractBridgeService.*;
+import static org.kaazing.gateway.transport.AbstractBridgeService.CURRENT_WORKER;
 import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.DEBUG_NIOWORKER_POOL;
 import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_BACKLOG;
 import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_IP_TOS;
@@ -38,6 +38,7 @@ import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_S
 import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_SO_LINGER;
 import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_WRITE_TIMEOUT;
 
+import java.util.Collection;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +50,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -63,6 +66,12 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.util.ExternalResourceReleasable;
 import org.jboss.netty.util.internal.ExecutorUtil;
+import org.kaazing.gateway.resource.address.Protocol;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.NioBindException;
+import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -138,6 +147,18 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     NioSocketAcceptor(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
         this.extensionFactory = TcpExtensionFactory.newInstance();
+    }
+    
+    @Override
+    public void bind(final ResourceAddress address,
+                     IoHandler handler,
+                     BridgeSessionInitializer<? extends IoFuture> initializer) throws NioBindException {
+        Collection<TcpExtension> extensions = extensionFactory.bind(address);
+        BridgeSessionInitializer<? extends IoFuture> newInitializer = initializer;
+        if (extensions.size() > 0) {
+            newInitializer = new ExtensionsSessionInitializer(extensions, initializer);
+        }
+        super.bind(address, handler, newInitializer);
     }
 
     @Override
@@ -481,6 +502,36 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
                 logger.warn(MSG + e.getCause());
             }
         }
+    }
+    
+    private static class ExtensionsSessionInitializer<T extends IoFuture> implements BridgeSessionInitializer<T> {
+        private final Collection<TcpExtension> extensions;
+        private final BridgeSessionInitializer<? extends IoFuture> wrapped;
+        
+        ExtensionsSessionInitializer(Collection<TcpExtension> extensions,
+                                     BridgeSessionInitializer<? extends IoFuture> wrapped) {
+            this.extensions = extensions;            
+            this.wrapped = wrapped;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public BridgeSessionInitializer<T> getParentInitializer(Protocol protocol) {
+            return (BridgeSessionInitializer<T>) ((wrapped != null) ? wrapped.getParentInitializer(protocol) : null);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public void initializeSession(IoSession session, T future) {
+            if ( wrapped != null ) {
+                ((BridgeSessionInitializer<T>)wrapped).initializeSession(session,  future);
+            }
+            // Call extensions
+            for (TcpExtension extension : extensions) {
+                extension.initializeSession(session);
+            }
+        }
+        
     }
 
 }
