@@ -87,12 +87,12 @@ public class WsAcceptorTest {
         System.clearProperty(PROPERTY_NAME);
     }
 
-    private NioSocketAcceptor tcpAcceptor = new NioSocketAcceptor(new Properties());
-    private HttpAcceptor httpAcceptor = new HttpAcceptor();
+    private NioSocketAcceptor tcpAcceptor;
+    private HttpAcceptor httpAcceptor;
     private WsebAcceptorMock wsebAcceptor = new WsebAcceptorMock();
     private WsnAcceptorMock wsnAcceptor = new WsnAcceptorMock();
     private WsrAcceptorMock wsrAcceptor = new WsrAcceptorMock();
-    private WsAcceptor wsAcceptor = new WsAcceptor(WebSocketExtensionFactory.newInstance());
+    private WsAcceptor wsAcceptor;
     private SchedulerProvider schedulerProvider = new SchedulerProvider();
 
     @Before

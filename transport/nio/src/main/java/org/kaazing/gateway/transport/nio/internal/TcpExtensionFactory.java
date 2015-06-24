@@ -20,6 +20,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.ServiceLoader.load;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -61,6 +62,10 @@ public class TcpExtensionFactory {
             }
         }
         return extensions;
+    }
+    
+    public Collection<TcpExtensionFactorySpi> availableExtensions() {
+       return factories;
     }
     
     private static TcpExtensionFactory newInstance(ServiceLoader<TcpExtensionFactorySpi> services) {

@@ -76,6 +76,8 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     private static final long DEFAULT_SELECT_TIMEOUT_MILLIS = 10;
     private static final String LOGGER_NAME = String.format("transport.%s.accept", NioProtocol.TCP.name().toLowerCase());
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    
+    private final TcpExtensionFactory extensionFactory;
 
     static {
         // We must set the select timeout property before Netty class SelectorUtil gets loaded
@@ -126,10 +128,17 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     }
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
-    public NioSocketAcceptor(Properties configuration) {
+    
+    NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
+        this.extensionFactory = extensionFactory;
     }
-
+    
+    // for unit tests only
+    NioSocketAcceptor(Properties configuration) {
+        super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
+        this.extensionFactory = TcpExtensionFactory.newInstance();
+    }
 
     @Override
     public void dispose() {

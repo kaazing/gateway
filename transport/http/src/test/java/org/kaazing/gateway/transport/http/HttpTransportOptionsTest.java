@@ -82,11 +82,12 @@ public class HttpTransportOptionsTest {
     BridgeServiceFactory bridgeServiceFactory;
     SchedulerProvider schedulerProvider = new SchedulerProvider();
 
-    NioSocketAcceptor tcpAcceptor = new NioSocketAcceptor(new Properties());
-    HttpAcceptor httpAcceptor = new HttpAcceptor();
+    
+    NioSocketAcceptor tcpAcceptor;
+    HttpAcceptor httpAcceptor;
 
-    NioSocketConnector tcpConnector = new NioSocketConnector(new Properties());
-    HttpConnector httpConnector = new HttpConnector();
+    NioSocketConnector tcpConnector;
+    HttpConnector httpConnector;
 
     AtomicInteger failures = new AtomicInteger(0);
 

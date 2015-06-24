@@ -33,6 +33,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -49,6 +50,23 @@ public class TcpExtensionFactoryTest {
     @Before
     public void before() throws Exception {
         address = newResourceAddressFactory().newResourceAddress(new URI("tcp://localhost:8888"));
+    }
+
+    @Test 
+    public void availableExtensionsShouldReportNoExtensionsWhenNoFactoriesAvailable() throws Exception {
+        TcpExtensionFactory factory = TcpExtensionFactory.newInstance(new TestClassLoader());
+        Collection<TcpExtensionFactorySpi> extensions = factory.availableExtensions();
+        assertTrue(extensions.isEmpty());
+    }
+
+    @Test 
+    public void availableExtensionsShouldReportAllExtensions() throws Exception {
+        TcpExtensionFactory factory = TcpExtensionFactory.newInstance(new TestClassLoader(
+                TestExtensionFactory1.class.getName(),
+                TestExtensionFactory2.class.getName(),
+                NullExtensionFactory.class.getName()));
+        Collection<TcpExtensionFactorySpi> extensions = factory.availableExtensions();
+        assertEquals(3, extensions.size());
     }
 
     @Test 

@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.nio.internal;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,10 +44,12 @@ final class TcpTransport extends Transport {
 
     private final BridgeAcceptor acceptor;
     private final BridgeConnector connector;
+    private final TcpExtensionFactory extensionFactory;
 
     TcpTransport(Properties configuration) {
         acceptor = new NioSocketAcceptor(configuration);
         connector = new NioSocketConnector(configuration);
+        this.extensionFactory = TcpExtensionFactory.newInstance();
     }
     
     @Override
@@ -68,6 +71,12 @@ final class TcpTransport extends Transport {
     public BridgeConnector getConnector(ResourceAddress address) {
         return connector;
     }
+    
+    @Override
+    // Used for resource injection
+    public Collection<?> getExtensions() {
+        return extensionFactory.availableExtensions();
+    };
 
     @Override
     public Map<String, Protocol> getProtocols() {
