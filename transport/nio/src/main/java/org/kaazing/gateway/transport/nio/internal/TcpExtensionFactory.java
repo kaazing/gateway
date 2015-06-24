@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.nio.spi.TcpExtension;
-import org.kaazing.gateway.transport.nio.spi.TcpExtensionFactorySpi;
+import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 
 public class TcpExtensionFactory {
     private final List<TcpExtensionFactorySpi> factories;

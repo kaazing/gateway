@@ -43,8 +43,8 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
-import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.NioSocketConnector;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 

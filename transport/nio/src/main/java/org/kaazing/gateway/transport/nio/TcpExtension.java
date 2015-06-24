@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio.spi;
+package org.kaazing.gateway.transport.nio;
 
 import org.apache.mina.core.session.IoSession;
 

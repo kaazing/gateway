@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;

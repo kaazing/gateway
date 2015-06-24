@@ -19,14 +19,35 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
-import org.junit.Test;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
 
-public class NioTransportTest {
+import org.kaazing.gateway.transport.Transport;
+import org.kaazing.gateway.transport.TransportFactorySpi;
 
-    @Test 
-    public void test() throws Exception {
+public final class TcpTransportFactorySpi extends TransportFactorySpi {
+
+    private final Collection<String> TCP_SCHEMES = Collections.singleton("tcp");
+
+    @Override
+    public String getTransportName() {
+        return "tcp";
     }
-    
+
+    @Override
+    public Collection<String> getSchemeNames() {
+        return TCP_SCHEMES;
+    }
+
+    @Override
+    public Transport newTransport(Map<String, ?> configuration) {
+        Properties properties = new Properties();
+        properties.putAll(configuration);
+        return new TcpTransport(properties);
+    }
+
 }

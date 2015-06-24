@@ -40,8 +40,8 @@ import org.apache.mina.core.session.IoSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.nio.spi.TcpExtension;
-import org.kaazing.gateway.transport.nio.spi.TcpExtensionFactorySpi;
+import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 
 public class TcpExtensionFactoryTest {
     private ResourceAddress address;

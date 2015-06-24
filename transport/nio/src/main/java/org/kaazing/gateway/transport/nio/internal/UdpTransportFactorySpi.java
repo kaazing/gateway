@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -29,25 +29,25 @@ import java.util.Properties;
 import org.kaazing.gateway.transport.Transport;
 import org.kaazing.gateway.transport.TransportFactorySpi;
 
-public final class TcpTransportFactorySpi extends TransportFactorySpi {
+public final class UdpTransportFactorySpi extends TransportFactorySpi {
 
-    private final Collection<String> TCP_SCHEMES = Collections.singleton("tcp");
+    private final Collection<String> UDP_SCHEMES = Collections.singleton("udp");
 
     @Override
     public String getTransportName() {
-        return "tcp";
+        return "udp";
     }
 
     @Override
     public Collection<String> getSchemeNames() {
-        return TCP_SCHEMES;
+        return UDP_SCHEMES;
     }
 
     @Override
     public Transport newTransport(Map<String, ?> configuration) {
         Properties properties = new Properties();
         properties.putAll(configuration);
-        return new TcpTransport(properties);
+        return new UdpTransport(properties);
     }
 
 }
