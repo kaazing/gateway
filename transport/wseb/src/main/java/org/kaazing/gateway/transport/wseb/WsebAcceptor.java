@@ -188,6 +188,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
     };
 
+    private final IoHandler createHandler = new WsebCreateHandler();
+
     public WsebAcceptor() {
         super(new DefaultIoSessionConfigEx());
     }
@@ -296,67 +298,12 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             };
 
             BridgeAcceptor transportAcceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
-
-            final ResourceAddress createAddress = transportAddress.resolve(createResolvePath(transportURI,CREATE_SUFFIX));
-            final ResourceAddress createTextAddress = transportAddress.resolve(createResolvePath(transportURI,CREATE_TEXT_SUFFIX));
-            final ResourceAddress createTextEscapedAddress = transportAddress.resolve(createResolvePath(transportURI, CREATE_TEXT_ESCAPED_SUFFIX));
-            final ResourceAddress createMixedAddress = transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_SUFFIX));
-            final ResourceAddress createMixedTextAddress = transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_TEXT_SUFFIX));
-            final ResourceAddress createMixedTextEscapedAddress = transportAddress.resolve(createResolvePath(transportURI, CREATE_MIXED_TEXT_ESCAPED_SUFFIX));
-
-            transportAcceptor.bind(createAddress,
-                    selectCreateHandler(createAddress),
-                    wrapperHttpInitializer
-            );
-
-            transportAcceptor.bind(createTextAddress,
-                    selectCreateHandler(createTextAddress),
-                    wrapperHttpInitializer
-            );
-
-            transportAcceptor.bind(createTextEscapedAddress,
-                    selectCreateHandler(createTextEscapedAddress),
-                    wrapperHttpInitializer);
-
-            transportAcceptor.bind(createMixedAddress,
-                    selectCreateHandler(createMixedAddress),
-                    wrapperHttpInitializer
-            );
-
-            transportAcceptor.bind(createMixedTextAddress,
-                    selectCreateHandler(createMixedTextAddress),
-                    wrapperHttpInitializer
-            );
-
-            transportAcceptor.bind(createMixedTextEscapedAddress,
-                    selectCreateHandler(createMixedTextEscapedAddress),
-                    wrapperHttpInitializer);
+            transportAcceptor.bind(transportAddress, createHandler, wrapperHttpInitializer);
 
         } catch (Exception e) {
             throw new RuntimeException("Unable to bind address " + address + ": " + e.getMessage(),e );
         }
 
-    }
-
-    private IoHandler selectCreateHandler(ResourceAddress createAddress) {
-        final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(createAddress.getResource());
-        if ( protocol instanceof HttpProtocol ) {
-            String transportURI = createAddress.getResource().toASCIIString();
-            if (transportURI.endsWith(CREATE_SUFFIX)) {
-                return createHandler;
-            } else if (transportURI.endsWith(CREATE_TEXT_SUFFIX)) {
-                return createTextHandler;
-            } else if (transportURI.endsWith(CREATE_TEXT_ESCAPED_SUFFIX)) {
-                return createTextEscapedHandler;
-            } else if (transportURI.endsWith(CREATE_MIXED_SUFFIX)) {
-                return createMixedHandler;
-            } else if (transportURI.endsWith(CREATE_MIXED_TEXT_SUFFIX)) {
-                return createMixedTextHandler;
-            } else if (transportURI.endsWith(CREATE_MIXED_TEXT_ESCAPED_SUFFIX)) {
-                return createMixedTextEscapedHandler;
-            }
-        }
-        throw new RuntimeException("Cannot locate a create handler for transport address "+createAddress);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -394,31 +341,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
 
         UnbindFuture future = unbindCookiesHandler(address.findTransport("http[http/1.1]"));
-
-        final ResourceAddress createAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_SUFFIX));
-
-        final ResourceAddress createTextAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_TEXT_SUFFIX));
-
-        final ResourceAddress createTextEscapedAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_TEXT_ESCAPED_SUFFIX));
-
-        final ResourceAddress createMixedAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_SUFFIX));
-
-        final ResourceAddress createMixedTextAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_TEXT_SUFFIX));
-
-        final ResourceAddress createMixedTextEscapedAddress =
-                transportAddress.resolve(createResolvePath(transportURI,CREATE_MIXED_TEXT_ESCAPED_SUFFIX));
-
-        future = combineFutures(future, acceptor.unbind(createAddress));
-        future = combineFutures(future, acceptor.unbind(createTextAddress));
-        future = combineFutures(future, acceptor.unbind(createTextEscapedAddress));
-        future = combineFutures(future, acceptor.unbind(createMixedAddress));
-        future = combineFutures(future, acceptor.unbind(createMixedTextAddress));
-        future = combineFutures(future, acceptor.unbind(createMixedTextEscapedAddress));
+        future = combineFutures(future, acceptor.unbind(transportAddress));
         return future;
     }
 
@@ -437,18 +360,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
 
     final class WsebCreateHandler extends IoHandlerAdapter<HttpAcceptSession> {
-
-        private final String createSuffix;
-        private final String downstreamSuffix;
-        private final String upstreamSuffix;
-
-        public WsebCreateHandler(String createSuffix,
-                                 String downstreamSuffix,
-                                 String upstreamSuffix) {
-            this.createSuffix = createSuffix;
-            this.downstreamSuffix = downstreamSuffix;
-            this.upstreamSuffix = upstreamSuffix;
-        }
 
         private IoFutureListener<CloseFuture> getWsebCloseListener(final BridgeAcceptor upstreamAcceptor,
                                                                    final BridgeAcceptor downstreamAcceptor,
@@ -512,6 +423,42 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
         private void createWsebSessionAndFinalizeResponse(final HttpAcceptSession session) throws Exception {
+            String createSuffix;
+            String downstreamSuffix;
+            String upstreamSuffix;
+
+            String path = session.getPathInfo().getPath();
+            if (CREATE_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_SUFFIX;
+                upstreamSuffix = UPSTREAM_SUFFIX;
+            } else if (CREATE_TEXT_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_TEXT_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_TEXT_SUFFIX;
+                upstreamSuffix = UPSTREAM_TEXT_SUFFIX;
+            } else if (CREATE_TEXT_ESCAPED_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_TEXT_ESCAPED_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_TEXT_ESCAPED_SUFFIX;
+                upstreamSuffix = UPSTREAM_TEXT_ESCAPED_SUFFIX;
+            } else if (CREATE_MIXED_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_MIXED_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_MIXED_SUFFIX;
+                upstreamSuffix = UPSTREAM_MIXED_SUFFIX;
+            } else if (CREATE_MIXED_TEXT_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_MIXED_TEXT_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_MIXED_TEXT_SUFFIX;
+                upstreamSuffix = UPSTREAM_MIXED_TEXT_SUFFIX;
+            } else if (CREATE_MIXED_TEXT_ESCAPED_SUFFIX.endsWith(path)) {
+                createSuffix = CREATE_MIXED_TEXT_ESCAPED_SUFFIX;
+                downstreamSuffix = DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
+                upstreamSuffix = UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
+            } else {
+                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse request", path));
+                session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
+                session.close(false);
+                return;
+            }
+
             String sequenceStr = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
             final boolean validateSequenceNo = (sequenceStr != null);
             final long sequenceNo = validateSequenceNo ? Long.parseLong(sequenceStr) : -1;
@@ -729,12 +676,12 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             BridgeAcceptor downstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(localDownstream);
             downstreamAcceptor.bind(localDownstream,
-                    selectDownstreamHandler(localAddress, wsebSession),
+                    selectDownstreamHandler(localAddress, wsebSession, downstreamSuffix),
                     null);
 
             BridgeAcceptor upstreamAcceptor = bridgeServiceFactory.newBridgeAcceptor(localUpstream);
             upstreamAcceptor.bind(localUpstream,
-                selectUpstreamHandler(localAddress, wsebSession),
+                selectUpstreamHandler(localAddress, wsebSession, upstreamSuffix),
                     null);
 
             //
@@ -795,7 +742,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
         private IoHandler selectUpstreamHandler(ResourceAddress address,
-                                                WsebSession wsebSession) {
+                                                WsebSession wsebSession, String upstreamSuffix) {
             ResourceAddress transportAddress = address.getTransport();
             final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource());
             if (protocol instanceof HttpProtocol) {
@@ -820,7 +767,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
         private IoHandler selectDownstreamHandler(ResourceAddress address,
-                                                  WsebSession wsebSession) {
+                                                  WsebSession wsebSession, String downstreamSuffix) {
             ResourceAddress transportAddress = address.getTransport();
             final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource());
             if (protocol instanceof HttpProtocol) {
@@ -1028,17 +975,5 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
         }
     };
-
-    private final IoHandler createHandler = new WsebCreateHandler(CREATE_SUFFIX, DOWNSTREAM_SUFFIX, UPSTREAM_SUFFIX);
-
-    private final IoHandler createTextHandler = new WsebCreateHandler(CREATE_TEXT_SUFFIX, DOWNSTREAM_TEXT_SUFFIX, UPSTREAM_TEXT_SUFFIX);
-
-    private final IoHandler createTextEscapedHandler = new WsebCreateHandler(CREATE_TEXT_ESCAPED_SUFFIX, DOWNSTREAM_TEXT_ESCAPED_SUFFIX, UPSTREAM_TEXT_ESCAPED_SUFFIX);
-
-    private final IoHandler createMixedHandler = new WsebCreateHandler(CREATE_MIXED_SUFFIX, DOWNSTREAM_MIXED_SUFFIX, UPSTREAM_MIXED_SUFFIX);
-
-    private final IoHandler createMixedTextHandler = new WsebCreateHandler(CREATE_MIXED_TEXT_SUFFIX, DOWNSTREAM_MIXED_TEXT_SUFFIX, UPSTREAM_MIXED_TEXT_SUFFIX);
-
-    private final IoHandler createMixedTextEscapedHandler = new WsebCreateHandler(CREATE_MIXED_TEXT_ESCAPED_SUFFIX, DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX, UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX);
 
 }

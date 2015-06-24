@@ -286,8 +286,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                         case 't':
                         case 'b':
                             // handle ;e balancer bindings by inspecting transport
-                            final String sessionPath = BridgeSession.LOCAL_ADDRESS.get(session).getResource().getPath();
-                            if (isBalancerPath(sessionPath)) {
+                            if (isBalancerPath(path)) {
                                 // balancer requests are terminal so have no next protocol
                                 httpRequest.removeHeader(HEADER_X_NEXT_PROTOCOL);
                             } else {
