@@ -705,21 +705,13 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             final ResourceAddress httpAddress = localAddress.getTransport();
             final ResourceAddress httpxeAddress = localAddress.getTransport().getOption(ALTERNATE);
 
-            ResourceOptions httpxeNoSecurityOptions = new NoSecurityResourceOptions(httpxeAddress);
-            httpxeNoSecurityOptions.setOption(ALTERNATE, null);
-            ResourceAddress httpxeBaseAddress =
-                    resourceAddressFactory.newResourceAddress(httpxeAddress.getExternalURI(),
-                                                              httpxeNoSecurityOptions,
-                                                              httpxeAddress.getOption(ResourceAddress.QUALIFIER));
+            // upstream and downstream requests shouldn't go through authentication/authorization
+            // as the create request already went through it and established wseb session
+            // tcp | http | httpxe | wse - apply no security to http layer
+            ResourceAddress httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress);
 
-            ResourceOptions httpNoSecurityOptions = new NoSecurityResourceOptions(httpAddress);
-            httpNoSecurityOptions.setOption(ALTERNATE, httpxeBaseAddress);
-
-            ResourceAddress httpBaseAddress =
-                    resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
-                                                              httpNoSecurityOptions,
-                                                              httpAddress.getOption(ResourceAddress.QUALIFIER));
-
+            // tcp | http | wse - apply no security to http layer, also sets the httpxe alternate
+            ResourceAddress httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress);
 
             ResourceAddress localDownstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), downstreamSuffix + sessionIdSuffix));
             logger.trace("Binding "+localDownstream.getTransport()+" to downstreamHandler");
@@ -774,6 +766,31 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             // timeout session if downstream is never attached
             wsebSession.scheduleTimeout(scheduler);
+        }
+
+        private ResourceAddress httpAddressNoSecurity(ResourceAddress httpAddress, ResourceAddress httpxeAddressNoSecurity) {
+            ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
+            noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
+            return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
+                    noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
+        }
+
+        private ResourceAddress httpxeAddressNoSecurity(ResourceAddress httpxeAddress) {
+            // Remove REALM_NAME option at http layer (upstream and downstream requests shouldn't have to
+            // go through authentication/authorization)
+            ResourceAddress httpAddress = httpxeAddress.getTransport();
+            ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
+            ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
+                    httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
+
+            // Remove REALM_NAME  option at httpxe layer but preserve all other options like
+            // ORIGIN_SECURITY etc. Otherwise, upstream and downstream requests will be subjected
+            // to different origin security constraints. Then finally add http as transport to httpxe
+            ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeAddress);
+            httpxeOptions.setOption(TRANSPORT, httpAddressNoSecurity);
+            httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
+
+            return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
         }
 
         private boolean validWsebVersion(HttpAcceptSession session) {
@@ -954,7 +971,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         private class NoSecurityResourceOptions implements ResourceOptions {
             private final ResourceOptions options;
 
-            public NoSecurityResourceOptions(ResourceAddress defaultsAddress) {
+            public NoSecurityResourceOptions(ResourceOptions defaultsAddress) {
                 options = ResourceOptions.FACTORY.newResourceOptions(defaultsAddress);
             }
 
