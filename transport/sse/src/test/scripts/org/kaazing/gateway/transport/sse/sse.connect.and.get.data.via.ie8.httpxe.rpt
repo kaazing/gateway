@@ -63,7 +63,7 @@ read "Access-Control-Allow-Origin: http://localhost:8005\r\n"
 read "Cache-Control: no-cache\r\n"
 read "Connection: close\r\n"
 read "Content-Type: text/plain\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"
@@ -72,9 +72,9 @@ read "HTTP/1.1 200 OK\r\n"
 read "Content-Type: text/event-stream\r\n"
 read "\r\n"
 read notify CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
-read /location:.*/ "\n"
+read /location:.*\n/
 read "\n"
-read /:.*/ "\n"
+read /:.*\n/
 read "\n"
 read "data:Kobe is greater than Griffen\n"
 read "\n"
