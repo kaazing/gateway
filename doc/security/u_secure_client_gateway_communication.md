@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   What’s Involved in Secure Communication
-
 What’s Involved in Secure Communication
 ===========================================================================================
 

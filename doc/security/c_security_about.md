@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   [Security with KAAZING Gateway](../index.md#security)
-
 About Security with KAAZING Gateway
 ======================================================================================
 

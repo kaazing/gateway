@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Troubleshoot Your Embedded Gateway
-
 Troubleshoot Your Embedded Gateway
 ==================================
 

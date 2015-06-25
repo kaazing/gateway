@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Service Reference
-
 Service Reference
 ========================================
 

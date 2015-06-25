@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a Chain of Login Modules
-
 Configure a Chain of Login Modules
 ===================================================================================
 

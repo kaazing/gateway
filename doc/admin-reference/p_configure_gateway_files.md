@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure KAAZING Gateway
-
 Configure KAAZING Gateway
 ======================================================
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure the HTTP Challenge Scheme
-
 Configure the HTTP Challenge Scheme
 ==========================================================================================
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   [Security with KAAZING Gateway](../index.md#security)
-
 Configuring Kerberos V5 Network Authentication Overview ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ============================================================================================================================
 

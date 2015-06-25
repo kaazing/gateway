@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a Challenge Handler on the Client
-
 Configure a Challenge Handler on the Client
 =======================================================================================================
 

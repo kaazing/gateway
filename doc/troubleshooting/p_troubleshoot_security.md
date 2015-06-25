@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Troubleshooting KAAZING Gateway
-
 Troubleshoot KAAZING Gateway Security
 =================================================================
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Upgrade KAAZING Gateway
-
 Upgrade the Gateway
 ============================================
 

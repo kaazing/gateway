@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Require Clients to Provide Certificates to the Gateway
-
 Require Clients to Provide Certificates to the Gateway
 ===============================================================================
 

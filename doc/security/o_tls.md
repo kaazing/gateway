@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Secure Network Traffic with the Gateway
-
 Secure Network Traffic with the Gateway
 ==========================================
 

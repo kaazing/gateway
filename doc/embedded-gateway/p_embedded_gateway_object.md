@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Create the Embedded Gateway Object
-
 Create the Embedded Gateway Object
 ==================================
 

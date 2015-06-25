@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Element Index
 ===========================
 

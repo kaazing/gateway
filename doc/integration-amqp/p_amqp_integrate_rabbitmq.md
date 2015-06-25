@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Integrate RabbitMQ Messaging
-
 Integrate RabbitMQ Messaging
 ============================
 
