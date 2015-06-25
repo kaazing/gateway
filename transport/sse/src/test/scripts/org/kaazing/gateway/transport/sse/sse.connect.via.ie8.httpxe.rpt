@@ -52,7 +52,7 @@ read "Access-Control-Allow-Origin: http://localhost:8005\r\n"
 read "Cache-Control: no-cache\r\n"
 read "Connection: close\r\n"
 read "Content-Type: text/plain\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"

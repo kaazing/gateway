@@ -39,7 +39,7 @@ read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"
 
 read "location:"
-read /.*/ "\n"
+read /.*\n/
 read "\n"
 
 read "data:Hello, world\n"
