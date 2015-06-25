@@ -928,13 +928,13 @@ public class GatewayContextResolver {
 
                 AuthenticationContext authenticationContext = null;
                 if (authType != null) {
-                    authenticationContext = new DefaultAuthenticationContext(
-                            authType.getHttpChallengeScheme().toString(),
-                            authType.getHttpHeaderArray(),
-                            authType.getHttpQueryParameterArray(),
-                            authType.getHttpCookieArray(),
-                            resolveAuthorizationMode(authType.getAuthorizationMode()),
-                            authType.getSessionTimeout());
+                    authenticationContext = new DefaultAuthenticationContext(authType);
+//                            authType.getHttpChallengeScheme().toString(),
+//                            authType.getHttpHeaderArray(),
+//                            authType.getHttpQueryParameterArray(),
+//                            authType.getHttpCookieArray(),
+//                            resolveAuthorizationMode(authType.getAuthorizationMode()),
+//                            authType.getSessionTimeout());
                 }
 
                 LoginModuleType[] loginModulesArray =
