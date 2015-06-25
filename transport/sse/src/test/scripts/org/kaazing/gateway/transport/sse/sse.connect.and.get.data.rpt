@@ -47,13 +47,13 @@ read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: no-cache\r\n"
 read "Connection: close\r\n"
 read "Content-Type: text/event-stream\r\n"
-read /Date:.*/ "\r\n"
+read /Date:.*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"
 
 # Stream opened
-read /location:.*/ "\n\n"
+read /location:.*\n\n/
 
 read notify CONNECTED_AND_CAN_SEND_DATA_FROM_BACKEND_TO_FRONT
 

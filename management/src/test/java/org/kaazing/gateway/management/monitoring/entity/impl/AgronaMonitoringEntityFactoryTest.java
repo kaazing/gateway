@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
@@ -35,9 +34,11 @@ import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntity
 import uk.co.real_logic.agrona.IoUtil;
 
 public class AgronaMonitoringEntityFactoryTest {
-    
+
+    private static final String MONITORING_FILE = "monitor";
+    private static final String MONITORING_FILE_LOCATION = "/kaazing";
+
     @Test
-    @Ignore("failing on mac os: https://github.com/kaazing/gateway/issues/171")
     public void testAgronaLifecycle() {
         AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder();
         MonitoringEntityFactory factory = builder.build();
@@ -46,24 +47,16 @@ public class AgronaMonitoringEntityFactoryTest {
 
         String osName = System.getProperty("os.name");
         if ("Linux".equals(osName)) {
-            String monitoringDirName = "/dev/shm/" + IoUtil.tmpDirName() + "/kaazing";
+            String monitoringDirName = "/dev/shm/" + IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
             monitoringDir = new File(monitoringDirName);
-
             assertTrue(monitoringDir.exists());
-
-            monitoringFile = new File(monitoringDirName, "monitor");
-
+            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
             assertTrue(monitoringFile.exists());
         } else {
-            String tmpDirName = System.getProperty("java.io.tmpdir");
-            String monitoringDirName = tmpDirName + "\\kaazing";
-
+            String monitoringDirName = IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
             monitoringDir = new File(monitoringDirName);
-
             assertTrue(monitoringDir.exists());
-
-            monitoringFile = new File(monitoringDirName, "monitor");
-
+            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
             assertTrue(monitoringFile.exists());
         }
 
