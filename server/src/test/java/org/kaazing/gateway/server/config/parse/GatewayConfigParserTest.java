@@ -140,19 +140,6 @@ public class GatewayConfigParserTest {
     }
 
     @Test
-    public void testTcpMaxOutboundRate() throws Exception {
-        File configFile = null;
-        try {
-            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-data-rate.xml");
-            parser.parse(configFile);
-        } finally {
-            if (configFile != null) {
-                configFile.delete();
-            }
-        }
-    }
-
-    @Test
     public void shouldParseInSequenceAcceptOptions() throws Exception {
         File configFile = null;
         try {
