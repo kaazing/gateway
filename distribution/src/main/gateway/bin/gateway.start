@@ -56,12 +56,15 @@ fi
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
-if [ "$GATEWAY_IDENTIFIER" == "" ]
-then 
-  exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
-  .
+# Verify if the gateway identifier was provided (required by Agorna multiple gateway instances)
+if [ "$GATEWAY_IDENTIFIER" == "" ]; then
+  GW_ID=""
 else
+  GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=$GATEWAY_IDENTIFIER"
+
+  # Startup the StatsD publisher
   ./metrics.statsD.start $GATEWAY_IDENTIFIER &
-  exec java $GATEWAY_OPTS -Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER="$GATEWAY_IDENTIFIER" -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
-  .
 fi
+
+# Startup the gateway
+exec java $GATEWAY_OPTS $GW_ID -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
