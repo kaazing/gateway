@@ -1162,13 +1162,6 @@
             <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation/>
             </element>
-            <element name="tcp.maximum.outbound.rate" maxOccurs="1" minOccurs="0" type="gateway:DataRateString">
-                <annotation>
-                    <documentation>Specifies the maximum bandwidth rate per second at which bytes can be written outbound to each
-                        client session.
-                    </documentation>
-                </annotation>
-            </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
                 <annotation>
                     <documentation>Specifies an interface to use for udp so that the multicast traffic can be constrained to a
