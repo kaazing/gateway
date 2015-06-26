@@ -104,7 +104,16 @@ public enum InternalSystemProperty {
      * Internal system property describing whether Agrona is enabled or not
      */
     AGRONA_ENABLED
-            ("org.kaazing.gateway.management.AGRONA_ENABLED", "false");
+            ("org.kaazing.gateway.management.AGRONA_ENABLED", "false"),
+
+    /**
+     * Gateway identifier property. This should be set for each gateway instance in order to
+     * uniquely identify each gateway instance based on a business id.
+     *
+     * The gateway identifiers should be different for each gateway.
+     */
+    GATEWAY_IDENTIFIER
+            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", "");
 
     private final String name;
     private final String defaultValue;

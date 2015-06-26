@@ -221,6 +221,18 @@
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.wse</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>metrics.statsd</artifactId>
+            <classifier>windows</classifier>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>metrics.statsd</artifactId>
+            <classifier>unix</classifier>
+            <type>tar.gz</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -251,6 +263,48 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-metrics-windows</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>metrics.statsd</includeArtifactIds>
+                            <includeTypes>zip</includeTypes>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <silent>false</silent>
+                            <outputDirectory>target/metrics.statsd.windows</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-metrics-unix</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>metrics.statsd</includeArtifactIds>
+                            <includeTypes>tar.gz</includeTypes>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <silent>false</silent>
+                            <outputDirectory>target/metrics.statsd.unix</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>

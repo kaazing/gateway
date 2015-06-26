@@ -56,5 +56,12 @@ fi
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
-exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
-
+if [ "$GATEWAY_IDENTIFIER" == "" ]
+then 
+  exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+  .
+else
+  ./metrics.statsD.start $GATEWAY_IDENTIFIER &
+  exec java $GATEWAY_OPTS -Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER="$GATEWAY_IDENTIFIER" -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
+  .
+fi

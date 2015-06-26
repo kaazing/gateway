@@ -30,6 +30,12 @@
   <includeBaseDirectory>true</includeBaseDirectory>
 
   <fileSets>
+
+    <fileSet>
+      <outputDirectory>lib/metrics.statsd</outputDirectory>
+      <directory>target/metrics.statsd.windows/metrics.statsd-${metrics.version}/</directory>      
+    </fileSet>
+
     <!-- Filtered Gateway resources README.txt and index.html -->
     <fileSet>
         <directory>src/main/gateway</directory>
