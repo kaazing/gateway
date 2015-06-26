@@ -1034,7 +1034,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     session.setReason(REASON_WEB_SOCKET_HANDSHAKE);
                     session.addWriteHeader(HEADER_UPGRADE, webSocketUpgradeResponseValue);
                     session.addWriteHeader(HEADER_CONNECTION, HEADER_UPGRADE);
-                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.AcceptHash(key));
+                    session.addWriteHeader(HEADER_WEBSOCKET_ACCEPT, WsUtils.acceptHash(key));
 
                     // negotiate protocol
                     String chosenProtocol;

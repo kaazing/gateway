@@ -18,14 +18,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.kaazing.gateway.demo;
 
-import java.util.Properties;
+package org.kaazing.gateway.util;
 
-public interface DemoServiceConfig {
-    /**
-     * Config the demo services with the correct environment
-     * @return the properties that make up the environment for the demo services
-     */
-    Properties configure();
+import org.slf4j.Logger;
+
+public final class LoggingUtils {
+
+    private LoggingUtils() {
+        // so as not to be instantiated
+    }
+
+    public static void log(Logger logger, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(t.getMessage(), t);
+        } else {
+            logger.info(t.getMessage());
+        }
+    }
+
+    public static void log(Logger logger, String message, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(message, t);
+        } else {
+            logger.info(message);
+        }
+    }
+
 }

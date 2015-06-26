@@ -128,10 +128,6 @@
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
             </plugin>
-
-            <!-- <plugin> <artifactId>maven-release-plugin</artifactId> <version>2.0-beta-7</version> 
-                <configuration> <tagBase> https://svn.apache.org/repos/asf/mina/tags </tagBase> 
-                </configuration> </plugin> -->
         </plugins>
     </build>
 

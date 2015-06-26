@@ -38,7 +38,7 @@ read "HTTP/1.1 200 OK\r\n"
 read "Cache-Control: private\r\n"
 read "Connection: close\r\n"
 read "Content-Type: text/event-stream\r\n"
-read /Date: .*/ "\r\n"
+read /Date: .*\r\n/
 read "Server: Kaazing Gateway\r\n"
 read "X-Content-Type-Options: nosniff\r\n"
 read "\r\n"

@@ -30,7 +30,6 @@ import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
-import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.EOFException;
 import java.io.IOException;
@@ -114,7 +113,7 @@ public class HttpProxyWssUpgradeTest {
 
                 // write and read HTTP request and response headers
                 out.write(HTTP_REQUEST);
-                SecureOriginServer.HttpHandler.parseHttpHeaders(in);
+                OriginServer.parseHttpHeaders(in);
 
                 // write and read websocket text frame
                 out.write(TEXT_FRAME);
@@ -137,7 +136,7 @@ public class HttpProxyWssUpgradeTest {
 
     }
 
-    private static class WebSocketServer implements SecureOriginServer.Handler {
+    private static class WebSocketServer implements OriginServer.Handler {
         static final byte[] HTTP_RESPONSE =
                 ("HTTP/1.1 101 Web Socket Protocol Handshake\r\n" +
                 "Connection: Upgrade\r\n" +
@@ -153,13 +152,13 @@ public class HttpProxyWssUpgradeTest {
         static final byte[] CLOSE_FRAME = new byte[] {(byte) 0x88, 0x02, 0x03, (byte) 0xe8};
 
         @Override
-        public void handle(SSLSocket serverSocket) throws IOException {
+        public void handle(Socket serverSocket) throws IOException {
             try(Socket socket = serverSocket;
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream()) {
 
                 // read and write HTTP request and response headers
-                SecureOriginServer.HttpHandler.parseHttpHeaders(in);
+                OriginServer.parseHttpHeaders(in);
                 out.write(HTTP_RESPONSE);
 
                 // read and write websocket text frame

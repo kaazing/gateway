@@ -112,7 +112,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     // (per Chris B, it's to fix failures in SOCKS forward connectivity tests because events
     // like filterWrite were sometimes occurring before sessionOpened.  This method delegates
     // to the strategy objects to present the new session if desired.
-    // See svn revision 65794, 25-Jul-13.
     //
     public void newManagementSession(IoSessionEx session) throws Exception {
         managementContext.incrementOverallSessionCount();
