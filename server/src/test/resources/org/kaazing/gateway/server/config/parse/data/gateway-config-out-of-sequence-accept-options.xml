@@ -49,7 +49,6 @@
             <ssl.verify-client>none</ssl.verify-client>
             <ssl.transport>ssl://gateway1:2197</ssl.transport>
             <tcp.bind>localhost:8000</tcp.bind>
-            <tcp.maximum.outbound.rate>5MB/s</tcp.maximum.outbound.rate>
             <tcp.transport>ssl://gateway1:2196</tcp.transport>
             <ws.bind>127.0.0.1:8080</ws.bind>
             <ws.inactivity.timeout>15s</ws.inactivity.timeout>
