@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Runtime.getRuntime;

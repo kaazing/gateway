@@ -29,7 +29,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
-import static org.kaazing.gateway.transport.nio.internal.NioSystemProperty.TCP_PROCESSOR_COUNT;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_PROCESSOR_COUNT;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
