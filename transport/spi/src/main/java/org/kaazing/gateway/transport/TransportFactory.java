@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,20 +25,24 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 
+import java.lang.reflect.Method;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ServiceLoader;
 import java.util.Set;
+
+import javax.annotation.Resource;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.ServiceLoader.load;
 
 public class TransportFactory {
-    
+
     private final Map<String, Transport> transportsByName;
     private final Map<String, Transport> transportsBySchemeName;
     private final Map<Proxy.Type, ProxyHandler> proxyHandlersByType;
@@ -66,11 +70,11 @@ public class TransportFactory {
     public static TransportFactory newTransportFactory(Map<String, ?> configuration) {
         return newTransportFactory(load(TransportFactorySpi.class), configuration);
     }
-    
+
     public static TransportFactory newTransportFactory(ClassLoader loader, Map<String, ?> configuration) {
         return newTransportFactory(load(TransportFactorySpi.class, loader), configuration);
     }
-    
+
     public Transport getTransport(String transportName) {
         Transport transport = transportsByName.get(transportName);
         if (transport == null) {
@@ -173,6 +177,45 @@ public class TransportFactory {
 
     public ProtocolDispatcher getProtocolDispatcher(String protocolName) {
         return dispatchersByProtocolName.get(protocolName);
+    }
+
+    /**
+     * Inject the given resources plus all available transport acceptors and connectors into every available acceptor
+     * and connector.
+     * @param resources Resources that should be injected (in addition to available transport acceptors and connectors)
+     * @return A map containing the given input resources plus entries for the acceptor and connector of each available
+     * transport. This can be used to inject resources into other objects which require acceptors or connectors to be injected.
+     */
+    public Map<String, Object> injectResources(Map<String, Object> resources) {
+        Map<String, Object> allResources = new HashMap<String, Object>(resources);
+        for (Entry<String, Transport> entry : transportsByName.entrySet()) {
+            allResources.put(entry.getKey() + ".acceptor", entry.getValue().getAcceptor());
+            allResources.put(entry.getKey() + ".connector", entry.getValue().getConnector());
+        }
+        for (Transport transport : transportsByName.values()) {
+            injectResources(transport.getAcceptor(), allResources);
+            injectResources(transport.getConnector(), allResources);
+        }
+        return allResources;
+    }
+
+    private void injectResources(Object target, Map<String, Object> resources) {
+        Class<?> clazz = target.getClass();
+
+        for (Method method : clazz.getMethods()) {
+            Resource resource = method.getAnnotation(Resource.class);
+            if (resource != null) {
+                String name = resource.name();
+                Object val = resources.get(name);
+                if (val != null) {
+                    try {
+                        method.invoke(target, val);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error while injecting named " + name + " resource", e);
+                    }
+                }
+            }
+        }
     }
 
 }
