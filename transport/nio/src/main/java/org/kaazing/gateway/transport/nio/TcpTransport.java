@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,13 +27,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.jboss.netty.channel.socket.Worker;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.Transport;
+import org.kaazing.gateway.transport.nio.internal.NioProtocol;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.nio.internal.TcpExtensionFactory;
 
-final class TcpTransport extends Transport {
+public final class TcpTransport extends Transport {
 
     private static final Map<String, Protocol> TCP_PROTOCOLS;
     static {
@@ -51,7 +56,7 @@ final class TcpTransport extends Transport {
         connector = new NioSocketConnector(configuration);
         this.extensionFactory = TcpExtensionFactory.newInstance();
     }
-    
+
     @Override
     public BridgeAcceptor getAcceptor() {
         return acceptor;
@@ -71,7 +76,7 @@ final class TcpTransport extends Transport {
     public BridgeConnector getConnector(ResourceAddress address) {
         return connector;
     }
-    
+
     @Override
     // Used for resource injection
     public Collection<?> getExtensions() {
@@ -81,5 +86,9 @@ final class TcpTransport extends Transport {
     @Override
     public Map<String, Protocol> getProtocols() {
         return TCP_PROTOCOLS;
+    }
+
+    public Worker[] getWorkers() {
+        return ((NioSocketAcceptor) getAcceptor()).getWorkers();
     }
 }

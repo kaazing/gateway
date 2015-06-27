@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -85,7 +85,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     private static final long DEFAULT_SELECT_TIMEOUT_MILLIS = 10;
     private static final String LOGGER_NAME = String.format("transport.%s.accept", NioProtocol.TCP.name().toLowerCase());
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-    
+
     private final TcpExtensionFactory extensionFactory;
 
     static {
@@ -137,18 +137,17 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
     }
 
     private final AtomicReference<DistributedNioWorkerPool> currentWorkerPool = new AtomicReference<>();
-    
+
     NioSocketAcceptor(Properties configuration, TcpExtensionFactory extensionFactory) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
         this.extensionFactory = extensionFactory;
     }
-    
-    // for unit tests only
-    NioSocketAcceptor(Properties configuration) {
+
+    public NioSocketAcceptor(Properties configuration) {
         super(configuration, LoggerFactory.getLogger(LOGGER_NAME));
         this.extensionFactory = TcpExtensionFactory.newInstance();
     }
-    
+
     @Override
     public void bind(final ResourceAddress address,
                      IoHandler handler,
@@ -503,14 +502,14 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
             }
         }
     }
-    
+
     private static class ExtensionsSessionInitializer<T extends IoFuture> implements BridgeSessionInitializer<T> {
         private final Collection<TcpExtension> extensions;
         private final BridgeSessionInitializer<? extends IoFuture> wrapped;
-        
+
         ExtensionsSessionInitializer(Collection<TcpExtension> extensions,
                                      BridgeSessionInitializer<? extends IoFuture> wrapped) {
-            this.extensions = extensions;            
+            this.extensions = extensions;
             this.wrapped = wrapped;
         }
 
@@ -531,7 +530,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
                 extension.initializeSession(session);
             }
         }
-        
+
     }
 
 }

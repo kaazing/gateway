@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio.internal;
+package org.kaazing.gateway.transport.nio;
 
 import java.util.Collection;
 import java.util.Collections;
