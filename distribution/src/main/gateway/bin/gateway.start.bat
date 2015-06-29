@@ -49,7 +49,7 @@ set JAVA_LIBRARY_PATH=%GW_HOME%\lib\sigar
 
 rem Verify if the gateway identifier was provided (required by Agorna multiple gateway instances)
 
-set GW_ID=""
+set GW_ID=
 
 if "%GATEWAY_IDENTIFIER%" NEQ "" (
     set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
