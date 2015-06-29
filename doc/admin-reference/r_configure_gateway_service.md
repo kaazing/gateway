@@ -864,7 +864,7 @@ The configuration example that follows requires DNS to resolve [www.websocket.or
   <description>Http Proxy to websocket.org</description>
   
   <accept>http://www.websocket.org/</accept>
-  <accept>http://echo.websocket.org/</accept>
+  <accept>http://websocket.org/</accept>
   <connect>http://174.129.224.73/</connect>
     
   <type>http.proxy</type>  
