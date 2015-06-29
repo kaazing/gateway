@@ -50,6 +50,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+			-   [http.proxy](#httpproxy)
             -   [session](#session)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
@@ -823,6 +824,107 @@ See the "Examples" section below this table for a code snippet using this proper
 -   The Gateway services are configured to accept connections on `localhost` by default. The cross-origin sites allowed to access those services are also configured for localhost by default. If you want to connect to host names other than `localhost`, then you must update your server configuration and use the fully qualified host name of the host machine, as shown in the example.
 -   When there are multiple `amqp.proxy` services in the Gateway configuration that are connecting to the same AMQP broker instance, all AMQP proxy services should pipe their `connect` elements to a common service as shown in the previous configuration example. This is recommended due to a current restriction with JMX monitoring.
 -   See the [Promote User Identity into the AMQP Protocol](../security/p_auth_user_identity_promotion.md) topic for more information about injecting AMQP credentials into the protocol in a trusted manner.
+
+### http.proxy
+
+Use the 'http.proxy' service to enable a Gateway to serve both WebSocket traffic and proxy HTTP traffic on the same port (for example, port 80 or 443). The 'http.proxy' service is used primarily to enable the Gateway to proxy HTTP traffic to an HTTP server while other services handle non-HTTP traffic at the same time on the same port. For example, you might proxy HTTP, AMQP, and WebSocket at the same time, all on the same port. 
+
+Typically, you use the http.proxy service to:
+
+- Enable the Gateway to proxy both HTTP traffic and traffic from other services, allowing you to run more than one service on the same port. 
+
+   The Gateway’s 'http.proxy' service acts as a reverse proxy. Its primary intent is to protect internal servers, resulting in these benefits:
+  
+ - Allows the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
+ 
+ - Allows the Gateway to proxy HTTP traffic, allowing the Gateway to handle all traffic and removing the need to rely on HTTP servers to proxy HTTP traffic.
+ 
+- Enable you to close ports in the firewall for applications serving HTTP requests in Enterprise Shield topologies.
+  
+   Using 'http.proxy' with Enterprise Shield lets you make REST (Representational State Transfer) requests while still keeping inbound firewall ports closed. With the ability to proxy HTTP, the Gateway can protect not only WebSocket traffic, but all HTTP traffic in an enterprise architecture. 
+
+   For example, typically, HTTP requests occur when your application uses KAAZING Gateway to stream data, and uses REST for upstream requests. With the ability to proxy HTTP, your REST requests can go through Enterprise Shield, letting you keep ports closed for REST requests.
+
+#### Examples
+
+**Example 1: http.proxy Service - Basic Use Case running both Gateway and Apache on one machine.**
+
+The following example configures the accept URI with a public HTTP server address and configures the connect URI as a private server IP address. The example configuration specifies two accept URIs:
+
+```
+http://www.websocket.org 
+http://websocket.org
+```
+
+The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server.
+
+``` xml
+<service>
+  <name>http-proxy</name>
+  <description>Http Proxy to websocket.org</description>
+  
+  <accept>http://www.websocket.org/</accept>
+  <accept>http://echo.websocket.org/</accept>
+  <connect>http://174.129.224.73/</connect>
+    
+  <type>http.proxy</type>  
+  
+  …
+  
+</service>
+```
+
+**Example 2: http.proxy Service - A simple Enterprise Shield Configuration running both Gateway and Apache on one machine.**
+
+The following example shows a simple Enterprise Shield configuration in which the client sends requests to the back-end application server. There is no clustering or load balancing in this configuration.
+
+  **Internal Gateway Configuration**
+  
+  ``` xml
+  <service>  
+  
+    …
+  
+  </service>
+  ```
+  
+  **DMZ Gateway Configuration**
+
+  
+  ``` xml
+  <service>  
+  
+    …
+  
+  </service>
+  ```
+  
+  
+**Example 3: http.proxy Service - An Enterprise Shield Configuration in which requests are served to multiple Apache servers via a load balancer.**
+
+The following example shows a simple Enterprise Shield configuration in which the client sends requests to the back-end application server. There is no clustering or load balancing in this configuration.
+
+  **Internal Gateway Configuration**
+  
+  ``` xml
+  <service>  
+  
+    …
+  
+  </service>
+  ```
+  
+  **DMZ Gateway Configuration**
+
+  
+  ``` xml
+  <service>  
+  
+    …
+  
+  </service>
+  ```
+  
 
 ### session
 
