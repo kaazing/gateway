@@ -32,10 +32,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -79,6 +81,10 @@ public class TransportFactoryTest {
         assertNull(acceptor2.getScheduler());
         assertNull(connector2.getScheduler());
         assertEquals(connector1, acceptor2.getT1Connector());
+        Iterator<?> extensions = transportFactory.getTransport("t1").getExtensions().iterator();
+        TestExtension1 extension = (TestExtension1) extensions.next();
+        assertSame(acceptor1, extension.getT1Acceptor());
+        assertNull(extension.getScheduler());
     }
 
     @Test
@@ -102,9 +108,23 @@ public class TransportFactoryTest {
         assertEquals(scheduler, acceptor2.getScheduler());
         assertEquals(scheduler, connector2.getScheduler());
         assertEquals(connector1, acceptor2.getT1Connector());
+        Iterator<?> extensions = transportFactory.getTransport("t1").getExtensions().iterator();
+        TestExtension1 extension = (TestExtension1) extensions.next();
+        assertSame(acceptor1, extension.getT1Acceptor());
+        assertSame(scheduler, extension.getScheduler());
     }
 
 
+
+    @Test
+    public void injectResourcesShouldTolerateNullAcceptorOrConnector() throws Exception {
+        Map<String, Object> empty = Collections.emptyMap();
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(new TestClassLoader(
+                TestTransportFactory3.class.getName()),
+                empty);
+        Map<String, Object> transportResources = transportFactory.injectResources(empty);
+        assertEquals(2, transportResources.size());
+    }
 
     /**
      * A classloader whose getResources("META-INF/services/org.kaazing.gateway.transport.TransportFactorySpi")
@@ -193,12 +213,12 @@ public class TransportFactoryTest {
         public Transport newTransport(Map<String, ?> configuration) {
             return new TestTransport1();
         }
-
     }
 
     public static class TestTransport1 extends Transport {
         private BridgeAcceptor acceptor = new TestAcceptor1();
         private BridgeConnector connector = new TestConnector1();
+        private final Object extension = new TestExtension1();
 
         @Override
         public BridgeAcceptor getAcceptor() {
@@ -218,6 +238,11 @@ public class TransportFactoryTest {
         @Override
         public BridgeConnector getConnector(ResourceAddress address) {
             return getConnector();
+        }
+
+        @Override
+        public Collection<?> getExtensions() {
+            return Arrays.asList(new Object[]{extension});
         }
     }
 
@@ -282,6 +307,29 @@ public class TransportFactoryTest {
 
         public BridgeConnector getT2Connector() {
             return t2Connector;
+        }
+    }
+
+    public static class TestExtension1 {
+        private BridgeAcceptor t1Acceptor;
+        private Object scheduler;
+
+        @Resource(name="t1.acceptor")
+        public void setT1Acceptor(BridgeAcceptor t1Acceptor) {
+            this.t1Acceptor = t1Acceptor;
+        }
+
+        public BridgeAcceptor getT1Acceptor() {
+            return t1Acceptor;
+        }
+
+        @Resource(name="scheduler")
+        public void setScheduler(Object scheduler) {
+            this.scheduler = scheduler;
+        }
+
+        public Object getScheduler() {
+            return scheduler;
         }
     }
 
@@ -351,6 +399,48 @@ public class TransportFactoryTest {
         public Object getScheduler() {
             return scheduler;
         }
+    }
+
+    public static class TestTransportFactory3 extends TransportFactorySpi {
+        @Override
+        public String getTransportName() {
+            return "t3";
+        }
+
+        @Override
+        public Collection<String> getSchemeNames() {
+            return Collections.singleton("t3");
+        }
+
+        @Override
+        public Transport newTransport(Map<String, ?> configuration) {
+            return new TestTransport3();
+        }
+
+    }
+
+    public static class TestTransport3 extends Transport {
+
+        @Override
+        public BridgeAcceptor getAcceptor() {
+            return null;
+        }
+
+        @Override
+        public BridgeConnector getConnector() {
+            return null;
+        }
+
+        @Override
+        public BridgeAcceptor getAcceptor(ResourceAddress address) {
+            return getAcceptor();
+        }
+
+        @Override
+        public BridgeConnector getConnector(ResourceAddress address) {
+            return getConnector();
+        }
+
     }
 
 }

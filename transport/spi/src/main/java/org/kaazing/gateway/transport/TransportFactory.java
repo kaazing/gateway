@@ -193,8 +193,17 @@ public class TransportFactory {
             allResources.put(entry.getKey() + ".connector", entry.getValue().getConnector());
         }
         for (Transport transport : transportsByName.values()) {
-            injectResources(transport.getAcceptor(), allResources);
-            injectResources(transport.getConnector(), allResources);
+            BridgeAcceptor acceptor = transport.getAcceptor();
+            if (acceptor != null) {
+                injectResources(acceptor, allResources);
+            }
+            BridgeConnector connector = transport.getConnector();
+            if (connector != null) {
+                injectResources(transport.getConnector(), allResources);
+            }
+            for (Object extension: transport.getExtensions()) {
+                injectResources(extension, allResources);
+            }
         }
         return allResources;
     }
