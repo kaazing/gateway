@@ -50,7 +50,6 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [session](#session)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
             -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
@@ -823,28 +822,6 @@ See the "Examples" section below this table for a code snippet using this proper
 -   The Gateway services are configured to accept connections on `localhost` by default. The cross-origin sites allowed to access those services are also configured for localhost by default. If you want to connect to host names other than `localhost`, then you must update your server configuration and use the fully qualified host name of the host machine, as shown in the example.
 -   When there are multiple `amqp.proxy` services in the Gateway configuration that are connecting to the same AMQP broker instance, all AMQP proxy services should pipe their `connect` elements to a common service as shown in the previous configuration example. This is recommended due to a current restriction with JMX monitoring.
 -   See the [Promote User Identity into the AMQP Protocol](../security/p_auth_user_identity_promotion.md) topic for more information about injecting AMQP credentials into the protocol in a trusted manner.
-
-### session
-
-Use the `session` service to prevent sessions from timing out.
-
-#### Example
-
-``` xml
-<service>
-  <accept>https://localhost:9000/session</accept>
-
-  <type>session</type>
-
-  <authorization-constraint>
-    <require-role>AUTHORIZED</require-role>
-  </authorization-constraint>
-</service>
-```
-
-#### Notes
-
--   *Always* use HTTPS when configuring communication with the `session` service.
 
 ### properties
 
