@@ -27,6 +27,7 @@ import java.util.Iterator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.util.LoggingUtils;
 import org.slf4j.Logger;
 
 import org.kaazing.gateway.transport.BridgeSession;
@@ -87,12 +88,7 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
  
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug(cause.getMessage(), cause);
-        }
-        else {
-            logger.warn(cause.getMessage());
-        }
+        LoggingUtils.log(logger, cause);
     }
 
     private void writeOrClose(IoSession client, Object message) {

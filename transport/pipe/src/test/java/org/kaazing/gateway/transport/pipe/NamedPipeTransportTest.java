@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -46,7 +45,9 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -54,18 +55,16 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.UnbindFuture;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class NamedPipeTransportTest {
 
-    private static final boolean DEBUG = true;
+    @Rule
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     @BeforeClass
     public static void init()
             throws Exception {
-
-        if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-trace.properties");
-        }
     }
 
     ResourceAddressFactory resourceAddressFactory = newResourceAddressFactory();

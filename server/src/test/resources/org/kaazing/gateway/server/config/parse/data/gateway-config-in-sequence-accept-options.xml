@@ -54,7 +54,6 @@
             <tcp.transport>ssl://gateway1:2196</tcp.transport>
             <ssl.transport>ssl://gateway1:2197</ssl.transport>
             <http.transport>ssl://gateway1:2198</http.transport>
-            <tcp.maximum.outbound.rate>5MB/s</tcp.maximum.outbound.rate>
         </accept-options>
     </service>
 </gateway-config>

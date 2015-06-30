@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -19,17 +19,30 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.util;
 
-import org.kaazing.gateway.resource.address.Protocol;
+import org.slf4j.Logger;
 
-public enum NioProtocol implements Protocol {
+public final class LoggingUtils {
 
-    TCP, UDP, AWS;
+    private LoggingUtils() {
+        // so as not to be instantiated
+    }
 
-    @Override
-    public boolean isSecure() {
-        return false;
+    public static void log(Logger logger, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(t.getMessage(), t);
+        } else {
+            logger.info(t.getMessage());
+        }
+    }
+
+    public static void log(Logger logger, String message, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(message, t);
+        } else {
+            logger.info(message);
+        }
     }
 
 }

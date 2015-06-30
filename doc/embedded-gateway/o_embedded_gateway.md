@@ -14,13 +14,13 @@ The following checklist provides the steps necessary to embed KAAZING Gateway in
 | 3   | Learn how to use the publicly available methods to configure, start, and stop the Gateway.                      | [Use the Embedded Gateway Methods](../embedded-gateway/p_embedded_gateway_methods.md)          |
 | 4   | Learn how to override the default Log4j settings used by the Gateway.                                           | [Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_gateway_logging.md) |
 | 5   | Learn how to override the default management configuration using an MBean server on an embedded Gateway.        | [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)    |
-| 6   | Troubleshoot the most common issues that occur when using an embedded Gateway.                                  | [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_tshoot.md)         |
+| 6   | Troubleshoot the most common issues that occur when using an embedded Gateway.                                  | [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_troubleshoot.md)         |
 
 
 **Important:** 
 
 -   Before you can embed the Gateway, you need to install the Gateway as described in [Setting Up KAAZING Gateway](../about/setup-guide.md).
--   Review the [API documentation](../apidoc/server/gateway/server/api/index.html) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
+-   Review the [API documentation](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/api/index.html) for embedding the Gateway. The API documentation provides syntax and descriptions for all the methods associated with an embedded Gateway instance.
 
 Introduction
 ------------

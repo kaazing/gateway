@@ -19,35 +19,17 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import org.kaazing.gateway.resource.address.Protocol;
 
-import org.kaazing.gateway.transport.Transport;
-import org.kaazing.gateway.transport.TransportFactorySpi;
+public enum NioProtocol implements Protocol {
 
-public final class UdpTransportFactorySpi extends TransportFactorySpi {
-
-    private final Collection<String> UDP_SCHEMES = Collections.singleton("udp");
+    TCP, UDP, AWS;
 
     @Override
-    public String getTransportName() {
-        return "udp";
-    }
-
-    @Override
-    public Collection<String> getSchemeNames() {
-        return UDP_SCHEMES;
-    }
-
-    @Override
-    public Transport newTransport(Map<String, ?> configuration) {
-        Properties properties = new Properties();
-        properties.putAll(configuration);
-        return new UdpTransport(properties);
+    public boolean isSecure() {
+        return false;
     }
 
 }

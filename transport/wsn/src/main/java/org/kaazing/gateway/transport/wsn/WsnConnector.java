@@ -79,6 +79,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsCodecFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
+import org.kaazing.gateway.transport.ws.util.WsUtils;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -99,8 +100,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
     private static final String FAULT_LOGGING_FILTER = WsnProtocol.NAME + "#fault";
     private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
-    // chosen key from RFC 6455
-    private static final String STATIC_WEBSOCKET_KEY = "dGhlIHNhbXBsZSBub25jZQ==";
 
     private static final TypedAttributeKey<Callable<WsnSession>> WSN_SESSION_FACTORY_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionFactory");
     private static final AttributeKey ENCODING_KEY = new AttributeKey(WsnConnector.class, "encoding");
@@ -310,6 +309,21 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         }
 
                         private void doUpgrade(final HttpConnectSession httpSession) {
+                            String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
+                            if (wsAcceptHeader == null) {
+                                logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
+                                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: no Sec-WebSocket-Accept header"));
+                                return;
+                            }
+
+                            String key = httpSession.getWriteHeader("Sec-WebSocket-Key");
+                            if (!WsUtils.acceptHash(key).equals(wsAcceptHeader)) {
+                                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Accept header. " +
+                                        "Sec-WebSocket-key=%s, Sec-WebSocket-Accept=%s", key, wsAcceptHeader));
+                                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Accept header"));
+                                return;
+                            }
+
                             final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
                             final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
                             final ResourceAddress wsnConnectAddress = WSN_CONNECT_ADDRESS_KEY.remove(httpSession);
@@ -441,7 +455,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 httpSession.setWriteHeader("Connection", "Upgrade");
                 httpSession.setWriteHeader("Origin", origin);
                 httpSession.setWriteHeader("Sec-WebSocket-Version", "13");
-                httpSession.setWriteHeader("Sec-WebSocket-Key", STATIC_WEBSOCKET_KEY); // TODO use random key?
+                httpSession.setWriteHeader("Sec-WebSocket-Key", WsUtils.secWebSocketKey());
 
                 List<String> protocols = asList(wsnConnectAddress.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS));
 

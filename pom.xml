@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.0.1.27</version>
+    <version>5.0.1.28</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -39,7 +39,7 @@
     <modules>
         <module>bridge</module>
         <module>bom</module>
-        <module>docker</module>
+        <!--<module>docker</module>-->
         <module>distribution</module>
         <module>management</module>
         <module>resource.address/spi</module>
@@ -63,7 +63,6 @@
         <module>security</module>
         <module>server</module>
         <module>server.api</module>
-        <module>server.demo</module>
         <module>server.spi</module>
         <module>service/spi</module>
         <module>service/amqp</module>
