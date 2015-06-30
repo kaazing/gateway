@@ -162,8 +162,6 @@ You can view and link to all Gateway configuration elements and properties using
 
 [service-defaults](r_configure_gateway_service_defaults.md)
 
-[session](r_configure_gateway_service.md#session)
-
 [session-timeout](r_configure_gateway_security.md#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [socks.bind](r_configure_gateway_service.md#protocolbind) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
