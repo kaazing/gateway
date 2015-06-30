@@ -19,34 +19,23 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport;
+package org.kaazing.gateway.transport.nio;
 
-import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.apache.mina.core.session.IoSession;
 
-import java.util.Collections;
+/**
+ * {@link TcpExtension} is part of <i>Service Provider Interface</i> <em>(SPI)</em> for TCP transport extension developers.
+ * When TCP URI is bound, an instance of this class may be created using the corresponding
+ * {@link TcpExtensionFactorySpi} that is registered through META-INF/services. This class can perform actions during
+ * IoSession initialization when a client connects to the bound TCP URI, for example, if could add a filter to the
+ * filter chain.
+ */
+public interface TcpExtension {
 
-public class BridgeServiceFactory {
-
-    private final TransportFactory transportFactory;
-
-    public BridgeServiceFactory() {
-        this(TransportFactory.newTransportFactory(Collections.emptyMap()));
-    }
-
-    public BridgeServiceFactory(TransportFactory transportFactory) {
-        this.transportFactory = transportFactory;
-    }
-
-    public BridgeAcceptor newBridgeAcceptor(ResourceAddress address) {
-        return transportFactory.getAcceptor(address);
-    }
-
-    public BridgeConnector newBridgeConnector(ResourceAddress address) {
-        return transportFactory.getConnector(address);
-    }
-
-    public TransportFactory getTransportFactory() {
-        return transportFactory;
-    }
+    /**
+     * Called to give the extension an opportunity to act on each new client connection
+     * @param session  The IoSession representing a new client connection
+     */
+    void initializeSession(IoSession session);
 
 }

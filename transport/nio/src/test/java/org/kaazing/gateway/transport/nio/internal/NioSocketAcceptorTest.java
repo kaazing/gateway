@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
@@ -38,6 +38,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.sql.Savepoint;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -58,8 +61,8 @@ import org.jboss.netty.channel.socket.Worker;
 import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.jboss.netty.util.ExternalResourceReleasable;
-import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
@@ -78,6 +81,9 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.nio.TcpExtension;
+import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -193,25 +199,14 @@ public class NioSocketAcceptorTest {
     }
 
     @Test
-    public void bindShouldAddTrafficShapingFilter() throws Exception {
+    public void bindAndAcceptShouldInvokeExtensions() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
         final IoHandler handler = context.mock(IoHandler.class);
+        final TcpExtensionFactory extensionFactory = context.mock(TcpExtensionFactory.class, "extensionFactory");
         final CountDownLatch done = new CountDownLatch(1);
-
-        context.setThreadingPolicy(new Synchroniser());
-        context.checking(new Expectations() {
-            {
-                allowing(handler).sessionCreated(with(any(IoSession.class)));
-                allowing(handler).sessionOpened(with(any(IoSession.class)));
-                allowing(handler).sessionClosed(with(any(IoSession.class)));
-            }
-        });
-
-        Properties configuration = new Properties();
-        configuration.setProperty("maximum.outbound.rate", "10000");
-        acceptor = new NioSocketAcceptor(configuration);
-        acceptor.setResourceAddressFactory(newResourceAddressFactory());
+        final TcpExtension extension1 = context.mock(TcpExtension.class, "extension1");
+        final TcpExtension extension2 = context.mock(TcpExtension.class, "extension2");
 
         int bindPort = findFreePort();
         URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
@@ -220,6 +215,19 @@ public class NioSocketAcceptorTest {
         options.put(NEXT_PROTOCOL, "test-protocol");
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, options);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(extensionFactory).bind(bindAddress);
+                will(returnValue(Arrays.asList(new TcpExtension[]{extension1, extension2})));
+            }
+        });
+
+        Properties configuration = new Properties();
+        configuration.setProperty("maximum.outbound.rate", "10000");
+        acceptor = new NioSocketAcceptor(configuration, extensionFactory);
+        acceptor.setResourceAddressFactory(newResourceAddressFactory());
+
         final IoSession[] sessions = new IoSession[1];
         acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
             @Override
@@ -230,6 +238,7 @@ public class NioSocketAcceptorTest {
                     protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
                         sessions[0] = session;
                         done.countDown();
+                        super.doSessionOpened(nextFilter, session);
                     }
 
                 });
@@ -240,18 +249,115 @@ public class NioSocketAcceptorTest {
                 return null;
             }
         });
+        
+        context.assertIsSatisfied();
+
+        Sequence order = context.sequence("order");
+        context.checking(new Expectations() {
+            {
+                oneOf(extension1).initializeSession(with(any(IoSession.class))); inSequence(order);
+                will(saveParameter("session", 0));
+                oneOf(extension2).initializeSession(with(variable("session", IoSession.class))); inSequence(order);
+                oneOf(handler).sessionCreated(with(variable("session", IoSession.class))); inSequence(order);
+                oneOf(handler).sessionOpened(with(variable("session", IoSession.class))); inSequence(order);
+                oneOf(handler).sessionClosed(with(variable("session", IoSession.class))); inSequence(order);
+            }
+        });
 
         InetSocketAddress remoteAddress = new InetSocketAddress("localhost", bindPort);
         Socket socket = new Socket();
         socket.connect(remoteAddress);
 
-        if (!done.await(10,  TimeUnit.SECONDS)) {
-            fail("Session not opened in time");
+        try {
+            if (!done.await(10,  TimeUnit.SECONDS)) {
+                fail("Session not opened in time");
+            }
+        }
+        finally {
+            socket.close();
+    
+            acceptor.dispose();
         }
 
-        socket.close();
+        context.assertIsSatisfied();
+    }
 
-        acceptor.dispose();
+    @Test
+    public void bindAndAcceptShouldWorkWhenThereAreNoExtensions() throws Exception {
+        Mockery context = new Mockery();
+        context.setThreadingPolicy(new Synchroniser());
+        final IoHandler handler = context.mock(IoHandler.class);
+        final TcpExtensionFactory extensionFactory = context.mock(TcpExtensionFactory.class, "extensionFactory");
+        final CountDownLatch done = new CountDownLatch(1);
+
+        int bindPort = findFreePort();
+        URI bindURI = URI.create(format("tcp://localhost:%d", bindPort));
+        Map<String, Object> options = new HashMap<>();
+        options.put(TCP_MAXIMUM_OUTBOUND_RATE, 0xFFFFFFFEL);
+        options.put(NEXT_PROTOCOL, "test-protocol");
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceAddress bindAddress = addressFactory.newResourceAddress(bindURI, options);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(extensionFactory).bind(bindAddress);
+                will(returnValue(Collections.emptyList()));
+            }
+        });
+
+        Properties configuration = new Properties();
+        configuration.setProperty("maximum.outbound.rate", "10000");
+        acceptor = new NioSocketAcceptor(configuration, extensionFactory);
+        acceptor.setResourceAddressFactory(newResourceAddressFactory());
+
+        final IoSession[] sessions = new IoSession[1];
+        acceptor.bind(bindAddress, handler, new BridgeSessionInitializer<IoFuture>() {
+            @Override
+            public void initializeSession(IoSession session, IoFuture future) {
+                session.getFilterChain().addLast("test", new IoFilterAdapter<IoSessionEx>(){
+
+                    @Override
+                    protected void doSessionOpened(NextFilter nextFilter, IoSessionEx session) throws Exception {
+                        sessions[0] = session;
+                        done.countDown();
+                        super.doSessionOpened(nextFilter, session);
+                    }
+
+                });
+            }
+
+            @Override
+            public BridgeSessionInitializer<IoFuture> getParentInitializer(Protocol protocol) {
+                return null;
+            }
+        });
+        
+        context.assertIsSatisfied();
+
+        Sequence order = context.sequence("order");
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSession.class))); inSequence(order);
+                will(saveParameter("session", 0));
+                oneOf(handler).sessionOpened(with(variable("session", IoSession.class))); inSequence(order);
+                oneOf(handler).sessionClosed(with(variable("session", IoSession.class))); inSequence(order);
+            }
+        });
+
+        InetSocketAddress remoteAddress = new InetSocketAddress("localhost", bindPort);
+        Socket socket = new Socket();
+        socket.connect(remoteAddress);
+
+        try {
+            if (!done.await(10,  TimeUnit.SECONDS)) {
+                fail("Session not opened in time");
+            }
+        }
+        finally {
+            socket.close();
+    
+            acceptor.dispose();
+        }
 
         context.assertIsSatisfied();
     }
