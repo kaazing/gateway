@@ -30,7 +30,7 @@ To Configure a Chain of Login Modules
 
     -   **Standard (public) JDK-provided login modules**
 
-        The Gateway supports `ldap`, `kerberos5`, `gss`, `jndi`, and `keystore` login modules, which are some of the most commonly used login modules for authentication and authorization purposes. In these implementations, you do not need to write your own login module solution. For information about using the `kerberos5` and `gss` `login-module` elements, see [Configuring Kerberos V5 Network Authentication](o_auth_configure_config_kerberos.md).
+        The Gateway supports `ldap`, `kerberos5`, `gss`, `jndi`, and `keystore` login modules, which are some of the most commonly used login modules for authentication and authorization purposes. In these implementations, you do not need to write your own login module solution. For information about using the `kerberos5` and `gss` `login-module` elements, see [Configuring Kerberos V5 Network Authentication](o_kerberos.md).
 
     -   **Custom login modules**
 
