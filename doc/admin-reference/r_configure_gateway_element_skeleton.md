@@ -56,7 +56,6 @@ You can view and link to all Gateway configuration elements and properties using
 
             -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
             -   [jms.proxy](r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [session](r_configure_gateway_service.md#session_svc)
 
         -   [properties](r_configure_gateway_service.md#properties)
         -   [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options)
