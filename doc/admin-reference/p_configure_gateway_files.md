@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure KAAZING Gateway
-
 Configure KAAZING Gateway
 ======================================================
 
@@ -37,7 +33,8 @@ The standard way to set up and maintain your Gateway configuration is by editing
 3.  At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
     -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_configure_gateway_concepts.md#about-kaazing-gateway-namespace-declarations).
-    -   The `service` element with the [directory](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
+    -   The Gateway [`name`](../admin-reference/r_configure_gateway_service.md#service) element.
+    -   The [`service`](../admin-reference/r_configure_gateway_service.md) element with the [directory](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
     Here's an example of a simple Gateway configuration file that uses the default (supplied) ports to bind the `/base` (port 8000) to the Gateway host:
 
@@ -46,6 +43,8 @@ The standard way to set up and maintain your Gateway configuration is by editing
     <gateway-config xmlns="http://xmlns.kaazing.com/2014/09/gateway">
 
     <service>
+      <name>Directory Service</name>
+      <description>Simple directory service</description></description>
       <accept>http://${gateway.hostname}:${gateway.base.port}/</accept>
 
       <type>directory</type>
@@ -71,13 +70,13 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
         | Section             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
         |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-        | Property defaults   | Specify default values for configuration elements. Configuring property defaults is optional but recommended because configuring the property defaults allows you to define some property values once and have the value propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file with a property using the dollar-sign and curly brace format (such as `${gateway.hostname}`).                                                                                     |
-        | Service             | Define how the Gateway manages communication for that service. The Gateway is configured by default to provide services only to users on the same machine (localhost) as that on which it is running. You can define one or more services to customize the Gateway for your environment, choosing the appropriate type of service (for example, balancer, broadcast, proxy service, and so on) to signal the Gateway to accept incoming connections from clients using any supported URL scheme. |
-        | Service Defaults    | Configure default values that apply to all services. Note that any options you set at the service level overrides options you set at the service defaults level. You can configure SSL encryption, protocol bindings, WebSocket message size, keep-alive timeouts, mime-type messages, and more.                                                                                                                                                                                                                                   |
-        | Security            | Configure security for the service and specify authentication and authorization for users. To better understand how the security parameters that you specify in KAAZING Gateway configuration work together, see [What's Involved in Secure Communication](../security/u_secure_client_gateway_communication.md).                                                                                                                                                                                                                           |
-        | Management          | Use the management section to configure a management agent, such as Java's built-in Java Management and Monitoring Console (JConsole), to monitor, track and manage user sessions. For secure management, you can specify the protocol, network interface, and the port number on which the management agent accepts connections, and you can define the user roles that are authorized to perform management operations.                                                                                                          |
-        | Additional Services | UDP broadcast service, proxy service, session service, multicast addressing, network address mappings, and more.                                                                                                                                                                                                                                                                                                                                                                                                 |
-
+        | [Property defaults](../about/about.md)  | Specify default values for configuration elements. Configuring property defaults is optional but recommended because configuring the property defaults allows you to define some property values once and have the value propagated throughout the configuration when the Gateway starts. You can replace any value in the configuration file with a property using the dollar-sign and curly brace format (such as `${gateway.hostname}`) See [Service Reference][Service](../admin-reference/r_configure_gateway_service.md) for more configuration examples with the `properties` element and see  [Documentation Conventions](../about/about.md) for more information about using variables.                                                                                     |
+        | [Service](../admin-reference/r_configure_gateway_service.md#service) | Define how the Gateway manages communication for that service. The Gateway is configured by default to provide services only to users on the same machine (localhost) as that on which it is running. You can define one or more services to customize the Gateway for your environment, choosing the appropriate [type](../admin-reference/r_configure_gateway_service.md#type) of service (for example,`balancer`, `broadcast`, `proxy`, `jms`, `jms.proxy`, `http.proxy`, `redis`, and so on) to signal the Gateway to accept incoming connections from clients using any supported URL scheme.  The Service section is also where you configure a management agent, such as management.snmp for Command Center or management.jmx for Java's built-in Java Management and Monitoring Console (JConsole), to monitor, track and manage user sessions.|
+        | [Service Defaults](../admin-reference/r_configure_gateway_service_defaults.md)| Configure default values that apply to all services. Note that any options you set at the service level overrides options you set at the service defaults level. You can configure SSL encryption, protocol bindings, WebSocket message size, keep-alive timeouts, mime-type messages, and more.|
+        | [Security](../admin-reference/r_configure_gateway_security.md)  | Configure security for the service and specify authentication and authorization for users. To better understand how the security parameters that you specify in KAAZING Gateway configuration work together, see [What's Involved in Secure Communication](../security/u_secure_client_gateway_communication.md).|
+        | [Cluster](../admin-reference/r_configure_gateway_cluster.md) | Use the `cluster` section to configure one or more Gateway's to participate in a KAAZING Gateway cluster, and describe the elements and properties you can configure to achieve high availability. |
+        | Additional Services | UDP broadcast service, multicast addressing, network address mappings, and more.  |           
+        
     -   Consider configuring multiple services on the Gateway to use the same hostname and port, for example, as a way to organize multiple connection requests on the same server as the Gateway and avoid conflicts. See [Configuring Multiple Services on the Same Host and Port](c_configure_gateway_multiple_services.md) for complete information.
 
 5.  Test the Gateway configuration using the customized configuration file. For detailed instructions about starting and stopping the Gateway, see "How do I start and stop the Gateway?" in [Setting Up the Gateway](../about/setup-guide.md).
@@ -104,5 +103,5 @@ Notes
 See Also
 --------
 
--   [Configuration Element Index](r_configure_gateway_element_index.md)
+-   [Configuration Skeleton](r_configure_gateway_element_skeleton.md)
 -   [About Gateway Configuration](c_configure_gateway_concepts.md)
