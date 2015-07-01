@@ -1449,7 +1449,7 @@ In the following example, the Gateway accepts on a secure URI (`wss://`) and req
 
 ##### Notes
 
--   To use `ssl.verify-client` as an accept-option on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).</span>
+-   To use `ssl.verify-client` as an accept-option on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).
 -   If you have set up KAAZING Gateway behind a TLS/SSL offloader, where the front-end traffic is secure over HTTPS and the back-end traffic behind the TLS/SSL offloader to the Gateway is *not* secure, then you can disable encryption so that the connection can occur. You can include the [accept-options](#accept-options-and-connect-options) element, then disable encryption by setting the `ssl.encryption` element to `disabled`. When encryption is disabled, the Gateway returns the response as HTTPS. If you do not include these elements or set the `ssl.encryption` element to `enabled`, the Gateway treats incoming traffic on `www.example.com:443` as secure and handles the TLS/SSL itself.
 -   See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more information about HTTPS.
 -   This configuration ensures that both the clients and the Gateway are verified via TLS/SSL before transmitting data, establishing mutual verification. A best practice is to use mutual verification between gateways that are located at different sites. Each gateway can require that the other gateway provide a certificate, thereby ensuring that the connection is secure.
@@ -1667,9 +1667,9 @@ The following example shows a `service` element containing a SOCKS proxy connect
 
 Use the `tcp.maximum.outbound.rate` accept option to specify the maximum bandwidth rate at which bytes can be written from the Gateway to a client session. This option delays outbound messages as a way to control the maximum rate, per client session, at which the Gateway can send data to clients connecting to a service.
 
-You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with B/s (byte), kB/s (kilobyte), KiB/s (kibibyte), MB/s (megabyte), or MiB/s (Mebibytes) per second. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
+You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with B/s (byte), kB/s (kilobyte), KiB/s (kibibyte), MB/s (megabyte), or MiB/s (Mebibytes) per second. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
 
-You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with a unit of measurement from the following table. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
+You must specify the value of `tcp.maximum.outbound.rate` as a positive integer with either no specified unit or appended with a unit of measurement from the following table. (See the [NIST Reference](http://physics.nist.gov/cuu/Units/binary.html) for more information about these units.) Do not use spaces between the numeric portion and the units (for example, 40MB/s is supported but 40 MB/s is not supported).
 
 | Unit | Abbreviation | Bytes per Second per Unit | Notes |
 |---------------------|--------------|---------------------------|------------------------------------------------------------|
@@ -1852,8 +1852,8 @@ Use the `authorization-constraint` element to configure the user roles that are 
 
 | Subordinate Element                                       | Description                                                                                                  |
 |-----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| <span id="requireroleopt"></span></a>require-role         | The name of the user role to be included in the `authorization-constraint` or `*` to indicate any valid user |
-| <span id="requirevaliduser"></span></a>require-valid-user | Grants access any user whose credentials have been successfully authenticated.                               |
+| require-role         | The name of the user role to be included in the `authorization-constraint` or `*` to indicate any valid user |
+| require-valid-user | Grants access any user whose credentials have been successfully authenticated.                               |
 
 #### Example
 
