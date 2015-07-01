@@ -134,6 +134,12 @@ public class AuthIT {
     public void shouldPassWithRealmNoAuthorizationIncorrectUserLogin() throws Exception  {
         robot.finish();
     }
+    
+    @Specification("multiple.requests.with.unauth.and.auth.users")
+    @Test
+    public void multipleRequestsWithUnauthAndAuthUsers() throws Exception  {
+        robot.finish();
+    }
 
 }
 
