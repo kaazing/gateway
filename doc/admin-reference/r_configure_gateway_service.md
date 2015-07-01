@@ -99,7 +99,7 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.|
 |notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png).|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png),  [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [http.proxy](#httpproxy).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
@@ -684,7 +684,7 @@ The following example is a snippet from the default Gateway configuration file s
 
 Use the `proxy`, `amqp.proxy`, or `jms.proxy` service to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature.
+The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
 #### `maximum.pending.bytes`
 
@@ -845,7 +845,11 @@ Typically, you use the `http.proxy` service to:
 
    For example, typically, HTTP requests occur when your application uses KAAZING Gateway to stream data, and uses REST for upstream requests. With the ability to proxy HTTP, your REST requests can go through Enterprise Shield, letting you keep ports closed for REST requests.
 
-**Note:** Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers.  
+Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers. 
+
+When the Gateway is configured to use the `http.proxy` service, then consider customizing your client's challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples to write custom challenge handlers, see the [For Developers](../index.html#dev_topics) documentation for how-to information that is specific to your client. 
+
+If you already have authentication or single sign-on capabilities in place for the Gateway service (such as with [`realm-name`](#realm-name) and [`authorization-constraint`](#authorization-constraint) elements) in your existing configuration, then you should remove these configuration elements when using the `http.proxy` service. Otherwise, authentication and authorization occurs on every request that goes through the configured security mechanism on the Gateway.
 
 #### Examples
 
