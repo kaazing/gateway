@@ -53,7 +53,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](#wsmaximummessagesize)
             -   [http.keepalive](r_configure_gateway_service.md#httpkeepalive)
-	    -   [http.keepalive.connections](r_configure_gateway_service.md#httpkeepaliveconnections)
+            -   [http.keepalive.connections](r_configure_gateway_service.md#httpkeepaliveconnections)
             -   [http.keepalive.timeout](#httpkeepalivetimeout)
             -   [ssl.ciphers](#sslciphers)
             -   [ssl.protocols](#sslprotocols-and-sockssslprotocols)
