@@ -66,6 +66,17 @@ public class AuthIT {
                             .allowOrigin("*")
                         .done()
                     .done()
+                    .service()
+                        .accept(URI.create("ws://localhost:8004/echo")) // No authorization
+                        .type("echo")
+                        .realmName("demo2")
+                        .authorization()
+                        	.requireRole("*")
+                        .done()
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                    .done()
                     .security()
                         .realm()
                               .name("demo")
@@ -77,6 +88,12 @@ public class AuthIT {
                                  .success("required")
                                  .option("file", "src/test/resources/gateway/conf/jaas-config.xml")
                               .done()
+                        .done()
+                        .realm()
+                              .name("demo2") // no login module
+                              .description("Kaazing WebSocket Gateway Demo")
+                              .httpChallengeScheme("Basic")
+                              .authorizationMode("challenge")
                         .done()
                     .done()
                     .done();
@@ -138,6 +155,12 @@ public class AuthIT {
     @Specification("multiple.requests.with.unauth.and.auth.users")
     @Test
     public void multipleRequestsWithUnauthAndAuthUsers() throws Exception  {
+        robot.finish();
+    }
+    
+    @Specification("with.no.login.module.everything.should.pass")
+    @Test
+    public void withNoLoginModuleEverythingShouldPass() throws Exception  {
         robot.finish();
     }
 
