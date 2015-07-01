@@ -39,6 +39,10 @@ Notes
 
 -   You only need to implement a login handler if the client is going to collect credentials. Some applications are customized to handle credentials, so there's no need to write a login handler.
 -   You can dynamically configure the client to use login handlers by associating them with challenge handlers, and associating those challenge handlers with WebSocket locations.
+-   If the Gateway is configured to use the [`http.proxy`](../admin-reference/r_configure_gateway_service.md#httpproxy) service, then consider customizIng your client challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples to write custom challenge handlers, see the [For Developers](../index.html#dev_topics) documentation for how-to information that is specific to your client.
+
+  If you already have authentication or single sign-on capabilities in place for the Gateway service (such as with [`realm-name`](../admin-reference/r_configure_gateway_service.md#realm-name) and [`authorization-constraint`](../admin-reference/r_configure_gateway_service.md#authorization-constraint) elements) in your existing configuration, then you should remove these configuration elements for the `http.proxy` service. Otherwise, authentication and authorization occurs on every request that goes through the configured security mechanism on the Gateway.
+
 
 Next Steps
 ----------
