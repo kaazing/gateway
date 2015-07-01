@@ -49,7 +49,8 @@ KAAZING Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`
 At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
 -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](#about-kaazing-gateway-namespace-declarations)
--   The `service` element with the [directory](r_configure_gateway_service.md#directory) tag to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
+-   The Gateway [`name`](../admin-reference/r_configure_gateway_service.md#service) element.
+-   The [`service`](../admin-reference/r_configure_gateway_service.md) element with the [`directory`](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
 For example, the following is an example of a minimally configured Gateway configuration file:
 
@@ -127,3 +128,9 @@ Configuration files that contain a wrong or an out-of-date namespace declaration
 
 -   If the Gateway configuration file contains a completely wrong namespace declaration, then the Gateway returns an error and stops. For example: `ERROR Error upgrading XML: Unknown/unsupported XML namespace URI 'http://xmlns.kaazing.com/2011/zzz/gateway'`.
 -   If the Gateway configuration file contains a very old namespace declaration, then the Gateway returns an error and stops. For example: `ERROR Gateway config file 'gateway-config.xml' from prior release in use`. The Gateway writes the configuration file to disk and appends a ".migrated" extension (for example, `gateway-config.xml.migrated`.
+
+See Also
+--------
+
+-   [Configuration Skeleton](r_configure_gateway_element_skeleton.md)
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md#service), and in particular, see the service [`type`](../admin-reference/r_configure_gateway_service.md#type) element
