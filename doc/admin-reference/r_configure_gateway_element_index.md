@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Element Index
 ===========================
 
@@ -87,6 +83,8 @@ You can view and link to all Gateway configuration elements and properties using
 [http-header](r_configure_gateway_security.md#authentication)
 
 [http.keepalive.timeout](r_configure_gateway_service.md#httpkeepalivetimeout)
+
+[http.proxy](r_configure_gateway_service.md#httpproxy)
 
 [http-query-parameter](r_configure_gateway_security.md#authentication)
 
