@@ -1,4 +1,4 @@
-connect http://localhost:8005/echo
+connect http://localhost:8000/echo
 connected
 
 write method "GET"
