@@ -67,12 +67,20 @@ public class AuthIT {
                         .done()
                     .done()
                     .service()
-                        .accept(URI.create("ws://localhost:8004/echo")) // No authorization
+                        .accept(URI.create("ws://localhost:8004/echo")) // No login module
                         .type("echo")
                         .realmName("demo2")
                         .authorization()
                         	.requireRole("*")
                         .done()
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                    .done()
+                    .service()
+                        .accept(URI.create("ws://localhost:8005/echo")) // No authorization
+                        .type("echo")
+                        .realmName("demo2") // no authorization
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
@@ -161,6 +169,12 @@ public class AuthIT {
     @Specification("with.no.login.module.everything.should.pass")
     @Test
     public void withNoLoginModuleEverythingShouldPass() throws Exception  {
+        robot.finish();
+    }
+
+    @Specification("should.pass.for.incorrect.user.without.authorization.or.login.module")
+    @Test
+    public void shouldPassForIncorrectUserWithoutAuthorizationOrLoginModule() throws Exception  {
         robot.finish();
     }
 
