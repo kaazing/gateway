@@ -53,7 +53,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](#wsmaximummessagesize)
             -   [http.keepalive](r_configure_gateway_service.md#httpkeepalive)
-			-   [http.keepalive.connections](r_configure_gateway_service.md#httpkeepaliveconnections)
+	    -   [http.keepalive.connections](r_configure_gateway_service.md#httpkeepaliveconnections)
             -   [http.keepalive.timeout](#httpkeepalivetimeout)
             -   [ssl.ciphers](#sslciphers)
             -   [ssl.protocols](#sslprotocols-and-sockssslprotocols)
@@ -1098,15 +1098,13 @@ The following example sets a maximum incoming message limit of 64 kilobytes:
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `http.keepalive` element in connect-options to enable or disable HTTP keep-alive (persistent) connections, allowing you to reuse the same TCP connection for multiple HTTP requests or responses. This improves HTTP performance especially for services like [`http proxy`](#httpproxy). `http.keepalive` is enabled by default. 
+Use the `http.keepalive` element in connect-options to enable or disable HTTP keep-alive (persistent) connections, allowing you to reuse the same TCP connection for multiple HTTP requests or responses. This improves HTTP performance especially for services like [`http proxy`](#httpproxy). `http.keepalive` is enabled by default.  Consider configuring this element in conjunction with the [http.proxy](#httpproxy) element.
 
 ##### Example
 
 ``` xml
 <service>
-	
    . . .
-   
   <accept>http://example.com:8000/</accept>
   <connect>http://internal.example.com:7233/</connect>
   
@@ -1115,9 +1113,7 @@ Use the `http.keepalive` element in connect-options to enable or disable HTTP ke
   <connect-options>
     <http.keepalive>disabled</http.keepalive>
   </connect-options>
-  
    . . .
-   
 </service>
 ```
 
@@ -1125,15 +1121,15 @@ Use the `http.keepalive` element in connect-options to enable or disable HTTP ke
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `http.keepalive.connections` element in connect-options to specify the maximum number of idle keep-alive connections to upstream servers to upstream servers that can be cached. The connections time out based on the setting for the [`http.keepalive.timeout`](#httpkeepalivetimeout) configuration option. The best practice is to specify a value small enough to allow upstream servers to process new incoming connections as well. The following example specifies one connection is cached in worker until it is reused or timed out.
+Use the `http.keepalive.connections` element in connect-options to specify the maximum number of idle keep-alive connections to upstream servers to upstream servers that can be cached. This element is often used in conjunction with the [http.proxy](#httpproxy) element. 
+
+The connection times out based on the setting for the [`http.keepalive.timeout`](#httpkeepalivetimeout) configuration option. The best practice is to specify a value small enough to allow upstream servers to process new incoming connections as well. The following example specifies one connection is cached in worker until it is reused or timed out.
 
 ##### Example
 
 ``` xml
 <service>
-	
    . . .
-  
   <accept>http://example.com:8000/</accept>
   <connect>http://internal.example.com:7233/</connect>
   
@@ -1142,9 +1138,7 @@ Use the `http.keepalive.connections` element in connect-options to specify the m
   <connect-options>
     <http.keepalive.connections>1</http.keepalive.connections>
   </connect-options>
-  
    . . .
-   
 </service>
 ```
 
@@ -1154,6 +1148,8 @@ Use the `http.keepalive.connections` element in connect-options to specify the m
 
 Use the `http.keepalive.timeout` element in either accept-options or connect-options to set the number of seconds the Gateway waits after responding to a request and receiving a subsequent request on an HTTP or HTTPS connection before closing the connection. The default value is `30` seconds.
 
+Typically, you specify the `http.keepalive.timeout` element to conserve resources because it avoids idle connections remaining open. You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
+
 ##### Example
 
 The following example shows a `service` element with an HTTP or HTTPS connection time limit of `120` seconds:
@@ -1162,16 +1158,12 @@ The following example shows a `service` element with an HTTP or HTTPS connection
 <service>
   <accept>ws://localhost:8000/echo</accept>
   <accept>wss://localhost:9000/echo</accept>
+  . . . 
   <accept-options>
     <http.keepalive.timeout>120</http.keepalive.timeout>
   </accept-options>
 </service>
 ```
-
-##### Notes
-
--   The `http.keepalive.timeout` accept-option is useful for conserving resources because it avoids idle connections remaining open.
--   You can specify your preferred time interval syntax in milliseconds, seconds, minutes, or hours (spelled out or abbreviated). For example, all of the following are valid: 1800s, 1800sec, 1800 secs, 1800 seconds, 1800seconds, 3m, 3min, or 3 minutes. If you do not specify a time unit then seconds are assumed.
 
 #### ssl.ciphers
 
