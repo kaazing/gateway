@@ -34,7 +34,7 @@ The standard way to set up and maintain your Gateway configuration is by editing
 
     -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](c_configure_gateway_concepts.md#about-kaazing-gateway-namespace-declarations).
     -   The Gateway [`name`](../admin-reference/r_configure_gateway_service.md#service) element.
-    -   The [`service`](../admin-reference/r_configure_gateway_service.md) element with the [directory](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
+    -   The [`service`](../admin-reference/r_configure_gateway_service.md) element with the [`directory`](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
     Here's an example of a simple Gateway configuration file that uses the default (supplied) ports to bind the `/base` (port 8000) to the Gateway host:
 
