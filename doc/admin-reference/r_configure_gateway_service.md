@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Service Reference
-
 Service Reference
 ========================================
 
@@ -50,6 +46,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [http.proxy](#httpproxy)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
             -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
