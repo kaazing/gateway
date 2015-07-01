@@ -52,6 +52,8 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [*protocol*.bind](#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
             -   [*protocol*.transport](#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](#wsmaximummessagesize)
+            -   [http.keepalive](r_configure_gateway_service.md#httpkeepalive)
+			-   [http.keepalive.connections](r_configure_gateway_service.md#httpkeepaliveconnections)
             -   [http.keepalive.timeout](#httpkeepalivetimeout)
             -   [ssl.ciphers](#sslciphers)
             -   [ssl.protocols](#sslprotocols-and-sockssslprotocols)
@@ -401,21 +403,25 @@ The following examples show complete `notify` elements including a service for t
 
 ### type
 
-The type of service. One of the following:
+The type of service. For each service that you configure, you define any of the service types in the following table to customize the Gateway for your environment.
 
--   [balancer](#balancer)
--   [broadcast](#broadcast)
--   [directory](#directory)
--   [echo](#echo)
--   [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
--   [management.jmx](#managementjmx)
--   [management.snmp](#managementsnmp)
--   [amqp.proxy](#proxy-amqpproxy-and-jmsproxy)
--   [proxy](#proxy-amqpproxy-and-jmsproxy)
--   [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
--   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+| Type of Service                      | Description                                                                     |
+|-----------------------------------------|---------------------------------------------------------------------------------|
+| [balancer](#balancer) | Configures load balancing using either the built-in load balancing features of the Gateway or a third-party load balancer. When you configure a balancer service, the Gateway balances load requests for any other Gateway service type. Services running on KAAZING Gateway support peer load balancer awareness with the balance element for a cluster of Gateways. See the [Configure the Gateway for High Availability](../high-availability/o_ha.html) topic that describes Gateway clusters and load balancing in detail. |
+| [broadcast](#broadcast) | Configures the Gateway to accept connections initiated by the back-end server or broker and broadcast (or relay) messages that are sent along that connection to clients. |
+| [directory](#directory) | Specifies the directory path of your static files relative to *GATEWAY_HOME*/web, where *GATEWAY_HOME* is the directory where you installed KAAZING Gateway. **Note:** An absolute path cannot be specified. |
+| [echo](#echo) | Receives a string of characters through a WebSocket and returns the same characters to the sender. The service echoes any input. This service is used primarily for validating the basic Gateway configuration. The echo service runs a separate port to verify cross-origin access.|
+| [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Connects the Gateway to the Kerberos Key Distribution Center. |
+| [management.jmx](#managementjmx) | Track and monitors user sessions and configuration data using JMX Managed Beans. |
+| [management.snmp](#managementsnmp) | Monitors a Gateway or a Gateway cluster through Command Center, which is a browser-based application. Using Command Center is the recommended method for monitoring the Gateway. The `management.snmp` service is enabled by default in the Gateway configuration file.  |
+| [amqp.proxy](#proxy-amqpproxy-and-jmsproxy) | Enables the use of the Advanced Message Queuing Protocol (AMQP) that is an open standard for messaging middleware and was originally designed by the financial services industry to provide an interoperable protocol for managing the flow of enterprise messages. To guarantee messaging interoperability, AMQP defines both a wire-level protocol and a model, the AMQP Model, of messaging capabilities. An example of a message broker that provides built-in support for AMQP is RabbitMQ. |
+| [proxy](#proxy-amqpproxy-and-jmsproxy) | Enables a client to make a WebSocket connection to a back-end server or broker that cannot natively accept WebSocket connections. |
+| [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)  | Integrates KAAZING Gateway and Redis, an open source, BSD licensed, advanced key-value cache and store. KAAZING Gateway includes a Redis service and integrated Redis driver for publishing and subscribing to Redis topics. |
+| [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Uses the `jms` service, which allows you to configure the Gateway to connect to any back-end JMS-compliant message broker. The `jms` service offloads connections and topic subscriptions using a single connection between the Gateway and your JMS-compliant message broker. |
+| [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Establishes a connection between the Gateway and the next Gateway for each client connection. The benefit of using the `jms.proxy` service is that you can control security independently per connection, and enable a fail-fast when a user fails to authenticate correctly. In addition, delta messages can be passed through from `jms` service in the internal Gateway through a DMZ Gateway that is running the `jms.proxy` service in Enterprise Shield™ configurations. |
+| [http.proxy](#httpproxy) | Enables a Gateway to serve both WebSocket traffic and proxy HTTP traffic on the same port (for example, port 80 or 443). The `http.proxy` service is used primarily to enable the Gateway to proxy both HTTP traffic plus other services (for example, WebSocket-based services alongside proxy services and AMQP services) to an HTTP server. |
 
-### <span id="balancer"></span></a>balancer
+### balancer
 
 Use the `balancer` service to balance load for requests for any other Gateway service type.
 
@@ -819,6 +825,61 @@ See the "Examples" section below this table for a code snippet using this proper
 -   When there are multiple `amqp.proxy` services in the Gateway configuration that are connecting to the same AMQP broker instance, all AMQP proxy services should pipe their `connect` elements to a common service as shown in the previous configuration example. This is recommended due to a current restriction with JMX monitoring.
 -   See the [Promote User Identity into the AMQP Protocol](../security/p_auth_user_identity_promotion.md) topic for more information about injecting AMQP credentials into the protocol in a trusted manner.
 
+### http.proxy
+
+Use the `http.proxy` service to enable a Gateway to serve both WebSocket traffic and proxy HTTP traffic on the same port (for example, port 80 or 443). The `http.proxy` service is used primarily to enable the Gateway to proxy HTTP traffic to an HTTP server while other services handle non-HTTP traffic at the same time on the same port. For example, you might proxy HTTP, AMQP, and WebSocket at the same time, all on the same port. 
+
+Typically, you use the `http.proxy` service to:
+
+- Enable the Gateway to proxy both HTTP traffic and traffic from other services, allowing you to run more than one service on the same port. 
+
+    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, resulting in these benefits:
+  
+  - Allows the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
+ 
+  - Allows the Gateway to proxy HTTP traffic, allowing the Gateway to handle all traffic and removing the need to rely on HTTP servers to proxy HTTP traffic.
+ 
+- Enable you to close ports in the firewall for applications serving HTTP requests in Enterprise Shield topologies.
+  
+   Using `http.proxy` with Enterprise Shield lets you make REST (Representational State Transfer) requests while still keeping inbound firewall ports closed. With the ability to proxy HTTP, the Gateway can protect not only WebSocket traffic, but all HTTP traffic in an enterprise architecture. 
+
+   For example, typically, HTTP requests occur when your application uses KAAZING Gateway to stream data, and uses REST for upstream requests. With the ability to proxy HTTP, your REST requests can go through Enterprise Shield, letting you keep ports closed for REST requests.
+
+**Note:** Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers.  
+
+#### Examples
+
+**Example 1: http.proxy Service - Basic Use Case running both Gateway and Apache on one machine.**
+
+The following example configures the accept URI with a public HTTP server address and configures the connect URI as a private server IP address. The example configuration specifies two accept URIs:
+
+```
+http://www.websocket.org 
+http://websocket.org
+```
+
+The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is cached in worker until it is reused or timed out.
+
+``` xml
+<service>
+  <name>http-proxy</name>
+  <description>Http Proxy to websocket.org</description>
+  
+  <accept>http://www.websocket.org/</accept>
+  <accept>http://websocket.org/</accept>
+  <connect>http://174.129.224.73/</connect>
+  
+  <type>http.proxy</type> 
+
+  <connect-options>
+    <http.keepalive.connections>1</http.keepalive.connections>
+  </connect-options>  
+  
+  …
+  
+</service>
+```
+
 ### properties
 
 The service's type-specific properties.
@@ -867,7 +928,9 @@ Use the `connect-options` element to add options to all connections for the serv
 | *protocol*.bind | yes | no | Binds the URL(s) on which the service accepts connections (defined bythe accept element). Set *protocol* to one of the following: ws, wss, http, https, ssl, tcp,udp. See [*protocol*.bind](#protocolbind). |
 | *protocol*.transport | yes | yes | Specifies the URI for use as a transport layer (defined by the accept element). Set *protocol*.transport to any of the following: http.transport, ssl.transport, tcp.transport, pipe.transport. See [*protocol*.transport](#protocoltransport). |
 | ws.maximum.message.size | yes | no | Specifies the maximum incoming WebSocket message size allowed by the Gateway. See [ws.maximum.message.size](#wsmaximummessagesize). |
-| http.keepalive.timeout | yes | no | Specifies how much time the Gateway waits after responding to an HTTP or HTTPS request and receiving a subsequent request. See [http.keepalive.timeout](#httpkeepalivetimeout). |
+| http.keepalive | no | yes | Enables or disables HTTP keep-alive (persistent) connections, allowing you to reuse the same TCP connection for multiple HTTP requests or responses. This improves HTTP performance especially for services like [`http proxy`](#httpproxy). `http.keepalive` is enabled by default. See [http.keepalive](#httpkeepalive). |
+| http.keepalive.connections | no | yes | Specifies the maximum number of idle keep-alive connections to upstream servers that can be cached. The connections time out based on the setting for the `http.keepalive.timeout` configuration option.  See [http.keepalive.connections](#httpkeepaliveconnections).|
+| http.keepalive.timeout | yes | yes | Specifies how much time the Gateway waits after responding to an HTTP or HTTPS request and receiving a subsequent request. See [http.keepalive.timeout](#httpkeepalivetimeout). |
 | ssl.ciphers | yes | yes | Lists the cipher strings and cipher suite names used by the secure connection. See [ssl.ciphers](sslciphers).|
 | ssl.protocols | yes | yes | Lists the TLS/SSL protocol names on which the Gateway can accept connections. See [ssl.protocols and socks.ssl.protocols](#sslprotocols-and-sockssslprotocols). |
 | ssl.encryption | yes | yes | Signals KAAZING Gateway to enable or disable encryption on incoming traffic. |
@@ -1031,24 +1094,75 @@ The following example sets a maximum incoming message limit of 64 kilobytes:
 </service>
 ```
 
+#### http.keepalive
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `http.keepalive` element in connect-options to enable or disable HTTP keep-alive (persistent) connections, allowing you to reuse the same TCP connection for multiple HTTP requests or responses. This improves HTTP performance especially for services like [`http proxy`](#httpproxy). `http.keepalive` is enabled by default. 
+
+##### Example
+
+``` xml
+<service>
+	
+   . . .
+   
+  <accept>http://example.com:8000/</accept>
+  <connect>http://internal.example.com:7233/</connect>
+  
+  <type>http.proxy</type>
+  
+  <connect-options>
+    <http.keepalive>disabled</http.keepalive>
+  </connect-options>
+  
+   . . .
+   
+</service>
+```
+
+#### http.keepalive.connections
+
+**Required?** Optional; **Occurs:** zero or one
+
+Use the `http.keepalive.connections` element in connect-options to specify the maximum number of idle keep-alive connections to upstream servers to upstream servers that can be cached. The connections time out based on the setting for the [`http.keepalive.timeout`](#httpkeepalivetimeout) configuration option. The best practice is to specify a value small enough to allow upstream servers to process new incoming connections as well. The following example specifies one connection is cached in worker until it is reused or timed out.
+
+##### Example
+
+``` xml
+<service>
+	
+   . . .
+  
+  <accept>http://example.com:8000/</accept>
+  <connect>http://internal.example.com:7233/</connect>
+  
+  <type>http.proxy</type>
+	
+  <connect-options>
+    <http.keepalive.connections>1</http.keepalive.connections>
+  </connect-options>
+  
+   . . .
+   
+</service>
+```
+
 #### http.keepalive.timeout
 
 **Required?** Optional; **Occurs:** zero or one
 
-Use the `http.keepalive.timeout` accept-option to set the number of seconds the Gateway waits after responding to a request and receiving a subsequent request on an HTTP or HTTPS connection before closing the connection. The default value is `30` seconds.
+Use the `http.keepalive.timeout` element in either accept-options or connect-options to set the number of seconds the Gateway waits after responding to a request and receiving a subsequent request on an HTTP or HTTPS connection before closing the connection. The default value is `30` seconds.
 
 ##### Example
 
-The following example shows a `service` element containing an HTTP or HTTPS connection time limit of `120` seconds:
+The following example shows a `service` element with an HTTP or HTTPS connection time limit of `120` seconds:
 
 ``` xml
 <service>
   <accept>ws://localhost:8000/echo</accept>
   <accept>wss://localhost:9000/echo</accept>
   <accept-options>
-    <ssl.encryption>disabled</ssl.encryption>
-    <ws.bind>8001</ws.bind>
-    <wss.bind>9001</wss.bind>
     <http.keepalive.timeout>120</http.keepalive.timeout>
   </accept-options>
 </service>
