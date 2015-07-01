@@ -37,7 +37,11 @@ public final class MonitorFileDescriptor {
 
     private static final int COUNTER_LABELS_BUFFER_LENGTH_OFFSET = 0;
     private static final int COUNTER_VALUES_BUFFER_LENGTH_OFFSET = COUNTER_LABELS_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
-    private static final int META_DATA_LENGTH = COUNTER_VALUES_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+
+    private static final int STRING_LABELS_BUFFER_LENGTH_OFFSET = COUNTER_VALUES_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+    private static final int STRING_VALUES_BUFFER_LENGTH_OFFSET = STRING_LABELS_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+
+    private static final int META_DATA_LENGTH = STRING_VALUES_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
 
     private static final int END_OF_METADATA = BitUtil.align(META_DATA_LENGTH + BitUtil.SIZE_OF_INT, BitUtil.CACHE_LINE_LENGTH);
 
@@ -81,6 +85,24 @@ public final class MonitorFileDescriptor {
     }
 
     /**
+     * Computes the offset for the String monitoring entity labels buffer
+     * @param baseOffset - the base offset of the buffer
+     * @return the String monitoring entity labels buffer offset
+     */
+    public static int stringLabelsBufferLengthOffset(final int baseOffset) {
+        return baseOffset + META_DATA_OFFSET + STRING_LABELS_BUFFER_LENGTH_OFFSET;
+    }
+
+    /**
+     * Computes the offset for the String monitoring entity values buffer
+     * @param baseOffset - the base offset of the buffer
+     * @return the String monitoring entity values buffer offset
+     */
+    public static int stringValuesBufferLengthOffset(final int baseOffset) {
+        return baseOffset + META_DATA_OFFSET + STRING_VALUES_BUFFER_LENGTH_OFFSET;
+    }
+
+    /**
      * Creates the meta data buffer
      * @param buffer - the underlying byte buffer
      * @return the meta data buffer
@@ -96,10 +118,12 @@ public final class MonitorFileDescriptor {
      * @param monitorValuesBufferLength - the length of the values buffer
      */
     public static void fillMetaData(final UnsafeBuffer monitorMetaDataBuffer, final int monitorLabelsBufferLength,
-        final int monitorValuesBufferLength) {
+        final int monitorValuesBufferLength, final int stringLabelsBufferLength, final int stringValuesBufferLength) {
         monitorMetaDataBuffer.putInt(monitorVersionOffset(0), MONITOR_VERSION);
         monitorMetaDataBuffer.putInt(counterLabelsBufferLengthOffset(0), monitorLabelsBufferLength);
         monitorMetaDataBuffer.putInt(counterValuesBufferLengthOffset(0), monitorValuesBufferLength);
+        monitorMetaDataBuffer.putInt(stringLabelsBufferLengthOffset(0), stringLabelsBufferLength);
+        monitorMetaDataBuffer.putInt(stringValuesBufferLengthOffset(0), stringValuesBufferLength);
     }
 
     /**
@@ -124,6 +148,37 @@ public final class MonitorFileDescriptor {
     public static UnsafeBuffer createCounterValuesBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
         final int offset = END_OF_METADATA + metaDataBuffer.getInt(counterLabelsBufferLengthOffset(0));
         final int length = metaDataBuffer.getInt(counterValuesBufferLengthOffset(0));
+
+        return new UnsafeBuffer(buffer, offset, length);
+    }
+
+    /**
+     * Creates the String monitoring entity labels buffer
+     * @param buffer - the underlying byte buffer
+     * @param metaDataBuffer - the meta data buffer from which we compute the offset
+     * @return the String monitoring entity labels buffer
+     */
+    public static UnsafeBuffer createStringLabelsBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
+        final int offset =
+                END_OF_METADATA + metaDataBuffer.getInt(counterLabelsBufferLengthOffset(0))
+                        + metaDataBuffer.getInt(counterValuesBufferLengthOffset(0));
+        final int length = metaDataBuffer.getInt(stringLabelsBufferLengthOffset(0));
+
+        return new UnsafeBuffer(buffer, offset, length);
+    }
+
+    /**
+     * Creates the String monitoring entity values buffer
+     * @param buffer - the underlying byte buffer
+     * @param metaDataBuffer - the meta data buffer from which we compute the offset
+     * @return the String monitoring entity values buffer
+     */
+    public static UnsafeBuffer createStringValuesBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
+        final int offset =
+                END_OF_METADATA + metaDataBuffer.getInt(counterLabelsBufferLengthOffset(0))
+                        + metaDataBuffer.getInt(counterValuesBufferLengthOffset(0))
+                        + metaDataBuffer.getInt(stringLabelsBufferLengthOffset(0));
+        final int length = metaDataBuffer.getInt(stringValuesBufferLengthOffset(0));
 
         return new UnsafeBuffer(buffer, offset, length);
     }

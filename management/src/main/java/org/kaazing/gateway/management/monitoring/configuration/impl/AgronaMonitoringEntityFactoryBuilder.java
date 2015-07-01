@@ -24,6 +24,7 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 import java.io.File;
 import java.nio.MappedByteBuffer;
 
+import org.kaazing.gateway.management.agrona.ex.StringsManager;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
@@ -44,35 +45,64 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
     private static final int MONITOR_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
     private static final int MONITOR_COUNTER_LABELS_BUFFER_LENGTH = 32 * MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
 
+    private static final int MONITOR_STRING_VALUES_BUFFER_LENGTH = 32 * 1024 * 1024;
+    private static final int MONITOR_STRING_LABELS_BUFFER_LENGTH = MONITOR_STRING_VALUES_BUFFER_LENGTH;
+
     private CountersManager countersManager;
+    private StringsManager stringsManager;
+    private UnsafeBuffer metaDataBuffer;
+
+    MappedByteBuffer mappedMonitorFile;
+    File monitoringDir;
 
     @Override
     public MonitoringEntityFactory build() {
+        createMonitoringFile();
+
+        createCountersManager();
+        createStringsManager();
+
+        MonitoringEntityFactory factory =
+                new AgronaMonitoringEntityFactory(countersManager, stringsManager, mappedMonitorFile, monitoringDir);
+
+        return factory;
+    }
+
+    private void createMonitoringFile() {
         String monitoringDirName = getMonitoringDirName();
-        File monitoringDir = new File(monitoringDirName);
+        monitoringDir = new File(monitoringDirName);
 
         File monitoringFile = new File(monitoringDir, MONITOR_FILE_NAME);
         IoUtil.deleteIfExists(monitoringFile);
 
-        int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
-        MappedByteBuffer mappedMonitorFile = IoUtil.mapNewFile(monitoringFile,
-                fileSize);
+        int totalLengthOfBuffers =
+                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH
+                        + MONITOR_STRING_VALUES_BUFFER_LENGTH + MONITOR_STRING_LABELS_BUFFER_LENGTH;
+        int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
+        mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
-        UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
-        MonitorFileDescriptor.fillMetaData(
-                metaDataBuffer,
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH,
-                MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
+        metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
+    }
 
+    private void createCountersManager() {
         UnsafeBuffer counterLabelsBuffer = MonitorFileDescriptor.createCounterLabelsBuffer(mappedMonitorFile, metaDataBuffer);
         UnsafeBuffer counterValuesBuffer = MonitorFileDescriptor.createCounterValuesBuffer(mappedMonitorFile, metaDataBuffer);
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
+    }
 
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile, monitoringDir);
+    private void createStringsManager() {
+        UnsafeBuffer stringLabelsBuffer = MonitorFileDescriptor.createStringLabelsBuffer(mappedMonitorFile, metaDataBuffer);
+        UnsafeBuffer stringValuesBuffer = MonitorFileDescriptor.createStringValuesBuffer(mappedMonitorFile, metaDataBuffer);
 
-        return factory;
+        stringsManager = new StringsManager(stringLabelsBuffer, stringValuesBuffer);
+    }
+
+    private UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
+        UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
+        MonitorFileDescriptor.fillMetaData(metaDataBuffer, MONITOR_COUNTER_LABELS_BUFFER_LENGTH,
+                MONITOR_COUNTER_VALUES_BUFFER_LENGTH, MONITOR_STRING_LABELS_BUFFER_LENGTH, MONITOR_STRING_VALUES_BUFFER_LENGTH);
+        return metaDataBuffer;
     }
 
     /**

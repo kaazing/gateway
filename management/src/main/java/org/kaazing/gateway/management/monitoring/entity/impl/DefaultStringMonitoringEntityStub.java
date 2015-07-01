@@ -21,24 +21,26 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
 import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 
-public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
+/**
+ * Agrona specific String monitoring entity which uses AtomicStringEntity as the underlying implementation.
+ */
+public class DefaultStringMonitoringEntityStub implements StringMonitoringEntity {
 
     @Override
-    public void close() {
+    public StringMonitoringEntity setValue(String value) {
+        return this;
     }
 
     @Override
-    public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return new DefaultLongMonitoringCounterStub();
+    public String getValue() {
+        return DEFAULT_VALUE;
     }
 
     @Override
-    public StringMonitoringEntity makeStringMonitoringEntity(String name, String value) {
-        return new DefaultStringMonitoringEntityStub();
+    public StringMonitoringEntity reset() {
+        return this;
     }
 
 }
