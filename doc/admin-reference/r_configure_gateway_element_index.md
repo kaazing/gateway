@@ -94,9 +94,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [https.bind](r_configure_gateway_service.md#protocolbind)
 
-[jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+[jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
-[jms.proxy](r_conf_jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+[jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)](r_configure_gateway_service.md#kerberos5proxy)
 

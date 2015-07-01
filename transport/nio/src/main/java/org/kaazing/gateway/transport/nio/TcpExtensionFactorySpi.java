@@ -19,34 +19,29 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport;
+package org.kaazing.gateway.transport.nio;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
-import java.util.Collections;
+/**
+ * {@link TcpExtensionFactorySpi} is part of <i>Service Provider Interface</i> <em>(SPI)</em> developing extensions to the TCP transport.
+ * Implementations of this interface are registered by making one or more resource files named
+ * META-INF/services/org.kaazing.gateway.transport.nio.spi.TcpExtensionFactorySpi available on the classpath.
+ * <p>
+ * Developing a TCP extension involves implementing:
+ * <UL>
+ *   <LI> a sub-class of {@link TcpExtensionFactorySpi}
+ *   <LI> a sub-class of {@link TcpExtension}
+ * </UL>
+ * <p>
+ */
+public interface TcpExtensionFactorySpi {
 
-public class BridgeServiceFactory {
-
-    private final TransportFactory transportFactory;
-
-    public BridgeServiceFactory() {
-        this(TransportFactory.newTransportFactory(Collections.emptyMap()));
-    }
-
-    public BridgeServiceFactory(TransportFactory transportFactory) {
-        this.transportFactory = transportFactory;
-    }
-
-    public BridgeAcceptor newBridgeAcceptor(ResourceAddress address) {
-        return transportFactory.getAcceptor(address);
-    }
-
-    public BridgeConnector newBridgeConnector(ResourceAddress address) {
-        return transportFactory.getConnector(address);
-    }
-
-    public TransportFactory getTransportFactory() {
-        return transportFactory;
-    }
+    /**
+     * Called whenever a TCP accept URI is bound
+     * @param address  TCP address being bound (URI plus accept options)
+     * @return  A TcpExtension object to be used for all accepted sessions for this bind, or null if no extension is needed
+     */
+    TcpExtension bind(ResourceAddress address);
 
 }

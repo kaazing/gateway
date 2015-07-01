@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import org.kaazing.gateway.resource.address.Protocol;
 

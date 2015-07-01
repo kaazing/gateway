@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IP_TOS;

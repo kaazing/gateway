@@ -98,7 +98,7 @@ Notes
     -   [Setting Up the Gateway](../about/setup-guide.md) for information about the directory structure that is set up during installation
     -   [About Gateway Configuration](c_configure_gateway_concepts.md) for more information about the types of configuration files and their contents
 -   Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This is described in [Configure KAAZING Gateway Using the `GATEWAY_OPTS` Environment Variable](p_configure_gateway_opts.md).
--   See [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/troubleshoot_gateway_configuration.md) for help resolving issues when you set up and configure the Gateway.
+-   See [Troubleshoot KAAZING Gateway Configuration and Startup](../troubleshooting/p_troubleshoot_gateway_configuration.md) for help resolving issues when you set up and configure the Gateway.
 
 See Also
 --------

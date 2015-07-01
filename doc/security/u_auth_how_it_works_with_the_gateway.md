@@ -13,7 +13,7 @@ At a high level, configuring authentication involves the following three steps:
 2.  **On the Gateway:** Configure a chain of login modules to tell the Gateway how to verify the client response.
 3.  **On the Client:** Configure a challenge handler to respond to the authentication challenge.
 
-**Note:** For Kerberos authentication and authorization, see [Configuring Kerberos V5 Network Authentication](o_auth_configure_config_kerberos.md).
+**Note:** For Kerberos authentication and authorization, see [Configuring Kerberos V5 Network Authentication](o_kerberos.md).
 
 Gateway-side authentication consists of configuring the following elements in the Gateway configuration (for example, in `GATEWAY_HOME/conf/gateway-config.xml`):
 
