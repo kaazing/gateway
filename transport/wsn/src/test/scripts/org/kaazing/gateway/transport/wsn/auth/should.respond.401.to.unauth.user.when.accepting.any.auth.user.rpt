@@ -1,3 +1,4 @@
+#Normal gateway configuration but authorization constraints allow for any authorized credentials
 connect http://localhost:8000/echo
 connected
 

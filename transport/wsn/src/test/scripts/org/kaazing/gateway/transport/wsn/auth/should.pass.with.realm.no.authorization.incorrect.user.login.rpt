@@ -1,3 +1,4 @@
+#Runs against gateway with no authorization constraints
 connect http://localhost:8000/echo
 connected
 

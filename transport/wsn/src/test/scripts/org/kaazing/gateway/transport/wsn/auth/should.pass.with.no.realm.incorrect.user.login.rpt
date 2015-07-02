@@ -1,3 +1,4 @@
+#Runs with gateway configuration with no realm or authorization constraints
 connect http://localhost:8000/echo
 connected
 

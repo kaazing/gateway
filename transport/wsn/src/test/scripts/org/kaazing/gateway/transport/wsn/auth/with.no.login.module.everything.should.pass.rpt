@@ -1,3 +1,4 @@
+#No login user information but has authorization constraints and realm
 connect http://localhost:8000/echo
 connected
 

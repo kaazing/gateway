@@ -1,3 +1,4 @@
+#Gateway configuration with realm but no authorization configuration
 connect http://localhost:8000/echo
 connected
 
