@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Skeleton
 ============================================
 
@@ -54,15 +50,9 @@ You can view and link to all Gateway configuration elements and properties using
                 -   [prepared.connection.count](r_configure_gateway_service.md#preparedconnectioncount)
                 -   [virtual.host](r_configure_gateway_service.md#virtualhost)
 
-            -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-            -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-                Properties:
-
-                -   [maximum.pending.bytes](r_configure_gateway_service.md#maximumpendingbytes)
-                -   [maximum.recovery.interval](r_configure_gateway_service.md#maximumrecoveryinterval)
-                -   [prepared.connection.count](r_configure_gateway_service.md#preparedconnectioncount)
-            -   [session](r_configure_gateway_service.md#session_svc)
+            -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+            -   [jms.proxy](r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+			-   [http.proxy](r_configure_gateway_service.md#httpproxy)
 
         -   [properties](r_configure_gateway_service.md#properties)
         -   [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options)
