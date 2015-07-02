@@ -10,7 +10,7 @@ write header "Sec-WebSocket-Version" "13"
 write header "Authorization" "Basic am9lOndlbGNvbWU=" #login joe:welcome
 write close
 
-read status "101" /.+/
+read status "101" "Web Socket Protocol"
 read version "HTTP/1.1"
 write notify DONE
 
@@ -27,6 +27,6 @@ write header "Sec-WebSocket-Version" "13"
 write header "Authorization" "Basic YWRtaW46YWRtaW4=" #login admin:admin (ADMINISTRATOR user)
 write close
 
-read status "101" /.+/
+read status "101" "Web Socket Protocol"
 read version "HTTP/1.1"
 

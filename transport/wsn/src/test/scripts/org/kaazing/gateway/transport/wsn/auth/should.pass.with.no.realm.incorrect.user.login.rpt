@@ -10,6 +10,6 @@ write header "Sec-WebSocket-Version" "13"
 write header "Authorization" "Basic YmFkdXNlcjpiYWRwYXNz" #login baduser:badpassword
 write close
 
-read status "101" /.+/
+read status "101" "Web Socket Protocol"
 read version "HTTP/1.1"
 
