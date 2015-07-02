@@ -311,7 +311,7 @@ public class WsnConnectorTest {
 
     }
 
-    @Test (timeout = 30000) @Ignore
+    @Test (timeout = 30000)
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
         long iterations = 100;
