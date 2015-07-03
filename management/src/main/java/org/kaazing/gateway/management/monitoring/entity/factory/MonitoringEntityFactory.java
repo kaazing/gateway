@@ -22,6 +22,7 @@
 package org.kaazing.gateway.management.monitoring.entity.factory;
 
 import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
+import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 
 /**
  * Factory for instantiating a specific monitoring entity.
@@ -38,6 +39,12 @@ public interface MonitoringEntityFactory {
      * @return - LongMonitoringCounter
      */
     LongMonitoringCounter makeLongMonitoringCounter(String name);
+
+    /**
+     * Method returning a StringMonitoringEntity object
+     * @return - StringMonitoringEntity
+     */
+    StringMonitoringEntity makeStringMonitoringEntity(String name, String value);
 
     /**
      * Cleans up the monitoring entities

@@ -25,6 +25,7 @@ import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
+import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
@@ -52,6 +53,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private ServiceSessionCounterManager serviceSessionCounterManager;
+    private StringMonitoringEntity latestException;
 
     public ManagementFilter(ServiceManagementBean serviceBean,
                             MonitoringEntityFactory monitoringEntityFactory,
@@ -63,6 +65,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
         serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory, serviceName);
         serviceSessionCounterManager.initializeCounters();
+        latestException = monitoringEntityFactory.makeStringMonitoringEntity(serviceName + "-latest-exception", "");
     }
 
     public ServiceManagementBean getServiceBean() {
@@ -81,6 +84,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
                 .doSessionClosed(managementContext, serviceBean, session.getId(), managementSessionType);
         managementContext.decrementOverallSessionCount();
         serviceSessionCounterManager.decrementCounters(managementSessionType);
+        latestException.reset();
 
         super.doSessionClosed(nextFilter, session);
     }
@@ -103,6 +107,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected void doExceptionCaught(NextFilter nextFilter, IoSessionEx session, Throwable cause) throws Exception {
         managementContext.getManagementFilterStrategy()
                 .doExceptionCaught(managementContext, serviceBean, session.getId(), cause);
+        latestException.setValue(cause.getMessage());
         super.doExceptionCaught(nextFilter, session, cause);
     }
 
