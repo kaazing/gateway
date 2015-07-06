@@ -29,6 +29,7 @@ import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCo
 public class ServiceSessionCounterManagerImpl implements
         ServiceSessionCounterManager {
 
+    private static final String SEPARATOR = "-";
     private static final String CURRENT_NUMBER_OF_SESSIONS = "-current-number-of-sessions";
     private static final String CURRENT_NUMBER_OF_NATIVE_SESSIONS = "-current-number-of-native-sessions";
     private static final String CURRENT_NUMBER_OF_EMULATED_SESSIONS = "-current-number-of-emulated-sessions";
@@ -44,26 +45,28 @@ public class ServiceSessionCounterManagerImpl implements
 
     private MonitoringEntityFactory monitoringEntityFactory;
     private String serviceName;
+    private String gatewayId;
 
     public ServiceSessionCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory,
-            String serviceName) {
+            String serviceName, String gatewayId) {
         this.monitoringEntityFactory = monitoringEntityFactory;
         this.serviceName = serviceName;
+        this.gatewayId = gatewayId;
    }
 
     @Override
     public void initializeCounters() {
-        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CURRENT_NUMBER_OF_SESSIONS);
-        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CURRENT_NUMBER_OF_NATIVE_SESSIONS);
-        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CURRENT_NUMBER_OF_EMULATED_SESSIONS);
-        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CUMULATIVE_NUMBER_OF_SESSIONS);
-        cumulativeNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        cumulativeNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS);
-        cumulativeEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(serviceName
+        cumulativeEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS);
     }
 

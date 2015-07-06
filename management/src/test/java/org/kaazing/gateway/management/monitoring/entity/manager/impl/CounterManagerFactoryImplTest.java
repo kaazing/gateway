@@ -31,7 +31,7 @@ public class CounterManagerFactoryImplTest {
     @Test
     public void testMakeServiceSessionCounterManager() {
         CounterManagerFactory counterManagerFactory = new CounterManagerFactoryImpl();
-        Object serviceSessionCounterManager = counterManagerFactory.makeServiceSessionCounterManager(null, null);
+        Object serviceSessionCounterManager = counterManagerFactory.makeServiceSessionCounterManager(null, null, null);
         assertTrue(serviceSessionCounterManager instanceof ServiceSessionCounterManagerImpl);
     }
 }

@@ -37,7 +37,7 @@ public class ServiceSessionCounterManagerImplTest {
     @Test
     public void testAgronaEnabledNativeCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
-        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null);
+        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null, null);
 
         serviceSessionCounterManager.initializeCounters();
         assertCounters(serviceSessionCounterManager, 0, 0, 0, 0, 0, 0);
@@ -54,7 +54,7 @@ public class ServiceSessionCounterManagerImplTest {
     @Test
     public void testAgronaEnabledEmulatedCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
-        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null);
+        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null, null);
 
         serviceSessionCounterManager.initializeCounters();
         assertCounters(serviceSessionCounterManager, 0, 0, 0, 0, 0, 0);
@@ -71,7 +71,7 @@ public class ServiceSessionCounterManagerImplTest {
     @Test
     public void testAgronaDisabledNativeCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
-        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null);
+        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null, null);
 
         serviceSessionCounterManager.initializeCounters();
         serviceSessionCounterManager.incrementCounters(ManagementSessionType.NATIVE);
@@ -82,7 +82,7 @@ public class ServiceSessionCounterManagerImplTest {
     @Test
     public void testAgronaDisabledEmulatedCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
-        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null);
+        ServiceSessionCounterManager serviceSessionCounterManager = new ServiceSessionCounterManagerImpl(monitoringEntityFactory, null, null);
 
         serviceSessionCounterManager.initializeCounters();
         serviceSessionCounterManager.incrementCounters(ManagementSessionType.EMULATED);

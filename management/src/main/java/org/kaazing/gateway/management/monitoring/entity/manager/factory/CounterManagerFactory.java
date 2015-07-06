@@ -36,10 +36,11 @@ public interface CounterManagerFactory {
      * its respective counters
      * @param monitoringEntityFactory - the monitoring entity factory
      * @param serviceName - the service name parameter
+     * @param gatewayId - gateway id
      * @return - the ServiceSessionCounterManager instance
      */
     ServiceSessionCounterManager makeServiceSessionCounterManager(
             MonitoringEntityFactory monitoringEntityFactory,
-            String serviceName);
+            String serviceName, String gatewayId);
 
 }

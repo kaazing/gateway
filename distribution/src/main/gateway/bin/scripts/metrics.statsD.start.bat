@@ -28,5 +28,5 @@ rem ---------------------------------------------------------------------------
 
 cd %~dp0
 
-cd ../lib/metrics.statsd/bin
+cd ../../lib/metrics.statsd/bin
 metrics.statsd.start.bat %1

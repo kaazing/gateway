@@ -51,11 +51,13 @@ rem Verify if the gateway identifier was provided (required by Agorna multiple g
 
 set GW_ID=
 
-if "%GATEWAY_IDENTIFIER%" NEQ "" (
-    set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
-	
-	rem Startup the StatsD publisher
-	START CMD /C CALL "metrics.statsD.start.bat" %GATEWAY_IDENTIFIER%
+if NOT "%GATEWAY_OPTS%"=="%GATEWAY_OPTS:org.kaazing.gateway.management.AGRONA_ENABLED=true=%" (
+    if "%GATEWAY_IDENTIFIER%" NEQ "" (
+        set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
+        
+        rem Startup the StatsD publisher
+        START CMD /C CALL "scripts/metrics.statsD.start.bat" %GATEWAY_IDENTIFIER%
+    )
 )
 
 rem Startup the gateway

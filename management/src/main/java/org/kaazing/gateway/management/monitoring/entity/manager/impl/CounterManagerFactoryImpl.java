@@ -29,8 +29,8 @@ public class CounterManagerFactoryImpl implements CounterManagerFactory {
 
     @Override
     public ServiceSessionCounterManager makeServiceSessionCounterManager(MonitoringEntityFactory monitoringEntityFactory,
-            String serviceName) {
-        return new ServiceSessionCounterManagerImpl(monitoringEntityFactory, serviceName);
+            String serviceName, String gatewayId) {
+        return new ServiceSessionCounterManagerImpl(monitoringEntityFactory, serviceName, gatewayId);
     }
 
 }

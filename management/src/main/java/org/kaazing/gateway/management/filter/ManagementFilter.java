@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.management.filter;
 
+import java.util.Properties;
+
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
@@ -33,6 +35,7 @@ import org.kaazing.gateway.management.monitoring.entity.manager.impl.CounterMana
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.IoFilterAdapter;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
@@ -49,23 +52,30 @@ import org.kaazing.mina.core.session.IoSessionEx;
  * management).
  */
 public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
+
+    private static final String SEPARATOR = "-";
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private ServiceSessionCounterManager serviceSessionCounterManager;
     private StringMonitoringEntity latestException;
+    private static final String LATEST_EXCEPTION = "-latest-exception";
 
     public ManagementFilter(ServiceManagementBean serviceBean,
                             MonitoringEntityFactory monitoringEntityFactory,
-                            String serviceName) {
+                            String serviceName,
+                            Properties configuration) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
+        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
 
         CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
-        serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory, serviceName);
+        serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory,
+                serviceName, gatewayId);
         serviceSessionCounterManager.initializeCounters();
-        latestException = monitoringEntityFactory.makeStringMonitoringEntity(serviceName + "-latest-exception", "");
+        latestException = monitoringEntityFactory.makeStringMonitoringEntity(gatewayId +
+                SEPARATOR + serviceName + LATEST_EXCEPTION, "");
     }
 
     public ServiceManagementBean getServiceBean() {
