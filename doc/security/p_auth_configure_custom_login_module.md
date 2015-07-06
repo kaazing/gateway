@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Create Custom Login Modules
-
 Create a Custom Login Module
 =========================================================================
 

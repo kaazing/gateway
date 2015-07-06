@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   How Authentication and Authorization Work with the Gateway
-
 How Authentication and Authorization Work with the Gateway
 =================================================================================================================
 

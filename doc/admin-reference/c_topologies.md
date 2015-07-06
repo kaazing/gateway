@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Common KAAZING Gateway Production Topologies
-
 Common KAAZING Gateway Production Topologies
 ========================================================================
 

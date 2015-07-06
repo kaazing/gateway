@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Monitor and Manage an Embedded Gateway
-
 Monitor and Manage an Embedded Gateway
 ====================================================================
 

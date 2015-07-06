@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Troubleshoot Your Clients
-
 Troubleshoot Your Clients
 =========================
 

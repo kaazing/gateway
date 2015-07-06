@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   What Happens During Authentication
-
 What Happens During Authentication
 ==================================================================================
 

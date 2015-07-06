@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure the Gateway on an Internal Network
-
 Configure the Gateway on an Internal Network
 ==============================================================================================================
 
