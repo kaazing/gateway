@@ -872,7 +872,7 @@ The configuration example that follows requires DNS to resolve [www.websocket.or
   <type>http.proxy</type> 
 
   <connect-options>
-    <http.keepalive.connections>1 second</http.keepalive.connections>
+    <http.keepalive.connections>1</http.keepalive.connections>
   </connect-options>  
   
   …
@@ -1136,7 +1136,7 @@ The connection times out based on the setting for the [`http.keepalive.timeout`]
   <type>http.proxy</type>
 	
   <connect-options>
-    <http.keepalive.connections>1 second</http.keepalive.connections>
+    <http.keepalive.connections>1</http.keepalive.connections>
   </connect-options>
    . . .
 </service>
