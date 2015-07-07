@@ -833,11 +833,7 @@ Typically, you use the `http.proxy` service to:
 
 - Enable the Gateway to proxy both HTTP traffic and traffic from other services, allowing you to run more than one service on the same port. 
 
-    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, resulting in these benefits:
-  
-  - Allows the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
- 
-  - Allows the Gateway to proxy HTTP traffic, allowing the Gateway to handle all traffic and removing the need to rely on HTTP servers to proxy HTTP traffic.
+    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, allowing the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
  
 - Enable you to close ports in the firewall for applications serving HTTP requests in Enterprise Shield topologies.
   
@@ -862,7 +858,7 @@ http://www.websocket.org
 http://websocket.org
 ```
 
-The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is cached in worker until it is reused or timed out.
+The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is kept alive until it is reused or timed out.
 
 ``` xml
 <service>
@@ -876,7 +872,7 @@ The configuration example that follows requires DNS to resolve [www.websocket.or
   <type>http.proxy</type> 
 
   <connect-options>
-    <http.keepalive.connections>1</http.keepalive.connections>
+    <http.keepalive.connections>1 second</http.keepalive.connections>
   </connect-options>  
   
   …
@@ -1140,7 +1136,7 @@ The connection times out based on the setting for the [`http.keepalive.timeout`]
   <type>http.proxy</type>
 	
   <connect-options>
-    <http.keepalive.connections>1</http.keepalive.connections>
+    <http.keepalive.connections>1 second</http.keepalive.connections>
   </connect-options>
    . . .
 </service>
