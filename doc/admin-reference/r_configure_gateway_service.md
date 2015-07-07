@@ -843,10 +843,6 @@ Typically, you use the `http.proxy` service to:
 
 Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers. 
 
-When the Gateway is configured to use the `http.proxy` service, then consider customizing your client's challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples to write custom challenge handlers, see the [For Developers](../index.html#dev_topics) documentation for how-to information that is specific to your client. 
-
-If you already have authentication or single sign-on capabilities in place for the Gateway service (such as with [`realm-name`](#realm-name) and [`authorization-constraint`](#authorization-constraint) elements) in your existing configuration, then you should remove these configuration elements when using the `http.proxy` service. Otherwise, authentication and authorization occurs on every request that goes through the configured security mechanism on the Gateway.
-
 #### Examples
 
 **Example 1: http.proxy Service - Basic Use Case running both Gateway and Apache on one machine.**
