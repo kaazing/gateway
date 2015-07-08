@@ -79,6 +79,7 @@ public class AtomicStringEntity implements AutoCloseable {
     /**
      * Free the counter slot for reuse.
      */
+    @Override
     public void close() {
         stringsManager.free(id);
     }

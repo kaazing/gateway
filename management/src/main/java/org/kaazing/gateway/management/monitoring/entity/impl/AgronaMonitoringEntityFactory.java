@@ -48,7 +48,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     private File monitoringDirectory;
     private MappedByteBuffer mappedMonitorDirectory;
     private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
-    private List<AtomicStringEntity> entities = new CopyOnWriteArrayList<AtomicStringEntity>();
+    private List<AtomicStringEntity> stringEntities = new CopyOnWriteArrayList<AtomicStringEntity>();
 
     public AgronaMonitoringEntityFactory(CountersManager countersManager, StringsManager stringsManager,
             MappedByteBuffer mappedMonitorFile, File monitoringDirectory) {
@@ -73,7 +73,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     @Override
     public StringMonitoringEntity makeStringMonitoringEntity(String name, String value) {
         AtomicStringEntity entity = stringsManager.newStringEntity(name, value);
-        entities.add(entity);
+        stringEntities.add(entity);
 
         StringMonitoringEntity stringMonitoringEntity = new AgronaStringMonitoringEntity(entity);
 
@@ -88,7 +88,7 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
             atomicCounter.close();
         }
 
-        for (AtomicStringEntity atomicStringEntity : entities) {
+        for (AtomicStringEntity atomicStringEntity : stringEntities) {
             atomicStringEntity.close();
         }
 
