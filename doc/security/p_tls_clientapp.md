@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Secure Clients and Web Browsers with a Self-Signed Certificate
-
 Secure Clients and Web Browsers with a Self-Signed Certificate
 ===============================================================================================
 

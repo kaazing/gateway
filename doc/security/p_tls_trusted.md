@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Secure the Gateway Using Trusted Certificates
-
 Secure the Gateway Using Trusted Certificates
 =====================================================================================================
 

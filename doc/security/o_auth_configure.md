@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   [Configure Authentication and Authorization](../index.md#security)
-
 Configure Authentication and Authorization
 =============================================================================================
 

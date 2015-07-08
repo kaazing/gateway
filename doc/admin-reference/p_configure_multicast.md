@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure the Gateway to Use Multicast
-
 Configure the Gateway to Use Multicast
 =======================================================================================
 

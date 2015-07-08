@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   About Gateway Configuration
-
 About Gateway Configuration
 =========================================================
 

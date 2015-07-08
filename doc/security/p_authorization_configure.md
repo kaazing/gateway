@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure Authorization
-
 Configure Authorization
 =========================================================================
 

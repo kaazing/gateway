@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   General Client Information
-
 General Client Information
 ================================================
 

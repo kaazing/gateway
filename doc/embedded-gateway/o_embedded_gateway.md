@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Embed KAAZING Gateway in Your Java Application
-
 Embed KAAZING Gateway in Your Java Application
 ==============================================
 

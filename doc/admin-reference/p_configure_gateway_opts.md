@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable
-
 <a name="aboutgateway_opts"></a>Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable
 ===================================================================================================================================
 

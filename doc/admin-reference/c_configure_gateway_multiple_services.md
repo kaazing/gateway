@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configuring Multiple Services on the Same Host and Port
-
 Configuring Multiple Services on the Same Host and Port
 ============================================================================================================
 

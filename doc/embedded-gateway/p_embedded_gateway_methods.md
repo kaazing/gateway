@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Use the Embedded Gateway Methods
-
 Use the Embedded Gateway Methods
 ================================
 

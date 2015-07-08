@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Set Up Your Development Environment
-
 Set Up Your Development Environment
 ===================================
 
