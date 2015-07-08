@@ -53,8 +53,8 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
     private StringsManager stringsManager;
     private UnsafeBuffer metaDataBuffer;
 
-    MappedByteBuffer mappedMonitorFile;
-    File monitoringDir;
+    private MappedByteBuffer mappedMonitorFile;
+    private File monitoringDir;
 
     public AgronaMonitoringEntityFactoryBuilder(Properties configuration) {
         super();

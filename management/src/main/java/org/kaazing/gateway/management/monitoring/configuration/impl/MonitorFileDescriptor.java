@@ -114,8 +114,10 @@ public final class MonitorFileDescriptor {
     /**
      * Fills the meta data in the specified buffer
      * @param monitorMetaDataBuffer - the meta data buffer
-     * @param monitorLabelsBufferLength - the length of the labels buffer
-     * @param monitorValuesBufferLength - the length of the values buffer
+     * @param monitorLabelsBufferLength - the length of the counters labels buffer
+     * @param monitorValuesBufferLength - the length of the counters values buffer
+     * @param stringLabelsBufferLength - the length of the strings labels buffer
+     * @param stringValuesBufferLength - the length of the strings values buffer
      */
     public static void fillMetaData(final UnsafeBuffer monitorMetaDataBuffer, final int monitorLabelsBufferLength,
         final int monitorValuesBufferLength, final int stringLabelsBufferLength, final int stringValuesBufferLength) {

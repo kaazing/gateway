@@ -43,7 +43,7 @@ public class StringsManager {
 
     private final AtomicBuffer labelsBuffer;
     private final AtomicBuffer valuesBuffer;
-    private final Deque<Integer> freeList = new LinkedList<>();
+    private final Deque<Integer> freeList = new LinkedList<Integer>();
 
     private int idHighWaterMark = -1;
 
