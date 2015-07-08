@@ -110,6 +110,8 @@ You can view and link to all Gateway configuration elements and properties using
 
 [management.snmp](r_configure_gateway_service.md#managementsnmp)
 
+[maximum-age](r_configure_gateway_service.md#cross-site-constraint)
+
 [maximum.pending.bytes](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [maximum.recovery.interval](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
