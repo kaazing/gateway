@@ -519,6 +519,7 @@ Use the `broadcast` service to relay information from a back-end service or mess
   </cross-site-constraint>
 </service>
 ```
+-   For an example showing how to configure a `broadcast` service that uses a multicast address, see [Configure the Gateway to Use Multicast](p_configure_multicast.md).
 
 ### directory
 
