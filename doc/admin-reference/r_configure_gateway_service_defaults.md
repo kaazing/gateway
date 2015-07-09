@@ -15,13 +15,12 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
 
 -   [gateway-config](r_configure_gateway_gwconfig.md)
     -   [service-defaults](#servicedefaults)
-        -   [accept-options](#servicedefaults)
+        -   accept-options
             -   . . . 
-        -   [connect-options](#servicedefaults)
+        -   connect-options
             -   . . . 
-        -   [mime-mapping](#servicedefaults)
-            -   [extension](#servicedefaults)
-            -   [mime-type](#servicedefaults)
+        -   mime-mapping
+            -   . . . 
 
 service-defaults
 ----------------------------------------------
@@ -30,7 +29,7 @@ Each `service-defaults` element can contain any of the following subordinate ele
 
 | Subordinate Element                         | Description                                                                                                                                                                                                                                                                |
 |---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| accept-options  | Use the `accept-options` element to add options that apply to all services on the Gateway. The complete list of `accept-options` are fully documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options).  See [Examples](#examples) |
+| accept-options  | Use the `accept-options` element to add options that apply to all services on the Gateway. The complete list of `accept-options` are fully documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options). |
 | connect-options  | Use the `connect-options` element to add options that apply to all services on the Gateway. The complete list of  `connect-options` are fully documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options).  |
 | mime-mapping | Use the `mime-mappings` element to define the way the Gateway maps a file extension to a MIME type. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension. The `service-defaults` section in the default Gateway configuration file contains default MIME type mappings that apply to all services on the Gateway. The complete list of `mime-mapping` extensions and `mime-type`'s are documented in the [Service Reference](r_configure_gateway_service.md#mime-mapping). |
 
