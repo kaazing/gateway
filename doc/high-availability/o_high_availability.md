@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure the Gateway for High Availability
-
 Configure the Gateway for High Availability
 =============================================================================================
 

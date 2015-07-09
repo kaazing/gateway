@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.nio;
+package org.kaazing.gateway.transport.nio.internal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -47,6 +47,8 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class NioSocketConnectorTest {

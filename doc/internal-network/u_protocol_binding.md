@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   About Internal Network Integration with KAAZING Gateway
-
 About Internal Network Integration with KAAZING Gateway
 ===========================================================================================================================
 

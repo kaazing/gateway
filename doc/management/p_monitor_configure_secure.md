@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Secure KAAZING Gateway Monitoring
-
 Secure KAAZING Gateway Monitoring
 ====================================================================================
 

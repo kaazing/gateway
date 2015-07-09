@@ -52,8 +52,8 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.test.TransportTestConnectSessionInitializer;
 import org.kaazing.gateway.transport.test.TransportTestIoHandlerAdapter;
-import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.NioSocketConnector;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -82,11 +82,12 @@ public class HttpTransportOptionsTest {
     BridgeServiceFactory bridgeServiceFactory;
     SchedulerProvider schedulerProvider = new SchedulerProvider();
 
-    NioSocketAcceptor tcpAcceptor = new NioSocketAcceptor(new Properties());
-    HttpAcceptor httpAcceptor = new HttpAcceptor();
+    
+    NioSocketAcceptor tcpAcceptor;
+    HttpAcceptor httpAcceptor;
 
-    NioSocketConnector tcpConnector = new NioSocketConnector(new Properties());
-    HttpConnector httpConnector = new HttpConnector();
+    NioSocketConnector tcpConnector;
+    HttpConnector httpConnector;
 
     AtomicInteger failures = new AtomicInteger(0);
 

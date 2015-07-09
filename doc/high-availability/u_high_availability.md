@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Using the Gateway to Support High Availability
-
 Using the Gateway to Support High Availability
 ================================================================================================
 

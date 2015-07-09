@@ -51,7 +51,7 @@ import org.kaazing.gateway.resource.address.http.HttpInjectableHeader;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.gateway.transport.nio.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;

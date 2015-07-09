@@ -2,7 +2,33 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.26...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.27...HEAD)
+
+**Closed issues:**
+
+-  Create AmqpProxyServiceExtensionSpi in gateway [\#159](https://github.com/kaazing/gateway/issues/159)
+
+**Merged pull requests:**
+
+- adding link to Redis doc and EE graphic [\#204](https://github.com/kaazing/gateway/pull/204) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Eliminate ugly exceptions stacks in build output by removing calls to… [\#202](https://github.com/kaazing/gateway/pull/202) ([cmebarrow](https://github.com/cmebarrow))
+
+- Removed docker build to unstable-gateway docker hub [\#201](https://github.com/kaazing/gateway/pull/201) ([dpwspoon](https://github.com/dpwspoon))
+
+- Fixed \#94 for AMQP Identity Promotion [\#199](https://github.com/kaazing/gateway/pull/199) ([vjwang](https://github.com/vjwang))
+
+- Fixing two issues with WsnConnector impl w.r.t handshake [\#198](https://github.com/kaazing/gateway/pull/198) ([jitsni](https://github.com/jitsni))
+
+- Adding a helper class to log exceptions [\#196](https://github.com/kaazing/gateway/pull/196) ([jitsni](https://github.com/jitsni))
+
+- Adding the glossary in MD format [\#195](https://github.com/kaazing/gateway/pull/195) ([vjwang](https://github.com/vjwang))
+
+- Add JMS entries into index.md and backed out JMX updates from monitoring topics [\#194](https://github.com/kaazing/gateway/pull/194) ([veschup](https://github.com/veschup))
+
+## [5.0.1.27](https://github.com/kaazing/gateway/tree/5.0.1.27) (2015-06-15)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.26...5.0.1.27)
 
 **Fixed bugs:**
 
@@ -18,9 +44,27 @@
 
 **Merged pull requests:**
 
+- Fix up the timing of when proxy service extensions are invoked \(initAcceptSession\) [\#192](https://github.com/kaazing/gateway/pull/192) ([krismcqueen](https://github.com/krismcqueen))
+
+- update to the latest community [\#191](https://github.com/kaazing/gateway/pull/191) ([krismcqueen](https://github.com/krismcqueen))
+
+- Deleting file because it was moved [\#189](https://github.com/kaazing/gateway/pull/189) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- added JMS troubleshooting links to topic [\#188](https://github.com/kaazing/gateway/pull/188) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Expose extension point for amqp.proxy service [\#186](https://github.com/kaazing/gateway/pull/186) ([krismcqueen](https://github.com/krismcqueen))
+
+- Added changes for supporting additional service session-level counters [\#184](https://github.com/kaazing/gateway/pull/184) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+
+- Remove or update svn references [\#181](https://github.com/kaazing/gateway/pull/181) ([ahousing](https://github.com/ahousing))
+
 - Added reference to kaazing gateway on Docker Hub. [\#180](https://github.com/kaazing/gateway/pull/180) ([brennangaunce](https://github.com/brennangaunce))
 
+-  http.keepalive.max.connections config to cache http idle connections. [\#178](https://github.com/kaazing/gateway/pull/178) ([jitsni](https://github.com/jitsni))
+
 - kaazing/gateway\#176  Update to latest community to get animal-sniffer… [\#177](https://github.com/kaazing/gateway/pull/177) ([krismcqueen](https://github.com/krismcqueen))
+
+- Move Enterprise Shield docs [\#174](https://github.com/kaazing/gateway/pull/174) ([vjwang](https://github.com/vjwang))
 
 - Ignored test that is buggy on mac os, see https://github.com/kaazing/… [\#172](https://github.com/kaazing/gateway/pull/172) ([dpwspoon](https://github.com/dpwspoon))
 
@@ -319,8 +363,6 @@
 - Consolidated gateway repositories [\#28](https://github.com/kaazing/gateway/pull/28) ([dpwspoon](https://github.com/dpwspoon))
 
 - Added .travis.yml and badge to README.md [\#26](https://github.com/kaazing/gateway/pull/26) ([dpwspoon](https://github.com/dpwspoon))
-
-- Add a Gitter chat badge to README.md [\#21](https://github.com/kaazing/gateway/pull/21) ([gitter-badger](https://github.com/gitter-badger))
 
 - Fixed README nits [\#19](https://github.com/kaazing/gateway/pull/19) ([vjwang](https://github.com/vjwang))
 

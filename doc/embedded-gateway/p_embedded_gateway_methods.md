@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Use the Embedded Gateway Methods
-
 Use the Embedded Gateway Methods
 ================================
 
@@ -15,7 +11,7 @@ This procedure is part of [Embed KAAZING Gateway in Your Java Application](../em
 1.  [Set Up Your Development Environment](../embedded-gateway/p_embedded_gateway_setup.md)
 2.  [Create the Embedded Gateway Object](../embedded-gateway/p_embedded_gateway_object.md)
 3.  **Use the Embedded Gateway Methods**
-4.  [Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_logging.md)
+4.  [Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_gateway_logging.md)
 5.  [Monitor and Manage an Embedded Gateway](../embedded-gateway/p_embedded_gateway_monitor.md)
 6.  [Troubleshoot Your Embedded Gateway](../embedded-gateway/p_embedded_gateway_troubleshoot.md)
 
@@ -70,7 +66,7 @@ By default, the embedded Gateway uses the properties set in the `GATEWAY_HOME/co
 
 -   **properties:** The properties argument contains the name/value pairs used to configure the embedded Gateway. For example, you can set the location of GATEWAY\_HOME, and GATEWAY\_CONFIG.
 
-For a list of the properties that you can modify, see the [API Documentation](../apidoc/server/gateway/server/api/index.md).
+For a list of the properties that you can modify, see the [API Documentation](http://developer.kaazing.com/documentation/5.0/apidoc/server/gateway/server/api/index.html).
 
 Here is an example of how to configure the GATEWAY\_HOME and GATEWAY\_CONFIG properties before running the Gateway:
 
@@ -143,4 +139,4 @@ gateway.destroy();
 Next Steps
 ----------
 
-[Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_logging.md)
+[Configure Logging for an Embedded Gateway](../embedded-gateway/p_embedded_gateway_logging.md)

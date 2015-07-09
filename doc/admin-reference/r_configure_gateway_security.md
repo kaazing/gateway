@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Security Reference
 =========================================
 
@@ -186,7 +182,7 @@ Use `authentication` to configure the authentication parameters for the `realm`,
   This element is required and specifies the method used for authentication: `Basic`, `Application Basic`, `Negotiate`, `Application Negotiate`, or `Application Token`:
   
   - Use `Basic` or `Negotiate` to allow the browser to respond to authentication challenges. 
-  - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../../index.md) documentation.
+  - Use `Application Basic` or `Application Negotiate` to allow the client to respond to authentication challenges. The client in this case is the KAAZING Gateway client that is built based on the KAAZING Gateway client libraries. To use client-level authentication, configure the client to handle the authentication information, as described in [developer how-to](../index.md) documentation.
   - Use `Application Token` to allow the client to present a third-party token or custom token to be presented to your custom login module.  
   - Use `Negotiate` or `Application Negotiate` if using Kerberos Network Authentication. For more information, see [Secure Network Traffic with the Gateway](../security/o_tls.md).
 
@@ -311,7 +307,7 @@ For information about configuring the LDAP login-module options, see the [Class 
 
 ##### Example of `kerberos5` login module
 
-The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
+The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](#gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
 ``` xml
 <login-module>

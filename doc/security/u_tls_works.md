@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   How TLS/SSL Works with the Gateway
-
 How TLS/SSL Works with the Gateway
 ===========================================================
 

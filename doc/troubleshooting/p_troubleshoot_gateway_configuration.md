@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Troubleshooting KAAZING Gateway
-
 Troubleshoot KAAZING Gateway Configuration and Startup
 ==================================================================================
 
@@ -25,7 +21,7 @@ What Problem Are You Having?
 -   [Port 8000 or 8001 Is Already in Use](#port-8000-or-8001-is-already-in-use)
 -   [Maximum Number of Connections Reached or Exceeded](#maximum-number-of-connections-reached-or-exceeded)
 -   [Too Many Open Files Warning](#too-many-open-files-warning)
--   [Out of Memory Error When Starting KAAZING Gateway](out-of-memory-error-when-starting-kaazing-gateway)
+-   [Out of Memory Error When Starting KAAZING Gateway](#out-of-memory-error-when-starting-kaazing-gateway)
 -   [Error Starting KAAZING Gateway on the Microsoft Vista Operating System](#error-starting-kaazing-gateway-on-the-microsoft-vista-operating-system)
 -   [Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.](#error-unable-to-bind-to-resource-network-address--network-address-cause-address-already-in-use)
 -   [Error When Starting the Gateway: String Value [*'value'*] does not match pattern for DataSize in namespace](#error-when-starting-the-gateway-string-value-value-does-not-match-pattern-for-datasize-in-namespace)
