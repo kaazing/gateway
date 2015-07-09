@@ -1,12 +1,12 @@
 Service-Defaults Reference
 =================================================
 
-This document describes all of the elements and properties you can use to configure KAAZING Gateway service-defaults.
+The `service-defaults` section of the Gateway configuration file allows you to configure default values that apply to all services running on the Gateway. 
 
 Overview
 ----------------------------------
 
-You can use the optional `service-defaults` element to configure certain default options across all services running on the Gateway.
+Use the optional `service-defaults` element to configure certain default options across all services running on the Gateway. However, note that any elements you specify in individual services (that you configure in the [`service`](r_configure_gateway_service.md#service) section of the Gateway configuration file) override the defaults you specify in the `service-defaults` section of the Gateway configuration file. For example, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in `service-defaults`.
 
 Structure
 ------------------------------------
@@ -14,27 +14,14 @@ Structure
 The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `service-defaults` configuration element contained in the top-level `gateway-config` element:
 
 -   [gateway-config](r_configure_gateway_gwconfig.md)
-    -   [service-defaults](#service-defaults)
-        -   [accept-options](#accept-options-service-defaults)
-            -   [*protocol*.bind](r_configure_gateway_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp
-            -   [*protocol*.transport](r_configure_gateway_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
-            -   [ws.maximum.message.size](r_configure_gateway_service.md#wsmaximummessagesize)
-            -   [http.keepalive.timeout](r_configure_gateway_service.md#httpkeepalivetimeout)
-            -   [ssl.ciphers](r_configure_gateway_service.md#sslciphers)
-            -   [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
-            -   [ssl.encryption](r_configure_gateway_service.md#sslencryption)
-            -   [ssl.verify-client](r_configure_gateway_service.md#sslverify-client)
-            -   [socks.mode](r_configure_gateway_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [socks.ssl.ciphers](r_configure_gateway_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [socks.ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
-            -   [socks.ssl.verify-client](r_configure_gateway_service.md#sockssslverify-client)
-            -   [socks.retry.maximum.interval](r_configure_gateway_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [tcp.maximum.outbound.rate](r_configure_gateway_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
-            -   [http.server.header](r_configure_gateway_service.md#httpserverheader)
-        -   [mime-mapping](#mime-mapping-service-defaults)
-            -   [extension](#mime-mapping-service-defaults)
-            -   [mime-type](#mime-mapping-service-defaults)
+    -   [service-defaults](#servicedefaults)
+        -   [accept-options](#servicedefaults)
+            -   . . . 
+        -   [connect-options](#servicedefaults)
+            -   . . . 
+        -   [mime-mapping](#servicedefaults)
+            -   [extension](#servicedefaults)
+            -   [mime-type](#servicedefaults)
 
 service-defaults
 ----------------------------------------------
@@ -43,46 +30,24 @@ Each `service-defaults` element can contain any of the following subordinate ele
 
 | Subordinate Element                         | Description                                                                                                                                                                                                                                                                |
 |---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| accept-options                              | Options for the [accept](r_configure_gateway_service.md#accept) element (see [accept-options (service-defaults)](#accept-options-service-defaults))                                                                                                                                            |
-| <a name="mimemapextension"></a>mime-mapping | Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension (see [mime-mapping (service-defaults)](#mime-mapping-service-defaults)) |
+| accept-options  | Use the `accept-options` element to add options that apply to all services on the Gateway. The complete list of `accept-options` are fully documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options).  See [Examples](#examples) |
+| connect-options  | Use the `connect-options` element to add options that apply to all services on the Gateway. The complete list of  `connect-options` are fully documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options).  |
+| mime-mapping | Use the `mime-mappings` element to define the way the Gateway maps a file extension to a MIME type. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension. The `service-defaults` section in the default Gateway configuration file contains default MIME type mappings that apply to all services on the Gateway. The complete list of `mime-mapping` extensions and `mime-type`'s are documented in the [Service Reference](r_configure_gateway_service.md#mime-mapping). |
 
-### accept-options (service-defaults)
+#### Example of setting default accept-options
 
-The `service-defaults` section can contain the following accept-options:
-
--   [*protocol*.bind](r_configure_gateway_service.md#protocolbind), where *protocol* can be ws, wss, http, https, socks, ssl, tcp, or udp. This option binds the URL(s) on which the service accepts connections defined by the accept element.
--   [*protocol*.transport](r_configure_gateway_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
--   [ws.maximum.message.size](r_configure_gateway_service.md#wsmaximummessagesize): configures the maximum incoming WebSocket message size allowed by the Gateway
--   [http.keepalive.timeout](r_configure_gateway_service.md#httpkeepalivetimeout): configures the duration the Gateway waits between responding to an HTTP or HTTPS connection request and the subsequent request
--   [ssl.ciphers](r_configure_gateway_service.md#sslciphers): specifies the TLS/SSL ciphers used by KAAZING Gateway on secure connections.
--   [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections.
--   [ssl.encryption](r_configure_gateway_service.md#sslencryption): signals KAAZING Gateway to enable or disable encryption on incoming traffic.
--   [ssl.verify-client](r_configure_gateway_service.md#sslverify-client): implements a mutual verification pattern where, in addition to the Gateway presenting a certificate to the client, the client also presents a certificate to the Gateway so that the Gateway can verify the client's authenticity.
--   [socks.mode](r_configure_gateway_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): initiates the Gateway connection using the SOCKet Secure (SOCKS) protocol in forward or reverse mode.
--   [socks.ssl.ciphers](r_configure_gateway_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): uses `socks.ssl.ciphers` to list the encryption algorithms used by TLS/SSL on the secure connection (WSS, HTTPS or SSL).
--   [socks.ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols): specifies a comma-separated list of the TLS/SSL protocol names on which the Gateway can accept or make connections using the SOCKS protocol.
--   [socks.ssl.verify-client](r_configure_gateway_service.md#sockssslverify-client): implements a mutual verification pattern (same as `ssl.verify-client`) over the SOCKS protocol.
--   [socks.retry.maximum.interval](r_configure_gateway_service.md#socksretrymaximuminterval) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): sets the maximum interval of time that the internal Gateway waits to retry a reverse connection to the DMZ Gateway after a failed attempt in an Enterprise Shield™ topology.
--   [tcp.maximum.outbound.rate](r_configure_gateway_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png): specifies the maximum bandwidth rate at which bytes can be written from the Gateway to a client session.
--   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout): specifies the maximum number of seconds that the network connection can be inactive (seconds is the default time interval syntax). The Gateway drops the connection if it cannot communicate with the client in the number of seconds specified.
--   [http.server.header](r_configure_gateway_service.md#httpserverheader): enables or disables the inclusion of the HTTP server header. By default, the Gateway writes a HTTP Server header.
-
-These `accept-options` plus examples are fully documented in the [Service Reference](r_configure_gateway_service_defaults.md#accept-options-service-defaults). Note that if you specify `accept-options` on a particular [service](r_configure_gateway_service.md), then those `accept-options` supercede any default values configured in `service-defaults`. Thus, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in service-defaults.
-
-#### Example
-
-The following example shows `ssl.encryption` disabled, sample network protocol bindings, `ws.maximum.message.size` set to `256k`, and `http.keepalive.timeout` set to `90` seconds, just above the default `mime-mapping` entries, as shown in lines 2-10:
+The following example shows `ssl.encryption` disabled, sample network protocol bindings, `ws.maximum.message.size` set to `256k`, and `http.keepalive.timeout` set to `90` seconds, just above the default `mime-mapping` entries. Note that wss and https can both be bound to the same port (8055) because they are compatible protocols. However, if you try to bind incompatible protocols to the same port, you will receive a port conflict error when the Gateway starts up. For instance, you cannot bind ws and https to the same port.
 
 ``` xml
 <service-defaults>
   <accept-options>
     <ssl.encryption>disabled</ssl.encryption>
     <ws.bind>8050</ws.bind>
-    <wss.bind>192.168.10.25:8055</wss.bind>
-    <http.bind>192.168.10.25:8060</http.bind>
-    <https.bind>192.168.10.25:8065</https.bind>
+    <wss.bind>192.168.10.25:8055</wss.bind>
+    <http.bind>192.168.10.25:8060</http.bind>
+    <https.bind>192.168.10.25:8055</https.bind>
     <ws.maximum.message.size>256k</ws.maximum.message.size>
-    <http.keepalive.timeout>90</http.keepalive.timeout>
+    <http.keepalive.timeout>90 seconds</http.keepalive.timeout>
   </accept-options>
 
   <mime-mapping>
@@ -93,13 +58,11 @@ The following example shows `ssl.encryption` disabled, sample network protocol b
   </service-defaults>
 ```
 
-### mime-mapping (service-defaults)
+#### Example of Mime Mapping
 
-The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. The `service-defaults` section in the default Gateway configuration file contains default MIME type mappings that apply to all services on the Gateway.
+A service can return files of various types to a client.  Generally, HTTP mandates that a response containing a file also specify a Content-Type header describing the file contents.  You may use a <mime-mapping> tag to specify the Content-Type value to be returned for files with a particular name extension. 
 
-#### Example
-
-The following example shows two entries for the same file extension; in this case, when the Gateway receives a request for a file with an `HTML` extension, the Gateway will respond with a Content-Type header value of `text/html` (not `image/png`) as shown in lines 1-4 and 9-12:
+The following example shows two entries for the same file extension; in this case, when the Gateway receives a request for a file with an `HTML` extension, the Gateway will respond with a Content-Type header value of `text/html` (not `image/png`). This example indicates that for files with names ending in '.png', the header 'Content-Type: image/png' should be returned by the Gateway, and 'Content-Type: text/html' should be returned for .html files. You can specify mappings in the both the `service-defaults` block and in any `service` blocks.  If a mapping for a given extension is specified in both the `service-defaults` block and a `service` block, the `service`-level mapping will be used when providing files from that service.
 
 ``` xml
   <mime-mapping>
@@ -124,7 +87,7 @@ Notes
 -   If you specify two or more `mime-mapping` entries for the same extension in a single `service` or in `service-defaults`, the Gateway only applies the last `mime-mapping` entry for that extension.
 -   The `service-defaults` section in the default Gateway configuration includes the following standard mappings. You can modify these entries, but keep in mind that all `mime-mapping` entries must come after any [accept-options](#svcdftacceptoptions) you add to this section.
 
-    **Note:** The Gateway has hard-coded internal MIME mappings that are equivalent to those provided in the `service-defaults` section of the `gateway-config.xml`, for backward compatibility with earlier releases of KAAZING Gateway. You cannot remove these internal settings. You can, however, override them with new MIME-type values.
+    **Note:** The Gateway has hard-coded internal MIME mappings that are equivalent to those provided in the `service-defaults` section of the `gateway-config.xml`, for backward compatibility with earlier releases of KAAZING Gateway. You can edit these mappings, as needed (to override them with new MIME-type values), but you cannot remove the initial internal set of mappings.
 
     The default Gateway `mime-mapping` entries are:
 
