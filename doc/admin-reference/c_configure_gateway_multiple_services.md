@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configuring Multiple Services on the Same Host and Port
-
 Configuring Multiple Services on the Same Host and Port
 ============================================================================================================
 
@@ -74,4 +70,4 @@ Note the following when configuring the Gateway to listen for multiple services 
 See Also
 --------
 
--   [Service Reference](r_configure_gateway_service.md)
+-   [Service Reference](r_configure_gateway_service.md), especially the [`types` element](../admin-reference/r_configure_gateway_service.md#type), to learn about the many types of services you can configure

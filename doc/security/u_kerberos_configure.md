@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Using Kerberos V5 Network Authentication with the Gateway
-
 Using Kerberos V5 Network Authentication with the Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================================================================================================================
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure the HTTP Challenge Scheme
-
 Configure the HTTP Challenge Scheme
 ==========================================================================================
 
@@ -76,7 +72,7 @@ Notes
 -----
 
 -   Use the `Basic` and `Application Basic` schemes to provide a quick and easy-to-implement method, requiring only a username and password for authentication. However, these are the least secure schemes and are subject to several threats, not least of which is the fact that the username/password can easily be sniffed in transit by an attacker.
--   Use the `Negotiate` or `Application Negotiate` schemes when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_auth_configure_config_kerberos.md).
+-   Use the `Negotiate` or `Application Negotiate` schemes when using Kerberos Network Authentication. For more information, see [Configuring Kerberos V5 Network Authentication](o_kerberos.md).
 -   Use the `Application Token` scheme when you need a custom token to be presented to your custom login module. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for configuration information. `Application Token` provides strong authentication because you can implement your own custom scheme that is cryptographically protected to challenge the client. When you configure custom authentication with the `Application Token` element, you must also:
     -   Configure a custom login module in the Gateway that defines how to encode/decode the token challenge data, and code the matching challenge handler on the client. See [Create a Custom Login Module](p_auth_configure_custom_login_module.md) for more information.
     -   Create a custom challenge handler on the client to support the custom login module. See [Configure a Challenge Handler on the Client](p_auth_configure_challenge_handler.md) for more information.

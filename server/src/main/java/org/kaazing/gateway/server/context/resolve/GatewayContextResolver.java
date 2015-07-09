@@ -87,8 +87,6 @@ import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
-import org.kaazing.gateway.transport.BridgeAcceptor;
-import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Transport;
 import org.kaazing.gateway.transport.TransportFactory;
@@ -1220,38 +1218,13 @@ public class GatewayContextResolver {
                                  Map<String, Object> dependencyContexts,
                                  Map<String, Object> injectables) {
 
-        // add all of the transport-driven acceptors and connectors
-        for (DefaultTransportContext transportContext : transportContextsByName.values()) {
-            BridgeAcceptor acceptor = transportContext.getAcceptor();
-            if (acceptor != null) {
-                injectables.put(transportContext.getName() + ".acceptor", acceptor);
-            }
-            BridgeConnector connector = transportContext.getConnector();
-            if (connector != null) {
-                injectables.put(transportContext.getName() + ".connector", connector);
-            }
-        }
-
-        // inject into transport extensions
-        for (DefaultTransportContext transport : transportContextsByName.values()) {
-            for (Object extension: transport.getTransport().getExtensions()) {
-                injectResources(extension, injectables);
-            }
-        }
-
-        // inject all acceptors and connectors
-        for (DefaultTransportContext transport : transportContextsByName.values()) {
-            injectResources(transport.getAcceptor(), injectables);
-            injectResources(transport.getConnector(), injectables);
-        }
+        // add all of the transport acceptors, connectors and extensions
+        injectables = bridgeServiceFactory.getTransportFactory().injectResources(injectables);
 
         // inject services
         for (ServiceContext serviceContext : services) {
             injectResources(serviceContext.getService(), injectables);
         }
-
-        // inject bridge service factory
-        injectResources(bridgeServiceFactory, injectables);
 
         // in case any of the DependencyContexts have dependencies on each other,
         // or the other resources added to the map, inject resources for them as well.

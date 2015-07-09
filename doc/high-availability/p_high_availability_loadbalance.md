@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Set Up KAAZING Gateway as a Load Balancer
-
 Set Up KAAZING Gateway as a Load Balancer
 =============================================================================================
 

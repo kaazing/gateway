@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Element Index
 ===========================
 
@@ -88,6 +84,8 @@ You can view and link to all Gateway configuration elements and properties using
 
 [http.keepalive.timeout](r_configure_gateway_service.md#httpkeepalivetimeout)
 
+[http.proxy](r_configure_gateway_service.md#httpproxy)
+
 [http-query-parameter](r_configure_gateway_security.md#authentication)
 
 [http.server.header](r_configure_gateway_service.md#httpserverheader)
@@ -96,9 +94,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [https.bind](r_configure_gateway_service.md#protocolbind)
 
-[jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+[jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
-[jms.proxy](r_conf_jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+[jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [kerberos5.proxy ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)](r_configure_gateway_service.md#kerberos5proxy)
 
@@ -161,8 +159,6 @@ You can view and link to all Gateway configuration elements and properties using
 [service](r_configure_gateway_service.md)
 
 [service-defaults](r_configure_gateway_service_defaults.md)
-
-[session](r_configure_gateway_service.md#session)
 
 [session-timeout](r_configure_gateway_security.md#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 

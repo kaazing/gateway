@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Documentation Conventions
-
 Documentation Conventions
 ================================================
 

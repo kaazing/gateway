@@ -1,11 +1,7 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   About Gateway Configuration
-
 About Gateway Configuration
 =========================================================
 
-After you install the Gateway, you can configure it by modifying the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file. The actual location of the `GATEWAY_HOME` directory depends on your operating system and the method (standalone or installer) used to install the Gateway. You can find more information about `GATEWAY_HOME` and the directory structure that is set up during installation in [Setting Up the Gateway](../about/setup-guide.md). [About Gateway Configuration](c_conf_concepts.md) describes the types of configuration files and [Configuration Element Index](r_configure_gateway_element_index.md) provides a list of the individual configuration elements.
+After you install the Gateway, you can configure it by modifying the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file. The actual location of the `GATEWAY_HOME` directory depends on your operating system and the method (standalone or installer) used to install the Gateway. You can find more information about `GATEWAY_HOME` and the directory structure that is set up during installation in [Setting Up the Gateway](../about/setup-guide.md). [About Gateway Configuration](c_configure_gateway_concepts.md) describes the types of configuration files and [Configuration Element Index](r_configure_gateway_element_index.md) provides a list of the individual configuration elements.
 
 By default, the Gateway uses the values in the Gateway configuration file when you start the Gateway. Optionally, you can override one or more Gateway configuration settings by specifying the `GATEWAY_OPTS` environment variable before you start the Gateway. This method is described in [Configure KAAZING Gateway Using the GATEWAY\_OPTS Environment Variable](p_configure_gateway_opts.md).
 
@@ -49,7 +45,8 @@ KAAZING Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`
 At a minimum, the Gateway configuration file must contain the following components (which are included in the default configuration files):
 
 -   The Gateway namespace declaration, as described in [About KAAZING Gateway Namespace Declarations](#about-kaazing-gateway-namespace-declarations)
--   The `service` element with the [directory](r_configure_gateway_service.md#directory) tag to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
+-   The Gateway [`name`](../admin-reference/r_configure_gateway_service.md#service) element.
+-   The [`service`](../admin-reference/r_configure_gateway_service.md) element with the [`directory`](r_configure_gateway_service.md#directory) type to specify the path of your static files relative to `GATEWAY_HOME/web`, where *GATEWAY\_HOME* is the directory where you installed KAAZING Gateway.
 
 For example, the following is an example of a minimally configured Gateway configuration file:
 
@@ -127,3 +124,9 @@ Configuration files that contain a wrong or an out-of-date namespace declaration
 
 -   If the Gateway configuration file contains a completely wrong namespace declaration, then the Gateway returns an error and stops. For example: `ERROR Error upgrading XML: Unknown/unsupported XML namespace URI 'http://xmlns.kaazing.com/2011/zzz/gateway'`.
 -   If the Gateway configuration file contains a very old namespace declaration, then the Gateway returns an error and stops. For example: `ERROR Gateway config file 'gateway-config.xml' from prior release in use`. The Gateway writes the configuration file to disk and appends a ".migrated" extension (for example, `gateway-config.xml.migrated`.
+
+See Also
+--------
+
+-   [Configuration Skeleton](r_configure_gateway_element_skeleton.md)
+-   [Service Reference](../admin-reference/r_configure_gateway_service.md#service), and in particular, see the service [`type`](../admin-reference/r_configure_gateway_service.md#type) element

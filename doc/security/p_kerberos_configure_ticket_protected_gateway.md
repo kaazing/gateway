@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a Ticket Protected Gateway
-
 Configure a Ticket Protected Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ====================================================================================================
 
@@ -12,7 +8,7 @@ Before You Begin
 
 This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_kerberos.md)
 2.  **Configure a Ticket Protected Gateway**
 3.  [Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
 

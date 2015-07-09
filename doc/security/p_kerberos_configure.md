@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   [Security with KAAZING Gateway](../index.md#security)
-
 Configuring Kerberos V5 Network Authentication Overview ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ============================================================================================================================
 
@@ -10,7 +6,7 @@ KAAZING Gateway can be configured to accept a Kerberos service ticket (Ticket-Pr
 Before You Begin
 ----------------
 
-This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
+This procedure is part of [Configure Kerberos V5 Network Authentication](o_kerberos.md):
 
 1.  **Configuring Kerberos V5 Network Authentication Overview**
 2.  [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
@@ -53,7 +49,7 @@ In this configuration, a TPG and a Ticket Granting Gateway (TGG) proxy Kerberos 
 In this scenario, by configuring KAAZING Gateway to use Kerberos, you enable your browsers and KAAZING Gateway clients to take advantage of your Kerberos security to authenticate with KAAZING Gateway.
 
 **Note:** You can configure one Gateway as a TPG and another Gateway as a TGG or you can configure a single Gateway as both the TPG and TGG.
-The following example shows a sample `gateway-config.xml` entry for using Kerberos security. In this example, a service with type `kerberos5.proxy` is added, accepts connections on `wss://localhost:9000/kerberos5`, and connects over `tcp://kerberos.example.com:88` to the Kerberos Key Distribution Center. The authentication scheme is `Application Negotiate`, which tells the Gateway to challenge the KAAZING Gateway client for a Kerberos ticket. When the Gateway receives the ticket, it sends the ticket to the URI specified in the KAAZING Gateway client Kerberos challenge handler (see [Notes](o_auth_configure_config_kerberos.md#notes) below). A `kerberos5` login-module includes sample configuration options, and is followed by the `gss` login-module that is required for SPNEGO-based Kerberos security.
+The following example shows a sample `gateway-config.xml` entry for using Kerberos security. In this example, a service with type `kerberos5.proxy` is added, accepts connections on `wss://localhost:9000/kerberos5`, and connects over `tcp://kerberos.example.com:88` to the Kerberos Key Distribution Center. The authentication scheme is `Application Negotiate`, which tells the Gateway to challenge the KAAZING Gateway client for a Kerberos ticket. When the Gateway receives the ticket, it sends the ticket to the URI specified in the KAAZING Gateway client Kerberos challenge handler (see [Notes](#notes) below). A `kerberos5` login-module includes sample configuration options, and is followed by the `gss` login-module that is required for SPNEGO-based Kerberos security.
 
 ##### Ticket Granting Gateway (TGG)
 
