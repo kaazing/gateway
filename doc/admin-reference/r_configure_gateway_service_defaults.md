@@ -16,11 +16,11 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
 -   [gateway-config](r_configure_gateway_gwconfig.md)
     -   [service-defaults](#servicedefaults)
         -   accept-options
-            -   . . . (Documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
+            -   . . . (Listed in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
         -   connect-options
-            -   . . . (Documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
+            -   . . . (Listed in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
         -   mime-mapping
-            -   . . . (Documented in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
+            -   . . . (Listed in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
 
 service-defaults
 ----------------------------------------------
