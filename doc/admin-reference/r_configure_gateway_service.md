@@ -1158,7 +1158,7 @@ The following example shows a `service` element with an HTTP or HTTPS connection
   <accept>wss://localhost:9000/echo</accept>
   . . . 
   <accept-options>
-    <http.keepalive.timeout>120</http.keepalive.timeout>
+    <http.keepalive.timeout>120 seconds</http.keepalive.timeout>
   </accept-options>
 </service>
 ```
