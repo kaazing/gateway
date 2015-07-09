@@ -46,5 +46,5 @@ You can now configure and run a second KAAZING Gateway to serve server-sent even
 See Also
 -------------------------------
 
--   The `broadcast` element in the Service Reference.
+-   The [`broadcast`](r_configure_gateway_service.md#broadcast) element in the Service Reference.
 -   [Classful Networks](http://en.wikipedia.org/wiki/Classful_network "Follow link") for more information about Class D address classes.
