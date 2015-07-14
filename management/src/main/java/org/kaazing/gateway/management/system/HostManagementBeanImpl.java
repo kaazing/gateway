@@ -37,7 +37,6 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
     // To avoid overload of exception messages when we somehow have an issue,
     // I'll show the error messages once, then suppress them (it's really more
     // of an issue with NICs). This flag is the suppressor.
-    private boolean errorShown;
 
     private String osName = "Unknown";
     private double uptimeSeconds;
@@ -49,12 +48,13 @@ public class HostManagementBeanImpl extends AbstractSystemManagementBean impleme
     private long totalSwap;
     private double cpuPercentage;
 
-    public HostManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
+    public HostManagementBeanImpl(GatewayManagementBean gatewayManagementBean, int summaryDataLimit) {
         super(gatewayManagementBean.getManagementContext(),
                 gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
                 HostManagementBean.SUMMARY_DATA_FIELD_LIST,
                 gatewayManagementBean.getManagementContext().getSystemSummaryDataGatherInterval(),
                 "system stats",
+                summaryDataLimit,
                 "SNMPHostSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
     }

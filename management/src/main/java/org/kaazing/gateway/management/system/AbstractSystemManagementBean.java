@@ -21,10 +21,12 @@
 
 package org.kaazing.gateway.management.system;
 
+import java.util.ArrayList;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+
 import org.hyperic.sigar.SigarException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +46,7 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
     // the name to use for the summary data in the JSON object we send out, e.g. 'jvmData', 'cpuData'.
     private final String dataTypeStr;
             // the string that identifies the type of stats, like 'system stats'. Used in logger msg.
-    private final AtomicReference<JSONArray> summaryDataList;
+    private final ArrayBlockingQueue<JSONObject> summaryDataList;
 
     private boolean notificationsEnabled;
 
@@ -59,16 +61,22 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
     private ScheduledFuture gatherSchedulerFuture;
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSystemManagementBean.class);
-
     public AbstractSystemManagementBean(ManagementContext managementContext,
                                         SummaryManagementInterval summaryInterval,
                                         String[] summaryDataFields,
                                         SummaryManagementInterval gatherInterval,
                                         String dataTypeStr,
+                                        int summaryDataLimit,
                                         String schedulerName) {
         super(managementContext, summaryInterval, summaryDataFields);
         this.dataTypeStr = dataTypeStr;
-        this.summaryDataList = new AtomicReference<>(new JSONArray());
+
+        if (summaryDataLimit > 0) {
+            this.summaryDataList = new ArrayBlockingQueue<JSONObject>(summaryDataLimit);
+        } else {
+            this.summaryDataList = null;
+        }
+
         this.schedulerName = schedulerName;
         this.gatherInterval = gatherInterval;
 
@@ -87,9 +95,16 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
     }
 
     public String getSummaryData() {
-        // get existing data and clear the array before sending out, so
-        // we don't get into collisions while processing it.
-        JSONArray jsonArray = summaryDataList.getAndSet(new JSONArray());
+        // We need to empty the collection containing all the JSONObjects in order to avoid collisions
+        JSONArray jsonArray = new JSONArray();
+        if (summaryDataList != null) {
+            // We need to drain the ArrayBlockingQueue into an ArrayList to preserve backward compatibility for the API
+            ArrayList<JSONObject> tmpList = new ArrayList<JSONObject>(summaryDataList.size());
+            summaryDataList.drainTo(tmpList);
+            for (JSONObject jsonObject : tmpList) {
+                jsonArray.put(jsonObject);
+            }
+        }
         return jsonArray.toString();
     }
 
@@ -143,7 +158,14 @@ public abstract class AbstractSystemManagementBean extends AbstractManagementBea
 
                     jsonObj.put("readTime", readTime);
 
-                    summaryDataList.get().put(jsonObj);
+                    if (summaryDataList != null) {
+                        // There is only a single thread which can run at a time because this tasks will be rescheduled
+                        if (!summaryDataList.offer(jsonObj)) {
+                            summaryDataList.poll();
+                            summaryDataList.offer(jsonObj);
+                        }
+                    }
+
                 } catch (SigarException ex) {
                     if (!errorShown) {
                         logger.warn("Caught SIGAR exception trying to get " + dataTypeStr, ex);
