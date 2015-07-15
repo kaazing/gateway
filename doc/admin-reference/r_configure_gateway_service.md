@@ -83,6 +83,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   allow-origin
             -   allow-methods
             -   allow-headers
+            -   maximum-age
 
 service
 -------------------------------------
@@ -518,6 +519,7 @@ Use the `broadcast` service to relay information from a back-end service or mess
   </cross-site-constraint>
 </service>
 ```
+-   For an example showing how to configure a `broadcast` service that uses a multicast address, see [Configure the Gateway to Use Multicast](p_configure_multicast.md).
 
 ### directory
 
@@ -833,11 +835,7 @@ Typically, you use the `http.proxy` service to:
 
 - Enable the Gateway to proxy both HTTP traffic and traffic from other services, allowing you to run more than one service on the same port. 
 
-    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, resulting in these benefits:
-  
-  - Allows the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
- 
-  - Allows the Gateway to proxy HTTP traffic, allowing the Gateway to handle all traffic and removing the need to rely on HTTP servers to proxy HTTP traffic.
+    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, allowing the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
  
 - Enable you to close ports in the firewall for applications serving HTTP requests in Enterprise Shield topologies.
   
@@ -846,10 +844,6 @@ Typically, you use the `http.proxy` service to:
    For example, typically, HTTP requests occur when your application uses KAAZING Gateway to stream data, and uses REST for upstream requests. With the ability to proxy HTTP, your REST requests can go through Enterprise Shield, letting you keep ports closed for REST requests.
 
 Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers. 
-
-When the Gateway is configured to use the `http.proxy` service, then consider customizing your client's challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples to write custom challenge handlers, see the [For Developers](../index.html#dev_topics) documentation for how-to information that is specific to your client. 
-
-If you already have authentication or single sign-on capabilities in place for the Gateway service (such as with [`realm-name`](#realm-name) and [`authorization-constraint`](#authorization-constraint) elements) in your existing configuration, then you should remove these configuration elements when using the `http.proxy` service. Otherwise, authentication and authorization occurs on every request that goes through the configured security mechanism on the Gateway.
 
 #### Examples
 
@@ -862,7 +856,7 @@ http://www.websocket.org
 http://websocket.org
 ```
 
-The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is cached in worker until it is reused or timed out.
+The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is kept alive until it is reused or timed out.
 
 ``` xml
 <service>
@@ -1164,7 +1158,7 @@ The following example shows a `service` element with an HTTP or HTTPS connection
   <accept>wss://localhost:9000/echo</accept>
   . . . 
   <accept-options>
-    <http.keepalive.timeout>120</http.keepalive.timeout>
+    <http.keepalive.timeout>120 seconds</http.keepalive.timeout>
   </accept-options>
 </service>
 ```
@@ -1930,6 +1924,7 @@ Use cross-site-constraint to configure how a cross-origin site is allowed to acc
 | allow-origin | Specifies the cross-origin site or sites that are allowed to access this service: To allow access to a specific cross-site origin site, specify the protocol scheme, fully qualified host name, and port number of the cross-origin site in the format: `<scheme>://<hostname>:<port>`. For example: `<allow-origin>http://localhost:8000</allow-origin>`. To allow access to all cross-site origin sites, including connections to gateway services from pages loaded from the file system rather than a web site, specify the value `*`. For example: `<allow-origin>*</allow-origin>`. Specifying `*` may be appropriate for services that restrict HTTP methods or custom headers, but not the origin of the request. |
 | allow-methods | A comma-separated list of methods that can be invoked by the cross-origin site. For example: `<allow-methods>POST,DELETE</allow-methods>`. |
 | allow-headers | A comma-separated list of custom header names that can be sent by the cross-origin site when it accesses the service. For example, `<allow-headers>X-Custom</allow-headers>`. |
+| maximum-age | Specifies the number of seconds that the results of a preflight request can be cached in a preflight result cache. See the W3C [Access-Control-Max-Age header](http://www.w3.org/TR/cors/#access-control-max-age-response-header) response header for more information. For example, `<maximum-age>1 second</maximum-age>`. |
 
 #### Example
 

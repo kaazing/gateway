@@ -100,6 +100,7 @@ You can view and link to all Gateway configuration elements and properties using
             -   [allow-origin](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-methods](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
+            -   [maximum-age](r_configure_gateway_service.md#cross-site-constraint)
     -   [service-defaults](r_configure_gateway_service_defaults.md)
         -   [accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults)
             -   [*protocol*.bind](r_configure_gateway_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
