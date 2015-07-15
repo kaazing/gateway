@@ -101,9 +101,6 @@ For Administrators
 ### JMS-Compliant Message Brokers
 -   [Integrate with JMS-Compliant Message Brokers](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/integration-jms/o_jms_integrate.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
-### Apple Push Notification Service (APNs)
--   [Deploy Apple Push Notification Service (APNs) with KAAZING Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/apns/o_apns.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-
 Client API Documentation
 ------------------------
 
