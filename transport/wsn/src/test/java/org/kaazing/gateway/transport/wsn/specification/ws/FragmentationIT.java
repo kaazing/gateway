@@ -88,7 +88,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("disconnected early, should read")
+    @Ignore("Gateway disconnected instead of echoing code, client did not read")
     @Specification({
         "client.echo.text.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -97,7 +97,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("disconnected early")
+    @Ignore("Gateway writing wrong bytes back to client, read does not match")
     @Specification({
         "client.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
@@ -106,7 +106,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read, not echoing")
+    @Ignore("Incorrect data write by Gateway, not echoing")
     @Specification({
         "client.echo.text.payload.length.125.fragmented/handshake.request.and.frames"
         })
@@ -115,7 +115,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read")
+    @Ignore("Incorrect data write by Gateway, not echoing")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frames"
         })
@@ -124,7 +124,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Read value for differs")
+    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.request.and.frames"
         })
@@ -133,7 +133,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read, not echoing")
+    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
@@ -142,7 +142,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read")
+    @Ignore("Read value for client differs from expected.")
     @Specification({
         "client.send.text.payload.length.125.fragmented.but.not.continued/handshake.request.and.frames"
         })
@@ -159,7 +159,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("disconnected early, not reading data")
+    @Ignore("disconnected early, not echoing data")
     @Specification({
         "client.echo.binary.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -177,7 +177,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read, not echoing")
+    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented/handshake.request.and.frames"
         })
@@ -186,7 +186,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read")
+    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frames"
         })
@@ -195,7 +195,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Incorrect data read, not echoing")
+    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
@@ -204,7 +204,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Data read wrong")
+    @Ignore("Read value for client differs from expected. Gateway may have written incorrect data")
     @Specification({
         "client.send.binary.payload.length.125.fragmented.but.not.continued/handshake.request.and.frames"
         })

@@ -53,6 +53,13 @@ public class OpeningHandshakeIT {
                                 .allowOrigin("*")
                             .done()
                         .done()
+                        .service()
+                            .accept(URI.create("ws://localhost:8080/preflight"))
+                            .type("echo")
+                            .crossOrigin()
+                                .allowOrigin("*")
+                            .done()
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);
@@ -77,7 +84,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Not close")
+    @Ignore("This spec test will not work. Preflight cookie request not 'a thing'. Talk to engineers.")
     @Specification({
         "request.header.cookie/handshake.request"
         })
@@ -156,7 +163,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Did not fail")
+    @Ignore("Did not fail and should")
     @Specification({
         "request.version.not.http.1.1/handshake.request"
         })
@@ -165,7 +172,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("WAY OFF")
+   @Ignore("Did not fail and should")
     @Specification({
         "request.header.host.missing/handshake.request"
         })
