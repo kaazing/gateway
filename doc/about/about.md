@@ -39,7 +39,7 @@ For example, the following URI schemes are used in the documentation:
 
 `sse://localhost:8000/sse`
 
--   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_configure_gateway_service.md#note_supportedURLschemes) for the complete list.
+-   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_configure_gateway_service.md#supported-url-schemes) for the complete list.
 -   The **host** specifies where to connect and can be a hostname or domain name, or an IP address.
 -   The **port** specifies the port number to ask for. This portion of the URI scheme is optional if you are using a default port, such as port 80 for http or port 443 for https. For example, when using the http scheme you do not need to specify port 80.
 -   The **path** refers to the path of the resource. At a minimum you must specify the root path (`/`). Thus, `http://example.com/` is a legal address, but `http://example.com` is not, even though in practice the final slash "`/`” is added automatically.
