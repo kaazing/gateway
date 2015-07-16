@@ -26,8 +26,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kaazing.gateway.management.gateway.GatewayManagementBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the management 'data' bean for the list of NICs for the system running a given gateway. This just contains
@@ -41,14 +39,13 @@ public class NicListManagementBeanImpl extends AbstractSystemManagementBean impl
 
     private NicManagementBean[] nicManagementBeans;
 
-    private static final Logger logger = LoggerFactory.getLogger(NicListManagementBeanImpl.class);
-
-    public NicListManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
+    public NicListManagementBeanImpl(GatewayManagementBean gatewayManagementBean, int summaryDataLimit) {
         super(gatewayManagementBean.getManagementContext(),
                 gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
                 NicManagementBean.SUMMARY_DATA_FIELD_LIST,
                 gatewayManagementBean.getManagementContext().getNicListSummaryDataGatherInterval(),
                 "NIC list stats",
+                summaryDataLimit,
                 "SNMPNicListSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
 
