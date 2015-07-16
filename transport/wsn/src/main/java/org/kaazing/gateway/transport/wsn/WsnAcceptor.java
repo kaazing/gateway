@@ -30,6 +30,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_RE
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
+import static org.kaazing.gateway.transport.http.HttpUtils.HTTP_REQUEST_URI_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter.DRAFT76_KEY3_BUFFER_KEY;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter.AUTH_SCHEME_APPLICATION_PREFIX;
 import static org.kaazing.gateway.transport.ws.util.WsUtils.ACTIVE_EXTENSIONS_KEY;
@@ -151,7 +152,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
 
     private static final AttributeKey LOCAL_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "localAddress");
-    private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsnAcceptor.class, "httpRequestURI");
 
     private static final TypedAttributeKey<ResourceAddress> WEBSOCKET_LOCAL_ADDRESS
             = new TypedAttributeKey<>(WsnAcceptor.class, "websocketLocalAddress");

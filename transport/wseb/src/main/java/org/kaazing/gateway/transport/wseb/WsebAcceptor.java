@@ -35,6 +35,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVI
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
+import static org.kaazing.gateway.transport.http.HttpUtils.HTTP_REQUEST_URI_KEY;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
@@ -120,7 +121,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     public static final AttributeKey CLIENT_PADDING_KEY = new AttributeKey(WsebAcceptor.class, "clientPadding");
     public static final AttributeKey CLIENT_BLOCK_PADDING_KEY = new AttributeKey(WsebAcceptor.class, "clientBlockPadding");
     public static final AttributeKey BYTES_WRITTEN_ON_LAST_FLUSH_KEY = new AttributeKey(WsebAcceptor.class, "bytesWrittenOnLastFlush");
-    private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsebAcceptor.class, "httpRequestURI");
 
     public static final String EMULATED_SUFFIX = "/;e";
 
@@ -638,6 +638,11 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.get(session));
 
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
+
+                    // Add the HTTP_REQUEST_URI_KEY to the extension session as well so that
+                    // the original HTTP request is available for any extensions to access.
+                    extensionsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
+
                     // TODO: add extension filters when we adopt the new webSocket extension SPI
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
                     WsUtils.addExtensionFilters(negotiated, extensionsFilterChain, false);

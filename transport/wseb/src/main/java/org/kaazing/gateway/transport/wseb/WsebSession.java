@@ -23,6 +23,7 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
 
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
@@ -939,7 +942,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
-    static class TransportSession extends DummySessionEx {
+    public static class TransportSession extends DummySessionEx {
         private final WsebSession wsebSession;
 
         TransportSession(WsebSession wsebSession, IoProcessorEx<WsebSession> processor) {
@@ -950,6 +953,18 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         public IoBufferAllocatorEx<?> getBufferAllocator() {
             return wsebSession.getBufferAllocator();
+        }
+
+        public void setSubject(Subject subject) {
+            wsebSession.setSubject(subject);
+        }
+
+        public void logout() {
+            wsebSession.logout();
+        }
+
+        public Object getQualifier() {
+            return wsebSession.getRemoteAddress().getOption(QUALIFIER);
         }
 
         WsebSession getWsebSession() {
