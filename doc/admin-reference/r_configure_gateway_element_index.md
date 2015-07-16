@@ -24,10 +24,6 @@ You can view and link to all Gateway configuration elements and properties using
 
 [amqp.proxy](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
 
-[apns.feedback.transport](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-[apns.feedback.transport](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
 [authentication](r_configure_gateway_security.md#authentication)
 
 [authorization-constraint](r_configure_gateway_service.md#authorization-constraint)
@@ -109,6 +105,8 @@ You can view and link to all Gateway configuration elements and properties using
 [management.jmx](r_configure_gateway_service.md#managementjmx)
 
 [management.snmp](r_configure_gateway_service.md#managementsnmp)
+
+[maximum-age](r_configure_gateway_service.md#cross-site-constraint)
 
 [maximum.pending.bytes](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
 

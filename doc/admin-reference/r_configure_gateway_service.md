@@ -68,8 +68,6 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
             -   [http.server.header](#httpserverheader)
         -   [notify-options](#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   apns.notify.transport
-            -   apns.feedback.transport
             -   ssl.ciphers
             -   tcp.transport
         -   [realm-name](#realm-name)
@@ -83,6 +81,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   allow-origin
             -   allow-methods
             -   allow-headers
+            -   maximum-age
 
 service
 -------------------------------------
@@ -98,7 +97,6 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |accept|The URLs on which the service accepts connections.|
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.|
-|notify  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|The notification-specific URI of the Apple Push Notification Service (APNs) that is going to make APNs notifications available for this service. See the [notify](#notify) element for details.|
 |type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png),  [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [http.proxy](#httpproxy).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
@@ -227,180 +225,6 @@ The following example shows a Gateway with a `balancer` service and an Echo serv
 -   See [Set Up KAAZING Gateway as a Load Balancer](../high-availability/p_high_availability_loadbalance.md) for a complete load balancing description and example.
 
 
-### notify![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-**Required?** Optional; **Occurs:** one or more.
-
-Use the `notify` element to make Apple Push Notification Service (APNs) notifications available for the service. This element specifies the notification-specific URI that contains the bundle ID and an optional development (or sandbox) indicator.
-
-**Note:** You must specify the bundle ID for your app in lowercase letters. For more information, see [Setting the Bundle ID](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/ConfiguringYourApp/ConfiguringYourApp.html#//apple_ref/doc/uid/TP40012582-CH28-SW16).
-For example, you might configure the URI `<notify>apns://com.example.myapp</notify>` to indicate that the iOS application can use the APNs notifying feature (while other iOS applications, with different bundle IDs, cannot). Because the bundle ID is the same for both the sandbox and production environments, you might have two different APNs certificates for the same bundle ID: one sandbox certificate and one production certificate. To tell them apart in the Gateway configuration, the URIs would be slightly different. For example:
-
--   For the sandbox environment: `<notify>apns://com.example.myapp/DEVELOPMENT</notify>`
--   For the production environment: `<notify>apns://com.example.myapp/PRODUCTION</notify>`
-
-**Note:** To configure the Gateway and iOS applications built using the KAAZING Gateway Objective-C client library to use APNs for offline notifications, see the step-by-step instructions in [Deploy APNs with KAAZING Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/apns/o_apns.md).
-#### <a name="notifyexample"></a>Example Configuration for the notify Element
-
-The following examples show complete `notify` elements including a service for the production and Apple sandbox environments. The examples also demonstrate the use of multiple [notify-options](#notify-options) and show a `security` element that specifies the `keystore.db` keystore. Including this in the configuration is essential for communication with the Apple servers because the keystore has the APNs certificate imported into it (this is imported using the keytool command
-`-importcert`, as described in [Deploy APNs with KAAZING Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/apns/o_apns.md)).
-
-**Example Configuration for an Apple Production Environment**
-
-``` xml
-<service>
-  <accept>ws://${gateway.hostname}:8000/proxy</accept>
-
-  <!-- Use the APNs scheme (notification provider),
-    and allow the application com.example.myapp to
-    to subscribe and receive notifications via APNs -->
-  <notify>apns://com.example.myapp/PRODUCTION</notify>
-
-  <type>jms</type>
-
-  <properties>
-    <connection.factory.name>
-      Connection Factory
-    </connection.factory.name>
-    <context.lookup.topic.format>
-      dynamicTopics/%s
-    </context.lookup.topic.format>
-    <context.lookup.queue.format>
-      dynamicQueues/%s
-    </context.lookup.queue.format>
-    <env.java.naming.factory.initial>
-      org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    </env.java.naming.factory.initial>
-    <env.java.naming.provider.url>
-      tcp://localhost:61616
-    </env.java.naming.provider.url>
-  </properties>
-
-    <!-- These DNS names/ports point to the production Apple servers. This means
-    JMS clients that connect to this service should have production device tokens.-->
-    <!-- Use ssl:// - Apple requires TLS/SSL to communicate with their services -->
-  <notify-options>
-    <apns.notify.transport>ssl://gateway.push.apple.com:2195</apns.notify.transport>
-    <apns.feedback.transport>ssl://feedback.push.apple.com:2196</apns.feedback.transport>
-  </notify-options>
-
-  <realm-name>demo</realm-name>
-
-  <cross-site-constraint>
-    <allow-origin>http://example.com:8080</allow-origin>
-  </cross-site-constraint>
-</service>
-    .
-    .
-    .
-<security>
-  <keystore>
-    <type>JCEKS</type>
-    <file>keystore.db</file>
-    <password-file>keystore.pw</password-file>
-  </keystore>
-  <truststore>
-    <type>JCEKS</type>
-    <file>truststore-JCEKS.db</file>
-  </truststore>
-</security>
-  .
-  .
-  .
-```
-
-**Example Configuration for an Apple Sandbox Development Environment**
-
-``` xml
-  .
-  .
-  .
-<service>
-  <accept>ws://example.com:8080/jms</accept>
-
-    <!-- Use the APNs scheme (notification provider) and allow  
-    the application com.example.myapp/DEVELOPMENT to  
-    subscribe and receive notifications via APNs -->
-  <notify>apns://com.example.myapp/DEVELOPMENT</notify>
-
-  <type>jms</type>
-
-  <properties>
-    <connection.factory.name>
-      Connection Factory
-    </connection.factory.name>
-    <context.lookup.topic.format>
-      dynamicTopics/%s
-    </context.lookup.topic.format>
-    <context.lookup.queue.format>
-      dynamicQueues/%s
-    </context.lookup.queue.format>
-    <env.java.naming.factory.initial>
-      org.apache.activemq.jndi.ActiveMQInitialContextFactory
-    </env.java.naming.factory.initial>
-    <env.java.naming.provider.url>
-      tcp://localhost:61616
-    </env.java.naming.provider.url>
-  </properties>
-
-    <!-- These DNS names/ports point to the sandbox Apple servers. Thus, the JMS
-    clients that connect to this service should have development device tokens.-->
-    <!-- Must use ssl:// - Apple requires TLS/SSL to communicate with their services -->
-  <notify-options>
-    <apns.notify.transport>
-      ssl://gateway.sandbox.push.apple.com:2195
-    </apns.notify.transport>
-    <apns.feedback.transport>
-      ssl://feedback.sandbox.push.apple.com:2196
-    </apns.feedback.transport>
-  </notify-options>
-
-  <realm-name>demo</realm-name>
-
-  <cross-site-constraint>
-    <allow-origin>http://example.com:8080</allow-origin>
-  </cross-site-constraint>
-</service>
-.
-.
-.
-<security>
-  <keystore>
-    <type>JCEKS</type>
-    <file>keystore.db</file>
-    <password-file>keystore.pw</password-file>
-  </keystore>
-  <truststore>
-    <type>JCEKS</type>
-    <file>truststore-JCEKS.db</file>
-  </truststore>
-</security>
-  .
-  .
-  .
-```
-
-#### Notes
-
--   There is no default value for the notify element. If you configure the `notify` element, then you must specify the URI of the Apple Push Notification Service (APNs) as its value.
--   Configure the `notify` element after any `accept`, `connect`, and `balance` elements, and before the `type` element.
--   Configure the [notify-options](#notify-options) after any `properties`, `accept-options,` and `connect-options` elements, and before any `realm-name` element.
--   Configure the `security` element for all APNs configurations, including both the production and development environments.
--   In an Enterprise Shield™ topology, configure `notify` and `notify-options` on the [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jms) service on an internal Gateway that is connected directly to the back-end service or message broker.
--   Do not configure a single Gateway instance to have a `service` connecting to the sandbox (development) Apple servers and a `service` connecting to the production Apple servers if those services will use the same bundle ID in their `notify` elements. Instead, you must configure and launch a separate Gateway instance for each `service` that uses the same bundle ID.
-
-    For example, because the production and sandbox configurations shown above in the "Example Configuration for the notify Element" use the bundle ID `com.example.myapp,` each service must be configured and started as a separate Gateway instance. Otherwise, an APNs notification intended for the development environment might be sent on the connection to the production environment, or vice versa. This means, in turn, that APNs client applications may not receive the APNs notifications as intended. Note that this could occur even though the sandbox Apple server connection includes `/DEVELOPMENT` (`com.example.myapp/DEVELOPMENT`) on its URI.
-
--   For APNs notifications, if the sandbox and the production environments both use the same bundle ID (such as `com.example.myapp`), then you must configure two Gateway instances: one for the sandbox environment and one for the production environment. When establishing connections to Apple's development (and production) environment, both the bundle ID and the environment are used.
-
--   If the client already has an active or open connection to the Gateway, then APNs will not be used.
--   Considerations regarding certificates:
-    -   Connecting to the APNs requires a certificate; each certificate is tied to a specific application (by iOS application ID). Thus, you must configure multiple APNs certificates for a given service.
-    -   The sandbox and the production environments each has its own set of certificates. Configuration of APNs certificates, for a given service, is therefore comprised of separate sets of certificates per environment, and per application within each environment.
-    -   The APNs URI (which uses the bundle ID, such as `com.example.myapp`) in the `notify` element ties together the provisioning profile and digital certificate. The provisioning profile and digital certificate are only valid for a single AppID. This relationship ensures that the Gateway can send push notifications to instances of a specific iOS app, and to no other application.
-    -   If you use separate digital certificates for the Gateway and the iOS app, then both certificates must have the same bundle ID.
-
-
 ### type
 
 The type of service. For each service that you configure, you define any of the service types in the following table to customize the Gateway for your environment.
@@ -518,6 +342,7 @@ Use the `broadcast` service to relay information from a back-end service or mess
   </cross-site-constraint>
 </service>
 ```
+-   For an example showing how to configure a `broadcast` service that uses a multicast address, see [Configure the Gateway to Use Multicast](p_configure_multicast.md).
 
 ### directory
 
@@ -833,11 +658,7 @@ Typically, you use the `http.proxy` service to:
 
 - Enable the Gateway to proxy both HTTP traffic and traffic from other services, allowing you to run more than one service on the same port. 
 
-    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, resulting in these benefits:
-  
-  - Allows the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
- 
-  - Allows the Gateway to proxy HTTP traffic, allowing the Gateway to handle all traffic and removing the need to rely on HTTP servers to proxy HTTP traffic.
+    The Gateway’s `http.proxy` service acts as a reverse proxy. Its primary intent is to protect internal servers, allowing the Gateway to serve HTTP and WebSocket requests on the same host on the same port (such as port 80 and 443). If the Gateway is running on port 80, then a separate HTTP server cannot also bind to port 80 on the same network interface. Conversely, if Apache or Tomcat, for example, are bound to port 80, then the Gateway cannot listen on port 80.
  
 - Enable you to close ports in the firewall for applications serving HTTP requests in Enterprise Shield topologies.
   
@@ -846,10 +667,6 @@ Typically, you use the `http.proxy` service to:
    For example, typically, HTTP requests occur when your application uses KAAZING Gateway to stream data, and uses REST for upstream requests. With the ability to proxy HTTP, your REST requests can go through Enterprise Shield, letting you keep ports closed for REST requests.
 
 Consider configuring the [`http.keepalive.connections`](#httpkeepaliveconnections) in  `connect-options` to specify a maximum number of idle keep-alive connections to upstream servers. 
-
-When the Gateway is configured to use the `http.proxy` service, then consider customizing your client's challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples to write custom challenge handlers, see the [For Developers](../index.html#dev_topics) documentation for how-to information that is specific to your client. 
-
-If you already have authentication or single sign-on capabilities in place for the Gateway service (such as with [`realm-name`](#realm-name) and [`authorization-constraint`](#authorization-constraint) elements) in your existing configuration, then you should remove these configuration elements when using the `http.proxy` service. Otherwise, authentication and authorization occurs on every request that goes through the configured security mechanism on the Gateway.
 
 #### Examples
 
@@ -862,7 +679,7 @@ http://www.websocket.org
 http://websocket.org
 ```
 
-The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is cached in worker until it is reused or timed out.
+The configuration example that follows requires DNS to resolve [www.websocket.org](http://www.websocket.org) and [websocket.org](http://www.websocket.org) to the IP address of the Gateway. Inbound requests are then proxied to a Web server (such as the Apache or Tomcat). Notice also that the connect URI proxies to the private IP address of the back-end server. The following example specifies one connection is kept alive until it is reused or timed out.
 
 ``` xml
 <service>
@@ -1164,7 +981,7 @@ The following example shows a `service` element with an HTTP or HTTPS connection
   <accept>wss://localhost:9000/echo</accept>
   . . . 
   <accept-options>
-    <http.keepalive.timeout>120</http.keepalive.timeout>
+    <http.keepalive.timeout>120 seconds</http.keepalive.timeout>
   </accept-options>
 </service>
 ```
@@ -1796,28 +1613,6 @@ The following example shows addresses for the WebSocket (`ws`) and WebSocket Sec
 </service>
 ```
 
-### notify-options![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-**Required?** Required for Apple Push Notification Service (APNs); **Occurs:** zero or one
-
-Specify `notify-options` for the [notify](#notify-options) element when using Apple Push Notification Service (APNs) to push notifications to iOS devices on which the Gateway iOS application (Objective C clients) is installed. See also the [notify](#notify) element.
-
-**Note:**
-The notify-options must be specified in the order shown in the following table.
-
-| notify-options                                            | Required?  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-|-----------------------------------------------------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| apns.notify.transport      | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the Apple scheme and connection data for pushing notifications to remote iOS devices. Push notifications, also known as remote notifications, are sent by the Gateway to Apple Push Notification Service, which pushes the notification to iOS devices on which the Gateway iOS app is installed. The `apns.notify.transport` option is required for APNs. |
-| apns.feedback.transport | Required\* | \*This property is required for APNs. The `apns.notify.transport` option is a URI containing the scheme and connection data for the Apple Feedback Service, a companion service to APNs, to know when to stop sending notifications to particular devices. The `apns.feedback.transport` option is required for APNs.                                                                                                                                         |
-| ssl.ciphers               | Optional   | Lists the cipher strings and cipher suite names used by the secure connection. The `ssl.ciphers` option is not required for APNs and is used to specify the TLS/SSL cipher suites to use when talking to Apple.                                                                                                                                                                                                                                               |
-| tcp.transport           | Optional   | The `tcp.transport` option is not required for APNs. It is used only to handle cases where the connection out to Apple needs to happen via a forward SOCKS connection (specified using the [socks.mode](#socksmode) accept-option).                                                                                                                                                                                                                            |
-
-#### Notes
-
--   For APNs functionality, the `apns.notify.transport` and `apns.feedback.transport` elements are required. The Gateway will not accept the device token from an iOS application if these elements are not present in the Gateway configuration.
--   For a complete example of the `notify` element with the `notify-options`, see [Example Configuration for the notify Element](#notifyexample) earlier in this topic.
--   To configure the Gateway and its iOS (Objective-C) client applications to use the Apple Push Notification Service (APNs), see the step-by-step checklist [Deploy APNs with KAAZING Gateway.](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/apns/o_apns.md)
-
 ### realm-name
 
 The name of the security realm used for authorization.
@@ -1930,6 +1725,7 @@ Use cross-site-constraint to configure how a cross-origin site is allowed to acc
 | allow-origin | Specifies the cross-origin site or sites that are allowed to access this service: To allow access to a specific cross-site origin site, specify the protocol scheme, fully qualified host name, and port number of the cross-origin site in the format: `<scheme>://<hostname>:<port>`. For example: `<allow-origin>http://localhost:8000</allow-origin>`. To allow access to all cross-site origin sites, including connections to gateway services from pages loaded from the file system rather than a web site, specify the value `*`. For example: `<allow-origin>*</allow-origin>`. Specifying `*` may be appropriate for services that restrict HTTP methods or custom headers, but not the origin of the request. |
 | allow-methods | A comma-separated list of methods that can be invoked by the cross-origin site. For example: `<allow-methods>POST,DELETE</allow-methods>`. |
 | allow-headers | A comma-separated list of custom header names that can be sent by the cross-origin site when it accesses the service. For example, `<allow-headers>X-Custom</allow-headers>`. |
+| maximum-age | Specifies the number of seconds that the results of a preflight request can be cached in a preflight result cache. See the W3C [Access-Control-Max-Age header](http://www.w3.org/TR/cors/#access-control-max-age-response-header) response header for more information. For example, `<maximum-age>1 second</maximum-age>`. |
 
 #### Example
 

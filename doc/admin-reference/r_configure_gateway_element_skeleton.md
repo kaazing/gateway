@@ -85,8 +85,6 @@ You can view and link to all Gateway configuration elements and properties using
             -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
             -   [ws.version](r_configure_gateway_service.md#wsversion-deprecated) (deprecated)
         -   [notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
             -   [ssl.ciphers](r_configure_gateway_service.md#notify-options)
             -   [tcp.transport](r_configure_gateway_service.md#notify-options)
         -   [realm-name](r_configure_gateway_service.md#realm-name)
@@ -100,6 +98,7 @@ You can view and link to all Gateway configuration elements and properties using
             -   [allow-origin](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-methods](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
+            -   [maximum-age](r_configure_gateway_service.md#cross-site-constraint)
     -   [service-defaults](r_configure_gateway_service_defaults.md)
         -   [accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults)
             -   [*protocol*.bind](r_configure_gateway_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
