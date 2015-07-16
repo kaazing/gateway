@@ -62,12 +62,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>specification.tcp</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <!-- Needed for EL only, not AST -->
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.lang</artifactId>
@@ -91,7 +85,6 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>${project.version}</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>
@@ -103,6 +96,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                	<dependency>
+            			<groupId>org.kaazing</groupId>
+            			<artifactId>specification.tcp</artifactId>
+            			<scope>test</scope>
+        			</dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

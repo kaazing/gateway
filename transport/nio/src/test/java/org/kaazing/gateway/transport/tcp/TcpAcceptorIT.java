@@ -59,8 +59,6 @@ public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
-    
-
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private NioSocketConnector connector;
@@ -72,6 +70,7 @@ public class TcpAcceptorIT {
     @Before
     public void before() throws Exception {
         NioSocketAcceptor acceptor = new NioSocketAcceptor(new Properties());
+        
         connector = new NioSocketConnector(new Properties());
         connector.setResourceAddressFactory(newResourceAddressFactory());
         connector.setTcpAcceptor(acceptor);
@@ -94,7 +93,6 @@ public class TcpAcceptorIT {
 
             @Override
             public void operationComplete(IoFuture arg0) {
-                // TODO Auto-generated method stub
                 latch.countDown();
             }
             
@@ -139,7 +137,6 @@ public class TcpAcceptorIT {
         connectTo8080(new IoHandlerAdapter(){
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
                 ByteBuffer data = ByteBuffer.allocate(20);
                 String str = "client data";
                 data.put(str.getBytes());
@@ -165,7 +162,6 @@ public class TcpAcceptorIT {
             
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
                 ByteBuffer data = ByteBuffer.allocate(20);
                 String str = "client data " + counter;
                 data.put(str.getBytes());
@@ -179,7 +175,6 @@ public class TcpAcceptorIT {
             
             @Override
             protected void doMessageReceived(IoSession session, Object message) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
                 String decoded = new String(((IoBuffer) message).array());
 
                 if (decoded.equals("server data " + counter) && counter < 2) {
@@ -236,7 +231,6 @@ public class TcpAcceptorIT {
         IoHandlerAdapter adapter = new IoHandlerAdapter(){
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
                 ByteBuffer data = ByteBuffer.allocate(20);
                 String str = "Hello";
                 data.put(str.getBytes());
@@ -250,7 +244,6 @@ public class TcpAcceptorIT {
             
             @Override
             protected void doMessageReceived(IoSession session, Object message) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
                 String decoded = new String(((IoBuffer) message).array());
 
                 if (decoded.equals("Hello")) {
