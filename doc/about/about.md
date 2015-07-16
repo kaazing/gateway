@@ -56,7 +56,7 @@ Many examples in the documentation use the `.net domain` (such as `tcp://gateway
 
 -   [Service Reference](../admin-reference/r_configure_gateway_service.md) for information about specifying URLs with the accept and connect elements.
 -   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
--   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_configure_gateway_multiple_services.md#configmultsrvcs)
+-   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_configure_gateway_multiple_services.md)
 
 About Ports
 ------------------------------------
