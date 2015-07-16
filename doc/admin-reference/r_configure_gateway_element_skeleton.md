@@ -85,8 +85,6 @@ You can view and link to all Gateway configuration elements and properties using
             -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
             -   [ws.version](r_configure_gateway_service.md#wsversion-deprecated) (deprecated)
         -   [notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
             -   [ssl.ciphers](r_configure_gateway_service.md#notify-options)
             -   [tcp.transport](r_configure_gateway_service.md#notify-options)
         -   [realm-name](r_configure_gateway_service.md#realm-name)
