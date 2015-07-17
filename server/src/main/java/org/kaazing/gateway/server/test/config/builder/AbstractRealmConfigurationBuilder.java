@@ -91,6 +91,12 @@ public abstract class AbstractRealmConfigurationBuilder<R> extends AbstractConfi
         return this;
     }
 
+    public AbstractRealmConfigurationBuilder<R> authorizationTimeout(String chars) {
+        configuration.getSuppressibleConfiguration().setAuthorizationTimeout(
+                new Suppressible<>(chars, getCurrentSuppressions()));
+        return this;
+    }
+
     public AbstractRealmConfigurationBuilder<R> sessionTimeout(String chars) {
         configuration.getSuppressibleConfiguration().setSessionTimeout(
                 new Suppressible<>(chars, getCurrentSuppressions()));

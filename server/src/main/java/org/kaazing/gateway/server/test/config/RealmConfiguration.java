@@ -36,6 +36,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private Suppressible<String> _description;
     private Suppressible<String> _httpChallengeScheme;
     private Suppressible<String> _authorizationMode;
+    private Suppressible<String> _authorizationTimeout;
     private Suppressible<String> _sessionTimeout;
     private final List<Suppressible<String>> httpHeaders = new ArrayList<>();
     private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
@@ -123,6 +124,18 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
 
     public void setAuthorizationMode(String authorizationMode) {
         this._authorizationMode = new Suppressible<>(authorizationMode);
+    }
+
+    // authorization mode
+    public String getAuthorizationTimeout() {
+        if (_authorizationTimeout == null) {
+            return null;
+        }
+        return _authorizationTimeout.value();
+    }
+
+    public void setAuthorizationTimeout(String authorizationTimeout) {
+        this._authorizationTimeout = new Suppressible<>(authorizationTimeout);
     }
 
     // session timeout
@@ -216,6 +229,16 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
         @Override
         public void setAuthorizationMode(Suppressible<String> authorizationMode) {
             _authorizationMode = authorizationMode;
+        }
+
+        @Override
+        public Suppressible<String> getAuthorizationTimeout() {
+            return _authorizationTimeout;
+        }
+
+        @Override
+        public void setAuthorizationTimeout(Suppressible<String> authorizationTimeout) {
+            _authorizationTimeout = authorizationTimeout;
         }
 
         @Override

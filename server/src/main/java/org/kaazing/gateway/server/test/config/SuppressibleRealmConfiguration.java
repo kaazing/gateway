@@ -41,6 +41,10 @@ public abstract class SuppressibleRealmConfiguration implements SuppressibleConf
 
     public abstract void setAuthorizationMode(Suppressible<String> authorizationMode);
 
+    public abstract Suppressible<String> getAuthorizationTimeout();
+
+    public abstract void setAuthorizationTimeout(Suppressible<String> authorizationTimeout);
+
     public abstract Suppressible<String> getSessionTimeout();
 
     public abstract void setSessionTimeout(Suppressible<String> sessionTimeout);
