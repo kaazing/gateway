@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.junit.After;
 import org.junit.Before;
@@ -51,8 +52,6 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
-
-    
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
@@ -82,6 +81,17 @@ public class TcpAcceptorIT {
         
         acceptor.bind(bindAddress, handler, null);
     }
+    
+    private void writeStringMessageToSession(String message, IoSession session) {
+        ByteBuffer data = ByteBuffer.allocate(message.length());
+        data.put(message.getBytes());
+        
+        data.flip();
+
+        IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
+        
+        session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+    }
 
     @After
     public void after() throws Exception {
@@ -109,16 +119,7 @@ public class TcpAcceptorIT {
         bindTo8080(new IoHandlerAdapter(){
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
-                ByteBuffer data = ByteBuffer.allocate(20);
-                String str = "server data";
-                data.put(str.getBytes());
-                
-                data.flip();
-
-                IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
-                session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+                writeStringMessageToSession("server data", session);
             }
         });
         
@@ -141,19 +142,16 @@ public class TcpAcceptorIT {
     public void bidirectionalData() throws Exception {
         bindTo8080(new IoHandlerAdapter(){
             private int counter = 1;
+            private DataMatcher dataMatch = new DataMatcher("client data " + counter);
             @Override
             protected void doMessageReceived(IoSession session, Object message) throws Exception {
-             // KG-8210: push pending write requests onto the write request queue before disposing, should not cause hang in dispose
-                ByteBuffer data = ByteBuffer.allocate(20);
-                String str = "server data " + counter;
-                counter++;
-                data.put(str.getBytes());
+                String decoded = new String(((IoBuffer) message).array());
                 
-                data.flip();
-
-                IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
-                session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+                if (dataMatch.addFragment(decoded)) {
+                    writeStringMessageToSession("server data " + counter, session);
+                    counter++;
+                    dataMatch = new DataMatcher("client data " + counter);
+                }
             }
         });
         
@@ -191,9 +189,28 @@ public class TcpAcceptorIT {
         })
     public void concurrentConnections() throws Exception {
         bindTo8080(new IoHandlerAdapter(){
+
             @Override
-            protected void doMessageReceived(IoSession session, Object message) throws Exception {                
-                session.write(message);
+            protected void doSessionOpened(IoSession session) throws Exception {
+                session.setAttribute("dataMatch", new DataMatcher("Hello"));
+            }
+            
+            @Override
+            protected void doMessageReceived(IoSession session, Object message) throws Exception {
+                String decoded = new String(((IoBuffer) message).array());
+                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
+                
+                if (dataMatch.addFragment(decoded)) {
+                    if (dataMatch.target.equals("Hello")) {
+                        dataMatch = new DataMatcher("Goodbye");
+                        writeStringMessageToSession("Hello", session);
+                        
+                    } else {
+                        dataMatch = new DataMatcher("");
+                        writeStringMessageToSession("Goodbye", session);
+                    }
+                    session.setAttribute("dataMatch", dataMatch);
+                }
             }
         });
         k3po.finish();

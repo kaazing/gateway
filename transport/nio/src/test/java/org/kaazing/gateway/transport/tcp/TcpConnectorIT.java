@@ -100,6 +100,17 @@ public class TcpConnectorIT {
         boolean didConnect = latch.await(1, SECONDS);
         Assert.assertTrue("Fail to connect", didConnect);
     }
+    
+    private void writeStringMessageToSession(String message, IoSession session) {
+        ByteBuffer data = ByteBuffer.allocate(message.length());
+        data.put(message.getBytes());
+        
+        data.flip();
+
+        IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
+        
+        session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+    }
 
     @After
     public void after() throws Exception {
@@ -159,38 +170,21 @@ public class TcpConnectorIT {
     public void bidirectionalData() throws Exception {
         connectTo8080(new IoHandlerAdapter(){
             private int counter = 1;
-            
+            private DataMatcher dataMatch = new DataMatcher("server data " + counter);
+
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-                ByteBuffer data = ByteBuffer.allocate(20);
-                String str = "client data " + counter;
-                data.put(str.getBytes());
-                
-                data.flip();
-
-                IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
-                session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+                writeStringMessageToSession("client data " + counter, session);
             }
             
             @Override
             protected void doMessageReceived(IoSession session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
 
-                if (decoded.equals("server data " + counter) && counter < 2) {
-                    ByteBuffer data = ByteBuffer.allocate(20);
-                    counter++;
-                    String str = "client data " + counter;
-                    
-                    data.put(str.getBytes());
-                
-                    data.flip();
-
-                    IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
-                    session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
-                } else {
-                    session.close();
+                if (dataMatch.addFragment(decoded) && counter < 2) {
+                    counter++;                    
+                    writeStringMessageToSession("client data " + counter, session);
+                    dataMatch = new DataMatcher("server data " + counter);
                 }
             }
         });
@@ -231,31 +225,24 @@ public class TcpConnectorIT {
         IoHandlerAdapter adapter = new IoHandlerAdapter(){
             @Override
             protected void doSessionOpened(IoSession session) throws Exception {
-                ByteBuffer data = ByteBuffer.allocate(20);
-                String str = "Hello";
-                data.put(str.getBytes());
-                
-                data.flip();
-
-                IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                
-                session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
+                session.setAttribute("dataMatch", new DataMatcher("Hello"));
+                writeStringMessageToSession("Hello", session);
             }
             
             @Override
             protected void doMessageReceived(IoSession session, Object message) throws Exception {
                 String decoded = new String(((IoBuffer) message).array());
+                DataMatcher dataMatch = (DataMatcher) session.getAttribute("dataMatch");
 
-                if (decoded.equals("Hello")) {
-                    ByteBuffer data = ByteBuffer.allocate(7);
-                    data.put("Goodbye".getBytes());
-                    data.flip();
-
-                    IoBufferAllocatorEx<?> allocator = ((IoSessionEx) session).getBufferAllocator();
-                    
-                    session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
-                } else {
-                    session.close();
+                if (dataMatch.addFragment(decoded)) {
+                    if (dataMatch.target.equals("Hello")) {
+                        dataMatch = new DataMatcher("Goodbye");
+                        writeStringMessageToSession("Goodbye", session);
+                        
+                    } else {
+                        session.close();
+                    }
+                    session.setAttribute("dataMatch", dataMatch);
                 }
                 
             }
