@@ -73,7 +73,7 @@ The steps in this section use the JConsole example from the previous section to 
 
     **Figure: Subscribing to Notifications in JConsole**
 
-6.  Now that you've taken a look at some of the actions you can perform on a session, you can use this information with your own management console to manage user sessions. The Gateway also tracks the information you see here, such as the opening and closing of sessions, and sends this information by way of JMX notifications. You can then set up your JMX clients to subscribe to these notifications or query the sessions directly from the JMX server bean. To learn how to do this, see the next section, [To Configure Notifications](#managing_sessions_notif).
+6.  Now that you've taken a look at some of the actions you can perform on a session, you can use this information with your own management console to manage user sessions. The Gateway also tracks the information you see here, such as the opening and closing of sessions, and sends this information by way of JMX notifications. You can then set up your JMX clients to subscribe to these notifications or query the sessions directly from the JMX server bean. To learn how to do this, see the next section, [To Configure Notifications](#to-configure-notifications).
 
 To Configure Notifications
 ------------------------------------------------------------------------

@@ -35,7 +35,7 @@ There is no concept of cluster masters and slaves; each cluster member has its o
 
     **Figure: Cluster Member Connections After a Failure**
 
-3.  When the cluster member is brought back online, it starts participating again in the cluster as usual. Clustering is used in conjunction with load balancing (via the load balancing features of the Gateway or a third-party load balancer), which is described in the [Load Balancing Services](#ha_balance) section.
+3.  When the cluster member is brought back online, it starts participating again in the cluster as usual. Clustering is used in conjunction with load balancing (via the load balancing features of the Gateway or a third-party load balancer), which is described in the [Load Balancing Services](#load-balancing-services) section.
 
 Load Balancing Services
 --------------------------------------------------------
