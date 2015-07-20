@@ -55,8 +55,8 @@ The preferred name for the auth-constraint configuration option has changed to a
 
     There are two ways to specify the time interval before which the client must reauthenticate itself:
 
-    -   Configure an [`authorization-timeout`](../admin-reference/r_configure_gateway_security.md#auth_timeout) in your the Gateway configuration, as described in the `security` section of this document.
-    -   Specify the maximum age with the `LoginResult.setAuthorizationTimeout` method in your custom login module, as described in the Service Provider Interface in the [Server API Documentation](../index.md#server_api_topics).
+    -   Configure an [`authorization-timeout`](../admin-reference/r_configure_gateway_security.md#authentication) in your the Gateway configuration, as described in the `security` section of this document.
+    -   Specify the maximum age with the `LoginResult.setAuthorizationTimeout` method in your custom login module, as described in the Service Provider Interface in the [Server API Documentation](../index.md).
 
     You can use one or both of the preceding methods to specify an authorization timeout. If you use both methods, then the Gateway sets the authorization timeout to be the lesser of the two values.
 

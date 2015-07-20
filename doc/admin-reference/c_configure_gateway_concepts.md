@@ -1,5 +1,5 @@
 About Gateway Configuration
-=========================================================
+========================================================
 
 After you install the Gateway, you can configure it by modifying the settings in the configuration file `GATEWAY_HOME/conf/gateway-config.xml` file. The actual location of the `GATEWAY_HOME` directory depends on your operating system and the method (standalone or installer) used to install the Gateway. You can find more information about `GATEWAY_HOME` and the directory structure that is set up during installation in [Setting Up the Gateway](../about/setup-guide.md). This document describes the types of configuration files and [Configuration Element Index](r_configure_gateway_element_index.md) provides a list of the individual configuration elements.
 
