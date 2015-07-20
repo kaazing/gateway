@@ -48,7 +48,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 /**
  * RFC-793
  */
-public class TcpConnectorIT {
+public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
