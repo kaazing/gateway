@@ -65,12 +65,12 @@
             <!-- Needed for EL only, not AST -->
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.lang</artifactId>
-            <version>${project.version}</version>
+            <version>${k3po.version}</version>
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.junit</artifactId>
-            <version>${project.version}</version>
+            <version>${k3po.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -85,7 +85,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>${project.version}</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>
@@ -101,7 +101,7 @@
                 	<dependency>
             			<groupId>org.kaazing</groupId>
             			<artifactId>specification.tcp</artifactId>
-            			<version>2.0.0</version>
+            			<version>${project.version}</version>
             			<scope>runtime</scope>
         			</dependency>
                 </dependencies>
