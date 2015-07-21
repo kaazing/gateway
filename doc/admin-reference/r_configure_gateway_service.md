@@ -66,9 +66,6 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
             -   [tcp.maximum.outbound.rate](#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](#wsinactivitytimeout)
             -   [http.server.header](#httpserverheader)
-        -   [notify-options](#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   ssl.ciphers
-            -   tcp.transport
         -   [realm-name](#realm-name)
         -   [authorization-constraint](#authorization-constraint)
             -   require-role
@@ -100,7 +97,6 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
-|notify-options  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)|Options for the notify element (see [notify-options)](#notify-options).|
 |realm-name|The name of the security realm used for authorization. If you do not include a realm name, then authentication and authorization are not enforced for the service.|
 |authorization-constraint|The user roles that are authorized to access the service. See [authorization-constraint](#authorization-constraint).|
 |mime-mapping|Mappings of file extensions to MIME types. Each `mime-mapping` entry defines the HTTP Content-Type header value to be returned when a client or browser requests a file that ends with the specified extension. See [mime-mapping](#mime-mapping).|
