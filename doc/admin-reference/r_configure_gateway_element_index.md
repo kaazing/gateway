@@ -14,7 +14,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options) (service)
 
-[accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults) (service-defaults)
+[accept-options](r_configure_gateway_service_defaults.md#service-defaults) (service-defaults)
 
 [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
 
@@ -123,11 +123,7 @@ You can view and link to all Gateway configuration elements and properties using
 [name](r_configure_gateway_security.md#realm) (security)
 
 [name](r_configure_gateway_service.md#service) (service)
-
-[notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-[notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
+ 
 [options](r_configure_gateway_service.md#directory) (directory)
 
 [options](r_configure_gateway_security.md#options-login-module) (login-module)
