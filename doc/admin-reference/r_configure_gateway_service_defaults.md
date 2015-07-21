@@ -6,7 +6,7 @@ The `service-defaults` section of the Gateway configuration file allows you to c
 Overview
 ----------------------------------
 
-Use the optional `service-defaults` element to configure certain default options across all services running on the Gateway. However, note that any elements you specify in individual services (that you configure in the [`service`](r_configure_gateway_service.md#service) section of the Gateway configuration file) override the defaults you specify in the `service-defaults` section of the Gateway configuration file. For example, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in `service-defaults`.
+Use the optional `service-defaults` element to configure certain default options across all services running on the Gateway. However, note that any elements you specify in individual services (that you configure in the [`service`](r_configure_gateway_service.md) section of the Gateway configuration file) override the defaults you specify in the `service-defaults` section of the Gateway configuration file. For example, if there are no explicit `accept-options` configured for a particular service, then the Gateway uses the values configured in `service-defaults`.
 
 Structure
 ------------------------------------
@@ -14,7 +14,7 @@ Structure
 The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.xml`) defines the `service-defaults` configuration element contained in the top-level `gateway-config` element:
 
 -   [gateway-config](r_configure_gateway_gwconfig.md)
-    -   [service-defaults](#servicedefaults)
+    -   [service-defaults](#service-defaults)
         -   accept-options
             -   . . . (Listed in the [Service Reference](r_configure_gateway_service.md#accept-options-and-connect-options))
         -   connect-options
@@ -84,7 +84,7 @@ Notes
 -   When the Gateway responds to a file request, such as from the `directory` service, the response includes a Content-Type header based on the filename extension of the requested file. The Content-Type header value is the specified MIME type for that extension. If the file extension is not mapped to a MIME type by a `mime-mapping` element, the Gateway does not include a Content-Type header in its response.
 -   You can specify MIME types for file extensions either in the `service-defaults` section or in a `service`. Specifying MIME types for file extensions in a `service` overrides any existing corresponding `mime-mapping` entries in the `service-defaults` section. See [service](#service) for more information.
 -   If you specify two or more `mime-mapping` entries for the same extension in a single `service` or in `service-defaults`, the Gateway only applies the last `mime-mapping` entry for that extension.
--   The `service-defaults` section in the default Gateway configuration includes the following standard mappings. You can modify these entries, but keep in mind that all `mime-mapping` entries must come after any [accept-options](#svcdftacceptoptions) you add to this section.
+-   The `service-defaults` section in the default Gateway configuration includes the following standard mappings. You can modify these entries, but keep in mind that all `mime-mapping` entries must come after any [accept-options](#service-defaults) you add to this section.
 
     **Note:** The Gateway has hard-coded internal MIME mappings that are equivalent to those provided in the `service-defaults` section of the `gateway-config.xml`, for backward compatibility with earlier releases of KAAZING Gateway. You can edit these mappings, as needed (to override them with new MIME-type values), but you cannot remove the initial internal set of mappings.
 
