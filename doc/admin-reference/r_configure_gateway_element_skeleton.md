@@ -13,8 +13,6 @@ You can view and link to all Gateway configuration elements and properties using
         -   [accept](r_configure_gateway_service.md#accept)
         -   [connect](r_configure_gateway_service.md#connect)
         -   [balance](r_configure_gateway_service.md#balance)
-        -   [notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-
         -   [type](r_configure_gateway_service.md#type)
             -   [balancer](r_configure_gateway_service.md#balancer)
             -   [broadcast](r_configure_gateway_service.md#broadcast)
@@ -84,9 +82,6 @@ You can view and link to all Gateway configuration elements and properties using
             -   [socks.ssl.verify-client](r_configure_gateway_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
             -   [ws.version](r_configure_gateway_service.md#wsversion-deprecated) (deprecated)
-        -   [notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [ssl.ciphers](r_configure_gateway_service.md#notify-options)
-            -   [tcp.transport](r_configure_gateway_service.md#notify-options)
         -   [realm-name](r_configure_gateway_service.md#realm-name)
         -   [authorization-constraint](r_configure_gateway_service.md#authorization-constraint)
             -   [require-role](r_configure_gateway_service.md#authorization-constraint)
