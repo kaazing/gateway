@@ -45,7 +45,7 @@ To download and set up the Gateway on your local computer, perform the following
 
 You are now done setting up the Gateway locally.
 
--   To start building your first application, see the [For Developers](../index.md#dev_topics) documentation topics.
+-   To start building your first application, see the [For Developers](../index.md#for-developers) documentation topics.
 -   For more information about configuration settings and to perform additional Gateway configuration, see [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md).
 -   For real-world demos, see <http://kaazing.org/>.
 -   To uninstall the Gateway, see the [Uninstall KAAZING Gateway](#uninstall-kaazing-gateway) section at the end of this document.
