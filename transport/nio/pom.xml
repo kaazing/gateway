@@ -85,7 +85,7 @@
             <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>k3po-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>${k3po.version}</version>
                 <configuration>
                     <skipTests>${skipITs}</skipTests>
                 </configuration>
@@ -101,7 +101,7 @@
                 	<dependency>
             			<groupId>org.kaazing</groupId>
             			<artifactId>specification.tcp</artifactId>
-            			<version>${project.version}</version>
+            			<version>${k3po.version}</version>
             			<scope>runtime</scope>
         			</dependency>
                 </dependencies>
