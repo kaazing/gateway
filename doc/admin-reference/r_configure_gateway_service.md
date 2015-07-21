@@ -20,7 +20,6 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
         -   [accept](#accept)
         -   [connect](#connect)
         -   [balance](#balance)
-        -   [notify](#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
         -   [type](#type)
             -   [balancer](#balancer)
             -   [broadcast](#broadcast)
