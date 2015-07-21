@@ -85,6 +85,8 @@ For Administrators
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
 -   [Configure a Secure JMS Configuration](security/o_jms_secure.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Enterprise Shield™ with the Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Implement Protocol Injection](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/security/p_auth_protocol_injection.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)		
+-   [Implement User Identity Promotion](security/p_auth_user_identity_promotion.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.
 
 ### Monitor and Troubleshoot
 
