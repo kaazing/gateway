@@ -23,7 +23,7 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config-minimal.
       - [type](#truststore)
       - [file](#truststore)
       - [password-file](#truststore)
-    - [realm](#realmf)
+    - [realm](#realm)
       - [name](#realm)
       - [description](#realm)
       - [authentication](#authentication)

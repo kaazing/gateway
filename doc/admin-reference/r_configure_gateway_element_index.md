@@ -14,7 +14,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options) (service)
 
-[accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults) (service-defaults)
+[accept-options](r_configure_gateway_service_defaults.md#service-defaults) (service-defaults)
 
 [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
 
@@ -176,8 +176,6 @@ You can view and link to all Gateway configuration elements and properties using
 
 [ssl.ciphers](r_configure_gateway_service.md#sslciphers)
 
-[ssl.ciphers](r_configure_gateway_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
 [ssl.encryption](r_configure_gateway_service.md#sslencryption)
 
 [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
@@ -193,8 +191,6 @@ You can view and link to all Gateway configuration elements and properties using
 [tcp.maximum.outbound.rate](r_configure_gateway_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [tcp.transport](r_configure_gateway_service.md#protocoltransport)
-
-[tcp.transport](r_configure_gateway_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [truststore](r_configure_gateway_security.md#truststore)
 
