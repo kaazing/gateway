@@ -82,7 +82,7 @@ Notes
 -----
 
 -   When the Gateway responds to a file request, such as from the `directory` service, the response includes a Content-Type header based on the filename extension of the requested file. The Content-Type header value is the specified MIME type for that extension. If the file extension is not mapped to a MIME type by a `mime-mapping` element, the Gateway does not include a Content-Type header in its response.
--   You can specify MIME types for file extensions either in the `service-defaults` section or in a `service`. Specifying MIME types for file extensions in a `service` overrides any existing corresponding `mime-mapping` entries in the `service-defaults` section. See [service](#service) for more information.
+-   You can specify MIME types for file extensions either in the `service-defaults` section or in a `service`. Specifying MIME types for file extensions in a `service` overrides any existing corresponding `mime-mapping` entries in the `service-defaults` section. See [service](#service-defaults) for more information.
 -   If you specify two or more `mime-mapping` entries for the same extension in a single `service` or in `service-defaults`, the Gateway only applies the last `mime-mapping` entry for that extension.
 -   The `service-defaults` section in the default Gateway configuration includes the following standard mappings. You can modify these entries, but keep in mind that all `mime-mapping` entries must come after any [accept-options](#service-defaults) you add to this section.
 
