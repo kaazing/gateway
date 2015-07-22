@@ -101,6 +101,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.ServiceDefaultsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 
@@ -548,7 +549,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private void addSystemInfo(GatewayManagementBean gatewayBean) {
 
         final HostManagementBean systemManagementBean =
-                new HostManagementBeanImpl(gatewayBean);
+                new HostManagementBeanImpl(gatewayBean,
+                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addSystemManagementBean(systemManagementBean);
@@ -565,7 +567,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private void addCpuListInfo(GatewayManagementBean gatewayBean) {
 
         final CpuListManagementBean cpuListManagementBean =
-                new CpuListManagementBeanImpl(gatewayBean);
+                new CpuListManagementBeanImpl(gatewayBean,
+                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addCpuListManagementBean(cpuListManagementBean);
@@ -591,7 +594,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private void addNicListInfo(GatewayManagementBean gatewayBean) {
 
         final NicListManagementBean nicListManagementBean =
-                new NicListManagementBeanImpl(gatewayBean);
+                new NicListManagementBeanImpl(gatewayBean,
+                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addNicListManagementBean(nicListManagementBean);
@@ -614,7 +618,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     private void addJvmInfo(GatewayManagementBean gatewayBean) {
 
         final JvmManagementBean jvmManagementBean =
-                new JvmManagementBeanImpl(gatewayBean);
+                new JvmManagementBeanImpl(gatewayBean,
+                        InternalSystemProperty.MANAGEMENT_SUMMARY_DATA_LIMIT.getIntProperty(configuration));
 
         for (ManagementServiceHandler handler : managementServiceHandlers) {
             handler.addJvmManagementBean(jvmManagementBean);

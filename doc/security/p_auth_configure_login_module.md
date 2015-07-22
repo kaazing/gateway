@@ -37,7 +37,7 @@ To Configure a Chain of Login Modules
 
     Each login module in the chain is responsible for doing a little piece of work and passing along information. For example, one login module might check a database, another login module might contact an LDAP directory, and so on.
 
-    In the following example, the chain of login modules includes the `file` type (to handle the `jaas-config.xml` that is part of KAAZING Gateway) and the `ldap` type. For a complete security example, see the [Notes](#Notes) section.
+    In the following example, the chain of login modules includes the `file` type (to handle the `jaas-config.xml` that is part of KAAZING Gateway) and the `ldap` type. For a complete security example, see the **Notes** section below.
 
     ``` xml
           <login-modules>
