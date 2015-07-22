@@ -24,6 +24,7 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.idletimeout;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.ExtensionParameterBuilder;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 
@@ -46,7 +47,7 @@ public final class IdleTimeoutExtension extends WebSocketExtension  {
     }
 
     @Override
-    public IoFilter getFilter() {
+    public IoFilter getFilter(ExtensionHelper helper) {
         return new IdleTimeoutFilter(idleTimeoutMillis);
     };
 

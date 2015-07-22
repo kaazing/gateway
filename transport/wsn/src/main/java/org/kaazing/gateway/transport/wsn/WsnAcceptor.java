@@ -122,6 +122,7 @@ import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameBase64Filter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameEncodingSupport;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameTextFilter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsFrameUtf8Filter;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
@@ -198,6 +199,20 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private WebSocketExtensionFactory webSocketExtensionFactory;
+    
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setSubject(IoSession session, Subject subject) {
+            ((WsnSession)session).setSubject(subject);
+        }
+
+        @Override
+        public void logout(IoSession session) {
+            ((WsnSession)session).logout();
+        }
+        
+    };
 
     public WsnAcceptor() {
         super(new DefaultIoSessionConfigEx());
@@ -752,7 +767,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // Set the extensions on whichever WsnSession they were negotiated (light weight or wsx).
             List<WebSocketExtension> extensions = ACTIVE_EXTENSIONS_KEY.get(session);
             if (extensions != null) {
-                WsUtils.addExtensionFilters(extensions, filterChain, codecRequired);
+                WsUtils.addExtensionFilters(extensions, extensionHelper, filterChain, codecRequired);
             }
 
             // Use ping and pong, if available, to detect and close dead connections.

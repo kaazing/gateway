@@ -51,6 +51,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
 
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -95,6 +96,7 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.ws.util.WsHandshakeNegotiationException;
@@ -434,7 +436,20 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     String createResolvePath(URI httpUri, final String suffixWithLeadingSlash) {
         return appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash).getPath();
     }
+    
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
+        @Override
+        public void setSubject(IoSession session, Subject subject) {
+            ((WsebSession.TransportSession)session).getWsebSession().setSubject(subject);
+        }
+
+        @Override
+        public void logout(IoSession session) {
+            ((WsebSession.TransportSession)session).getWsebSession().logout();
+        }
+        
+    };
 
     final class WsebCreateHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
@@ -638,9 +653,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                             HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.get(session));
 
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
-                    // TODO: add extension filters when we adopt the new webSocket extension SPI
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
-                    WsUtils.addExtensionFilters(negotiated, extensionsFilterChain, false);
+                    WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
                     extensionsFilterChain.fireSessionCreated();
                     extensionsFilterChain.fireSessionOpened();
                 }

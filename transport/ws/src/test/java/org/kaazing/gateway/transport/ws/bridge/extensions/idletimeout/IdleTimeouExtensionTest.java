@@ -25,18 +25,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.filterchain.IoFilter;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.Rule;
 import org.junit.Test;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 
-/**
-* NOTE: this class is a "classic" unit test for the WsCloseFilter. Overall testing of websocket close
-* handling for the wsn transport layer is in test class WsCloseTransportTest.
-*/
 public class IdleTimeouExtensionTest {
     private static final String extensionName = "x-kaazing-idle-timeout";
 
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
+    
+    @Rule
+    public JUnitRuleMockery context = new  JUnitRuleMockery();
 
     @Test
     public void shouldAddTimeoutParameter() throws Exception {
@@ -47,8 +49,9 @@ public class IdleTimeouExtensionTest {
 
     @Test
     public void shouldCreateIdleTimeoutFilter() {
+        final ExtensionHelper extensionHelper = context.mock(ExtensionHelper.class);
         IdleTimeoutExtension extension = new IdleTimeoutExtension(requested, 1234L);
-        IoFilter filter = extension.getFilter();
+        IoFilter filter = extension.getFilter(extensionHelper);
         assertTrue(filter instanceof IdleTimeoutFilter);
     }
 

@@ -44,6 +44,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -110,7 +111,7 @@ public class ExtensionWithFilterIT {
         }
 
         @Override
-        public IoFilter getFilter() {
+        public IoFilter getFilter(ExtensionHelper helper) {
             return new ExtensionFilter();
         };
     }
