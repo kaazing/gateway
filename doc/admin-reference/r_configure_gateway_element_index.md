@@ -62,7 +62,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [error-pages-directory](r_configure_gateway_service.md#directory)
 
-[extension](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults)
+[extension](r_configure_gateway_service_defaults.md)
 
 [file](r_configure_gateway_security.md#keystore) (keystore)
 
@@ -114,9 +114,9 @@ You can view and link to all Gateway configuration elements and properties using
 
 [mime-mapping](r_configure_gateway_service.md#mime-mapping) (service)
 
-[mime-mapping](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults) (service defaults)
+[mime-mapping](r_configure_gateway_service_defaults.md) (service defaults)
 
-[mime-type](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults)
+[mime-type](r_configure_gateway_service_defaults.md)
 
 [name](r_configure_gateway_cluster.md#cluster) (cluster)
 
