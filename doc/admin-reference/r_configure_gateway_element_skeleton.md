@@ -76,7 +76,7 @@ You can view and link to all Gateway configuration elements and properties using
             -   [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
             -   [ssl.encryption](r_configure_gateway_service.md#sslencryption)
             -   [socks.mode](r_configure_gateway_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [socks.timeout](r_configure_gateway_service.md#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [socks.timeout](r_configure_gateway_service.md#sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.ciphers](r_configure_gateway_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.verify-client](r_configure_gateway_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
