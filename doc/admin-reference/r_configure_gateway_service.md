@@ -506,7 +506,7 @@ Use the `proxy`, `amqp.proxy`, or `jms.proxy` service to enable a client to make
 
 The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
-#### `maximum.pending.bytes`
+#### <a name="maximumpendingbytes"></a>`maximum.pending.bytes`
 
 **Required?** Optional
 
@@ -519,7 +519,7 @@ The Gateway uses this buffer when the speed of the data coming into the service 
 
 For example, suppose you set this property to `128kB`. If the back-end service or message broker sends 256kB of data to a client and the client has only consumed 128kB, the remaining 128kB (the limit you set in the property) is buffered. At this time, the Gateway suspends reading the data from the back-end service or message broker; as the client consumes the buffered data, the size of the buffered data decreases. When the buffered data falls below 64kB, the Gateway resumes reading the data from the back-end service or message broker.
 
-#### `maximum.recovery.interval`
+#### <a name="maximumrecoveryinterval"></a>`maximum.recovery.interval`
 
 **Required?** Optional
 
@@ -531,7 +531,7 @@ If the back-end service or message broker becomes unavailable or the Gateway can
 
 During this recovery phase, the Gateway unbinds the service, and clients attempting to connect to this service receive a "404 Not Found" error. Once the back-end service or message broker recovers and the Gateway establishes a connection, the Gateway binds the service and clients can connect to the service. See the "Examples" section below the table for a code snippet using this property.
 
-#### `prepared.connection.count`
+#### <a name="preparedconnectioncount"></a>`prepared.connection.count`
 
 **Required?** Optional
 
@@ -539,7 +539,7 @@ Set this property in either of the following use cases:
 - Set this property when configuring your proxy service, which is the most common use case for `prepared.connection.count`. In this case, setting `prepared.connection.count` sets the number of connections the Gateway creates (or *prepares*) to the back-end service or message broker specified by the [`connect`](#connect) element in addition to the client connections. When the Gateway starts, it creates the specified number of connections to the back-end service or message broker, thus creating a *prepared connection*. When an incoming client connection uses a prepared connection, the Gateway creates another connection to the back-end service or message broker, thus maintaining the specified number of prepared connections to the back-end service or message broker.
 - Set this property when configuring Enterprise Shield™. See [Configure Enterprise Shield™](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/enterprise-shield/p_enterprise_shield_config.md) for detailed configuration information. If you do not set this property, then the Gateway does not prepare connections to the back-end service or message broker.
 
-#### `virtual.host`
+#### <a name="virtualhost"></a>`virtual.host`
 
 **Required?** Optional
 
@@ -752,7 +752,7 @@ Use the `connect-options` element to add options to all connections for the serv
 | ssl.encryption | yes | yes | Signals KAAZING Gateway to enable or disable encryption on incoming traffic. |
 | ssl.verify-client | yes | no | Signals KAAZING Gateway to require a client to provide a digital certificate that the Gateway can use to verify the client’s identity. |
 | socks.mode ![This feature is available in KAAZING Gateway - EnterpriseEdition.](../images/enterprise-feature.png) | yes | yes | The mode that you can optionally set to forward or reverse to tell the Gateway how to interpret SOCKS URIs to initiate the connection. See [socks.mode](#socksmode). |
-| socks.timeout ![This feature is available in KAAZING Gateway -Enterprise Edition.](../images/enterprise-feature.png) | no | yes | Specifies the length of time (in seconds) to wait for SOCKS connectionsto form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#conn_sockstimeout). |
+| socks.timeout ![This feature is available in KAAZING Gateway -Enterprise Edition.](../images/enterprise-feature.png) | no | yes | Specifies the length of time (in seconds) to wait for SOCKS connectionsto form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#sockstimeout). |
 | socks.ssl.ciphers ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | Lists the cipher strings and cipher suite names used by the secure SOCKS connection. |
 | socks.ssl.protocols ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | Lists the TLS/SSL protocol names on which the Gateway can accept connections for Enterprise Shield™ configurations that are running the SOCKS protocol over SSL. See [ssl.protocols and socks.ssl.protocols](#sslprotocols-and-sockssslprotocols). |
 | socks.ssl.verify-client ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake. |
@@ -1316,7 +1316,7 @@ The following example shows a `connect-options` element with the `socks.mode` se
 </service>
 ```
 
-#### <a name="conn_sockstimeout"></a>socks.timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+#### socks.timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1356,7 +1356,7 @@ The following example shows a `socks.timeout` that is set to 10 seconds. If the 
 </service>
 ```
 
-#### <a name="sockssslciphers"></a>socks.ssl.ciphers![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+#### socks.ssl.ciphers![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
 

@@ -253,7 +253,7 @@ This element configures the login module, which communicates with a user databas
 | options | The configuration options specific to the type of login module (see [options login-module](#options-login-module)).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 
-##### options (`login-module`)
+##### <a name="options-login-module"></a>options (`login-module`)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -266,7 +266,7 @@ This is the element for adding options to specific types of login modules. The o
 | debug         | `file`                       | If `true`, then the login module sends debug information (at the DEBUG level) to the logger. If `false` (the default), then the login module disables sending logging information to the logger. This is the default. |
 | tryFirstToken | `gss`                        |    If `true`, then the login module looks in the JAAS shared state for a token using the key: `com.kaazing.gateway.server.auth.gss.token`. If `false` (the default), then the login module uses a CallbackHandler to discover the token from `LoginContext`.  |
 
-##### Example of a `file` Login Module
+##### <a name="example-of-a-file-login-module"></a>Example of a `file` Login Module
 
 The following example shows a `file`-based `login-module` element that uses the flat XML file,` jaas-config.xml`:
 
@@ -284,7 +284,7 @@ The following example shows a `file`-based `login-module` element that uses the 
 
 For information about the `file` login module options, see the table in the [options (login-module)](#options-login-module) section.
 
-##### Example of a `ldap` login module
+##### <a name="example-of-a-ldap-login-module"></a>Example of a `ldap` login module
 
 The following example shows an LDAP-based `login-module` element:
 
@@ -305,7 +305,7 @@ The following example shows an LDAP-based `login-module` element:
 
 For information about configuring the LDAP login-module options, see the [Class LDAPLoginModule documentation](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/LdapLoginModule.html).
 
-##### Example of `kerberos5` login module
+##### <a name="example-of-kerberos5-login-module"></a>Example of `kerberos5` login module
 
 The following example shows a `kerberos5`-based `login-module` element. You must use the `kerberos5` and [`gss`](#gss-login-module) elements together, and in that sequence. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
@@ -326,7 +326,7 @@ The following example shows a `kerberos5`-based `login-module` element. You must
 
 For information about configuring the Kerberos login module options, see the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation. For information about how to use KAAZING Gateway with Kerberos, see [Configure Kerberos V5 Network Authentication](../security/o_auth_configure.md).
 
-##### `gss` login module
+##### <a name="gss-login-module"></a>`gss` login module
 
 The following example shows a `gss`-based `login-module` element that you define after the Kerberos login module in the chain to enable the Kerberos tokens to travel over the Web. Both of these login modules are required when using the `Negotiate` or `Application Negotiate` [schemes](#authentication):
 
@@ -339,7 +339,7 @@ The following example shows a `gss`-based `login-module` element that you define
 
 For information about the `gss` login module options, see the table in the [options (login-module)](#options-login-module) section. The `gss` login-module element requires no options but must follow the [kerberos5](#example-of-kerberos5-login-module) login-module element, because the `gss` login-module element uses the credentials obtained by the [kerberos5](#example-of-kerberos5-login-module) login-module element to verify the service ticket presented by the client. See [Configure Kerberos V5 Network Authentication](../security/u_kerberos_configure.md) and [Using Kerberos V5 Network Authentication with the Gateway](../security/u_kerberos_configure.md) for more information.
 
-##### Example of a `jndi` login module
+##### <a name="example-of-a-jndi-login-module"></a>Example of a `jndi` login module
 
 The following example shows a jndi-based `login-module` element. It translates the examples for the login module in the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
@@ -358,7 +358,7 @@ The following example shows a jndi-based `login-module` element. It translates t
 
 For information about configuring the JNDI login-module options, see the [JndiLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/JndiLoginModule.html) documentation.
 
-##### Example of a `keystore` login module
+##### <a name="example-of-a-keystore-login-module"></a>Example of a `keystore` login module
 
 The following example shows a keystore-based `login-module` element. It translates the examples in the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) javadoc into the XML you would use in the `security.realm` section of the Gateway configuration:
 
@@ -377,7 +377,7 @@ The following example shows a keystore-based `login-module` element. It translat
 
 For information about configuring the keystore login-module options, see the [KeyStoreLoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/KeyStoreLoginModule.html) documentation.
 
-##### Example of a `custom` login module
+##### <a name="example-of-a-custom-login-module"></a>Example of a `custom` login module
 
 KAAZING Gateway also supports a plugin mechanism for integration with custom authentication modules based on the Java LoginModule API.
 
