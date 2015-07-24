@@ -277,7 +277,8 @@ public class PingPongFilterTest {
 
     @Test
     public void shouldRejectTextMessageNotStartingWithControlBytesPrecededByEscapeFrame() throws Exception {
-        final WsTextMessage message = new WsTextMessage(BUFFER_ALLOCATOR.wrap(PAYLOAD_STARTING_WITH_CONTROL_BYTES));
+        final WsTextMessage escape = new WsTextMessage(BUFFER_ALLOCATOR.wrap(ByteBuffer.wrap(CONTROL_BYTES)));
+        final WsTextMessage normal = new WsTextMessage(BUFFER_ALLOCATOR.wrap(BYTES));
         final WsCloseMessage close = WsCloseMessage.PROTOCOL_ERROR;
 
         context.checking(new Expectations() {
@@ -287,7 +288,8 @@ public class PingPongFilterTest {
             }
         });
 
-        filter.messageReceived(nextFilter, session, message);
+        filter.messageReceived(nextFilter, session, escape);
+        filter.messageReceived(nextFilter, session, normal);
         context.assertIsSatisfied();
     }
 

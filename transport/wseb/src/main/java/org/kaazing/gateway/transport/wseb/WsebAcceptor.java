@@ -436,7 +436,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     String createResolvePath(URI httpUri, final String suffixWithLeadingSlash) {
         return appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash).getPath();
     }
-    
+
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
@@ -448,7 +448,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         public void logout(IoSession session) {
             ((WsebSession.TransportSession)session).getWsebSession().logout();
         }
-        
+
     };
 
     final class WsebCreateHandler extends IoHandlerAdapter<HttpAcceptSession> {
