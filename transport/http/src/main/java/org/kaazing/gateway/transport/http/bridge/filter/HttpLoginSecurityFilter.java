@@ -36,6 +36,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.security.AccessControlLoginException;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
@@ -168,8 +169,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
 
             LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+            TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
-            final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+            // Register callbacks. This is the hook for the Enterprise to add more callbacks for LoginModules
+            // that are Enterprise-specific.
+            registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
             callbackHandlerMap.putAll(additionalCallbacks);
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -183,10 +187,18 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
             loginContext.login();
 
+        } catch (AccessControlLoginException ace) {
+            if (loggerEnabled()) {
+                log("Login failed: ", ace);
+            }
+
+            writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
+            return false;
         } catch (LoginException le) {
             // Depending on the login modules configured, this could be
             // a very normal condition.
             if (loggerEnabled()) {
+                log("Login failed", le);
 
                 // Ignore the common "all modules ignored case", it just gums
                 // up the logs whilst adding no value.
@@ -242,16 +254,27 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         return false;
     }
 
-    protected TypedCallbackHandlerMap makeAuthenticationTokenCallback(AuthenticationToken authToken) {
+    /**
+     * This method will be overridden in the Enterprise Gateway to add Callbacks for Enterprise-specific LoginModules.
+     *
+     * @param session
+     * @param httpRequest
+     * @param authToken
+     * @param callbacks
+     */
+    protected void registerCallbacks(
+            IoSession session,
+            HttpRequestMessage httpRequest,
+            AuthenticationToken authToken,
+            TypedCallbackHandlerMap callbacks) {
+        if (callbacks == null) {
+            throw new NullPointerException("Null callbacks map passed in");
+        }
+
         AuthenticationTokenCallbackHandler authenticationTokenCallbackHandler
-                = new AuthenticationTokenCallbackHandler(authToken);
-
-        TypedCallbackHandlerMap map = new TypedCallbackHandlerMap();
-        map.put(AuthenticationTokenCallback.class,
-                authenticationTokenCallbackHandler);
-        return map;
+                                                 = new AuthenticationTokenCallbackHandler(authToken);
+        callbacks.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
     }
-
 
     protected String getBaseAuthScheme(String authScheme) {
         if (authScheme != null && authScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
@@ -325,8 +348,14 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             final LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
 
             try {
-                final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+                TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
+
+                // Register callbacks. This is the hook for the Enterprise to add more callbacks for LoginModules
+                // that are Enterprise-specific.
+                registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
+
                 callbackHandlerMap.putAll(additionalCallbacks);
+
                 loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
                 if (loginContext == null) {
                     throw new LoginException("Login failed; cannot create a login context for authentication token '" + authToken+ "\'.");
@@ -383,10 +412,17 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     return false;
                 }
 
+            } catch (AccessControlLoginException ace) {
+                loginOK = false;
+
+                if (loggerEnabled()) {
+                    log("Login failed: ", ace);
+                }
+                writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
             } catch (Exception e) {
                 loginOK = false;
 
-                if ( loggerEnabled() ) {
+                if (loggerEnabled()) {
                     log("Login failed.", e);
                 }
 
