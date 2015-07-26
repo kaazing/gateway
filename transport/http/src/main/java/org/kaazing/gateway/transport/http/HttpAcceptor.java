@@ -53,6 +53,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -115,7 +116,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final String SECURITY_LOGGER_NAME = format("%s.security", LOGGER_NAME);
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
-	
+
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
@@ -569,7 +570,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = getSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;
@@ -595,6 +596,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private static  URI getHostPortPathURI(URI resource) {
         return URI.create("//" + resource.getAuthority() + resource.getPath());
+    }
+
+    private static HttpSubjectSecurityFilter getSubjectSecurityFilter(Logger logger) {
+        Class<HttpSubjectSecurityFilter> clazz = HttpSubjectSecurityFilter.class;
+        ServiceLoader<HttpSubjectSecurityFilter> loader = ServiceLoader.load(clazz);
+
+        if (loader != null) {
+            if ((loader.iterator() != null) && loader.iterator().hasNext()) {
+                return loader.iterator().next();
+            }
+        }
+
+        return new HttpSubjectSecurityFilter(logger);
     }
 }
 
