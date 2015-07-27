@@ -6,8 +6,8 @@ This topic contains the following sections:
 -   [About URI Syntax](#about-uri-syntax)
 -   [About Domain Names](#about-domain-names)
 -   [About Ports](#about-ports)
--   [About KAAZING\_HOME](#about-kaazing_home)
--   [About GATEWAY\_HOME](#about-gateway_home)
+-   [About KAAZING_HOME](#about-kaazing_home)
+-   [About GATEWAY_HOME](#about-gateway_home)
 
 Text Conventions
 ---------------------------------------------
@@ -83,14 +83,14 @@ The following table lists ports that are commonly used in the documentation.
 | 61616-61617 | Default Apache ActiveMQ TCP and SSL ports                                                                                                  |
 | 61222       | Default Apache ActiveMQ XMPP port                                                                                                          |
 
-About KAAZING\_HOME
+About KAAZING_HOME
 ---------------------------------------------
 
-By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
+By default, when you install or upgrade KAAZING Gateway, the `KAAZING_HOME` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as `GATEWAY_HOME`)   and Gateway components. The value of `GATEWAY_HOME` depends on the operating system. See [About GATEWAY_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
 
 This documentation assumes you are running the Gateway from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
 
-About GATEWAY\_HOME
+About GATEWAY_HOME
 ---------------------------------------------
 
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:
