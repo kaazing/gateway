@@ -91,7 +91,7 @@ Web-based communication between a browser and server where messages are sent and
 G
 -
 
-#####GATEWAY_HOME**![This feature is available in KAAZING Gateway - Enterprise Edition.](images/enterprise-feature.png)
+#####GATEWAY_HOME![This feature is available in KAAZING Gateway - Enterprise Edition.](images/enterprise-feature.png)
 
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:
 
@@ -103,7 +103,7 @@ This is the directory that contains KAAZING Gateway and its components. The defa
 | Windows: 32-bit                                         | `C:\Program Files\Kaazing\edition\version\Gateway`       |
 | Windows: 64-bit                                         | `C:\Program Files\Kaazing\edition\version\Gateway`       |
 | Windows: 32-bit installation on a 64-bit Windows system | `C:\Program Files (x86)\Kaazing\edition\version\Gateway` |
-| Linux: Debian-based system                              | `/usr/share/kaazing/edition/version/`**                  |
+| Linux: Debian-based system                              | `/usr/share/kaazing/edition/version/`                  |
 
 You can find more information about `GATEWAY_HOME` and the directory structure that is set up during installation in *Setting Up KAAZING Gateway*. To read this document, go to the [Kaazing Documentation home page](index.md), choose the edition (for example, HTML5 or JMS) of the Gateway you are running, and open *Setting Up KAAZING Gateway*. See also [*KAAZING_HOME*](#kaazing_home).
 
@@ -173,7 +173,7 @@ A mechanism for distributing and publishing messages to multiple [JMS consumers/
 K
 -
 
-#####KAAZING_HOME**![This feature is available in KAAZING Gateway - Enterprise Edition.](images/enterprise-feature.png)
+#####KAAZING_HOME![This feature is available in KAAZING Gateway - Enterprise Edition.](images/enterprise-feature.png)
 
 By default, when you install or upgrade KAAZING Gateway, the *KAAZING_HOME* directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY_HOME*), a message broker home (depending on the Gateway edition you are running), and Gateway components. The value of *GATEWAY_HOME* depends on the operating system. See [*GATEWAY_HOME*](#gateway_home) to learn more about Gateway directory destinations.
 
