@@ -106,7 +106,7 @@ public class Rfc7235SpecificationIT {
         robot.finish();
     }
 
-    @Ignore("Gateway doesn't recognize proxy requests?")
+    @Ignore("Gateway doesn't support proxy requests")
     @Test
     @Specification("headers/invalid.proxy.user/request")
     public void secureProxyShouldSend407ToAnyUnAuthorizedRequest() throws Exception {
