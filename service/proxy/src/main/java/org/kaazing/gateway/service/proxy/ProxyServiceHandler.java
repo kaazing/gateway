@@ -21,6 +21,9 @@
 
 package org.kaazing.gateway.service.proxy;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +31,11 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +84,22 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
                         connectSession.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, serviceRegistration);
                         BridgeSession.NEXT_PROTOCOL_KEY.set(connectSession, nextProtocol);
 
+                        // Propagate the remote IP address from the accept side to the connect side.
+                        IoSession acceptTcpSession = getTcpSession(acceptSession);
+                        IoSession connectTcpSession = getTcpSession(connectSession);
+                        if (acceptTcpSession != null) {
+                            String remoteIpAddress = (String) acceptTcpSession.getAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY);
+                            if (remoteIpAddress == null) {
+                                SocketAddress socketAddr = acceptTcpSession.getRemoteAddress();
+                                InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
+                                remoteIpAddress = inetAddr.getHostAddress();
+                            }
+
+                            if (connectTcpSession != null) {
+                                connectTcpSession.setAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY, remoteIpAddress);
+                            }
+                        }
+
                         // guarantee strongly-typed buffers; this is the connect-side where
                         // the service is the client of the broker.
                         initFilterChain(connectSession, true);
@@ -112,6 +133,25 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
     @Override
     protected AbstractProxyHandler createConnectHandler() {
         return new ConnectHandler();
+    }
+
+    private IoSession getTcpSession(IoSession session) {
+        IoSession tempSession = session;
+
+        while (tempSession != null) {
+            if (tempSession instanceof NioSocketChannelIoSession) {
+                return tempSession;
+            }
+
+            if (!(tempSession instanceof AbstractBridgeSession<?, ?>)) {
+                return null;
+            }
+
+            AbstractBridgeSession<?, ?> bridgeSession = (AbstractBridgeSession<?, ?>) tempSession;
+            tempSession = bridgeSession.getParent();
+        }
+
+        return null;
     }
 
     private class ConnectListener implements IoFutureListener<ConnectFuture> {

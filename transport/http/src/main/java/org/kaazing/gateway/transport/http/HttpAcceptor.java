@@ -48,6 +48,8 @@ import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilte
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.util.Collection;
@@ -75,6 +77,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -107,15 +110,18 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, HttpBinding> {
+    public static final String HEADER_X_FORWARDED_FOR = "X-Forwarded-For";
 
     private static final String LOGGER_NAME = format("transport.%s.accept", HttpProtocol.NAME);
 
     public static final String SECURITY_LOGGER_NAME = format("%s.security", LOGGER_NAME);
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
+    public static final TypedAttributeKey<String> REMOTE_IP_ADDRESS_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "remoteIpAddress");
 
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
@@ -129,7 +135,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    
+
     private IoFilter httpNextAddress;
 
     private SchedulerProvider schedulerProvider;
@@ -442,6 +448,16 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     public void initializeSession(IoSession httpSession, IoFuture future) {
                         ((DefaultHttpSession)httpSession).setSubject(subject);
                         httpSession.setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, loginContext);
+
+                        // Set the remote IP address on the root (TCP) session so that it can be transferred to the
+                        // connect side in ProxyServiceHandler.
+                        String remoteIpAddress = getRemoteIpAddress(httpSession, httpRequest);
+                        if (remoteIpAddress != null) {
+                            IoSession tcpSession = getTcpSession(httpSession);
+                            if (tcpSession != null) {
+                                tcpSession.setAttribute(REMOTE_IP_ADDRESS_KEY, remoteIpAddress);
+                            }
+                        }
                     }
                 }, new Callable<DefaultHttpSession>() {
                     @Override
@@ -594,8 +610,65 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
     }
 
-    private static  URI getHostPortPathURI(URI resource) {
-        return URI.create("//" + resource.getAuthority() + resource.getPath());
+    // If HTTP's X-FORWARDED-FOR header is set, then use it's value to determine the remote
+    // IP address. If X-FORWARDED-FOR header is NOT set, then use IoSession to determine
+    // the remote IP address.
+    private String getRemoteIpAddress(IoSession session, HttpRequestMessage httpRequest) {
+        String remoteIpAddr = httpRequest.getHeader(HEADER_X_FORWARDED_FOR);
+
+        if (remoteIpAddr == null) {
+            SocketAddress socketAddr = session.getRemoteAddress();
+
+            if (session instanceof AbstractBridgeSession) {
+                IoSession tcpSession = getTcpSession(session);
+                if (tcpSession == null) {
+                return null;
+                }
+                socketAddr = tcpSession.getRemoteAddress();
+            }
+
+            InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
+            remoteIpAddr = inetAddr.getHostAddress();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using IoSession to determine remote IP address: [%s].", remoteIpAddr);
+            }
+        }
+        else {
+            // X-FORWARDED-FOR HTTP header is inserted by proxies to identify the remote IP address.
+            // If the proxies are chained, then X-FORWARDED-FOR header can contain multiple IP
+            // addresses separated by commas. In such a scenario, the first IP address represents
+            // the remote IP address.
+            int index = remoteIpAddr.indexOf(',');
+            if (index > -1) {
+                remoteIpAddr = remoteIpAddr.substring(0, index).trim();
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using X-FORWARDED-FOR header value for remote IP address: [%s].", remoteIpAddr);
+            }
+        }
+
+        return remoteIpAddr;
+    }
+
+    private IoSession getTcpSession(IoSession session) {
+    IoSession tempSession = session;
+
+    while (tempSession != null) {
+            if (tempSession instanceof NioSocketChannelIoSession) {
+                return tempSession;
+            }
+
+            if (!(tempSession instanceof AbstractBridgeSession<?, ?>)) {
+                return null;
+            }
+
+            AbstractBridgeSession<?, ?> bridgeSession = (AbstractBridgeSession<?, ?>) tempSession;
+            tempSession = bridgeSession.getParent();
+        }
+
+        return null;
     }
 
     private static HttpSubjectSecurityFilter getSubjectSecurityFilter(Logger logger) {
@@ -609,6 +682,10 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
 
         return new HttpSubjectSecurityFilter(logger);
+    }
+
+    private static  URI getHostPortPathURI(URI resource) {
+        return URI.create("//" + resource.getAuthority() + resource.getPath());
     }
 }
 

@@ -58,6 +58,7 @@ accepted
 connected
 
 read "GET /docs/apr.html HTTP/1.1\r\n"
+read "X-Forwarded-For: 127.0.0.1\r\n"
 read "Via: 1.1 kaazing\r\n"
 read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:36.0) Gecko/20100101 Firefox/36.0\r\n"
 read "Host: localhost:8110\r\n"

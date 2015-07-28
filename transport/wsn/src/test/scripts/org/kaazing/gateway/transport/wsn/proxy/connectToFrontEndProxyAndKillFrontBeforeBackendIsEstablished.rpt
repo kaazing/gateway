@@ -60,6 +60,7 @@ accept tcp://localhost:8556
 accepted
 connected
 read "GET / HTTP/1.1\r\n"
+read "X-Forwarded-For: 127.0.0.1\r\n"
 read "User-Agent: Kaazing Gateway\r\n"
 read "Upgrade: websocket\r\n"
 read "Sec-WebSocket-Version: 13\r\n"
