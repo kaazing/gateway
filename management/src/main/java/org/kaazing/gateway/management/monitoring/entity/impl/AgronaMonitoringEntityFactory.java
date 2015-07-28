@@ -26,10 +26,7 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.kaazing.gateway.management.agrona.ex.AtomicStringEntity;
-import org.kaazing.gateway.management.agrona.ex.StringsManager;
 import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
@@ -42,18 +39,15 @@ import uk.co.real_logic.agrona.concurrent.CountersManager;
 public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
 
     private CountersManager countersManager;
-    private StringsManager stringsManager;
 
     // These are needed for the cleanup work that needs to be done in the close method.
     private File monitoringDirectory;
     private MappedByteBuffer mappedMonitorDirectory;
     private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
-    private List<AtomicStringEntity> stringEntities = new CopyOnWriteArrayList<AtomicStringEntity>();
 
-    public AgronaMonitoringEntityFactory(CountersManager countersManager, StringsManager stringsManager,
+    public AgronaMonitoringEntityFactory(CountersManager countersManager,
             MappedByteBuffer mappedMonitorFile, File monitoringDirectory) {
         this.countersManager = countersManager;
-        this.stringsManager = stringsManager;
         this.mappedMonitorDirectory = mappedMonitorFile;
         this.monitoringDirectory = monitoringDirectory;
     }
@@ -71,25 +65,11 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     }
 
     @Override
-    public StringMonitoringEntity makeStringMonitoringEntity(String name, String value) {
-        AtomicStringEntity entity = stringsManager.newStringEntity(name, value);
-        stringEntities.add(entity);
-
-        StringMonitoringEntity stringMonitoringEntity = new AgronaStringMonitoringEntity(entity);
-
-        return stringMonitoringEntity;
-    }
-
-    @Override
     public void close() {
         // We close the counters, the String monitoring entities and the we also need to unmap the file and delete the
         // monitoring directory.
         for (AtomicCounter atomicCounter : counters) {
             atomicCounter.close();
-        }
-
-        for (AtomicStringEntity atomicStringEntity : stringEntities) {
-            atomicStringEntity.close();
         }
 
         IoUtil.unmap(mappedMonitorDirectory);

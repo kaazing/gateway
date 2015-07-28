@@ -27,7 +27,6 @@ import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
-import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
@@ -53,13 +52,10 @@ import org.kaazing.mina.core.session.IoSessionEx;
  */
 public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
 
-    private static final String SEPARATOR = "-";
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private ServiceSessionCounterManager serviceSessionCounterManager;
-    private StringMonitoringEntity latestException;
-    private static final String LATEST_EXCEPTION = "-latest-exception";
 
     public ManagementFilter(ServiceManagementBean serviceBean,
                             MonitoringEntityFactory monitoringEntityFactory,
@@ -74,8 +70,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory,
                 serviceName, gatewayId);
         serviceSessionCounterManager.initializeCounters();
-        latestException = monitoringEntityFactory.makeStringMonitoringEntity(gatewayId +
-                SEPARATOR + serviceName + LATEST_EXCEPTION, "");
     }
 
     public ServiceManagementBean getServiceBean() {
@@ -94,7 +88,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
                 .doSessionClosed(managementContext, serviceBean, session.getId(), managementSessionType);
         managementContext.decrementOverallSessionCount();
         serviceSessionCounterManager.decrementCounters(managementSessionType);
-        latestException.reset();
 
         super.doSessionClosed(nextFilter, session);
     }
@@ -117,7 +110,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected void doExceptionCaught(NextFilter nextFilter, IoSessionEx session, Throwable cause) throws Exception {
         managementContext.getManagementFilterStrategy()
                 .doExceptionCaught(managementContext, serviceBean, session.getId(), cause);
-        latestException.setValue(cause.getMessage());
         super.doExceptionCaught(nextFilter, session, cause);
     }
 
