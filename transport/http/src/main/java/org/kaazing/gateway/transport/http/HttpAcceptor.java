@@ -622,7 +622,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             if (session instanceof AbstractBridgeSession) {
                 IoSession tcpSession = getTcpSession(session);
                 if (tcpSession == null) {
-                return null;
+                    return null;
                 }
                 socketAddr = tcpSession.getRemoteAddress();
             }
