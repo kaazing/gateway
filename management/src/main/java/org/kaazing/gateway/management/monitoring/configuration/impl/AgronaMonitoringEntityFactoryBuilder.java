@@ -46,9 +46,6 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
     private static final int MONITOR_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
     private static final int MONITOR_COUNTER_LABELS_BUFFER_LENGTH = 32 * MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
 
-    private static final int MONITOR_STRING_VALUES_BUFFER_LENGTH = 32 * 1024 * 1024;
-    private static final int MONITOR_STRING_LABELS_BUFFER_LENGTH = MONITOR_STRING_VALUES_BUFFER_LENGTH;
-
     private CountersManager countersManager;
     private Properties configuration;
     private UnsafeBuffer metaDataBuffer;
@@ -85,8 +82,7 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
         IoUtil.deleteIfExists(monitoringFile);
 
         int totalLengthOfBuffers =
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH
-                        + MONITOR_STRING_VALUES_BUFFER_LENGTH + MONITOR_STRING_LABELS_BUFFER_LENGTH;
+                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
         int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
