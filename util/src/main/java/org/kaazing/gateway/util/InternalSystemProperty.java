@@ -100,6 +100,12 @@ public enum InternalSystemProperty {
     MANAGEMENT_SESSION_THRESHOLD
             ("org.kaazing.gateway.management.SESSION_THRESHOLD", "500"),
 
+    MANAGEMENT_MESSAGE_COUNT_DISABLED
+            ("com.kaazing.gateway.management.MESSAGE_COUNT_DISABLED"),
+
+    MANAGEMENT_SUMMARY_DATA_LIMIT
+            ("com.kaazing.gateway.management.SUMMARY_DATA_LIMIT", "100"),
+
     /**
      * Internal system property describing whether Agrona is enabled or not
      */

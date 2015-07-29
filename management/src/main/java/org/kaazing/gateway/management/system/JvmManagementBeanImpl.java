@@ -55,12 +55,13 @@ public class JvmManagementBeanImpl extends AbstractSystemManagementBean implemen
     private long threadingPeakThreads;
     private long threadingTotalThreads;
 
-    public JvmManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
+    public JvmManagementBeanImpl(GatewayManagementBean gatewayManagementBean, int summaryDataLimit) {
         super(gatewayManagementBean.getManagementContext(),
                 gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
                 JvmManagementBean.SUMMARY_DATA_FIELD_LIST,
                 gatewayManagementBean.getManagementContext().getJvmSummaryDataGatherInterval(),
                 "JVM stats",
+                summaryDataLimit,
                 "SNMPJvmSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
     }

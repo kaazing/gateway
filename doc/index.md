@@ -24,7 +24,7 @@ For Developers
 #### JMS Mobile Clients
 
 -   [Walkthrough: Deploy a JavaScript JMS App as a Hybrid iOS App](https://github.com/kaazing/enterprise.javascript.client/blob/develop/jms/doc/hybrid_ios_walkthrough_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Walkthrough: Deploy a JavaScript JMS App as a Hybrid Android App](dev-js/hybrid_android_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Walkthrough: Deploy a JavaScript JMS App as a Hybrid Android App](https://github.com/kaazing/enterprise.javascript.client/blob/develop/jms/doc/hybrid_android_walkthrough.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Walkthrough: Deploy Microsoft .NET or Silverlight JMS Clients to iOS or Android Using Xamarin](https://github.com/kaazing/enterprise.dotnet.client/blob/develop/ws/ws/doc/xamarin_dotnet_walkthrough_websocket.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 ### Web and Desktop
@@ -42,7 +42,7 @@ For Developers
 -   [Real-Time Interactive Guide to AMQP](https://github.com/kaazing/javascript.client/blob/develop/amqp-0-9-1/doc/guide-amqp.md)
 -   [Build JavaScript AMQP Clients](https://github.com/kaazing/javascript.client/blob/develop/amqp-0-9-1/doc/o_dev_js_amqp.md)
 -   [Build Flash AMQP Clients](https://github.com/kaazing/enterprise.flash.client/blob/develop/migrated/amqp.client.flash/doc/o_dev_flash_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Build Microsoft .NET and Silverlight AMQP Clients](dev-dotnet/o_dev_dotnet_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Build Microsoft .NET and Silverlight AMQP Clients](https://github.com/kaazing/enterprise.dotnet.client/blob/develop/amqp/amqp/doc/o_dev_dotnet_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build Java AMQP Clients](https://github.com/kaazing/java.client/blob/develop/amqp-0-9-1/doc/o_dev_java_amqp.md)
 -   [Build C AMQP Clients](https://github.com/kaazing/c.client/blob/develop/amqp/amqp-websocket-c/doc/o_dev_c_amqp.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
@@ -85,8 +85,8 @@ For Administrators
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
 -   [Configure a Secure JMS Configuration](security/o_jms_secure.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Enterprise Shield™ with the Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement Protocol Injection](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/security/p_auth_protocol_injection.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement User Identity Promotion](security/p_auth_user_identity_promotion.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+-   [Implement Protocol Injection](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/security/p_auth_protocol_injection.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)		
+-   [Implement User Identity Promotion](security/p_auth_user_identity_promotion.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.
 
 ### Monitor and Troubleshoot
 
@@ -100,9 +100,6 @@ For Administrators
 
 ### JMS-Compliant Message Brokers
 -   [Integrate with JMS-Compliant Message Brokers](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/integration-jms/o_jms_integrate.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-
-### Apple Push Notification Service (APNs)
--   [Deploy Apple Push Notification Service (APNs) with KAAZING Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/apns/o_apns.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Client API Documentation
 ------------------------
