@@ -127,6 +127,7 @@ public class GatewayContextResolver {
 
     private static final String SERVICE_TYPE_CLASS_PREFIX = "class:";
     private static final String LOGIN_MODULE_TYPE_CLASS_PREFIX = "class:";
+    private static final String EMPTY_STRING = "";
 
     // a map of file-extension to mime-type.  For backward compatibility, we'll
     // hardcode this initial set based on the values in Dragonfire HttpUtils.getContentType().
@@ -961,7 +962,12 @@ public class GatewayContextResolver {
                             Node node = childNodes.item(i);
                             if (Node.ELEMENT_NODE == node.getNodeType()) {
                                 NodeList content = node.getChildNodes();
-                                options.put(node.getLocalName(), content.item(0).getNodeValue());
+                                if ((content != null) && (content.item(0) != null)) {
+                                    options.put(node.getLocalName(), content.item(0).getNodeValue());
+                                }
+                                else {
+                                    options.put(node.getLocalName(), EMPTY_STRING);
+                                }
                             }
                         }
                     }
