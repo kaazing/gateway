@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb;
+package org.kaazing.gateway.service.http.balancer;
 
 
 import org.junit.Rule;
@@ -50,7 +50,7 @@ public class WsebBalancerIT {
                     // balancer service to echo
                     .service()
                         .type("balancer")
-                        .accept(URI.create("wse://gateway.example.com:8001/echo"))
+                        .accept(URI.create("ws://gateway.example.com:8001/echo"))
                         .acceptOption("tcp.bind", "localhost:8001")
                         .crossOrigin()
                             .allowOrigin("*")
@@ -59,8 +59,8 @@ public class WsebBalancerIT {
                     // echo service
                     .service()
                         .type("echo")
-                        .accept(URI.create("wse://node.example.com:8001/echo"))
-                        .balance(URI.create("wse://gateway.example.com:8001/echo"))
+                        .accept(URI.create("ws://node.example.com:8001/echo"))
+                        .balance(URI.create("ws://gateway.example.com:8001/echo"))
                         .acceptOption("tcp.bind", "localhost:8001")
                         .crossOrigin()
                             .allowOrigin("*")
