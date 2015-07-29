@@ -64,7 +64,8 @@ public class BaseFramingIT {
     public final TestRule chain = outerRule(k3po).around(gateway).around(timeout);
 
     @Test
-    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload")
+    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload, "
+            + "Bug filed: Gateway #254 `WSN Transport Bug : shouldEchoBinaryFrameWithPayloadLength0`")
     @Specification({
         "echo.binary.payload.length.0/handshake.request.and.frame"
         })
@@ -121,7 +122,8 @@ public class BaseFramingIT {
     }
 
     @Test
-    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload")
+    @Ignore("Error: expected 'read [0x82 0x00]', actual 'Disconnected', Not echoing 0 length payload"
+            + "Bug filed: Gateway #254 `WSN Transport Bug : shouldEchoTextFrameWithPayloadLength0`")
     @Specification({
         "echo.text.payload.length.0/handshake.request.and.frame"
         })
