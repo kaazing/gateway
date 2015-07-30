@@ -32,7 +32,7 @@
   <fileSets>
 
     <fileSet>
-      <outputDirectory>lib/metrics.statsd</outputDirectory>
+      <outputDirectory>metrics.statsd</outputDirectory>
       <directory>target/metrics.statsd.windows/metrics.statsd-${metrics.version}/</directory>      
     </fileSet>
 

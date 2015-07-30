@@ -20,5 +20,5 @@
 # under the License.
 #
 
-cd ../lib/metrics.statsd/bin
+cd ../metrics.statsd/bin
 ./metrics.statsd.start "$@"
