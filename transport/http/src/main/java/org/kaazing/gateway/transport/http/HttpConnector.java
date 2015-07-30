@@ -407,7 +407,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                                 new HttpBufferAllocator(parentAllocator));
                         parent.setAttribute(HTTP_SESSION_KEY, httpSession);
 
-                        // Set X-FORWARDED-FOR header on the HTTP session.
+                        // Set X-Forwarded-For header on the HTTP session.
                         IoSession tcpSession = getTcpSession(httpSession);
                         if (tcpSession != null) {
                             String remoteIpAddress = (String) tcpSession.getAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY);
@@ -416,7 +416,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                                 InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
                                 remoteIpAddress = inetAddr.getHostAddress();
                             }
-                            httpSession.setWriteHeader(HttpAcceptor.HEADER_X_FORWARDED_FOR, remoteIpAddress);
+                            httpSession.addWriteHeader(HttpAcceptor.HEADER_X_FORWARDED_FOR, remoteIpAddress);
                         }
 
                         return httpSession;

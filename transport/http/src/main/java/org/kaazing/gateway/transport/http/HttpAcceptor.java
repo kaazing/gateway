@@ -610,8 +610,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
     }
 
-    // If HTTP's X-FORWARDED-FOR header is set, then use it's value to determine the remote
-    // IP address. If X-FORWARDED-FOR header is NOT set, then use IoSession to determine
+    // If HTTP's X-Forwarded-For header is set, then use it's value to determine the remote
+    // IP address. If X-Forwarded-For header is NOT set, then use IoSession to determine
     // the remote IP address.
     private String getRemoteIpAddress(IoSession session, HttpRequestMessage httpRequest) {
         String remoteIpAddr = httpRequest.getHeader(HEADER_X_FORWARDED_FOR);
@@ -635,8 +635,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             }
         }
         else {
-            // X-FORWARDED-FOR HTTP header is inserted by proxies to identify the remote IP address.
-            // If the proxies are chained, then X-FORWARDED-FOR header can contain multiple IP
+            // X-Forwarded-For HTTP header is inserted by proxies/intermediaries to identify the remote
+            // IP address. If the proxies are chained, then X-Forwarded-For header can contain multiple IP
             // addresses separated by commas. In such a scenario, the first IP address represents
             // the remote IP address.
             int index = remoteIpAddr.indexOf(',');
@@ -645,7 +645,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Using X-FORWARDED-FOR header value for remote IP address: [%s].", remoteIpAddr);
+                logger.debug("Using X-Forwarded-For header value for remote IP address: [%s].", remoteIpAddr);
             }
         }
 
