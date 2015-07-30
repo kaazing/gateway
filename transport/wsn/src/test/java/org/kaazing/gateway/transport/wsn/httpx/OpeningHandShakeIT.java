@@ -43,8 +43,14 @@ public class OpeningHandShakeIT {
     public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
 
     @Test
-    @Specification("upgrades.with.handshake.protocol/request")
-    public void shouldNegotiateProtocol() throws Exception {
+    @Specification("extended.handshake.protocol.negotiated/request")
+    public void shouldPassNegotiatingProtocol() throws Exception {
+        robot.finish();
+    }
+
+    @Test
+    @Specification("extended.handshake.protocol.not.negotiated/request")
+    public void shouldFailNotNegotiatingProtocol() throws Exception {
         robot.finish();
     }
 
