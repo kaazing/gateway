@@ -90,7 +90,7 @@ public class ProxyServiceExtensionTest {
 
         // connect to the service to ensure the extension is executed
         try (Socket clientSocket = new Socket("localhost", 8888)) {
-            boolean success = latch.await(50, TimeUnit.SECONDS);
+            boolean success = latch.await(5, TimeUnit.SECONDS);
             assertTrue("Failed to execute all phases of proxy service extension", success);
         } catch (Exception ex) {
             fail("Unexpected exception in client connecting to server: " + ex);
