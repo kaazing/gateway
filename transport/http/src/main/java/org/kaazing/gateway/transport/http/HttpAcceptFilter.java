@@ -34,6 +34,7 @@ import org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFi
 import org.kaazing.gateway.transport.http.bridge.filter.HttpOperationFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpOriginHeaderFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpOriginSecurityFilter;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpPathMatchingFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpPersistenceFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter;
@@ -76,6 +77,8 @@ public enum HttpAcceptFilter {
     SESSION_CLEANUP("http#session-cleanup", new HttpSessionCleanupFilter()),
 
     NEXT_ADDRESS("http#next-address"),
+
+    PATH_MATCHING("http#path-matching", new HttpPathMatchingFilter()),
 
     PERSISTENCE("http#persistence", new HttpPersistenceFilter()),
 
