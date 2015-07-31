@@ -18,20 +18,66 @@ package org.kaazing.gateway.transport.wsn.specification.ws;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.session.IoSession;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.transport.BridgeServiceFactory;
+import org.kaazing.gateway.transport.BridgeSession;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.TransportFactory;
+import org.kaazing.gateway.transport.http.HttpAcceptor;
+import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
+import org.kaazing.gateway.transport.ws.WsBinaryMessage;
+import org.kaazing.gateway.transport.ws.WsCloseMessage;
+import org.kaazing.gateway.transport.ws.WsContinuationMessage;
+import org.kaazing.gateway.transport.ws.WsMessage;
+import org.kaazing.gateway.transport.ws.WsPingMessage;
+import org.kaazing.gateway.transport.ws.WsPongMessage;
+import org.kaazing.gateway.transport.ws.WsTextMessage;
+import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
+import org.kaazing.gateway.transport.wsn.TransportTestIoHandlerAdapter;
+import org.kaazing.gateway.transport.wsn.WsnAcceptor;
+import org.kaazing.gateway.transport.wsn.WsnConnector;
+import org.kaazing.gateway.transport.wsn.WsnSession;
+import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
+import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * RFC-6455, section 5.4 "Fragmentation"
@@ -40,34 +86,105 @@ public class FragmentationIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/fragmentation");
     
-    private GatewayRule gateway = new GatewayRule() {
-        {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept(URI.create("ws://localhost:8080/echo"))
-                            .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
-                        .done()
-                    .done();
-            // @formatter:on
-            init(configuration);
-        }
-    };
     
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    
+    public final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
-    public final TestRule chain = outerRule(k3po).around(gateway).around(timeout);
+    public final TestRule chain = outerRule(k3po).around(timeout).around(testExecutionTrace);
+
+    private SchedulerProvider schedulerProvider;
+
+    private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
+
+
+    private ResourceAddressFactory addressFactory;
+    private BridgeServiceFactory serviceFactory;
+
+    private NioSocketConnector tcpConnector;
+    private HttpConnector httpConnector;
+    
+    private NioSocketAcceptor tcpAcceptor;
+    private HttpAcceptor httpAcceptor;
+    private WsnAcceptor wsnAcceptor;
+    private WsAcceptor wsAcceptor;
+
+    private static final boolean DEBUG = false;
+
+    
+    @Before
+    public void init() {
+        schedulerProvider = new SchedulerProvider();
+        
+        addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        Map<String, Object> config = Collections.emptyMap();
+        TransportFactory transportFactory = TransportFactory.newTransportFactory(config);
+        serviceFactory = new BridgeServiceFactory(transportFactory);
+
+        tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+        tcpAcceptor.setResourceAddressFactory(addressFactory);
+        tcpAcceptor.setBridgeServiceFactory(serviceFactory);
+        tcpAcceptor.setSchedulerProvider(schedulerProvider);
+        
+        tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
+        tcpConnector.setResourceAddressFactory(addressFactory);
+        tcpConnector.setBridgeServiceFactory(serviceFactory);
+        
+        httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
+        httpAcceptor.setBridgeServiceFactory(serviceFactory);
+        httpAcceptor.setResourceAddressFactory(addressFactory);
+        httpAcceptor.setSchedulerProvider(schedulerProvider);
+        
+        httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
+        httpConnector.setBridgeServiceFactory(serviceFactory);
+        httpConnector.setResourceAddressFactory(addressFactory);
+
+        wsnAcceptor = (WsnAcceptor)transportFactory.getTransport("wsn").getAcceptor();
+        wsnAcceptor.setBridgeServiceFactory(serviceFactory);
+        wsnAcceptor.setResourceAddressFactory(addressFactory);
+        wsnAcceptor.setSchedulerProvider(schedulerProvider);
+        wsAcceptor = new WsAcceptor(WebSocketExtensionFactory.newInstance());
+        wsnAcceptor.setWsAcceptor(wsAcceptor);
+
+    }
+
+    @After
+    public void disposeConnector() {
+        if (tcpAcceptor != null) {
+            tcpAcceptor.dispose();
+        }
+        if (httpAcceptor != null) {
+            httpAcceptor.dispose();
+        }
+        if (wsnAcceptor != null) {
+            wsnAcceptor.dispose();
+        }
+        if (tcpConnector != null) {
+            tcpConnector.dispose();
+        }
+        if (httpConnector != null) {
+            httpConnector.dispose();
+        }
+    }
+    
+    private void bindTo8080(IoHandlerAdapter adapter) {
+        final URI location = URI.create("ws://localhost:8080/echo");
+        Map<String, Object> addressOptions = Collections.emptyMap();
+        ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
+        
+        wsnAcceptor.bind(address, adapter, null);
+    }
+    
 
     @Test
     @Specification({
         "client.send.continuation.payload.length.125.not.fragmented/handshake.request.and.frame"
         })
     public void shouldFailWebSocketConnectionWhenClientSendContinuationFrameWithPayloadNotFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.CONTINUATION);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -76,6 +193,9 @@ public class FragmentationIT {
         "client.send.continuation.payload.length.125.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendContinuationFrameWithPayloadFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.CONTINUATION);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -84,15 +204,23 @@ public class FragmentationIT {
         "client.echo.text.payload.length.125.not.fragmented/handshake.request.and.frame"
         })
     public void shouldEchoClientSendTextFrameWithPayloadNotFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
     @Ignore("Gateway disconnected instead of echoing code, client did not read")
+    // IllegalArgumentException with empty message... doesnt like that
     @Specification({
         "client.echo.text.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithEmptyPayloadFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
+        
         k3po.finish();
     }
 
@@ -102,24 +230,31 @@ public class FragmentationIT {
         "client.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Incorrect data write by Gateway, not echoing")
     @Specification({
         "client.echo.text.payload.length.125.fragmented/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithPayloadFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Incorrect data write by Gateway, not echoing")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -129,24 +264,31 @@ public class FragmentationIT {
         "client.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
     public void shouldEchoClientSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected.")
     @Specification({
         "client.send.text.payload.length.125.fragmented.but.not.continued/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendTextFrameWithPayloadFragmentedButNotContinued() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.TEXT);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -155,6 +297,9 @@ public class FragmentationIT {
         "client.echo.binary.payload.length.125.not.fragmented/handshake.request.and.frame"
         })
     public void shouldEchoClientSendBinaryFrameWithPayloadNotFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -164,6 +309,9 @@ public class FragmentationIT {
         "client.echo.binary.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldEchoClientSendBinaryFrameWithEmptyPayloadFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
@@ -173,42 +321,51 @@ public class FragmentationIT {
         "client.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
     public void shouldEchoClientSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented/handshake.request.and.frames"
         })
     public void shouldEchoClientSendBinaryFrameWithPayloadFragmented() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frames"
         })
     public void shouldEchoClientSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
     public void shouldEchoClientSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = textFragmentIoHandlerAdapter(WsBuffer.Kind.BINARY);
+        
+        bindTo8080(acceptHandler);
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Gateway may have written incorrect data")
     @Specification({
         "client.send.binary.payload.length.125.fragmented.but.not.continued/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
+        bindTo8080(new IoHandlerAdapter());
         k3po.finish();
     }
 
@@ -217,6 +374,7 @@ public class FragmentationIT {
         "client.send.close.payload.length.2.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithPayloadFragmented() throws Exception {
+        bindTo8080(new IoHandlerAdapter());
         k3po.finish();
     }
 
@@ -225,6 +383,7 @@ public class FragmentationIT {
         "client.send.ping.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendPingFrameWithPayloadFragmented() throws Exception {
+        bindTo8080(new IoHandlerAdapter());
         k3po.finish();
     }
 
@@ -233,162 +392,59 @@ public class FragmentationIT {
         "client.send.pong.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendPongFrameWithPayloadFragmented() throws Exception {
+        bindTo8080(new IoHandlerAdapter());
         k3po.finish();
     }
+    
+    /** special IoHandlerAdapter for consolidating message fragments
+     * @return
+     */
+    private IoHandlerAdapter<IoSessionEx> textFragmentIoHandlerAdapter(WsBuffer.Kind kind) {
+        IoHandlerAdapter<IoSessionEx> acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
+            List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                // custom logic
+            }
+            
+            @Override
+            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
+                WsnSession wsnSession = (WsnSession) session;
 
-/*    
- *  Client-only Tests
- *  
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.0.fragmented/handshake.request.and.frame",
-        "server.echo.binary.payload.length.0.fragmented/handshake.response.and.frames" })
-    public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmented() throws Exception {
-        k3po.finish();
+                if (wsnSession != null) {
+                    IoFilterChain filterChain = wsnSession.getFilterChain();
+                    IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnSession.getBufferAllocator();
+
+                    final boolean hasPostUpgradeChildWsnSession = wsnSession.getHandler() == this;
+                    final ResourceAddress wsnSessionLocalAddress = wsnSession.getLocalAddress();
+                    final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                    boolean sendMessagesDirect = isLightweightWsnSession
+                                                 && hasPostUpgradeChildWsnSession; // post-upgrade
+                    if ( sendMessagesDirect ) {
+                        filterChain.fireMessageReceived(message);
+                        return;
+                    }
+                    
+                    WsBuffer wsMessage = (WsBuffer) message;
+                    
+                    
+                    bufferList.add(wsMessage.buf());
+                     
+                    if (wsMessage.isFin()) { 
+                        ByteBuffer buffer = ByteBuffer.allocate(4096);
+                        
+                        for (ByteBuffer bb : bufferList) {
+                            buffer.put(bb);
+                        }
+                        buffer.flip();
+                        WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                        wsBuffer.setKind(kind);
+                        session.write(wsBuffer);
+                    }
+                }
+            }
+
+        };
+        return acceptHandler;
     }
-
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frame",
-        "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
-    public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.125.fragmented/handshake.request.and.frame",
-        "server.echo.binary.payload.length.125.fragmented/handshake.response.and.frames" })
-    public void shouldEchoServerSendBinaryFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frame",
-        "server.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
-    public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frame",
-        "server.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
-    public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.binary.payload.length.125.not.fragmented/handshake.request.and.frame",
-        "server.echo.binary.payload.length.125.not.fragmented/handshake.response.and.frame" })
-    public void shouldEchoServerSendBinaryFrameWithPayloadNotFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.0.fragmented/handshake.request.and.frame",
-        "server.echo.text.payload.length.0.fragmented/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frame",
-        "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.125.fragmented/handshake.request.and.frame",
-        "server.echo.text.payload.length.125.fragmented/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.request.and.frame",
-        "server.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.request.and.frame",
-        "server.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.request.and.frame",
-        "server.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
-    public void shouldEchoServerSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.echo.text.payload.length.125.not.fragmented/handshake.request.and.frame",
-        "server.echo.text.payload.length.125.not.fragmented/handshake.response.and.frame" })
-    public void shouldEchoServerSendTextFrameWithPayloadNotFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.request.and.frame",
-        "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.response.and.frames" })
-    public void shouldFailWebSocketConnectionWhenServerSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.payload.length.2.fragmented/handshake.request.and.frame",
-        "server.send.close.payload.length.2.fragmented/handshake.response.and.frames" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.continuation.payload.length.125.fragmented/handshake.request.and.frame",
-        "server.send.continuation.payload.length.125.fragmented/handshake.response.and.frames" })
-    public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.continuation.payload.length.125.not.fragmented/handshake.request.and.frame",
-        "server.send.continuation.payload.length.125.not.fragmented/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadNotFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.ping.payload.length.0.fragmented/handshake.request.and.frame",
-        "server.send.ping.payload.length.0.fragmented/handshake.response.and.frames" })
-    public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.pong.payload.length.0.fragmented/handshake.request.and.frame",
-        "server.send.pong.payload.length.0.fragmented/handshake.response.and.frames" })
-    public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadFragmented() throws Exception {
-        k3po.finish();
-    }*/
-
 }
