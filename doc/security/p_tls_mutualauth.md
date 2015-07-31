@@ -57,6 +57,7 @@ To Configure Clients to Provide TLS/SSL Certificates
 6.  Connect to the Gateway from the client using the HTTPS/WSS URI. The Gateway will provide the client with a certificate. Once the client has verified that certificate, the Gateway will request a client certificate from the client. Once the Gateway has verified the client certificate, the secure connection is established.
 
 **Notes:**
+
 -   To use `ssl.verify-client` as an `accept-option` on a service, the service must be accepting on a secure URI (`wss://`, `https://`, `ssl://`). You cannot use `ssl.verify-client` on a unsecured URI (`ws://`, `http://`, `tcp://`, `udp://`).
 -   For more examples, including how to require clients to provide certificates in an Enterprise Shield™ topology, see [Configure Enterprise Shield™](../enterprise-shield/p_enterprise_shield_config.md) and the [ssl.verify-client](../admin-reference/r_configure_gateway_service.md#sslverify-client) accept-option.
 
