@@ -35,7 +35,6 @@ For Developers
 -   [Build Flash WebSocket Clients](https://github.com/kaazing/enterprise.flash.client/blob/develop/migrated/gateway.client.flash/doc/o_dev_flash.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build Microsoft .NET and Silverlight WebSocket Clients](https://github.com/kaazing/enterprise.dotnet.client/blob/develop/ws/ws/doc/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build WebSocket C Clients](https://github.com/kaazing/c.client/blob/develop/ws/doc/o_dev_c_websocket.md)
--   [Build WebSocket Clients with Google Web Toolkit](https://github.com/kaazing/enterprise.gwt.client/blob/develop/migrated/gateway.client.gwt/doc/p_dev_gwt.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 #### AMQP Clients
 
@@ -85,8 +84,6 @@ For Administrators
 -   [Configure Secure Network Traffic with the Gateway](security/o_tls.md)
 -   [Configure a Secure JMS Configuration](security/o_jms_secure.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Configure Enterprise Shield™ with the Gateway](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/enterprise-shield/o_enterprise_shield_checklist.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   [Implement Protocol Injection](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/security/p_auth_protocol_injection.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)		
--   [Implement User Identity Promotion](security/p_auth_user_identity_promotion.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.
 
 ### Monitor and Troubleshoot
 
@@ -114,7 +111,7 @@ Client API Documentation
     [(Kaazing.HTML5)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_HTML5.htm)
     [(Kaazing.Security)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm)
 -   [Java WebSocket Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/java/gateway/index.html)
--   [GWT WebSocket Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/gwt/gateway/index.html)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+
 
 ### AMQP Client API Documentation
 
@@ -132,7 +129,7 @@ Client API Documentation
 -   [Objective-C JMS Client API](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/ios/jms/KMStompJMS/index.html) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Android JMS Client API](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/android/jms/index.html) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Flash JMS Client API](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/flash/jms/index.html) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   .NET and Silverlight Client API ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) ([Kaazing.JMS](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS.htm)) | ([Kaazing.JMS.Stomp](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Stomp.htm)) | ([Kaazing.JMS.Util](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Util.htm)) | ([Kaazing.Security](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm))
+-   .NET and Silverlight Client API ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) ([Kaazing.JMS](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS.htm)) ([Kaazing.JMS.Stomp](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Stomp.htm)) ([Kaazing.JMS.Util](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/dotnet/jms/html/N_Kaazing_JMS_Util.htm)) ([Kaazing.Security](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm))
 -   [Java JMS Client API](http://developer.kaazing.com/documentation/jms/4.0/apidoc/client/java/jms/index.html) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 Server API Documentation
