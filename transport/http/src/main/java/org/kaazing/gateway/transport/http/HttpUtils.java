@@ -22,6 +22,7 @@
 package org.kaazing.gateway.transport.http;
 
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_NOT_MODIFIED;
 
@@ -30,6 +31,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -54,12 +58,14 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.SslUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -884,6 +890,57 @@ public class HttpUtils {
         return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
     }
 
+    // If HTTP's X-Forwarded-For header is set, then use it's value to determine the remote
+    // IP address. If X-Forwarded-For header is NOT set, then use IoSession to determine
+    // the remote IP address.
+    public static String getRemoteIpAddress(IoSession session, HttpRequestMessage httpRequest) {
+        // X-Forwarded-For HTTP header is inserted by proxies/intermediaries to identify the remote
+        // IP address. If the proxies are chained, then X-Forwarded-For header can contain multiple IP
+        // addresses separated by commas. In such a scenario, the first IP address represents
+        // the remote IP address. Note that HttpRequestMessage.getHeader() returns the first value
+        // from the comma separated list. So, we don't have to parse it.
+        String remoteIpAddress = httpRequest.getHeader(HEADER_X_FORWARDED_FOR);
 
+        if (remoteIpAddress == null) {
+            SocketAddress socketAddr = session.getRemoteAddress();
 
+            if (session instanceof AbstractBridgeSession) {
+                IoSession tcpSession = getTcpSession(session);
+                if (tcpSession == null) {
+                    return null;
+                }
+
+                remoteIpAddress = (String) tcpSession.getAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY);
+                if (remoteIpAddress != null) {
+                    return remoteIpAddress;
+                }
+
+                socketAddr = tcpSession.getRemoteAddress();
+            }
+
+            InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
+            remoteIpAddress = inetAddr.getHostAddress();
+        }
+
+        return remoteIpAddress;
+    }
+
+    public static  IoSession getTcpSession(IoSession session) {
+        IoSession tempSession = session;
+
+        while (tempSession != null) {
+            if (tempSession instanceof NioSocketChannelIoSession) {
+                return tempSession;
+            }
+
+            if (!(tempSession instanceof AbstractBridgeSession<?, ?>)) {
+                return null;
+            }
+
+            AbstractBridgeSession<?, ?> bridgeSession = (AbstractBridgeSession<?, ?>) tempSession;
+            tempSession = bridgeSession.getParent();
+        }
+
+        return null;
+    }
 }

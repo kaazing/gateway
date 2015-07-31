@@ -230,10 +230,20 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         // initialize parent session before connection attempt
         return new IoSessionInitializer<ConnectFuture>() {
             @Override
+            public String getRemoteHostAddress() {
+                return initializer != null ? initializer.getRemoteHostAddress() : null;
+            }
+
+            @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
                 final IoSessionInitializer<T> wseSessionInitializer = new IoSessionInitializer<T>() {
+                    @Override
+                    public String getRemoteHostAddress() {
+                        return initializer != null ? initializer.getRemoteHostAddress() : null;
+                    }
+
                     @Override
                     public void initializeSession(IoSession session, T future) {
                         WsebSession wseSession = (WsebSession) session;

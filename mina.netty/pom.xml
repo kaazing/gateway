@@ -185,6 +185,7 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -196,8 +197,8 @@
                 </configuration>
             </plugin>
             <plugin>
-                <!-- ensure that only methods available in java 1.6 can
-                     be used even when compiling with java 1.7+ -->
+                <ensure that only methods available in java 1.6 can
+                     be used even when compiling with java 1.7+ >
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
                 <version>1.8</version>
@@ -213,12 +214,12 @@
 
                         <ignore>java.util.zip.Deflater</ignore>
 
-                        <!-- Used for NIO UDP multicast -->
+                        <Used for NIO UDP multicast>
                         <ignore>java.nio.channels.DatagramChannel</ignore>
                         <ignore>java.nio.channels.MembershipKey</ignore>
                         <ignore>java.net.StandardProtocolFamily</ignore>
 
-                        <!-- Used for NIO. 2 -->
+                        < Used for NIO. 2>
                         <ignore>java.nio.channels.AsynchronousChannel</ignore>
                         <ignore>java.nio.channels.AsynchronousSocketChannel</ignore>
                         <ignore>java.nio.channels.AsynchronousServerSocketChannel</ignore>
@@ -238,6 +239,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>

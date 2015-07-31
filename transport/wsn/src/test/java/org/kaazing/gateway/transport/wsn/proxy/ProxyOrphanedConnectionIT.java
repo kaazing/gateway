@@ -21,23 +21,31 @@
 
 package org.kaazing.gateway.transport.wsn.proxy;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.transport.wsn.WsnConnectorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ProxyOrphanedConnectionIT {
+    private final K3poRule k3po = new K3poRule();
 
-    private K3poRule robot = new K3poRule();
-    
+    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+
+    public final TestRule testExecutionTrace = new MethodExecutionTrace();
+
     public GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
@@ -54,13 +62,13 @@ public class ProxyOrphanedConnectionIT {
             init(configuration);
         }
     };
-    
+
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public final TestRule chain = outerRule(testExecutionTrace).around(k3po).around(gateway).around(timeout);
 
     @Specification("connectToFrontEndProxyAndKillFrontBeforeBackendIsEstablished")
-    @Test(timeout = 5000)
+    @Test
     public void closeOnFrontBeforeConnectedFullyOnBackShouldKillBack() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 }

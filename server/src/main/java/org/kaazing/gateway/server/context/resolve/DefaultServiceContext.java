@@ -948,6 +948,11 @@ public class DefaultServiceContext implements ServiceContext {
         BridgeConnector connector = transport.getConnector(address);
         return connector.connect(address, connectHandler, new IoSessionInitializer<ConnectFuture>() {
             @Override
+            public String getRemoteHostAddress() {
+                return connectSessionInitializer.getRemoteHostAddress();
+            }
+
+            @Override
             public void initializeSession(IoSession session, ConnectFuture future) {
                 sessionInitializer.initializeSession(session, future);
 

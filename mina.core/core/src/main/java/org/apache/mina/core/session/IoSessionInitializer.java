@@ -29,4 +29,6 @@ import org.apache.mina.core.future.IoFuture;
  */
 public interface IoSessionInitializer<T extends IoFuture> {
     void initializeSession(IoSession session, T future);
+
+    default String getRemoteHostAddress() { return null; }
 }

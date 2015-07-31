@@ -32,6 +32,8 @@ import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+import static org.kaazing.gateway.transport.http.HttpUtils.getTcpSession;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
@@ -65,7 +67,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
-import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
@@ -87,7 +88,6 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -326,6 +326,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         // initialize parent session before connection attempt
         return new IoSessionInitializer<ConnectFuture>() {
             @Override
+            public String getRemoteHostAddress() {
+                return initializer.getRemoteHostAddress();
+            }
+
+            @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
@@ -347,6 +352,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> IoSessionInitializer<T> createHttpSessionInitializer(final IoHandler handler, final IoSessionInitializer<T> initializer) {
         return new IoSessionInitializer<T>() {
             @Override
+            public String getRemoteHostAddress() {
+                return initializer.getRemoteHostAddress();
+            }
+
+            @Override
             public void initializeSession(IoSession session, T future) {
                 DefaultHttpSession httpSession = (DefaultHttpSession) session;
                 httpSession.setHandler(handler);
@@ -356,25 +366,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 }
             }
         };
-    }
-
-    private IoSession getTcpSession(IoSession session) {
-        IoSession tempSession = session;
-
-        while (tempSession != null) {
-            if (tempSession instanceof NioSocketChannelIoSession) {
-                return tempSession;
-            }
-
-            if (!(tempSession instanceof AbstractBridgeSession<?, ?>)) {
-                return null;
-            }
-
-            AbstractBridgeSession<?, ?> bridgeSession = (AbstractBridgeSession<?, ?>) tempSession;
-            tempSession = bridgeSession.getParent();
-        }
-
-        return null;
     }
 
     // factory to create a new bridge session
@@ -410,13 +401,10 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                         // Set X-Forwarded-For header on the HTTP session.
                         IoSession tcpSession = getTcpSession(httpSession);
                         if (tcpSession != null) {
-                            String remoteIpAddress = (String) tcpSession.getAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY);
-                            if (remoteIpAddress == null) {
-                                SocketAddress socketAddr = tcpSession.getRemoteAddress();
-                                InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
-                                remoteIpAddress = inetAddr.getHostAddress();
+                            String remoteIpAddress = httpSessionInitializer.getRemoteHostAddress();
+                            if (remoteIpAddress != null) {
+                                httpSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
                             }
-                            httpSession.addWriteHeader(HttpAcceptor.HEADER_X_FORWARDED_FOR, remoteIpAddress);
                         }
 
                         return httpSession;

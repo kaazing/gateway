@@ -148,6 +148,11 @@ class ConnectionPool {
     private ConnectFuture doConnect(final boolean preconnected, final IoSessionInitializer<ConnectFuture> connectInitializer) {
         ConnectFuture future = serviceContext.connect(connectURI, connectHandler, new IoSessionInitializer<ConnectFuture>() {
             @Override
+            public String getRemoteHostAddress() {
+                return connectInitializer.getRemoteHostAddress();
+            }
+
+            @Override
             public void initializeSession(IoSession connectSession, ConnectFuture future) {
                 if (heartbeatFilter != null) {
                     connectSession.getFilterChain().addLast("ServiceHeartbeat", heartbeatFilter);

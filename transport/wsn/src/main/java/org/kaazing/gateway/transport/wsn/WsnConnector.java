@@ -425,6 +425,14 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         // initialize parent session before connection attempt
         return new IoSessionInitializer<ConnectFuture>() {
             @Override
+            public String getRemoteHostAddress() {
+                if (initializer == null) {
+                    return null;
+                }
+                return initializer.getRemoteHostAddress();
+            }
+
+            @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
