@@ -43,8 +43,8 @@ The Gateway configuration file (`gateway-config.xml` or `gateway-config.xml`) de
                 -   prepared.connection.count
                 -   virtual.host
             -   [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)git 
-            -   [jms](../admin-reference/r_conf.jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [jms](../admin-reference/r_conf_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [jms.proxy](../admin-reference/r_conf_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [http.proxy](#httpproxy)
         -   [properties](#properties)
         -   [accept-options and connect-options](#accept-options-and-connect-options)
@@ -93,7 +93,7 @@ Each `service` can contain any of the subordinate elements listed in the followi
 |accept|The URLs on which the service accepts connections.|
 |connect|The URL of a back-end service or message broker to which the proxy service or [broadcast](#broadcast) service connects.|
 |balance|The URI that is balanced by a `balancer` service. See [balancer](#balancer) service for details.|
-|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png),  [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [http.proxy](#httpproxy).|
+|type|The type of service. One of the following: [balancer](#balancer), [broadcast](#broadcast), [directory](#directory), [echo](#echo), [kerberos5.proxy](#kerberos5proxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [management.jmx](#managementjmx), [management.snmp](#managementsnmp), [proxy](#proxy-amqpproxy-and-jmsproxy), [amqp.proxy](#proxy-amqpproxy-and-jmsproxy), [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png),  [jms](../admin-reference/r_conf_jms.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), [jms.proxy](../admin-reference/r_conf_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png), and [http.proxy](#httpproxy).|
 |properties|The service type-specific properties.|
 |accept-options|Options for the `accept` element. See [accept-options](#accept-options-and-connect-options).|
 |connect-options|Options for the `connect` element. See [connect-options](#accept-options-and-connect-options).|
@@ -236,8 +236,8 @@ The type of service. For each service that you configure, you define any of the 
 | [amqp.proxy](#proxy-amqpproxy-and-jmsproxy) | Enables the use of the Advanced Message Queuing Protocol (AMQP) that is an open standard for messaging middleware and was originally designed by the financial services industry to provide an interoperable protocol for managing the flow of enterprise messages. To guarantee messaging interoperability, AMQP defines both a wire-level protocol and a model, the AMQP Model, of messaging capabilities. An example of a message broker that provides built-in support for AMQP is RabbitMQ. |
 | [proxy](#proxy-amqpproxy-and-jmsproxy) | Enables a client to make a WebSocket connection to a back-end server or broker that cannot natively accept WebSocket connections. |
 | [redis](../brokers/p_integrate_redis.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)  | Integrates KAAZING Gateway and Redis, an open source, BSD licensed, advanced key-value cache and store. KAAZING Gateway includes a Redis service and integrated Redis driver for publishing and subscribing to Redis topics. |
-| [jms](../admin-reference/r_conf.jms.md#jms)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Uses the `jms` service, which allows you to configure the Gateway to connect to any back-end JMS-compliant message broker. The `jms` service offloads connections and topic subscriptions using a single connection between the Gateway and your JMS-compliant message broker. |
-| [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Establishes a connection between the Gateway and the next Gateway for each client connection. The benefit of using the `jms.proxy` service is that you can control security independently per connection, and enable a fail-fast when a user fails to authenticate correctly. In addition, delta messages can be passed through from `jms` service in the internal Gateway through a DMZ Gateway that is running the `jms.proxy` service in Enterprise Shield™ configurations. |
+| [jms](../admin-reference/r_conf_jms.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Uses the `jms` service, which allows you to configure the Gateway to connect to any back-end JMS-compliant message broker. The `jms` service offloads connections and topic subscriptions using a single connection between the Gateway and your JMS-compliant message broker. |
+| [jms.proxy](../admin-reference/r_conf_jms.md)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) | Establishes a connection between the Gateway and the next Gateway for each client connection. The benefit of using the `jms.proxy` service is that you can control security independently per connection, and enable a fail-fast when a user fails to authenticate correctly. In addition, delta messages can be passed through from `jms` service in the internal Gateway through a DMZ Gateway that is running the `jms.proxy` service in Enterprise Shield™ configurations. |
 | [http.proxy](#httpproxy) | Enables a Gateway to serve both WebSocket traffic and proxy HTTP traffic on the same port (for example, port 80 or 443). The `http.proxy` service is used primarily to enable the Gateway to proxy both HTTP traffic plus other services (for example, WebSocket-based services alongside proxy services and AMQP services) to an HTTP server. |
 
 ### balancer
@@ -504,9 +504,9 @@ The following example is a snippet from the default Gateway configuration file s
 
 Use the `proxy`, `amqp.proxy`, or `jms.proxy` service to enable a client to make a WebSocket connection to a back-end service or message broker that cannot natively accept WebSocket connections.
 
-The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf.jms.md#jmsproxy) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
+The following descriptions will help you understand when and how to configure properties for the `proxy` service and  `amqp.proxy` service. See the [jms.proxy](../admin-reference/r_conf_jms.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) reference for details about that feature. 
 
-#### `maximum.pending.bytes`
+#### <a name="maximumpendingbytes"></a>`maximum.pending.bytes`
 
 **Required?** Optional
 
@@ -519,7 +519,7 @@ The Gateway uses this buffer when the speed of the data coming into the service 
 
 For example, suppose you set this property to `128kB`. If the back-end service or message broker sends 256kB of data to a client and the client has only consumed 128kB, the remaining 128kB (the limit you set in the property) is buffered. At this time, the Gateway suspends reading the data from the back-end service or message broker; as the client consumes the buffered data, the size of the buffered data decreases. When the buffered data falls below 64kB, the Gateway resumes reading the data from the back-end service or message broker.
 
-#### `maximum.recovery.interval`
+#### <a name="maximumrecoveryinterval"></a>`maximum.recovery.interval`
 
 **Required?** Optional
 
@@ -531,7 +531,7 @@ If the back-end service or message broker becomes unavailable or the Gateway can
 
 During this recovery phase, the Gateway unbinds the service, and clients attempting to connect to this service receive a "404 Not Found" error. Once the back-end service or message broker recovers and the Gateway establishes a connection, the Gateway binds the service and clients can connect to the service. See the "Examples" section below the table for a code snippet using this property.
 
-#### `prepared.connection.count`
+#### <a name="preparedconnectioncount"></a>`prepared.connection.count`
 
 **Required?** Optional
 
@@ -539,7 +539,7 @@ Set this property in either of the following use cases:
 - Set this property when configuring your proxy service, which is the most common use case for `prepared.connection.count`. In this case, setting `prepared.connection.count` sets the number of connections the Gateway creates (or *prepares*) to the back-end service or message broker specified by the [`connect`](#connect) element in addition to the client connections. When the Gateway starts, it creates the specified number of connections to the back-end service or message broker, thus creating a *prepared connection*. When an incoming client connection uses a prepared connection, the Gateway creates another connection to the back-end service or message broker, thus maintaining the specified number of prepared connections to the back-end service or message broker.
 - Set this property when configuring Enterprise Shield™. See [Configure Enterprise Shield™](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/enterprise-shield/p_enterprise_shield_config.md) for detailed configuration information. If you do not set this property, then the Gateway does not prepare connections to the back-end service or message broker.
 
-#### `virtual.host`
+#### <a name="virtualhost"></a>`virtual.host`
 
 **Required?** Optional
 
@@ -752,7 +752,7 @@ Use the `connect-options` element to add options to all connections for the serv
 | ssl.encryption | yes | yes | Signals KAAZING Gateway to enable or disable encryption on incoming traffic. |
 | ssl.verify-client | yes | no | Signals KAAZING Gateway to require a client to provide a digital certificate that the Gateway can use to verify the client’s identity. |
 | socks.mode ![This feature is available in KAAZING Gateway - EnterpriseEdition.](../images/enterprise-feature.png) | yes | yes | The mode that you can optionally set to forward or reverse to tell the Gateway how to interpret SOCKS URIs to initiate the connection. See [socks.mode](#socksmode). |
-| socks.timeout ![This feature is available in KAAZING Gateway -Enterprise Edition.](../images/enterprise-feature.png) | no | yes | Specifies the length of time (in seconds) to wait for SOCKS connectionsto form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#conn_sockstimeout). |
+| socks.timeout ![This feature is available in KAAZING Gateway -Enterprise Edition.](../images/enterprise-feature.png) | no | yes | Specifies the length of time (in seconds) to wait for SOCKS connectionsto form. If the connection does not succeed within the specified time, then the connection fails and is closed and the client must reconnect. For more information, see [socks.timeout](#sockstimeout). |
 | socks.ssl.ciphers ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | Lists the cipher strings and cipher suite names used by the secure SOCKS connection. |
 | socks.ssl.protocols ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | Lists the TLS/SSL protocol names on which the Gateway can accept connections for Enterprise Shield™ configurations that are running the SOCKS protocol over SSL. See [ssl.protocols and socks.ssl.protocols](#sslprotocols-and-sockssslprotocols). |
 | socks.ssl.verify-client ![This feature is available in KAAZING Gateway - Enterprise Edition.](../images/enterprise-feature.png) | yes | yes | A connect mode you can set to required, optional, or none to verify how to secure the SOCKS proxy against unauthorized use by forcing the use of TLS/SSL connections with a particular certificate. When required,the DMZ Gateway expects the internal Gateway to prove its trustworthiness by presenting certificates during the TLS/SSL handshake. |
@@ -1173,7 +1173,7 @@ See [Secure Network Traffic with the Gateway](../security/o_tls.md) for more inf
 
 ##### Example: Using ssl.encrption in accept-options
 
-The following example shows a `service` element containing the `accept-options` and `ssl.encryption` elements, which signal the Gateway to listen on address `www.example.com`, with encryption disabled. The example uses the `proxy` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+The following example shows a `service` element containing the `accept-options` and `ssl.encryption` elements, which signal the Gateway to listen on address `www.example.com`, with encryption disabled. The example uses the `proxy` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
 ``` xml
 <service>
@@ -1316,7 +1316,7 @@ The following example shows a `connect-options` element with the `socks.mode` se
 </service>
 ```
 
-#### <a name="conn_sockstimeout"></a>socks.timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+#### socks.timeout![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one
 
@@ -1356,7 +1356,7 @@ The following example shows a `socks.timeout` that is set to 10 seconds. If the 
 </service>
 ```
 
-#### <a name="sockssslciphers"></a>socks.ssl.ciphers![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+#### socks.ssl.ciphers![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 **Required?** Optional; **Occurs:** zero or one; **Values:** cipher strings and cipher suite names for [OPENSSL](http://www.openssl.org/docs/apps/ciphers.html#CIPHER_STRINGS) and [Java 7](http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJSSEProvider).
 
@@ -1596,7 +1596,7 @@ The `ws.version` element was used to tell the Gateway which version of the WebSo
 
 ##### Example
 
-The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_configure_gateway_service.md)` service, which is common, but not required. See the [type](#typeele) element for a list of service types.
+The following example shows addresses for the WebSocket (`ws`) and WebSocket Secure (`wss`) protocols and uses WebSocket version `draft-75` to connect to a service running on release 3.2 of the Gateway. The example uses the `[proxy](r_configure_gateway_service.md)` service, which is common, but not required. See the [type](#type) element for a list of service types.
 
 ``` xml
 <service>
@@ -1666,7 +1666,7 @@ The following example of a `proxy` service element is configured with an `author
 
 **Required?** Optional; **Occurs:** zero or more
 
-The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
+The `mime-mapping` element defines the way the Gateway maps a file extension to a MIME type. See the the main description for [mime-mapping (service-defaults)](r_configure_gateway_service_defaults.md). You can override the default configuration or add a new MIME type mapping for a particular service by adding a `mime-mapping` element to the `service` entry. You can only add `mime-mapping` elements immediately *before* any cross-site constraints for a service.
 
 #### Example
 

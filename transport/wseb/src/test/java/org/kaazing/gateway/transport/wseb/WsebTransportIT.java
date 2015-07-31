@@ -115,4 +115,10 @@ public class WsebTransportIT {
         robot.finish();
     }
 
+    @Test
+    @Specification("echo.text.and.binary")
+    public void echoTextAndBinary() throws Exception {
+        robot.finish();
+    }
+
 }
