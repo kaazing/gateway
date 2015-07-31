@@ -35,7 +35,6 @@ For Developers
 -   [Build Flash WebSocket Clients](https://github.com/kaazing/enterprise.flash.client/blob/develop/migrated/gateway.client.flash/doc/o_dev_flash.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build Microsoft .NET and Silverlight WebSocket Clients](https://github.com/kaazing/enterprise.dotnet.client/blob/develop/ws/ws/doc/o_dev_dotnet.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 -   [Build WebSocket C Clients](https://github.com/kaazing/c.client/blob/develop/ws/doc/o_dev_c_websocket.md)
--   [Build WebSocket Clients with Google Web Toolkit](https://github.com/kaazing/enterprise.gwt.client/blob/develop/migrated/gateway.client.gwt/doc/p_dev_gwt.md) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
 
 #### AMQP Clients
 
@@ -114,7 +113,7 @@ Client API Documentation
     [(Kaazing.HTML5)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_HTML5.htm)
     [(Kaazing.Security)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm)
 -   [Java WebSocket Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/java/gateway/index.html)
--   [GWT WebSocket Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/gwt/gateway/index.html)  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
+
 
 ### AMQP Client API Documentation
 
