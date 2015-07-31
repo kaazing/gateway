@@ -186,8 +186,13 @@ write notify UPSTREAM_CLOSE_SENT
 #TIME SEQ: 8 - upstream should be unbound
 read await UPSTREAM_CLOSE_SENT
 read "HTTP/1.1 404 Not Found\r\n"
-read "Content-Type: text/html\r\n"
 read /Content-Length: .*/ "\r\n"
+read /Content-Type: .*/ "\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
+read "\r\n"
+read "HTTP/1.1 404 Not Found\r\n"
+read "Content-Type: text/html\r\n"
 read "\r\n"
 read "<html><head></head><body><h1>404 Not Found</h1></body></html>"
 
