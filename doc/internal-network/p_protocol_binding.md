@@ -99,16 +99,16 @@ To Integrate the Gateway Into an Internal Network
 
     ```
     INFO Starting server
-     INFO Starting services
-     INFO http://localhost:8000/
-     INFO https://localhost:9000/
-     **INFO http://www.example.com:80/echo @ gateway.dmz.net:8000
-     INFO ws://www.example.com:80/echo2 @ 0.0.0.0:8000**
-     INFO Started services
-     INFO Starting management
-     INFO jmx://localhost:2020/
-     INFO Started management
-     INFO Started server successfully in 0.345 secs at 2044-06-06 11:32:58
+    INFO Starting services
+    INFO http://localhost:8000/
+    INFO https://localhost:9000/
+    **INFO http://www.example.com:80/echo @ gateway.dmz.net:8000
+    INFO ws://www.example.com:80/echo2 @ 0.0.0.0:8000**
+    INFO Started services
+    INFO Starting management
+    INFO jmx://localhost:2020/
+    INFO Started management
+    INFO Started server successfully in 0.345 secs at 2044-06-06 11:32:58
      ```
 
 Next Step
