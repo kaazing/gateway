@@ -211,8 +211,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway disconnected instead of echoing code, client did not read")
-    // IllegalArgumentException with empty message... doesnt like that
+    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.text.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -225,7 +224,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Gateway writing wrong bytes back to client, read does not match")
+    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
@@ -259,7 +258,6 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Read value for client differs from expected. Did not echo full payload")
     @Specification({
         "client.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.request.and.frames"
         })
@@ -304,7 +302,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("disconnected early, not echoing data")
+    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.binary.payload.length.0.fragmented/handshake.request.and.frames"
         })
@@ -316,7 +314,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("Received Pong, but did not receive the data")
+    @Ignore("Gateway throws error when trying to send empty payload")
     @Specification({
         "client.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.request.and.frames"
         })
