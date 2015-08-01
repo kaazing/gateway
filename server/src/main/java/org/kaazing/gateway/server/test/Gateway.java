@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.server.test;
 
+import static org.kaazing.gateway.util.Utils.initCaps;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,7 +76,6 @@ import org.kaazing.gateway.server.test.config.RealmConfiguration;
 import org.kaazing.gateway.server.test.config.SecurityConfiguration;
 import org.kaazing.gateway.server.test.config.ServiceConfiguration;
 import org.kaazing.gateway.server.test.config.ServiceDefaultsConfiguration;
-import org.kaazing.gateway.server.test.config.Suppressible;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -197,9 +198,9 @@ public class Gateway {
                     continue;
                 }
                 String[] nameParts = entry.getKey().split("-");
-                String methodName = nameParts[0];
+                String methodName = "set" + initCaps(nameParts[0]);
                 for (int i = 1; i < nameParts.length; i++) {
-                    methodName += nameParts[i];
+                    methodName += initCaps(nameParts[i]);
                 }
                 try {
                     Method setter = authenticationType.getClass().getMethod(methodName, String.class);
