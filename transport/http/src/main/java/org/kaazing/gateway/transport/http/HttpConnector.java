@@ -59,6 +59,7 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -324,10 +325,13 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private <T extends ConnectFuture> IoSessionInitializer<ConnectFuture> createParentInitializer(final ResourceAddress connectAddress,
             final IoHandler handler, final IoSessionInitializer<T> initializer, final ConnectFuture httpConnectFuture) {
         // initialize parent session before connection attempt
-        return new IoSessionInitializer<ConnectFuture>() {
+        return new AbstractIoSessionInitializer<ConnectFuture>() {
             @Override
             public String getRemoteHostAddress() {
-                return initializer.getRemoteHostAddress();
+                if (initializer instanceof AbstractIoSessionInitializer<?>) {
+                    return ((AbstractIoSessionInitializer<?>)initializer).getRemoteHostAddress();
+                }
+                return null;
             }
 
             @Override
@@ -350,10 +354,13 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     // initializer for bridge session to specify bridge handler,
     // and call user-defined bridge session initializer if present
     private <T extends ConnectFuture> IoSessionInitializer<T> createHttpSessionInitializer(final IoHandler handler, final IoSessionInitializer<T> initializer) {
-        return new IoSessionInitializer<T>() {
+        return new AbstractIoSessionInitializer<T>() {
             @Override
             public String getRemoteHostAddress() {
-                return initializer.getRemoteHostAddress();
+                if (initializer instanceof AbstractIoSessionInitializer<?>) {
+                    return ((AbstractIoSessionInitializer<?>)initializer).getRemoteHostAddress();
+                }
+                return null;
             }
 
             @Override
@@ -399,9 +406,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                         parent.setAttribute(HTTP_SESSION_KEY, httpSession);
 
                         // Set X-Forwarded-For header on the HTTP session.
-                        IoSession tcpSession = getTcpSession(httpSession);
-                        if (tcpSession != null) {
-                            String remoteIpAddress = httpSessionInitializer.getRemoteHostAddress();
+                        if (httpSessionInitializer instanceof AbstractIoSessionInitializer<?>) {
+                            String remoteIpAddress = ((AbstractIoSessionInitializer<?>)httpSessionInitializer).getRemoteHostAddress();
                             if (remoteIpAddress != null) {
                                 httpSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
                             }

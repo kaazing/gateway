@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSession;
@@ -75,7 +76,7 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             // see commented ProxyConnectManager below for implementation hint.
             // Note: simpler to randomize order into a copy before initial connect, then consume until no connectURI
             // alternatives left
-            ConnectFuture future = getNextConnectFuture(new IoSessionInitializer<ConnectFuture>() {
+            ConnectFuture future = getNextConnectFuture(new AbstractIoSessionInitializer<ConnectFuture>() {
 
                 @Override
                 public String getRemoteHostAddress() {

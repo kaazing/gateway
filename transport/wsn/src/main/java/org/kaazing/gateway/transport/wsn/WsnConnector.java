@@ -45,6 +45,7 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -224,7 +225,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                                                                       final IoSessionInitializer<T> initializer) {
 
         final ConnectFuture connectFuture = new DefaultConnectFuture();
-
         final ConnectFuture wsnConnectFuture = wsnConnectInternal(connectAddress, handler, initializer);
 
         IoFutureListener<ConnectFuture> wsnConnectListener = new IoFutureListener<ConnectFuture>() {
@@ -423,20 +423,31 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         }
 
         // initialize parent session before connection attempt
-        return new IoSessionInitializer<ConnectFuture>() {
+        return new AbstractIoSessionInitializer<ConnectFuture>() {
+            private final AbstractIoSessionInitializer<?> parentSessionInitializer = this;
+
             @Override
             public String getRemoteHostAddress() {
                 if (initializer == null) {
                     return null;
                 }
-                return initializer.getRemoteHostAddress();
+
+                if (initializer instanceof AbstractIoSessionInitializer<?>) {
+                    return ((AbstractIoSessionInitializer<?>)initializer).getRemoteHostAddress();
+                }
+                return null;
             }
 
             @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
-                final IoSessionInitializer<T> wsnSessionInitializer = new IoSessionInitializer<T>() {
+                final IoSessionInitializer<T> wsnSessionInitializer = new AbstractIoSessionInitializer<T>() {
+                    @Override
+                    public String getRemoteHostAddress() {
+                        return parentSessionInitializer.getRemoteHostAddress();
+                    }
+
                     @Override
                     public void initializeSession(IoSession session, T future) {
                         WsnSession wsnSession = (WsnSession) session;

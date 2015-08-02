@@ -615,6 +615,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         if ((loader.iterator() != null) && loader.iterator().hasNext()) {
             HttpSubjectSecurityFilter filter = loader.iterator().next();
             filter.setLogger(logger);
+            return filter;
         }
 
         return new HttpSubjectSecurityFilter(logger);

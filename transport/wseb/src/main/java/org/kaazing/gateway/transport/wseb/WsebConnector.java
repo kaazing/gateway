@@ -45,6 +45,7 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
@@ -228,20 +229,28 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             throw new RuntimeException(message);
         }
         // initialize parent session before connection attempt
-        return new IoSessionInitializer<ConnectFuture>() {
+        return new AbstractIoSessionInitializer<ConnectFuture>() {
+            private final AbstractIoSessionInitializer<ConnectFuture> parentInitializer = this;
+
             @Override
             public String getRemoteHostAddress() {
-                return initializer != null ? initializer.getRemoteHostAddress() : null;
-            }
+                if (initializer == null) {
+                    return null;
+                }
 
+                if (initializer instanceof AbstractIoSessionInitializer<?>) {
+                    return ((AbstractIoSessionInitializer<?>)initializer).getRemoteHostAddress();
+                }
+                return null;
+            }
             @Override
             public void initializeSession(final IoSession parent, ConnectFuture future) {
                 // initializer for bridge session to specify bridge handler,
                 // and call user-defined bridge session initializer if present
-                final IoSessionInitializer<T> wseSessionInitializer = new IoSessionInitializer<T>() {
+                final IoSessionInitializer<T> wseSessionInitializer = new AbstractIoSessionInitializer<T>() {
                     @Override
                     public String getRemoteHostAddress() {
-                        return initializer != null ? initializer.getRemoteHostAddress() : null;
+                        return parentInitializer.getRemoteHostAddress();
                     }
 
                     @Override

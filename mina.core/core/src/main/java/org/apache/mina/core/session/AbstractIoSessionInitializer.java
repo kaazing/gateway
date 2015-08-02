@@ -21,12 +21,9 @@ package org.apache.mina.core.session;
 
 import org.apache.mina.core.future.IoFuture;
 
-/**
- * Defines a callback for obtaining the {@link IoSession} during
- * session initialization.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
- */
-public interface IoSessionInitializer<T extends IoFuture> {
-    void initializeSession(IoSession session, T future);
+public abstract class AbstractIoSessionInitializer<T extends IoFuture> implements IoSessionInitializer<T> {
+
+    public String getRemoteHostAddress() { 
+        return null;
+	}
 }
