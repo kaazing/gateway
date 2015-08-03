@@ -66,7 +66,7 @@ if "%AGRONA_ENABLED%"=="true" (
         set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
         
         rem Startup the StatsD publisher
-        START CMD /C CALL "scripts/metrics.statsD.start.bat" %GATEWAY_IDENTIFIER%
+        START CMD /C CALL "../metrics.statsd/bin/metrics.statsd.start.bat" %GATEWAY_IDENTIFIER%
     )
 )
 
