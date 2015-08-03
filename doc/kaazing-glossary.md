@@ -3,8 +3,8 @@ KAAZING Glossary
 
 This document describes the terminology used in KAAZING's products and product [documentation](index.md).
 
--   [A-L](#A)
--   [M-Z](#M)
+-   [A-L](#a)
+-   [M-Z](#m)
 
 A
 -----------------
@@ -34,7 +34,7 @@ B
 
 ##### bidirectional communication
 
-Communication between a browser and server where messages can be sent and received by both the browser and server at the same time, as enabled by [KAAZING Gateway](#kwsg). See also [*full-duplex*](#fullduplex).
+Communication between a browser and server where messages can be sent and received by both the browser and server at the same time, as enabled by [KAAZING Gateway](#kaazing-gateway). See also [*full-duplex*](#fullduplex).
 
 C
 -

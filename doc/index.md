@@ -117,9 +117,7 @@ Client API Documentation
 
 -   [JavaScript AMQP Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/javascript/amqp/index.html)
 -   [ActionScript (Flex) AMQP Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/flash/amqp/index.html) ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
--   .NET and Silverlight AMQP Client API  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png)
-    [(Kaazing AMQP)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/html/N_Kaazing_AMQP.htm)
-    [(Kaazing.Security)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm)
+-   .NET and Silverlight AMQP Client API  ![This feature is available in KAAZING Gateway - Enterprise Edition](images/enterprise-feature.png) [(Kaazing AMQP)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/html/N_Kaazing_AMQP.htm) [(Kaazing.Security)](http://developer.kaazing.com/documentation/5.0/apidoc/client/dotnet/gateway/html/N_Kaazing_Security.htm)
 -   [Java AMQP Client API](http://developer.kaazing.com/documentation/5.0/apidoc/client/java/amqp/index.html)
 
 ### JMS Client API Documentation
