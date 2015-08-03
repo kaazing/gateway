@@ -32,6 +32,7 @@ import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
@@ -146,7 +147,15 @@ class ConnectionPool {
     }
 
     private ConnectFuture doConnect(final boolean preconnected, final IoSessionInitializer<ConnectFuture> connectInitializer) {
-        ConnectFuture future = serviceContext.connect(connectURI, connectHandler, new IoSessionInitializer<ConnectFuture>() {
+        ConnectFuture future = serviceContext.connect(connectURI, connectHandler, new AbstractIoSessionInitializer<ConnectFuture>() {
+            @Override
+            public String getRemoteHostAddress() {
+                if (connectInitializer instanceof AbstractIoSessionInitializer<?>) {
+                    return ((AbstractIoSessionInitializer<?>)connectInitializer).getRemoteHostAddress();
+                }
+                return null;
+            }
+
             @Override
             public void initializeSession(IoSession connectSession, ConnectFuture future) {
                 if (heartbeatFilter != null) {

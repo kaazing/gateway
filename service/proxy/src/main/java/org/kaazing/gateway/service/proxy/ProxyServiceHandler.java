@@ -21,11 +21,17 @@
 
 package org.kaazing.gateway.service.proxy;
 
+import static org.kaazing.gateway.transport.http.HttpUtils.getTcpSession;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.session.AbstractIoSessionInitializer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSession;
@@ -70,7 +76,25 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             // see commented ProxyConnectManager below for implementation hint.
             // Note: simpler to randomize order into a copy before initial connect, then consume until no connectURI
             // alternatives left
-            ConnectFuture future = getNextConnectFuture(new IoSessionInitializer<ConnectFuture>() {
+            ConnectFuture future = getNextConnectFuture(new AbstractIoSessionInitializer<ConnectFuture>() {
+
+                @Override
+                public String getRemoteHostAddress() {
+                    // Propagate the remote IP address from the accept side to the connect side.
+                    IoSession acceptTcpSession = getTcpSession(acceptSession);
+                    if (acceptTcpSession == null) {
+                        return null;
+                    }
+
+                    String remoteIpAddress = (String) acceptTcpSession.getAttribute(HttpAcceptor.REMOTE_IP_ADDRESS_KEY);
+                    if (remoteIpAddress == null) {
+                        SocketAddress socketAddr = acceptTcpSession.getRemoteAddress();
+                        InetAddress inetAddr = ((InetSocketAddress)socketAddr).getAddress();
+                        remoteIpAddress = inetAddr.getHostAddress();
+                    }
+                    return remoteIpAddress;
+                }
+
                 @Override
                 public void initializeSession(IoSession connectSession, ConnectFuture future) {
                     if (acceptSession.isClosing()) {

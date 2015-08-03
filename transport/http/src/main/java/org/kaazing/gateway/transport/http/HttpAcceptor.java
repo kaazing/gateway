@@ -42,7 +42,10 @@ import static org.kaazing.gateway.transport.http.HttpAcceptFilter.HTTP_SERIALIZE
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.MERGE_REQUEST;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTP;
 import static org.kaazing.gateway.transport.http.HttpAcceptFilter.PROTOCOL_HTTPXE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
+import static org.kaazing.gateway.transport.http.HttpUtils.getRemoteIpAddress;
+import static org.kaazing.gateway.transport.http.HttpUtils.getTcpSession;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
@@ -53,6 +56,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -109,13 +113,13 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, HttpBinding> {
-
     private static final String LOGGER_NAME = format("transport.%s.accept", HttpProtocol.NAME);
 
     public static final String SECURITY_LOGGER_NAME = format("%s.security", LOGGER_NAME);
     public static final String MERGE_REQUEST_LOGGER_NAME = format("%s.mergeRequest", LOGGER_NAME);
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
-	
+    public static final TypedAttributeKey<String> REMOTE_IP_ADDRESS_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "remoteIpAddress");
+
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
 
     private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
@@ -128,7 +132,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
-    
+
     private IoFilter httpNextAddress;
 
     private SchedulerProvider schedulerProvider;
@@ -441,6 +445,17 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     public void initializeSession(IoSession httpSession, IoFuture future) {
                         ((DefaultHttpSession)httpSession).setSubject(subject);
                         httpSession.setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, loginContext);
+
+                        // Set the remote IP address on the root (TCP) session so that it can be transferred to the
+                        // connect side.
+                        String remoteIpAddress = getRemoteIpAddress(httpSession, httpRequest);
+                        if (remoteIpAddress != null) {
+                            IoSession tcpSession = getTcpSession(httpSession);
+                            if (tcpSession != null) {
+                                tcpSession.setAttribute(REMOTE_IP_ADDRESS_KEY, remoteIpAddress);
+                                httpRequest.addHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+                            }
+                        }
                     }
                 }, new Callable<DefaultHttpSession>() {
                     @Override
@@ -569,7 +584,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = getSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;
@@ -591,6 +606,19 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
             filterChain.remove(FAULT_LOGGING_FILTER);
         }
+    }
+
+    private static HttpSubjectSecurityFilter getSubjectSecurityFilter(Logger logger) {
+        Class<HttpSubjectSecurityFilter> clazz = HttpSubjectSecurityFilter.class;
+        ServiceLoader<HttpSubjectSecurityFilter> loader = ServiceLoader.load(clazz);
+
+        if ((loader.iterator() != null) && loader.iterator().hasNext()) {
+            HttpSubjectSecurityFilter filter = loader.iterator().next();
+            filter.setLogger(logger);
+            return filter;
+        }
+
+        return new HttpSubjectSecurityFilter(logger);
     }
 
     private static  URI getHostPortPathURI(URI resource) {
