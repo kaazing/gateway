@@ -102,8 +102,8 @@ To Integrate the Gateway Into an Internal Network
     INFO Starting services
     INFO http://localhost:8000/
     INFO https://localhost:9000/
-    **INFO http://www.example.com:80/echo @ gateway.dmz.net:8000
-    INFO ws://www.example.com:80/echo2 @ 0.0.0.0:8000**
+    INFO http://www.example.com:80/echo @ gateway.dmz.net:8000
+    INFO ws://www.example.com:80/echo2 @ 0.0.0.0:8000
     INFO Started services
     INFO Starting management
     INFO jmx://localhost:2020/
