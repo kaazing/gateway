@@ -205,7 +205,7 @@ public class Gateway {
                 try {
                     Method setter = authenticationType.getClass().getMethod(methodName, String.class);
                     if (setter != null) {
-                        setter.invoke(realm, entry.getValue());
+                        setter.invoke(authenticationType, entry.getValue());
                     }
                 }
                 catch (NoSuchMethodException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
