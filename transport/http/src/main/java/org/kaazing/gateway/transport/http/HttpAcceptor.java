@@ -53,6 +53,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -569,7 +570,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = newSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;
@@ -591,6 +592,21 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
             filterChain.remove(FAULT_LOGGING_FILTER);
         }
+    }
+
+    private static HttpSubjectSecurityFilter newSubjectSecurityFilter(Logger logger) {
+        Class<HttpSubjectSecurityFilter> clazz = HttpSubjectSecurityFilter.class;
+        ServiceLoader<HttpSubjectSecurityFilter> loader = ServiceLoader.load(clazz);
+
+        if ((loader.iterator() != null) && loader.iterator().hasNext()) {
+            // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
+            // filter that can register additional Callbacks.
+            HttpSubjectSecurityFilter filter = loader.iterator().next();
+            filter.setLogger(logger);
+            return filter;
+        }
+
+        return new HttpSubjectSecurityFilter(logger);
     }
 
     private static  URI getHostPortPathURI(URI resource) {

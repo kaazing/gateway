@@ -22,6 +22,13 @@
 package org.kaazing.gateway.transport.http.bridge.filter;
 
 
+import static java.lang.String.format;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,7 +41,6 @@ import javax.security.auth.Subject;
 
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
@@ -58,6 +64,7 @@ import org.kaazing.gateway.transport.http.security.HttpRequestMessageCallbackHan
 import org.kaazing.gateway.transport.http.security.auth.token.AuthenticationTokenExtractor;
 import org.kaazing.gateway.transport.http.security.auth.token.DefaultAuthenticationTokenExtractor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 
 
@@ -112,6 +119,42 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         if (! httpRequestMessageReceived(nextFilter, session, message)) return;
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
+        final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
+
+        if (httpRequest.getHeader(HEADER_X_FORWARDED_FOR) == null) {
+            String remoteIpAddress = null;
+            SocketAddress socketAddress = session.getRemoteAddress();
+
+            if (socketAddress instanceof InetSocketAddress) {
+                InetAddress addr = ((InetSocketAddress) socketAddress).getAddress();
+                remoteIpAddress = addr.getHostAddress();
+
+                if (loggerIsEnabled) {
+                    logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address: '%s'", remoteIpAddress));
+                }
+            }
+            else if (socketAddress instanceof ResourceAddress) {
+                ResourceAddress resourceAddress = (ResourceAddress) socketAddress;
+                ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+
+                if (tcpResourceAddress != null) {
+                    URI resource = tcpResourceAddress.getResource();
+
+                    // Resolve the hostname to the corresponding IP address.
+                    String hostname = resource.getHost();
+                    remoteIpAddress = InetAddress.getByName(hostname).getHostAddress();
+
+                    if (loggerIsEnabled) {
+                        logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address from ResourceAddress: '%s'",
+                                            remoteIpAddress));
+                    }
+                }
+            }
+
+            if (remoteIpAddress != null) {
+                httpRequest.addHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+            }
+        }
 
         // Make sure we start with the subject from the underlying transport session in case it already has an authenticated subject
         // (e.g. we are httpxe and our transport is http or transport is SSL with a client certificate)
@@ -121,7 +164,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
         String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-        final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
         if ( realmName == null ) {
             setUnprotectedLoginContext(session);

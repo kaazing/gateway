@@ -36,6 +36,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.security.AccessControlLoginException;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
@@ -168,8 +169,11 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
 
             LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+            TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
-            final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+            // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
+            // that are Enterprise-specific.
+            registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
             callbackHandlerMap.putAll(additionalCallbacks);
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -182,7 +186,13 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             }
 
             loginContext.login();
+        } catch (AccessControlLoginException ace) {
+            if (loggerEnabled()) {
+                log("Login failed: ", ace);
+            }
 
+            writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
+            return false;
         } catch (LoginException le) {
             // Depending on the login modules configured, this could be
             // a very normal condition.
@@ -325,7 +335,12 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             final LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
 
             try {
-                final TypedCallbackHandlerMap callbackHandlerMap = makeAuthenticationTokenCallback(authToken);
+                TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
+
+                // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
+                // that are Enterprise-specific.
+                registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
+
                 callbackHandlerMap.putAll(additionalCallbacks);
                 loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
                 if (loginContext == null) {
@@ -382,7 +397,13 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     }
                     return false;
                 }
+            } catch (AccessControlLoginException ace) {
+                loginOK = false;
 
+                if (loggerEnabled()) {
+                    log("Login failed: ", ace);
+                }
+                writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
             } catch (Exception e) {
                 loginOK = false;
 
@@ -452,7 +473,27 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         LOGIN_CONTEXT_KEY.set(session, LOGIN_CONTEXT_OK);
     }
 
+    /**
+     * This method will be overridden in the Enterprise Gateway to add Callbacks for Enterprise-specific LoginModules.
+     *
+     * @param session
+     * @param httpRequest
+     * @param authToken
+     * @param callbacks
+     */
+    protected void registerCallbacks(
+            IoSession session,
+            HttpRequestMessage httpRequest,
+            AuthenticationToken authToken,
+            TypedCallbackHandlerMap callbacks) {
+        if (callbacks == null) {
+            throw new NullPointerException("Null callbacks map passed in");
+        }
 
+        AuthenticationTokenCallbackHandler authenticationTokenCallbackHandler
+                                                 = new AuthenticationTokenCallbackHandler(authToken);
+        callbacks.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
+    }
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
     }

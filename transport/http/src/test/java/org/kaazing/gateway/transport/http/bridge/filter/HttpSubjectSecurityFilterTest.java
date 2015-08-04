@@ -21,6 +21,9 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Collections;
@@ -372,6 +375,8 @@ public class HttpSubjectSecurityFilterTest {
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final ResourceAddress address = context.mock(ResourceAddress.class);
+        final InetAddress inetAddress = InetAddress.getByName("127.0.0.1");
+        final SocketAddress remoteAddress = new InetSocketAddress(inetAddress, 0);
 
         final HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(HttpMethod.GET);
@@ -399,6 +404,8 @@ public class HttpSubjectSecurityFilterTest {
 
         context.checking(new Expectations() {
             {
+                oneOf(session).getRemoteAddress(); will(returnValue(remoteAddress));
+
                 oneOf(session).getSubject(); will(returnValue(null));
                 allowing(address).getOption(HttpResourceAddress.REALM_NAME);
                 will(returnValue("demo"));
