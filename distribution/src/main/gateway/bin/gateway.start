@@ -62,10 +62,6 @@ GW_ID=""
 if [[ $GATEWAY_OPTS == *"org.kaazing.gateway.management.AGRONA_ENABLED=true"* ]]; then
   if [ "$GATEWAY_IDENTIFIER" != "" ]; then
     GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=$GATEWAY_IDENTIFIER"
-
-    # Startup the StatsD publisher
-    cd "$GW_HOME/metrics.statsd/bin"
-    ./metrics.statsd.start $GATEWAY_IDENTIFIER &
   fi
 fi
 

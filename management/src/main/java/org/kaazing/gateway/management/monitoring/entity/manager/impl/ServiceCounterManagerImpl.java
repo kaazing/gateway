@@ -24,10 +24,10 @@ package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 
-public class ServiceSessionCounterManagerImpl implements
-        ServiceSessionCounterManager {
+public class ServiceCounterManagerImpl implements
+        ServiceCounterManager {
 
     private static final String SEPARATOR = "-";
     private static final String CURRENT_NUMBER_OF_SESSIONS = "-current-number-of-sessions";
@@ -47,7 +47,7 @@ public class ServiceSessionCounterManagerImpl implements
     private String serviceName;
     private String gatewayId;
 
-    public ServiceSessionCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory,
+    public ServiceCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory,
             String serviceName, String gatewayId) {
         this.monitoringEntityFactory = monitoringEntityFactory;
         this.serviceName = serviceName;
@@ -55,7 +55,7 @@ public class ServiceSessionCounterManagerImpl implements
    }
 
     @Override
-    public void initializeCounters() {
+    public void initializeSessionCounters() {
         numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CURRENT_NUMBER_OF_SESSIONS);
         numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
@@ -71,7 +71,7 @@ public class ServiceSessionCounterManagerImpl implements
     }
 
     @Override
-    public void incrementCounters(ManagementSessionType managementSessionType) {
+    public void incrementSessionCounters(ManagementSessionType managementSessionType) {
         numberOfSessionsCounter = numberOfSessionsCounter.increment();
         cumulativeSessionsCounter = cumulativeSessionsCounter.increment();
         if (managementSessionType.equals(ManagementSessionType.NATIVE)) {
@@ -85,7 +85,7 @@ public class ServiceSessionCounterManagerImpl implements
     }
 
     @Override
-    public void decrementCounters(ManagementSessionType managementSessionType) {
+    public void decrementSessionCounters(ManagementSessionType managementSessionType) {
         numberOfSessionsCounter = numberOfSessionsCounter.decrement();
         if (managementSessionType.equals(ManagementSessionType.NATIVE)) {
             numberOfNativeSessionsCounter = numberOfNativeSessionsCounter.decrement();
@@ -99,7 +99,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the numberOfSessionsCounter
      * @return the numberOfSessionsCounter
      */
-    public LongMonitoringCounter getNumberOfSessionsCounter() {
+    public LongMonitoringCounter numberOfSessionsCounter() {
         return numberOfSessionsCounter;
     }
 
@@ -107,7 +107,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the numberOfNativeSessionsCounter
      * @return the numberOfNativeSessionsCounter
      */
-    public LongMonitoringCounter getNumberOfNativeSessionsCounter() {
+    public LongMonitoringCounter numberOfNativeSessionsCounter() {
         return numberOfNativeSessionsCounter;
     }
 
@@ -115,7 +115,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the numberOfEmulatedSessionsCounter
      * @return the numberOfEmulatedSessionsCounter
      */
-    public LongMonitoringCounter getNumberOfEmulatedSessionsCounter() {
+    public LongMonitoringCounter numberOfEmulatedSessionsCounter() {
         return numberOfEmulatedSessionsCounter;
     }
 
@@ -123,7 +123,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the cumulativeSessionsCounter
      * @return the cumulativeSessionsCounter
      */
-    public LongMonitoringCounter getCumulativeSessionsCounter() {
+    public LongMonitoringCounter cumulativeSessionsCounter() {
         return cumulativeSessionsCounter;
     }
 
@@ -131,7 +131,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the cumulativeNativeSessionsCounter
      * @return the cumulativeNativeSessionsCounter
      */
-    public LongMonitoringCounter getCumulativeNativeSessionsCounter() {
+    public LongMonitoringCounter cumulativeNativeSessionsCounter() {
         return cumulativeNativeSessionsCounter;
     }
 
@@ -139,7 +139,7 @@ public class ServiceSessionCounterManagerImpl implements
      * Getter for the cumulativeEmulatedSessionsCounter
      * @return the cumulativeEmulatedSessionsCounter
      */
-    public LongMonitoringCounter getCumulativeEmulatedSessionsCounter() {
+    public LongMonitoringCounter cumulativeEmulatedSessionsCounter() {
         return cumulativeEmulatedSessionsCounter;
     }
 

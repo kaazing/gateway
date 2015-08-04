@@ -64,9 +64,6 @@ rem Agrona is enabled
 if "%AGRONA_ENABLED%"=="true" (
     if "%GATEWAY_IDENTIFIER%" NEQ "" (
         set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
-        
-        rem Startup the StatsD publisher
-        START CMD /C CALL "../metrics.statsd/bin/metrics.statsd.start.bat" %GATEWAY_IDENTIFIER%
     )
 )
 

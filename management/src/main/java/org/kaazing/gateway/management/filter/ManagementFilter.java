@@ -28,7 +28,7 @@ import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.impl.CounterManagerFactoryImpl;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
@@ -55,7 +55,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ServiceManagementBean serviceBean;
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
-    private ServiceSessionCounterManager serviceSessionCounterManager;
+    private ServiceCounterManager serviceCounterManager;
 
     public ManagementFilter(ServiceManagementBean serviceBean,
                             MonitoringEntityFactory monitoringEntityFactory,
@@ -67,9 +67,9 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
 
         CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
-        serviceSessionCounterManager = counterFactory.makeServiceSessionCounterManager(monitoringEntityFactory,
+        serviceCounterManager = counterFactory.makeServiceCounterManager(monitoringEntityFactory,
                 serviceName, gatewayId);
-        serviceSessionCounterManager.initializeCounters();
+        serviceCounterManager.initializeSessionCounters();
     }
 
     public ServiceManagementBean getServiceBean() {
@@ -87,7 +87,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         managementContext.getManagementFilterStrategy()
                 .doSessionClosed(managementContext, serviceBean, session.getId(), managementSessionType);
         managementContext.decrementOverallSessionCount();
-        serviceSessionCounterManager.decrementCounters(managementSessionType);
+        serviceCounterManager.decrementSessionCounters(managementSessionType);
 
         super.doSessionClosed(nextFilter, session);
     }
@@ -127,6 +127,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         // Because strategy may change during execution of this method, refetch it when we need it.
         managementContext.getManagementFilterStrategy()
                 .doSessionCreated(managementContext, serviceBean, session, managementSessionType);
-        serviceSessionCounterManager.incrementCounters(managementSessionType);
+        serviceCounterManager.incrementSessionCounters(managementSessionType);
     }
 }

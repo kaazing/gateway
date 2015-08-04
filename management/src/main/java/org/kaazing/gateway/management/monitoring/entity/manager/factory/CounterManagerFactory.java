@@ -22,7 +22,7 @@
 package org.kaazing.gateway.management.monitoring.entity.manager.factory;
 
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 
 /**
  * Factory for returning a specific counter manager
@@ -37,9 +37,9 @@ public interface CounterManagerFactory {
      * @param monitoringEntityFactory - the monitoring entity factory
      * @param serviceName - the service name parameter
      * @param gatewayId - gateway id
-     * @return - the ServiceSessionCounterManager instance
+     * @return - the ServiceCounterManager instance
      */
-    ServiceSessionCounterManager makeServiceSessionCounterManager(
+    ServiceCounterManager makeServiceCounterManager(
             MonitoringEntityFactory monitoringEntityFactory,
             String serviceName, String gatewayId);
 
