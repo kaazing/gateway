@@ -47,24 +47,10 @@ rem Create the classpath.
 rem Add a directory for management support
 set JAVA_LIBRARY_PATH=%GW_HOME%\lib\sigar
 
-rem Verify if the gateway identifier was provided (required by Agrona multiple gateway instances)
-
+rem Set the gateway identifier (required by multiple gateway instances)
 set GW_ID=
-set AGRONA_ENABLED=
-echo "%GATEWAY_OPTS%" | findstr /c:"org.kaazing.gateway.management.AGRONA_ENABLED=true" 1>nul
-
-rem if string was found
-if errorlevel 1 (
-    set AGRONA_ENABLED=false
-) else (
-    set AGRONA_ENABLED=true
-)
-
-rem Agrona is enabled
-if "%AGRONA_ENABLED%"=="true" (
-    if "%GATEWAY_IDENTIFIER%" NEQ "" (
-        set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
-    )
+if "%GATEWAY_IDENTIFIER%" NEQ "" (
+    set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
 )
 
 rem Startup the gateway
