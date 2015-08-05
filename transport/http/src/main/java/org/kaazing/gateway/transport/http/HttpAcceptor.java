@@ -52,9 +52,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -127,7 +125,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
-    private final ServiceLoader<HttpSubjectSecurityFilter> subjectSecurityFilterLoader;
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
@@ -172,7 +169,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocol);
         this.allAcceptFilters = allOf(HttpAcceptFilter.class);
-        this.subjectSecurityFilterLoader = ServiceLoader.load(HttpSubjectSecurityFilter.class);
     }
 
     @Override
@@ -572,7 +568,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 break;
             case SUBJECT_SECURITY:
                 // One instance of HttpSubjectSecurityFilter per session
-                HttpSubjectSecurityFilter filter = newSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
+                HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger(SECURITY_LOGGER_NAME));
                 filter.setSchedulerProvider(schedulerProvider);
                 chain.addLast(acceptFilter.filterName(), filter);
                 break;
@@ -594,19 +590,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
             filterChain.remove(FAULT_LOGGING_FILTER);
         }
-    }
-
-    private HttpSubjectSecurityFilter newSubjectSecurityFilter(Logger logger) {
-        Iterator<HttpSubjectSecurityFilter> iterator = subjectSecurityFilterLoader.iterator();
-        if (iterator.hasNext()) {
-            // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
-            // filter that can register additional Callbacks.
-            HttpSubjectSecurityFilter filter = iterator.next();
-            filter.setLogger(logger);
-            return filter;
-        }
-
-        return new HttpSubjectSecurityFilter(logger);
     }
 
     private static  URI getHostPortPathURI(URI resource) {

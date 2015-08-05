@@ -28,6 +28,8 @@ import static java.util.Arrays.asList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.AppConfigurationEntry;
@@ -71,14 +73,16 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * (for example accessing a non-protected service)
      */
     private static final DefaultLoginResult LOGIN_RESULT_OK = new DefaultLoginResult();
-
+    private final BaseCallbackRegistrar callbackRegistrar;
 
     public HttpLoginSecurityFilter() {
         super();
+        this.callbackRegistrar = newCallbackRegistrar();
     }
 
     public HttpLoginSecurityFilter(Logger logger) {
         super(logger);
+        this.callbackRegistrar = newCallbackRegistrar();
     }
 
     /**
@@ -173,7 +177,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
             // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
             // that are Enterprise-specific.
-            registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
+            callbackRegistrar.register(session, httpRequest, authToken, callbackHandlerMap);
             callbackHandlerMap.putAll(additionalCallbacks);
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -339,7 +343,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
                 // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
                 // that are Enterprise-specific.
-                registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
+                callbackRegistrar.register(session, httpRequest, authToken, callbackHandlerMap);
 
                 callbackHandlerMap.putAll(additionalCallbacks);
                 loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -512,6 +516,19 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     private void log(String msg, Throwable t) {
         logger.trace(msg, t);
+    }
+
+    private static BaseCallbackRegistrar newCallbackRegistrar() {
+        ServiceLoader<BaseCallbackRegistrar> loader = ServiceLoader.load(BaseCallbackRegistrar.class);
+        Iterator<BaseCallbackRegistrar> iterator = loader.iterator();
+        if (iterator.hasNext()) {
+            // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
+            // registrar that can register additional Callbacks.
+            return iterator.next();
+        }
+
+        // Otherwise, return the base registrar.
+        return new BaseCallbackRegistrar();
     }
 
     // Aggressive removal of TCP session attributes as and when session closes.

@@ -46,7 +46,7 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
     public static final String AUTHORIZATION_MODE_RECYCLE = "recycle";
     public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
-    protected Logger logger;
+    protected final Logger logger;
 
     /**
      * Prefix to the authentication scheme to indicate that the Kaazing client application will handle the challenge rather than
@@ -66,10 +66,6 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public void setLogger(Logger logger) {
-        this.logger = logger;
     }
 
     /**
