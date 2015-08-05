@@ -302,11 +302,15 @@ public class GatewayConfigParserTest {
     @Test
     public void testCanConvertAwsHostToAwsHostnameIfAvailable() {
         boolean onAWS = false;
+        boolean onTravisCI = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
         try {
-            httpClient
-                    .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/");
+            httpClient.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/");
             onAWS = true;
+            // Need to check if running on Travis CI, Travis CI uses AWS container virtualization. If this test runs on
+            // container on AWS then it will fail because the hostname it gets in the query will not map via dns to the
+            // IP address the container has.
+            onTravisCI = System.getenv().containsKey("TRAVIS");
         } catch (Exception e) {
             onAWS = false;
         }
@@ -317,7 +321,7 @@ public class GatewayConfigParserTest {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-aws-host.xml");
             doc = parser.parse(configFile);
         } catch (Exception e) {
-            if (!onAWS) {
+            if (!onAWS && !onTravisCI) {
                 Assert.assertTrue(e instanceof GatewayConfigParserException);
             } else {
                 fail("Caught unexpected exception running on AWS " + e);
@@ -327,14 +331,12 @@ public class GatewayConfigParserTest {
                 configFile.delete();
             }
         }
-        if (onAWS) {
-            String accept = doc.getGatewayConfig().getServiceArray(0)
-                    .getAcceptArray(0);
+        if (onAWS && !onTravisCI) {
+            String accept = doc.getGatewayConfig().getServiceArray(0).getAcceptArray(0);
             System.out.println("AWS Accept was \"" + accept + "\"");
             Assert.assertFalse("accept is null", accept == null);
             Assert.assertFalse("accept is empty", "".endsWith(accept));
-            Assert.assertFalse("Found pattern in accept",
-                    accept.contains("${cloud.host}"));
+            Assert.assertFalse("Found pattern in accept", accept.contains("${cloud.host}"));
             Pattern pattern = Pattern.compile("\\s");
             Matcher matcher = pattern.matcher(accept);
             boolean found = matcher.find();
@@ -372,11 +374,15 @@ public class GatewayConfigParserTest {
     @Test
     public void testCanConvertAwsInstanceIdIfAvailable() {
         boolean onAWS = false;
+        boolean onTravisCI = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
         try {
-            httpClient
-                    .performGetRequest("http://169.254.169.254/2014-02-25/meta-data/");
+            httpClient.performGetRequest("http://169.254.169.254/2014-02-25/meta-data/");
             onAWS = true;
+            // Need to check if running on Travis CI, Travis CI uses AWS container virtualization. If this test runs on
+            // container on AWS then it will fail because the hostname it gets in the query will not map via dns to the
+            // IP address the container has.
+            onTravisCI = System.getenv().containsKey("TRAVIS");
         } catch (Exception e) {
             onAWS = false;
         }
@@ -387,7 +393,7 @@ public class GatewayConfigParserTest {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-aws-host.xml");
             doc = parser.parse(configFile);
         } catch (Exception e) {
-            if (!onAWS) {
+            if (!onAWS && !onTravisCI) {
                 Assert.assertTrue(e instanceof GatewayConfigParserException);
             } else {
                 fail("Caught unexpected exception running on AWS " + e);
@@ -397,14 +403,12 @@ public class GatewayConfigParserTest {
                 configFile.delete();
             }
         }
-        if (onAWS) {
-            String accept = doc.getGatewayConfig().getServiceArray(0)
-                    .getAcceptArray(0);
+        if (onAWS && !onTravisCI) {
+            String accept = doc.getGatewayConfig().getServiceArray(0).getAcceptArray(0);
             System.out.println("AWS Accept was \"" + accept + "\"");
             Assert.assertFalse("accept is null", accept == null);
             Assert.assertFalse("accept is empty", "".endsWith(accept));
-            Assert.assertFalse("Found pattern in accept",
-                    accept.contains("${cloud.instanceId}"));
+            Assert.assertFalse("Found pattern in accept", accept.contains("${cloud.instanceId}"));
             Pattern pattern = Pattern.compile("\\s");
             Matcher matcher = pattern.matcher(accept);
             boolean found = matcher.find();
