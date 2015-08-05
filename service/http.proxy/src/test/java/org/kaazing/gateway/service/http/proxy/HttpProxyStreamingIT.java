@@ -43,7 +43,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyStreamingIT {
 
-    @Rule
     public final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     public final TestRule testExecutionTrace = new MethodExecutionTrace();

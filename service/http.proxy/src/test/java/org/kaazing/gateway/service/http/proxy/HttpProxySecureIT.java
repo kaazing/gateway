@@ -86,7 +86,6 @@ public class HttpProxySecureIT {
     private final K3poRule k3po = new K3poRule();
     private final TestRule testExecutionTrace = new MethodExecutionTrace();
 
-    @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {{

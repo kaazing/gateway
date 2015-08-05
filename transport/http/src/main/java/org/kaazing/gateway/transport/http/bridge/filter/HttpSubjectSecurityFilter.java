@@ -139,10 +139,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
                 if (tcpResourceAddress != null) {
                     URI resource = tcpResourceAddress.getResource();
-
-                    // Resolve the hostname to the corresponding IP address.
-                    String hostname = resource.getHost();
-                    remoteIpAddress = InetAddress.getByName(hostname).getHostAddress();
+                    remoteIpAddress = resource.getHost();
 
                     if (loggerIsEnabled) {
                         logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address from ResourceAddress: '%s'",

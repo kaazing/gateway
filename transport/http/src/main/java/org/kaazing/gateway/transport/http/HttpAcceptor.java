@@ -52,6 +52,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -126,6 +127,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
+    private final ServiceLoader<HttpSubjectSecurityFilter> subjectSecurityFilterLoader;
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
@@ -169,8 +171,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                            CONDITIONAL_WRAPPED_RESPONSE)));
 
         this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocol);
-        
         this.allAcceptFilters = allOf(HttpAcceptFilter.class);
+        this.subjectSecurityFilterLoader = ServiceLoader.load(HttpSubjectSecurityFilter.class);
     }
 
     @Override
@@ -594,14 +596,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         }
     }
 
-    private static HttpSubjectSecurityFilter newSubjectSecurityFilter(Logger logger) {
-        Class<HttpSubjectSecurityFilter> clazz = HttpSubjectSecurityFilter.class;
-        ServiceLoader<HttpSubjectSecurityFilter> loader = ServiceLoader.load(clazz);
-
-        if ((loader.iterator() != null) && loader.iterator().hasNext()) {
+    private HttpSubjectSecurityFilter newSubjectSecurityFilter(Logger logger) {
+        Iterator<HttpSubjectSecurityFilter> iterator = subjectSecurityFilterLoader.iterator();
+        if (iterator.hasNext()) {
             // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
             // filter that can register additional Callbacks.
-            HttpSubjectSecurityFilter filter = loader.iterator().next();
+            HttpSubjectSecurityFilter filter = iterator.next();
             filter.setLogger(logger);
             return filter;
         }
