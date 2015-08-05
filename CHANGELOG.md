@@ -2,7 +2,85 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.27...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.28...HEAD)
+
+**Fixed bugs:**
+
+- remove HTML from Glossary [\#250](https://github.com/kaazing/gateway/issues/250)
+
+- \(doc\) Admin guide is missing maximum-age [\#145](https://github.com/kaazing/gateway/issues/145)
+
+**Closed issues:**
+
+- Remove protocol injection topics again [\#228](https://github.com/kaazing/gateway/issues/228)
+
+- Update http.keepalive.timeout example to use time unit [\#224](https://github.com/kaazing/gateway/issues/224)
+
+- Remove the Session <type\> from gateway documentation  [\#214](https://github.com/kaazing/gateway/issues/214)
+
+- AgronaMonitoringEntityFactoryTest fails the build \(on Mac OS x\) [\#171](https://github.com/kaazing/gateway/issues/171)
+
+- \(doc\) Add connect options to service defaults description [\#143](https://github.com/kaazing/gateway/issues/143)
+
+**Merged pull requests:**
+
+- fixing md for html I hope [\#261](https://github.com/kaazing/gateway/pull/261) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- output formatting error [\#260](https://github.com/kaazing/gateway/pull/260) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- fixing link errors [\#259](https://github.com/kaazing/gateway/pull/259) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Format errors [\#258](https://github.com/kaazing/gateway/pull/258) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Update kaazing-glossary.md [\#252](https://github.com/kaazing/gateway/pull/252) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Remove html from glossary \#250 [\#251](https://github.com/kaazing/gateway/pull/251) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- doc link changes [\#249](https://github.com/kaazing/gateway/pull/249) ([chadpowers](https://github.com/chadpowers))
+
+- Fix links [\#248](https://github.com/kaazing/gateway/pull/248) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Link errors [\#247](https://github.com/kaazing/gateway/pull/247) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Update r\_configure\_gateway\_service.md [\#242](https://github.com/kaazing/gateway/pull/242) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Update r\_configure\_gateway\_element\_skeleton.md [\#241](https://github.com/kaazing/gateway/pull/241) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- APNs removed [\#240](https://github.com/kaazing/gateway/pull/240) ([michaelcretzman](https://github.com/michaelcretzman))
+
+-  Remove protocol injection [\#239](https://github.com/kaazing/gateway/pull/239) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Link errors [\#238](https://github.com/kaazing/gateway/pull/238) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Add tcp spec tests [\#235](https://github.com/kaazing/gateway/pull/235) ([chadpowers](https://github.com/chadpowers))
+
+- APNs removed [\#233](https://github.com/kaazing/gateway/pull/233) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Port OOM bug fix on JMX from gateway 4.0 to 5.0 [\#232](https://github.com/kaazing/gateway/pull/232) ([mgherghe](https://github.com/mgherghe))
+
+- Configuration incorrect for ticket granting gateway \#26 [\#231](https://github.com/kaazing/gateway/pull/231) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Added SPI note for issue \#116 [\#229](https://github.com/kaazing/gateway/pull/229) ([vjwang](https://github.com/vjwang))
+
+- fixed broken links [\#227](https://github.com/kaazing/gateway/pull/227) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Fixed nits in http.proxy doc [\#225](https://github.com/kaazing/gateway/pull/225) ([veschup](https://github.com/veschup))
+
+- Remove the Session service \(<type\>\) from gateway documentation [\#218](https://github.com/kaazing/gateway/pull/218) ([veschup](https://github.com/veschup))
+
+- Removed breadcrumbs. [\#217](https://github.com/kaazing/gateway/pull/217) ([chadpowers](https://github.com/chadpowers))
+
+- Updated upgrade guide [\#216](https://github.com/kaazing/gateway/pull/216) ([vjwang](https://github.com/vjwang))
+
+- Upstream and downstream shouldn't have to go through authentication. [\#212](https://github.com/kaazing/gateway/pull/212) ([jitsni](https://github.com/jitsni))
+
+- wse create binding doesn't include ;e or ;e/ct  etc. [\#210](https://github.com/kaazing/gateway/pull/210) ([jitsni](https://github.com/jitsni))
+
+- Have the cobertura build happen during normal building rather than during after\_success [\#207](https://github.com/kaazing/gateway/pull/207) ([ahousing](https://github.com/ahousing))
+
+## [5.0.1.28](https://github.com/kaazing/gateway/tree/5.0.1.28) (2015-06-30)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.27...5.0.1.28)
 
 **Closed issues:**
 
@@ -10,11 +88,19 @@
 
 **Merged pull requests:**
 
+- Tcp extensions API and implementation [\#213](https://github.com/kaazing/gateway/pull/213) ([cmebarrow](https://github.com/cmebarrow))
+
+- \#203 Avoid syntax like read /:.\*/ "\n" in transport/sse k3po test scr… [\#211](https://github.com/kaazing/gateway/pull/211) ([cmebarrow](https://github.com/cmebarrow))
+
+- Removing after moving file to enterprise.gateway [\#206](https://github.com/kaazing/gateway/pull/206) ([vjwang](https://github.com/vjwang))
+
 - adding link to Redis doc and EE graphic [\#204](https://github.com/kaazing/gateway/pull/204) ([michaelcretzman](https://github.com/michaelcretzman))
 
 - Eliminate ugly exceptions stacks in build output by removing calls to… [\#202](https://github.com/kaazing/gateway/pull/202) ([cmebarrow](https://github.com/cmebarrow))
 
 - Removed docker build to unstable-gateway docker hub [\#201](https://github.com/kaazing/gateway/pull/201) ([dpwspoon](https://github.com/dpwspoon))
+
+- Update Doc links [\#200](https://github.com/kaazing/gateway/pull/200) ([chadpowers](https://github.com/chadpowers))
 
 - Fixed \#94 for AMQP Identity Promotion [\#199](https://github.com/kaazing/gateway/pull/199) ([vjwang](https://github.com/vjwang))
 
@@ -25,6 +111,8 @@
 - Adding the glossary in MD format [\#195](https://github.com/kaazing/gateway/pull/195) ([vjwang](https://github.com/vjwang))
 
 - Add JMS entries into index.md and backed out JMX updates from monitoring topics [\#194](https://github.com/kaazing/gateway/pull/194) ([veschup](https://github.com/veschup))
+
+- Fix for unit test in Mac OS [\#190](https://github.com/kaazing/gateway/pull/190) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
 
 ## [5.0.1.27](https://github.com/kaazing/gateway/tree/5.0.1.27) (2015-06-15)
 
@@ -363,6 +451,8 @@
 - Consolidated gateway repositories [\#28](https://github.com/kaazing/gateway/pull/28) ([dpwspoon](https://github.com/dpwspoon))
 
 - Added .travis.yml and badge to README.md [\#26](https://github.com/kaazing/gateway/pull/26) ([dpwspoon](https://github.com/dpwspoon))
+
+- Add a Gitter chat badge to README.md [\#21](https://github.com/kaazing/gateway/pull/21) ([gitter-badger](https://github.com/gitter-badger))
 
 - Fixed README nits [\#19](https://github.com/kaazing/gateway/pull/19) ([vjwang](https://github.com/vjwang))
 
