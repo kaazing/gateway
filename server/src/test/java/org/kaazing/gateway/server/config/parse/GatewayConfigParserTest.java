@@ -321,7 +321,7 @@ public class GatewayConfigParserTest {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-aws-host.xml");
             doc = parser.parse(configFile);
         } catch (Exception e) {
-            if (!onAWS && !onTravisCI) {
+            if (!onAWS || onTravisCI) {
                 Assert.assertTrue(e instanceof GatewayConfigParserException);
             } else {
                 fail("Caught unexpected exception running on AWS " + e);
@@ -393,7 +393,7 @@ public class GatewayConfigParserTest {
             configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-aws-host.xml");
             doc = parser.parse(configFile);
         } catch (Exception e) {
-            if (!onAWS && !onTravisCI) {
+            if (!onAWS || onTravisCI) {
                 Assert.assertTrue(e instanceof GatewayConfigParserException);
             } else {
                 fail("Caught unexpected exception running on AWS " + e);
