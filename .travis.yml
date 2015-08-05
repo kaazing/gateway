@@ -1,6 +1,5 @@
-sudo: false
 language: Java
 jdk:
   - oraclejdk8
-install: mvn -q clean -DskipTests -DskipITs install
+install: mvn clean -DskipTests -DskipITs install
 script: mvn -q clean verify && mvn -q clean cobertura:cobertura-integration-test coveralls:report
