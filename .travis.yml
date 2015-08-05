@@ -1,3 +1,4 @@
+sudo: false
 language: Java
 jdk:
   - oraclejdk8
