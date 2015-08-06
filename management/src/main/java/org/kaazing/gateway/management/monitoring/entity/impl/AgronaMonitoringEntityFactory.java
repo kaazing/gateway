@@ -45,10 +45,8 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     private MappedByteBuffer mappedMonitorDirectory;
     private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
 
-    public AgronaMonitoringEntityFactory(
-            CountersManager countersManager,
-            MappedByteBuffer mappedMonitorFile,
-            File monitoringDirectory) {
+    public AgronaMonitoringEntityFactory(CountersManager countersManager,
+            MappedByteBuffer mappedMonitorFile, File monitoringDirectory) {
         this.countersManager = countersManager;
         this.mappedMonitorDirectory = mappedMonitorFile;
         this.monitoringDirectory = monitoringDirectory;
@@ -68,7 +66,8 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
 
     @Override
     public void close() {
-        // We close the counters and the we also need to unmap the file and delete the monitoring directory.
+        // We close the counters, the String monitoring entities and the we also need to unmap the file and delete the
+        // monitoring directory.
         for (AtomicCounter atomicCounter : counters) {
             atomicCounter.close();
         }

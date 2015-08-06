@@ -29,9 +29,9 @@ import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterM
 public class CounterManagerFactoryImplTest {
 
     @Test
-    public void testMakeServiceSessionCounterManager() {
+    public void instantiatedServiceCounterManagerCorrectType() {
         CounterManagerFactory counterManagerFactory = new CounterManagerFactoryImpl();
-        Object serviceSessionCounterManager = counterManagerFactory.makeServiceSessionCounterManager(null, null);
-        assertTrue(serviceSessionCounterManager instanceof ServiceSessionCounterManagerImpl);
+        Object serviceCounterManager = counterManagerFactory.makeServiceCounterManager(null, null, null);
+        assertTrue(serviceCounterManager instanceof ServiceCounterManagerImpl);
     }
 }
