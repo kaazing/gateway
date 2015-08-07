@@ -29,8 +29,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Unit test for AgronaLongMonitoringCounter

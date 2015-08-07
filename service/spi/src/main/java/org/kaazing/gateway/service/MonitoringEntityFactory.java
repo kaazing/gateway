@@ -19,9 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity.factory;
-
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
+package org.kaazing.gateway.service;
 
 /**
  * Factory for instantiating a specific monitoring entity.

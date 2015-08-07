@@ -161,5 +161,9 @@ public interface ServiceContext {
     IoSessionInitializer<ConnectFuture> getSessionInitializor();
 
     void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer);
-
+    
+    MonitoringEntityFactory getMonitoringFactory();
+    
+    void setMonitoringFactory(MonitoringEntityFactory monitoringFactory);
+    
 }

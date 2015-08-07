@@ -22,9 +22,9 @@
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class ServiceCounterManagerImpl implements
         ServiceCounterManager {

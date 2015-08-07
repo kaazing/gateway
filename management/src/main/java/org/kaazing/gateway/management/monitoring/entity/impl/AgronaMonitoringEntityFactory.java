@@ -26,8 +26,8 @@ import java.nio.MappedByteBuffer;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
 import uk.co.real_logic.agrona.concurrent.AtomicCounter;

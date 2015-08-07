@@ -70,6 +70,8 @@ import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.service.AbstractSessionInitializer;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -180,6 +182,58 @@ public class DefaultServiceContext implements ServiceContext {
                 }
             });
         }
+    };
+    
+    private static final LongMonitoringCounter COUNTER_STUB = new LongMonitoringCounter() {
+
+        @Override
+        public LongMonitoringCounter increment() {
+            return this;
+        }
+
+        @Override
+        public LongMonitoringCounter incrementByValue(long value) {
+            return this;
+        }
+
+        @Override
+        public LongMonitoringCounter decrement() {
+            return this;
+        }
+
+        @Override
+        public LongMonitoringCounter decrementByValue(long value) {
+            return this;
+        }
+
+        @Override
+        public LongMonitoringCounter setValue(long value) {
+            return this;
+        }
+
+        @Override
+        public long getValue() {
+            return 0;
+        }
+
+        @Override
+        public LongMonitoringCounter reset() {
+            return this;
+        }
+    };
+    
+    // Default MonitoringFactory
+    private MonitoringEntityFactory monitoringFactory = new  MonitoringEntityFactory() {
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public LongMonitoringCounter makeLongMonitoringCounter(String name) {
+            return COUNTER_STUB;
+        }
+
     };
 
     public DefaultServiceContext(String serviceType, Service service) {
@@ -1070,4 +1124,16 @@ public class DefaultServiceContext implements ServiceContext {
     public void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
         this.sessionInitializer = ioSessionInitializer;
     }
+
+    @Override
+    public MonitoringEntityFactory getMonitoringFactory() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setMonitoringFactory(MonitoringEntityFactory monitoringFactory) {
+        // TODO Auto-generated method stub
+        
+    }    
 }

@@ -27,9 +27,9 @@ import java.util.Properties;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class MonitoringEntityFactoryInjectorTest {
 

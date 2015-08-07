@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.management.monitoring.configuration;
 
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 
 /**

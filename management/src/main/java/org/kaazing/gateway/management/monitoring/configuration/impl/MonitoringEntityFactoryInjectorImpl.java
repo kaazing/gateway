@@ -25,7 +25,7 @@ import java.util.Properties;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFactoryInjector {

@@ -21,14 +21,15 @@
 
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 import java.util.Properties;
+
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
 import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringEntityFactoryInjectorImpl;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class ServiceCounterManagerImplTest {
 

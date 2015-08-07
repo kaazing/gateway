@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.management.monitoring.configuration;
 
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * This interface represents the abstraction layer for creating the monitoring entity factory {@link MonitoringEntityFactory},

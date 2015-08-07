@@ -26,8 +26,8 @@ import java.nio.MappedByteBuffer;
 import java.util.Properties;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;

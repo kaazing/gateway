@@ -30,7 +30,7 @@ import java.util.Properties;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
 

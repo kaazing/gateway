@@ -23,8 +23,8 @@
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class DefaultMonitoringEntityFactoryBuilderStub implements MonitoringEntityFactoryBuilder {
 
