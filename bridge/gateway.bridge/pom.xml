@@ -36,6 +36,20 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Title>Kaazing Gateway</Implementation-Title>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                            <Jar-Name>${artifactId}</Jar-Name>
+                            <Kaazing-Product>Community.Gateway</Kaazing-Product>
+                        </manifestEntries>
+                    </archive>
+               </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
