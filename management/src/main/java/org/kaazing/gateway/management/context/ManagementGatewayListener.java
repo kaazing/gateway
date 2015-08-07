@@ -41,12 +41,19 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     public void setManagementContext(ManagementContext managementContext) {
         this.managementContext = managementContext;
     }
-
+    
     @Override
     public void startingGateway() {
         managementContext.createGatewayManagementBean();
+        // TODO: create mon (MMF manager capable of creating a MonitoringEntityFactory for a service)
     }
 
+    @Override
+    public void initingService(ServiceContext serviceContext) {
+        //TDOO: call serviceContext.setMonitoringFactory(mon.createServiceCounters(serviceContext.getServiceName()) if MMF (Agrona) is enabled
+        // (the monitory factory will just default to no-op stub otherwise, see DefaultServiceContext)
+    };
+    
     /**
      * Respond to a service starting by adding a management bean for it. Note that we CANNOT do this during initedService because
      * a given service may come before the SNMP Management service, which does create the SNMP agent until its own init(). Note:

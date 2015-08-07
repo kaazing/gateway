@@ -22,13 +22,15 @@
 package org.kaazing.gateway.management.monitoring.entity.manager;
 
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Interface for a ServiceCounterManager responsible with holding the service session counter data and
- * performing the needed operations on its respective counters
+ * performing the needed operations on its respective counters. It also provides methods (from 
+ * MonitoringEntityFactory) for use by individual services to add service specific counters.
  *
  */
-public interface ServiceCounterManager {
+public interface ServiceCounterManager extends MonitoringEntityFactory {
 
     /**
      * Method initializing the service session counters
