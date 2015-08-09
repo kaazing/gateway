@@ -73,7 +73,10 @@ public class ExtensionParameterBuilder implements ExtensionParameter {
     public String toString() {
         StringBuilder b = new StringBuilder(name);
         if ( value != null ) {
-            b.append('=').append(value);
+            if ((name != null) && !"".equals(name)) {
+                b.append('=');
+            }
+            b.append(value);
         }
         return b.toString();
     }

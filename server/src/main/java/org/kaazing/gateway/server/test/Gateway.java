@@ -22,6 +22,8 @@
 package org.kaazing.gateway.server.test;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
@@ -181,6 +183,26 @@ public class Gateway {
             String authenticationMode = realm.getAuthorizationMode();
             if (authenticationMode != null) {
                 authenticationType.setAuthorizationMode(AuthorizationMode.Enum.forString(authenticationMode));
+            }
+
+            // FIXME:  Apply a set of properties to the authenticationType rather than the specific authorizationTimeout
+            // use reflection to see if authorization timeout is available
+            try {
+                Method authTimeoutMethod = authenticationType.getClass().getMethod("setAuthorizationTimeout", String.class);
+                if (authTimeoutMethod != null) {
+                    String authorizationTimeout = realm.getAuthorizationTimeout();
+                    if (authorizationTimeout != null) {
+                        authTimeoutMethod.invoke(authenticationType, authorizationTimeout);
+                    }
+                }
+            } catch (NoSuchMethodException noSuchMethod) {
+                // no setAuthorizationTimeout method, just continue on
+            } catch (InvocationTargetException invocationEx) {
+                throw new RuntimeException("Problem invoking setAuthorizationTimeout", invocationEx);
+            } catch (IllegalArgumentException illegalArgEx) {
+                throw new RuntimeException("Illegal argument invoking setAuthorizationTimeout", illegalArgEx);
+            } catch (IllegalAccessException illegalAccEx) {
+                throw new RuntimeException("Illegal access invoking setAuthorizationTimeout", illegalAccEx);
             }
 
             String sessionTimeout = realm.getSessionTimeout();

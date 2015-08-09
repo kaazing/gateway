@@ -29,6 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
+import static org.kaazing.gateway.transport.http.HttpUtils.HTTP_REQUEST_URI_KEY;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
 import java.net.ProtocolException;
@@ -76,7 +77,6 @@ import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.ObjectLoggingFilter;
-import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -115,7 +115,6 @@ public class WsrAcceptor extends AbstractBridgeAcceptor<WsrSession, WsrBindings.
     private final RtmpChunkCodecFilter codec;
 
     private static final TypedAttributeKey<WsrSession> SESSION_KEY = new TypedAttributeKey<>(WsrAcceptor.class, "session");
-    private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsrAcceptor.class, "httpRequestURI");
 
     private static final int COMMAND_STREAM_ID = 3;
 

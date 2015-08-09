@@ -53,6 +53,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.transport.SslUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -77,7 +78,6 @@ public class HttpUtils {
 	private static final char[] BASE_62_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
 	private static final int BASE_62_CHARS_LENGTH = BASE_62_CHARS.length;
 
-
 	private static final DateFormat[] RFC822_PARSE_PATTERNS = new DateFormat[] {
 		new SimpleDateFormat("EEE, d MMM yy HH:mm:ss z", Locale.ENGLISH), 
 		new SimpleDateFormat("EEE, d MMM yy HH:mm z", Locale.ENGLISH), 
@@ -93,6 +93,8 @@ public class HttpUtils {
 	static {
 		RFC822_FORMAT_PATTERN.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
+
+    public static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(HttpUtils.class, "httpRequestURI");
 
     public static String getHostDomain(HttpRequestMessage httpRequest) {
 	    String host = httpRequest.getHeader("Host");
