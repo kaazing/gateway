@@ -53,6 +53,11 @@ public class HttpPathMatchingFilter extends HttpFilterAdapter<IoSession> {
             throws Exception {
 
         ResourceAddress bindAddress = httpRequest.getLocalAddress();
+        String nextProtocol = bindAddress.getOption(ResourceAddress.NEXT_PROTOCOL);
+        if (nextProtocol == null || !nextProtocol.equals("httpxe/1.1")) {
+            super.httpRequestReceived(nextFilter, session, httpRequest);
+            return;
+        }
 
         String bindPath = bindAddress.getResource().getPath();
         String requestPath = httpRequest.getRequestURI().getPath();
