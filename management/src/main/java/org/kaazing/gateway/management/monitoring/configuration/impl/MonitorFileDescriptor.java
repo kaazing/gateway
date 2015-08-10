@@ -37,6 +37,7 @@ public final class MonitorFileDescriptor {
 
     private static final int COUNTER_LABELS_BUFFER_LENGTH_OFFSET = 0;
     private static final int COUNTER_VALUES_BUFFER_LENGTH_OFFSET = COUNTER_LABELS_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
+
     private static final int META_DATA_LENGTH = COUNTER_VALUES_BUFFER_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
 
     private static final int END_OF_METADATA = BitUtil.align(META_DATA_LENGTH + BitUtil.SIZE_OF_INT, BitUtil.CACHE_LINE_LENGTH);
@@ -92,8 +93,8 @@ public final class MonitorFileDescriptor {
     /**
      * Fills the meta data in the specified buffer
      * @param monitorMetaDataBuffer - the meta data buffer
-     * @param monitorLabelsBufferLength - the length of the labels buffer
-     * @param monitorValuesBufferLength - the length of the values buffer
+     * @param monitorLabelsBufferLength - the length of the counters labels buffer
+     * @param monitorValuesBufferLength - the length of the counters values buffer
      */
     public static void fillMetaData(final UnsafeBuffer monitorMetaDataBuffer, final int monitorLabelsBufferLength,
         final int monitorValuesBufferLength) {

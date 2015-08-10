@@ -6,6 +6,7 @@ You can secure network traffic between KAAZING Gateway and its clients and back-
 In addition, configuring the Gateway with TLS/SSL ensures that network intermediaries, such as transparent proxy servers and firewalls that are unaware of WebSocket, do not drop the WebSocket connection. WebSocket uses the same HTTP upgrade method commonly used to upgrade HTTP connections to HTTPS. Intermediaries unfamiliar with WebSocket might drop the unfamiliar WebSocket upgrade as a security precaution, preventing the WebSocket connection. When using the WSS connection over TLS/SSL, however, intermediaries trust the connection and allow it to pass.
 
 **Important:**
+
 -   Always use TLS/SSL with the Gateway unless you can confirm that all intermediaries support WebSocket.
 -   TLS/SSL requires that a separate secure session be established for each hop (gateway) in the network path. Consequently, you must configure separate TLS/SSL connections between the client and the Gateway and the back-end server and the Gateway. You use a separate certificate for each connection. You can choose to configure one or both secure connections. See the following figure for an example of the separate secure sessions established with the Gateway.
 
@@ -30,6 +31,7 @@ Before you perform the steps in either scenario, review [Components and Tools](#
 -   Configure the Gateway to establish secure connections with TLS/SSL-enabled back-end systems.
 
 **Notes:**
+
 -   You are not required to configure TLS/SSL for both the client and back-end server connections to the Gateway. For example, you can choose to configure the client to Gateway connection over WSS and leave the Gateway to back-end server connection using TCP.
 -   Using self-signed certificates is not recommended for any business deployment of the Gateway because TLS/SSL is designed for use within a trusted PKI.
 -   When using self-signed certificates, web browser clients must navigate to the Gateway over HTTPS to receive and accept the self-signed certificate manually before a WebSocket Secure (WSS) connection with the Gateway can be made. You can work around this limitation by importing the self-signed certificate into the client web browser using the browser’s certificate importing functionality. For more information, see [Secure Clients and Web Browsers with a Self-Signed Certificate](p_tls_clientapp.md).

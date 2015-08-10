@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
@@ -40,7 +41,7 @@ public class AgronaMonitoringEntityFactoryTest {
 
     @Test
     public void testAgronaLifecycle() {
-        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder();
+        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder(new Properties());
         MonitoringEntityFactory factory = builder.build();
         File monitoringDir;
         File monitoringFile;

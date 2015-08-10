@@ -23,10 +23,12 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.io.File;
 import java.nio.MappedByteBuffer;
+import java.util.Properties;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
+import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
@@ -45,34 +47,60 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
     private static final int MONITOR_COUNTER_LABELS_BUFFER_LENGTH = 32 * MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
 
     private CountersManager countersManager;
+    private Properties configuration;
+    private UnsafeBuffer metaDataBuffer;
+
+    private MappedByteBuffer mappedMonitorFile;
+    private File monitoringDir;
+
+    public AgronaMonitoringEntityFactoryBuilder(Properties configuration) {
+        super();
+        this.configuration = configuration;
+    }
 
     @Override
     public MonitoringEntityFactory build() {
-        String monitoringDirName = getMonitoringDirName();
-        File monitoringDir = new File(monitoringDirName);
+        createMonitoringFile();
 
-        File monitoringFile = new File(monitoringDir, MONITOR_FILE_NAME);
+        createCountersManager();
+
+        MonitoringEntityFactory factory =
+                new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile, monitoringDir);
+
+        return factory;
+    }
+
+    private void createMonitoringFile() {
+        String monitoringDirName = getMonitoringDirName();
+        monitoringDir = new File(monitoringDirName);
+
+        String fileName = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+        if (fileName.equals("")) {
+            fileName = MONITOR_FILE_NAME;
+        }
+        File monitoringFile = new File(monitoringDir, fileName);
         IoUtil.deleteIfExists(monitoringFile);
 
-        int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
-        MappedByteBuffer mappedMonitorFile = IoUtil.mapNewFile(monitoringFile,
-                fileSize);
+        int totalLengthOfBuffers =
+                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
+        int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
+        mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
-        UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
-        MonitorFileDescriptor.fillMetaData(
-                metaDataBuffer,
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH,
-                MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
+        metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
+    }
 
+    private void createCountersManager() {
         UnsafeBuffer counterLabelsBuffer = MonitorFileDescriptor.createCounterLabelsBuffer(mappedMonitorFile, metaDataBuffer);
         UnsafeBuffer counterValuesBuffer = MonitorFileDescriptor.createCounterValuesBuffer(mappedMonitorFile, metaDataBuffer);
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
+    }
 
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile, monitoringDir);
-
-        return factory;
+    private UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
+        UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
+        MonitorFileDescriptor.fillMetaData(metaDataBuffer, MONITOR_COUNTER_LABELS_BUFFER_LENGTH,
+                MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
+        return metaDataBuffer;
     }
 
     /**
