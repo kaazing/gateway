@@ -25,6 +25,7 @@ import static javax.security.auth.login.AppConfigurationEntry.LoginModuleControl
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 
 import javax.security.auth.Subject;
@@ -40,6 +41,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
+import org.kaazing.gateway.security.auth.InetAddressCallback;
+import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
@@ -121,6 +124,27 @@ public class DefaultLoginContextFactoryTest {
         });
         final TypedCallbackHandlerMap additionalCallbacks = new TypedCallbackHandlerMap();
         additionalCallbacks.put(AuthenticationTokenCallback.class, new AuthenticationTokenCallbackHandler(s));
+        LoginContext loginContext = factory.createLoginContext(additionalCallbacks);
+        context.assertIsSatisfied();
+        assertNotNull(loginContext);
+        loginContext.login();
+    }
+
+    @Test
+    public void testInetAddressFilterCustomLoginModuleLoginSuccess() throws Exception {
+        InetAddress address = InetAddress.getByName("localhost");
+        context.checking(new Expectations() {
+            {
+                oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
+                final String loginModuleName = "org.kaazing.gateway.security.auth.SimpleInetAddressTestLoginModule";
+                final HashMap<String, Object> options = new HashMap<>();
+                final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
+                        REQUIRED, options);
+                will(returnValue(new AppConfigurationEntry[]{entry}));
+            }
+        });
+        final TypedCallbackHandlerMap additionalCallbacks = new TypedCallbackHandlerMap();
+        additionalCallbacks.put(InetAddressCallback.class, new InetAddressCallbackHandler(address));
         LoginContext loginContext = factory.createLoginContext(additionalCallbacks);
         context.assertIsSatisfied();
         assertNotNull(loginContext);

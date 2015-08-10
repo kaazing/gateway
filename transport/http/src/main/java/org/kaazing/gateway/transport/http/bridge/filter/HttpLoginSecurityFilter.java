@@ -21,15 +21,16 @@
 
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
-import static java.util.Arrays.asList;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.AppConfigurationEntry;
@@ -43,6 +44,8 @@ import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.InetAddressCallback;
+import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
@@ -73,16 +76,13 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * (for example accessing a non-protected service)
      */
     private static final DefaultLoginResult LOGIN_RESULT_OK = new DefaultLoginResult();
-    private final BaseCallbackRegistrar callbackRegistrar;
 
     public HttpLoginSecurityFilter() {
         super();
-        this.callbackRegistrar = newCallbackRegistrar();
     }
 
     public HttpLoginSecurityFilter(Logger logger) {
         super(logger);
-        this.callbackRegistrar = newCallbackRegistrar();
     }
 
     /**
@@ -175,9 +175,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             LoginContextFactory loginContextFactory = address.getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
             TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
-            // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
-            // that are Enterprise-specific.
-            callbackRegistrar.register(session, httpRequest, authToken, callbackHandlerMap);
+            registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
             callbackHandlerMap.putAll(additionalCallbacks);
 
             loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -341,9 +339,7 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             try {
                 TypedCallbackHandlerMap callbackHandlerMap = new TypedCallbackHandlerMap();
 
-                // Register callbacks. This is the hook for the Enterprise Gateway to add more callbacks for LoginModules
-                // that are Enterprise-specific.
-                callbackRegistrar.register(session, httpRequest, authToken, callbackHandlerMap);
+                registerCallbacks(session, httpRequest, authToken, callbackHandlerMap);
 
                 callbackHandlerMap.putAll(additionalCallbacks);
                 loginContext = (ResultAwareLoginContext) loginContextFactory.createLoginContext(callbackHandlerMap);
@@ -477,26 +473,36 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
         LOGIN_CONTEXT_KEY.set(session, LOGIN_CONTEXT_OK);
     }
 
-    /**
-     * This method will be overridden in the Enterprise Gateway to add Callbacks for Enterprise-specific LoginModules.
-     *
-     * @param session
-     * @param httpRequest
-     * @param authToken
-     * @param callbacks
-     */
-    protected void registerCallbacks(
+    private void registerCallbacks(
             IoSession session,
             HttpRequestMessage httpRequest,
             AuthenticationToken authToken,
-            TypedCallbackHandlerMap callbacks) {
-        if (callbacks == null) {
-            throw new NullPointerException("Null callbacks map passed in");
+            TypedCallbackHandlerMap callbackHandlerMap) {
+        if (callbackHandlerMap == null) {
+            throw new NullPointerException("Null callbackHandlerMap passed in");
         }
 
         AuthenticationTokenCallbackHandler authenticationTokenCallbackHandler
                                                  = new AuthenticationTokenCallbackHandler(authToken);
-        callbacks.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
+        callbackHandlerMap.put(AuthenticationTokenCallback.class, authenticationTokenCallbackHandler);
+
+
+        String remoteIpAddress = httpRequest.getHeader(HEADER_X_FORWARDED_FOR);
+        InetAddress remoteAddr;
+
+        try {
+            remoteAddr = InetAddress.getByName(remoteIpAddress);
+        }
+        catch (UnknownHostException e) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(e.getMessage());
+            }
+
+            throw new IllegalStateException(e);
+        }
+
+        InetAddressCallbackHandler inetAddressCallbackHandler = new InetAddressCallbackHandler(remoteAddr);
+        callbackHandlerMap.put(InetAddressCallback.class, inetAddressCallbackHandler);
     }
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
@@ -516,19 +522,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     private void log(String msg, Throwable t) {
         logger.trace(msg, t);
-    }
-
-    private static BaseCallbackRegistrar newCallbackRegistrar() {
-        ServiceLoader<BaseCallbackRegistrar> loader = ServiceLoader.load(BaseCallbackRegistrar.class);
-        Iterator<BaseCallbackRegistrar> iterator = loader.iterator();
-        if (iterator.hasNext()) {
-            // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
-            // registrar that can register additional Callbacks.
-            return iterator.next();
-        }
-
-        // Otherwise, return the base registrar.
-        return new BaseCallbackRegistrar();
     }
 
     // Aggressive removal of TCP session attributes as and when session closes.
