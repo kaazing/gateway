@@ -26,20 +26,33 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-public final class ClassPathUtils {
+/**
+ * Class used for parsing the class path system property.
+ */
+public class ClassPathParser {
 
-    public static String[] getClassPathEntries() {
+    public ClassPathParser() {
+    }
+
+    /**
+     * Retrieves the class path entries.
+     * @return the class path entries
+     */
+    public String[] getClassPathEntries() {
         return System.getProperty("java.class.path").split(System.getProperty("path.separator"));
     }
 
-    public static Attributes getManifestAttributesFromClassPathEntry(String pathEntry) throws IOException {
+    /**
+     * Retrieves the jar file manifest attributes for a given class path entry
+     * @param pathEntry - the class path entry
+     * @return the manifest file attributes
+     * @throws IOException
+     */
+    public Attributes getManifestAttributesFromClassPathEntry(String pathEntry) throws IOException {
         JarFile jar = new JarFile(pathEntry);
         Manifest mf = jar.getManifest();
         jar.close();
         return mf.getMainAttributes();
-    }
-
-    private ClassPathUtils() {
     }
 
 }

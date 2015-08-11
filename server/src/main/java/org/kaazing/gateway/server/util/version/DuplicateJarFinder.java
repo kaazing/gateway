@@ -28,6 +28,9 @@ import java.util.jar.Attributes;
 
 import org.slf4j.Logger;
 
+/**
+ * Class used for detecting if duplicate jar files are loaded by the gateway.
+ */
 public class DuplicateJarFinder {
 
     private static final String JAR_FILE_WITH_VERSION_LOGGING_MESSAGE = "The jar file {} with the version {} was loaded.";
@@ -37,16 +40,24 @@ public class DuplicateJarFinder {
     private static final String MANIFEST_JAR_NAME = "Jar-Name";
     private static final String MANIFEST_PRODUCT = "Kaazing-Product";
 
+    private ClassPathParser classPathParser;
     private Logger gatewayLogger;
     private Set<String> duplicateJars = new HashSet<String>();
     private Set<String> loadedJars = new HashSet<String>();
 
     public DuplicateJarFinder(Logger gatewayLogger) {
         this.gatewayLogger = gatewayLogger;
+        this.classPathParser = new ClassPathParser();
     }
 
+    /**
+     * Parses the class path system attribute and the manifest files
+     * and if there are duplicate jar a DuplicateJarsException is thrown.
+     * @throws IOException
+     * @throws DuplicateJarsException
+     */
     public void findDuplicateJars() throws IOException, DuplicateJarsException {
-        String[] classPathEntries = ClassPathUtils.getClassPathEntries();
+        String[] classPathEntries = classPathParser.getClassPathEntries();
         for (String classPathEntry : classPathEntries) {
             parseManifestFileFromClassPathEntry(classPathEntry);
         }
@@ -55,7 +66,7 @@ public class DuplicateJarFinder {
     }
 
     private void parseManifestFileFromClassPathEntry(String classPathEntry) throws IOException {
-        Attributes manifestAttributes = ClassPathUtils.getManifestAttributesFromClassPathEntry(classPathEntry);
+        Attributes manifestAttributes = classPathParser.getManifestAttributesFromClassPathEntry(classPathEntry);
         String product = manifestAttributes.getValue(MANIFEST_PRODUCT);
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
         String jarName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
@@ -89,6 +100,14 @@ public class DuplicateJarFinder {
         if (!duplicateJars.isEmpty()) {
             throw new DuplicateJarsException();
         }
+    }
+
+    /**
+     * This method is only for testing purposes
+     * @param classPathParser - the mock for the classPathParser
+     */
+    void setClassPathParser(ClassPathParser classPathParser) {
+        this.classPathParser = classPathParser;
     }
 
 }

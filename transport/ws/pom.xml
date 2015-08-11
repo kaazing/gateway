@@ -108,10 +108,10 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Implementation-Title>Kaazing Gateway</Implementation-Title>
+                            <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Jar-Name>${artifactId}</Jar-Name>
-                            <Kaazing-Product>Community.Gateway</Kaazing-Product>
+                            <Kaazing-Product>transport.ws</Kaazing-Product>
                         </manifestEntries>
                     </archive>
                 </configuration>

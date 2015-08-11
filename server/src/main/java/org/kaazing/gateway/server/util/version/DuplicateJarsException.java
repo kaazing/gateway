@@ -24,5 +24,10 @@ package org.kaazing.gateway.server.util.version;
 public class DuplicateJarsException extends Exception {
 
     private static final long serialVersionUID = 1L;
+    private static final String MESSAGE = "Duplicate jar files were loaded by the gateway";
+
+    public DuplicateJarsException() {
+        super(MESSAGE);
+    }
 
 }
