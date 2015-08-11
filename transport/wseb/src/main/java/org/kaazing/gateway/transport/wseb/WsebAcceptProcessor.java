@@ -58,11 +58,20 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
     @Override
     protected void removeInternal(WsebSession session) {
         HttpSession writer = session.getWriter();
-        if (writer != null) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("CLOSE command is written to writer %d", writer.getId()));
+        if (writer != null ) {
+            if (!writer.isClosing() && !session.writerReset.get()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(String.format("CLOSE command is written to writer %d for wseb session %s", writer.getId(), session));
+                }
+                writer.write(WsCommandMessage.CLOSE);
+            } else {
+                if (LOGGER.isDebugEnabled()) {
+                    String str = writer.isClosing()
+                            ? String.format("NOT sending CLOSE command as writer %s is closing for wseb session %s", writer, session)
+                            : String.format("NOT sending CLOSE command as writer %s is reset for wseb session %s ", writer, session);
+                    LOGGER.debug(str);
+                }
             }
-            writer.write(WsCommandMessage.CLOSE);
             session.detachWriter(writer);
         } else {
             if (LOGGER.isDebugEnabled()) {

@@ -109,7 +109,9 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         WsebSession wseSession = getSession(session);
         if (wseSession != null && !wseSession.isClosing()) {
-            wseSession.reset(cause);
+            if (wseSession.writerReset.compareAndSet(false, true)) {
+                wseSession.reset(cause);
+            }
             //cause.printStackTrace(System.err);
         }
         else {

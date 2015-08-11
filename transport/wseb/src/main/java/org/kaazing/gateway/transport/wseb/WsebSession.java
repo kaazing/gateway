@@ -134,6 +134,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     };
     private ScheduledFuture<?> timeoutFuture;
+    final AtomicBoolean writerReset;
 
     private TransportSession transportSession;
 
@@ -163,6 +164,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               loginResult,
               extensions);
         this.attachingWrite = new AtomicBoolean(false);
+        this.writerReset = new AtomicBoolean(false);
         this.readSession = new AtomicReference<>();
         this.pendingNewWriter = new AtomicReference<>();
         this.timeout = new TimeoutCommand(this);
@@ -336,7 +338,12 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private void detachWriter0(final HttpSession oldWriter) {
         if (oldWriter.getIoThread() == getIoThread()) {
-            oldWriter.write(WsCommandMessage.RECONNECT);
+            if (!oldWriter.isClosing() && !writerReset.get()) {
+                oldWriter.write(WsCommandMessage.RECONNECT);
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("detachWriter on WsebSession wseb#%d, oldWriter=%s", this.getId(), oldWriter));
+            }
             oldWriter.close(false);
         } else {
             final Executor ioExecutor = getIoExecutor();

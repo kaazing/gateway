@@ -207,7 +207,7 @@ public abstract class AbstractIoSession implements IoSession, IoAlignment {
      * {@inheritDoc}
      */
     @Override
-    public final boolean isConnected() {
+    public boolean isConnected() {
         return !closeFuture.isClosed();
     }
 

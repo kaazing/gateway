@@ -46,7 +46,7 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
     private final TransportMetadata transportMetadata;
 
     public ChannelIoSession(ChannelIoService service, IoProcessorEx<ChannelIoSession<? extends ChannelConfig>> processor,
-            Channel channel, ChannelIoSessionConfig<C> config, Thread ioThread, Executor ioExecutor) {
+                            Channel channel, ChannelIoSessionConfig<C> config, Thread ioThread, Executor ioExecutor) {
         super(0, ioThread, ioExecutor, service.getThreadLocalWriteRequest(0));
         this.service = service;
         this.channel = channel;
@@ -113,6 +113,11 @@ public class ChannelIoSession<C extends ChannelConfig> extends AbstractIoSession
     @Override
     public void suspendRead() {
         channel.setReadable(false);
+    }
+
+    @Override
+    public boolean isConnected() {
+        return channel.isConnected();
     }
 
 }
