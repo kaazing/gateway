@@ -41,11 +41,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
-import org.kaazing.gateway.security.auth.InetAddressCallback;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
+import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 
 public class DefaultLoginContextFactoryTest {
     DefaultLoginContextFactory factory;

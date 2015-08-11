@@ -40,8 +40,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyPersistenceIT {
 
-    public TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
-
+    private final TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
     private final TestRule testExecutionTrace = new MethodExecutionTrace();
     private final K3poRule k3po = new K3poRule();
 

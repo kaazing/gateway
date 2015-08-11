@@ -27,6 +27,8 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.kaazing.gateway.server.spi.security.InetAddressCallback;
+
 public class InetAddressCallbackHandler implements CallbackHandler {
     private final InetAddress inetAddr;
 

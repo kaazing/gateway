@@ -19,10 +19,15 @@
  * under the License.
  */
 
-package org.kaazing.gateway.security;
+package org.kaazing.gateway.server.spi.security;
 
 import javax.security.auth.login.LoginException;
 
+/**
+ * Exception thrown from {@link javax.security.auth.spi.LoginModule} implementation
+ * for Gateway to react appropriately.
+ *
+ */
 public class AccessControlLoginException extends LoginException {
     private static final long serialVersionUID = 1595142940282323729L;
 

@@ -26,6 +26,8 @@ import java.io.IOException;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.kaazing.gateway.server.spi.security.InetAddressCallback;
+
 public class SimpleInetAddressTestLoginModule extends BaseStateDrivenLoginModule {
 
     String[] validIPs = {"localhost", "::1", "127.0.0.1", "192.168.10.20"};

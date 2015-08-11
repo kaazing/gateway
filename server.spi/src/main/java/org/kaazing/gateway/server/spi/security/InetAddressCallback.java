@@ -18,12 +18,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.kaazing.gateway.security.auth;
+package org.kaazing.gateway.server.spi.security;
 
 import java.net.InetAddress;
 
 import javax.security.auth.callback.Callback;
 
+/**
+ * A token callback class retrieves the remote InetAddress presented to
+ * the Gateway for use in a {@link javax.security.auth.spi.LoginModule}.
+ */
 public class InetAddressCallback implements Callback {
     private InetAddress inetAddr;
 
