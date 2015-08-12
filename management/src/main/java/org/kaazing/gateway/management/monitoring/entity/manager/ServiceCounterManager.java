@@ -24,27 +24,27 @@ package org.kaazing.gateway.management.monitoring.entity.manager;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 
 /**
- * Interface for a ServiceSessionManager responsible with holding the service session counter data and
+ * Interface for a ServiceCounterManager responsible with holding the service session counter data and
  * performing the needed operations on its respective counters
  *
  */
-public interface ServiceSessionCounterManager {
+public interface ServiceCounterManager {
 
     /**
      * Method initializing the service session counters
      * @return
      */
-    void initializeCounters();
+    void initializeSessionCounters();
 
     /**
      * Method incrementing the service session counters
      * @param managementSessionType - session type used to determine whether session is native or not
      */
-    void incrementCounters(ManagementSessionType managementSessionType);
+    void incrementSessionCounters(ManagementSessionType managementSessionType);
 
     /**
      * Method decrementing the service session counters
      * @param managementSessionType - session type used to determine whether session is native or not
      */
-    void decrementCounters(ManagementSessionType managementSessionType);
+    void decrementSessionCounters(ManagementSessionType managementSessionType);
 }
