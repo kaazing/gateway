@@ -316,6 +316,7 @@ abstract class AbstractNioWorker extends AbstractNioSelector implements Worker {
                         // may try to submit a task to handle it via the ExecutorHandler which then deadlocks.
                         // See #1310
                         open = false;
+                        break;          // Let close() clean up the rest of write queue
                     }
                 }
             }
