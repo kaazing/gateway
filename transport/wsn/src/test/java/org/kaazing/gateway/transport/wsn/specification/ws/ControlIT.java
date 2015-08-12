@@ -40,7 +40,7 @@ public class ControlIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/control");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -184,9 +184,9 @@ public class ControlIT {
         k3po.finish();
     }
 
-/*  
+/*
  * Client-only Tests
- *     
+ *
     @Test
     @Specification({
         "server.send.close.payload.length.0/handshake.request.and.frame",
@@ -250,7 +250,7 @@ public class ControlIT {
     public void shouldReceiveServerPongFrameWithPayload() throws Exception {
         k3po.finish();
     }
- 
+
     @Test
     @Specification({
         "server.send.pong.payload.length.126/handshake.request.and.frame",

@@ -40,7 +40,7 @@ public class ClosingHandshakeIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/closing");
     
-    private GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -123,7 +123,7 @@ public class ClosingHandshakeIT {
 
 /*
  * CLIENT-ONLY TESTS
- * 
+ *
     @Test
     @Specification({
         "server.send.empty.close.frame/handshake.request.and.frame",
@@ -147,7 +147,7 @@ public class ClosingHandshakeIT {
     public void shouldCompleteCloseHandshakeWhenServerSendCloseFrameWithCode1000AndReason() throws Exception {
         k3po.finish();
     }
-    
+
     @Test
     @Specification({
         "server.send.close.frame.with.code.1000.and.invalid.utf8.reason/handshake.request.and.frame",

@@ -39,7 +39,7 @@ public class DataFramingIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/data");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -104,9 +104,9 @@ public class DataFramingIT {
         k3po.finish();
     }
 
-/*    
+/*
  * Client-only Tests
- * 
+ *
     @Test
     @Specification({
         "server.send.opcode.0x03/handshake.request.and.frame",

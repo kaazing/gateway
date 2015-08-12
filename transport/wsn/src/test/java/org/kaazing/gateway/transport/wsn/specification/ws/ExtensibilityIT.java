@@ -39,7 +39,7 @@ public class ExtensibilityIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/extensibility");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -342,9 +342,9 @@ public class ExtensibilityIT {
         k3po.finish();
     }
 
-/*    
+/*
  *  Client-only Tests
-    
+
     @Test
     @Specification({
         "server.send.text.frame.with.rsv.1/handshake.request.and.frame",
