@@ -170,8 +170,6 @@ public interface ManagementContext {
 
     ManagementFilter getManagementFilter(ServiceContext serviceContext);
 
-    MonitoringEntityFactory getMonitoringEntityFactory();
-
     void createGatewayManagementBean();
 
     void close();

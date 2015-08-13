@@ -23,53 +23,83 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.io.File;
 import java.nio.MappedByteBuffer;
+import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
+import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
+import org.kaazing.gateway.management.monitoring.writer.impl.MMFGatewayWriter;
+import org.kaazing.gateway.management.monitoring.writer.impl.MMFSeviceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
+import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.concurrent.CountersManager;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Agrona implementation for the monitoring entity factory builder.
  */
-public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFactoryBuilder {
+public class MMFMonitoringDataManager implements MonitoringDataManager {
 
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
     private static final String MONITOR_DIR_NAME = "/kaazing";
     private static final String MONITOR_FILE_NAME = "monitor";
-    private static final int MONITOR_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
-    private static final int MONITOR_COUNTER_LABELS_BUFFER_LENGTH = 32 * MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
+    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
+    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = 32 * GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
+    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
+    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = 32 * SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
 
-    private CountersManager countersManager;
     private Properties configuration;
     private UnsafeBuffer metaDataBuffer;
 
     private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
+    /**
+     * TODO: To have a services abstraction passed to this class 
+     */
+    private Collection<? extends ServiceContext> services;
+    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
 
-    public AgronaMonitoringEntityFactoryBuilder(Properties configuration) {
+    public MMFMonitoringDataManager(Collection<? extends ServiceContext> services, Properties configuration) {
         super();
         this.configuration = configuration;
+        this.services = services;
     }
 
     @Override
-    public MonitoringEntityFactory build() {
+    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize() {
+        // create MMF
         createMonitoringFile();
 
-        createCountersManager();
+        // create gateway writer
+        GatewayWriter gatewayWriter = new MMFGatewayWriter(mappedMonitorFile, metaDataBuffer, monitoringDir);
+        MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
+        //monitoringEntityFactories.put(null, gwCountersFactory);
 
-        MonitoringEntityFactory factory =
-                new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile, monitoringDir);
+        // create service writer
+        int i = 0;
+        for (ServiceContext service : services) {
+            ServiceWriter serviceWriter = new MMFSeviceWriter(mappedMonitorFile, metaDataBuffer, monitoringDir, i++);
+            MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
+            monitoringEntityFactories.put(service, serviceCountersFactory);
+        }
 
-        return factory;
+        return monitoringEntityFactories;
     }
 
+
+    @Override
+    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories() {
+        return monitoringEntityFactories;
+    }
+
+    /**
+     * Method creating the monitoring MMF
+     */
     private void createMonitoringFile() {
         String monitoringDirName = getMonitoringDirName();
         monitoringDir = new File(monitoringDirName);
@@ -82,24 +112,26 @@ public class AgronaMonitoringEntityFactoryBuilder implements MonitoringEntityFac
         IoUtil.deleteIfExists(monitoringFile);
 
         int totalLengthOfBuffers =
-                MONITOR_COUNTER_LABELS_BUFFER_LENGTH + MONITOR_COUNTER_VALUES_BUFFER_LENGTH;
+                GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
+                services.size() * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
         int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
         metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
     }
 
-    private void createCountersManager() {
-        UnsafeBuffer counterLabelsBuffer = MonitorFileDescriptor.createCounterLabelsBuffer(mappedMonitorFile, metaDataBuffer);
-        UnsafeBuffer counterValuesBuffer = MonitorFileDescriptor.createCounterValuesBuffer(mappedMonitorFile, metaDataBuffer);
-
-        countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
-    }
-
+    /**
+     * Method adding metadata to the Agrona file
+     * @param mappedMonitorFile
+     * @return
+     */
     private UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
+        MonitorFileDescriptor.setServicesCount(services.size());
         UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
-        MonitorFileDescriptor.fillMetaData(metaDataBuffer, MONITOR_COUNTER_LABELS_BUFFER_LENGTH,
-                MONITOR_COUNTER_VALUES_BUFFER_LENGTH);
+        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+        MonitorFileDescriptor.fillMetaData(metaDataBuffer, GATEWAY_COUNTER_LABELS_BUFFER_LENGTH,
+                GATEWAY_COUNTER_VALUES_BUFFER_LENGTH, SERVICE_COUNTER_LABELS_BUFFER_LENGTH,
+                SERVICE_COUNTER_VALUES_BUFFER_LENGTH, gatewayId, services);
         return metaDataBuffer;
     }
 

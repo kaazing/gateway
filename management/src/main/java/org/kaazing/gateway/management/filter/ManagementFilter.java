@@ -56,6 +56,8 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private ServiceCounterManager serviceCounterManager;
+    // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
+    private MonitoringEntityFactory monitoringEntityFactory;
 
     public ManagementFilter(ServiceManagementBean serviceBean,
                             MonitoringEntityFactory monitoringEntityFactory,
@@ -65,6 +67,7 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+        this.monitoringEntityFactory = monitoringEntityFactory;
 
         CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
         serviceCounterManager = counterFactory.makeServiceCounterManager(monitoringEntityFactory,
@@ -128,5 +131,15 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         managementContext.getManagementFilterStrategy()
                 .doSessionCreated(managementContext, serviceBean, session, managementSessionType);
         serviceCounterManager.incrementSessionCounters(managementSessionType);
+    }
+
+    public void close() {
+        // Stopping here if no monitoring entity factory was built
+        if (monitoringEntityFactory == null) {
+            return;
+        }
+        // We need to manually close the monitoring entity factory because we don't use a
+        // try-with-resources block in order to be invoked by the JVM
+        monitoringEntityFactory.close();
     }
 }

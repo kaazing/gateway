@@ -19,19 +19,12 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.configuration;
+package org.kaazing.gateway.management.monitoring.writer;
 
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-/**
- * This interface represents the abstraction layer for creating the monitoring entity factory {@link MonitoringEntityFactory},
- * with the specific underlying implementation, e.g. Agrona
- */
-public interface MonitoringEntityFactoryBuilder {
+public interface ServiceWriter {
 
-    /**
-     * Creates the monitoring entity factory
-     * @return the monitoring entity factory
-     */
-    MonitoringEntityFactory build();
+    MonitoringEntityFactory writeCountersFactory();
+
 }

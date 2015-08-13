@@ -19,23 +19,28 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity.impl;
+package org.kaazing.gateway.management.monitoring.configuration;
 
-import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
-import org.kaazing.gateway.service.LongMonitoringCounter;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.kaazing.gateway.service.MonitoringEntityFactory;
+import org.kaazing.gateway.service.ServiceContext;
 
-public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
+/**
+ * This interface represents the abstraction layer for creating the monitoring entity factories {@link MonitoringEntityFactory},
+ * with the specific underlying implementation, e.g. Agrona
+ */
+public interface MonitoringDataManager {
 
-    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
+    /**
+     * Method initializing data manager
+     * @return the monitoring entity factory list
+     */
+    ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize();
 
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return COUNTER_STUB;
-    }
-
+    /**
+     * Method returning monitoring entity factories
+     * @return
+     */
+    ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories();
 }

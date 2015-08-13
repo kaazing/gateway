@@ -21,11 +21,14 @@
 
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
+import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
+import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFactoryInjector {
@@ -40,16 +43,18 @@ public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFact
     }
 
     @Override
-    public MonitoringEntityFactory makeMonitoringEntityFactory() {
-        MonitoringEntityFactoryBuilder factoryBuilder;
+    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory>
+                makeMonitoringEntityFactories(Collection<? extends ServiceContext> services) {
+        MonitoringDataManager monitoringManager;
 
         if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
-            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder(configuration);
+            monitoringManager = new MMFMonitoringDataManager(services, configuration);
         }
         else {
-            factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();
+            monitoringManager = new DefaultMMFMonitoringDataManagerStub();
         }
-        return factoryBuilder.build();
+        monitoringManager.initialize();
+        return monitoringManager.getMonitoringEntityFactories();
     }
 
 }

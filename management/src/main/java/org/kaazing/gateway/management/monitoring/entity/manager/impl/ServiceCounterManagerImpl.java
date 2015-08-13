@@ -93,9 +93,9 @@ public class ServiceCounterManagerImpl implements
         else if (managementSessionType.equals(ManagementSessionType.EMULATED)) {
             numberOfEmulatedSessionsCounter = numberOfEmulatedSessionsCounter.decrement();
         }
-    }    
+    }
 
-    // Monitoring factory interface 
+    // Monitoring factory interface
     @Override
     public LongMonitoringCounter makeLongMonitoringCounter(String name) {
         return monitoringEntityFactory.makeLongMonitoringCounter(name);

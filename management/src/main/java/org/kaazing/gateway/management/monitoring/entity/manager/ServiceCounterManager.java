@@ -26,7 +26,7 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Interface for a ServiceCounterManager responsible with holding the service session counter data and
- * performing the needed operations on its respective counters. It also provides methods (from 
+ * performing the needed operations on its respective counters. It also provides methods (from
  * MonitoringEntityFactory) for use by individual services to add service specific counters.
  *
  */

@@ -100,8 +100,9 @@ public class ServiceCounterManagerImplTest {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(agronaEnabled));
         MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
-        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
-        return monitoringEntityFactory;
+//        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
+//        return monitoringEntityFactory;
+        return null;
     }
 
     /**

@@ -22,15 +22,26 @@
 
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
+import org.kaazing.gateway.service.ServiceContext;
 
-public class DefaultMonitoringEntityFactoryBuilderStub implements MonitoringEntityFactoryBuilder {
+public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
 
     @Override
-    public MonitoringEntityFactory build() {
-        return new DefaultMonitoringEntityFactoryStub();
+    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize() {
+        ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
+        chm.put(null, new DefaultMonitoringEntityFactoryStub());
+        return chm;
+    }
+
+    @Override
+    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

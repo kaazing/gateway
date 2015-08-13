@@ -91,6 +91,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
 
 import com.hazelcast.core.IMap;
 
@@ -183,45 +184,9 @@ public class DefaultServiceContext implements ServiceContext {
             });
         }
     };
-    
-    private static final LongMonitoringCounter COUNTER_STUB = new LongMonitoringCounter() {
 
-        @Override
-        public LongMonitoringCounter increment() {
-            return this;
-        }
+    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
 
-        @Override
-        public LongMonitoringCounter incrementByValue(long value) {
-            return this;
-        }
-
-        @Override
-        public LongMonitoringCounter decrement() {
-            return this;
-        }
-
-        @Override
-        public LongMonitoringCounter decrementByValue(long value) {
-            return this;
-        }
-
-        @Override
-        public LongMonitoringCounter setValue(long value) {
-            return this;
-        }
-
-        @Override
-        public long getValue() {
-            return 0;
-        }
-
-        @Override
-        public LongMonitoringCounter reset() {
-            return this;
-        }
-    };
-    
     // Default MonitoringFactory
     private MonitoringEntityFactory monitoringFactory = new  MonitoringEntityFactory() {
 
@@ -1134,6 +1099,5 @@ public class DefaultServiceContext implements ServiceContext {
     @Override
     public void setMonitoringFactory(MonitoringEntityFactory monitoringFactory) {
         // TODO Auto-generated method stub
-        
-    }    
+    }
 }

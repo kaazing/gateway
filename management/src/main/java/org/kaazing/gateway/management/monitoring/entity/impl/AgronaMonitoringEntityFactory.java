@@ -41,9 +41,9 @@ public class AgronaMonitoringEntityFactory implements MonitoringEntityFactory {
     private CountersManager countersManager;
 
     // These are needed for the cleanup work that needs to be done in the close method.
+    private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
     private File monitoringDirectory;
     private MappedByteBuffer mappedMonitorDirectory;
-    private List<AtomicCounter> counters = new CopyOnWriteArrayList<AtomicCounter>();
 
     public AgronaMonitoringEntityFactory(CountersManager countersManager,
             MappedByteBuffer mappedMonitorFile, File monitoringDirectory) {

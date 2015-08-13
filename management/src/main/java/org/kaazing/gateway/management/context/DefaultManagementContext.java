@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -250,8 +251,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
     // This implementation needs to be passed to the management filter.
-    private MonitoringEntityFactory monitoringEntityFactory;
-
+    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> monitoringEntityFactories;
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
 
@@ -296,7 +296,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
-        buildMonitoringEntityFactory();
     }
 
     @Override
@@ -644,7 +643,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     private ManagementFilter addManagementFilter(ServiceContext serviceContext, ServiceManagementBean serviceBean) {
         ManagementFilter managementFilter = new ManagementFilter(serviceBean,
-                                                                 monitoringEntityFactory,
+                                                                 monitoringEntityFactories.get(serviceContext),
                                                                  serviceContext.getServiceName(),
                                                                  configuration);
         managementFilters.put(serviceContext, managementFilter);
@@ -659,26 +658,23 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
      * in order to have the configuration Properties object injected
      *
      */
-    private void buildMonitoringEntityFactory() {
+    private void buildMonitoringEntityFactories() {
         // We create a new monitoring entity factory using the factory injector.
 
         MonitoringEntityFactoryInjector monitoringEntityFactoryInjector = new MonitoringEntityFactoryInjectorImpl(configuration);
-        monitoringEntityFactory = monitoringEntityFactoryInjector.makeMonitoringEntityFactory();
-    }
-
-    @Override
-    public MonitoringEntityFactory getMonitoringEntityFactory() {
-        return monitoringEntityFactory;
+        monitoringEntityFactories = monitoringEntityFactoryInjector.makeMonitoringEntityFactories(gatewayContext.getServices());
     }
 
     @Override
     public ManagementFilter getManagementFilter(ServiceContext serviceContext) {
+        if (monitoringEntityFactories == null) {
+            buildMonitoringEntityFactories();
+        }
         ManagementFilter managementFilter = managementFilters.get(serviceContext);
         if (managementFilter == null) {
             // Service Management Beans are created in initing, getManagementFilter is done
             // on service start through session initializer
             ServiceManagementBean serviceBean = serviceManagementBeans.get(serviceContext);
-            //Initializing monitoring entity factory in order to be able to pass it on to the management filter
             managementFilter = addManagementFilter(serviceContext, serviceBean);
         }
 
@@ -892,12 +888,8 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     @Override
     public void close() {
-        // Stopping here if no monitoring entity factory was built
-        if (monitoringEntityFactory == null) {
-            return;
+        for (Entry<ServiceContext, ManagementFilter> managementFilterEntry : managementFilters.entrySet()) {
+            managementFilterEntry.getValue().close();
         }
-        // We need to manually close the monitoring entity factory because we don't use a
-        // try-with-resources block in order to be invoked by the JVM
-        monitoringEntityFactory.close();
     }
 }

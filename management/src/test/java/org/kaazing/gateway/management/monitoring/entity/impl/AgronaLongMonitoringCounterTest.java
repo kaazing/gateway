@@ -28,7 +28,8 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitoringDataManager;
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
@@ -40,12 +41,12 @@ public class AgronaLongMonitoringCounterTest {
     private MonitoringEntityFactory factory;
     private LongMonitoringCounter counter;
 
-    @Before
-    public void before() {
-        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder(new Properties());
-        factory = builder.build();
-        counter = factory.makeLongMonitoringCounter("counter");
-    }
+//    @Before
+//    public void before() {
+//        MonitoringDataManager builder = new MMFMonitoringDataManager(new Properties());
+//        factory = builder.initialize();
+//        counter = factory.makeLongMonitoringCounter("counter");
+//    }
 
     @After
     public void after() {
