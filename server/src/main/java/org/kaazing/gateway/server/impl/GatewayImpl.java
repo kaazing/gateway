@@ -46,6 +46,7 @@ import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.server.context.resolve.GatewayContextResolver;
+import org.kaazing.gateway.server.util.version.DuplicateJarFinder;
 import org.slf4j.Logger;
 import org.w3c.dom.Element;
 
@@ -81,6 +82,7 @@ final class GatewayImpl implements Gateway {
     private Launcher gateway;
     private Gateway baseGateway;
     private KaazingFileWatchdog watchDog;
+    private DuplicateJarFinder duplicateJarFinder;
 
     /**
      * <p> Create a new in-process Gateway instance.
@@ -92,6 +94,7 @@ final class GatewayImpl implements Gateway {
      */
     public GatewayImpl(Gateway baseGateway) {
         this.baseGateway = baseGateway;
+        this.duplicateJarFinder = new DuplicateJarFinder(LOGGER);
     }
 
     // Configure a new Gateway instance with the given environment properties.
@@ -292,6 +295,8 @@ final class GatewayImpl implements Gateway {
         if ((overrideLogging == null) || !Boolean.parseBoolean(overrideLogging)) {
             configureLogging(configDir, configuration);
         }
+
+        duplicateJarFinder.findDuplicateJars();
 
         displayVersionInfo();
 
