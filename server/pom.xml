@@ -441,7 +441,6 @@
                             <manifestEntries>
                                 <Implementation-Title>Kaazing Gateway</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
-                                <Jar-Name>${artifactId}</Jar-Name>
                                 <Kaazing-Product>Community.Gateway</Kaazing-Product>
                             </manifestEntries>
                         </archive>

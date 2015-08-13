@@ -67,10 +67,9 @@ public class DuplicateJarFinder {
 
     private void parseManifestFileFromClassPathEntry(String classPathEntry) throws IOException {
         Attributes manifestAttributes = classPathParser.getManifestAttributesFromClassPathEntry(classPathEntry);
-        String product = manifestAttributes.getValue(MANIFEST_PRODUCT);
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
         String jarName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
-        if (isKaazingProduct(product)) {
+        if (isKaazingProduct(jarName)) {
             logJarVersion(version, jarName);
             checkDuplicateJar(jarName);
         }
@@ -87,7 +86,7 @@ public class DuplicateJarFinder {
     }
 
     private boolean isKaazingProduct(String product) {
-        return product != null;
+        return product != null && (product.contains("org.kaazing") || product.contains("com.kaazing"));
     }
 
     private void logErrorForDuplicateJars() {

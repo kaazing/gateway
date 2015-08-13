@@ -18,7 +18,7 @@ public class DuplicateJarFinderTest {
     private static final String EXCEPTION_EXPECTED_MSG = "Exception was expected.";
     private static final String[] MOCK_CLASS_PATH_ENTRIES = {"gateway.server.jar"};
     private static final String[] MOCK_CLASS_DUPLICATE_PATH_ENTRIES = {"gateway.server.jar","gateway.server.jar"};
-    private static final String MOCK_JAR_FILE_NAME = "gateway.server";
+    private static final String MOCK_JAR_FILE_NAME = "org.kaazing:gateway.server";
 
     private Mockery context;
 
@@ -101,7 +101,6 @@ public class DuplicateJarFinderTest {
         Attributes attributes = new Attributes();
         attributes.putValue("Implementation-Version", "1.0");
         attributes.putValue("Jar-Name", MOCK_JAR_FILE_NAME);
-        attributes.putValue("Kaazing-Product", "Kaazing Gateway");
         return attributes;
     }
 
