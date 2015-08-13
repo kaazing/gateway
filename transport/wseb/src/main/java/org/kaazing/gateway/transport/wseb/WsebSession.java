@@ -134,9 +134,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     };
     private ScheduledFuture<?> timeoutFuture;
-    final AtomicBoolean writerReset;
 
     private TransportSession transportSession;
+
+    volatile Throwable writerException;
 
     public WsebSession(int ioLayer,
                        Thread ioThread,
@@ -164,7 +165,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               loginResult,
               extensions);
         this.attachingWrite = new AtomicBoolean(false);
-        this.writerReset = new AtomicBoolean(false);
         this.readSession = new AtomicReference<>();
         this.pendingNewWriter = new AtomicReference<>();
         this.timeout = new TimeoutCommand(this);
@@ -338,7 +338,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private void detachWriter0(final HttpSession oldWriter) {
         if (oldWriter.getIoThread() == getIoThread()) {
-            if (!oldWriter.isClosing() && !writerReset.get()) {
+            if (!oldWriter.isClosing()) {
                 oldWriter.write(WsCommandMessage.RECONNECT);
             }
             if (LOGGER.isDebugEnabled()) {
@@ -876,22 +876,25 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void doExceptionCaught(TransportSession session, Throwable cause) throws Exception {
-            WsebSession wseSession = session.getWsebSession();
-            if (!wseSession.isClosing()) {
-                wseSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Exception while handling upstream WebSocket frame for WsebSession: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Exception while handling upstream WebSocket frame for WsebSession: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                wseSession.close(true);
+                else {
+                    logger.debug(message);
+                }
+            }
+
+            session.close(true);
+        }
+
+        @Override
+        protected void doSessionClosed(TransportSession session) throws Exception {
+            WsebSession wsebSession = session.getWsebSession();
+            if (wsebSession != null && !wsebSession.isClosing()) {
+                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
         }
 

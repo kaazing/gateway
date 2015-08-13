@@ -354,13 +354,12 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
         @Override
         protected void doExceptionCaught(final IoSessionEx session, Throwable cause) throws Exception {
-            // Note: we must removeAttribute here to avoid recursion of exceptionCaught
-            DefaultHttpSession httpSession = SESSION_KEY.remove(session);
+            DefaultHttpSession httpSession = SESSION_KEY.get(session);
             if (httpSession != null && !httpSession.isClosing()) {
                 // see AbstractPollingIoProcessor.read(T session)
                 // if the cause is an IOException, then the session is scheduled for removal
                 // but the session is not yet marked as closing
-                if (!session.isClosing() && !(cause instanceof IOException)) {
+                if (!session.isClosing() && !(cause instanceof IOException) && !httpSession.getCommitFuture().isCommitted()) {
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
@@ -373,7 +372,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     LoggingUtils.log(logger, message, cause);
                 }
 
-                httpSession.reset(cause);
+                // Note: we must trigger doSessionClosed here to avoid recursion of exceptionCaught
+                session.close(true);
             }
             else {
                 if (logger.isDebugEnabled()) {
@@ -381,8 +381,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                     String message = format("Error on HTTP connection, closing connection: %s", cause);
                     LoggingUtils.log(logger, message, cause);
                 }
-                if(cause instanceof HttpProtocolDecoderException)
-                {
+
+                if (!session.isClosing() && cause instanceof HttpProtocolDecoderException) {
                     HttpResponseMessage httpResponse = new HttpResponseMessage();
                     httpResponse.setVersion(HttpVersion.HTTP_1_1);
                     httpResponse.setStatus(((HttpProtocolDecoderException)cause).getHttpStatus());

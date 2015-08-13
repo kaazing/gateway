@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.io.File;
@@ -28,19 +29,26 @@ import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WseHandshakeIT {
 
-    private static String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
+    private static final String ECHO_SERVICE_ACCEPT = "wse://localhost:8001/echo";
+
+    private final TestRule trace = new MethodExecutionTrace();
 
     private final K3poRule robot = new K3poRule();
+
+    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -60,7 +68,7 @@ public class WseHandshakeIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
 
     @Specification("wse.handshake.send.receive.3_5")
     @Test(timeout = 5000)

@@ -47,6 +47,7 @@ import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
 import org.kaazing.gateway.transport.wseb.filter.WsebTextAsBinaryEncodingCodecFilter;
 import org.kaazing.gateway.util.Encoding;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,30 +104,31 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("WsebDownstreamHandler.doExceptionCaught", cause);
+        if (logger.isDebugEnabled()) {
+            String message = format("Exception while handling HTTP downstream for WsebSession: %s", cause);
+            if (logger.isTraceEnabled()) {
+                // note: still debug level, but with extra detail about the exception
+                logger.debug(message, cause);
+            } else {
+                logger.debug(message);
+            }
         }
 
-        WsebSession wseSession = getSession(session);
-        if (wseSession != null && !wseSession.isClosing()) {
-            if (wseSession.writerReset.compareAndSet(false, true)) {
-                wseSession.reset(cause);
-            }
-            //cause.printStackTrace(System.err);
+        WsebSession wsebSession = getSession(session);
+        wsebSession.writerException = cause;
+
+        session.close(true);
+    }
+
+    @Override
+    protected void doSessionClosed(HttpAcceptSession session) throws Exception {
+        WsebSession wsebSession = getSession(session);
+        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.writerException != null)) {
+            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
         }
-        else {
-            if (logger.isDebugEnabled()) {
-                String message = format("Exception while handling HTTP downstream for WsebSession: %s", cause);
-                if (logger.isTraceEnabled()) {
-                    // note: still debug level, but with extra detail about the exception
-                    logger.debug(message, cause);
-                }
-                else {
-                    logger.debug(message);
-                }
-            }
-            session.close(true);
-        }
+
+        IoFilterChain filterChain = session.getFilterChain();
+        removeBridgeFilters(filterChain);
     }
 
     @Override

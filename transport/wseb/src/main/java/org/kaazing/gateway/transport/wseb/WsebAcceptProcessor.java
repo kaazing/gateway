@@ -59,7 +59,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
     protected void removeInternal(WsebSession session) {
         HttpSession writer = session.getWriter();
         if (writer != null ) {
-            if (!writer.isClosing() && !session.writerReset.get()) {
+            if (!writer.isClosing()) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(String.format("CLOSE command is written to writer %d for wseb session %s", writer.getId(), session));
                 }

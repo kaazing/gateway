@@ -51,9 +51,6 @@ final class ChannelWriteFutureListener implements ChannelFutureListener {
         else {
             Throwable cause = future.getCause();
             request.getFuture().setException(cause);
-            if (!(cause instanceof ClosedChannelException)) {
-                filterChain.fireExceptionCaught(cause);
-            }
         }
     }
 

@@ -67,6 +67,7 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.core.write.WriteRequest;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
@@ -641,23 +642,20 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
-            if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on WebSocket connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on WebSocket connection, closing connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
+                } else {
+                    logger.debug(message);
                 }
-                session.close(true);
             }
+
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            wsnSession.setCloseException(cause);
+
+            session.close(true);
         }
 
         /*
@@ -669,13 +667,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
-            if (wsnSession != null && !wsnSession.isClosing() && !wsnSession.getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
+            WsnSession wsnSession = SESSION_KEY.remove(session);
+            if (wsnSession != null && !wsnSession.isClosing()) {
                 wsnSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
-            }
-
-            if (wsnSession != null && wsnSession.getLocalAddress().getOption(WsResourceAddress.LIGHTWEIGHT)) {
-                wsnSession.close(true);
             }
 
             IoFilterChain filterChain = session.getFilterChain();

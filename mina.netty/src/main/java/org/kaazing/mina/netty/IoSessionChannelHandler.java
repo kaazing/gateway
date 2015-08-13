@@ -27,6 +27,7 @@ import static java.lang.System.currentTimeMillis;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;

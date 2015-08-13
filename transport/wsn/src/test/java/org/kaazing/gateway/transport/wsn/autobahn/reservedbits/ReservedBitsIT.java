@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn.autobahn.reservedbits;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
 import java.net.URI;
@@ -28,7 +29,9 @@ import java.net.URI;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -36,9 +39,12 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class ReservedBitsIT {
-	private K3poRule robot = new K3poRule();
 
-    private GatewayRule gateway = new GatewayRule() {
+    private final TestRule timeout = new DisableOnDebug(new Timeout(3, SECONDS));
+
+	private final K3poRule robot = new K3poRule();
+
+    private final GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
@@ -52,47 +58,47 @@ public class ReservedBitsIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = outerRule(timeout).around(robot).around(gateway);
     
     @Specification("sendCloseWithRSVEquals7")
-    @Test(timeout = 1500)
+    @Test
     public void sendCloseWithRSVEquals() throws Exception {
         robot.finish();
     }
     
     @Specification("sendSmallTextMessageWithRSVEquals1")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageWithRSVEquals1() throws Exception {
         robot.finish();
     }
     
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals2ThenSendPing() throws Exception {
         robot.finish();
     }
     
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInFrameWiseChops() throws Exception {
         robot.finish();
     }
 
     @Ignore("KG-12368")
     @Specification("sendSmallTextMessageThenSmallTextMessageWithRSVEquals4ThenSendPingInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallTextMessageThenSmallTextMessageWithRSVEquals3ThenSendPingInOctetWiseChops() throws Exception {
         robot.finish();
     }
     
     @Specification("sendSmallBinaryMessageWithRSVEquals5")
-    @Test(timeout = 1500)
+    @Test
     public void sendSmallBinaryMessageWithRSVEquals5() throws Exception {
         robot.finish();
     }
     
     @Specification("sendPingWithRSVEquals6")
-    @Test(timeout = 1500)
+    @Test
     public void sendPingWithRSVEquals6() throws Exception {
         robot.finish();
     }
