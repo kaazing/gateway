@@ -27,8 +27,6 @@ import org.apache.mina.core.write.WriteRequest;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
-import java.nio.channels.ClosedChannelException;
-
 final class ChannelWriteFutureListener implements ChannelFutureListener {
     private final IoFilterChain filterChain;
     private final WriteRequest request;

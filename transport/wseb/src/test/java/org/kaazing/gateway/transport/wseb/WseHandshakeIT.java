@@ -48,7 +48,7 @@ public class WseHandshakeIT {
 
     private final K3poRule robot = new K3poRule();
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
+    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -71,19 +71,19 @@ public class WseHandshakeIT {
     public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
 
     @Specification("wse.handshake.send.receive.3_5")
-    @Test(timeout = 5000)
+    @Test
     public void testHandshakeSendReceiveVersion3_5() throws Exception {
         robot.finish();
     }
 
     @Specification("wse.handshake.send.receive")
-    @Test(timeout = 5000)
+    @Test
     public void testHandshakeSendReceive() throws Exception {
         robot.finish();
     }
 
     @Specification("closeDownstreamShouldUnbindUpstream")
-    @Test(timeout = 5000)
+    @Test
     public void closeDownstreamShouldUnbindUpstream() throws Exception {
         robot.finish();
     }

@@ -75,7 +75,6 @@ import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;

@@ -463,7 +463,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
         public void messageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
             // create SslSession
             SslSession sslSession = unsecureBridgeHandler.createSslSession((IoSessionEx) session);
-            SslAcceptor.SESSION_KEY.set(session, sslSession);
+            SESSION_KEY.set(session, sslSession);
             session.getFilterChain().remove(this);
             super.messageReceived(nextFilter, session, message);
         }
