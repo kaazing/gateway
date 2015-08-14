@@ -66,10 +66,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                 writer.write(WsCommandMessage.CLOSE);
             } else {
                 if (LOGGER.isDebugEnabled()) {
-                    String str = writer.isClosing()
-                            ? String.format("NOT sending CLOSE command as writer %s is closing for wseb session %s", writer, session)
-                            : String.format("NOT sending CLOSE command as writer %s is reset for wseb session %s ", writer, session);
-                    LOGGER.debug(str);
+                    LOGGER.debug(String.format("NOT sending CLOSE command as writer %s is closing for wseb session %s", writer, session));
                 }
             }
             session.detachWriter(writer);

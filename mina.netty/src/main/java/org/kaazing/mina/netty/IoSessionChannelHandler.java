@@ -27,7 +27,6 @@ import static java.lang.System.currentTimeMillis;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelConfig;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -39,6 +38,7 @@ import org.jboss.netty.channel.WriteCompletionEvent;
 
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
+import java.io.IOException;
 
 public class IoSessionChannelHandler extends SimpleChannelHandler {
 
@@ -47,6 +47,9 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     private final IoFuture future;
     private final IoSessionInitializer<?> initializer;
     private final IoSessionIdleTracker idleTracker;
+
+    // After the first IOException on session, all the other exceptions are ignored
+    private boolean ignoreExceptions;
 
     public IoSessionChannelHandler(ChannelIoSession<? extends ChannelConfig> session, IoFuture future,
             IoSessionInitializer<?> initializer, IoSessionIdleTracker idleTracker) {
@@ -76,9 +79,17 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
             throws Exception {
-        // filter chain can change if session is re-aligned
-        IoFilterChain filterChain = session.getFilterChain();
-        filterChain.fireExceptionCaught(e.getCause());
+
+        if (!ignoreExceptions) {
+            // filter chain can change if session is re-aligned
+            IoFilterChain filterChain = session.getFilterChain();
+            filterChain.fireExceptionCaught(e.getCause());
+
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) {
+                ignoreExceptions = true;
+            }
+        }
     }
 
     @Override

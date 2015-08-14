@@ -4,6 +4,8 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
@@ -42,13 +44,7 @@ public class WsebCloseIT {
     private final WsebAcceptorRule acceptorRule = new WsebAcceptorRule();
 
     @Rule
-    public TestRule chain = outerRule(trace).around(robot).around(acceptorRule).around(timeout);
-
-    @BeforeClass
-    public static void initClass() throws Exception {
-        PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-    }
-
+    public final TestRule chain = outerRule(trace).around(robot).around(acceptorRule).around(timeout);
 
     private static class Backend implements Runnable {
         private final WsebSession session;
@@ -75,6 +71,18 @@ public class WsebCloseIT {
         }
     }
 
+    private static long getScheduledWriteBytes(IoSession client) {
+        IoSession session = client;
+        while (session instanceof BridgeSession) {
+            IoSession parent = ((BridgeSession)session).getParent();
+            if (parent == null) { // parent can occasionally be null (e.g. on a WsebSession from Flash client)
+                break;
+            }
+            session = parent;
+        }
+        return session.getScheduledWriteBytes();
+    }
+
     @Test
     @Specification("wse.session.close.immediately")
     //@Ignore("Need a robot feature to read data (without matching)")
@@ -96,13 +104,16 @@ public class WsebCloseIT {
                 buf = SimpleBufferAllocator.BUFFER_ALLOCATOR.wrap(asByteBuffer("Hello, WebSocket2"));
                 session.write(buf);
 
-                int packets = 5000;
+                int packets = 500000;
                 for(int i=0; i < packets; i++) {
                     buf = data();
                     session.write(buf);
-                    if (i == packets/2) {
-                        backend.stop();
+                    long bytes = getScheduledWriteBytes(session);
+                    System.out.println("Scheduled bytes = " + bytes);
+
+                    if (bytes > 15000) {
                         barrier.wakeup();
+                        backend.stop();
                         break;
                     }
                 }
@@ -125,7 +136,7 @@ public class WsebCloseIT {
 
     private static IoBuffer data() {
         StringBuilder sb = new StringBuilder();
-        for(int i=0; i < 100000; i++) {
+        for(int i=0; i < 30000; i++) {
             sb.append('1');
         }
         String str = sb.toString();
