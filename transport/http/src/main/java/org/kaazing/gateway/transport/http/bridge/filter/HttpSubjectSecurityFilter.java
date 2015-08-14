@@ -23,11 +23,11 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
@@ -85,6 +85,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public static final String AUTH_SCHEME_BASIC = "Basic";
     public static final String AUTH_SCHEME_NEGOTIATE = "Negotiate";
 
+    private static final String HEADER_FORWARDED_REMOTE_IP_ADDRESS = "for=%s";
 
     static final AttributeKey NEW_SESSION_COOKIE_KEY = new AttributeKey(HttpSubjectSecurityFilter.class, "sessionCookie");
 
@@ -121,35 +122,23 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
-        if (httpRequest.getHeader(HEADER_X_FORWARDED_FOR) == null) {
+        String forwarded = httpRequest.getHeader(HEADER_FORWARDED);
+        if ((forwarded == null) || (forwarded.length() == 0)) {
             String remoteIpAddress = null;
-            SocketAddress socketAddress = session.getRemoteAddress();
+            ResourceAddress resourceAddress = REMOTE_ADDRESS.get(session);
+            ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
 
-            if (socketAddress instanceof InetSocketAddress) {
-                InetAddress addr = ((InetSocketAddress) socketAddress).getAddress();
-                remoteIpAddress = addr.getHostAddress();
+            if (tcpResourceAddress != null) {
+                URI resource = tcpResourceAddress.getResource();
+                remoteIpAddress = resource.getHost();
 
                 if (loggerIsEnabled) {
                     logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address: '%s'", remoteIpAddress));
                 }
             }
-            else if (socketAddress instanceof ResourceAddress) {
-                ResourceAddress resourceAddress = (ResourceAddress) socketAddress;
-                ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
-
-                if (tcpResourceAddress != null) {
-                    URI resource = tcpResourceAddress.getResource();
-                    remoteIpAddress = resource.getHost();
-
-                    if (loggerIsEnabled) {
-                        logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address from ResourceAddress: '%s'",
-                                            remoteIpAddress));
-                    }
-                }
-            }
 
             if (remoteIpAddress != null) {
-                httpRequest.addHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+                httpRequest.setHeader(HEADER_FORWARDED, format(HEADER_FORWARDED_REMOTE_IP_ADDRESS, remoteIpAddress));
             }
         }
 

@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.AuthenticationTokenCallbackHandler;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
+import org.kaazing.gateway.security.auth.SimpleInetAddressTestLoginModule;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
@@ -136,7 +137,7 @@ public class DefaultLoginContextFactoryTest {
         context.checking(new Expectations() {
             {
                 oneOf(configuration).getAppConfigurationEntry(REALM_NAME);
-                final String loginModuleName = "org.kaazing.gateway.security.auth.SimpleInetAddressTestLoginModule";
+                final String loginModuleName = SimpleInetAddressTestLoginModule.class.getName();
                 final HashMap<String, Object> options = new HashMap<>();
                 final AppConfigurationEntry entry = new AppConfigurationEntry(loginModuleName,
                         REQUIRED, options);

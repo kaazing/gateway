@@ -25,17 +25,17 @@ import java.net.InetAddress;
 import javax.security.auth.callback.Callback;
 
 /**
- * A token callback class retrieves the remote InetAddress presented to
+ * A callback class that retrieves the remote InetAddress presented to
  * the Gateway for use in a {@link javax.security.auth.spi.LoginModule}.
  */
 public class InetAddressCallback implements Callback {
-    private InetAddress inetAddr;
+    private InetAddress inetAddress;
 
     public InetAddress getInetAddress() {
-        return inetAddr;
+        return inetAddress;
     }
 
     public void setInetAddress(InetAddress inetAddress) {
-        this.inetAddr = inetAddress;
+        this.inetAddress = inetAddress;
     }
 }

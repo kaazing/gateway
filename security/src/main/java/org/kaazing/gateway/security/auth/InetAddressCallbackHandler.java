@@ -30,24 +30,24 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 
 public class InetAddressCallbackHandler implements CallbackHandler {
-    private final InetAddress inetAddr;
+    private final InetAddress inetAddress;
 
     public InetAddressCallbackHandler(InetAddress inetAddress) {
-        this.inetAddr = inetAddress;
+        this.inetAddress = inetAddress;
     }
 
     public InetAddress getInetAddress() {
-        return inetAddr;
+        return inetAddress;
     }
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-            for (Callback callback : callbacks) {
-                if (callback instanceof InetAddressCallback) {
-                    ((InetAddressCallback) callback).setInetAddress(inetAddr);
-                } else {
-                    throw new UnsupportedCallbackException(callback);
-                }
+        for (Callback callback : callbacks) {
+            if (callback instanceof InetAddressCallback) {
+                ((InetAddressCallback) callback).setInetAddress(inetAddress);
+            } else {
+                throw new UnsupportedCallbackException(callback);
             }
+        }
     }
 }
