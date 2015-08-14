@@ -50,7 +50,6 @@ import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.InetAddressCallbackHandler;
 import org.kaazing.gateway.security.auth.YesLoginModule;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
-import org.kaazing.gateway.server.spi.security.AccessControlLoginException;
 import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 import org.kaazing.gateway.server.spi.security.InetAddressCallback;
@@ -196,13 +195,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             }
 
             loginContext.login();
-        } catch (AccessControlLoginException ace) {
-            if (loggerEnabled()) {
-                log("Login failed: ", ace);
-            }
-
-            writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
-            return false;
         } catch (LoginException le) {
             // Depending on the login modules configured, this could be
             // a very normal condition.
@@ -223,7 +215,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
                 return false;
             }
-
         } catch (Exception e) {
             if (loggerEnabled()) {
                 log("Login failed.", e);
@@ -271,7 +262,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 authenticationTokenCallbackHandler);
         return map;
     }
-
 
     protected String getBaseAuthScheme(String authScheme) {
         if (authScheme != null && authScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
@@ -405,13 +395,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                     }
                     return false;
                 }
-            } catch (AccessControlLoginException ace) {
-                loginOK = false;
-
-                if (loggerEnabled()) {
-                    log("Login failed: ", ace);
-                }
-                writeResponse(HttpStatus.CLIENT_FORBIDDEN, nextFilter, session, httpRequest);
             } catch (Exception e) {
                 loginOK = false;
 
