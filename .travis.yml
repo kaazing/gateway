@@ -2,5 +2,5 @@ sudo: false
 language: Java
 jdk:
   - oraclejdk8
-install: mvn -q clean -DskipTests -DskipITs install
-script: mvn verify && mvn cobertura:cobertura-integration-test coveralls:report
+install: mvn clean install
+script: mvn cobertura:cobertura-integration-test coveralls:report
