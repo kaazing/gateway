@@ -54,6 +54,7 @@ read "Sec-WebSocket-Version: 13\r\n"
 read "Sec-WebSocket-Key: nDaimG37f4nUqogPypithw==\r\n"
 read "Origin: http://localhost:8110\r\n"
 read "Host: localhost:8110\r\n"
+read "Forwarded: for=127.0.0.1\r\n"
 read "Connection: Upgrade\r\n"
 read "\r\n"
 
