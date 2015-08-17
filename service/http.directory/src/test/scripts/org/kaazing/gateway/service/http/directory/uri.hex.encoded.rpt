@@ -25,5 +25,4 @@ connected
 write method "GET"
 
 read status "200" "OK"
-close
-disconnected
+

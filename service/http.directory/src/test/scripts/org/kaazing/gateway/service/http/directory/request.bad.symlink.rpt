@@ -3,4 +3,4 @@ connected
 
 write method "GET"
 
-read status "404" "Bad Req"
+read status "404" "Bad Request"
