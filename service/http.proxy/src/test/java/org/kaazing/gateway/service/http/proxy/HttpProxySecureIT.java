@@ -84,7 +84,7 @@ public class HttpProxySecureIT {
     }
 
     private final K3poRule k3po = new K3poRule();
-    private final TestRule testExecutionTrace = new MethodExecutionTrace();
+    private final TestRule trace = new MethodExecutionTrace();
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {{
@@ -110,7 +110,7 @@ public class HttpProxySecureIT {
     }};
 
     @Rule
-    public final TestRule chain = outerRule(testExecutionTrace).around(k3po).around(gateway).around(timeout);
+    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
 
     // Test for gateway's ssl termination
     @Specification( "http.proxy.ssl.terminated")
