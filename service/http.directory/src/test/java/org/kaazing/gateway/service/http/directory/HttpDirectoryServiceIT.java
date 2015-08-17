@@ -43,6 +43,7 @@ public class HttpDirectoryServiceIT {
     private static final String ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8002/";
     private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
     private static final String NO_SERVER_HEADER = "http://localhost:8004/";
+	protected static final String SYMLINK_URI = "http://localhost:8700/";
 
     private final K3poRule robot = new K3poRule();
 
@@ -88,6 +89,14 @@ public class HttpDirectoryServiceIT {
                             .property("directory", "/public")
                             .property("welcome-file", "index.html")
                             .crossOrigin().allowOrigin("*").done()
+                        .done()
+                        .service()
+	                        .name("symlink-directory")
+	                        .description("directory service with symlinks")
+                        	.accept(URI.create(SYMLINK_URI))
+                        	.type("directory")
+                        	.property("directory", "/symlink")
+                        	.property("welcome-file", "index.html")
                         .done()
                     .done();
             // @formatter:on
@@ -244,14 +253,9 @@ public class HttpDirectoryServiceIT {
         robot.finish();
     }
 
-    @Specification("uri.too.long")
-    @Test(timeout = 5000)
-    public void testUriTooLong() throws Exception {
-        robot.finish();
-    }
-
     @Specification("invalid.uri.with.space")
     @Test(timeout = 5000)
+    
     public void testInvalidUri() throws Exception {
         robot.finish();
     }
@@ -261,6 +265,33 @@ public class HttpDirectoryServiceIT {
     public void testUriWithParams() throws Exception {
         robot.finish();
     }
+    
+    @Specification("get.file.directory")
+    @Test()
+    public void testGetFileInDirectory() throws Exception {
+    	robot.finish();
+    }
+    
+    @Specification("get.no.file")
+    @Test()
+    public void testGetNoFile() throws Exception {
+    	robot.finish();
+    }
+    
+    @Specification("request.bad.symlink")
+    @Test
+    @Ignore("Test being ignored because currently returns 400 for symlink, but should be returning a 404")
+    public void testNoAccessFileSymlinkReturns404() throws Exception {
+    	robot.finish();
+    }
+    
+    @Specification("request.allow.symlink")
+    @Test
+    @Ignore("Symlink to file in directory service should be allowed, but currently returns a 400")
+    public void testFileSymlinkReturns200() throws Exception {
+    	robot.finish();
+    }
+    
 
     // ////////////////// CROSS-ORIGIN ACCESS ////////////////////
 

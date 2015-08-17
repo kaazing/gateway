@@ -1,0 +1,9 @@
+connect http://localhost:8700/test.rtf
+connected
+
+write method "GET"
+
+read status "404" "Not Fou"
+close
+
+disconnected

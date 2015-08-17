@@ -19,24 +19,11 @@
 # under the License.
 #
 
-connect tcp://localhost:8000
+connect http://localhost:8000/%69%6e%64%65%78%2e%68%74%6d%6c
 connected
 
-write "GET /%69%6e%64%65%78%2e%68%74%6d%6c HTTP/1.1\r\n"
-write "Host: localhost:8000\r\n"
-write "\r\n"
-write notify BARRIER
+write method "GET"
 
-write await BARRIER
-read "HTTP/1.1 200 OK\r\n"
-read "Content-Length: 119\r\n"
-read "Content-Type: text/html\r\n"
-read "Date: " /.*/ "\r\n"
-read /ETag: .*/ "\r\n"
-read "Expires: " /.*/ "\r\n"
-read "Last-Modified: " /.*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
-read /.*/ "\r\n"
-
+read status "200" "OK"
 close
-closed
+disconnected

@@ -19,27 +19,12 @@
 # under the License.
 #
 
-connect tcp://localhost:8000
+connect http://localhost:8000/../../README.TXT
 connected
 
-# sent request 
-write "GET /../../README.TXT HTTP/1.1\r\n"
-write "User-Agent: Java/1.7.0\r\n"
-write "Host: localhost:8000\r\n"
-write "Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\r\n"
-write "Connection: keep-alive\r\n"
-write "\r\n"
-write notify BARRIER
+write method "GET"
 
-write await BARRIER
-# read response headers
-read "HTTP/1.1 400 Bad Request\r\n"
-read "Content-Type: text/html\r\n"
-read /Date:.*/ "\r\n"
-read "Server: Kaazing Gateway\r\n"
-read "Content-Length: 63\r\n"
-read "\r\n"
-read "<html><head></head><body><h1>400 Bad Request</h1></body></html>"
+read status "400" "Bad"
 
 close
-closed
+disconnected
