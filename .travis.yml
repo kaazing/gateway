@@ -2,5 +2,5 @@ sudo: false
 language: Java
 jdk:
   - oraclejdk8
-install: mvn -B clean install
-script: mvn -B cobertura:cobertura-integration-test coveralls:report
+install: mvn -B clean install -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
+script: mvn -B cobertura:cobertura-integration-test coveralls:report -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
