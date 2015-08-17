@@ -24,4 +24,4 @@ connected
 
 write method "GET"
 
-read status "400" "Bad"
+read status "400" "Bad Request"
