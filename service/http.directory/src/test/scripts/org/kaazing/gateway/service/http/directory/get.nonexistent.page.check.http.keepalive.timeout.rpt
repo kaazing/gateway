@@ -28,7 +28,6 @@ write method "GET"
 #We need to wait for all the data to be written first
 read status "404" "Not Found"
 
-#wait for server to close connection due to http.keepalive.timeout
-
 read "<html><head></head><body><h1>404 Not Found</h1></body></html>"
+#wait for server to close connection due to http.keepalive.timeout
 read closed
