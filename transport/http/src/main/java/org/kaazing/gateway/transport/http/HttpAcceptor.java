@@ -168,7 +168,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                                                            CONDITIONAL_WRAPPED_RESPONSE)));
 
         this.acceptFiltersByProtocol = unmodifiableMap(acceptFiltersByProtocol);
-        
         this.allAcceptFilters = allOf(HttpAcceptFilter.class);
     }
 
