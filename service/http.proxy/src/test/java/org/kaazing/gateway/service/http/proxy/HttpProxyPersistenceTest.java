@@ -60,7 +60,7 @@ public class HttpProxyPersistenceTest {
                         .connect(URI.create("http://localhost:8080"))
                         .type("http.proxy")
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
-                        .connectOption("http.keepalive.max.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
+                        .connectOption("http.keepalive.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
                     .done()
                     .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
                 .done();
