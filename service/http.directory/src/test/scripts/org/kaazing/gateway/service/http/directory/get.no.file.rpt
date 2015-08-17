@@ -3,7 +3,4 @@ connected
 
 write method "GET"
 
-read status "404" "Not Fou"
-close
-
-disconnected
+read status "404" "Not Found"

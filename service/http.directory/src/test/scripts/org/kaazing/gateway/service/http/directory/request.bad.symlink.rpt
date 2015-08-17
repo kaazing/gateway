@@ -4,6 +4,3 @@ connected
 write method "GET"
 
 read status "404" "Bad Req"
-
-close
-disconnected

@@ -25,7 +25,5 @@ connected
 
 write method "GET"
 
-read status "404" "Not Fou"
+read status "404" "Not Found"
 
-close
-disconnected

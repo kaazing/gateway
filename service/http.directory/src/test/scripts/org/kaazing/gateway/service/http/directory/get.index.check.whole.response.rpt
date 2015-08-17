@@ -27,6 +27,14 @@ write method"GET"
 
 #We need to wait for all the data to be written first
 read status "200" "OK"
-
-close
-disconnected
+read "<!DOCTYPE html>\n"
+read "<html>\n"
+read "<head> \n"
+read " <meta charset=\"utf-8\">\n"
+read "</head>\n"
+read "\n"
+read "<body>\n"
+read " <h1> THIS PAGE EXISTS!! </h1>\n"
+read "</body>\n"
+read "\n"
+read "</html>\n"
