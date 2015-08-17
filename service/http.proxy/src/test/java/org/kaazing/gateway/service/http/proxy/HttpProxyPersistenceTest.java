@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
@@ -45,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 public class HttpProxyPersistenceTest {
 
     private static final int KEEP_ALIVE_TIMEOUT = 5;
-    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 2;
+    private static final int KEEP_ALIVE_CONNECTIONS = 2;
 
     public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
@@ -60,7 +59,7 @@ public class HttpProxyPersistenceTest {
                         .connect(URI.create("http://localhost:8080"))
                         .type("http.proxy")
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
-                        .connectOption("http.keepalive.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
+                        .connectOption("http.keepalive.connections", String.valueOf(KEEP_ALIVE_CONNECTIONS))
                     .done()
                     .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
                 .done();
