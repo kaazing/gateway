@@ -2,5 +2,5 @@ sudo: false
 language: Java
 jdk:
   - oraclejdk8
-install: mvn clean install
-script: mvn cobertura:cobertura-integration-test coveralls:report
+install: mvn -B clean install
+script: mvn -B cobertura:cobertura-integration-test coveralls:report
