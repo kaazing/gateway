@@ -272,15 +272,10 @@ public class HttpDirectoryServiceIT {
     
     @Specification("get.file.directory")
     @Test()
-    public void testGetFileInDirectory() throws Exception {
+    public void testGetHelloWorldFile() throws Exception {
     	robot.finish();
     }
-    
-    @Specification("get.no.file")
-    @Test()
-    public void testGetNoFile() throws Exception {
-    	robot.finish();
-    }
+
     
     @Specification("request.bad.symlink")
     @Test

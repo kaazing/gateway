@@ -29,5 +29,3 @@ write method "GET"
 #We need to wait for all the data to be written first
 read status "200" "OK"
 
-close
-disconnected
