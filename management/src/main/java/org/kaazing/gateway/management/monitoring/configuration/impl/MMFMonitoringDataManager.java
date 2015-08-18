@@ -52,6 +52,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = 32 * GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
     private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
     private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = 32 * SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
+    private MonitorFileDescriptor monitorDescriptor;
 
     private Properties configuration;
     private UnsafeBuffer metaDataBuffer;
@@ -59,7 +60,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
     /**
-     * TODO: To have a services abstraction passed to this class 
+     * TODO: To have a services abstraction passed to this class
      */
     private Collection<? extends ServiceContext> services;
     private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
@@ -68,6 +69,10 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         super();
         this.configuration = configuration;
         this.services = services;
+        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+        monitorDescriptor = new MonitorFileDescriptor(GATEWAY_COUNTER_LABELS_BUFFER_LENGTH,
+                GATEWAY_COUNTER_VALUES_BUFFER_LENGTH, SERVICE_COUNTER_LABELS_BUFFER_LENGTH,
+                SERVICE_COUNTER_VALUES_BUFFER_LENGTH, gatewayId, services);
     }
 
     @Override
@@ -76,14 +81,15 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         createMonitoringFile();
 
         // create gateway writer
-        GatewayWriter gatewayWriter = new MMFGatewayWriter(mappedMonitorFile, metaDataBuffer, monitoringDir);
+        GatewayWriter gatewayWriter = new MMFGatewayWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer, monitoringDir);
         MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
         //monitoringEntityFactories.put(null, gwCountersFactory);
 
         // create service writer
         int i = 0;
         for (ServiceContext service : services) {
-            ServiceWriter serviceWriter = new MMFSeviceWriter(mappedMonitorFile, metaDataBuffer, monitoringDir, i++);
+            ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
+                    monitoringDir, i++);
             MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
             monitoringEntityFactories.put(service, serviceCountersFactory);
         }
@@ -114,7 +120,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         int totalLengthOfBuffers =
                 GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
                 services.size() * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-        int fileSize = MonitorFileDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
+        int fileSize = monitorDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
         metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
@@ -126,12 +132,8 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
      * @return
      */
     private UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
-        MonitorFileDescriptor.setServicesCount(services.size());
-        UnsafeBuffer metaDataBuffer = MonitorFileDescriptor.createMetaDataBuffer(mappedMonitorFile);
-        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        MonitorFileDescriptor.fillMetaData(metaDataBuffer, GATEWAY_COUNTER_LABELS_BUFFER_LENGTH,
-                GATEWAY_COUNTER_VALUES_BUFFER_LENGTH, SERVICE_COUNTER_LABELS_BUFFER_LENGTH,
-                SERVICE_COUNTER_VALUES_BUFFER_LENGTH, gatewayId, services);
+        UnsafeBuffer metaDataBuffer = monitorDescriptor.createMetaDataBuffer(mappedMonitorFile);
+        monitorDescriptor.fillMetaData(metaDataBuffer);
         return metaDataBuffer;
     }
 

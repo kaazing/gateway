@@ -51,7 +51,7 @@ public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFact
             monitoringManager = new MMFMonitoringDataManager(services, configuration);
         }
         else {
-            monitoringManager = new DefaultMMFMonitoringDataManagerStub();
+            monitoringManager = new DefaultMMFMonitoringDataManagerStub(services);
         }
         monitoringManager.initialize();
         return monitoringManager.getMonitoringEntityFactories();

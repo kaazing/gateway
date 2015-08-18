@@ -19,9 +19,9 @@
  * under the License.
  */
 
-
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
@@ -31,17 +31,24 @@ import org.kaazing.gateway.service.ServiceContext;
 
 public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
 
+    private Collection<? extends ServiceContext> services;
+    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
+
+    public DefaultMMFMonitoringDataManagerStub(Collection<? extends ServiceContext> services) {
+        this.services = services;
+    }
+
     @Override
     public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize() {
-        ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
-        chm.put(null, new DefaultMonitoringEntityFactoryStub());
+        for (ServiceContext service : services) {
+            chm.put(service, new DefaultMonitoringEntityFactoryStub());
+        }
         return chm;
     }
 
     @Override
     public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories() {
-        // TODO Auto-generated method stub
-        return null;
+        return chm;
     }
 
 }

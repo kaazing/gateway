@@ -38,8 +38,11 @@ public class MMFGatewayWriter implements GatewayWriter {
     private MappedByteBuffer mappedMonitorFile;
     private UnsafeBuffer metaDataBuffer;
     private File monitoringDir;
+    private MonitorFileDescriptor monitorDescriptor;
 
-    public MMFGatewayWriter(MappedByteBuffer mappedMonitorFile, UnsafeBuffer metaDataBuffer, File monitoringDir) {
+    public MMFGatewayWriter(MonitorFileDescriptor monitorDescriptor, MappedByteBuffer mappedMonitorFile,
+                            UnsafeBuffer metaDataBuffer, File monitoringDir) {
+        this.monitorDescriptor = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;
         this.metaDataBuffer = metaDataBuffer;
         this.monitoringDir = monitoringDir;
@@ -54,9 +57,9 @@ public class MMFGatewayWriter implements GatewayWriter {
     }
 
     private void createCountersManager() {
-        UnsafeBuffer counterLabelsBuffer = MonitorFileDescriptor.createGatewayCounterLabelsBuffer(mappedMonitorFile,
+        UnsafeBuffer counterLabelsBuffer = monitorDescriptor.createGatewayCounterLabelsBuffer(mappedMonitorFile,
                 metaDataBuffer);
-        UnsafeBuffer counterValuesBuffer = MonitorFileDescriptor.createGatewayCounterValuesBuffer(mappedMonitorFile,
+        UnsafeBuffer counterValuesBuffer = monitorDescriptor.createGatewayCounterValuesBuffer(mappedMonitorFile,
                 metaDataBuffer);
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);

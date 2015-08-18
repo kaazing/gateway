@@ -56,6 +56,9 @@ public class ServiceCounterManagerImpl implements
 
     @Override
     public void initializeSessionCounters() {
+        if (monitoringEntityFactory == null) {
+            return;
+        }
         numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
                 + CURRENT_NUMBER_OF_SESSIONS);
         numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(gatewayId + SEPARATOR + serviceName
