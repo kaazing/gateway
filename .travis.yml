@@ -2,5 +2,6 @@ sudo: false
 language: Java
 jdk:
   - oraclejdk8
-install: mvn -q clean -DskipTests -DskipITs install
-script: mvn verify && mvn cobertura:cobertura-integration-test coveralls:report
+before_install: export "MAVEN_OPTS=$MAVEN_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=warn"
+install: mvn -B clean install
+script: mvn -B cobertura:cobertura-integration-test coveralls:report -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
