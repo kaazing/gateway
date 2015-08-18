@@ -30,6 +30,7 @@ import junit.framework.Assert;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
@@ -121,6 +122,7 @@ public class WsebAcceptorTest {
     }
 
 
+    @Ignore("Stalling on TravisCI")
     @Test
     public void shouldBindAWsAddress() throws Exception {
         URI location = URI.create("wse://localhost:8000/echo");
