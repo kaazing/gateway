@@ -333,7 +333,9 @@ public abstract class AbstractNioConnector implements BridgeConnector {
 
         protected void doFireSessionDestroyed(IoSessionAdapterEx session) {
             final IoConnectorEx connector = AbstractNioConnector.this.connector.get();
-            connector.getListeners().fireSessionDestroyed(session);
+            if (connector != null) {
+                connector.getListeners().fireSessionDestroyed(session);
+            }
         }
 
         public void updateTrafficControl(IoSessionAdapterEx session) {
@@ -515,7 +517,9 @@ public abstract class AbstractNioConnector implements BridgeConnector {
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
             // TODO: reset implementation should inform this one.
             IoSession tcpBridgeSession = getTcpBridgeSession(session);
-            tcpBridgeSession.getFilterChain().fireExceptionCaught(cause);
+            if (tcpBridgeSession != null) {
+                tcpBridgeSession.getFilterChain().fireExceptionCaught(cause);
+            }
         }
 
         @Override
