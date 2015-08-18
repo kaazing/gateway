@@ -149,9 +149,9 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         if (!underBaseDir) {
-        	reportError(session, HttpStatus.CLIENT_NOT_FOUND);
-        	session.close(false);
-        	return;
+            reportError(session, HttpStatus.CLIENT_NOT_FOUND);
+            session.close(false);
+            return;
         }
 
         // Make another check for the file being a directory, return the welcomeFile
