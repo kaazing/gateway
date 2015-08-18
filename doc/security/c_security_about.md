@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   [Security with KAAZING Gateway](../index.md#security)
-
 About Security with KAAZING Gateway
 ======================================================================================
 
@@ -18,7 +14,7 @@ For successful and secure communication, you must configure the Gateway to secur
 Each of the security objectives is broken down into step-by-step instructions in the Gateway documentation:
 
 -   **Securing network traffic:** Network traffic going to and from the Gateway is not encrypted by default. You configure secure communication with the Gateway using Transport Layer Security (TLS, formerly known as SSL) to prevent unwanted eavesdropping, man-in-the-middle attacks, and packet sniffing. HTTP over TLS/SSL is called HTTPS, and WS (WebSocket) over TLS/SSL is called WebSocket Secure (WSS). See [Secure Network Traffic with the Gateway](o_tls.md) for an overview and step-by-step instructions.
--   **Configuring security for clients:** The Gateway provides client libraries that can respond to a variety of security challenges, such as HTTP Basic or HTTP Negotiate. In addition, you can customize the client challenge handler framework to work with any HTTP-based authentication scheme. This means that if you already have authentication or single sign-on capabilities in place, you can configure the Gateway to participate in your existing framework. In addition, you can customize the client challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples for writing custom challenge handlers, see the ["HowTo"](../index.md#dev_topics) documentation for developers that is specific to your client.
+-   **Configuring security for clients:** The Gateway provides client libraries that can respond to a variety of security challenges, such as HTTP Basic or HTTP Negotiate. In addition, you can customize the client challenge handler framework to work with any HTTP-based authentication scheme. This means that if you already have authentication or single sign-on capabilities in place, you can configure the Gateway to participate in your existing framework. In addition, you can customize the client challenge handler framework to work with any HTTP-based authentication scheme. For configuration instructions and code examples for writing custom challenge handlers, see the [For Developer](../index.md) documentation for developers that is specific to your client.
 -   **Configuring authentication and authorization:** The Gateway streamlines the authentication and authorization process for users by employing features such as credential caching and single sign-on:
 
     -   **authentication** is the mechanism by which a system identifies a user and verifies whether or not the user really is who he represents himself to be. To start the authentication process, the Gateway issues a standard challenge using the `HTTP 401 Authorization Required` code. The browser or client then responds by providing the requested authentication information.

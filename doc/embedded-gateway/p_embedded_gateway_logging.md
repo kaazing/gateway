@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure Logging for an Embedded Gateway
-
 Configure Logging for an Embedded Gateway
 =======================================================================
 

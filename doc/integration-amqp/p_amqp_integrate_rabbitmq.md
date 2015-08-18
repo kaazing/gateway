@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Integrate RabbitMQ Messaging
-
 Integrate RabbitMQ Messaging
 ============================
 
@@ -24,7 +20,7 @@ To Integrate RabbitMQ Messaging
          `./rabbitmq-server`
 
         The output will contain the following:
-         ` Starting broker... completed with 1 plugins.`
+         `Starting broker... completed with 1 plugins`
 
         The RabbitMQ broker is started along with the installed plugin.
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a Ticket Granting Gateway
-
 Configure a Ticket Granting Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =======================================================================================
 
@@ -12,7 +8,7 @@ Before You Begin
 
 This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_kerberos.md)
 2.  [Configure a Ticket Protected Gateway](p_kerberos_configure_ticket_protected_gateway.md)
 3.  **Configure a Ticket Granting Gateway**
 
@@ -24,7 +20,7 @@ To Configure a Ticket Granting Gateway
     ``` xml
     <service>
       <accept>wss://gateway.example.com:9002/kerberos5</accept>
-      <connect>udp://kdc.example.com:88</connect>
+      <connect>tcp://kdc.example.com:88</connect>
       <type>kerberos5.proxy</type>
       <cross-site-constraint>
         <allow-origin>http://gateway.example.com:8000</allow-origin>

@@ -47,7 +47,6 @@ public class HttpProxyPersistenceTest {
     private static final int KEEP_ALIVE_TIMEOUT = 5;
     private static final int KEEP_ALIVE_MAX_CONNECTIONS = 2;
 
-    @Rule
     public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     @Test

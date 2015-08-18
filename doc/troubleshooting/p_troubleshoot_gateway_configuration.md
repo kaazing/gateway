@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Troubleshooting KAAZING Gateway
-
 Troubleshoot KAAZING Gateway Configuration and Startup
 ==================================================================================
 
@@ -25,7 +21,7 @@ What Problem Are You Having?
 -   [Port 8000 or 8001 Is Already in Use](#port-8000-or-8001-is-already-in-use)
 -   [Maximum Number of Connections Reached or Exceeded](#maximum-number-of-connections-reached-or-exceeded)
 -   [Too Many Open Files Warning](#too-many-open-files-warning)
--   [Out of Memory Error When Starting KAAZING Gateway](out-of-memory-error-when-starting-kaazing-gateway)
+-   [Out of Memory Error When Starting KAAZING Gateway](#out-of-memory-error-when-starting-kaazing-gateway)
 -   [Error Starting KAAZING Gateway on the Microsoft Vista Operating System](#error-starting-kaazing-gateway-on-the-microsoft-vista-operating-system)
 -   [Error: Unable to bind to resource: [network address] @ [network address] cause: Address already in use.](#error-unable-to-bind-to-resource-network-address--network-address-cause-address-already-in-use)
 -   [Error When Starting the Gateway: String Value [*'value'*] does not match pattern for DataSize in namespace](#error-when-starting-the-gateway-string-value-value-does-not-match-pattern-for-datasize-in-namespace)
@@ -119,7 +115,7 @@ This exception can be caused by the following conditions:
 -   The port being bound is in use by another external process running on the host, such as an Apache HTTP server.
 -   The port listed in the error has already been bound to another incompatible protocol in the `gateway-config.xml`. For example, you cannot bind HTTP and HTTPS to the same host and port combination.
 
-**Solution:** Check the [*protocol.*bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element in your services (you may need to check the [service-defaults](../admin-reference/r_configure_gateway_service_defaults.md#servicedefaults) section, as well) to ensure that multiple services are not bound to same port. Also, check that secure and unsecure protocols are not bound to the same port.
+**Solution:** Check the [*protocol.*bind](../admin-reference/r_configure_gateway_service.md#protocolbind) element in your services (you may need to check the [service-defaults](../admin-reference/r_configure_gateway_service_defaults.md#service-defaults) section, as well) to ensure that multiple services are not bound to same port. Also, check that secure and unsecure protocols are not bound to the same port.
 
 ### Error When Starting the Gateway: String Value [*'value*'] does not match pattern for DataSize in namespace
 
@@ -127,7 +123,7 @@ This exception can be caused by the following conditions:
 
 ERROR Validation errors in gateway-config.xml ERROR   Line: 15 Column: 33 ERROR   string value '128KB' does not match pattern for DataSizeString in namespace http://xmlns.kaazing.com/2014/09/gateway ERROR   \<xml-fragment xmlns:xsi=["http://www.w3.org/2001/XMLSchema-instance"](http://www.w3.org/2001/XMLSchema-instance)/\>
 
-**Solution:** Set the `maximum.pending.bytes` property of the [proxy](../admin-reference/r_configure_gateway_service.md#proxy-and-amqpproxy) service element to a valid value.
+**Solution:** Set the `maximum.pending.bytes` property of the [proxy](../admin-reference/r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy) service element to a valid value.
 
 ### Warning: Error on WebSocket connection
 

@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a Ticket Protected Gateway
-
 Configure a Ticket Protected Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 ====================================================================================================
 
@@ -12,7 +8,7 @@ Before You Begin
 
 This procedure is part of [Configure Kerberos V5 Network Authentication](o_auth_configure.md):
 
-1.  [Configuring Kerberos V5 Network Authentication Overview](o_auth_configure_config_kerberos.md)
+1.  [Configuring Kerberos V5 Network Authentication Overview](o_kerberos.md)
 2.  **Configure a Ticket Protected Gateway**
 3.  [Configure a Ticket Granting Gateway](p_kerberos_configure_ticket_granting_gateway.md)
 
@@ -61,7 +57,7 @@ To Configure a Ticket Protected Gateway
 Notes
 -----
 
--   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_authentication_kerberos.md#gssapimech).
+-   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_authentication_kerberos.md#how-does-kerberos-spnego-gss-api-work).
 -   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 
 Next Steps

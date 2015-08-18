@@ -47,5 +47,11 @@ rem Create the classpath.
 rem Add a directory for management support
 set JAVA_LIBRARY_PATH=%GW_HOME%\lib\sigar
 
-java %GATEWAY_OPTS% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*
+rem Set the gateway identifier (required by multiple gateway instances)
+set GW_ID=
+if "%GATEWAY_IDENTIFIER%" NEQ "" (
+    set GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=%GATEWAY_IDENTIFIER%"
+)
 
+rem Startup the gateway
+java %GATEWAY_OPTS% %GW_ID% -Djava.library.path="%JAVA_LIBRARY_PATH%" -XX:+HeapDumpOnOutOfMemoryError -cp "%GW_HOME%\lib\*" org.kaazing.gateway.server.WindowsMain %*

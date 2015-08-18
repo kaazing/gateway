@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   General Client Information
-
 General Client Information
 ================================================
 
@@ -23,7 +19,7 @@ This topic contains the following sections:
 Behavior and Configuration Options in the Gateway
 ---------------------------------------------------------------------------
 
-The following Gateway configuration details are of interest to client developers. In the following descriptions, the term *proxying service* is used to mean any service configured on the Gateway that proxies client messages to and from a back-end service, such the [proxy](r_configure_gateway_service.md) service, or a protocol-specific service.
+The following Gateway configuration details are of interest to client developers. In the following descriptions, the term *proxying service* is used to mean any service configured on the Gateway that proxies client messages to and from a back-end service, such the [proxy](../admin-reference/r_configure_gateway_service.md) service, or a protocol-specific service.
 
 ### Proxy Binary Messages
 
@@ -45,7 +41,7 @@ Your client can send and receive Ping and Pong frames (control frames that are u
 
 The Gateway propagates a WebSocket close handshake (a control frame terminating the WebSocket connection, and underlying TCP connection) via any proxying service. For more information on Close frames in WebSocket, see [WebSocket RFC 6455](http://tools.ietf.org/html/rfc6455#section-5.5.1). The close handshake may contain the optional body portion, wherein a reason for the close in the form of a [status code](http://tools.ietf.org/html/rfc6455#section-7.4) is included.
 
-For general information about configuring the Gateway, see [For Administrators](../index.md#admin_topics).
+For general information about configuring the Gateway, see [For Administrators](../index.md#for-administrators).
 
 Reading WebSocket Connection State in the JavaScript and Objective-C WebSocket APIs
 -----------------------------------------------------------------------------------

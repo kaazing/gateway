@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Monitor the Gateway
-
 Monitor the Gateway
 ============================================
 

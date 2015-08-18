@@ -23,6 +23,8 @@ package org.kaazing.gateway.management.monitoring.entity.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Properties;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +42,7 @@ public class AgronaLongMonitoringCounterTest {
 
     @Before
     public void before() {
-        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder();
+        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder(new Properties());
         factory = builder.build();
         counter = factory.makeLongMonitoringCounter("counter");
     }

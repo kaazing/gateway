@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Monitoring KAAZING Gateway
-
 Monitor with Command Center
 ===================================================================================
 

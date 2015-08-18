@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Integrate an Existing Custom Login Module into the Gateway
-
 Integrate an Existing Custom Login Module into the Gateway
 =============================================================================================================
 
