@@ -149,19 +149,9 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         if (!underBaseDir) {
-        	boolean symbolicChecker = Files.isSymbolicLink(requestFile.toPath());
-        	if(symbolicChecker)
-        	{
-        		reportError(session, HttpStatus.CLIENT_NOT_FOUND);
-        	}
-        	else
-        	{
-        		reportError(session, HttpStatus.CLIENT_BAD_REQUEST);
-        		
-        	}
+        	reportError(session, HttpStatus.CLIENT_NOT_FOUND);
         	session.close(false);
         	return;
-        	
         }
 
         // Make another check for the file being a directory, return the welcomeFile
