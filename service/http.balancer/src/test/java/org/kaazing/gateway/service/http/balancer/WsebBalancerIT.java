@@ -78,7 +78,7 @@ public class WsebBalancerIT {
 
     @Test
     @Specification("wse.balancer.request")
-    public void wseBalancerRequest() throws Exception {
+    public void balancerRequestShouldRespondWithRedirect() throws Exception {
         robot.finish();
     }
 
