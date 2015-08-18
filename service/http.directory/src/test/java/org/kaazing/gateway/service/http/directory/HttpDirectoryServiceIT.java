@@ -47,7 +47,7 @@ public class HttpDirectoryServiceIT {
     private static final String KEEPALIVE_DIRECTORY_SERVICE_ACCEPT = "http://localhost:8003/keepAlive";
     private static final String NO_SERVER_HEADER = "http://localhost:8004/";
 	protected static final String SYMLINK_URI = "http://localhost:8700/";
-	private TestRule timeout = new DisableOnDebug(new Timeout(8, SECONDS));
+	private TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private final K3poRule robot = new K3poRule();
 
@@ -259,7 +259,6 @@ public class HttpDirectoryServiceIT {
 
     @Specification("invalid.uri.with.space")
     @Test()
-    
     public void testInvalidUri() throws Exception {
         robot.finish();
     }
@@ -270,21 +269,20 @@ public class HttpDirectoryServiceIT {
         robot.finish();
     }
     
-    @Specification("get.file.directory")
+    @Specification("get.hello.world.file")
     @Test()
     public void testGetHelloWorldFile() throws Exception {
     	robot.finish();
     }
 
     
-    @Specification("request.bad.symlink")
+    @Specification("no.access.file.symlink.returns.404")
     @Test
-    @Ignore("Test being ignored because currently returns 400 for symlink, but should be returning a 404")
     public void testNoAccessFileSymlinkReturns404() throws Exception {
     	robot.finish();
     }
     
-    @Specification("request.allow.symlink")
+    @Specification("file.symlink.returns.200")
     @Test
     @Ignore("Symlink to file in directory service should be allowed, but currently returns a 400")
     public void testFileSymlinkReturns200() throws Exception {
