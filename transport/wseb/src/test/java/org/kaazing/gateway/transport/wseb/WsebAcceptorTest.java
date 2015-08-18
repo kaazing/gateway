@@ -122,7 +122,6 @@ public class WsebAcceptorTest {
     }
 
 
-    @Ignore("Stalling on TravisCI")
     @Test
     public void shouldBindAWsAddress() throws Exception {
         URI location = URI.create("wse://localhost:8000/echo");
