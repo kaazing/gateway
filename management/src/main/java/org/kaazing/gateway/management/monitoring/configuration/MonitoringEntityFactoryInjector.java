@@ -24,8 +24,8 @@ package org.kaazing.gateway.management.monitoring.configuration;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.service.ServiceContext;
 
 /**
  * This interface represents the factory for returning the specific MonitoringEntityFactories
@@ -38,6 +38,6 @@ public interface MonitoringEntityFactoryInjector {
      * @param collection
      * @return the monitoring entity factories
      */
-    ConcurrentHashMap<ServiceContext, MonitoringEntityFactory>
-        makeMonitoringEntityFactories(Collection<? extends ServiceContext> collection);
+    ConcurrentHashMap<MonitoredService, MonitoringEntityFactory>
+        makeMonitoringEntityFactories(Collection<MonitoredService> collection);
 }

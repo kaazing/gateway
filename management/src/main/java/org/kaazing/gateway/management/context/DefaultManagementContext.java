@@ -27,6 +27,7 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -67,6 +68,8 @@ import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
 import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringEntityFactoryInjectorImpl;
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
+import org.kaazing.gateway.management.monitoring.service.impl.MonitoredServiceImpl;
 import org.kaazing.gateway.management.service.CollectOnlyManagementServiceStrategy;
 import org.kaazing.gateway.management.service.FullManagementServiceStrategy;
 import org.kaazing.gateway.management.service.ManagementServiceStrategy;
@@ -251,7 +254,7 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
     // This implementation needs to be passed to the management filter.
-    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> monitoringEntityFactories;
+    private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> monitoringEntityFactories;
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
 
@@ -662,7 +665,11 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         // We create a new monitoring entity factory using the factory injector.
 
         MonitoringEntityFactoryInjector monitoringEntityFactoryInjector = new MonitoringEntityFactoryInjectorImpl(configuration);
-        monitoringEntityFactories = monitoringEntityFactoryInjector.makeMonitoringEntityFactories(gatewayContext.getServices());
+        Collection<MonitoredService> monitoredServices = new HashSet<>();
+        for (ServiceContext service : gatewayContext.getServices()) {
+            monitoredServices.add(new MonitoredServiceImpl(service));
+        }
+        monitoringEntityFactories = monitoringEntityFactoryInjector.makeMonitoringEntityFactories(monitoredServices);
     }
 
     @Override

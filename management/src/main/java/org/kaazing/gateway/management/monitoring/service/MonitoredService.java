@@ -19,13 +19,16 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.writer;
-
+package org.kaazing.gateway.management.monitoring.service;
 
 /**
- * Interface holding specific service writer API
+ * Interface over monitored services
  *
  */
-public interface ServiceWriter  extends CountersWriter {
-
+public interface MonitoredService {
+    /**
+     * Method returning a service's name
+     * @return - service name
+     */
+    String getServiceName();
 }

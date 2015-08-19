@@ -59,6 +59,9 @@ public class MMFSeviceWriter implements ServiceWriter {
         return factory;
     }
 
+    /**
+     * Helper method instantiating a counters manager
+     */
     private void createCountersManager() {
         UnsafeBuffer counterLabelsBuffer = monitorDescriptor.createServiceCounterLabelsBuffer(mappedMonitorFile,
                 metaDataBuffer, index);

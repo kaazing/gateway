@@ -28,12 +28,12 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
 import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
 import org.kaazing.gateway.management.monitoring.writer.impl.MMFGatewayWriter;
 import org.kaazing.gateway.management.monitoring.writer.impl.MMFSeviceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;
@@ -44,14 +44,10 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  */
 public class MMFMonitoringDataManager implements MonitoringDataManager {
 
+    private static final String LINUX = "Linux";
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
     private static final String MONITOR_DIR_NAME = "/kaazing";
-    private static final String MONITOR_FILE_NAME = "monitor";
-    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
-    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = 32 * GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
-    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
-    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = 32 * SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
     private MonitorFileDescriptor monitorDescriptor;
 
     private Properties configuration;
@@ -62,32 +58,31 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     /**
      * TODO: To have a services abstraction passed to this class
      */
-    private Collection<? extends ServiceContext> services;
-    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
+    private Collection<MonitoredService> services;
+    private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
 
-    public MMFMonitoringDataManager(Collection<? extends ServiceContext> services, Properties configuration) {
+    public MMFMonitoringDataManager(Collection<MonitoredService> services, Properties configuration) {
         super();
         this.configuration = configuration;
         this.services = services;
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        monitorDescriptor = new MonitorFileDescriptor(GATEWAY_COUNTER_LABELS_BUFFER_LENGTH,
-                GATEWAY_COUNTER_VALUES_BUFFER_LENGTH, SERVICE_COUNTER_LABELS_BUFFER_LENGTH,
-                SERVICE_COUNTER_VALUES_BUFFER_LENGTH, gatewayId, services);
+        monitorDescriptor = new MonitorFileDescriptor(gatewayId, services);
     }
 
     @Override
-    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize() {
+    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> initialize() {
         // create MMF
         createMonitoringFile();
 
         // create gateway writer
         GatewayWriter gatewayWriter = new MMFGatewayWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer, monitoringDir);
         MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
+        // TODO: Consider passing the gateway counters factory
         //monitoringEntityFactories.put(null, gwCountersFactory);
 
         // create service writer
         int i = 0;
-        for (ServiceContext service : services) {
+        for (MonitoredService service : services) {
             ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
                     monitoringDir, i++);
             MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
@@ -99,7 +94,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
 
     @Override
-    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories() {
+    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> getMonitoringEntityFactories() {
         return monitoringEntityFactories;
     }
 
@@ -111,16 +106,10 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         monitoringDir = new File(monitoringDirName);
 
         String fileName = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        if (fileName.equals("")) {
-            fileName = MONITOR_FILE_NAME;
-        }
         File monitoringFile = new File(monitoringDir, fileName);
         IoUtil.deleteIfExists(monitoringFile);
 
-        int totalLengthOfBuffers =
-                GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
-                services.size() * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-        int fileSize = monitorDescriptor.computeMonitorTotalFileLength(totalLengthOfBuffers);
+        int fileSize = monitorDescriptor.computeMonitorTotalFileLength();
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
         metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
@@ -152,7 +141,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private String getMonitoringDirName() {
         String monitoringDirName = IoUtil.tmpDirName() + MONITOR_DIR_NAME;
 
-        if ("Linux".equalsIgnoreCase(System.getProperty(OS_NAME_SYSTEM_PROPERTY))) {
+        if (LINUX.equalsIgnoreCase(System.getProperty(OS_NAME_SYSTEM_PROPERTY))) {
             final File devShmDir = new File(LINUX_DEV_SHM_DIRECTORY);
 
             if (devShmDir.exists()) {

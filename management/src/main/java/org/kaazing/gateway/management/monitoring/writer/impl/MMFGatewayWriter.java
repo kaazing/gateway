@@ -56,6 +56,9 @@ public class MMFGatewayWriter implements GatewayWriter {
         return factory;
     }
 
+    /**
+     * Helper method instantiating a counters manager
+     */
     private void createCountersManager() {
         UnsafeBuffer counterLabelsBuffer = monitorDescriptor.createGatewayCounterLabelsBuffer(mappedMonitorFile,
                 metaDataBuffer);

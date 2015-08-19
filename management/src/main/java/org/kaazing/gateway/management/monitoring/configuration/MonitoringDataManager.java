@@ -23,8 +23,8 @@ package org.kaazing.gateway.management.monitoring.configuration;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.service.ServiceContext;
 
 /**
  * This interface represents the abstraction layer for creating the monitoring entity factories {@link MonitoringEntityFactory},
@@ -36,11 +36,11 @@ public interface MonitoringDataManager {
      * Method initializing data manager
      * @return the monitoring entity factory list
      */
-    ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize();
+    ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> initialize();
 
     /**
      * Method returning monitoring entity factories
      * @return
      */
-    ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories();
+    ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> getMonitoringEntityFactories();
 }

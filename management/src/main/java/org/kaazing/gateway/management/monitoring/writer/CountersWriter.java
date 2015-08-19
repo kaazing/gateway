@@ -21,11 +21,18 @@
 
 package org.kaazing.gateway.management.monitoring.writer;
 
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
  * Interface holding specific service writer API
  *
  */
-public interface ServiceWriter  extends CountersWriter {
+public interface CountersWriter {
+
+    /**
+     * Method creating a writers factory
+     * @return
+     */
+    MonitoringEntityFactory writeCountersFactory();
 
 }

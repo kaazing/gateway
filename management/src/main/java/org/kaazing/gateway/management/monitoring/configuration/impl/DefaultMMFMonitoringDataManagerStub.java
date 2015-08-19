@@ -26,28 +26,28 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.service.ServiceContext;
 
 public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
 
-    private Collection<? extends ServiceContext> services;
-    private ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
+    private Collection<MonitoredService> services;
+    private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
 
-    public DefaultMMFMonitoringDataManagerStub(Collection<? extends ServiceContext> services) {
+    public DefaultMMFMonitoringDataManagerStub(Collection<MonitoredService> services) {
         this.services = services;
     }
 
     @Override
-    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> initialize() {
-        for (ServiceContext service : services) {
+    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> initialize() {
+        for (MonitoredService service : services) {
             chm.put(service, new DefaultMonitoringEntityFactoryStub());
         }
         return chm;
     }
 
     @Override
-    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory> getMonitoringEntityFactories() {
+    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> getMonitoringEntityFactories() {
         return chm;
     }
 

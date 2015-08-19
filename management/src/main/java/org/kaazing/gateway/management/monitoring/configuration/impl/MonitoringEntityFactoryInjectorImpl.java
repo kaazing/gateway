@@ -27,8 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFactoryInjector {
@@ -43,8 +43,8 @@ public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFact
     }
 
     @Override
-    public ConcurrentHashMap<ServiceContext, MonitoringEntityFactory>
-                makeMonitoringEntityFactories(Collection<? extends ServiceContext> services) {
+    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory>
+                makeMonitoringEntityFactories(Collection<MonitoredService> services) {
         MonitoringDataManager monitoringManager;
 
         if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
