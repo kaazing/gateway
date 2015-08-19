@@ -44,7 +44,7 @@ public class MonitoringEntityFactoryInjectorImpl implements MonitoringEntityFact
         MonitoringEntityFactoryBuilder factoryBuilder;
 
         if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
-            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder();
+            factoryBuilder = new AgronaMonitoringEntityFactoryBuilder(configuration);
         }
         else {
             factoryBuilder = new DefaultMonitoringEntityFactoryBuilderStub();

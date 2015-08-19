@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Documentation Conventions
-
 Documentation Conventions
 ================================================
 
@@ -10,8 +6,8 @@ This topic contains the following sections:
 -   [About URI Syntax](#about-uri-syntax)
 -   [About Domain Names](#about-domain-names)
 -   [About Ports](#about-ports)
--   [About KAAZING\_HOME](#about-kaazing_home)
--   [About GATEWAY\_HOME](#about-gateway_home)
+-   [About KAAZING_HOME](#about-kaazing_home)
+-   [About GATEWAY_HOME](#about-gateway_home)
 
 Text Conventions
 ---------------------------------------------
@@ -43,7 +39,7 @@ For example, the following URI schemes are used in the documentation:
 
 `sse://localhost:8000/sse`
 
--   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_configure_gateway_service.md#note_supportedURLschemes) for the complete list.
+-   The **scheme** describes how to connect and is sometimes referred to as the protocol. When specifying URIs in a Gateway configuration, you can use `tcp://{hostname}:{port}` to make a basic TCP connection, or specify any of the supported schemes such as http, https, ws, wss, sse, and so on. See the [supported URI schemes](../admin-reference/r_configure_gateway_service.md#supported-url-schemes) for the complete list.
 -   The **host** specifies where to connect and can be a hostname or domain name, or an IP address.
 -   The **port** specifies the port number to ask for. This portion of the URI scheme is optional if you are using a default port, such as port 80 for http or port 443 for https. For example, when using the http scheme you do not need to specify port 80.
 -   The **path** refers to the path of the resource. At a minimum you must specify the root path (`/`). Thus, `http://example.com/` is a legal address, but `http://example.com` is not, even though in practice the final slash "`/`” is added automatically.
@@ -60,7 +56,7 @@ Many examples in the documentation use the `.net domain` (such as `tcp://gateway
 
 -   [Service Reference](../admin-reference/r_configure_gateway_service.md) for information about specifying URLs with the accept and connect elements.
 -   Wikipedia description of [URI Scheme](http://en.wikipedia.org/wiki/URI_scheme)
--   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_configure_gateway_multiple_services.md#configmultsrvcs)
+-   [Configuring Multiple Services on the Same Host and Port](../admin-reference/c_configure_gateway_multiple_services.md)
 
 About Ports
 ------------------------------------
@@ -87,14 +83,14 @@ The following table lists ports that are commonly used in the documentation.
 | 61616-61617 | Default Apache ActiveMQ TCP and SSL ports                                                                                                  |
 | 61222       | Default Apache ActiveMQ XMPP port                                                                                                          |
 
-About KAAZING\_HOME
+About KAAZING_HOME
 ---------------------------------------------
 
-By default, when you install or upgrade KAAZING Gateway, the `_KAAZING\_HOME_` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as *GATEWAY\_HOME*)   and Gateway components. The value of *GATEWAY\_HOME* depends on the operating system. See [About GATEWAY\_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
+By default, when you install or upgrade KAAZING Gateway, the `KAAZING_HOME` directory is created. This top-level directory contains the KAAZING Gateway directory (referred to as `GATEWAY_HOME`)   and Gateway components. The value of `GATEWAY_HOME` depends on the operating system. See [About GATEWAY_HOME](#about-gateway_home) to learn more about Gateway directory destinations.
 
 This documentation assumes you are running the Gateway from the default location. You may override the default and install KAAZING Gateway into a directory of your choice.
 
-About GATEWAY\_HOME
+About GATEWAY_HOME
 ---------------------------------------------
 
 This is the directory that contains KAAZING Gateway and its components. The default Gateway home is represented in the documentation as `GATEWAY_HOME` because the actual directory destination depends on your operating system and the method you use to install the Gateway:

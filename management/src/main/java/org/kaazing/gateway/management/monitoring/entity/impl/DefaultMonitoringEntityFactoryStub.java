@@ -26,13 +26,15 @@ import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntity
 
 public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
 
+    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
+
     @Override
     public void close() {
     }
 
     @Override
     public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return new DefaultLongMonitoringCounterStub();
+        return COUNTER_STUB;
     }
 
 }

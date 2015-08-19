@@ -100,11 +100,26 @@ public enum InternalSystemProperty {
     MANAGEMENT_SESSION_THRESHOLD
             ("org.kaazing.gateway.management.SESSION_THRESHOLD", "500"),
 
+    MANAGEMENT_MESSAGE_COUNT_DISABLED
+            ("com.kaazing.gateway.management.MESSAGE_COUNT_DISABLED"),
+
+    MANAGEMENT_SUMMARY_DATA_LIMIT
+            ("com.kaazing.gateway.management.SUMMARY_DATA_LIMIT", "100"),
+
     /**
      * Internal system property describing whether Agrona is enabled or not
      */
     AGRONA_ENABLED
-            ("org.kaazing.gateway.management.AGRONA_ENABLED", "false");
+            ("org.kaazing.gateway.management.AGRONA_ENABLED", "false"),
+
+    /**
+     * Gateway identifier property. This should be set for each gateway instance in order to
+     * uniquely identify each gateway instance based on a business id.
+     *
+     * The gateway identifiers should be different for each gateway.
+     */
+    GATEWAY_IDENTIFIER
+            ("org.kaazing.gateway.server.GATEWAY_IDENTIFIER", "");
 
     private final String name;
     private final String defaultValue;

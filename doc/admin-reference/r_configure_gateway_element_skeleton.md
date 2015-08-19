@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Skeleton
 ============================================
 
@@ -17,8 +13,6 @@ You can view and link to all Gateway configuration elements and properties using
         -   [accept](r_configure_gateway_service.md#accept)
         -   [connect](r_configure_gateway_service.md#connect)
         -   [balance](r_configure_gateway_service.md#balance)
-        -   [notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-
         -   [type](r_configure_gateway_service.md#type)
             -   [balancer](r_configure_gateway_service.md#balancer)
             -   [broadcast](r_configure_gateway_service.md#broadcast)
@@ -54,15 +48,9 @@ You can view and link to all Gateway configuration elements and properties using
                 -   [prepared.connection.count](r_configure_gateway_service.md#preparedconnectioncount)
                 -   [virtual.host](r_configure_gateway_service.md#virtualhost)
 
-            -   [jms](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
-            -   [jms.proxy](https://github.com/kaazing/enterprise.gateway/blob/develop/doc/admin-reference/r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-                Properties:
-
-                -   [maximum.pending.bytes](r_configure_gateway_service.md#maximumpendingbytes)
-                -   [maximum.recovery.interval](r_configure_gateway_service.md#maximumrecoveryinterval)
-                -   [prepared.connection.count](r_configure_gateway_service.md#preparedconnectioncount)
-            -   [session](r_configure_gateway_service.md#session_svc)
+            -   [jms](r_conf_jms.md#jms) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png) 
+            -   [jms.proxy](r_conf_jms.md#jmsproxy)  ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+			-   [http.proxy](r_configure_gateway_service.md#httpproxy)
 
         -   [properties](r_configure_gateway_service.md#properties)
         -   [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options)
@@ -88,30 +76,26 @@ You can view and link to all Gateway configuration elements and properties using
             -   [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
             -   [ssl.encryption](r_configure_gateway_service.md#sslencryption)
             -   [socks.mode](r_configure_gateway_service.md#socksmode) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [socks.timeout](r_configure_gateway_service.md#conn_sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
+            -   [socks.timeout](r_configure_gateway_service.md#sockstimeout) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.ciphers](r_configure_gateway_service.md#sockssslciphers) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [socks.ssl.verify-client](r_configure_gateway_service.md#sockssslverify-client) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
             -   [ws.version](r_configure_gateway_service.md#wsversion-deprecated) (deprecated)
-        -   [notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
-            -   [apns.feedback.transport](r_configure_gateway_service.md#notify-options)
-            -   [ssl.ciphers](r_configure_gateway_service.md#notify-options)
-            -   [tcp.transport](r_configure_gateway_service.md#notify-options)
         -   [realm-name](r_configure_gateway_service.md#realm-name)
         -   [authorization-constraint](r_configure_gateway_service.md#authorization-constraint)
             -   [require-role](r_configure_gateway_service.md#authorization-constraint)
             -   [require-valid-user](r_configure_gateway_service.md#authorization-constraint)
-        -   [mime-mapping](r_configure_gateway_service.md#mime-mapping)
-            -   [extension](r_configure_gateway_service_defaults.md#mime-mapping)
-            -   [mime-type](r_configure_gateway_service_defaults.md#mime-mapping)
+        -   [mime-mapping](r_configure_gateway_service.md)
+            -   [extension](r_configure_gateway_service_defaults.md)
+            -   [mime-type](r_configure_gateway_service_defaults.md)
         -   [cross-site-constraint](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-origin](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-methods](r_configure_gateway_service.md#cross-site-constraint)
             -   [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
+            -   [maximum-age](r_configure_gateway_service.md#cross-site-constraint)
     -   [service-defaults](r_configure_gateway_service_defaults.md)
-        -   [accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults)
+        -   [accept-options](r_configure_gateway_service_defaults.md)
             -   [*protocol*.bind](r_configure_gateway_service.md#protocolbind), where *protocol* can be ws, wss, http, https, ssl, socks, tcp, or udp
             -   [*protocol*.transport](r_configure_gateway_service.md#protocoltransport), where *protocol* can be pipe, tcp, ssl, or http
             -   [ws.maximum.message.size](r_configure_gateway_service.md#wsmaximummessagesize)
@@ -128,9 +112,9 @@ You can view and link to all Gateway configuration elements and properties using
             -   [tcp.maximum.outbound.rate](r_configure_gateway_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
             -   [ws.inactivity.timeout](r_configure_gateway_service.md#wsinactivitytimeout)
             -   [http.server.header](r_configure_gateway_service.md#httpserverheader)
-        -   [mime-mapping](r_configure_gateway_service_defaults.md#mime-mapping)
-            -   [extension](r_configure_gateway_service_defaults.md#mime-mapping)
-            -   [mime-type](r_configure_gateway_service_defaults.md#mime-mapping)
+        -   [mime-mapping](r_configure_gateway_service_defaults.md)
+            -   [extension](r_configure_gateway_service_defaults.md)
+            -   [mime-type](r_configure_gateway_service_defaults.md)
     -   [security](r_configure_gateway_security.md)
         -   [keystore](r_configure_gateway_security.md#keystore)
             -   [type](r_configure_gateway_security.md#keystore)

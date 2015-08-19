@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Configure a KAAZING Gateway Cluster
-
 Configure a KAAZING Gateway Cluster
 =======================================================================================
 

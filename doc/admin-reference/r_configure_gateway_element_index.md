@@ -1,7 +1,3 @@
--   [Home](../../index.md)
--   [Documentation](../index.md)
--   Administration with KAAZING Gateway
-
 Configuration Element Index
 ===========================
 
@@ -18,7 +14,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [accept-options](r_configure_gateway_service.md#accept-options-and-connect-options) (service)
 
-[accept-options](r_configure_gateway_service_defaults.md#accept-options-service-defaults) (service-defaults)
+[accept-options](r_configure_gateway_service_defaults.md#service-defaults) (service-defaults)
 
 [allow-headers](r_configure_gateway_service.md#cross-site-constraint)
 
@@ -27,10 +23,6 @@ You can view and link to all Gateway configuration elements and properties using
 [allow-origin](r_configure_gateway_service.md#cross-site-constraint)
 
 [amqp.proxy](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
-
-[apns.feedback.transport](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-[apns.feedback.transport](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [authentication](r_configure_gateway_security.md#authentication)
 
@@ -70,7 +62,7 @@ You can view and link to all Gateway configuration elements and properties using
 
 [error-pages-directory](r_configure_gateway_service.md#directory)
 
-[extension](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults)
+[extension](r_configure_gateway_service_defaults.md)
 
 [file](r_configure_gateway_security.md#keystore) (keystore)
 
@@ -87,6 +79,8 @@ You can view and link to all Gateway configuration elements and properties using
 [http-header](r_configure_gateway_security.md#authentication)
 
 [http.keepalive.timeout](r_configure_gateway_service.md#httpkeepalivetimeout)
+
+[http.proxy](r_configure_gateway_service.md#httpproxy)
 
 [http-query-parameter](r_configure_gateway_security.md#authentication)
 
@@ -112,25 +106,23 @@ You can view and link to all Gateway configuration elements and properties using
 
 [management.snmp](r_configure_gateway_service.md#managementsnmp)
 
+[maximum-age](r_configure_gateway_service.md#cross-site-constraint)
+
 [maximum.pending.bytes](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [maximum.recovery.interval](r_configure_gateway_service.md#proxy-amqpproxy-and-jmsproxy)
 
 [mime-mapping](r_configure_gateway_service.md#mime-mapping) (service)
 
-[mime-mapping](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults) (service defaults)
+[mime-mapping](r_configure_gateway_service_defaults.md) (service defaults)
 
-[mime-type](r_configure_gateway_service_defaults.md#mime-mapping-service-defaults)
+[mime-type](r_configure_gateway_service_defaults.md)
 
 [name](r_configure_gateway_cluster.md#cluster) (cluster)
 
 [name](r_configure_gateway_security.md#realm) (security)
 
 [name](r_configure_gateway_service.md#service) (service)
-
-[notify](r_configure_gateway_service.md#notify) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
-[notify-options](r_configure_gateway_service.md#notify-options) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [options](r_configure_gateway_service.md#directory) (directory)
 
@@ -162,8 +154,6 @@ You can view and link to all Gateway configuration elements and properties using
 
 [service-defaults](r_configure_gateway_service_defaults.md)
 
-[session](r_configure_gateway_service.md#session)
-
 [session-timeout](r_configure_gateway_security.md#authentication) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [socks.bind](r_configure_gateway_service.md#protocolbind) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
@@ -186,8 +176,6 @@ You can view and link to all Gateway configuration elements and properties using
 
 [ssl.ciphers](r_configure_gateway_service.md#sslciphers)
 
-[ssl.ciphers](r_configure_gateway_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
-
 [ssl.encryption](r_configure_gateway_service.md#sslencryption)
 
 [ssl.protocols](r_configure_gateway_service.md#sslprotocols-and-sockssslprotocols)
@@ -203,8 +191,6 @@ You can view and link to all Gateway configuration elements and properties using
 [tcp.maximum.outbound.rate](r_configure_gateway_service.md#tcpmaximumoutboundrate) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [tcp.transport](r_configure_gateway_service.md#protocoltransport)
-
-[tcp.transport](r_configure_gateway_service.md#notify-options) (notify-options only) ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 
 [truststore](r_configure_gateway_security.md#truststore)
 
