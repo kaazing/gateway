@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.transport.wsn;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +37,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -151,6 +157,9 @@ public class WsnBindingsTest {
         tcpAcceptor.dispose();
         schedulerProvider.shutdownNow();
     }
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Before
     public void init() throws Exception {
