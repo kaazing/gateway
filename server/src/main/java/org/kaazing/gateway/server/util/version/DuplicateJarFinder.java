@@ -70,6 +70,7 @@ public class DuplicateJarFinder {
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
         String jarName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
         if (isKaazingProduct(jarName)) {
+            jarName = jarName.replace("com.kaazing:", "").replace("com.kaazing:", "");
             logJarVersion(version, jarName);
             checkDuplicateJar(jarName);
         }
