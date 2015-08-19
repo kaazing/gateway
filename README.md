@@ -89,3 +89,4 @@ To view demo client applications running against the Gateway, visit [kaazing.org
 # Contact
 
 The [Gateway Gitter room](https://gitter.im/kaazing/gateway) is the easiest way to contact the developers who maintain the project.
+
