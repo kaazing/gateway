@@ -24,6 +24,7 @@ package org.kaazing.gateway.service.http.directory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -90,12 +91,12 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     public void doSessionCreated(HttpAcceptSession session) throws Exception {
-    	// NOOP no license check needed
+
     }
 
     @Override
     public void doSessionClosed(HttpAcceptSession session) throws Exception {
-    	// NOOP no license check needed
+
     }
 
     @Override
@@ -148,7 +149,7 @@ class HttpDirectoryServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         if (!underBaseDir) {
-            reportError(session, HttpStatus.CLIENT_BAD_REQUEST);
+            reportError(session, HttpStatus.CLIENT_NOT_FOUND);
             session.close(false);
             return;
         }

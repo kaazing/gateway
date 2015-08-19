@@ -20,17 +20,10 @@
 #
 
 # get.nonexistent.page.check.status.code.404
-connect tcp://localhost:8000
+connect http://localhost:8000/nonexistentpage.html
 connected
 
-write "GET /nonexistentpage.html HTTP/1.1\r\n"
-write "Host: localhost:8000\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:8.0) Gecko/20100101 Firefox/8.0\r\n"
-write "Accept: text/html, application/xhtml+xml, application/xml;q=0.9,*/*;q=0.8\r\n\r\n"
-write notify BARRIER
+write method "GET"
 
-#We need to wait for all the data to be written first
-read await BARRIER
-read "HTTP/1.1 404"
+read status "404" "Not Found"
 
-close
-closed

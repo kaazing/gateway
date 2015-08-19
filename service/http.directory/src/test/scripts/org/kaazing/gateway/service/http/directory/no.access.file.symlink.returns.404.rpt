@@ -1,0 +1,6 @@
+connect http://localhost:8700/link
+connected
+
+write method "GET"
+
+read status "404" "Not Found"
