@@ -68,7 +68,7 @@ public class WsebAcceptorTest {
     private WsAcceptor wsAcceptor;
 
     @Rule
-    private TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+    public TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Before
     public void init() {
