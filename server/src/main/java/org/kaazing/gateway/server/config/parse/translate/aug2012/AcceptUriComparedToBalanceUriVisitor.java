@@ -19,7 +19,9 @@
  * under the License.
  */
 
-package org.kaazing.gateway.server.config.parse.translate.sep2014;
+package org.kaazing.gateway.server.config.parse.translate.aug2012;
+
+import static java.lang.String.format;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,13 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
-import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static java.lang.String.format;
+
+import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 
 /**
  * Compares the accept URIs to the balance URIs on a service to ensure they differ by hostname only. In order to ease
@@ -124,8 +127,7 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
         }
 
         // validate that each acceptURI matches the appropriate balance URIs in all but hostname (appropriate in this
-        // case
-        // means "ws"
+        // case means "ws"
         // compares with "ws" and "wss" compares with "wss", etc.)
         for (String balanceScheme : processedBalanceElements.keySet()) {
             List<ParameterizedURI> balanceURIs = processedBalanceElements.get(balanceScheme);
@@ -146,24 +148,20 @@ public class AcceptUriComparedToBalanceUriVisitor extends AbstractVisitor {
                             logger.debug(msg);
                         }
                     } else {
-                        throw new RuntimeException(format(
-                                "Accept URI: %s does not match balance URI %s in all but hostname.  "
-                                        + "Unable to launch Gateway.", acceptURI.getOriginalURI(),
-                                balanceURI.getOriginalURI()));
+                        throw new RuntimeException(
+                        format("Accept URI: %s does not match balance URI %s in all but hostname.  Unable to launch Gateway.",
+                                        acceptURI.getOriginalURI(), balanceURI.getOriginalURI()));
                     }
                 }
             }
         }
 
         // validate that each balanceURI matches the appropriate acceptURIs in all but hostname (appropriate in this
-        // case means
-        // "ws"
+        // case means "ws"
         // compares with "ws" and "wss" compares with "wss", etc.). This is the second pass through as a two-way match
-        // is
-        // required.
+        // is required.
         // The first is to check that for each balance scheme present on the service there are matching accepts. The
-        // second is
-        // for
+        // second is for
         // each accept scheme present on the service there are matching balance tags.
         for (String acceptScheme : processedAcceptElements.keySet()) {
             List<ParameterizedURI> acceptURIs = processedAcceptElements.get(acceptScheme);

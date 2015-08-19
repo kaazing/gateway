@@ -21,38 +21,48 @@
 
 package org.kaazing.gateway.server.config.parse.translate;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+import java.util.ListIterator;
+
 import org.jdom.Document;
-import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
+import org.jdom.Element;
+import org.jdom.filter.ElementFilter;
 
-/**
- * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
- * {@link GatewayConfigParser}
- */
-public class GatewayConfigTranslatorPipeline
-        implements GatewayConfigTranslator {
+public class RemoveElementVisitor extends AbstractVisitor {
 
-    private List<GatewayConfigTranslator> translators;
+    private String name;
 
-    public GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<GatewayConfigTranslator>(1);
+    public RemoveElementVisitor() {
+        super();
     }
 
-    public GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
-        translators.add(translator);
-        return this;
+    public RemoveElementVisitor(final String name) {
+        super();
+        setName(name);
     }
 
-    void removeTranslator(GatewayConfigTranslator translator) {
-        translators.remove(translator);
+    public void setName(final String name) {
+        this.name = name;
     }
 
-    public void translate(Document dom)
-            throws Exception {
+    @Override
+    public void visit(Element elt) {
+        Element parent = elt.getParentElement();
+        parent.removeContent(elt);
+    }
 
-        for (GatewayConfigTranslator translator : translators) {
-            translator.translate(dom);
+    @Override
+    public void translate(Document dom) throws Exception {
+
+        Element root = dom.getRootElement();
+
+        ElementFilter nameFilter = new ElementFilter(name);
+        Iterator iter = root.getDescendants(nameFilter);
+        ListIterator<Element> listIter = toListIterator(iter);
+
+        while (listIter.hasNext()) {
+            Element elt = listIter.next();
+            visit(elt);
         }
     }
 }

@@ -25,6 +25,7 @@ import static java.util.ServiceLoader.load;
 
 import java.util.ServiceLoader;
 
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTranslatorFactorySpi;
 
@@ -65,16 +66,16 @@ public class GatewayConfigTranslatorFactory {
     private static GatewayConfigTranslatorFactory newInstance(ServiceLoader<GatewayConfigTranslatorFactorySpi> services) {
         return new GatewayConfigTranslatorFactory(services);
     }
-    
+
     /**
      * Given an incoming namespace, return the translator pipeline
      * to translate a document with that namespace up to the 'current' format.
      *
      * @param ns
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
-    public GatewayConfigTranslator getTranslator(String namespace) throws Exception {
+    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace namespace) throws Exception {
         GatewayConfigTranslator result = null;
         for (GatewayConfigTranslatorFactorySpi factory : services) {
             result = factory.getTranslator(namespace);

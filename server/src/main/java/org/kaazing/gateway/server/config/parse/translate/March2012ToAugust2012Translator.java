@@ -19,25 +19,15 @@
  * under the License.
  */
 
-package org.kaazing.gateway.server.config.parse.translate.spi;
+package org.kaazing.gateway.server.config.parse.translate;
 
 import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
-import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
-import org.kaazing.gateway.server.config.parse.translate.GatewayConfigTranslator;
 
-/**
- * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
- * {@link GatewayConfigParser}
- */
-public interface GatewayConfigTranslatorFactorySpi {
 
-    /**
-     * Given an incoming namespace, return the translator pipeline
-     * to translate a document with that namespace up to the 'current' format.
-     *
-     * @param namespace  A namespace like "http://xmlns.kaazing.org/2014/09/gateway"
-     * @return A translator to handle the namespace, or
-     */
-    GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns);
+public class March2012ToAugust2012Translator extends GatewayConfigTranslatorPipeline {
 
+    public March2012ToAugust2012Translator() {
+        super();
+        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.AUGUST_2012));
+    }
 }

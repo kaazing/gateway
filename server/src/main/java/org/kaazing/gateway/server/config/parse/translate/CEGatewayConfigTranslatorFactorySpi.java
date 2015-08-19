@@ -21,8 +21,7 @@
 
 package org.kaazing.gateway.server.config.parse.translate;
 
-import static org.kaazing.gateway.server.config.parse.GatewayConfigNamespace.CURRENT_NS;
-
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTranslatorFactorySpi;
 
@@ -34,7 +33,8 @@ public class CEGatewayConfigTranslatorFactorySpi implements GatewayConfigTransla
 
     private static final CEGatewayConfigTranslatorFactorySpi instance = new CEGatewayConfigTranslatorFactorySpi();
 
-    protected CEGatewayConfigTranslatorFactorySpi() {
+    public CEGatewayConfigTranslatorFactorySpi() {
+
     }
 
     public static CEGatewayConfigTranslatorFactorySpi getInstance() {
@@ -48,11 +48,11 @@ public class CEGatewayConfigTranslatorFactorySpi implements GatewayConfigTransla
      * @param ns
      * @return
      */
-    public GatewayConfigTranslator getTranslator(String ns) {
+    public GatewayConfigTranslator getTranslator(GatewayConfigNamespace ns) {
         // First, we create our pipeline composite
         GatewayConfigTranslatorPipeline result = null;
 
-        if (ns.equals(CURRENT_NS)) {
+        if (ns.equals(GatewayConfigNamespace.CURRENT_NS)) {
                 // Currently no per-namespace translator to add in here, just validate
                 result = new GatewayConfigTranslatorPipeline();
                 GatewayConfigTranslator september2014Validator = new September2014Validator();

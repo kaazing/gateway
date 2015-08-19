@@ -19,17 +19,19 @@
  * under the License.
  */
 
-package org.kaazing.gateway.server.config.parse.translate.sep2014;
+package org.kaazing.gateway.server.config.parse.translate.aug2012;
+
+import static java.lang.String.format;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
-import static java.lang.String.format;
 
 /**
  * For each balance URI on a service, make sure there is a matching balancer service accept URI.
@@ -67,8 +69,8 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
 
         String type = typeElement.getValue();
         if ("balancer".equals(type)) {
-            // If there are balance elements, get the accept elements from the service element (same namespace as the service
-            // element)
+            // If there are balance elements, get the accept elements from the service element (same namespace as the
+            // service element)
             List<Element> acceptElements = element.getChildren(ACCEPT_URI_ELEMENT, element.getNamespace());
             for (Element acceptElement : acceptElements) {
                 balancerAcceptURIs.add(acceptElement.getValue());
@@ -94,8 +96,8 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         for (String balanceURI : balanceURIs) {
             if (!balancerAcceptURIs.contains(balanceURI)) {
                 throw new RuntimeException(
-                        format("balance URI: %s does not point to a balancer service's accept URI in the configuration file, " +
-                                        "unable to launch the Gateway",
+                     format("balance URI: %s does not point to a balancer service's accept URI in the configuration file,"
+                                + " unable to launch the Gateway",
                                 balanceURI));
             }
         }
@@ -104,9 +106,8 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
         for (String balancerAcceptURI : balancerAcceptURIs) {
             if (!balanceURIs.contains(balancerAcceptURI)) {
                 throw new RuntimeException(
-                        format("Detected orphaned balancer accept URI: %s, no balance URIs in the configuration file point to " +
-                                        "this balancer service.  Unable to launch the Gateway.",
-                                balancerAcceptURI));
+                     format("Detected orphaned balancer accept URI: %s, no balance URIs in the configuration file point to this "
+                                + "balancer service.  Unable to launch the Gateway.", balancerAcceptURI));
             }
         }
     }

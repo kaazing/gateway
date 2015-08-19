@@ -18,41 +18,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.kaazing.gateway.server.config.parse.translate;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.jdom.Document;
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 
 /**
- * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
+ * Classes which translate/transform an 2012/09/gateway config file DOM into
+ * a 2014/09/gateway config file DOM.  These classes are used by the
  * {@link GatewayConfigParser}
  */
-public class GatewayConfigTranslatorPipeline
-        implements GatewayConfigTranslator {
+public class September2012ToSeptember2014Translator
+    extends GatewayConfigTranslatorPipeline {
 
-    private List<GatewayConfigTranslator> translators;
+    public September2012ToSeptember2014Translator() {
+        super();
 
-    public GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<GatewayConfigTranslator>(1);
-    }
-
-    public GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
-        translators.add(translator);
-        return this;
-    }
-
-    void removeTranslator(GatewayConfigTranslator translator) {
-        translators.remove(translator);
-    }
-
-    public void translate(Document dom)
-            throws Exception {
-
-        for (GatewayConfigTranslator translator : translators) {
-            translator.translate(dom);
-        }
+        // Set the August 2012 namespace.  Add this to the end of the pipeline,
+        // so that any nodes that are added will have the correct namespace set.
+        addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
     }
 }

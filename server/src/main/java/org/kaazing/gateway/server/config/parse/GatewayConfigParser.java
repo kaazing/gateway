@@ -21,8 +21,6 @@
 
 package org.kaazing.gateway.server.config.parse;
 
-import static org.kaazing.gateway.server.config.parse.GatewayConfigNamespace.CURRENT_NS;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -120,14 +118,14 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-    private void translate(final String ns,
+    private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
                            final File translatedConfigFile)
             throws Exception {
         translate(ns, dom, translatedConfigFile, false);
     }
 
-    private void translate(final String ns,
+    private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
                            final File translatedConfigFile,
                            boolean writeTranslatedFile)
@@ -171,11 +169,11 @@ public class GatewayConfigParser {
         SAXBuilder xmlReader = new SAXBuilder();
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
-        String namespace = root.getNamespace().getURI();
+        GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
 
-        boolean writeTranslatedFile = !namespace.equals(CURRENT_NS);
-        File translatedConfigFile = writeTranslatedFile ? 
-            new File(configFile.getParent(), configFile.getName() + TRANSLATED_CONFIG_FILE_EXT) : configFile; 
+        boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
+        File translatedConfigFile = writeTranslatedFile ?
+            new File(configFile.getParent(), configFile.getName() + TRANSLATED_CONFIG_FILE_EXT) : configFile;
         translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
 
         return translatedConfigFile;
@@ -237,7 +235,6 @@ public class GatewayConfigParser {
             config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
 
         } catch (Exception e) {
-
             // track the parse error so that we don't make the 2nd pass through the file
             xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
         }
@@ -283,7 +280,9 @@ public class GatewayConfigParser {
             try {
                 config = GatewayConfigDocument.Factory.parse(xmlTransformedIn, parseOptions);
             } catch (Exception e) {
-                try {
+                // If parsing with previous namespace was also unsuccessful,
+                // process errors top down, failing fast, for user level errors
+               try {
                     if (xmlInjectedFuture.get()) {
                         if (xmlTransformedFuture.get()) {
                             throw e;
@@ -380,7 +379,7 @@ public class GatewayConfigParser {
                         LOGGER.error("  Line: " + line + " Column: " + column);
                     }
                 }
-                LOGGER.error("  " + error.getMessage().replaceAll("@" + CURRENT_NS, ""));
+                LOGGER.error("  " + error.getMessage().replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
                 if (error.getMessage().contains("DataRateString")) {
                     // Yeah, it's crude, but customers are going to keep tripping over cases like 100KB/s being invalid otherwise
                     // Example output:
@@ -585,6 +584,8 @@ public class GatewayConfigParser {
 
                 };
                 parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+                parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
+                        new Integer(souceInput.available()));
                 parser.parse(souceInput, handler);
             } finally {
                 close();
