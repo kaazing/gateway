@@ -652,7 +652,9 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     if (!session.isClosing()) {
                         IoSession tcpBridgeSession = getTcpBridgeSession(session);
-                        tcpBridgeSession.getFilterChain().fireExceptionCaught(cause);
+                        if (tcpBridgeSession != null) {
+                            tcpBridgeSession.getFilterChain().fireExceptionCaught(cause);
+                        }
                     } else {
                         LOG.debug("Unexpected exception while session is closing", cause);
                     }

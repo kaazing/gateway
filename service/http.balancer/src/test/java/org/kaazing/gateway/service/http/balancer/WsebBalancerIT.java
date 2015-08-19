@@ -19,7 +19,8 @@
  * under the License.
  */
 
-package org.kaazing.gateway.service.http.proxy;
+package org.kaazing.gateway.service.http.balancer;
+
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,42 +32,54 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.rules.RuleChain.outerRule;
 
-public class HttpProxyHeadersIT {
+public class WsebBalancerIT {
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
-    private final TestRule trace = new MethodExecutionTrace();
-    private final K3poRule k3po = new K3poRule();
+    private final K3poRule robot = new K3poRule();
+
+    private final TestRule timeout = new DisableOnDebug(new Timeout(10, TimeUnit.SECONDS));
+
     private final GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept(URI.create("http://localhost:8110"))
-                            .connect(URI.create("http://localhost:8080"))
-                            .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                            .done()
-                    .done();
-            // @formatter:on
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+                    // balancer service to echo
+                    .service()
+                        .type("balancer")
+                        .accept(URI.create("ws://gateway.example.com:8001/echo"))
+                        .acceptOption("tcp.bind", "localhost:8001")
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                    .done()
+                    // echo service
+                    .service()
+                        .type("echo")
+                        .accept(URI.create("ws://node.example.com:8001/echo"))
+                        .balance(URI.create("ws://gateway.example.com:8001/echo"))
+                        .acceptOption("tcp.bind", "localhost:8001")
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                    .done()
+            .done();
+
             init(configuration);
         }
     };
 
+
     @Rule
-    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
+    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
 
     @Test
-    @Specification("http.proxy.headers.remove.hop.by.hop")
-    public void removeHopByHopHeaders() throws Exception {
-        k3po.finish();
+    @Specification("wse.balancer.request")
+    public void balancerRequestShouldRespondWithRedirect() throws Exception {
+        robot.finish();
     }
 
 }

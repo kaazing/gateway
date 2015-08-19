@@ -49,6 +49,42 @@
 
         <!-- test dependencies -->
         <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.httpxe</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.httpx</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.wsx</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.pipe</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.server</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.service.echo</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -58,6 +94,33 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>k3po.junit</artifactId>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.kaazing</groupId>
+                <artifactId>k3po-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipITs}</skipTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
