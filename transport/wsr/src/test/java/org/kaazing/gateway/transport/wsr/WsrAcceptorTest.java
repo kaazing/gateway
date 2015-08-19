@@ -35,6 +35,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -155,6 +156,7 @@ public class WsrAcceptorTest {
     }
 
     @Test
+    @Ignore("https://github.com/kaazing/gateway/issues/287")
     public void shouldBindAWsrAddress() throws Exception {
         URI location = URI.create("wsr://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
@@ -177,6 +179,7 @@ public class WsrAcceptorTest {
     }
 
     @Test
+    @Ignore("https://github.com/kaazing/gateway/issues/287")
     public void shouldBindAndUnbindOnWsrAddress()
             throws Exception {
         URI location = URI.create("wsr://localhost:8000/echo");
