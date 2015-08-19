@@ -29,12 +29,17 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.Bindings;
@@ -69,6 +74,9 @@ public class WsrAcceptorTest {
     private HttpAcceptor httpAcceptor;
     private WsrAcceptor wsrAcceptor;
     private WsAcceptor wsAcceptor;
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     @Before
     public void init() {
@@ -117,7 +125,7 @@ public class WsrAcceptorTest {
         wsrConnector = (WsrConnector)transportFactory.getTransport("wsr").getConnector();
         wsrConnector.setBridgeServiceFactory(serviceFactory);
     }
-    
+
     @After
     public void disposeConnector() {
         if (pipeAcceptor != null) {
