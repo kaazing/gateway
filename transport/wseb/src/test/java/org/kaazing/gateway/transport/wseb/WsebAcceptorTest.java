@@ -21,16 +21,24 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.Bindings;
@@ -59,6 +67,9 @@ public class WsebAcceptorTest {
     private HttpAcceptor httpAcceptor;
     private WsebAcceptor wsebAcceptor;
     private WsAcceptor wsAcceptor;
+
+    @Rule
+    public TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Before
     public void init() {
@@ -122,6 +133,7 @@ public class WsebAcceptorTest {
 
 
     @Test
+    @Ignore ("https://github.com/kaazing/gateway/issues/287")
     public void shouldBindAWsAddress() throws Exception {
         URI location = URI.create("wse://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
