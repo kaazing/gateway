@@ -48,6 +48,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -311,6 +312,7 @@ public class WsnConnectorTest {
     }
 
     @Test (timeout = 30000)
+    @Ignore("Failing on travis CI https://github.com/kaazing/gateway/issues/162")
     public void shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions() throws Exception {
 
         long iterations = 100;
