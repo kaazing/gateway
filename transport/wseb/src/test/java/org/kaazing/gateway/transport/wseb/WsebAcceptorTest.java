@@ -133,7 +133,7 @@ public class WsebAcceptorTest {
 
 
     @Test
-    @Ignore ("TODO add reason, https://api.travis-ci.org/jobs/76321584/log.txt?deansi=true")
+    @Ignore ("https://github.com/kaazing/gateway/issues/287")
     public void shouldBindAWsAddress() throws Exception {
         URI location = URI.create("wse://localhost:8000/echo");
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
