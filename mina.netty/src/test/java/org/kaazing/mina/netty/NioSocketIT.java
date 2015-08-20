@@ -83,13 +83,13 @@ import org.kaazing.test.util.MethodExecutionTrace;
  */
 public class NioSocketIT {
 
-    public final TestRule trace = new MethodExecutionTrace();
+    private final TestRule trace = new MethodExecutionTrace();
 
     private final TestRule timeout = new DisableOnDebug(new Timeout(15, TimeUnit.SECONDS));
 
     @Rule
     public final TestRule chain = outerRule(trace).around(timeout);
-    
+
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
     ChannelIoAcceptor<?, ?, ?> acceptor;
