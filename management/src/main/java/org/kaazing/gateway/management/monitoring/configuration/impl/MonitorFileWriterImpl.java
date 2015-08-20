@@ -23,16 +23,15 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Collection;
 
-import org.kaazing.gateway.management.monitoring.service.MonitoredService;
+import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 
 import uk.co.real_logic.agrona.BitUtil;
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
- * Class responsible with storing information regarding the MMF format.
+ * Class responsible with storing/writing information regarding the MMF format.
  *
  * File layout:
  * +-----------------------------------------------------------------------+
@@ -46,7 +45,7 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  * +-----------------------------------------------------------------------+
  * Metadata length: 8 * int + 1 * string + no_of_serv * (1 * string + 5 * int)
  */
-public final class MonitorFileDescriptor {
+public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private static final int SIZEOF_STRING = 1024;
     private int MAX_SERVICE_COUNT = 10;
 
@@ -86,7 +85,7 @@ public final class MonitorFileDescriptor {
      * @param services
      * @param gatewayId
      */
-    public MonitorFileDescriptor(String gatewayId) {
+    public MonitorFileWriterImpl(String gatewayId) {
         this.gatewayId = gatewayId;
         setServicesCount(MAX_SERVICE_COUNT);
     }
@@ -95,6 +94,7 @@ public final class MonitorFileDescriptor {
      * Computes the total length of the file used by Agrona
      * @return
      */
+    @Override
     public int computeMonitorTotalFileLength() {
         int totalLengthOfBuffers =
                 GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
@@ -107,6 +107,7 @@ public final class MonitorFileDescriptor {
      * @param buffer - the underlying byte buffer
      * @return the meta data buffer
      */
+    @Override
     public UnsafeBuffer createMetaDataBuffer(final ByteBuffer buffer) {
         return new UnsafeBuffer(buffer, 0, metadataLength + BitUtil.SIZE_OF_INT);
     }
@@ -115,6 +116,7 @@ public final class MonitorFileDescriptor {
      * Fills the meta data in the specified buffer
      * @param monitorMetaDataBuffer - the meta data buffer
      */
+    @Override
     public void fillMetaData(final UnsafeBuffer monitorMetaDataBuffer) {
         monitorMetaDataBuffer.putInt(monitorVersionOffset(0), MONITOR_VERSION);
         monitorMetaDataBuffer.putInt(metadataItemOffset(GW_DATA_REFERENCE_OFFSET), metadataItemOffset(GW_DATA_OFFSET));
@@ -136,6 +138,7 @@ public final class MonitorFileDescriptor {
      * @param metaDataBuffer - the meta data buffer from which we compute the offset
      * @return the counter labels buffer
      */
+    @Override
     public UnsafeBuffer createGatewayCounterLabelsBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
         final int offset = endOfMetadata;
         final int length = metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET));
@@ -151,6 +154,7 @@ public final class MonitorFileDescriptor {
      * @param metaDataBuffer - the meta data buffer from which we compute the offset
      * @return the counter values buffer
      */
+    @Override
     public UnsafeBuffer createGatewayCounterValuesBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
         final int offset = endOfMetadata
                 + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET));
@@ -168,6 +172,7 @@ public final class MonitorFileDescriptor {
      * @param index identifier
      * @return the counter labels buffer
      */
+    @Override
     public UnsafeBuffer createServiceCounterLabelsBuffer(final ByteBuffer buffer,
                                                          final DirectBuffer metaDataBuffer,
                                                          int index) {
@@ -190,6 +195,7 @@ public final class MonitorFileDescriptor {
      * @param index - service identifier
      * @return the counter values buffer
      */
+    @Override
     public UnsafeBuffer createServiceCounterValuesBuffer(final ByteBuffer buffer,
                                                          final DirectBuffer metaDataBuffer,
                                                          int index) {
@@ -210,6 +216,7 @@ public final class MonitorFileDescriptor {
      * Method adding services metadata
      * @param monitorMetaDataBuffer - the metadata buffer
      */
+    @Override
     public void fillServiceMetadata(final UnsafeBuffer monitorMetaDataBuffer, final String serviceName, final int index) {
         final int servOffset = metadataItemOffset(NO_OF_SERVICES_OFFSET) + BitUtil.SIZE_OF_INT;
 

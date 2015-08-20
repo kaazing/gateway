@@ -24,7 +24,7 @@ package org.kaazing.gateway.management.monitoring.writer.impl;
 import java.io.File;
 import java.nio.MappedByteBuffer;
 
-import org.kaazing.gateway.management.monitoring.configuration.impl.MonitorFileDescriptor;
+import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
@@ -39,11 +39,11 @@ public class MMFSeviceWriter implements ServiceWriter {
     private UnsafeBuffer metaDataBuffer;
     private File monitoringDir;
     private int index;
-    private MonitorFileDescriptor monitorDescriptor;
+    private MonitorFileWriter monitorDescriptor;
 
-    public MMFSeviceWriter(MonitorFileDescriptor monitorDescriptor, MappedByteBuffer mappedMonitorFile,
+    public MMFSeviceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
                            UnsafeBuffer metaDataBuffer, File monitoringDir,
-            int index) {
+                           int index) {
         this.monitorDescriptor = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;
         this.metaDataBuffer = metaDataBuffer;

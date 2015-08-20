@@ -26,8 +26,8 @@ import java.nio.MappedByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
+import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
@@ -50,7 +50,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
     private static final String MONITOR_DIR_NAME = "/kaazing";
-    private MonitorFileDescriptor monitorDescriptor;
+    private MonitorFileWriter monitorDescriptor;
 
     private Properties configuration;
     private UnsafeBuffer metaDataBuffer;
@@ -58,13 +58,12 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
     private Collection<MonitoredService> services = new HashSet<>();
-    private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
 
     public MMFMonitoringDataManager(Properties configuration) {
         super();
         this.configuration = configuration;
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        monitorDescriptor = new MonitorFileDescriptor(gatewayId);
+        monitorDescriptor = new MonitorFileWriterImpl(gatewayId);
     }
 
     @Override
@@ -77,6 +76,18 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
 
         return gwCountersFactory;
+    }
+
+    @Override
+    public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
+        monitorDescriptor.fillServiceMetadata(metaDataBuffer, monitoredService.getServiceName(), services.size());
+        //create service writer
+        ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
+                monitoringDir, services.size());
+        MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
+
+        services.add(monitoredService);
+        return new ServiceCounterManagerImpl(serviceCountersFactory);
     }
 
     /**
@@ -131,19 +142,6 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         }
 
         return monitoringDirName;
-    }
-
-    @Override
-    public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
-        monitorDescriptor.fillServiceMetadata(metaDataBuffer, monitoredService.getServiceName(), services.size());
-        //create service writer
-        ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
-                monitoringDir, services.size());
-        MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
-        monitoringEntityFactories.put(monitoredService, serviceCountersFactory);
-
-        services.add(monitoredService);
-        return new ServiceCounterManagerImpl(monitoringEntityFactories.get(monitoredService));
     }
 
 }

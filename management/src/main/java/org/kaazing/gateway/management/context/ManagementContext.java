@@ -171,5 +171,4 @@ public interface ManagementContext {
 
     void createGatewayManagementBean();
 
-    void close();
 }
