@@ -70,7 +70,6 @@ import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.service.AbstractSessionInitializer;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
-import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
@@ -91,7 +90,6 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
 
 import com.hazelcast.core.IMap;
 
@@ -185,21 +183,7 @@ public class DefaultServiceContext implements ServiceContext {
         }
     };
 
-    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
-
-    // Default MonitoringFactory
-    private MonitoringEntityFactory monitoringFactory = new  MonitoringEntityFactory() {
-
-        @Override
-        public void close() {
-        }
-
-        @Override
-        public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-            return COUNTER_STUB;
-        }
-
-    };
+    private MonitoringEntityFactory monitoringFactory;
 
     public DefaultServiceContext(String serviceType, Service service) {
         this(serviceType,
@@ -1092,12 +1076,12 @@ public class DefaultServiceContext implements ServiceContext {
 
     @Override
     public MonitoringEntityFactory getMonitoringFactory() {
-        // TODO Auto-generated method stub
-        return null;
+        return monitoringFactory;
     }
 
     @Override
     public void setMonitoringFactory(MonitoringEntityFactory monitoringFactory) {
-        // TODO Auto-generated method stub
+        this.monitoringFactory = monitoringFactory;
     }
+
 }

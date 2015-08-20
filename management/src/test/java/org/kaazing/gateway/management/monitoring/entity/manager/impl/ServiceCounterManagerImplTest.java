@@ -20,14 +20,12 @@
  */
 
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
-import java.util.Properties;
-
 import static org.junit.Assert.assertEquals;
+
+import java.util.Properties;
 
 import org.junit.Test;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
-import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringEntityFactoryInjectorImpl;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
@@ -38,7 +36,7 @@ public class ServiceCounterManagerImplTest {
     @Test
     public void assertAgronaEnabledNativeCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory, null, null);
+        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
         serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
@@ -55,7 +53,7 @@ public class ServiceCounterManagerImplTest {
     @Test
     public void assertAgronaEnabledEmulatedCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory, null, null);
+        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
         serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
@@ -72,7 +70,7 @@ public class ServiceCounterManagerImplTest {
     @Test
     public void assertAgronaDisabledNativeCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory, null, null);
+        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
         serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
@@ -83,7 +81,7 @@ public class ServiceCounterManagerImplTest {
     @Test
     public void assertAgronaDisabledEmulatedCounters() {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory, null, null);
+        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
         serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
@@ -99,7 +97,7 @@ public class ServiceCounterManagerImplTest {
     private MonitoringEntityFactory createMonitoringEntityFactory(boolean agronaEnabled) {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(agronaEnabled));
-        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
+//        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
 //        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
 //        return monitoringEntityFactory;
         return null;

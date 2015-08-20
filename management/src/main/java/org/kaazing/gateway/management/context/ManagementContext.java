@@ -39,7 +39,6 @@ import org.kaazing.gateway.management.session.SessionManagementListener;
 import org.kaazing.gateway.management.system.ManagementSystemStrategy;
 import org.kaazing.gateway.management.system.SystemDataProvider;
 import org.kaazing.gateway.security.SecurityContext;
-import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;

@@ -21,20 +21,14 @@
 
 package org.kaazing.gateway.management.filter;
 
-import java.util.Properties;
-
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
-import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.impl.CounterManagerFactoryImpl;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
-import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.IoFilterAdapter;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
@@ -56,22 +50,12 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ManagementContext managementContext;
     protected ServiceContext serviceContext;
     private ServiceCounterManager serviceCounterManager;
-    // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
-    private MonitoringEntityFactory monitoringEntityFactory;
 
-    public ManagementFilter(ServiceManagementBean serviceBean,
-                            MonitoringEntityFactory monitoringEntityFactory,
-                            String serviceName,
-                            Properties configuration) {
+    public ManagementFilter(ServiceManagementBean serviceBean) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
-        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        this.monitoringEntityFactory = monitoringEntityFactory;
-
-        CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
-        serviceCounterManager = counterFactory.makeServiceCounterManager(monitoringEntityFactory,
-                serviceName, gatewayId);
+        serviceCounterManager = (ServiceCounterManager) serviceContext.getMonitoringFactory();
         serviceCounterManager.initializeSessionCounters();
     }
 
@@ -134,12 +118,8 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     }
 
     public void close() {
-        // Stopping here if no monitoring entity factory was built
-        if (monitoringEntityFactory == null) {
-            return;
-        }
         // We need to manually close the monitoring entity factory because we don't use a
         // try-with-resources block in order to be invoked by the JVM
-        monitoringEntityFactory.close();
+        serviceCounterManager.close();
     }
 }

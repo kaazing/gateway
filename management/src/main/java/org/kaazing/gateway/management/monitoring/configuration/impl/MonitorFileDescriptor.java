@@ -48,6 +48,7 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  */
 public final class MonitorFileDescriptor {
     private static final int SIZEOF_STRING = 1024;
+    private int MAX_SERVICE_COUNT = 10;
 
     private static final int MONITOR_VERSION = 1;
     private static final int MONITOR_VERSION_OFFSET = 0;
@@ -80,17 +81,14 @@ public final class MonitorFileDescriptor {
 
     private String gatewayId;
 
-    private Collection<MonitoredService> services;
-
     /**
      * MonitorFileDescriptor constructor
      * @param services
      * @param gatewayId
      */
-    public MonitorFileDescriptor(String gatewayId, Collection<MonitoredService> services) {
+    public MonitorFileDescriptor(String gatewayId) {
         this.gatewayId = gatewayId;
-        this.services = services;
-        setServicesCount(services.size());
+        setServicesCount(MAX_SERVICE_COUNT);
     }
 
     /**
@@ -100,7 +98,7 @@ public final class MonitorFileDescriptor {
     public int computeMonitorTotalFileLength() {
         int totalLengthOfBuffers =
                 GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
-                services.size() * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
+                MAX_SERVICE_COUNT * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
         return endOfMetadata + totalLengthOfBuffers;
     }
 
@@ -129,8 +127,7 @@ public final class MonitorFileDescriptor {
         monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET), 0);
         monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET),
                 GATEWAY_COUNTER_VALUES_BUFFER_LENGTH);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET), services.size());
-        fillServicesMetadata(monitorMetaDataBuffer);
+        monitorMetaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET), MAX_SERVICE_COUNT); //TODO
     }
 
     /**
@@ -213,26 +210,21 @@ public final class MonitorFileDescriptor {
      * Method adding services metadata
      * @param monitorMetaDataBuffer - the metadata buffer
      */
-    private void fillServicesMetadata(final UnsafeBuffer monitorMetaDataBuffer) {
-        int index = 0;
+    public void fillServiceMetadata(final UnsafeBuffer monitorMetaDataBuffer, final String serviceName, final int index) {
         final int servOffset = metadataItemOffset(NO_OF_SERVICES_OFFSET) + BitUtil.SIZE_OF_INT;
 
-        for (MonitoredService service : services) {
-            String serviceName = service.getServiceName();
-            int serviceNameOffset = servOffset + index * (SIZEOF_STRING + BitUtil.SIZE_OF_INT);
-            int serviceLocationOffset = servOffset + (index + 1) * SIZEOF_STRING + index * BitUtil.SIZE_OF_INT;
-            monitorMetaDataBuffer.putStringUtf8(serviceNameOffset, serviceName, ByteOrder.nativeOrder());
-            monitorMetaDataBuffer.putInt(serviceLocationOffset, 0);
+        int serviceNameOffset = servOffset + index * (SIZEOF_STRING + BitUtil.SIZE_OF_INT);
+        int serviceLocationOffset = servOffset + (index + 1) * SIZEOF_STRING + index * BitUtil.SIZE_OF_INT;
+        monitorMetaDataBuffer.putStringUtf8(serviceNameOffset, serviceName, ByteOrder.nativeOrder());
+        monitorMetaDataBuffer.putInt(serviceLocationOffset, 0);
 
-            // service reference section
-            monitorMetaDataBuffer.putInt(serviceRefSection + index * BitUtil.SIZE_OF_INT, 0);
-            monitorMetaDataBuffer.putInt(serviceRefSection + (index + 1) * BitUtil.SIZE_OF_INT,
-                    SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-            monitorMetaDataBuffer.putInt(serviceRefSection + (index + 2) * BitUtil.SIZE_OF_INT, 0);
-            monitorMetaDataBuffer.putInt(serviceRefSection + (index + 3) * BitUtil.SIZE_OF_INT,
-                    SERVICE_COUNTER_VALUES_BUFFER_LENGTH);
-            index++;
-        }
+        // service reference section
+        monitorMetaDataBuffer.putInt(serviceRefSection + index * BitUtil.SIZE_OF_INT, 0);
+        monitorMetaDataBuffer.putInt(serviceRefSection + (index + 1) * BitUtil.SIZE_OF_INT,
+                SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
+        monitorMetaDataBuffer.putInt(serviceRefSection + (index + 2) * BitUtil.SIZE_OF_INT, 0);
+        monitorMetaDataBuffer.putInt(serviceRefSection + (index + 3) * BitUtil.SIZE_OF_INT,
+                SERVICE_COUNTER_VALUES_BUFFER_LENGTH);
     }
 
     /**

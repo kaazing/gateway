@@ -21,34 +21,38 @@
 
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
-import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
-import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
+import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
+import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
+import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
 
-    private Collection<MonitoredService> services;
-    private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> chm = new ConcurrentHashMap<>();
+    private MonitoringEntityFactory monitorigEntityFactory = new ServiceCounterManagerImpl(new MonitoringEntityFactory() {
 
-    public DefaultMMFMonitoringDataManagerStub(Collection<MonitoredService> services) {
-        this.services = services;
-    }
-
-    @Override
-    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> initialize() {
-        for (MonitoredService service : services) {
-            chm.put(service, new DefaultMonitoringEntityFactoryStub());
+        @Override
+        public LongMonitoringCounter makeLongMonitoringCounter(String name) {
+            return new DefaultLongMonitoringCounterStub();
         }
-        return chm;
+
+        @Override
+        public void close() {
+        }
+    });
+
+    public DefaultMMFMonitoringDataManagerStub() {
     }
 
     @Override
-    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> getMonitoringEntityFactories() {
-        return chm;
+    public MonitoringEntityFactory initialize() {
+        return monitorigEntityFactory;
+    }
+
+    @Override
+    public MonitoringEntityFactory addService(MonitoredService monitoredService) {
+        return monitorigEntityFactory;
     }
 
 }

@@ -24,10 +24,12 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 import java.io.File;
 import java.nio.MappedByteBuffer;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
 import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
@@ -55,47 +57,26 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
     private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
-    /**
-     * TODO: To have a services abstraction passed to this class
-     */
-    private Collection<MonitoredService> services;
+    private Collection<MonitoredService> services = new HashSet<>();
     private ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> monitoringEntityFactories = new ConcurrentHashMap<>();
 
-    public MMFMonitoringDataManager(Collection<MonitoredService> services, Properties configuration) {
+    public MMFMonitoringDataManager(Properties configuration) {
         super();
         this.configuration = configuration;
-        this.services = services;
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        monitorDescriptor = new MonitorFileDescriptor(gatewayId, services);
+        monitorDescriptor = new MonitorFileDescriptor(gatewayId);
     }
 
     @Override
-    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> initialize() {
+    public MonitoringEntityFactory initialize() {
         // create MMF
         createMonitoringFile();
 
         // create gateway writer
         GatewayWriter gatewayWriter = new MMFGatewayWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer, monitoringDir);
         MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
-        // TODO: Consider passing the gateway counters factory
-        //monitoringEntityFactories.put(null, gwCountersFactory);
 
-        // create service writer
-        int i = 0;
-        for (MonitoredService service : services) {
-            ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
-                    monitoringDir, i++);
-            MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
-            monitoringEntityFactories.put(service, serviceCountersFactory);
-        }
-
-        return monitoringEntityFactories;
-    }
-
-
-    @Override
-    public ConcurrentHashMap<MonitoredService, MonitoringEntityFactory> getMonitoringEntityFactories() {
-        return monitoringEntityFactories;
+        return gwCountersFactory;
     }
 
     /**
@@ -150,6 +131,19 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         }
 
         return monitoringDirName;
+    }
+
+    @Override
+    public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
+        monitorDescriptor.fillServiceMetadata(metaDataBuffer, monitoredService.getServiceName(), services.size());
+        //create service writer
+        ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
+                monitoringDir, services.size());
+        MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
+        monitoringEntityFactories.put(monitoredService, serviceCountersFactory);
+
+        services.add(monitoredService);
+        return new ServiceCounterManagerImpl(monitoringEntityFactories.get(monitoredService));
     }
 
 }

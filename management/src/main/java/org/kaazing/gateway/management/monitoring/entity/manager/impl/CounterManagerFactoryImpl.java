@@ -30,7 +30,7 @@ public class CounterManagerFactoryImpl implements CounterManagerFactory {
     @Override
     public ServiceCounterManager makeServiceCounterManager(MonitoringEntityFactory monitoringEntityFactory,
             String serviceName, String gatewayId) {
-        return new ServiceCounterManagerImpl(monitoringEntityFactory, serviceName, gatewayId);
+        return new ServiceCounterManagerImpl(monitoringEntityFactory);
     }
 
 }
