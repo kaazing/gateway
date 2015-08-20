@@ -31,15 +31,10 @@ import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
-import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
-import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
-import org.kaazing.gateway.management.monitoring.writer.impl.MMFGatewayWriter;
-import org.kaazing.gateway.management.monitoring.writer.impl.MMFSeviceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;
-import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
  * Agrona implementation for the monitoring entity factory builder.
@@ -50,11 +45,9 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     private static final String LINUX_DEV_SHM_DIRECTORY = "/dev/shm";
     private static final String MONITOR_DIR_NAME = "/kaazing";
-    private MonitorFileWriter monitorDescriptor;
 
+    private MonitorFileWriter monitorFileWriter;
     private Properties configuration;
-    private UnsafeBuffer metaDataBuffer;
-
     private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
     private Collection<MonitoredService> services = new HashSet<>();
@@ -63,7 +56,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         super();
         this.configuration = configuration;
         String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        monitorDescriptor = new MonitorFileWriterImpl(gatewayId);
+        monitorFileWriter = new MonitorFileWriterImpl(gatewayId);
     }
 
     @Override
@@ -71,20 +64,17 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         // create MMF
         createMonitoringFile();
 
-        // create gateway writer
-        GatewayWriter gatewayWriter = new MMFGatewayWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer, monitoringDir);
-        MonitoringEntityFactory gwCountersFactory = gatewayWriter.writeCountersFactory();
+        // create gateway monitoring entity factory
+        MonitoringEntityFactory gwCountersFactory =
+                monitorFileWriter.getGwMonitoringEntityFactory(mappedMonitorFile, monitoringDir);
 
         return gwCountersFactory;
     }
 
     @Override
     public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
-        monitorDescriptor.fillServiceMetadata(metaDataBuffer, monitoredService.getServiceName(), services.size());
-        //create service writer
-        ServiceWriter serviceWriter = new MMFSeviceWriter(monitorDescriptor, mappedMonitorFile, metaDataBuffer,
-                monitoringDir, services.size());
-        MonitoringEntityFactory serviceCountersFactory = serviceWriter.writeCountersFactory();
+        MonitoringEntityFactory serviceCountersFactory = monitorFileWriter.getServiceMonitoringEntityFactory(mappedMonitorFile,
+                monitoringDir, monitoredService, services.size());
 
         services.add(monitoredService);
         return new ServiceCounterManagerImpl(serviceCountersFactory);
@@ -101,21 +91,10 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         File monitoringFile = new File(monitoringDir, fileName);
         IoUtil.deleteIfExists(monitoringFile);
 
-        int fileSize = monitorDescriptor.computeMonitorTotalFileLength();
+        int fileSize = monitorFileWriter.computeMonitorTotalFileLength();
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
-        metaDataBuffer = addMetadataToAgronaFile(mappedMonitorFile);
-    }
-
-    /**
-     * Method adding metadata to the Agrona file
-     * @param mappedMonitorFile
-     * @return
-     */
-    private UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
-        UnsafeBuffer metaDataBuffer = monitorDescriptor.createMetaDataBuffer(mappedMonitorFile);
-        monitorDescriptor.fillMetaData(metaDataBuffer);
-        return metaDataBuffer;
+        monitorFileWriter.addMetadataToAgronaFile(mappedMonitorFile);
     }
 
     /**

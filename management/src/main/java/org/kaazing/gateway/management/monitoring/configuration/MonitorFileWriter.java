@@ -21,22 +21,23 @@
 
 package org.kaazing.gateway.management.monitoring.configuration;
 
+import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
- * MonitoringFileWriter interface responsible with writing data to MMF files
+ * MonitoringFileWriter interface responsible with writing data to monitoring files
  *
  */
 public interface MonitorFileWriter {
 
     int computeMonitorTotalFileLength();
-
-    UnsafeBuffer createMetaDataBuffer(ByteBuffer buffer);
-
-    void fillMetaData(UnsafeBuffer monitorMetaDataBuffer);
 
     UnsafeBuffer createGatewayCounterLabelsBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer);
 
@@ -46,6 +47,13 @@ public interface MonitorFileWriter {
 
     UnsafeBuffer createServiceCounterValuesBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer, int index);
 
-    void fillServiceMetadata(UnsafeBuffer monitorMetaDataBuffer, String serviceName, int index);
+    MonitoringEntityFactory getGwMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir);
+
+    MonitoringEntityFactory getServiceMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile,
+                                                              File monitoringDir,
+                                                              MonitoredService monitoredService,
+                                                              int index);
+
+    UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile);
 
 }

@@ -39,12 +39,12 @@ public class MMFSeviceWriter implements ServiceWriter {
     private UnsafeBuffer metaDataBuffer;
     private File monitoringDir;
     private int index;
-    private MonitorFileWriter monitorDescriptor;
+    private MonitorFileWriter monitorFileWriter;
 
     public MMFSeviceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
                            UnsafeBuffer metaDataBuffer, File monitoringDir,
                            int index) {
-        this.monitorDescriptor = monitorDescriptor;
+        this.monitorFileWriter = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;
         this.metaDataBuffer = metaDataBuffer;
         this.monitoringDir = monitoringDir;
@@ -63,9 +63,9 @@ public class MMFSeviceWriter implements ServiceWriter {
      * Helper method instantiating a counters manager
      */
     private void createCountersManager() {
-        UnsafeBuffer counterLabelsBuffer = monitorDescriptor.createServiceCounterLabelsBuffer(mappedMonitorFile,
+        UnsafeBuffer counterLabelsBuffer = monitorFileWriter.createServiceCounterLabelsBuffer(mappedMonitorFile,
                 metaDataBuffer, index);
-        UnsafeBuffer counterValuesBuffer = monitorDescriptor.createServiceCounterValuesBuffer(mappedMonitorFile,
+        UnsafeBuffer counterValuesBuffer = monitorFileWriter.createServiceCounterValuesBuffer(mappedMonitorFile,
                 metaDataBuffer, index);
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
