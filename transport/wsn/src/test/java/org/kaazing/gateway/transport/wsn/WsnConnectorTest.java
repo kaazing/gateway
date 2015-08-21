@@ -26,7 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
-import static org.kaazing.test.util.ITUtil.createTimeout;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -75,7 +75,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 public class WsnConnectorTest {
     @Rule
-    public TestRule cain = createTimeout(30, SECONDS);
+    public TestRule cain = createRuleChain(30, SECONDS);
 
     private SchedulerProvider schedulerProvider;
 

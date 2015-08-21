@@ -21,22 +21,11 @@
 
 package org.kaazing.gateway.transport.ssl;
 
-import org.junit.BeforeClass;
-import org.kaazing.gateway.server.test.Gateway;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.test.util.ITUtil;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -49,10 +38,21 @@ import java.net.URI;
 import java.security.KeyStore;
 import java.security.Security;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.test.Gateway;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
 public class Sslv3Test {
 
@@ -63,7 +63,7 @@ public class Sslv3Test {
     private SSLSocketFactory clientSocketFactory;
 
     @Rule
-    public TestRule chain = ITUtil.createTimeout(10, SECONDS);
+    public TestRule chain = createRuleChain(10, SECONDS);
 
     @BeforeClass
     public static void initClass() throws Exception {
