@@ -37,7 +37,7 @@ public class GatewayConfigTranslatorFactory {
 
     private final ServiceLoader<GatewayConfigTranslatorFactorySpi> services;
 
-    protected GatewayConfigTranslatorFactory(ServiceLoader<GatewayConfigTranslatorFactorySpi> services) {
+    public GatewayConfigTranslatorFactory(ServiceLoader<GatewayConfigTranslatorFactorySpi> services) {
         this.services = services;
     }
 

@@ -34,7 +34,7 @@ public class September2012ToSeptember2014Translator
     public September2012ToSeptember2014Translator() {
         super();
 
-        // Set the August 2012 namespace.  Add this to the end of the pipeline,
+        // Set the September 2014 namespace.  Add this to the end of the pipeline,
         // so that any nodes that are added will have the correct namespace set.
         addTranslator(new NamespaceVisitor(GatewayConfigNamespace.CURRENT_NS));
     }

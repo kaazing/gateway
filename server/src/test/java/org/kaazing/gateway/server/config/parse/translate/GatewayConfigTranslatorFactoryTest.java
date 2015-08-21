@@ -21,8 +21,23 @@
 
 package org.kaazing.gateway.server.config.parse.translate;
 
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+import org.kaazing.gateway.server.config.parse.GatewayConfigNamespace;
+
 public class GatewayConfigTranslatorFactoryTest {
-    
-    // TODO: mjolie fill this in using TransportFactoryTest as a model
+
+    @Test
+    public void getTranslatorCurrentNSTest() {
+        try {
+            GatewayConfigTranslatorPipeline  translator = (GatewayConfigTranslatorPipeline) GatewayConfigTranslatorFactory.newInstance().getTranslator(
+                    GatewayConfigNamespace.CURRENT_NS);
+             assertTrue(translator.getTranslators().get(0) instanceof September2014Validator);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }
