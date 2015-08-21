@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn.auth;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +43,7 @@ public class EchoServiceAuthorizationIT {
     private static final String ECHO_SERVICE_ACCEPT = "ws://localhost:8000/echo";
     private static final String APP_BASIC_AUTH_ECHO_SERVICE_ACCEPT = "ws://localhost:8008/echo";
     private static final String APP_TOKEN_AUTH_ECHO_SERVICE_ACCEPT = "ws://localhost:8009/echo";
-    
+
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -122,29 +122,29 @@ public class EchoServiceAuthorizationIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     // //////////////////////// AUTHORIZATION //////////////////
     @Specification("app.basic.authorized.access.with.valid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testAuthorizedWithValidCredentials() throws Exception {
         robot.finish();
     }
 
     @Specification("app.basic.authorized.access.with.invalid.credentials")
-    @Test(timeout = 5000)
+    @Test
     public void testAppBasicAuthorizedWithInvalidCredentials() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("app.token.three.attempts.failure")
-    @Test(timeout = 5000)
+    @Test
     public void testAppTokenThreeAttemptsThenFailure() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("app.token.success")
-    @Test(timeout = 5000)
+    @Test
     public void testAppTokenSuccess() throws Exception {
         robot.finish();
     }
