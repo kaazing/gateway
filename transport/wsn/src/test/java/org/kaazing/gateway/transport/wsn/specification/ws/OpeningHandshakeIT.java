@@ -16,17 +16,14 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -66,10 +63,8 @@ public class OpeningHandshakeIT {
         }
     };
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
     @Rule
-    public final TestRule chain = outerRule(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     // TODO:
     // proxy => HTTP CONNECT w/ optional authorization, auto-configuration via ws://, wss://
@@ -151,7 +146,7 @@ public class OpeningHandshakeIT {
     public void shouldEstablishConnectionWhenOrderOfExtensionsNegotiatedChanged() throws Exception {
         k3po.finish();
     }
-    
+
     // Gateway sending payload
     @Test
     @Ignore("Gateway sending payload with 405 Not Allowed, <html><head></head><body><h1>405 Method Not Allowed</h1></body></html>")
@@ -242,9 +237,9 @@ public class OpeningHandshakeIT {
         k3po.finish();
     }
 
-/*   
+/*
  *  Client-only Tests
- *   
+ *
     @Test
     @Specification({
         "response.header.connection.not.upgrade/handshake.request",

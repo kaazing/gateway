@@ -21,9 +21,10 @@
 
 package org.kaazing.gateway.transport.ssl;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -44,6 +45,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -111,7 +113,7 @@ public class OcspIT {
     };
 
     @Rule
-    public final TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot, 20, SECONDS);
 
     /*
      * client <---> Gateway(localhost:9558) <---> robot/ocsp responder (localhost:8192)
@@ -119,7 +121,9 @@ public class OcspIT {
      * goes through
      */
     @Specification("ocspGoodCertificate")
-    @Test(timeout = 17000)
+    @Test
+    @Ignore // issue #267: robot response is rejected by jdk 1.8.0_51 with exception
+            // java.security.cert.CertPathValidatorException: Response is unreliable: its validity interval is out-of-date
     public void testGoodCertificate() throws Exception {
         KeyStore clientStore = KeyStore.getInstance("JCEKS");
         InputStream cis = getClass().getClassLoader().getResourceAsStream("ocsp.db");
