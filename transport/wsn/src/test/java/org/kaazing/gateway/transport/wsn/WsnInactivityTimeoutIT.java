@@ -26,8 +26,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -40,15 +38,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class WsnInactivityTimeoutIT {
 
     private final K3poRule robot = new K3poRule();
-
-    private static final boolean ENABLE_DIAGNOSTICS = false;
-    @BeforeClass
-    public static void init()
-            throws Exception {
-        if (ENABLE_DIAGNOSTICS) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
 
     public GatewayRule gateway = new GatewayRule() {
         {

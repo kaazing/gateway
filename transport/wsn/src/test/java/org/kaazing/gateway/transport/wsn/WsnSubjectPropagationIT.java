@@ -26,8 +26,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -50,15 +48,6 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class WsnSubjectPropagationIT {
 
     private final K3poRule robot = new K3poRule();
-
-    private static final boolean ENABLE_DIAGNOSTICS = false;
-    @BeforeClass
-    public static void init()
-            throws Exception {
-        if (ENABLE_DIAGNOSTICS) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
 
     public GatewayRule gateway = new GatewayRule() {
         {

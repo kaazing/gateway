@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.service.broadcast;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -55,22 +55,22 @@ public class BroadcastServiceIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
 	@Specification("broadcast.backend.tcp.connect.and.close")
-	@Test(timeout = 5000)
+	@Test
 	public void tcpConnectionToBackendAndClose() throws Exception {
 		robot.finish();
 	}
 
 	@Specification("broadcast.backend.tcp.connect.send.and.close")
-	@Test(timeout = 5000)
+	@Test
 	public void tcpConnectionToBackendSendAndClose() throws Exception {
         robot.finish();
 	}
 
 	@Specification("broadcast.frontend.tcp.connect.and.close")
-	@Test(timeout = 5000)
+	@Test
 	public void TcpConnectToFrontendAndClose() throws Exception {
         robot.finish();
 	}

@@ -59,7 +59,7 @@ public class WsebTransportIT {
                         .done()
                     .done();
             // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            init(configuration);
         }
     };
 

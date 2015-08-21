@@ -21,27 +21,21 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyUpgradeIT {
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
-    private final TestRule trace = new MethodExecutionTrace();
     private final K3poRule k3po = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
@@ -61,7 +55,7 @@ public class HttpProxyUpgradeIT {
     };
 
     @Rule
-    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     @Specification("http.proxy.upgrade.websocket")
     @Test
