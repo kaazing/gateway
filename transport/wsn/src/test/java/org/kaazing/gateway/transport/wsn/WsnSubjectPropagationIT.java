@@ -5,11 +5,11 @@
 package org.kaazing.gateway.transport.wsn;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.util.Utils.asByteBuffer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.gateway.util.Utils.asByteBuffer;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.IOException;
 import java.net.URI;
@@ -30,21 +30,18 @@ import org.apache.log4j.PropertyConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.gateway.service.Service;
+import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * This test verifies that the authenticated Subject is made available on the WsnSession, including when
@@ -52,8 +49,6 @@ import org.kaazing.test.util.MethodExecutionTrace;
  */
 public class WsnSubjectPropagationIT {
 
-    private TestRule trace = new MethodExecutionTrace();
-    private TestRule timeout = new DisableOnDebug(new Timeout(10, SECONDS));
     private final K3poRule robot = new K3poRule();
 
     private static final boolean ENABLE_DIAGNOSTICS = false;
@@ -72,7 +67,7 @@ public class WsnSubjectPropagationIT {
                     .service()
                         .accept(URI.create("ws://localhost:8001/subject"))
                         .type("class:" + SubjectService.class.getName())
-                    // Websocket level  authentication with revalidate
+                    // Websocket level  authentication with revalidateif
                     .realmName("demo")
                     .crossOrigin()
                         .allowOrigin("*")
@@ -99,7 +94,7 @@ public class WsnSubjectPropagationIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(trace).around(robot).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, robot, 20, SECONDS);
 
     @Specification("shouldPropagateSubject")
     @Test
