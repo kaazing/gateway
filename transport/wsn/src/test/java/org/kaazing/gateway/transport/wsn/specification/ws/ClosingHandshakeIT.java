@@ -16,17 +16,14 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -39,7 +36,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class ClosingHandshakeIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/closing");
-    
+
     private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
@@ -58,10 +55,8 @@ public class ClosingHandshakeIT {
         }
     };
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(8, SECONDS));
-
     @Rule
-    public final TestRule chain = outerRule(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
     @Specification({

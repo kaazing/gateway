@@ -36,7 +36,7 @@ public final class ITUtil {
      * <li> a rule to print console messages at the start and end of each test method and print trace level
      * log messages on test failure.
      * </ol>
-     * @param gateway  Rule to start up and shut down the gateway
+     * @param gateway  Rule to start up and shut down the gateway (or acceptor or etc)
      * @param robot    Rule to startup and stop k3po
      * @param timeout  The maximum allowed time duration of each test (including Gateway and robot startup and shutdown)
      * @param timeUnit The unit for the timeout
