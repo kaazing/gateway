@@ -58,19 +58,23 @@ public final class ITUtil {
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
     public static RuleChain createRuleChain(TestRule rule, long timeout, TimeUnit timeUnit) {
-        TestRule timeoutRule = createTimeout(timeout, timeUnit);
-        TestRule trace = new MethodExecutionTrace();
-        return RuleChain.outerRule(trace).around(timeoutRule).around(rule);
+        return createRuleChain(timeout, timeUnit).around(rule);
     }
 
     /**
-     * Creates a Timeout will which is disabled when debugging and has the option to look for a stuck thread
+     * Creates a rule chain containing the following rules:<ol>
+     * <li> a timeout rule
+     * <li> a rule to print console messages at the start and end of each test method and print trace level
+     * log messages on test failure.
+     * </ol>
      * @param timeout  The maximum allowed time duration of the test
      * @param timeUnit The unit for the timeout
      * @return
      */
-    public static TestRule createTimeout(long timeout, TimeUnit timeUnit) {
-        return new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit).withLookingForStuckThread(true).build());
+    public static RuleChain createRuleChain(long timeout, TimeUnit timeUnit) {
+        TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit).withLookingForStuckThread(true).build());
+        TestRule trace = new MethodExecutionTrace();
+        return RuleChain.outerRule(trace).around(timeoutRule);
     }
 
 
