@@ -58,9 +58,19 @@ public final class ITUtil {
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
     public static RuleChain createRuleChain(K3poRule robot, long timeout, TimeUnit timeUnit) {
-        TestRule timeoutRule = new DisableOnDebug(new Timeout(timeout, timeUnit));
+        TestRule timeoutRule = createTimeout(timeout, timeUnit);
         TestRule trace = new MethodExecutionTrace();
         return RuleChain.outerRule(trace).around(timeoutRule).around(robot);
+    }
+
+    /**
+     * Creates a Timeout will which is disabled when debugging and has the option to look for a stuck thread
+     * @param timeout  The maximum allowed time duration of the test
+     * @param timeUnit The unit for the timeout
+     * @return
+     */
+    public static TestRule createTimeout(long timeout, TimeUnit timeUnit) {
+        return new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit).withLookingForStuckThread(true).build());
     }
 
 
