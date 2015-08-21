@@ -51,11 +51,15 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  * | GW counters labels buffer | | GW counters values buffer | | Service 1 labels buffer |
  * | Service 1 values buffer || ... |
  * +-----------------------------------------------------------------------+
- * Metadata length: 8 * int + 1 * string + no_of_serv * (1 * string + 5 * int)
+ * Metadata length: NUMBER_OF_INTS_IN_HEADER * BitUtil.SIZE_OF_INT + SIZEOF_STRING +
+ * servicesCount * (SIZEOF_STRING + NUMBER_OF_INTS_PER_SERVICE * BitUtil.SIZE_OF_INT)
  */
 public final class MonitorFileWriterImpl implements MonitorFileWriter {
-    private static final int SIZEOF_STRING = 1024;
-    private int MAX_SERVICE_COUNT = 10;
+    private static final int OFFSETS_PER_SERVICE = 4;
+    private static final int NUMBER_OF_INTS_PER_SERVICE = 5;
+    private static final int NUMBER_OF_INTS_IN_HEADER = 8;
+    private static final int SIZEOF_STRING = 128;
+    private static final int MAX_SERVICE_COUNT = 10;
 
     private static final int MONITOR_VERSION = 1;
     private static final int MONITOR_VERSION_OFFSET = 0;
@@ -107,7 +111,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     @Override
     public UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
         metaDataBuffer = new UnsafeBuffer(mappedMonitorFile, 0, metadataLength + BitUtil.SIZE_OF_INT);
-        fillMetaData(metaDataBuffer);
+        fillMetaData();
         return metaDataBuffer;
     }
 
@@ -234,10 +238,10 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     private void setServicesCount(int count) {
         servicesCount = count;
-        metadataLength = 8 * BitUtil.SIZE_OF_INT + SIZEOF_STRING + servicesCount * (SIZEOF_STRING +
-                5 * BitUtil.SIZE_OF_INT);
+        metadataLength = NUMBER_OF_INTS_IN_HEADER * BitUtil.SIZE_OF_INT + SIZEOF_STRING + servicesCount * (SIZEOF_STRING +
+                NUMBER_OF_INTS_PER_SERVICE * BitUtil.SIZE_OF_INT);
         endOfMetadata = BitUtil.align(metadataLength + BitUtil.SIZE_OF_INT, BitUtil.CACHE_LINE_LENGTH);
-        serviceRefSection = endOfMetadata - count * 4 * BitUtil.SIZE_OF_INT;
+        serviceRefSection = endOfMetadata - servicesCount * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT;
     }
 
     /**
@@ -272,19 +276,19 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * Fills the meta data in the specified buffer
      * @param monitorMetaDataBuffer - the meta data buffer
      */
-    private void fillMetaData(final UnsafeBuffer monitorMetaDataBuffer) {
-        monitorMetaDataBuffer.putInt(monitorVersionOffset(0), MONITOR_VERSION);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(GW_DATA_REFERENCE_OFFSET), metadataItemOffset(GW_DATA_OFFSET));
-        monitorMetaDataBuffer.putInt(metadataItemOffset(SERVICE_DATA_REFERENCE_OFFSET),
+    private void fillMetaData() {
+        metaDataBuffer.putInt(monitorVersionOffset(0), MONITOR_VERSION);
+        metaDataBuffer.putInt(metadataItemOffset(GW_DATA_REFERENCE_OFFSET), metadataItemOffset(GW_DATA_OFFSET));
+        metaDataBuffer.putInt(metadataItemOffset(SERVICE_DATA_REFERENCE_OFFSET),
                 metadataItemOffset(SERVICE_DATA_OFFSET));
-        monitorMetaDataBuffer.putStringUtf8(metadataItemOffset(GW_ID_OFFSET), gatewayId, ByteOrder.nativeOrder());
-        monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET), 0);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET),
+        metaDataBuffer.putStringUtf8(metadataItemOffset(GW_ID_OFFSET), gatewayId, ByteOrder.nativeOrder());
+        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET), 0);
+        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET),
                 GATEWAY_COUNTER_LABELS_BUFFER_LENGTH);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET), 0);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET),
+        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET), 0);
+        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET),
                 GATEWAY_COUNTER_VALUES_BUFFER_LENGTH);
-        monitorMetaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET), MAX_SERVICE_COUNT); //TODO
+        metaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET), 0);
     }
 
     /**
@@ -293,6 +297,8 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     private void fillServiceMetadata(final String serviceName, final int index) {
         final int servOffset = metadataItemOffset(NO_OF_SERVICES_OFFSET) + BitUtil.SIZE_OF_INT;
+        metaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET),
+                    metaDataBuffer.getInt(metadataItemOffset(NO_OF_SERVICES_OFFSET)) + 1);
 
         int serviceNameOffset = servOffset + index * (SIZEOF_STRING + BitUtil.SIZE_OF_INT);
         int serviceLocationOffset = servOffset + (index + 1) * SIZEOF_STRING + index * BitUtil.SIZE_OF_INT;
