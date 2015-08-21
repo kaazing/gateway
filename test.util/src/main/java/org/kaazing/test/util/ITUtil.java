@@ -72,7 +72,8 @@ public final class ITUtil {
      * @return
      */
     public static RuleChain createRuleChain(long timeout, TimeUnit timeUnit) {
-        TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit).withLookingForStuckThread(true).build());
+        TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
+                .withLookingForStuckThread(true).build());
         TestRule trace = new MethodExecutionTrace();
         return RuleChain.outerRule(trace).around(timeoutRule);
     }
