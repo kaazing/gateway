@@ -22,7 +22,7 @@
 package org.kaazing.gateway.transport.wseb;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -61,10 +61,8 @@ public class WsebCrossOriginIT {
         }
     };
 
-    private TestRule timeout = new DisableOnDebug(new Timeout(4, SECONDS));
-
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Test
     @Specification("wse.down.stream.cross.origin.request")

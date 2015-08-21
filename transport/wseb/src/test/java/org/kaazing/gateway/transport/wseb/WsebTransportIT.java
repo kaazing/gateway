@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
@@ -65,7 +64,7 @@ public class WsebTransportIT {
     };
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, robot, 10, SECONDS);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("echo.aligned.downstream")
     @Test
