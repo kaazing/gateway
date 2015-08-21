@@ -26,8 +26,8 @@ public final class ITUtil {
      * @param robot    Rule to startup and stop k3po
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
-    public static TestRule createRuleChain(TestRule gateway, K3poRule robot) {
-        return createRuleChain(robot, 10, SECONDS).around(gateway);
+    public static RuleChain createRuleChain(TestRule gateway, K3poRule robot) {
+        return createRuleChain(gateway, robot, 10, SECONDS);
     }
 
     /**
@@ -42,7 +42,7 @@ public final class ITUtil {
      * @param timeUnit The unit for the timeout
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
-    public static TestRule createRuleChain(TestRule gateway, K3poRule robot, long timeout, TimeUnit timeUnit) {
+    public static RuleChain createRuleChain(TestRule gateway, K3poRule robot, long timeout, TimeUnit timeUnit) {
         return createRuleChain(robot, timeout, timeUnit).around(gateway);
     }
 
