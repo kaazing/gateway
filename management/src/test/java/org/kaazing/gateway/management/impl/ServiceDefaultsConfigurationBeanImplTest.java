@@ -21,8 +21,14 @@
 
 package org.kaazing.gateway.management.impl;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import java.net.URI;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -32,6 +38,9 @@ public class ServiceDefaultsConfigurationBeanImplTest {
     private final URI SNMP_SERVICE_ACCEPT_URL = URI.create("ws://localhost:8000/snmp");
     private final String SNMP_SERVICE_NAME = "SNMP Management Service";
     private final String SNMP_SERVICE_TYPE = "management.snmp";
+
+    @Rule
+    public TestRule chain = createRuleChain(20, SECONDS);
 
     @Test
     public void testServiceDefaultsWithoutSslCiphers() throws Exception {
