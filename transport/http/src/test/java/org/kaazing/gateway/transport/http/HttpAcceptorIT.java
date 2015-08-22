@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,6 +21,7 @@
 
 package org.kaazing.gateway.transport.http;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.jmock.lib.script.ScriptedAction.perform;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
@@ -28,6 +29,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJE
 import static org.kaazing.gateway.transport.http.HttpMatchers.hasMethod;
 import static org.kaazing.gateway.transport.http.HttpMatchers.hasReadHeader;
 import static org.kaazing.gateway.transport.http.HttpMethod.POST;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.util.Collections;
@@ -44,14 +46,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.http.HttpInjectableHeader;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -61,8 +64,10 @@ public class HttpAcceptorIT {
     private HttpAcceptor httpAcceptor;
     private ResourceAddress httpAddress;
 
+    private K3poRule robot = new K3poRule();
+
     @Rule
-    public K3poRule robot = new K3poRule();
+    public TestRule chain = createRuleChain(robot, 10, SECONDS);
 
     @Rule
     public JUnitRuleMockery mockery = new JUnitRuleMockery() { {
@@ -113,7 +118,7 @@ public class HttpAcceptorIT {
     }
 
     @Specification("should.receive.echoed.post.body.in.response.body")
-    @Test(timeout=5000)
+    @Test
     public void shouldEchoHttpPostBodyinHttpResponseBody() throws Exception {
 
         final IoHandler handler = mockery.mock(IoHandler.class);

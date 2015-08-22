@@ -19,7 +19,8 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb;
+package org.kaazing.gateway.service.http.balancer;
+
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -34,34 +35,45 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class WsebCrossOriginIT {
+public class WsebBalancerIT {
 
     private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept(URI.create("wse://localhost:8000/echo"))
-                            .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("*")
-                            .done()
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+                    // balancer service to echo
+                    .service()
+                        .type("balancer")
+                        .accept(URI.create("ws://gateway.example.com:8001/echo"))
+                        .acceptOption("tcp.bind", "localhost:8001")
+                        .crossOrigin()
+                            .allowOrigin("*")
                         .done()
-                    .done();
-            // @formatter:on
+                    .done()
+                    // echo service
+                    .service()
+                        .type("echo")
+                        .accept(URI.create("ws://node.example.com:8001/echo"))
+                        .balance(URI.create("ws://gateway.example.com:8001/echo"))
+                        .acceptOption("tcp.bind", "localhost:8001")
+                        .crossOrigin()
+                            .allowOrigin("*")
+                        .done()
+                    .done()
+            .done();
+
             init(configuration);
         }
     };
+
 
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
     @Test
-    @Specification("wse.down.stream.cross.origin.request")
-    public void downStreamCrossOriginRequest() throws Exception {
+    @Specification("wse.balancer.request")
+    public void balancerRequestShouldRespondWithRedirect() throws Exception {
         robot.finish();
     }
 
