@@ -380,6 +380,12 @@ public class GatewayConfigParser {
                     }
                 }
                 LOGGER.error("  " + error.getMessage().replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
+                if (error.getMessage().contains("notify-options")) {
+                    validationError = "Could not start because of references to APNs in the configuration."
+                     + " APNs is not supported in this version of the gateway, but will be added in a future release.";
+                    LOGGER.error(validationError);
+
+                }
                 if (error.getMessage().contains("DataRateString")) {
                     // Yeah, it's crude, but customers are going to keep tripping over cases like 100KB/s being invalid otherwise
                     // Example output:
