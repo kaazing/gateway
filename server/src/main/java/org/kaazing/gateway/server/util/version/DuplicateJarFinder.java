@@ -22,6 +22,8 @@
 package org.kaazing.gateway.server.util.version;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -56,16 +58,16 @@ public class DuplicateJarFinder {
      * @throws DuplicateJarsException
      */
     public void findDuplicateJars() throws IOException, DuplicateJarsException {
-        String[] classPathEntries = classPathParser.getClassPathEntries();
-        for (String classPathEntry : classPathEntries) {
-            parseManifestFileFromClassPathEntry(classPathEntry);
+        Enumeration<URL> manifestURLs = classPathParser.getManifestURLs();
+        while (manifestURLs.hasMoreElements()) {
+            parseManifestFileFromClassPathEntry(manifestURLs.nextElement());
         }
         logErrorForDuplicateJars();
         throwExceptionIfDuplicateJarsAreFound();
     }
 
-    private void parseManifestFileFromClassPathEntry(String classPathEntry) throws IOException {
-        Attributes manifestAttributes = classPathParser.getManifestAttributesFromClassPathEntry(classPathEntry);
+    private void parseManifestFileFromClassPathEntry(URL url) throws IOException {
+        Attributes manifestAttributes = classPathParser.getManifestAttributesFromURL(url);
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
         String jarName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
         if (isKaazingProduct(jarName)) {

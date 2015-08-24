@@ -22,8 +22,9 @@
 package org.kaazing.gateway.server.util.version;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 /**
@@ -31,28 +32,24 @@ import java.util.jar.Manifest;
  */
 public class ClassPathParser {
 
-    public ClassPathParser() {
-    }
-
     /**
      * Retrieves the class path entries.
      * @return the class path entries
+     * @throws IOException
      */
-    public String[] getClassPathEntries() {
-        return System.getProperty("java.class.path").split(System.getProperty("path.separator"));
+    public Enumeration<URL> getManifestURLs() throws IOException {
+        return getClass().getClassLoader().getResources("META-INF/MANIFEST.MF");
     }
 
     /**
      * Retrieves the jar file manifest attributes for a given class path entry
-     * @param pathEntry - the class path entry
+     * @param url - the class path entry
      * @return the manifest file attributes
      * @throws IOException
      */
-    public Attributes getManifestAttributesFromClassPathEntry(String pathEntry) throws IOException {
-        JarFile jar = new JarFile(pathEntry);
-        Manifest mf = jar.getManifest();
-        jar.close();
-        return mf.getMainAttributes();
+    public Attributes getManifestAttributesFromURL(URL url) throws IOException {
+        Manifest manifest = new Manifest(url.openStream());
+        return manifest.getMainAttributes();
     }
 
 }
