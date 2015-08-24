@@ -37,7 +37,7 @@ public class DuplicateJarFinder {
     private static final String CONFLICTING_JARS_LOGGING_MESSAGE =
             "Failed to start because of conflicting versions of artifact on the classpath: {}.jar.";
     private static final String MANIFEST_VERSION = "Implementation-Version";
-    private static final String MANIFEST_JAR_NAME = "Jar-Name";
+    private static final String MANIFEST_JAR_NAME = "Artifact-Name";
     private static final String MANIFEST_PRODUCT = "Kaazing-Product";
 
     private ClassPathParser classPathParser;

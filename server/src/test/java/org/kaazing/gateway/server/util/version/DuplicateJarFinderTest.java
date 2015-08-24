@@ -100,14 +100,14 @@ public class DuplicateJarFinderTest {
     private Attributes getAttributesForKaazingProduct() {
         Attributes attributes = new Attributes();
         attributes.putValue("Implementation-Version", "1.0");
-        attributes.putValue("Jar-Name", MOCK_JAR_FILE_NAME);
+        attributes.putValue("Artifact-Name", MOCK_JAR_FILE_NAME);
         return attributes;
     }
 
     private Attributes getAttributesForNoneKaazingProduct() {
         Attributes attributes = new Attributes();
         attributes.putValue("Implementation-Version", "1.0");
-        attributes.putValue("Jar-Name", MOCK_JAR_FILE_NAME);
+        attributes.putValue("Artifact-Name", MOCK_JAR_FILE_NAME);
         return attributes;
     }
 

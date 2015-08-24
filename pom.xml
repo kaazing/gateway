@@ -294,7 +294,7 @@
                             <manifestEntries>
                                 <Implementation-Title>${project.name}</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
-                                <Jar-Name>${groupId}:${artifactId}</Jar-Name>
+                                <Artifact-Name>${groupId}:${artifactId}</Artifact-Name>
                             </manifestEntries>
                         </archive>
                     </configuration>
