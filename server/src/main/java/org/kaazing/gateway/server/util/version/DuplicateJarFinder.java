@@ -23,9 +23,11 @@ package org.kaazing.gateway.server.util.version;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.jar.Attributes;
 
 import org.slf4j.Logger;
@@ -43,8 +45,7 @@ public class DuplicateJarFinder {
 
     private ClassPathParser classPathParser;
     private Logger gatewayLogger;
-    private Set<String> duplicateJars = new HashSet<String>();
-    private Set<String> loadedJars = new HashSet<String>();
+    private Map<String, List<String>> artifactsToVersion = new HashMap<String, List<String>>();
 
     public DuplicateJarFinder(Logger gatewayLogger) {
         this.gatewayLogger = gatewayLogger;
@@ -62,44 +63,36 @@ public class DuplicateJarFinder {
         while (manifestURLs.hasMoreElements()) {
             parseManifestFileFromClassPathEntry(manifestURLs.nextElement());
         }
-        logErrorForDuplicateJars();
-        throwExceptionIfDuplicateJarsAreFound();
+        checkForDuplicateJars();
     }
 
     private void parseManifestFileFromClassPathEntry(URL url) throws IOException {
         Attributes manifestAttributes = classPathParser.getManifestAttributesFromURL(url);
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
-        String jarName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
-        if (isKaazingProduct(jarName)) {
-            jarName = jarName.replace("com.kaazing:", "").replace("com.kaazing:", "");
-            logJarVersion(version, jarName);
-            checkDuplicateJar(jarName);
+        String artifactName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
+        if (isKaazingProduct(artifactName)) {
+            artifactName = artifactName.replace("com.kaazing:", "").replace("com.kaazing:", "");
+            List<String> versionList = artifactsToVersion.get(artifactName);
+            if (versionList == null) {
+                versionList = new ArrayList<String>();
+                artifactsToVersion.put(artifactName, versionList);
+            }
+            versionList.add(version);
         }
-    }
-
-    private void logJarVersion(String version, String jarName) {
-        gatewayLogger.debug(JAR_FILE_WITH_VERSION_LOGGING_MESSAGE, jarName, version);
-    }
-
-    private void checkDuplicateJar(String jarName) {
-        if (!loadedJars.add(jarName)) {
-            duplicateJars.add(jarName);
-        }
+        gatewayLogger.debug(JAR_FILE_WITH_VERSION_LOGGING_MESSAGE, artifactName, version);
     }
 
     private boolean isKaazingProduct(String product) {
         return product != null && (product.contains("org.kaazing") || product.contains("com.kaazing"));
     }
 
-    private void logErrorForDuplicateJars() {
-        for (String jarName : duplicateJars) {
-            gatewayLogger.error(CONFLICTING_JARS_LOGGING_MESSAGE, jarName);
-        }
-    }
-
-    private void throwExceptionIfDuplicateJarsAreFound() throws DuplicateJarsException {
-        if (!duplicateJars.isEmpty()) {
-            throw new DuplicateJarsException();
+    private void checkForDuplicateJars() throws DuplicateJarsException {
+        for (String artifact : artifactsToVersion.keySet()) {
+            List<String> versions = artifactsToVersion.get(artifact);
+            if (versions.size() > 1) {
+                gatewayLogger.error(CONFLICTING_JARS_LOGGING_MESSAGE, artifact);
+                throw new DuplicateJarsException();
+            }
         }
     }
 
