@@ -35,11 +35,10 @@ import org.kaazing.gateway.management.monitoring.writer.impl.MMFSeviceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.BitUtil;
-import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
- * Class responsible with storing/writing information regarding the MMF format.
+ * Class responsible for storing/writing information in the appropriate the MMF format.
  *
  * File layout:
  * +-----------------------------------------------------------------------+
@@ -63,35 +62,31 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
 
     private static final int MONITOR_VERSION = 1;
     private static final int MONITOR_VERSION_OFFSET = 0;
-    private static final int META_DATA_OFFSET = MONITOR_VERSION_OFFSET;
     private static final int GW_DATA_REFERENCE_OFFSET = MONITOR_VERSION_OFFSET + BitUtil.SIZE_OF_INT;
     private static final int SERVICE_DATA_REFERENCE_OFFSET = GW_DATA_REFERENCE_OFFSET + BitUtil.SIZE_OF_INT;
 
     private static final int GW_ID_OFFSET = SERVICE_DATA_REFERENCE_OFFSET + BitUtil.SIZE_OF_INT;
     private static final int GW_DATA_OFFSET = GW_ID_OFFSET;
-    private static final int GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET = GW_ID_OFFSET + SIZEOF_STRING;
-    private static final int GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET = GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET
-            + BitUtil.SIZE_OF_INT;
-    private static final int GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET = GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET
-            + BitUtil.SIZE_OF_INT;
-    private static final int GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET = GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET
-            + BitUtil.SIZE_OF_INT;
 
-    private static final int NO_OF_SERVICES_OFFSET = GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET + BitUtil.SIZE_OF_INT;
-    private static final int SERVICE_DATA_OFFSET = NO_OF_SERVICES_OFFSET;
+    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 128;
+    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
+    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 128;
+    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
 
-    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
-    private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = 32 * GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
-    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 1024;
-    private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = 32 * SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
-
+    private int gwCountersLblBuffersReferenceOffset;
+    private int gwCountersLblBuffersLengthOffset;
+    private int gwCountersValueBuffersReferenceOffset;
+    private int gwCountersValueBuffersLengthOffset;
+    private int noOfServicesOffset;
+    private int serviceDataOffset;
     private int metadataLength;
     private int servicesCount;
     private int endOfMetadata;
     private int serviceRefSection;
     private UnsafeBuffer metaDataBuffer;
-
     private String gatewayId;
+    private int prevServiceOffset;
+    private String prevServiceName = "";
 
     /**
      * MonitorFileDescriptor constructor
@@ -100,6 +95,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     public MonitorFileWriterImpl(String gatewayId) {
         this.gatewayId = gatewayId;
+        setGatewayIdDependentOffsets(gatewayId);
         setServicesCount(MAX_SERVICE_COUNT);
     }
 
@@ -109,7 +105,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @return
      */
     @Override
-    public UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile) {
+    public UnsafeBuffer addMetadataToMonitoringFile(MappedByteBuffer mappedMonitorFile) {
         metaDataBuffer = new UnsafeBuffer(mappedMonitorFile, 0, metadataLength + BitUtil.SIZE_OF_INT);
         fillMetaData();
         return metaDataBuffer;
@@ -134,11 +130,11 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @return the counter labels buffer
      */
     @Override
-    public UnsafeBuffer createGatewayCounterLabelsBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
+    public UnsafeBuffer createGatewayCounterLabelsBuffer(final ByteBuffer buffer) {
         final int offset = endOfMetadata;
-        final int length = metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET));
+        final int length = metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset);
         // Update offset in header section
-        buffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET), offset);
+        metaDataBuffer.putInt(gwCountersLblBuffersReferenceOffset, offset);
 
         return new UnsafeBuffer(buffer, offset, length);
     }
@@ -150,12 +146,12 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @return the counter values buffer
      */
     @Override
-    public UnsafeBuffer createGatewayCounterValuesBuffer(final ByteBuffer buffer, final DirectBuffer metaDataBuffer) {
+    public UnsafeBuffer createGatewayCounterValuesBuffer(final ByteBuffer buffer) {
         final int offset = endOfMetadata
-                + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET));
-        final int length = metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET));
+                + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset);
+        final int length = metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset);
         // Update offset in header section
-        buffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET), offset);
+        metaDataBuffer.putInt(gwCountersValueBuffersReferenceOffset, offset);
 
         return new UnsafeBuffer(buffer, offset, length);
     }
@@ -169,16 +165,15 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     @Override
     public UnsafeBuffer createServiceCounterLabelsBuffer(final ByteBuffer buffer,
-                                                         final DirectBuffer metaDataBuffer,
                                                          int index) {
         final int offset = endOfMetadata
-                + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET))
-                + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET)) + index
+                + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset)
+                + metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset) + index
                 * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
         final int length = SERVICE_COUNTER_LABELS_BUFFER_LENGTH;
 
         // Update offset in header section
-        buffer.putInt(serviceRefSection + index * BitUtil.SIZE_OF_INT, offset);
+        metaDataBuffer.putInt(serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT, offset);
 
         return new UnsafeBuffer(buffer, offset, length);
     }
@@ -192,17 +187,16 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     @Override
     public UnsafeBuffer createServiceCounterValuesBuffer(final ByteBuffer buffer,
-                                                         final DirectBuffer metaDataBuffer,
                                                          int index) {
         final int offset = endOfMetadata
-                + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET))
-                + metaDataBuffer.getInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET)) + index
+                + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset)
+                + metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset) + index
                 * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH)
                 + SERVICE_COUNTER_LABELS_BUFFER_LENGTH;
         final int length = SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
 
         // Update offset in header section
-        buffer.putInt(serviceRefSection + (index + 2) * BitUtil.SIZE_OF_INT, offset);
+        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 2) * BitUtil.SIZE_OF_INT, offset);
 
         return new UnsafeBuffer(buffer, offset, length);
     }
@@ -214,7 +208,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     @Override
     public MonitoringEntityFactory getGwMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir) {
-        GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile, metaDataBuffer, monitoringDir);
+        GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile, monitoringDir);
         return gatewayWriter.writeCountersFactory();
     }
 
@@ -227,7 +221,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
              MappedByteBuffer mappedMonitorFile, File monitoringDir, MonitoredService monitoredService, int index) {
         fillServiceMetadata(monitoredService.getServiceName(), index);
         //create service writer
-        ServiceWriter serviceWriter = new MMFSeviceWriter(this, mappedMonitorFile, metaDataBuffer,
+        ServiceWriter serviceWriter = new MMFSeviceWriter(this, mappedMonitorFile,
                 monitoringDir, index);
         return serviceWriter.writeCountersFactory();
     }
@@ -245,50 +239,21 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     }
 
     /**
-     * Computes the offset for the monitoring framework version
-     * @param baseOffset - the base offset of the buffer
-     * @return the monitor version offset
-     */
-    private static int monitorVersionOffset(final int baseOffset) {
-        return baseOffset + MONITOR_VERSION_OFFSET;
-    }
-
-    /**
-     * Computes the offset for the counter labels buffer
-     * @param baseOffset - the base offset of the buffer
-     * @param offset
-     * @return the counter labels buffer offset
-     */
-    private static int metadataRelativeOffset(final int baseOffset, int offset) {
-        return baseOffset + META_DATA_OFFSET + offset;
-    }
-
-    /**
-     * Computes the offset for the counter labels buffer
-     * @return the offset
-     */
-    private static int metadataItemOffset(int offset) {
-        return metadataRelativeOffset(0, offset);
-    }
-
-
-    /**
      * Fills the meta data in the specified buffer
      * @param monitorMetaDataBuffer - the meta data buffer
      */
     private void fillMetaData() {
-        metaDataBuffer.putInt(monitorVersionOffset(0), MONITOR_VERSION);
-        metaDataBuffer.putInt(metadataItemOffset(GW_DATA_REFERENCE_OFFSET), metadataItemOffset(GW_DATA_OFFSET));
-        metaDataBuffer.putInt(metadataItemOffset(SERVICE_DATA_REFERENCE_OFFSET),
-                metadataItemOffset(SERVICE_DATA_OFFSET));
-        metaDataBuffer.putStringUtf8(metadataItemOffset(GW_ID_OFFSET), gatewayId, ByteOrder.nativeOrder());
-        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_REFERENCE_OFFSET), 0);
-        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_LBL_BUFFERS_LENGTH_OFFSET),
+        metaDataBuffer.putInt(MONITOR_VERSION_OFFSET, MONITOR_VERSION);
+        metaDataBuffer.putInt(GW_DATA_REFERENCE_OFFSET, GW_DATA_OFFSET);
+        metaDataBuffer.putInt(SERVICE_DATA_REFERENCE_OFFSET, serviceDataOffset);
+        metaDataBuffer.putStringUtf8(GW_ID_OFFSET, gatewayId, ByteOrder.nativeOrder());
+        metaDataBuffer.putInt(gwCountersLblBuffersReferenceOffset, 0);
+        metaDataBuffer.putInt(gwCountersLblBuffersLengthOffset,
                 GATEWAY_COUNTER_LABELS_BUFFER_LENGTH);
-        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_REFERENCE_OFFSET), 0);
-        metaDataBuffer.putInt(metadataItemOffset(GW_COUNTERS_VALUE_BUFFERS_LENGTH_OFFSET),
+        metaDataBuffer.putInt(gwCountersValueBuffersReferenceOffset, 0);
+        metaDataBuffer.putInt(gwCountersValueBuffersLengthOffset,
                 GATEWAY_COUNTER_VALUES_BUFFER_LENGTH);
-        metaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET), 0);
+        metaDataBuffer.putInt(noOfServicesOffset, 0);
     }
 
     /**
@@ -296,21 +261,40 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @param monitorMetaDataBuffer - the metadata buffer
      */
     private void fillServiceMetadata(final String serviceName, final int index) {
-        final int servOffset = metadataItemOffset(NO_OF_SERVICES_OFFSET) + BitUtil.SIZE_OF_INT;
-        metaDataBuffer.putInt(metadataItemOffset(NO_OF_SERVICES_OFFSET),
-                    metaDataBuffer.getInt(metadataItemOffset(NO_OF_SERVICES_OFFSET)) + 1);
+        final int servOffset = noOfServicesOffset + BitUtil.SIZE_OF_INT;
+        metaDataBuffer.putInt(noOfServicesOffset,
+                    metaDataBuffer.getInt(noOfServicesOffset) + 1);
 
-        int serviceNameOffset = servOffset + index * (SIZEOF_STRING + BitUtil.SIZE_OF_INT);
-        int serviceLocationOffset = servOffset + (index + 1) * SIZEOF_STRING + index * BitUtil.SIZE_OF_INT;
+        int serviceNameOffset = prevServiceOffset != 0 ?
+                prevServiceOffset + prevServiceName.length() + BitUtil.SIZE_OF_INT + BitUtil.SIZE_OF_INT : servOffset;
+        int serviceLocationOffset = serviceNameOffset + serviceName.length() + BitUtil.SIZE_OF_INT;
         metaDataBuffer.putStringUtf8(serviceNameOffset, serviceName, ByteOrder.nativeOrder());
-        metaDataBuffer.putInt(serviceLocationOffset, 0);
+        metaDataBuffer.putInt(serviceLocationOffset, serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT);
 
         // service reference section
-        metaDataBuffer.putInt(serviceRefSection + index * BitUtil.SIZE_OF_INT, 0);
-        metaDataBuffer.putInt(serviceRefSection + (index + 1) * BitUtil.SIZE_OF_INT,
+        metaDataBuffer.putInt(serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT, 0);
+        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 1) * BitUtil.SIZE_OF_INT,
                 SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-        metaDataBuffer.putInt(serviceRefSection + (index + 2) * BitUtil.SIZE_OF_INT, 0);
-        metaDataBuffer.putInt(serviceRefSection + (index + 3) * BitUtil.SIZE_OF_INT,
+        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 2) * BitUtil.SIZE_OF_INT, 0);
+        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 3) * BitUtil.SIZE_OF_INT,
                 SERVICE_COUNTER_VALUES_BUFFER_LENGTH);
+        prevServiceOffset = serviceNameOffset;
+        prevServiceName = serviceName;
+    }
+
+    /**
+     * Method setting gatewayId dependent offsets
+     * @param gatewayId
+     */
+    private void setGatewayIdDependentOffsets(String gatewayId) {
+        gwCountersLblBuffersReferenceOffset = GW_ID_OFFSET + gatewayId.length() + BitUtil.SIZE_OF_INT;
+        gwCountersLblBuffersLengthOffset = gwCountersLblBuffersReferenceOffset
+                + BitUtil.SIZE_OF_INT;
+        gwCountersValueBuffersReferenceOffset = gwCountersLblBuffersLengthOffset
+                + BitUtil.SIZE_OF_INT;
+        gwCountersValueBuffersLengthOffset = gwCountersValueBuffersReferenceOffset
+                + BitUtil.SIZE_OF_INT;
+        noOfServicesOffset = gwCountersValueBuffersLengthOffset + BitUtil.SIZE_OF_INT;
+        serviceDataOffset = noOfServicesOffset;
     }
 }

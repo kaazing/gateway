@@ -28,7 +28,6 @@ import java.nio.MappedByteBuffer;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-import uk.co.real_logic.agrona.DirectBuffer;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
@@ -37,23 +36,68 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
  */
 public interface MonitorFileWriter {
 
+    /**
+     * Method computing monitoring file total length
+     * @return
+     */
     int computeMonitorTotalFileLength();
 
-    UnsafeBuffer createGatewayCounterLabelsBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer);
+    /**
+     * Method returning gateway counter labels buffer
+     * @param buffer
+     * @return
+     */
+    UnsafeBuffer createGatewayCounterLabelsBuffer(ByteBuffer buffer);
 
-    UnsafeBuffer createGatewayCounterValuesBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer);
+    /**
+     * Method returning gateway counter values buffer
+     * @param buffer
+     * @return
+     */
+    UnsafeBuffer createGatewayCounterValuesBuffer(ByteBuffer buffer);
 
-    UnsafeBuffer createServiceCounterLabelsBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer, int index);
+    /**
+     * Method creating service counter labels buffer for service index
+     * @param buffer
+     * @param index
+     * @return
+     */
+    UnsafeBuffer createServiceCounterLabelsBuffer(ByteBuffer buffer, int index);
 
-    UnsafeBuffer createServiceCounterValuesBuffer(ByteBuffer buffer, DirectBuffer metaDataBuffer, int index);
+    /**
+     * Method returning service counter values buffer for service index
+     * @param buffer
+     * @param index
+     * @return
+     */
+    UnsafeBuffer createServiceCounterValuesBuffer(ByteBuffer buffer, int index);
 
+    /**
+     * Method returning gateway monitoring entity factory
+     * @param mappedMonitorFile
+     * @param monitoringDir
+     * @return
+     */
     MonitoringEntityFactory getGwMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir);
 
+    /**
+     * Method returning service monitoring entity factory
+     * @param mappedMonitorFile
+     * @param monitoringDir
+     * @param monitoredService
+     * @param index
+     * @return
+     */
     MonitoringEntityFactory getServiceMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile,
                                                               File monitoringDir,
                                                               MonitoredService monitoredService,
                                                               int index);
 
-    UnsafeBuffer addMetadataToAgronaFile(MappedByteBuffer mappedMonitorFile);
+    /**
+     * Method adding metadata to monitor file
+     * @param mappedMonitorFile
+     * @return
+     */
+    UnsafeBuffer addMetadataToMonitoringFile(MappedByteBuffer mappedMonitorFile);
 
 }

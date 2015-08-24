@@ -94,7 +94,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         int fileSize = monitorFileWriter.computeMonitorTotalFileLength();
         mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
 
-        monitorFileWriter.addMetadataToAgronaFile(mappedMonitorFile);
+        monitorFileWriter.addMetadataToMonitoringFile(mappedMonitorFile);
     }
 
     /**

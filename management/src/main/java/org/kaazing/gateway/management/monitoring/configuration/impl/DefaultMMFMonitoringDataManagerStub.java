@@ -30,11 +30,14 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
 
-    private MonitoringEntityFactory monitorigEntityFactory = new ServiceCounterManagerImpl(new MonitoringEntityFactory() {
+    private static final DefaultLongMonitoringCounterStub DEFAULT_LONG_MONITORING_COUNTER_STUB =
+            new DefaultLongMonitoringCounterStub();
+    private static final MonitoringEntityFactory MONITORING_ENTITY_FACTORY = new
+            ServiceCounterManagerImpl(new MonitoringEntityFactory() {
 
         @Override
         public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-            return new DefaultLongMonitoringCounterStub();
+            return DEFAULT_LONG_MONITORING_COUNTER_STUB;
         }
 
         @Override
@@ -47,12 +50,12 @@ public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManage
 
     @Override
     public MonitoringEntityFactory initialize() {
-        return monitorigEntityFactory;
+        return MONITORING_ENTITY_FACTORY;
     }
 
     @Override
     public MonitoringEntityFactory addService(MonitoredService monitoredService) {
-        return monitorigEntityFactory;
+        return MONITORING_ENTITY_FACTORY;
     }
 
 }
