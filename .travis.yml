@@ -3,4 +3,4 @@ language: Java
 jdk:
   - oraclejdk8
 install: mvn -q clean -DskipTests -DskipITs install
-script: mvn -q clean verify && mvn -q clean cobertura:cobertura-integration-test coveralls:report
+script: mvn verify && mvn cobertura:cobertura-integration-test coveralls:report

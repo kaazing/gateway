@@ -32,7 +32,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 import java.net.URI;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyHeadMethodIT {
 
@@ -56,29 +56,29 @@ public class HttpProxyHeadMethodIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
 
     @Specification( "http.proxy.head.method")
-    @Test(timeout = 5000)
+    @Test
     public void headMethod() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.head.method.404")
-    @Test(timeout = 5000)
+    @Test
     public void headMethod404() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.head.method.302")
-    @Test(timeout = 5000)
+    @Test
     public void headMethod302() throws Exception {
         robot.finish();
     }
 
     @Specification( "http.proxy.head.method.403")
-    @Test(timeout = 5000)
+    @Test
     public void headMethod403() throws Exception {
         robot.finish();
     }

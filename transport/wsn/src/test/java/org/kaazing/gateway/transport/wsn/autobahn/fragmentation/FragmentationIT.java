@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wsn.autobahn.fragmentation;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -51,124 +51,124 @@ public class FragmentationIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
-    
+    public TestRule chain = createRuleChain(gateway, robot);
+
     @Specification("sendContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
-    @Test(timeout = 6500)
+    @Test
     public void sendContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice() throws Exception {
         robot.finish();
     }
-   
+
     @Specification("sendContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice")
-    @Test(timeout = 6500)
+    @Test
     public void sendContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueThenTextMessageInTwoFragmentsTwice() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPingInTwoFragments")
-    @Test(timeout = 6500)
+    @Test
     public void sendPingInTwoFragments() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendPongInTwoFragments")
-    @Test(timeout = 6500)
+    @Test
     public void sendPongInTwoFragments() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueInFrameWiseChops")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueInFrameWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueSentInOctetWiseChops")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationframeWithFINEqualsFalseWhenThereIsNothingToContinueSentInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueSentInOneChop")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationFrameWithFINEqualsFalseWhenThereIsNothingToContinueSentInOneChop() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenNothingToContinueSentInFrameWiseChops")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenNothingToContinueSentInFrameWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOctetWiseChops")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOneChop")
-    @Test(timeout = 6500)
+    @Test
     public void sendTextMessageAfterContinuationFrameWithFINEqualsTrueWhenThereIsNothingToContinueSentInOneChop() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetween")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetween() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetweenAndAllFramesWithSYNCEqualsTrue")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInMultipleFramesWithPingsWithPayloadsInBetweenAndAllFramesWithSYNCEqualsTrue() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragments")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragments() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsInFrameWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsInFrameWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsInOctetWiseChops() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsThenContinuationWithFINEqualsFalseAndNothingToContinueThenUnfragmentedTextMessage")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsThenContinuationWithFINEqualsFalseAndNothingToContinueThenUnfragmentedTextMessage() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsWithBothFrameOpcodesSetToText")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsWithBothFrameOpcodesSetToText() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetween")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetween() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInFrameWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInFrameWiseChopss() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInOctetWiseChops")
-    @Test(timeout = 1500)
+    @Test
     public void sendTextMessageInTwoFragmentsWithOnePingWithPayloadInBetweenInOctetWiseChops() throws Exception {
         robot.finish();
     }
