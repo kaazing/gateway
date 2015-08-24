@@ -261,18 +261,29 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @param monitorMetaDataBuffer - the metadata buffer
      */
     private void fillServiceMetadata(final String serviceName, final int index) {
-        final int servOffset = noOfServicesOffset + BitUtil.SIZE_OF_INT;
-        metaDataBuffer.putInt(noOfServicesOffset,
-                    metaDataBuffer.getInt(noOfServicesOffset) + 1);
-
-        int serviceNameOffset = prevServiceOffset != 0 ?
-                prevServiceOffset + prevServiceName.length() + BitUtil.SIZE_OF_INT + BitUtil.SIZE_OF_INT : servOffset;
+        final int servAreaOffset = noOfServicesOffset + BitUtil.SIZE_OF_INT;
+        metaDataBuffer.putInt(noOfServicesOffset, metaDataBuffer.getInt(noOfServicesOffset) + 1);
+        int serviceNameOffset = getServiceNameOffset(servAreaOffset);
         int serviceLocationOffset = serviceNameOffset + serviceName.length() + BitUtil.SIZE_OF_INT;
         metaDataBuffer.putStringUtf8(serviceNameOffset, serviceName, ByteOrder.nativeOrder());
 
         initializeServiceRefMetadata(serviceLocationOffset, index * OFFSETS_PER_SERVICE);
         prevServiceOffset = serviceNameOffset;
         prevServiceName = serviceName;
+    }
+
+    /**
+     * Method returning serviceNameOffset
+     * @param servOffset
+     * @return
+     */
+    private int getServiceNameOffset(final int servOffset) {
+        // if there are other services which have been written
+        if (prevServiceOffset != 0) {
+            return prevServiceOffset + prevServiceName.length() + BitUtil.SIZE_OF_INT + BitUtil.SIZE_OF_INT;
+        }
+        // else
+        return servOffset;
     }
 
     /**
