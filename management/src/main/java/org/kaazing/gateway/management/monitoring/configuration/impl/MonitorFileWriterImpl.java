@@ -58,7 +58,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private static final int NUMBER_OF_INTS_PER_SERVICE = 5;
     private static final int NUMBER_OF_INTS_IN_HEADER = 8;
     private static final int SIZEOF_STRING = 128;
-    private static final int MAX_SERVICE_COUNT = 10;
+    private static final int MAX_SERVICE_COUNT = 100;
 
     private static final int MONITOR_VERSION = 1;
     private static final int MONITOR_VERSION_OFFSET = 0;
@@ -269,17 +269,27 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
                 prevServiceOffset + prevServiceName.length() + BitUtil.SIZE_OF_INT + BitUtil.SIZE_OF_INT : servOffset;
         int serviceLocationOffset = serviceNameOffset + serviceName.length() + BitUtil.SIZE_OF_INT;
         metaDataBuffer.putStringUtf8(serviceNameOffset, serviceName, ByteOrder.nativeOrder());
-        metaDataBuffer.putInt(serviceLocationOffset, serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT);
 
-        // service reference section
-        metaDataBuffer.putInt(serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT, 0);
-        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 1) * BitUtil.SIZE_OF_INT,
-                SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 2) * BitUtil.SIZE_OF_INT, 0);
-        metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 3) * BitUtil.SIZE_OF_INT,
-                SERVICE_COUNTER_VALUES_BUFFER_LENGTH);
+        initializeServiceRefMetadata(serviceLocationOffset, index * OFFSETS_PER_SERVICE);
         prevServiceOffset = serviceNameOffset;
         prevServiceName = serviceName;
+    }
+
+    /**
+     * Method initializing service ref metadata section data
+     * @param serviceLocationOffset
+     * @param serviceOffsetIndex
+     */
+    private void initializeServiceRefMetadata(int serviceLocationOffset, int serviceOffsetIndex) {
+        metaDataBuffer.putInt(serviceLocationOffset, serviceRefSection + serviceOffsetIndex * BitUtil.SIZE_OF_INT);
+
+        // service reference section
+        metaDataBuffer.putInt(serviceRefSection + serviceOffsetIndex * BitUtil.SIZE_OF_INT, 0);
+        metaDataBuffer.putInt(serviceRefSection + (serviceOffsetIndex + 1) * BitUtil.SIZE_OF_INT,
+                SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
+        metaDataBuffer.putInt(serviceRefSection + (serviceOffsetIndex + 2) * BitUtil.SIZE_OF_INT, 0);
+        metaDataBuffer.putInt(serviceRefSection + (serviceOffsetIndex + 3) * BitUtil.SIZE_OF_INT,
+                SERVICE_COUNTER_VALUES_BUFFER_LENGTH);
     }
 
     /**
