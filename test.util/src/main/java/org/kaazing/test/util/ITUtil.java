@@ -47,30 +47,35 @@ public final class ITUtil {
     }
 
     /**
-     * Creates a rule (chain) out of a k3po rule, adding extra rules as follows:<ol>
+     * Creates a rule (chain) out of a k3po or other rule, adding extra rules as follows:<ol>
      * <li> a timeout rule
      * <li> a rule to print console messages at the start and end of each test method and print trace level
      * log messages on test failure.
      * </ol>
-     * @param robot    Rule to startup and stop k3po
+     * @param rule    Rule to startup and stop k3po
      * @param timeout  The maximum allowed time duration of each test (including Gateway and robot startup and shutdown)
      * @param timeUnit The unit for the timeout
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
-    public static RuleChain createRuleChain(K3poRule robot, long timeout, TimeUnit timeUnit) {
-        TestRule timeoutRule = createTimeout(timeout, timeUnit);
-        TestRule trace = new MethodExecutionTrace();
-        return RuleChain.outerRule(trace).around(timeoutRule).around(robot);
+    public static RuleChain createRuleChain(TestRule rule, long timeout, TimeUnit timeUnit) {
+        return createRuleChain(timeout, timeUnit).around(rule);
     }
 
     /**
-     * Creates a Timeout will which is disabled when debugging and has the option to look for a stuck thread
+     * Creates a rule chain containing the following rules:<ol>
+     * <li> a timeout rule
+     * <li> a rule to print console messages at the start and end of each test method and print trace level
+     * log messages on test failure.
+     * </ol>
      * @param timeout  The maximum allowed time duration of the test
      * @param timeUnit The unit for the timeout
      * @return
      */
-    public static TestRule createTimeout(long timeout, TimeUnit timeUnit) {
-        return new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit).withLookingForStuckThread(true).build());
+    public static RuleChain createRuleChain(long timeout, TimeUnit timeUnit) {
+        TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
+                .withLookingForStuckThread(true).build());
+        TestRule trace = new MethodExecutionTrace();
+        return RuleChain.outerRule(trace).around(timeoutRule);
     }
 
 

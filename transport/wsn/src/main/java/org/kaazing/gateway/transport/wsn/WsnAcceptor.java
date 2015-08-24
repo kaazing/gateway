@@ -23,8 +23,12 @@ package org.kaazing.gateway.transport.wsn;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
+import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
+import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -435,6 +439,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
         };
 
+        bindApiPath(address);
+
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(address.getTransport());
         try {
             ResourceAddress transport = address.getTransport();
@@ -448,9 +454,36 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler,
             BridgeSessionInitializer<? extends IoFuture> initializer) {
+        unbindApiPath(address);
         ResourceAddress transport = address.getTransport();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transport);
         return acceptor.unbind(address.getTransport());
+    }
+
+    private void bindApiPath(ResourceAddress address) {
+        String scheme = address.getExternalURI().getScheme();
+        ResourceAddress apiAddress = createApiAddress(address);
+        bridgeServiceFactory.newBridgeAcceptor(apiAddress).bind(apiAddress, WsAcceptor.API_PATH_HANDLER, null);
+    }
+
+    private void unbindApiPath(ResourceAddress address) {
+        String scheme = address.getExternalURI().getScheme();
+        ResourceAddress apiAddress = createApiAddress(address);
+        bridgeServiceFactory.newBridgeAcceptor(apiAddress).unbind(apiAddress);
+    }
+
+    private ResourceAddress createApiAddress(ResourceAddress address) {
+        ResourceAddress transport = address.getTransport();
+
+        ResourceOptions apiAddressOptions = ResourceOptions.FACTORY.newResourceOptions(transport);
+        // /;api/operation is a terminal endpoint so next protocol should be null
+        apiAddressOptions.setOption(NEXT_PROTOCOL, null);
+        // even if the address has an alternate, do not bind the alternate
+        apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
+
+        String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        URI apiLocation = modifyURIPath(transport.getResource(), path);
+        return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }
 
     private IoHandler selectHandler(ResourceAddress address) {

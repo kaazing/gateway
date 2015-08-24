@@ -27,6 +27,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.URLUtils.*;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
@@ -53,6 +54,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
 
+import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -93,6 +95,7 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
+import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -299,6 +302,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 }
             };
 
+            bindApiPath(address);
+
             BridgeAcceptor transportAcceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
             transportAcceptor.bind(transportAddress, createHandler, wrapperHttpInitializer);
 
@@ -306,6 +311,48 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             throw new RuntimeException("Unable to bind address " + address + ": " + e.getMessage(),e );
         }
 
+    }
+
+    private void bindApiPath(ResourceAddress address) {
+        ResourceAddress apiHttpAddress = createApiHttpAddress(address.getTransport());
+        bridgeServiceFactory.newBridgeAcceptor(apiHttpAddress).bind(apiHttpAddress, WsAcceptor.API_PATH_HANDLER, null);
+
+        ResourceAddress apiHttpxeAddress = address.getTransport().getOption(ALTERNATE);
+        if (apiHttpxeAddress != null) {
+            apiHttpxeAddress = createApiHttpxeAddress(apiHttpxeAddress);
+            bridgeServiceFactory.newBridgeAcceptor(apiHttpxeAddress).bind(apiHttpxeAddress, WsAcceptor.API_PATH_HANDLER, null);
+        }
+    }
+
+    private void unbindApiPath(ResourceAddress address) {
+        ResourceAddress apiHttpAddress = createApiHttpAddress(address.getTransport());
+        bridgeServiceFactory.newBridgeAcceptor(apiHttpAddress).unbind(apiHttpAddress);
+
+        ResourceAddress apiHttpxeAddress = address.getTransport().getOption(ALTERNATE);
+        if (apiHttpxeAddress != null) {
+            apiHttpxeAddress = createApiHttpxeAddress(apiHttpxeAddress);
+            bridgeServiceFactory.newBridgeAcceptor(apiHttpxeAddress).unbind(apiHttpxeAddress);
+        }
+    }
+
+    private ResourceAddress createApiHttpAddress(ResourceAddress httpTransport) {
+        String path = appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+
+        URI httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
+        ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
+        httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
+        httpOptions.setOption(ALTERNATE, null);
+        return resourceAddressFactory.newResourceAddress(httpLocation, httpOptions);
+    }
+
+    private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
+        String path = appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+
+        httpxeTransport = httpxeTransport.resolve(path);
+        URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
+        ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
+        httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
+        return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -337,6 +384,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     @Override
     protected UnbindFuture unbindInternal(ResourceAddress address, IoHandler handler,
             BridgeSessionInitializer<? extends IoFuture> initializer) {
+
+        unbindApiPath(address);
 
         final ResourceAddress transportAddress = address.getTransport();
         URI transportURI = transportAddress.getExternalURI();
