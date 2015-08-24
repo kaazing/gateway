@@ -19,6 +19,7 @@ public class DuplicateJarFinderTest {
     private static final String[] MOCK_CLASS_PATH_ENTRIES = {"gateway.server.jar"};
     private static final String[] MOCK_CLASS_DUPLICATE_PATH_ENTRIES = {"gateway.server.jar","gateway.server.jar"};
     private static final String MOCK_JAR_FILE_NAME = "org.kaazing:gateway.server";
+    private static final String MOCK_JAR_FILE_NAME2 = "org.codehaus:some.jar";
 
     private Mockery context;
 
@@ -54,26 +55,23 @@ public class DuplicateJarFinderTest {
     }
     
     @Test
-    public void testFindDuplicateJarsShouldNotThrowExceptionIfNoneKaazingProduct() throws IOException {
+    public void testFindDuplicateJarsShouldNotThrowExceptionIfNoneKaazingProduct() throws IOException, DuplicateJarsException {
         final ClassPathParser classPathParser = context.mock(ClassPathParser.class);
         final Logger gatewayLogger = context.mock(Logger.class);
         DuplicateJarFinder duplicateJarFinder = new DuplicateJarFinder(gatewayLogger);
         duplicateJarFinder.setClassPathParser(classPathParser);
 
-        context.checking(new Expectations() {{
-            oneOf(classPathParser).getClassPathEntries();
-            will(returnValue(MOCK_CLASS_PATH_ENTRIES));
-            oneOf(classPathParser).getManifestAttributesFromClassPathEntry(MOCK_CLASS_PATH_ENTRIES[0]);
-            will(returnValue(getAttributesForNoneKaazingProduct()));
-            allowing(gatewayLogger).debug(with(any(String.class)), with(any(Object.class)), with(any(Object.class)));
-            never(gatewayLogger).error(with(any(String.class)), with(any(Object.class)));
-        }});
-
-        try {
-            duplicateJarFinder.findDuplicateJars();
-        } catch (Exception e) {
-            fail(EXCEPTION_NOT_EXPECTED_MSG);
-        }
+        context.checking(new Expectations() {
+            {
+                oneOf(classPathParser).getClassPathEntries();
+                will(returnValue(MOCK_CLASS_PATH_ENTRIES));
+                oneOf(classPathParser).getManifestAttributesFromClassPathEntry(MOCK_CLASS_PATH_ENTRIES[0]);
+                will(returnValue(getAttributesForNoneKaazingProduct()));
+                allowing(gatewayLogger).debug(with(any(String.class)), with(any(Object.class)), with(any(Object.class)));
+                never(gatewayLogger).error(with(any(String.class)), with(any(Object.class)));
+            }
+        });
+        duplicateJarFinder.findDuplicateJars();
     }
 
     @Test(expected=DuplicateJarsException.class)
@@ -107,7 +105,7 @@ public class DuplicateJarFinderTest {
     private Attributes getAttributesForNoneKaazingProduct() {
         Attributes attributes = new Attributes();
         attributes.putValue("Implementation-Version", "1.0");
-        attributes.putValue("Artifact-Name", MOCK_JAR_FILE_NAME);
+        attributes.putValue("Artifact-Name", MOCK_JAR_FILE_NAME2);
         return attributes;
     }
 

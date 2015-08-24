@@ -82,7 +82,7 @@ final class GatewayImpl implements Gateway {
     private Launcher gateway;
     private Gateway baseGateway;
     private KaazingFileWatchdog watchDog;
-    private DuplicateJarFinder duplicateJarFinder;
+    private final DuplicateJarFinder duplicateJarFinder;
 
     /**
      * <p> Create a new in-process Gateway instance.
