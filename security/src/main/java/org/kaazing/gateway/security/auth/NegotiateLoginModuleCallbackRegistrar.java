@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.security.auth;
 
-public class BaseCallbackRegistrar {
+public class NegotiateLoginModuleCallbackRegistrar {
 
     /**
      * Registers the Callbacks that will be used by the LoginModule.

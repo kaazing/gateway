@@ -52,20 +52,18 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
     private boolean debug;
     private boolean tryFirstToken;
 
-    private final BaseCallbackRegistrar callbackRegistrar;
+    private final NegotiateLoginModuleCallbackRegistrar callbackRegistrar;
 
-    private static BaseCallbackRegistrar newCallbackRegistrar() {
-        LOG.info("[NegotiateLoginModule] newCallbackRegistrar()");
-        ServiceLoader<BaseCallbackRegistrar> loader = ServiceLoader.load(BaseCallbackRegistrar.class);
-        Iterator<BaseCallbackRegistrar> iterator = loader.iterator();
+    private static NegotiateLoginModuleCallbackRegistrar newCallbackRegistrar() {
+        ServiceLoader<NegotiateLoginModuleCallbackRegistrar> loader = ServiceLoader.load(
+            NegotiateLoginModuleCallbackRegistrar.class);
+        Iterator<NegotiateLoginModuleCallbackRegistrar> iterator = loader.iterator();
         if (iterator.hasNext()) {
             // If this is in the context of Enterprise Gateway, then load the Enterprise-specific
             // registrar that can register additional Callbacks.
-            LOG.info("[NegotiateLoginModule] ServiceLoader found Enterprise Class");
             return iterator.next();
         }
         // Otherwise, return null.
-        LOG.info("[NegotiateLoginModule] ServiceLoader doesn't find Class");
         return null;
     }
 
@@ -123,7 +121,6 @@ public class NegotiateLoginModule extends BaseStateDrivenLoginModule {
                 negotiateAuthToken = negotiateAuthToken.substring("Negotiate ".length());
             }
             if (this.callbackRegistrar != null) {
-                LOG.info("[NegotiateLoginModule] Start GSScakkback");
                 ByteBuffer gssBuf = Encoding.BASE64.decode(ByteBuffer.wrap(negotiateAuthToken.getBytes(UTF8)));
                 byte[] gss = new byte[gssBuf.remaining()];
                 gssBuf.get(gss);
