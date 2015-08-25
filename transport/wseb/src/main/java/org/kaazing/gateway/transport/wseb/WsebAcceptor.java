@@ -539,9 +539,14 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 wseLocalAddress = getWseLocalAddress(session, wsProtocol);
             }
 
-            final ResourceAddress localAddress = wseLocalAddress;
+            if (wseLocalAddress == null) {
+                logger.info("Sending HTTP status 404 as no local address is found");
+                session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
+                session.close(false);
+                return;
+            }
 
-            assert localAddress != null;
+            final ResourceAddress localAddress = wseLocalAddress;
 
             final String wsProtocol0 = wsProtocol;
             List<String> clientRequestedExtensions =  session.getReadHeaders(WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
