@@ -54,7 +54,7 @@ import org.kaazing.test.util.Mockery;
 
 public class HttpOperationFilterTest {
 
-	@Test
+    @Test
     public void testInjectSetCookies() throws Exception {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());

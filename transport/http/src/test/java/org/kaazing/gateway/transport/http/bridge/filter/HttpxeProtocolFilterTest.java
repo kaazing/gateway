@@ -212,8 +212,8 @@ public class HttpxeProtocolFilterTest {
         context.assertIsSatisfied();
     }
 
-	@Test
-	public void shouldWriteResponseWithInsertedCookies() throws Exception {
+    @Test
+    public void shouldWriteResponseWithInsertedCookies() throws Exception {
 
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
@@ -221,7 +221,7 @@ public class HttpxeProtocolFilterTest {
         expectedResponse.setReason("Cross-Origin Redirect");
         expectedResponse.setHeader("Location", "https://www.w3.org/");
 
-	    context.checking(new Expectations() { {
+        context.checking(new Expectations() { {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
@@ -232,21 +232,21 @@ public class HttpxeProtocolFilterTest {
 
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
-	        oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
+            oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
 
-	    HttpResponseMessage httpResponse = new HttpResponseMessage();
-	    httpResponse.setVersion(HTTP_1_1);
-	    httpResponse.setStatus(REDIRECT_FOUND);
-	    httpResponse.setReason("Cross-Origin Redirect");
-	    httpResponse.setHeader("Location", "https://www.w3.org/");
-	    httpResponse.setHeader("Set-Cookie", "KSSOID=12345;");
+        HttpResponseMessage httpResponse = new HttpResponseMessage();
+        httpResponse.setVersion(HTTP_1_1);
+        httpResponse.setStatus(REDIRECT_FOUND);
+        httpResponse.setReason("Cross-Origin Redirect");
+        httpResponse.setHeader("Location", "https://www.w3.org/");
+        httpResponse.setHeader("Set-Cookie", "KSSOID=12345;");
 
-	    HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
+        HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
 
-	    context.assertIsSatisfied();
-	}
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void shouldWriteResponseWithInsertedTextPlainContentType() throws Exception {

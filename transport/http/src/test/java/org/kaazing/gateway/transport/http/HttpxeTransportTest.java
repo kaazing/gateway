@@ -203,13 +203,13 @@ public class HttpxeTransportTest {
         filterChain.addLast("merge", new IoBufferMergeFilter());
         session.write(wrap((
                 "POST / HTTP/1.1\r\n" +
-        		"Host: localhost:8000\r\n" +
+                "Host: localhost:8000\r\n" +
                 "Content-Type: application/x-message-http\r\n" +
                 "Content-Length: 18\r\n" +
                 "X-Next-Protocol: httpxe/1.1\r\n" +
-        		"\r\n" +
-        		"GET / HTTP/1.1\r\n" +
-        		"\r\n").getBytes(UTF_8))).await();
+                "\r\n" +
+                "GET / HTTP/1.1\r\n" +
+                "\r\n").getBytes(UTF_8))).await();
 
         context.assertIsSatisfied();
     }
