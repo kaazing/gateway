@@ -41,7 +41,7 @@ public class DuplicateJarFinderTest {
 
     @Test
     public void testFindDuplicateJarsShouldNotThrowExceptionIfOneKaazingProduct() throws IOException, DuplicateJarsException {
-        final ClassPathParser classPathParser = context.mock(ClassPathParser.class);
+        final ManifestReader classPathParser = context.mock(ManifestReader.class);
         final Logger gatewayLogger = context.mock(Logger.class);
         final Enumeration<URL> manifestURLs = context.mock(Enumeration.class);
         DuplicateJarFinder duplicateJarFinder = new DuplicateJarFinder(gatewayLogger);
@@ -71,7 +71,7 @@ public class DuplicateJarFinderTest {
 
     @Test
     public void testFindDuplicateJarsShouldNotThrowExceptionIfNoneKaazingProduct() throws IOException, DuplicateJarsException {
-        final ClassPathParser classPathParser = context.mock(ClassPathParser.class);
+        final ManifestReader classPathParser = context.mock(ManifestReader.class);
         final Logger gatewayLogger = context.mock(Logger.class);
         final Enumeration<URL> manifestURLs = context.mock(Enumeration.class);
         DuplicateJarFinder duplicateJarFinder = new DuplicateJarFinder(gatewayLogger);
@@ -100,7 +100,7 @@ public class DuplicateJarFinderTest {
     @Test(
             expected = DuplicateJarsException.class)
     public void testFindDuplicateJarsShouldThrowExceptionIfDuplicateKaazingProducts() throws IOException, DuplicateJarsException {
-        final ClassPathParser classPathParser = context.mock(ClassPathParser.class);
+        final ManifestReader classPathParser = context.mock(ManifestReader.class);
         final Logger gatewayLogger = context.mock(Logger.class);
         final Enumeration<URL> manifestURLs = context.mock(Enumeration.class);
         DuplicateJarFinder duplicateJarFinder = new DuplicateJarFinder(gatewayLogger);

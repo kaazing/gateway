@@ -30,7 +30,7 @@ import java.util.jar.Manifest;
 /**
  * Class used for parsing the class path system property.
  */
-public class ClassPathParser {
+public class ManifestReader {
 
     /**
      * Retrieves the class path entries.

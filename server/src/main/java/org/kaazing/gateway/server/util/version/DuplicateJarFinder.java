@@ -43,13 +43,13 @@ public class DuplicateJarFinder {
     private static final String MANIFEST_VERSION = "Implementation-Version";
     private static final String MANIFEST_JAR_NAME = "Artifact-Name";
 
-    private ClassPathParser classPathParser;
+    private ManifestReader classPathParser;
     private Logger gatewayLogger;
     private Map<String, List<String>> artifactsToVersion = new HashMap<String, List<String>>();
 
     public DuplicateJarFinder(Logger gatewayLogger) {
         this.gatewayLogger = gatewayLogger;
-        this.classPathParser = new ClassPathParser();
+        this.classPathParser = new ManifestReader();
     }
 
     /**
@@ -100,7 +100,7 @@ public class DuplicateJarFinder {
      * This method is only for testing purposes
      * @param classPathParser - the mock for the classPathParser
      */
-    void setClassPathParser(ClassPathParser classPathParser) {
+    void setClassPathParser(ManifestReader classPathParser) {
         this.classPathParser = classPathParser;
     }
 
