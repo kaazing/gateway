@@ -22,7 +22,7 @@
 package org.kaazing.gateway.management.jmx;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.test.util.ITUtil.createTimeout;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
@@ -43,7 +43,7 @@ public class JmxManagementServiceHandlerTest {
     private final String PROXY = "proxy";
 
     @Rule
-    public TestRule timeoutRule = createTimeout(20, SECONDS);
+    public TestRule timeoutRule = createRuleChain(20, SECONDS);
 
     @Test
     public void testNoJMXBindingNameConflictsOnMultiServicesUsingSameConnect() throws Exception {

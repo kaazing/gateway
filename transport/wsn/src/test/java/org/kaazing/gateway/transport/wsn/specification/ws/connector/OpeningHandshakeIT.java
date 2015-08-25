@@ -2,7 +2,7 @@
  * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  */
 
-package org.kaazing.gateway.transport.wsn;
+package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
