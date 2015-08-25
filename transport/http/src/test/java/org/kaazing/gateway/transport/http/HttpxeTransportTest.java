@@ -170,7 +170,6 @@ public class HttpxeTransportTest {
                               "Content-Length: 69\r\n" +
                               "Content-Type: text/plain;charset=UTF-8\r\n" +
                               "Set-Cookie: KSSOID=12345;\r\n" +
-                              "Set-Cookie: KSESSIONID=0123456789abcdef;\r\n" +
                               "\r\n" +
                               "HTTP/1.1 302 Cross-Origin Redirect\r\n" +
                               "Location: https://www.w3.org/\r\n" +
@@ -193,7 +192,6 @@ public class HttpxeTransportTest {
                 httpSession.setReason("Cross-Origin Redirect");
                 httpSession.setWriteHeader("Location", "https://www.w3.org/");
                 httpSession.setWriteHeader("Set-Cookie", "KSSOID=12345;");
-                httpSession.setWriteCookies(Collections.<HttpCookie>singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")));
                 httpSession.close(false).addListener(CLOSE_TRANSPORT_LISTENER);
             }
 

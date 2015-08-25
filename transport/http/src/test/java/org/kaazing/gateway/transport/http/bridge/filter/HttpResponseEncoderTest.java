@@ -58,7 +58,6 @@ public class HttpResponseEncoderTest {
 		httpResponse.setStatus(HttpStatus.REDIRECT_FOUND);
 		httpResponse.setReason("Cross-Origin Redirect");
 		httpResponse.setHeader("Location", "https://www.w3.org/");
-		httpResponse.setCookies(Collections.<HttpCookie>singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")));
 		
         encoder.encode(session, httpResponse, encoderOut);
         encoderOut.mergeAll();
@@ -66,7 +65,6 @@ public class HttpResponseEncoderTest {
 		IoBufferEx buf = (IoBufferEx) session.getEncoderOutputQueue().poll();
 		assertEquals("HTTP/1.1 302 Cross-Origin Redirect\r\n" +
 					 "Location: https://www.w3.org/\r\n" +
-				     "Set-Cookie: KSESSIONID=0123456789abcdef;\r\n" +
 				     "Content-Length: 0\r\n" +
 				     "\r\n", 
 				     buf.getString(Charset.forName("UTF-8").newDecoder()));

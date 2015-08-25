@@ -29,13 +29,11 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolCodecException;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.junit.Test;
-import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -178,7 +176,6 @@ public class HttpRequestDecoderTest {
 
         ByteBuffer in = ByteBuffer.wrap(("POST /sse?.a=1&.a=1b&.b+=2 HTTP/1.1\r\n" +
     			                         "Host: sse.server.net\r\n" +
-    			                         "Cookie: KSESSIONID=0123456789abcdef\r\n" +
     				                     "Content-Type: text/event-stream\r\n" +
     					                 "\r\n").getBytes());
 
@@ -189,7 +186,6 @@ public class HttpRequestDecoderTest {
 		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
 		assertEquals("/sse?.a=1&.a=1b&.b+=2", httpRequest.getRequestURI().toASCIIString());
         assertNull(httpRequest.getContent());
-		assertEquals(Collections.singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")), httpRequest.getCookies());
 		assertEquals(Arrays.asList("1", "1b"), httpRequest.getParameterValues(".a"));
 		assertEquals(Arrays.asList("2"), httpRequest.getParameterValues(".b "));
 		assertEquals(Arrays.asList("sse.server.net"), httpRequest.getHeaderValues("Host"));

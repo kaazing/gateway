@@ -56,7 +56,6 @@ public class HttpResponseDecoderTest {
 
 		ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK (Test)\r\n" +
     			                         "Server: Test\r\n" +
-    			                         "Set-Cookie: KSESSIONID=0123456789abcdef\r\n" +
     			                         "Content-Length: 0\r\n" +
     					                 "\r\n").getBytes());
 
@@ -69,7 +68,6 @@ public class HttpResponseDecoderTest {
 		assertEquals(HttpStatus.SUCCESS_OK, httpResponse.getStatus());
 		assertEquals("OK (Test)", httpResponse.getReason());
         assertNull(httpResponse.getContent());
-		assertEquals(Collections.singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")), httpResponse.getCookies());
 		assertEquals(Arrays.asList("Test"), httpResponse.getHeaderValues("Server"));
 		
 		assertTrue(session.getDecoderOutputQueue().isEmpty());

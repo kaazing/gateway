@@ -59,7 +59,6 @@ public class HttpRequestEncoderTest {
 		httpRequest.setParameter(".a", "1");
 		httpRequest.addParameter(".a", "1a");
 		httpRequest.setParameter(".b ", "2");
-		httpRequest.setCookies(Collections.<HttpCookie>singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")));
 		
         encoder.encode(session, httpRequest, encoderOut);
         encoderOut.mergeAll();
@@ -67,7 +66,6 @@ public class HttpRequestEncoderTest {
 		IoBuffer buf = (IoBuffer)session.getEncoderOutputQueue().poll();
 		assertEquals("POST /sse?.a=1&.a=1a&.b+=2 HTTP/1.1\r\n" +
 					 "Host: sse.server.net\r\n" +
-				     "Cookie: KSESSIONID=0123456789abcdef\r\n" +
 				     "Content-Length: 0\r\n" +
 				     "\r\n", 
 				     buf.getString(Charset.forName("UTF-8").newDecoder()));
