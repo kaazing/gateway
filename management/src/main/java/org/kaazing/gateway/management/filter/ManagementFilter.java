@@ -115,10 +115,4 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
                 .doSessionCreated(managementContext, serviceBean, session, managementSessionType);
         serviceCounterManager.incrementSessionCounters(managementSessionType);
     }
-
-    public void close() {
-        // We need to manually close the monitoring entity factory because we don't use a
-        // try-with-resources block in order to be invoked by the JVM
-        serviceCounterManager.close();
-    }
 }
