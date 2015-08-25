@@ -32,7 +32,7 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 import uk.co.real_logic.agrona.concurrent.CountersManager;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
-public class MMFSeviceWriter implements ServiceWriter {
+public class MMFServiceWriter implements ServiceWriter {
 
     private CountersManager countersManager;
     private MappedByteBuffer mappedMonitorFile;
@@ -40,7 +40,7 @@ public class MMFSeviceWriter implements ServiceWriter {
     private int index;
     private MonitorFileWriter monitorFileWriter;
 
-    public MMFSeviceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
+    public MMFServiceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
                            File monitoringDir, int index) {
         this.monitorFileWriter = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;

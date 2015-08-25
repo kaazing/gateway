@@ -66,7 +66,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
         // create gateway monitoring entity factory
         MonitoringEntityFactory gwCountersFactory =
-                monitorFileWriter.getGwMonitoringEntityFactory(mappedMonitorFile, monitoringDir);
+                monitorFileWriter.getGatewayMonitoringEntityFactory(mappedMonitorFile, monitoringDir);
 
         return gwCountersFactory;
     }

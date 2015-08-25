@@ -56,7 +56,6 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
         serviceCounterManager = (ServiceCounterManager) serviceContext.getMonitoringFactory();
-        serviceCounterManager.initializeSessionCounters();
     }
 
     public ServiceManagementBean getServiceBean() {

@@ -78,7 +78,7 @@ public interface MonitorFileWriter {
      * @param monitoringDir
      * @return
      */
-    MonitoringEntityFactory getGwMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir);
+    MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir);
 
     /**
      * Method returning service monitoring entity factory

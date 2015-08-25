@@ -31,7 +31,7 @@ import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
 import org.kaazing.gateway.management.monitoring.writer.ServiceWriter;
 import org.kaazing.gateway.management.monitoring.writer.impl.MMFGatewayWriter;
-import org.kaazing.gateway.management.monitoring.writer.impl.MMFSeviceWriter;
+import org.kaazing.gateway.management.monitoring.writer.impl.MMFServiceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.BitUtil;
@@ -58,6 +58,8 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private static final int NUMBER_OF_INTS_PER_SERVICE = 5;
     private static final int NUMBER_OF_INTS_IN_HEADER = 8;
     private static final int SIZEOF_STRING = 128;
+    private static final int SIZEOF_ENTRY = 128;
+    private static final int ENTRIES_COUNT = 1024;
     private static final int MAX_SERVICE_COUNT = 100;
 
     private static final int MONITOR_VERSION = 1;
@@ -68,9 +70,9 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private static final int GW_ID_OFFSET = SERVICE_DATA_REFERENCE_OFFSET + BitUtil.SIZE_OF_INT;
     private static final int GW_DATA_OFFSET = GW_ID_OFFSET;
 
-    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 128;
+    private static final int GATEWAY_COUNTER_VALUES_BUFFER_LENGTH = ENTRIES_COUNT * SIZEOF_ENTRY;
     private static final int GATEWAY_COUNTER_LABELS_BUFFER_LENGTH = GATEWAY_COUNTER_VALUES_BUFFER_LENGTH;
-    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = 1024 * 128;
+    private static final int SERVICE_COUNTER_VALUES_BUFFER_LENGTH = ENTRIES_COUNT * SIZEOF_ENTRY;
     private static final int SERVICE_COUNTER_LABELS_BUFFER_LENGTH = SERVICE_COUNTER_VALUES_BUFFER_LENGTH;
 
     private int gwCountersLblBuffersReferenceOffset;
@@ -202,17 +204,18 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     }
 
     /**
-     * Method returning a gateway MonitoringEntityFactory
+     * Method instantiating and returning a gateway MonitoringEntityFactory
      * @param gatewayWriter
      * @return
      */
     @Override
-    public MonitoringEntityFactory getGwMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir) {
+    public MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir) {
         GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile, monitoringDir);
         return gatewayWriter.writeCountersFactory();
     }
 
     /**
+     * Method instantiating and returning a service MonitoringEntityFactory
      * @param serviceWriter
      * @return
      */
@@ -221,7 +224,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
              MappedByteBuffer mappedMonitorFile, File monitoringDir, MonitoredService monitoredService, int index) {
         fillServiceMetadata(monitoredService.getServiceName(), index);
         //create service writer
-        ServiceWriter serviceWriter = new MMFSeviceWriter(this, mappedMonitorFile,
+        ServiceWriter serviceWriter = new MMFServiceWriter(this, mappedMonitorFile,
                 monitoringDir, index);
         return serviceWriter.writeCountersFactory();
     }

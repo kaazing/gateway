@@ -38,7 +38,7 @@ public class ServiceCounterManagerImplTest {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        serviceCounterManager.initializeSessionCounters();
+//        serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
@@ -55,7 +55,7 @@ public class ServiceCounterManagerImplTest {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        serviceCounterManager.initializeSessionCounters();
+//        serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
@@ -72,7 +72,7 @@ public class ServiceCounterManagerImplTest {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        serviceCounterManager.initializeSessionCounters();
+//        serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
         serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
         monitoringEntityFactory.close();
@@ -83,7 +83,7 @@ public class ServiceCounterManagerImplTest {
         MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        serviceCounterManager.initializeSessionCounters();
+//        serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
         serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
         monitoringEntityFactory.close();

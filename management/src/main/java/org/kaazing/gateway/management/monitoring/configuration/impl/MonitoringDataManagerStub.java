@@ -28,7 +28,7 @@ import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManager {
+public class MonitoringDataManagerStub implements MonitoringDataManager {
 
     private static final DefaultLongMonitoringCounterStub DEFAULT_LONG_MONITORING_COUNTER_STUB =
             new DefaultLongMonitoringCounterStub();
@@ -45,7 +45,7 @@ public class DefaultMMFMonitoringDataManagerStub implements MonitoringDataManage
         }
     });
 
-    public DefaultMMFMonitoringDataManagerStub() {
+    public MonitoringDataManagerStub() {
     }
 
     @Override

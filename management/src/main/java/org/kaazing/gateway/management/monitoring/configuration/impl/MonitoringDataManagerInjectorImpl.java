@@ -46,7 +46,7 @@ public class MonitoringDataManagerInjectorImpl implements MonitoringDataManagerI
             monitoringManager = new MMFMonitoringDataManager(configuration);
         }
         else {
-            monitoringManager = new DefaultMMFMonitoringDataManagerStub();
+            monitoringManager = new MonitoringDataManagerStub();
         }
         monitoringManager.initialize();
         return monitoringManager;

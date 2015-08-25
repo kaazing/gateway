@@ -33,12 +33,6 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 public interface ServiceCounterManager extends MonitoringEntityFactory {
 
     /**
-     * Method initializing the service session counters
-     * @return
-     */
-    void initializeSessionCounters();
-
-    /**
      * Method incrementing the service session counters
      * @param managementSessionType - session type used to determine whether session is native or not
      */

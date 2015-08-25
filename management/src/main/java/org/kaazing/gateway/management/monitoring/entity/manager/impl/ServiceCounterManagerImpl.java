@@ -46,22 +46,8 @@ public class ServiceCounterManagerImpl implements
 
     public ServiceCounterManagerImpl(MonitoringEntityFactory monitoringEntityFactory) {
         this.monitoringEntityFactory = monitoringEntityFactory;
+        initializeSessionCounters();
    }
-
-    @Override
-    public void initializeSessionCounters() {
-        if (monitoringEntityFactory == null) {
-            return;
-        }
-        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_SESSIONS);
-        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_NATIVE_SESSIONS);
-        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_EMULATED_SESSIONS);
-        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_SESSIONS);
-        cumulativeNativeSessionsCounter =
-                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS);
-        cumulativeEmulatedSessionsCounter =
-                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS);
-    }
 
     @Override
     public void incrementSessionCounters(ManagementSessionType managementSessionType) {
@@ -147,4 +133,21 @@ public class ServiceCounterManagerImpl implements
         return cumulativeEmulatedSessionsCounter;
     }
 
+    /**
+     * Method initializing the service session counters
+     * @return
+     */
+    private void initializeSessionCounters() {
+        if (monitoringEntityFactory == null) {
+            return;
+        }
+        numberOfSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_SESSIONS);
+        numberOfNativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_NATIVE_SESSIONS);
+        numberOfEmulatedSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CURRENT_NUMBER_OF_EMULATED_SESSIONS);
+        cumulativeSessionsCounter = monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_SESSIONS);
+        cumulativeNativeSessionsCounter =
+                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_NATIVE_SESSIONS);
+        cumulativeEmulatedSessionsCounter =
+                monitoringEntityFactory.makeLongMonitoringCounter(CUMULATIVE_NUMBER_OF_EMULATED_SESSIONS);
+    }
 }
