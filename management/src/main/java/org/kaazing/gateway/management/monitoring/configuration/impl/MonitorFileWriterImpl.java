@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
@@ -90,6 +89,7 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     private String gatewayId;
     private int prevServiceOffset;
     private String prevServiceName = "";
+    private MappedByteBuffer mappedMonitorFile;
 
     /**
      * MonitorFileDescriptor constructor
@@ -99,76 +99,41 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
     public MonitorFileWriterImpl(String gatewayId) {
         this.gatewayId = gatewayId;
         setGatewayIdDependentOffsets(gatewayId);
-        setServicesCount(MAX_SERVICE_COUNT);
+        setServicesCount();
     }
 
-    /**
-     * Method adding metadata to the Agrona file
-     * @param mappedMonitorFile
-     * @return
-     */
+
     @Override
-    public UnsafeBuffer addMetadataToMonitoringFile(MappedByteBuffer mappedMonitorFile) {
+    public void initialize(File monitoringFile) {
+        int fileSize = computeMonitorTotalFileLength();
+        mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
         metaDataBuffer = new UnsafeBuffer(mappedMonitorFile, 0, metadataLength + BitUtil.SIZE_OF_INT);
         fillMetaData();
-        return metaDataBuffer;
     }
 
-    /**
-     * Computes the total length of the file used by Agrona
-     * @return
-     */
     @Override
-    public int computeMonitorTotalFileLength() {
-        int totalLengthOfBuffers =
-                GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
-                MAX_SERVICE_COUNT * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
-        return endOfMetadata + totalLengthOfBuffers;
-    }
-
-    /**
-     * Creates the gateway counter labels buffer
-     * @param buffer - the underlying byte buffer
-     * @param metaDataBuffer - the meta data buffer from which we compute the offset
-     * @return the counter labels buffer
-     */
-    @Override
-    public UnsafeBuffer createGatewayCounterLabelsBuffer(final ByteBuffer buffer) {
+    public UnsafeBuffer createGatewayCounterLabelsBuffer() {
         final int offset = endOfMetadata;
         final int length = metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset);
         // Update offset in header section
         metaDataBuffer.putInt(gwCountersLblBuffersReferenceOffset, offset);
 
-        return new UnsafeBuffer(buffer, offset, length);
+        return new UnsafeBuffer(mappedMonitorFile, offset, length);
     }
 
-    /**
-     * Creates the gateway counter values buffer
-     * @param buffer - the underlying byte buffer
-     * @param metaDataBuffer - the meta data buffer from which we compute the offset
-     * @return the counter values buffer
-     */
     @Override
-    public UnsafeBuffer createGatewayCounterValuesBuffer(final ByteBuffer buffer) {
+    public UnsafeBuffer createGatewayCounterValuesBuffer() {
         final int offset = endOfMetadata
                 + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset);
         final int length = metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset);
         // Update offset in header section
         metaDataBuffer.putInt(gwCountersValueBuffersReferenceOffset, offset);
 
-        return new UnsafeBuffer(buffer, offset, length);
+        return new UnsafeBuffer(mappedMonitorFile, offset, length);
     }
 
-    /**
-     * Creates the counter labels buffer for the service identified by index
-     * @param buffer - the underlying byte buffer
-     * @param metaDataBuffer - the meta data buffer from which we compute the offset
-     * @param index identifier
-     * @return the counter labels buffer
-     */
     @Override
-    public UnsafeBuffer createServiceCounterLabelsBuffer(final ByteBuffer buffer,
-                                                         int index) {
+    public UnsafeBuffer createServiceCounterLabelsBuffer(int index) {
         final int offset = endOfMetadata
                 + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset)
                 + metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset) + index
@@ -178,19 +143,11 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
         // Update offset in header section
         metaDataBuffer.putInt(serviceRefSection + index * OFFSETS_PER_SERVICE * BitUtil.SIZE_OF_INT, offset);
 
-        return new UnsafeBuffer(buffer, offset, length);
+        return new UnsafeBuffer(mappedMonitorFile, offset, length);
     }
 
-    /**
-     * Creates the counter values buffer for the service identifier by index
-     * @param buffer - the underlying byte buffer
-     * @param metaDataBuffer - the meta data buffer from which we compute the offset
-     * @param index - service identifier
-     * @return the counter values buffer
-     */
     @Override
-    public UnsafeBuffer createServiceCounterValuesBuffer(final ByteBuffer buffer,
-                                                         int index) {
+    public UnsafeBuffer createServiceCounterValuesBuffer(int index) {
         final int offset = endOfMetadata
                 + metaDataBuffer.getInt(gwCountersLblBuffersLengthOffset)
                 + metaDataBuffer.getInt(gwCountersValueBuffersLengthOffset) + index
@@ -201,48 +158,35 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
         // Update offset in header section
         metaDataBuffer.putInt(serviceRefSection + (index * OFFSETS_PER_SERVICE + 2) * BitUtil.SIZE_OF_INT, offset);
 
-        return new UnsafeBuffer(buffer, offset, length);
+        return new UnsafeBuffer(mappedMonitorFile, offset, length);
     }
 
-    /**
-     * Method instantiating and returning a gateway MonitoringEntityFactory
-     * @param gatewayWriter
-     * @return
-     */
     @Override
-    public MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile) {
-        GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile);
+    public MonitoringEntityFactory getGatewayMonitoringEntityFactory() {
+        GatewayWriter gatewayWriter = new MMFGatewayWriter(this);
         return gatewayWriter.writeCountersFactory();
     }
 
-    /**
-     * Method instantiating and returning a service MonitoringEntityFactory
-     * @param serviceWriter
-     * @return
-     */
     @Override
     public MonitoringEntityFactory getServiceMonitoringEntityFactory(
-             MappedByteBuffer mappedMonitorFile, MonitoredService monitoredService, int index) {
+             MonitoredService monitoredService, int index) {
         fillServiceMetadata(monitoredService.getServiceName(), index);
         //create service writer
-        ServiceWriter serviceWriter = new MMFServiceWriter(this, mappedMonitorFile,
-                index);
+        ServiceWriter serviceWriter = new MMFServiceWriter(this, index);
         return serviceWriter.writeCountersFactory();
     }
 
-
     @Override
-    public void close(File monitoringDir, MappedByteBuffer mappedMonitorFile) {
+    public void close(File monitoringDir) {
         IoUtil.unmap(mappedMonitorFile);
         IoUtil.delete(monitoringDir, false);
     }
 
     /**
      * Method setting the number of services and metadata length
-     * @param count
      */
-    private void setServicesCount(int count) {
-        servicesCount = count;
+    private void setServicesCount() {
+        servicesCount = MAX_SERVICE_COUNT;
         metadataLength = NUMBER_OF_INTS_IN_HEADER * BitUtil.SIZE_OF_INT + SIZEOF_STRING + servicesCount * (SIZEOF_STRING +
                 NUMBER_OF_INTS_PER_SERVICE * BitUtil.SIZE_OF_INT);
         endOfMetadata = BitUtil.align(metadataLength + BitUtil.SIZE_OF_INT, BitUtil.CACHE_LINE_LENGTH);
@@ -259,11 +203,9 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
         metaDataBuffer.putInt(SERVICE_DATA_REFERENCE_OFFSET, serviceDataOffset);
         metaDataBuffer.putStringUtf8(GW_ID_OFFSET, gatewayId, ByteOrder.nativeOrder());
         metaDataBuffer.putInt(gwCountersLblBuffersReferenceOffset, 0);
-        metaDataBuffer.putInt(gwCountersLblBuffersLengthOffset,
-                GATEWAY_COUNTER_LABELS_BUFFER_LENGTH);
+        metaDataBuffer.putInt(gwCountersLblBuffersLengthOffset, GATEWAY_COUNTER_LABELS_BUFFER_LENGTH);
         metaDataBuffer.putInt(gwCountersValueBuffersReferenceOffset, 0);
-        metaDataBuffer.putInt(gwCountersValueBuffersLengthOffset,
-                GATEWAY_COUNTER_VALUES_BUFFER_LENGTH);
+        metaDataBuffer.putInt(gwCountersValueBuffersLengthOffset, GATEWAY_COUNTER_VALUES_BUFFER_LENGTH);
         metaDataBuffer.putInt(noOfServicesOffset, 0);
     }
 
@@ -285,16 +227,16 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
 
     /**
      * Method returning serviceNameOffset
-     * @param servOffset
+     * @param servAreaOffset
      * @return
      */
-    private int getServiceNameOffset(final int servOffset) {
+    private int getServiceNameOffset(final int servAreaOffset) {
         // if there are other services which have been written
         if (prevServiceOffset != 0) {
             return prevServiceOffset + prevServiceName.length() + BitUtil.SIZE_OF_INT + BitUtil.SIZE_OF_INT;
         }
         // else
-        return servOffset;
+        return servAreaOffset;
     }
 
     /**
@@ -320,14 +262,21 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     private void setGatewayIdDependentOffsets(String gatewayId) {
         gwCountersLblBuffersReferenceOffset = GW_ID_OFFSET + gatewayId.length() + BitUtil.SIZE_OF_INT;
-        gwCountersLblBuffersLengthOffset = gwCountersLblBuffersReferenceOffset
-                + BitUtil.SIZE_OF_INT;
-        gwCountersValueBuffersReferenceOffset = gwCountersLblBuffersLengthOffset
-                + BitUtil.SIZE_OF_INT;
-        gwCountersValueBuffersLengthOffset = gwCountersValueBuffersReferenceOffset
-                + BitUtil.SIZE_OF_INT;
+        gwCountersLblBuffersLengthOffset = gwCountersLblBuffersReferenceOffset + BitUtil.SIZE_OF_INT;
+        gwCountersValueBuffersReferenceOffset = gwCountersLblBuffersLengthOffset + BitUtil.SIZE_OF_INT;
+        gwCountersValueBuffersLengthOffset = gwCountersValueBuffersReferenceOffset + BitUtil.SIZE_OF_INT;
         noOfServicesOffset = gwCountersValueBuffersLengthOffset + BitUtil.SIZE_OF_INT;
         serviceDataOffset = noOfServicesOffset;
     }
 
+    /**
+     * Computes the total length of the file used by Agrona
+     * @return
+     */
+    private int computeMonitorTotalFileLength() {
+        int totalLengthOfBuffers =
+                GATEWAY_COUNTER_LABELS_BUFFER_LENGTH + GATEWAY_COUNTER_VALUES_BUFFER_LENGTH +
+                MAX_SERVICE_COUNT * (SERVICE_COUNTER_VALUES_BUFFER_LENGTH + SERVICE_COUNTER_LABELS_BUFFER_LENGTH);
+        return endOfMetadata + totalLengthOfBuffers;
+    }
 }

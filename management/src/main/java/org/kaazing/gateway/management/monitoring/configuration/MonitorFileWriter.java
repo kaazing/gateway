@@ -37,71 +37,57 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 public interface MonitorFileWriter {
 
     /**
-     * Method computing monitoring file total length
-     * @return
-     */
-    int computeMonitorTotalFileLength();
-
-    /**
      * Method returning gateway counter labels buffer
      * @param buffer
      * @return
      */
-    UnsafeBuffer createGatewayCounterLabelsBuffer(ByteBuffer buffer);
+    UnsafeBuffer createGatewayCounterLabelsBuffer();
 
     /**
      * Method returning gateway counter values buffer
-     * @param buffer
      * @return
      */
-    UnsafeBuffer createGatewayCounterValuesBuffer(ByteBuffer buffer);
+    UnsafeBuffer createGatewayCounterValuesBuffer();
 
     /**
      * Method creating service counter labels buffer for service index
-     * @param buffer
      * @param index
      * @return
      */
-    UnsafeBuffer createServiceCounterLabelsBuffer(ByteBuffer buffer, int index);
+    UnsafeBuffer createServiceCounterLabelsBuffer(int index);
 
     /**
      * Method returning service counter values buffer for service index
-     * @param buffer
      * @param index
      * @return
      */
-    UnsafeBuffer createServiceCounterValuesBuffer(ByteBuffer buffer, int index);
+    UnsafeBuffer createServiceCounterValuesBuffer(int index);
 
     /**
      * Method returning gateway monitoring entity factory
-     * @param mappedMonitorFile
      * @return
      */
-    MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile);
+    MonitoringEntityFactory getGatewayMonitoringEntityFactory();
 
     /**
      * Method returning service monitoring entity factory
-     * @param mappedMonitorFile
      * @param monitoredService
      * @param index
      * @return
      */
-    MonitoringEntityFactory getServiceMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile,
-                                                              MonitoredService monitoredService,
+    MonitoringEntityFactory getServiceMonitoringEntityFactory(MonitoredService monitoredService,
                                                               int index);
-
-    /**
-     * Method adding metadata to monitor file
-     * @param mappedMonitorFile
-     * @return
-     */
-    UnsafeBuffer addMetadataToMonitoringFile(MappedByteBuffer mappedMonitorFile);
 
     /**
      * Method cleaning up monitoring file writer resources
      * @param monitoringDir
-     * @param mappedMonitorFile
      */
-    void close(File monitoringDir, MappedByteBuffer mappedMonitorFile);
+    void close(File monitoringDir);
+
+    /**
+     * Method intializing monitoring file
+     * @param monitoringFile
+     */
+    void initialize(File monitoringFile);
 
 }

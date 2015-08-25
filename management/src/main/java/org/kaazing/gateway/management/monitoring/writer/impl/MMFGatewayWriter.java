@@ -34,12 +34,10 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 public class MMFGatewayWriter implements GatewayWriter {
 
     private CountersManager countersManager;
-    private MappedByteBuffer mappedMonitorFile;
-    private MonitorFileWriter monitorDescriptor;
+    private MonitorFileWriter monitorFileWriter;
 
-    public MMFGatewayWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile) {
-        this.monitorDescriptor = monitorDescriptor;
-        this.mappedMonitorFile = mappedMonitorFile;
+    public MMFGatewayWriter(MonitorFileWriter monitorFile) {
+        this.monitorFileWriter = monitorFile;
     }
 
     @Override
@@ -53,8 +51,8 @@ public class MMFGatewayWriter implements GatewayWriter {
      * Helper method instantiating a counters manager
      */
     private void createCountersManager() {
-        UnsafeBuffer counterLabelsBuffer = monitorDescriptor.createGatewayCounterLabelsBuffer(mappedMonitorFile);
-        UnsafeBuffer counterValuesBuffer = monitorDescriptor.createGatewayCounterValuesBuffer(mappedMonitorFile);
+        UnsafeBuffer counterLabelsBuffer = monitorFileWriter.createGatewayCounterLabelsBuffer();
+        UnsafeBuffer counterValuesBuffer = monitorFileWriter.createGatewayCounterValuesBuffer();
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
     }

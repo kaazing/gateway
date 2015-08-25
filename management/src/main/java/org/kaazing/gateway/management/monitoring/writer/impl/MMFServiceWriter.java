@@ -34,14 +34,11 @@ import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 public class MMFServiceWriter implements ServiceWriter {
 
     private CountersManager countersManager;
-    private MappedByteBuffer mappedMonitorFile;
     private int index;
     private MonitorFileWriter monitorFileWriter;
 
-    public MMFServiceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
-                           int index) {
-        this.monitorFileWriter = monitorDescriptor;
-        this.mappedMonitorFile = mappedMonitorFile;
+    public MMFServiceWriter(MonitorFileWriter monitorFile, int index) {
+        this.monitorFileWriter = monitorFile;
         this.index = index;
     }
 
@@ -56,10 +53,8 @@ public class MMFServiceWriter implements ServiceWriter {
      * Helper method instantiating a counters manager
      */
     private void createCountersManager() {
-        UnsafeBuffer counterLabelsBuffer = monitorFileWriter.createServiceCounterLabelsBuffer(mappedMonitorFile,
-                index);
-        UnsafeBuffer counterValuesBuffer = monitorFileWriter.createServiceCounterValuesBuffer(mappedMonitorFile,
-                index);
+        UnsafeBuffer counterLabelsBuffer = monitorFileWriter.createServiceCounterLabelsBuffer(index);
+        UnsafeBuffer counterValuesBuffer = monitorFileWriter.createServiceCounterValuesBuffer(index);
 
         countersManager = new CountersManager(counterLabelsBuffer, counterValuesBuffer);
     }

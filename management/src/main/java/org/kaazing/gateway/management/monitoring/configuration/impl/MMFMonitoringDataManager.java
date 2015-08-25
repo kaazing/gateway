@@ -22,7 +22,6 @@
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.io.File;
-import java.nio.MappedByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
@@ -37,7 +36,7 @@ import org.kaazing.gateway.util.InternalSystemProperty;
 import uk.co.real_logic.agrona.IoUtil;
 
 /**
- * Agrona implementation for the monitoring entity factory builder.
+ * Implementation of the monitoring MMF manager.
  */
 public class MMFMonitoringDataManager implements MonitoringDataManager {
 
@@ -48,7 +47,6 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
     private MonitorFileWriter monitorFileWriter;
     private Properties configuration;
-    private MappedByteBuffer mappedMonitorFile;
     private File monitoringDir;
     private Collection<MonitoredService> services = new HashSet<>();
 
@@ -66,14 +64,14 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
         // create gateway monitoring entity factory
         MonitoringEntityFactory gwCountersFactory =
-                monitorFileWriter.getGatewayMonitoringEntityFactory(mappedMonitorFile);
+                monitorFileWriter.getGatewayMonitoringEntityFactory();
 
         return gwCountersFactory;
     }
 
     @Override
     public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
-        MonitoringEntityFactory serviceCountersFactory = monitorFileWriter.getServiceMonitoringEntityFactory(mappedMonitorFile,
+        MonitoringEntityFactory serviceCountersFactory = monitorFileWriter.getServiceMonitoringEntityFactory(
                 monitoredService, services.size());
 
         services.add(monitoredService);
@@ -83,7 +81,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
     @Override
     public void close() {
-        monitorFileWriter.close(monitoringDir, mappedMonitorFile);
+        monitorFileWriter.close(monitoringDir);
     }
 
     /**
@@ -96,11 +94,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         String fileName = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
         File monitoringFile = new File(monitoringDir, fileName);
         IoUtil.deleteIfExists(monitoringFile);
-
-        int fileSize = monitorFileWriter.computeMonitorTotalFileLength();
-        mappedMonitorFile = IoUtil.mapNewFile(monitoringFile, fileSize);
-
-        monitorFileWriter.addMetadataToMonitoringFile(mappedMonitorFile);
+        monitorFileWriter.initialize(monitoringFile);
     }
 
     /**
