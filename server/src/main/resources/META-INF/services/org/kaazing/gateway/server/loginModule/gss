@@ -1,1 +1,1 @@
-class=org.kaazing.gateway.security.auth.gss.GssLoginModule
+class=com.kaazing.gateway.service.auth.gss.GssLoginModule
