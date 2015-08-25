@@ -66,7 +66,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
         // create gateway monitoring entity factory
         MonitoringEntityFactory gwCountersFactory =
-                monitorFileWriter.getGatewayMonitoringEntityFactory(mappedMonitorFile, monitoringDir);
+                monitorFileWriter.getGatewayMonitoringEntityFactory(mappedMonitorFile);
 
         return gwCountersFactory;
     }
@@ -74,10 +74,16 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     @Override
     public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
         MonitoringEntityFactory serviceCountersFactory = monitorFileWriter.getServiceMonitoringEntityFactory(mappedMonitorFile,
-                monitoringDir, monitoredService, services.size());
+                monitoredService, services.size());
 
         services.add(monitoredService);
         return new ServiceCounterManagerImpl(serviceCountersFactory);
+    }
+
+
+    @Override
+    public void close() {
+        monitorFileWriter.close(monitoringDir, mappedMonitorFile);
     }
 
     /**

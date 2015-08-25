@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.management.monitoring.writer.impl;
 
-import java.io.File;
 import java.nio.MappedByteBuffer;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
@@ -36,21 +35,17 @@ public class MMFGatewayWriter implements GatewayWriter {
 
     private CountersManager countersManager;
     private MappedByteBuffer mappedMonitorFile;
-    private File monitoringDir;
     private MonitorFileWriter monitorDescriptor;
 
-    public MMFGatewayWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
-                            File monitoringDir) {
+    public MMFGatewayWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile) {
         this.monitorDescriptor = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;
-        this.monitoringDir = monitoringDir;
     }
 
     @Override
     public MonitoringEntityFactory writeCountersFactory() {
         createCountersManager();
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile,
-                monitoringDir);
+        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager);
         return factory;
     }
 

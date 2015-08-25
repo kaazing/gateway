@@ -96,6 +96,11 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
         serviceContext.getMonitoringFactory().close();
     }
 
+    @Override
+    public void stoppedGateway() {
+        monitoringDataManager.close();
+    }
+
     private void addSessionInitializer(Service service, ServiceContext serviceContext) {
         // if (not a management service then add a Management filter to the chain
         if (!(service instanceof ManagementService)) {

@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.management.monitoring.writer.impl;
 
-import java.io.File;
 import java.nio.MappedByteBuffer;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
@@ -36,23 +35,20 @@ public class MMFServiceWriter implements ServiceWriter {
 
     private CountersManager countersManager;
     private MappedByteBuffer mappedMonitorFile;
-    private File monitoringDir;
     private int index;
     private MonitorFileWriter monitorFileWriter;
 
     public MMFServiceWriter(MonitorFileWriter monitorDescriptor, MappedByteBuffer mappedMonitorFile,
-                           File monitoringDir, int index) {
+                           int index) {
         this.monitorFileWriter = monitorDescriptor;
         this.mappedMonitorFile = mappedMonitorFile;
-        this.monitoringDir = monitoringDir;
         this.index = index;
     }
 
     @Override
     public MonitoringEntityFactory writeCountersFactory() {
         createCountersManager();
-        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager, mappedMonitorFile,
-                monitoringDir);
+        MonitoringEntityFactory factory = new AgronaMonitoringEntityFactory(countersManager);
         return factory;
     }
 

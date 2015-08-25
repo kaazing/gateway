@@ -58,4 +58,8 @@ public class MonitoringDataManagerStub implements MonitoringDataManager {
         return MONITORING_ENTITY_FACTORY;
     }
 
+    @Override
+    public void close() {
+    }
+
 }

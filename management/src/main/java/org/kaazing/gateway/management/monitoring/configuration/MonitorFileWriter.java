@@ -75,21 +75,18 @@ public interface MonitorFileWriter {
     /**
      * Method returning gateway monitoring entity factory
      * @param mappedMonitorFile
-     * @param monitoringDir
      * @return
      */
-    MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir);
+    MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile);
 
     /**
      * Method returning service monitoring entity factory
      * @param mappedMonitorFile
-     * @param monitoringDir
      * @param monitoredService
      * @param index
      * @return
      */
     MonitoringEntityFactory getServiceMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile,
-                                                              File monitoringDir,
                                                               MonitoredService monitoredService,
                                                               int index);
 
@@ -99,5 +96,12 @@ public interface MonitorFileWriter {
      * @return
      */
     UnsafeBuffer addMetadataToMonitoringFile(MappedByteBuffer mappedMonitorFile);
+
+    /**
+     * Method cleaning up monitoring file writer resources
+     * @param monitoringDir
+     * @param mappedMonitorFile
+     */
+    void close(File monitoringDir, MappedByteBuffer mappedMonitorFile);
 
 }

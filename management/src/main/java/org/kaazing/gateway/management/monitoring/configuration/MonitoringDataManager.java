@@ -42,4 +42,9 @@ public interface MonitoringDataManager {
      * @return
      */
     MonitoringEntityFactory addService(MonitoredService monitoredService);
+
+    /**
+     * Method cleaning up resources in MonitoringDataManager
+     */
+    void close();
 }

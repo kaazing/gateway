@@ -35,6 +35,7 @@ import org.kaazing.gateway.management.monitoring.writer.impl.MMFServiceWriter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.BitUtil;
+import uk.co.real_logic.agrona.IoUtil;
 import uk.co.real_logic.agrona.concurrent.UnsafeBuffer;
 
 /**
@@ -209,8 +210,8 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      * @return
      */
     @Override
-    public MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile, File monitoringDir) {
-        GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile, monitoringDir);
+    public MonitoringEntityFactory getGatewayMonitoringEntityFactory(MappedByteBuffer mappedMonitorFile) {
+        GatewayWriter gatewayWriter = new MMFGatewayWriter(this, mappedMonitorFile);
         return gatewayWriter.writeCountersFactory();
     }
 
@@ -221,12 +222,19 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
      */
     @Override
     public MonitoringEntityFactory getServiceMonitoringEntityFactory(
-             MappedByteBuffer mappedMonitorFile, File monitoringDir, MonitoredService monitoredService, int index) {
+             MappedByteBuffer mappedMonitorFile, MonitoredService monitoredService, int index) {
         fillServiceMetadata(monitoredService.getServiceName(), index);
         //create service writer
         ServiceWriter serviceWriter = new MMFServiceWriter(this, mappedMonitorFile,
-                monitoringDir, index);
+                index);
         return serviceWriter.writeCountersFactory();
+    }
+
+
+    @Override
+    public void close(File monitoringDir, MappedByteBuffer mappedMonitorFile) {
+        IoUtil.unmap(mappedMonitorFile);
+        IoUtil.delete(monitoringDir, false);
     }
 
     /**
@@ -321,4 +329,5 @@ public final class MonitorFileWriterImpl implements MonitorFileWriter {
         noOfServicesOffset = gwCountersValueBuffersLengthOffset + BitUtil.SIZE_OF_INT;
         serviceDataOffset = noOfServicesOffset;
     }
+
 }
