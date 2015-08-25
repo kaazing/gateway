@@ -21,7 +21,6 @@
 
 package org.kaazing.mina.netty;
 
-import static org.junit.rules.RuleChain.outerRule;
 import static org.kaazing.mina.netty.PortUtil.nextPort;
 import static java.lang.String.format;
 import static java.nio.ByteBuffer.wrap;
@@ -64,9 +63,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.BindFuture;
@@ -76,6 +73,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoConnector;
+import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
@@ -85,10 +83,8 @@ public class NioSocketIT {
 
     private final TestRule trace = new MethodExecutionTrace();
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, TimeUnit.SECONDS));
-
     @Rule
-    public final TestRule chain = outerRule(trace).around(timeout);
+    public final TestRule chain = ITUtil.createRuleChain(trace, 15, TimeUnit.SECONDS);
 
     SocketAddress bindTo = new LocalAddress(8123);
     SocketAddress bindTo2 = new LocalAddress(8124);
