@@ -1,1 +1,1 @@
-org.kaazing.gateway.server.config.parse.translate.CEGatewayConfigTranslatorFactorySpi
+org.kaazing.gateway.server.config.parse.translate.CommunityGatewayConfigTranslatorFactorySpi

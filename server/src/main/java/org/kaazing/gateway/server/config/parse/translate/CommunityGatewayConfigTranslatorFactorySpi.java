@@ -29,15 +29,15 @@ import org.kaazing.gateway.server.config.parse.translate.spi.GatewayConfigTransl
  * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
  * {@link GatewayConfigParser}
  */
-public class CEGatewayConfigTranslatorFactorySpi implements GatewayConfigTranslatorFactorySpi {
+public class CommunityGatewayConfigTranslatorFactorySpi implements GatewayConfigTranslatorFactorySpi {
 
-    private static final CEGatewayConfigTranslatorFactorySpi instance = new CEGatewayConfigTranslatorFactorySpi();
+    private static final CommunityGatewayConfigTranslatorFactorySpi instance = new CommunityGatewayConfigTranslatorFactorySpi();
 
-    public CEGatewayConfigTranslatorFactorySpi() {
+    public CommunityGatewayConfigTranslatorFactorySpi() {
 
     }
 
-    public static CEGatewayConfigTranslatorFactorySpi getInstance() {
+    public static CommunityGatewayConfigTranslatorFactorySpi getInstance() {
         return instance;
     }
 

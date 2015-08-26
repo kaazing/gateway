@@ -118,12 +118,6 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-    private void translate(final GatewayConfigNamespace ns,
-                           final Document dom,
-                           final File translatedConfigFile)
-            throws Exception {
-        translate(ns, dom, translatedConfigFile, false);
-    }
 
     private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
@@ -173,7 +167,9 @@ public class GatewayConfigParser {
 
         boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
         File translatedConfigFile = writeTranslatedFile ?
-            new File(configFile.getParent(), configFile.getName() + TRANSLATED_CONFIG_FILE_EXT) : configFile;
+                new File(configFile.getParent(), configFile.getName()
+                + TRANSLATED_CONFIG_FILE_EXT) : configFile;
+
         translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
 
         return translatedConfigFile;
@@ -380,7 +376,7 @@ public class GatewayConfigParser {
                     }
                 }
                 LOGGER.error("  " + error.getMessage().replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
-                if (error.getMessage().contains("notify-options")) {
+                if (error.getMessage().contains("notify-options") || error.getMessage().contains("notify")) {
                     validationError = "Could not start because of references to APNs in the configuration."
                      + " APNs is not supported in this version of the gateway, but will be added in a future release.";
                     LOGGER.error(validationError);

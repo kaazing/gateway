@@ -35,7 +35,7 @@ public class GatewayConfigTranslatorFactoryTest {
                     GatewayConfigNamespace.CURRENT_NS);
              assertTrue(translator.getTranslators().get(0) instanceof September2014Validator);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
     }
