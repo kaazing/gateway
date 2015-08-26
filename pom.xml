@@ -285,6 +285,21 @@
                     </executions>
                 </plugin>
 
+                <!-- Adds properties to manifest which are used for finding duplicate jars on classpath -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Implementation-Title>${project.name}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Artifact-Name>${groupId}:${artifactId}</Artifact-Name>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+
                 <!-- Ignore/Execute plugin execution by m2e in Eclipse -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
