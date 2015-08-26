@@ -20,6 +20,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 import java.io.IOException;
@@ -35,16 +36,12 @@ import static org.junit.rules.RuleChain.outerRule;
 
 public class WsebCloseIT {
 
-    private final TestRule trace = new MethodExecutionTrace();
-
     private final K3poRule robot = new K3poRule();
-
-    private final TestRule timeout = new DisableOnDebug(new Timeout(30, SECONDS));
 
     private final WsebAcceptorRule acceptorRule = new WsebAcceptorRule();
 
     @Rule
-    public final TestRule chain = outerRule(trace).around(robot).around(acceptorRule).around(timeout);
+    public final TestRule chain = ITUtil.createRuleChain(acceptorRule, robot, 30, SECONDS);
 
     private static class Backend implements Runnable {
         private final WsebSession session;
