@@ -302,6 +302,7 @@ public class GatewayConfigParserTest {
     @Test
     public void testCanConvertAwsHostToAwsHostnameIfAvailable() {
         boolean onAWS = false;
+        boolean onTravisCI = false;
         DefaultUtilityHttpClient httpClient = new DefaultUtilityHttpClient();
         try {
             httpClient
