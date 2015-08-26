@@ -4,6 +4,7 @@ KAAZING Documentation for Enterprise Edition
 Essentials
 ----------
 
+-   [Release Notes](release-notes.md)
 -   [Documentation Conventions](about/about.md)
 -   [KAAZING Glossary](kaazing-glossary.md)
 -   [Common KAAZING Gateway Production Topologies](admin-reference/c_topologies.md)
