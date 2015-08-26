@@ -39,7 +39,7 @@ public class WsebCloseIT {
 
     private final K3poRule robot = new K3poRule();
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
+    private final TestRule timeout = new DisableOnDebug(new Timeout(30, SECONDS));
 
     private final WsebAcceptorRule acceptorRule = new WsebAcceptorRule();
 
@@ -109,7 +109,7 @@ public class WsebCloseIT {
                     buf = data();
                     session.write(buf);
                     long bytes = getScheduledWriteBytes(session);
-                    System.out.println("Scheduled bytes = " + bytes);
+                    //System.out.println("Scheduled bytes = " + bytes);
 
                     if (bytes > 15000) {
                         barrier.wakeup();
