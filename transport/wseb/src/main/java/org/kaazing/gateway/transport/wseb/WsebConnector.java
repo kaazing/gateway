@@ -22,6 +22,7 @@
 package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
@@ -252,6 +253,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 final long sequenceNo = 0;
 
                 final HttpSession httpSession = (HttpSession) parent;
+                String wsNextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
+                if (wsNextProtocol != null) {
+                    httpSession.setWriteHeader("X-WebSocket-Protocol", wsNextProtocol);
+                }
                 httpSession.setWriteHeader(HEADER_X_ACCEPT_COMMANDS, "ping");
                 httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(sequenceNo));
                 final IoBufferAllocatorEx<WsBuffer> allocator = new WsebBufferAllocator(httpSession.getBufferAllocator());
@@ -468,7 +473,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             // handle parallel closure of WSE session during streaming read
             if (wsebSession == null) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Could not find WsebSession for read address:\n"+readAddress));
+                    logger.debug("Could not find WsebSession for read address:"+readAddress);
                 }
                 return;
             }

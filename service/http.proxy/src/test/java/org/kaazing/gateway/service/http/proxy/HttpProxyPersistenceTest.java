@@ -23,12 +23,11 @@ package org.kaazing.gateway.service.http.proxy;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.test.util.ITUtil;
 
 import javax.net.SocketFactory;
 import java.io.EOFException;
@@ -45,10 +44,10 @@ import static org.junit.Assert.assertEquals;
 public class HttpProxyPersistenceTest {
 
     private static final int KEEP_ALIVE_TIMEOUT = 5;
-    private static final int KEEP_ALIVE_MAX_CONNECTIONS = 2;
+    private static final int KEEP_ALIVE_CONNECTIONS = 2;
 
     @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
+    public TestRule timeout = ITUtil.createRuleChain(15, SECONDS);
 
     @Test
     public void maxPersistentIdleConnections() throws Exception {
@@ -61,7 +60,7 @@ public class HttpProxyPersistenceTest {
                         .connect(URI.create("http://localhost:8080"))
                         .type("http.proxy")
                         .connectOption("http.keepalive.timeout", String.valueOf(KEEP_ALIVE_TIMEOUT))
-                        .connectOption("http.keepalive.max.connections", String.valueOf(KEEP_ALIVE_MAX_CONNECTIONS))
+                        .connectOption("http.keepalive.connections", String.valueOf(KEEP_ALIVE_CONNECTIONS))
                     .done()
                     .property("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", "1")
                 .done();

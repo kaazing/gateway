@@ -49,6 +49,7 @@ read "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/53
 read "Referer: http://localhost:8080/examples/servlets/servlet/CookieExample\r\n"
 read "Origin: http://localhost:8110\r\n"
 read "Host: localhost:8110\r\n"
+read "Forwarded: for=127.0.0.1\r\n"
 read "Content-Type: application/x-www-form-urlencoded\r\n"
 read "Content-Length: 26\r\n"
 read "Connection: close\r\n"

@@ -250,6 +250,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                         BridgeConnector fallbackConnector  = bridgeServiceFactory.newBridgeConnector(fallbackAddress);
 
                         if ( fallbackConnector != null ) {
+                            logger.info(String.format("Couldn't use wsn, falling back to wse for %s", fallbackAddress.getResource()));
                             fallbackConnector.connect(fallbackAddress, handler, initializer).
                                     addListener(fallbackConnectListener);
                         } else {

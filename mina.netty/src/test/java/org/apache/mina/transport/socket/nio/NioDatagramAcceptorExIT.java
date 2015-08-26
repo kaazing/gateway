@@ -38,9 +38,9 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public class NioDatagramAcceptorExIT {
@@ -65,6 +65,7 @@ public class NioDatagramAcceptorExIT {
     }
 
     @Test
+    @Ignore("https://github.com/kaazing/gateway/issues/153")
     public void shouldConnect() throws Exception {
 
         final IoHandler handler = context.mock(IoHandler.class);

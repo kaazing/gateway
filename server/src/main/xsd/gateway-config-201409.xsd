@@ -1246,7 +1246,7 @@
                     </documentation>
                 </annotation>
             </element>
-            <element name="http.keepalive.max.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
+            <element name="http.keepalive.connections" maxOccurs="1" minOccurs="0" type="nonNegativeInteger" default="2">
                 <annotation>
                     <documentation>Gateway caches the specified number of idle keep-alive (or persistent) connections
                         to upstream server in the cache of each worker. Those connections will timeout based on

@@ -8,24 +8,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -35,48 +32,44 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  * can be chained with a K3poRule for use with robot (this causes Robot to be
  * started before the gateway and stopped after it).
  */
-public class WsnConnectorRule implements TestRule {
+public class WsnAcceptorRule implements TestRule {
 
     private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
-    private WsnConnector wsnConnector;
-
+    private WsnAcceptor wsnAcceptor;
 
     @Override
     public Statement apply(Statement base, Description description) {
-        return new ConnectorStatement(base);
+        return new AcceptorStatement(base);
     }
 
-    public WsnConnectorRule() {
+    public WsnAcceptorRule() {
         this(null);
     }
 
-    public WsnConnectorRule(String log4jPropertiesResourceName) {
+    public WsnAcceptorRule(String log4jPropertiesResourceName) {
         this.log4jPropertiesResourceName = log4jPropertiesResourceName;
     }
 
-    public ConnectFuture connect(String connect, Long wsInactivityTimeout, IoHandler connectHandler)
-            throws InterruptedException {
-        Map<String, Object> connectOptions = new HashMap<>();
-        if (wsInactivityTimeout != null) {
-            connectOptions.put("inactivityTimeout", wsInactivityTimeout);
-        }
-        final ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+    public void bind(String accept, IoHandler acceptHandler) {
 
-        return wsnConnector.connect(connectAddress, connectHandler, null);
+        final ResourceAddress acceptAddress =
+                addressFactory.newResourceAddress(URI.create(accept));
+
+        wsnAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
-    private final class ConnectorStatement extends Statement {
+    private final class AcceptorStatement extends Statement {
 
         private final Statement base;
 
         private NioSocketConnector tcpConnector;
         private NioSocketAcceptor tcpAcceptor;
-        private HttpConnector httpConnector;
+        private WsAcceptor wsAcceptor;
+        private HttpAcceptor httpAcceptor;
         private SchedulerProvider schedulerProvider;
 
-        public ConnectorStatement(Statement base) {
+        public AcceptorStatement(Statement base) {
             this.base = base;
         }
 
@@ -111,22 +104,26 @@ public class WsnConnectorRule implements TestRule {
                 tcpConnector.setBridgeServiceFactory(serviceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
 
-                httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
-                httpConnector.setBridgeServiceFactory(serviceFactory);
-                httpConnector.setResourceAddressFactory(addressFactory);
+                httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
+                httpAcceptor.setBridgeServiceFactory(serviceFactory);
+                httpAcceptor.setResourceAddressFactory(addressFactory);
+                httpAcceptor.setSchedulerProvider(schedulerProvider);
 
-                wsnConnector = (WsnConnector)transportFactory.getTransport("wsn").getConnector();
-                wsnConnector.setConfiguration(new Properties());
-                wsnConnector.setBridgeServiceFactory(serviceFactory);
-                wsnConnector.setSchedulerProvider(schedulerProvider);
-                wsnConnector.setResourceAddressFactory(addressFactory);
+                wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
+
+                wsnAcceptor = (WsnAcceptor)transportFactory.getTransport("wsn").getAcceptor();
+                wsnAcceptor.setConfiguration(new Properties());
+                wsnAcceptor.setBridgeServiceFactory(serviceFactory);
+                wsnAcceptor.setSchedulerProvider(schedulerProvider);
+                wsnAcceptor.setResourceAddressFactory(addressFactory);
+                wsnAcceptor.setWsAcceptor(wsAcceptor);
 
                 base.evaluate();
             } finally {
                 tcpConnector.dispose();
                 tcpAcceptor.dispose();
-                httpConnector.dispose();
-                wsnConnector.dispose();
+                httpAcceptor.dispose();
+                wsnAcceptor.dispose();
                 schedulerProvider.shutdownNow();
             }
         }

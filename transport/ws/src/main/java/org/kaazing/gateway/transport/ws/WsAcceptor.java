@@ -39,9 +39,11 @@ import javax.annotation.Resource;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -61,6 +63,9 @@ public class WsAcceptor implements BridgeAcceptor {
     private static final String WSE_PROTOCOL_NAME = "wse/1.0";
     private static final String WS_DRAFT_PROTOCOL_NAME = "ws/draft-7x";
     private static final String WS_NATIVE_PROTOCOL_NAME = "ws/rfc6455";
+
+    // handler for /;api endpoint requests
+    public static final IoHandler API_PATH_HANDLER = new IoHandlerAdapter<IoSession>() {};
 
     private static Logger logger = LoggerFactory.getLogger(WsAcceptor.class);
 
