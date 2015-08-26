@@ -125,7 +125,7 @@ public class DuplicateJarFinderTest {
                 allowing(classPathParser).getManifestAttributesFromURL(MOCK_URL2);
                 will(returnValue(getAttributesForKaazingProduct()));
                 allowing(gatewayLogger).debug(with(any(String.class)), with(any(Object.class)), with(any(Object.class)));
-                allowing(gatewayLogger).error(with(any(String.class)), with(any(Object.class)));
+                allowing(gatewayLogger).error(with(any(String.class)), with(any(Object.class)), with(any(Object.class)));
             }
         });
 

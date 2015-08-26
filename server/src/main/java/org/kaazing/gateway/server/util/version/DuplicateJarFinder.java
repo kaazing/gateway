@@ -39,7 +39,7 @@ public class DuplicateJarFinder {
 
     private static final String JAR_FILE_WITH_VERSION_LOGGING_MESSAGE = "The jar file {} with the version {} was loaded.";
     private static final String CONFLICTING_JARS_LOGGING_MESSAGE =
-            "Failed to start because of conflicting versions of artifact on the classpath: {}.jar.";
+            "Failed to start because of conflicting versions of artifact on the classpath: {}.jar., with versions {}";
     private static final String MANIFEST_VERSION = "Implementation-Version";
     private static final String MANIFEST_JAR_NAME = "Artifact-Name";
 
@@ -90,7 +90,7 @@ public class DuplicateJarFinder {
         for (String artifact : artifactsToVersion.keySet()) {
             List<String> versions = artifactsToVersion.get(artifact);
             if (versions.size() > 1) {
-                gatewayLogger.error(CONFLICTING_JARS_LOGGING_MESSAGE, artifact);
+                gatewayLogger.error(CONFLICTING_JARS_LOGGING_MESSAGE, artifact, versions);
                 throw new DuplicateJarsException();
             }
         }
