@@ -28,12 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
-import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
+
 import static java.lang.String.format;
 
 /**
