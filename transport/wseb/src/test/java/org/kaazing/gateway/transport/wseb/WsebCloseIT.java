@@ -82,7 +82,7 @@ public class WsebCloseIT {
 
     @Test
     @Specification("wse.session.close.immediately")
-    //@Ignore("Need a robot feature to read data (without matching)")
+    @Ignore("Need a robot feature to read data (without matching)")
     public void testCloseImmediately() throws Exception {
         final ReadBarrier barrier = new ReadBarrier();
         new Thread(barrier, "barrier").start();
