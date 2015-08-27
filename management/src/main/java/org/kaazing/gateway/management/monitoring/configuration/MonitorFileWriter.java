@@ -22,8 +22,6 @@
 package org.kaazing.gateway.management.monitoring.configuration;
 
 import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;

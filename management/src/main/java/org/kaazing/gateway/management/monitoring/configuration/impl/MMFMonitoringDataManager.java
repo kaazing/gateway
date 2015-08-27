@@ -24,14 +24,12 @@ package org.kaazing.gateway.management.monitoring.configuration.impl;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Properties;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
-import org.kaazing.gateway.util.InternalSystemProperty;
 
 import uk.co.real_logic.agrona.IoUtil;
 

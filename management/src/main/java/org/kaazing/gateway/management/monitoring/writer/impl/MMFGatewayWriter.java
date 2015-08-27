@@ -21,8 +21,6 @@
 
 package org.kaazing.gateway.management.monitoring.writer.impl;
 
-import java.nio.MappedByteBuffer;
-
 import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 import org.kaazing.gateway.management.monitoring.entity.impl.AgronaMonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.writer.GatewayWriter;
