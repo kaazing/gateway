@@ -22,23 +22,22 @@
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Properties;
-
 import org.junit.Test;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitoringDataManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class ServiceCounterManagerImplTest {
 
-    private static final String AGRONA_ENABLED = "org.kaazing.gateway.management.AGRONA_ENABLED";
-
     @Test
     public void assertAgronaEnabledNativeCounters() {
-        MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
+        MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
+        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-//        serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
@@ -48,14 +47,16 @@ public class ServiceCounterManagerImplTest {
         assertCounters(serviceCounterManager, 0, 1, 1, 0, 0, 0);
 
         monitoringEntityFactory.close();
+        monitoringDataManager.close();
     }
 
     @Test
     public void assertAgronaEnabledEmulatedCounters() {
-        MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(true);
+        MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
+        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-//        serviceCounterManager.initializeSessionCounters();
         assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
@@ -65,42 +66,33 @@ public class ServiceCounterManagerImplTest {
         assertCounters(serviceCounterManager, 1, 0, 1, 0, 0, 0);
 
         monitoringEntityFactory.close();
+        monitoringDataManager.close();
     }
 
     @Test
     public void assertAgronaDisabledNativeCounters() {
-        MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
+        MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
+        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-//        serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
         serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
         monitoringEntityFactory.close();
+        monitoringDataManager.close();
     }
 
     @Test
     public void assertAgronaDisabledEmulatedCounters() {
-        MonitoringEntityFactory monitoringEntityFactory = createMonitoringEntityFactory(false);
+        MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
+        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+
         ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-//        serviceCounterManager.initializeSessionCounters();
         serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
         serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
         monitoringEntityFactory.close();
-    }
-
-    /**
-     * Helper method for creating a monitoring entity factory
-     * @param agronaEnabled
-     * @return
-     */
-    private MonitoringEntityFactory createMonitoringEntityFactory(boolean agronaEnabled) {
-        Properties configuration = new Properties();
-        configuration.setProperty(AGRONA_ENABLED, Boolean.toString(agronaEnabled));
-//        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
-//        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
-//        return monitoringEntityFactory;
-        return null;
+        monitoringDataManager.close();
     }
 
     /**

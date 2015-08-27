@@ -43,7 +43,8 @@ public class MonitoringDataManagerInjectorImpl implements MonitoringDataManagerI
         MonitoringDataManager monitoringManager;
 
         if (InternalSystemProperty.AGRONA_ENABLED.getBooleanProperty(configuration)) {
-            monitoringManager = new MMFMonitoringDataManager(configuration);
+            String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+            monitoringManager = new MMFMonitoringDataManager(gatewayId);
         }
         else {
             monitoringManager = new MonitoringDataManagerStub();

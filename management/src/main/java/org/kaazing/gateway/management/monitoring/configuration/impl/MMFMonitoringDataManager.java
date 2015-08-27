@@ -46,14 +46,13 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     private static final String MONITOR_DIR_NAME = "/kaazing";
 
     private MonitorFileWriter monitorFileWriter;
-    private Properties configuration;
     private File monitoringDir;
     private Collection<MonitoredService> services = new HashSet<>();
+    private String gatewayId;
 
-    public MMFMonitoringDataManager(Properties configuration) {
+    public MMFMonitoringDataManager(String gatewayId) {
         super();
-        this.configuration = configuration;
-        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
+        this.gatewayId = gatewayId;
         monitorFileWriter = new MonitorFileWriterImpl(gatewayId);
     }
 
@@ -91,8 +90,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
         String monitoringDirName = getMonitoringDirName();
         monitoringDir = new File(monitoringDirName);
 
-        String fileName = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-        File monitoringFile = new File(monitoringDir, fileName);
+        File monitoringFile = new File(monitoringDir, gatewayId);
         IoUtil.deleteIfExists(monitoringFile);
         monitorFileWriter.initialize(monitoringFile);
     }

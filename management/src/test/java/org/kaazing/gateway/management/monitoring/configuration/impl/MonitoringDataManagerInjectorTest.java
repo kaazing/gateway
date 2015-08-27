@@ -21,39 +21,43 @@
 
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
+import static org.junit.Assert.*;
+
 import java.util.Properties;
 
 import org.junit.Test;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManagerInjector;
 
-public class MonitoringEntityFactoryInjectorTest {
+public class MonitoringDataManagerInjectorTest {
 
     private static final String AGRONA_ENABLED = "org.kaazing.gateway.management.AGRONA_ENABLED";
 
     @Test
-    public void testMonitoringEntityFactoryInjectorAgronaEnabledUnset() {
-//        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(new Properties());
-//        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
-//        monitoringEntityFactory.close();
-//        assertTrue(monitoringEntityFactory instanceof DefaultMonitoringEntityFactoryStub);
+    public void monitoringDataManagerInjectorAgronaEnabledUnset() {
+        MonitoringDataManagerInjector injector = new MonitoringDataManagerInjectorImpl(new Properties());
+        MonitoringDataManager monitoringDataManager = injector.makeMonitoringDataManager();
+        monitoringDataManager.close();
+        assertTrue(monitoringDataManager instanceof MonitoringDataManagerStub);
     }
 
     @Test
-    public void testMonitoringEntityFactoryInjectorAgronaEnabledFalse() {
+    public void monitoringDataManagerInjectorAgronaEnabledFalse() {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(false));
-//        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
-//        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
-//        monitoringEntityFactory.close();
-//        assertTrue(monitoringEntityFactory instanceof DefaultMonitoringEntityFactoryStub);
+        MonitoringDataManagerInjector injector = new MonitoringDataManagerInjectorImpl(configuration);
+        MonitoringDataManager monitoringDataManager = injector.makeMonitoringDataManager();
+        monitoringDataManager.close();
+        assertTrue(monitoringDataManager instanceof MonitoringDataManagerStub);
     }
 
     @Test
-    public void testMonitoringEntityFactoryInjectorAgronaEnabledTrue() {
+    public void monitoringDataManagerInjectorAgronaEnabledTrue() {
         Properties configuration = new Properties();
         configuration.setProperty(AGRONA_ENABLED, Boolean.toString(true));
-//        MonitoringEntityFactoryInjector injector = new MonitoringEntityFactoryInjectorImpl(configuration);
-//        MonitoringEntityFactory monitoringEntityFactory = injector.makeMonitoringEntityFactory();
-//        monitoringEntityFactory.close();
-//        assertTrue(monitoringEntityFactory instanceof AgronaMonitoringEntityFactory);
+        MonitoringDataManagerInjector injector = new MonitoringDataManagerInjectorImpl(configuration);
+        MonitoringDataManager monitoringDataManager = injector.makeMonitoringDataManager();
+        monitoringDataManager.close();
+        assertTrue(monitoringDataManager instanceof MMFMonitoringDataManager);
     }
 }
