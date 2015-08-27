@@ -45,7 +45,6 @@ public class DuplicateJarFinder {
 
     private ManifestReader classPathParser;
     private Logger gatewayLogger;
-    private Map<String, List<String>> artifactsToVersion = new HashMap<String, List<String>>();
 
     public DuplicateJarFinder(Logger gatewayLogger) {
         this.gatewayLogger = gatewayLogger;
@@ -59,14 +58,15 @@ public class DuplicateJarFinder {
      * @throws DuplicateJarsException
      */
     public void findDuplicateJars() throws IOException, DuplicateJarsException {
+        Map<String, List<String>> artifactsToVersion = new HashMap<String, List<String>>();
         Enumeration<URL> manifestURLs = classPathParser.getManifestURLs();
         while (manifestURLs.hasMoreElements()) {
-            parseManifestFileFromClassPathEntry(manifestURLs.nextElement());
+            parseManifestFileFromClassPathEntry(manifestURLs.nextElement(), artifactsToVersion);
         }
-        checkForDuplicateJars();
+        checkForDuplicateJars(artifactsToVersion);
     }
 
-    private void parseManifestFileFromClassPathEntry(URL url) throws IOException {
+    private void parseManifestFileFromClassPathEntry(URL url, Map<String, List<String>> artifactsToVersion) throws IOException {
         Attributes manifestAttributes = classPathParser.getManifestAttributesFromURL(url);
         String version = manifestAttributes.getValue(MANIFEST_VERSION);
         String artifactName = manifestAttributes.getValue(MANIFEST_JAR_NAME);
@@ -78,15 +78,16 @@ public class DuplicateJarFinder {
                 artifactsToVersion.put(artifactName, versionList);
             }
             versionList.add(version);
+            // log only kaazing jars loaded
+            gatewayLogger.debug(JAR_FILE_WITH_VERSION_LOGGING_MESSAGE, artifactName, version);
         }
-        gatewayLogger.debug(JAR_FILE_WITH_VERSION_LOGGING_MESSAGE, artifactName, version);
     }
 
     private boolean isKaazingProduct(String product) {
         return product != null && (product.contains("org.kaazing") || product.contains("com.kaazing"));
     }
 
-    private void checkForDuplicateJars() throws DuplicateJarsException {
+    private void checkForDuplicateJars(Map<String, List<String>> artifactsToVersion) throws DuplicateJarsException {
         for (String artifact : artifactsToVersion.keySet()) {
             List<String> versions = artifactsToVersion.get(artifact);
             if (versions.size() > 1) {
