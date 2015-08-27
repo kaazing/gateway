@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -32,16 +32,16 @@ public interface ExtensionHelper {
 
     /**
      * Change the authenticated subject on the WebSocket connection
-     * @param session
-     * @param subject
+     * @param session    transport session on whose filter chain the WebSocket frames flow
+     * @param subject    the new authenticated Subject
      */
     void setSubject(IoSession session, Subject subject);
-    
+
     /**
-     * Log out of the login context associated with this WebSocket connection.
-     * Used to clean up any login context state that should be cleaned up.
-     * @param session
+     * Close the WebSocket connection associated with the given transport session.
+     * Also cleans up any login context state that should be cleaned up.
+     * @param session    transport session on whose filter chain the WebSocket frames flow
      */
-    void logout(IoSession session);
+    void closeWebSocketConnection(IoSession session);
 
 }

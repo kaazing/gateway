@@ -417,8 +417,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
         @Override
-        public void logout(IoSession session) {
-            ((WsebSession.TransportSession)session).getWsebSession().logout();
+        public void closeWebSocketConnection(IoSession session) {
+            ((WsebSession.TransportSession)session).getWsebSession().close(false);
         }
 
     };

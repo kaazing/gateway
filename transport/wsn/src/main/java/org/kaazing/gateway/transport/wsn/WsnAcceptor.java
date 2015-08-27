@@ -208,12 +208,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         public void setSubject(IoSession session, Subject subject) {
-            ((WsnSession)session).setSubject(subject);
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            assert wsnSession !=  null;
+            wsnSession.setSubject(subject);
         }
 
         @Override
-        public void logout(IoSession session) {
-            ((WsnSession)session).logout();
+        public void closeWebSocketConnection(IoSession session) {
+            ((WsnSession)session).close(false);
         }
 
     };
