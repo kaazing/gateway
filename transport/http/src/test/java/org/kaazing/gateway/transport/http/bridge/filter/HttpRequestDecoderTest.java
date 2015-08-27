@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -29,13 +29,11 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolCodecException;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.junit.Test;
-import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -61,7 +59,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
         HttpContentMessage httpContent = httpRequest.getContent();
@@ -70,7 +68,7 @@ public class HttpRequestDecoderTest {
         assertTrue(httpContent.isComplete());
         assertEquals("Hello, Content-Type", httpContent.asText(UTF_8.newDecoder()));
         assertTrue(httpRequest.getCookies().isEmpty());
-        
+
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
 
@@ -93,7 +91,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
         HttpContentMessage httpContent = httpRequest.getContent();
@@ -102,7 +100,7 @@ public class HttpRequestDecoderTest {
         assertTrue(httpContent.isComplete());
         assertEquals("Hello, Content-Type", httpContent.asText(UTF_8.newDecoder()));
         assertTrue(httpRequest.getCookies().isEmpty());
-        
+
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
 
@@ -123,7 +121,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
         assertEquals("/;e/ct", httpRequest.getRequestURI().toASCIIString());
@@ -131,7 +129,7 @@ public class HttpRequestDecoderTest {
         assertTrue(httpRequest.getCookies().isEmpty());
         // KG-1469: make sure we convert host header value to lower case
         assertEquals(Arrays.asList("example.com", "anotherhost.com:888"), httpRequest.getHeaderValues("Host"));
-        
+
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
 
@@ -153,7 +151,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
         HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
         assertEquals("/;e/ct", httpRequest.getRequestURI().toASCIIString());
@@ -162,7 +160,7 @@ public class HttpRequestDecoderTest {
         assertEquals(Arrays.asList("example.com"), httpRequest.getHeaderValues("Host"));
         assertEquals(Arrays.asList("http://localhost:8000"), httpRequest.getHeaderValues("Origin"));
         assertEquals(Arrays.asList("http://my.host.com"), httpRequest.getHeaderValues("Referer"));
-        
+
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
 
@@ -177,30 +175,28 @@ public class HttpRequestDecoderTest {
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
         ByteBuffer in = ByteBuffer.wrap(("POST /sse?.a=1&.a=1b&.b+=2 HTTP/1.1\r\n" +
-    			                         "Host: sse.server.net\r\n" +
-    			                         "Cookie: KSESSIONID=0123456789abcdef\r\n" +
-    				                     "Content-Type: text/event-stream\r\n" +
-    					                 "\r\n").getBytes());
+                                         "Host: sse.server.net\r\n" +
+                                         "Content-Type: text/event-stream\r\n" +
+                                         "\r\n").getBytes());
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-		assertEquals("/sse?.a=1&.a=1b&.b+=2", httpRequest.getRequestURI().toASCIIString());
-        assertNull(httpRequest.getContent());
-		assertEquals(Collections.singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")), httpRequest.getCookies());
-		assertEquals(Arrays.asList("1", "1b"), httpRequest.getParameterValues(".a"));
-		assertEquals(Arrays.asList("2"), httpRequest.getParameterValues(".b "));
-		assertEquals(Arrays.asList("sse.server.net"), httpRequest.getHeaderValues("Host"));
-		assertEquals(Arrays.asList("text/event-stream"), httpRequest.getHeaderValues("Content-Type"));
-		
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		decoder.finishDecode(session, session.getDecoderOutput());
 
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		assertFalse(in.hasRemaining());
-	}
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
+        assertEquals("/sse?.a=1&.a=1b&.b+=2", httpRequest.getRequestURI().toASCIIString());
+        assertNull(httpRequest.getContent());
+        assertEquals(Arrays.asList("1", "1b"), httpRequest.getParameterValues(".a"));
+        assertEquals(Arrays.asList("2"), httpRequest.getParameterValues(".b "));
+        assertEquals(Arrays.asList("sse.server.net"), httpRequest.getHeaderValues("Host"));
+        assertEquals(Arrays.asList("text/event-stream"), httpRequest.getHeaderValues("Content-Type"));
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        decoder.finishDecode(session, session.getDecoderOutput());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(in.hasRemaining());
+    }
 
     @Test
     public void decodeHttpRequestComplete() throws Exception {
@@ -208,35 +204,35 @@ public class HttpRequestDecoderTest {
         ProtocolDecoder decoder = new HttpRequestDecoder();
 
         ByteBuffer in = ByteBuffer.wrap(("POST / HTTP/1.1\r\n" +
-    				                     "Content-Length: 55\r\n" +
-    				                     "\r\n" +
-    				                     "retry:2500\r\n" +
-    				                     "event:TCPSend\r\n" +
-    					                 "id:24\r\n" +
-    					                 "data:Hello, world\r\n" +
-    					                 "\r\n").getBytes());
+                                         "Content-Length: 55\r\n" +
+                                         "\r\n" +
+                                         "retry:2500\r\n" +
+                                         "event:TCPSend\r\n" +
+                                         "id:24\r\n" +
+                                         "data:Hello, world\r\n" +
+                                         "\r\n").getBytes());
 
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-		HttpContentMessage httpContent = httpRequest.getContent();
-		assertTrue(httpContent.isComplete());
-		assertEquals("retry:2500\r\n" +
-				     "event:TCPSend\r\n" +
-					 "id:24\r\n" +
-					 "data:Hello, world\r\n" +
-					 "\r\n", httpContent.asText(UTF_8.newDecoder()));
-		
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		decoder.finishDecode(session, session.getDecoderOutput());
 
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		assertFalse(in.hasRemaining());
-	}
-	
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
+        HttpContentMessage httpContent = httpRequest.getContent();
+        assertTrue(httpContent.isComplete());
+        assertEquals("retry:2500\r\n" +
+                     "event:TCPSend\r\n" +
+                     "id:24\r\n" +
+                     "data:Hello, world\r\n" +
+                     "\r\n", httpContent.asText(UTF_8.newDecoder()));
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        decoder.finishDecode(session, session.getDecoderOutput());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(in.hasRemaining());
+    }
+
     @Test
     public void decodeHttpRequestChunkedComplete() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
@@ -244,46 +240,46 @@ public class HttpRequestDecoderTest {
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
         ByteBuffer in = ByteBuffer.wrap(("POST / HTTP/1.1\r\n" +
-    				                     "Transfer-Encoding: chunked\r\n" +
-    				                     "\r\n" +
-    				                     "37\r\n" +
-    				                     "retry:2500\r\n" +
-    				                     "event:TCPSend\r\n" +
-    					                 "id:24\r\n" +
-    					                 "data:Hello, world\r\n" +
-    					                 "\r\n" +
-    					                 "\r\n" +
-    					                 "0\r\n" +
-    					                 "\r\n").getBytes());
+                                         "Transfer-Encoding: chunked\r\n" +
+                                         "\r\n" +
+                                         "37\r\n" +
+                                         "retry:2500\r\n" +
+                                         "event:TCPSend\r\n" +
+                                         "id:24\r\n" +
+                                         "data:Hello, world\r\n" +
+                                         "\r\n" +
+                                         "\r\n" +
+                                         "0\r\n" +
+                                         "\r\n").getBytes());
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-		assertEquals(allocator.wrap(allocator.allocate(0)), httpRequest.getContent().asBuffer());
-		assertFalse(httpRequest.getContent().isComplete());
-		assertTrue(httpRequest.getCookies().isEmpty());
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		HttpContentMessage httpContent = (HttpContentMessage)session.getDecoderOutputQueue().poll();
-		assertFalse(httpContent.isComplete());
-		assertEquals("retry:2500\r\n" +
-				     "event:TCPSend\r\n" +
-					 "id:24\r\n" +
-					 "data:Hello, world\r\n" +
-					 "\r\n", httpContent.asText(UTF_8.newDecoder()));
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
+        assertEquals(allocator.wrap(allocator.allocate(0)), httpRequest.getContent().asBuffer());
+        assertFalse(httpRequest.getContent().isComplete());
+        assertTrue(httpRequest.getCookies().isEmpty());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpContentMessage httpContent = (HttpContentMessage)session.getDecoderOutputQueue().poll();
+        assertFalse(httpContent.isComplete());
+        assertEquals("retry:2500\r\n" +
+                     "event:TCPSend\r\n" +
+                     "id:24\r\n" +
+                     "data:Hello, world\r\n" +
+                     "\r\n", httpContent.asText(UTF_8.newDecoder()));
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
         assertEquals(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true), session.getDecoderOutputQueue().poll());
 
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		decoder.finishDecode(session, session.getDecoderOutput());
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        decoder.finishDecode(session, session.getDecoderOutput());
 
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		assertFalse(in.hasRemaining());
-	}
-	
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(in.hasRemaining());
+    }
+
     @Test
     public void decodeHttpRequestIncomplete() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
@@ -291,17 +287,17 @@ public class HttpRequestDecoderTest {
 
         ByteBuffer[] in = new ByteBuffer[] {
                 ByteBuffer.wrap(("POST / HTTP/1.1\r\n" +
-	                             "Transfer-Encoding: chunked\r\n" +
-	                             "\r\n").getBytes()),
-	            ByteBuffer.wrap(("37\r\n" +
-	                             "retry:2500\r\n" +
-			                     "event:TCPSend\r\n" +
-				                 "id:24\r\n" +
-				                 "data:Hello, world\r\n" +
-				                 "\r\n" +
-				                 "\r\n").getBytes()) };
-		
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
+                                 "Transfer-Encoding: chunked\r\n" +
+                                 "\r\n").getBytes()),
+                ByteBuffer.wrap(("37\r\n" +
+                                 "retry:2500\r\n" +
+                                 "event:TCPSend\r\n" +
+                                 "id:24\r\n" +
+                                 "data:Hello, world\r\n" +
+                                 "\r\n" +
+                                 "\r\n").getBytes()) };
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
 
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         IoBufferEx[] buf = new IoBufferEx[] {
@@ -311,35 +307,35 @@ public class HttpRequestDecoderTest {
 
         decoder.decode(session, (IoBuffer) buf[0], session.getDecoderOutput());
 
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		assertFalse(buf[0].hasRemaining());
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(buf[0].hasRemaining());
 
-		HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
-		assertEquals(allocator.wrap(allocator.allocate(0)), httpRequest.getContent().asBuffer());
-		assertFalse(httpRequest.getContent().isComplete());
-		assertTrue(httpRequest.getCookies().isEmpty());
-		
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-		
-		decoder.decode(session, (IoBuffer) buf[1], session.getDecoderOutput());
-		
-		assertFalse(session.getDecoderOutputQueue().isEmpty());
-		assertFalse(buf[1].hasRemaining());
-		
-		HttpContentMessage httpContent = (HttpContentMessage)session.getDecoderOutputQueue().poll();
-		assertFalse(httpContent.isComplete());
-		assertEquals("retry:2500\r\n" +
-				     "event:TCPSend\r\n" +
-					 "id:24\r\n" +
-					 "data:Hello, world\r\n" +
-					 "\r\n", httpContent.asText(UTF_8.newDecoder()));
-		
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
+        HttpRequestMessage httpRequest = (HttpRequestMessage)session.getDecoderOutputQueue().poll();
+        assertEquals(allocator.wrap(allocator.allocate(0)), httpRequest.getContent().asBuffer());
+        assertFalse(httpRequest.getContent().isComplete());
+        assertTrue(httpRequest.getCookies().isEmpty());
 
-		decoder.finishDecode(session, session.getDecoderOutput());
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
 
-		assertTrue(session.getDecoderOutputQueue().isEmpty());
-	}
+        decoder.decode(session, (IoBuffer) buf[1], session.getDecoderOutput());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(buf[1].hasRemaining());
+
+        HttpContentMessage httpContent = (HttpContentMessage)session.getDecoderOutputQueue().poll();
+        assertFalse(httpContent.isComplete());
+        assertEquals("retry:2500\r\n" +
+                     "event:TCPSend\r\n" +
+                     "id:24\r\n" +
+                     "data:Hello, world\r\n" +
+                     "\r\n", httpContent.asText(UTF_8.newDecoder()));
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+
+        decoder.finishDecode(session, session.getDecoderOutput());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+    }
 
 
     @Test(expected = ProtocolCodecException.class)
@@ -369,7 +365,7 @@ public class HttpRequestDecoderTest {
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        // for this case we don't expect an exception nor do we expect a valid request to come through 
+        // for this case we don't expect an exception nor do we expect a valid request to come through
         // but the bug is that there is an expensive loop that takes a long time, so failing here based
         // on the time taken to finishDecode is more than a second
         long begin = System.currentTimeMillis();
@@ -395,7 +391,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
 
         HttpRequestMessage request = (HttpRequestMessage) session.getDecoderOutputQueue().poll();
@@ -404,7 +400,7 @@ public class HttpRequestDecoderTest {
         assertTrue(request.getCookies().isEmpty());
 
         assertEquals(Arrays.asList("x-kaazing-foo", "x-kaazing-bar"), request.getHeaderValues("Sec-WebSocket-Extensions"));
-        
+
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         decoder.finishDecode(session, session.getDecoderOutput());
 
@@ -427,7 +423,7 @@ public class HttpRequestDecoderTest {
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
-        
+
         assertFalse(session.getDecoderOutputQueue().isEmpty());
 
         HttpRequestMessage request = (HttpRequestMessage) session.getDecoderOutputQueue().poll();
