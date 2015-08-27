@@ -213,11 +213,6 @@
             </dependency>
             <dependency>
                 <groupId>org.kaazing</groupId>
-                <artifactId>gateway.resource.address.wsr</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.kaazing</groupId>
                 <artifactId>gateway.resource.address.httpxe</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -303,8 +303,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                             break;
 
                         }
-                        
-                        // TODO: once WsebAcceptor / WsrAcceptor change bind to use non-suffix create URI
+
                         if (extendedPath.charAt(0) == 'c') {
                             //httpRequest.setRequestURI(truncateURI(requestURI, format(";e/%s", extendedPath)));
                         }
