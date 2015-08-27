@@ -203,7 +203,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private WebSocketExtensionFactory webSocketExtensionFactory;
-    
+
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
@@ -215,7 +215,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         public void logout(IoSession session) {
             ((WsnSession)session).logout();
         }
-        
+
     };
 
     public WsnAcceptor() {
@@ -461,13 +461,11 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     }
 
     private void bindApiPath(ResourceAddress address) {
-        String scheme = address.getExternalURI().getScheme();
         ResourceAddress apiAddress = createApiAddress(address);
         bridgeServiceFactory.newBridgeAcceptor(apiAddress).bind(apiAddress, WsAcceptor.API_PATH_HANDLER, null);
     }
 
     private void unbindApiPath(ResourceAddress address) {
-        String scheme = address.getExternalURI().getScheme();
         ResourceAddress apiAddress = createApiAddress(address);
         bridgeServiceFactory.newBridgeAcceptor(apiAddress).unbind(apiAddress);
     }
@@ -999,6 +997,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 String httpChallengeScheme = session.getLocalAddress().getOption(REALM_CHALLENGE_SCHEME);
                 if (httpChallengeScheme != null && httpChallengeScheme.startsWith(AUTH_SCHEME_APPLICATION_PREFIX)) {
                     // challenge scheme starts with "Application ", so reject it (403 as no way to negotiate)
+                    if (logger.isInfoEnabled()) {
+                        logger.info(String.format("A Kaazing client library must be used for challenge scheme \"%s\", " +
+                               "rejecting connection from %s", httpChallengeScheme, session.getRemoteAddress()));
+                    }
                     session.setStatus(HttpStatus.CLIENT_FORBIDDEN);
                     session.close(false);
                     return false;
