@@ -78,8 +78,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     public static final String PROTOCOL_HTTPXE_1_1 = "httpxe/1.1";
     
     private static final String CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP = "application/x-message-http";
-    
-    private static final String PROTOCOL_WSR_1_0 = "wsr/1.0";
+
     private static final String PROTOCOL_WSE_1_0 = "wse/1.0";
     
     private static final String HEADER_CREATE_ENCODING = "X-Create-Encoding";
@@ -269,7 +268,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             }
         }
         
-        // default next-protocol header for backwards compatibility with httpe-1.0, wse-1.0, wsr-1.0
+        // default next-protocol header for backwards compatibility with httpe-1.0, wse-1.0,
         if (!httpRequest.hasHeader(HEADER_X_NEXT_PROTOCOL)) {
             URI requestURI = httpRequest.getRequestURI();
             String path = requestURI.getPath();
@@ -302,10 +301,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                                 httpRequest.setHeader(HEADER_CREATE_ENCODING, createEncoding);
                             }
                             break;
-                        case 'r':
-                            // cr
-                            httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_WSR_1_0);
-                            break;
+
                         }
                         
                         // TODO: once WsebAcceptor / WsrAcceptor change bind to use non-suffix create URI

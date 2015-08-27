@@ -117,10 +117,6 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
-            <artifactId>gateway.transport.wsr</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport.wseb</artifactId>
         </dependency>
         <dependency>

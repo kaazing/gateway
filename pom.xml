@@ -57,7 +57,6 @@
         <module>resource.address/wsdraft</module>
         <module>resource.address/wse</module>
         <module>resource.address/wsn</module>
-        <module>resource.address/wsr</module>
         <module>resource.address/wsx</module>
         <module>resource.address/wsxdraft</module>
         <module>security</module>
@@ -84,7 +83,6 @@
         <module>transport/ws</module>
         <module>transport/wseb</module>
         <module>transport/wsn</module>
-        <module>transport/wsr</module>
         <module>util</module>
         <module>mina.core</module>
         <module>mina.netty</module>
