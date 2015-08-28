@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.transport.wseb;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.FileInputStream;
 import java.net.URI;
@@ -47,7 +47,7 @@ public class WsebProxyTestIT {
     private GatewayRule gateway = new GatewayRule() {
         {
             try {
-                keyStore = KeyStore.getInstance("JCEKS");              
+                keyStore = KeyStore.getInstance("JCEKS");
                 FileInputStream in = new FileInputStream("target/truststore/keystore.db");
                 keyStore.load(in, password);
             } catch (Exception e) {
@@ -87,45 +87,45 @@ public class WsebProxyTestIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
-    
+
     @Specification("VerifyProxyModeFallbackFromInsecureToSecureInWseb")
-    @Test(timeout = 1500)
+    @Test
     @Ignore("KG-11239")
     public void VerifyProxyModeFallbackFromInsecureToSecureInWseb() throws Exception {
         robot.finish();
     }
-   
+
     @Specification("BluecoatHeaderDetectionAndFallbackToProxyMode")
-    @Test(timeout = 1500)
+    @Test
     @Ignore("KG-11239")
     public void BluecoatHeaderDetectionAndFallbackToProxyMode() throws Exception {
         robot.finish();
     }
 
     @Specification("wsebLongPolling")
-    @Test(timeout = 7500)
+    @Test
     public void wsebLongPolling() throws Exception {
         robot.finish();
     }
 
     @Specification("wsebLongPollingWithSequenceNumber")
-    @Test(timeout = 7500)
+    @Test
     public void wsebLongPollingWithSequenceNumber() throws Exception {
         robot.finish();
     }
 
     @Specification("wsebSecureLongPolling")
-    @Test(timeout = 7500)
+    @Test
     public void wsebSecureLongPolling() throws Exception {
         robot.finish();
     }
 
     @Specification("wsebLongPollingByHeader")
-    @Test(timeout = 7500)
+    @Test
     public void wsebLongPollingTriggeredByHeader() throws Exception {
         robot.finish();
     }
-       
+
 }

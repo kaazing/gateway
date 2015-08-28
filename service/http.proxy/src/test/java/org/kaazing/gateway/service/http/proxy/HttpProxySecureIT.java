@@ -21,10 +21,9 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -42,15 +41,12 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxySecureIT {
     private static KeyStore keyStore;
@@ -84,8 +80,6 @@ public class HttpProxySecureIT {
     }
 
     private final K3poRule k3po = new K3poRule();
-    private final TestRule trace = new MethodExecutionTrace();
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private final GatewayRule gateway = new GatewayRule() {{
 
@@ -110,7 +104,7 @@ public class HttpProxySecureIT {
     }};
 
     @Rule
-    public final TestRule chain = outerRule(trace).around(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     // Test for gateway's ssl termination
     @Specification( "http.proxy.ssl.terminated")
@@ -124,7 +118,7 @@ public class HttpProxySecureIT {
             assertEquals("<html>Hellooo</html>", line);
             assertNull(null, r.readLine());
         }
-        
+
         k3po.finish();
     }
 

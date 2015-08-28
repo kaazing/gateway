@@ -212,8 +212,8 @@ public class HttpxeProtocolFilterTest {
         context.assertIsSatisfied();
     }
 
-	@Test
-	public void shouldWriteResponseWithInsertedCookies() throws Exception {
+    @Test
+    public void shouldWriteResponseWithInsertedCookies() throws Exception {
 
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
@@ -221,7 +221,7 @@ public class HttpxeProtocolFilterTest {
         expectedResponse.setReason("Cross-Origin Redirect");
         expectedResponse.setHeader("Location", "https://www.w3.org/");
 
-	    context.checking(new Expectations() { {
+        context.checking(new Expectations() { {
             oneOf(serverSession).setVersion(HTTP_1_1);
             oneOf(serverSession).setStatus(SUCCESS_OK);
             oneOf(serverSession).getStatus(); will(returnValue(SUCCESS_OK));
@@ -229,27 +229,24 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
             oneOf(serverSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(serverSession).setWriteHeaders(with(stringMatching("Set-Cookie")), with(stringListMatching("KSSOID=12345;")));
-            oneOf(serverSession).getWriteCookies(); will(returnValue(writeCookies));
-            oneOf(writeCookies).add(with(equal(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"))));
 
             oneOf(serverSession).getFilterChain(); will(returnValue(filterChain));
             oneOf(filterChain).addFirst(with(equal("http#content-length")), with(aNonNull(HttpContentLengthAdjustmentFilter.class)));
-	        oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
+            oneOf(nextFilter).filterWrite(with(serverSession), with(hasMessage(expectedResponse)));
         } });
 
-	    HttpResponseMessage httpResponse = new HttpResponseMessage();
-	    httpResponse.setVersion(HTTP_1_1);
-	    httpResponse.setStatus(REDIRECT_FOUND);
-	    httpResponse.setReason("Cross-Origin Redirect");
-	    httpResponse.setHeader("Location", "https://www.w3.org/");
-	    httpResponse.setHeader("Set-Cookie", "KSSOID=12345;");
-	    httpResponse.setCookies(Collections.<HttpCookie>singleton(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef")));
+        HttpResponseMessage httpResponse = new HttpResponseMessage();
+        httpResponse.setVersion(HTTP_1_1);
+        httpResponse.setStatus(REDIRECT_FOUND);
+        httpResponse.setReason("Cross-Origin Redirect");
+        httpResponse.setHeader("Location", "https://www.w3.org/");
+        httpResponse.setHeader("Set-Cookie", "KSSOID=12345;");
 
-	    HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
+        HttpxeProtocolFilter filter = new HttpxeProtocolFilter(false);
         filter.filterWrite(nextFilter, serverSession, new DefaultWriteRequest(httpResponse));
 
-	    context.assertIsSatisfied();
-	}
+        context.assertIsSatisfied();
+    }
 
     @Test
     public void shouldWriteResponseWithInsertedTextPlainContentType() throws Exception {
@@ -659,7 +656,7 @@ public class HttpxeProtocolFilterTest {
         expectedRequest.setHeader("Authorization", "restricted-usage");
         expectedRequest.setHeader("X-Header", "value1");
         expectedRequest.addHeader("X-Header", "value2");
-        expectedRequest.addCookie(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
+        expectedRequest.addCookie(new DefaultHttpCookie("KSSOID", "0123456789abcdef"));
         expectedRequest.setContent(EMPTY);
 
         context.checking(new Expectations() { {
@@ -669,7 +666,7 @@ public class HttpxeProtocolFilterTest {
             oneOf(serverSession).getReadHeaderNames(); will(returnValue(asList("Content-Length", "Content-Type", "X-Header")));
             oneOf(serverSession).getReadHeader(with("Content-Type")); will(returnValue("application/x-message-http"));
             oneOf(serverSession).getReadHeaders(with("X-Header")); will(returnValue(asList("value1","value2")));
-            oneOf(serverSession).getReadCookies(); will(returnValue(asList(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"))));
+            oneOf(serverSession).getReadCookies(); will(returnValue(asList(new DefaultHttpCookie("KSSOID", "0123456789abcdef"))));
 
             oneOf(nextFilter).messageReceived(with(serverSession), with(equal(expectedRequest)));
         } });
@@ -842,8 +839,7 @@ public class HttpxeProtocolFilterTest {
     public void shouldReceiveResponseWithExtractedCookies() throws Exception {
 
         final List<HttpCookie> expectedCookies =
-                Arrays.<HttpCookie>asList(new DefaultHttpCookie("KSSOID", "12345"),
-                                          new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
+                Arrays.<HttpCookie>asList(new DefaultHttpCookie("KSSOID", "12345"));
 
         final HttpResponseMessage expectedResponse = new HttpResponseMessage();
         expectedResponse.setVersion(HTTP_1_1);
@@ -1307,7 +1303,6 @@ public class HttpxeProtocolFilterTest {
             oneOf(clientSession).setRequestURI(URI.create("/"));
             oneOf(clientSession).setWriteHeader("Content-Type", "text/plain;charset=UTF-8");
             oneOf(clientSession).setWriteHeader("X-Header", "value");
-            oneOf(clientSession).getWriteCookies().add(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
 
             oneOf(nextFilter).filterWrite(with(clientSession), with(hasMessage(expectedRequest)));
         } });
@@ -1318,7 +1313,6 @@ public class HttpxeProtocolFilterTest {
         httpRequest.setRequestURI(URI.create("/"));
         httpRequest.setHeader("Authorization", "restricted-usage");
         httpRequest.setHeader("X-Header", "value");
-        httpRequest.addCookie(new DefaultHttpCookie("KSESSIONID", "0123456789abcdef"));
         httpRequest.setContent(EMPTY);
 
         HttpxeProtocolFilter filter = new HttpxeProtocolFilter(true);

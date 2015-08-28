@@ -16,13 +16,18 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws;
 
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -33,15 +38,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MethodExecutionTrace;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 
 /**
  * RFC-6455, section 5.4 "Fragmentation"
@@ -52,12 +48,8 @@ public class FragmentationIT {
 
     private final WsnAcceptorRule acceptor = new WsnAcceptorRule();
 
-    private final TestRule testExecutionTrace = new MethodExecutionTrace();
-    
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
     @Rule
-    public final TestRule chain = outerRule(testExecutionTrace).around(acceptor).around(k3po).around(timeout);
+    public TestRule chain = createRuleChain(acceptor, k3po);
 
 
     @Test
@@ -230,7 +222,7 @@ public class FragmentationIT {
         "client.send.binary.payload.length.125.fragmented.but.not.continued/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
-        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter());
+        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
 
@@ -239,7 +231,7 @@ public class FragmentationIT {
         "client.send.close.payload.length.2.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithPayloadFragmented() throws Exception {
-        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter());
+        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
 
@@ -248,7 +240,7 @@ public class FragmentationIT {
         "client.send.ping.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendPingFrameWithPayloadFragmented() throws Exception {
-        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter());
+        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
 
@@ -257,17 +249,17 @@ public class FragmentationIT {
         "client.send.pong.payload.length.0.fragmented/handshake.request.and.frames"
         })
     public void shouldFailWebSocketConnectionWhenClientSendPongFrameWithPayloadFragmented() throws Exception {
-        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter());
+        acceptor.bind("ws://localhost:8080/echo", new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
-    
+
     /** special IoHandlerAdapter for consolidating message fragments
      * @return
      */
     private IoHandlerAdapter<IoSessionEx> textFragmentIoHandlerAdapter(WsBuffer.Kind kind) {
         IoHandlerAdapter<IoSessionEx> acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
             List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
-            
+
             @Override
             protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
                 WsnSession wsnSession = (WsnSession) session;
@@ -285,15 +277,15 @@ public class FragmentationIT {
                         filterChain.fireMessageReceived(message);
                         return;
                     }
-                    
+
                     WsBuffer wsMessage = (WsBuffer) message;
-                    
-                    
+
+
                     bufferList.add(wsMessage.buf());
-                     
-                    if (wsMessage.isFin()) { 
+
+                    if (wsMessage.isFin()) {
                         ByteBuffer buffer = ByteBuffer.allocate(4096);
-                        
+
                         for (ByteBuffer bb : bufferList) {
                             buffer.put(bb);
                         }

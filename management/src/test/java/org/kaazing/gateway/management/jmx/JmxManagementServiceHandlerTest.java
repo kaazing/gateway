@@ -21,10 +21,15 @@
 
 package org.kaazing.gateway.management.jmx;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import java.net.URI;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -36,6 +41,9 @@ public class JmxManagementServiceHandlerTest {
     private final URI BACKEND_URI_1 = URI.create("tcp://localhost:9123");
     private final URI BACKEND_URI_2 = URI.create("tcp://localhost:9124");
     private final String PROXY = "proxy";
+
+    @Rule
+    public TestRule timeoutRule = createRuleChain(20, SECONDS);
 
     @Test
     public void testNoJMXBindingNameConflictsOnMultiServicesUsingSameConnect() throws Exception {

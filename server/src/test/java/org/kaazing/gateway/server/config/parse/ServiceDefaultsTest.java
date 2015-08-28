@@ -33,7 +33,7 @@ public class ServiceDefaultsTest {
                 .connectOption("tcp.transport", "socks://localhost:8000")
                 .connectOption("http.keepalive", "disabled")
                 .connectOption("http.keepalive.timeout", "5sec")
-                .connectOption("http.keepalive.max.connections", "7")
+                .connectOption("http.keepalive.connections", "7")
                 .done()
             .service()
                 .type("echo")
@@ -61,7 +61,7 @@ public class ServiceDefaultsTest {
 
         Assert.assertEquals(5, connectOptionsMap.get(HTTP_KEEP_ALIVE_TIMEOUT_KEY));
         Assert.assertFalse((Boolean) connectOptionsMap.get(HTTP_KEEP_ALIVE));
-        Assert.assertEquals(7, connectOptionsMap.get("http.keepalive.max.connections"));
+        Assert.assertEquals(7, connectOptionsMap.get("http.keepalive.connections"));
     }
 
     @Test

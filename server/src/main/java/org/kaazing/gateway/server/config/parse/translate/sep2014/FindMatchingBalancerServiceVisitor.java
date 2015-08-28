@@ -25,10 +25,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.filter.ElementFilter;
+
 import org.kaazing.gateway.server.config.parse.translate.AbstractVisitor;
+
 import static java.lang.String.format;
 
 /**
@@ -44,8 +47,8 @@ public class FindMatchingBalancerServiceVisitor extends AbstractVisitor {
     private Set<String> balancerAcceptURIs;
 
     public FindMatchingBalancerServiceVisitor() {
-        balanceURIs = new HashSet<>();
-        balancerAcceptURIs = new HashSet<>();
+        balanceURIs = new HashSet<String>();
+        balancerAcceptURIs = new HashSet<String>();
     }
 
     @Override

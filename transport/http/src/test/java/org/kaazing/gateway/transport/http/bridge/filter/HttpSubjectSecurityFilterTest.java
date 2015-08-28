@@ -81,6 +81,9 @@ public class HttpSubjectSecurityFilterTest {
         }
     };
 
+    public HttpSubjectSecurityFilterTest() {
+    }
+
     @Test
     public void testNonHttpRequestMessage() throws Exception {
         Mockery context = new Mockery() {
@@ -98,7 +101,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -130,6 +133,12 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
 
+                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
+                will(returnValue(null));
+
+                allowing(session).getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                will(returnValue(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK));
+
                 allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
                 will(VoidAction.INSTANCE);
 
@@ -137,7 +146,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -171,6 +180,12 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
+
+                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
+                will(returnValue(null));
+
+                oneOf(session).getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY);
+                will(returnValue(null));
                 allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
                 will(VoidAction.INSTANCE);
 
@@ -178,7 +193,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -249,60 +264,6 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger("security"));
-        filter.securityMessageReceived(nextFilter, session, message);
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void filterShouldEndChainIfARecycleModeRealmIsConfigured() throws Exception {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-        context.setThreadingPolicy(new Synchroniser());
-        final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSessionEx session = context.mock(IoSessionEx.class);
-        final ResourceAddress address = context.mock(ResourceAddress.class);
-
-        final HttpRequestMessage message = new HttpRequestMessage();
-        message.setMethod(HttpMethod.GET);
-        message.setVersion(HttpVersion.HTTP_1_1);
-        message.setRequestURI(URI.create(BASE_URI));
-        message.addHeader("Connection", "Upgrade");
-        message.addHeader("Upgrade", "WebSocket");
-        message.addHeader("Host", "localhost:8000");
-        message.addHeader("Authorization", "gobbledegook");
-        message.setLocalAddress(address);
-
-        context.checking(new Expectations() {
-            {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("recycle"));
-
-                // alreadyLoggedIn == false
-                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
-                will(returnValue(new String[]{"ADMINISTRATOR"}));
-
-                oneOf(session).getSubject();
-
-
-                // writes a 400
-                oneOf(nextFilter).filterWrite(with(same(session)),
-                        with(writeRequest(withStatus(HttpStatus.CLIENT_BAD_REQUEST))));
-
-                // end of chain
-                never(nextFilter).messageReceived(session, message);
-                never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));
-            }
-        });
-        HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
         filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }

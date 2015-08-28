@@ -2,11 +2,49 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.28...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.29...HEAD)
 
 **Fixed bugs:**
 
+- TravisCI build tests hanging [\#282](https://github.com/kaazing/gateway/issues/282)
+
+**Merged pull requests:**
+
+- Fixed issue in duplicate jar detection where list was not cleared on … [\#296](https://github.com/kaazing/gateway/pull/296) ([dpwspoon](https://github.com/dpwspoon))
+
+- added link to Release Notes [\#295](https://github.com/kaazing/gateway/pull/295) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Feature/config translator ii [\#294](https://github.com/kaazing/gateway/pull/294) ([mjolie](https://github.com/mjolie))
+
+- Remove code for KSESSIONID and "recycle" authorization mode [\#293](https://github.com/kaazing/gateway/pull/293) ([sanjay-saxena](https://github.com/sanjay-saxena))
+
+- Trying to address travis gateway build failures. [\#291](https://github.com/kaazing/gateway/pull/291) ([cmebarrow](https://github.com/cmebarrow))
+
+- \(\#267\) Ignore OcspIT.testGoodCertificate since we have not yet found … [\#290](https://github.com/kaazing/gateway/pull/290) ([cmebarrow](https://github.com/cmebarrow))
+
+- Adding Method execution trace, and timeout rules [\#289](https://github.com/kaazing/gateway/pull/289) ([jitsni](https://github.com/jitsni))
+
+- Travis ci failures [\#286](https://github.com/kaazing/gateway/pull/286) ([dpwspoon](https://github.com/dpwspoon))
+
+- Wseb connector sending X-WebSocket-Protocol header [\#284](https://github.com/kaazing/gateway/pull/284) ([jitsni](https://github.com/jitsni))
+
+- Binding explicitly for .../;api endpoints for wsn and wseb cases [\#280](https://github.com/kaazing/gateway/pull/280) ([jitsni](https://github.com/jitsni))
+
+- Change http.keepalive.max.connections to http.keepalive.connections [\#278](https://github.com/kaazing/gateway/pull/278) ([jitsni](https://github.com/jitsni))
+
+- Adds jar version to manifest entry such that it can be reported when duplicate jars are [\#276](https://github.com/kaazing/gateway/pull/276) ([dpwspoon](https://github.com/dpwspoon))
+
+## [5.0.1.29](https://github.com/kaazing/gateway/tree/5.0.1.29) (2015-08-19)
+
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.28...5.0.1.29)
+
+**Fixed bugs:**
+
+- Build errors on travis  [\#264](https://github.com/kaazing/gateway/issues/264)
+
 - remove HTML from Glossary [\#250](https://github.com/kaazing/gateway/issues/250)
+
+- KGS-976: UP: sporadic error connecting Command Center to JMS 4.0.6 Dev / JMS 4.0.7 Prod [\#226](https://github.com/kaazing/gateway/issues/226)
 
 - \(doc\) Admin guide is missing maximum-age [\#145](https://github.com/kaazing/gateway/issues/145)
 
@@ -16,13 +54,29 @@
 
 - Update http.keepalive.timeout example to use time unit [\#224](https://github.com/kaazing/gateway/issues/224)
 
-- Remove the Session <type\> from gateway documentation  [\#214](https://github.com/kaazing/gateway/issues/214)
+- \(doc\) Remove reference to GWT [\#223](https://github.com/kaazing/gateway/issues/223)
+
+- Remove the Session \<type\> from gateway documentation  [\#214](https://github.com/kaazing/gateway/issues/214)
 
 - AgronaMonitoringEntityFactoryTest fails the build \(on Mac OS x\) [\#171](https://github.com/kaazing/gateway/issues/171)
 
 - \(doc\) Add connect options to service defaults description [\#143](https://github.com/kaazing/gateway/issues/143)
 
+- \(doc\) Add links to admin-reference/p\_config\_multicast.md [\#134](https://github.com/kaazing/gateway/issues/134)
+
 **Merged pull requests:**
+
+- Adding info message when wsn is falling back to wse [\#283](https://github.com/kaazing/gateway/pull/283) ([jitsni](https://github.com/jitsni))
+
+- Fixing NPE when connector is null [\#281](https://github.com/kaazing/gateway/pull/281) ([jitsni](https://github.com/jitsni))
+
+- Forgot to commit acceptor rule for wsn [\#272](https://github.com/kaazing/gateway/pull/272) ([jitsni](https://github.com/jitsni))
+
+- Add wsn spec tests [\#270](https://github.com/kaazing/gateway/pull/270) ([jitsni](https://github.com/jitsni))
+
+- Resolves \#264 [\#265](https://github.com/kaazing/gateway/pull/265) ([dpwspoon](https://github.com/dpwspoon))
+
+- Added ability to filter IP addresses [\#263](https://github.com/kaazing/gateway/pull/263) ([sanjay-saxena](https://github.com/sanjay-saxena))
 
 - fixing md for html I hope [\#261](https://github.com/kaazing/gateway/pull/261) ([michaelcretzman](https://github.com/michaelcretzman))
 
@@ -31,6 +85,8 @@
 - fixing link errors [\#259](https://github.com/kaazing/gateway/pull/259) ([michaelcretzman](https://github.com/michaelcretzman))
 
 - Format errors [\#258](https://github.com/kaazing/gateway/pull/258) ([michaelcretzman](https://github.com/michaelcretzman))
+
+- Adding a wse balancer test [\#256](https://github.com/kaazing/gateway/pull/256) ([jitsni](https://github.com/jitsni))
 
 - Update kaazing-glossary.md [\#252](https://github.com/kaazing/gateway/pull/252) ([michaelcretzman](https://github.com/michaelcretzman))
 
@@ -66,7 +122,9 @@
 
 - Fixed nits in http.proxy doc [\#225](https://github.com/kaazing/gateway/pull/225) ([veschup](https://github.com/veschup))
 
-- Remove the Session service \(<type\>\) from gateway documentation [\#218](https://github.com/kaazing/gateway/pull/218) ([veschup](https://github.com/veschup))
+- Added changes for supporting multiple gateways on the same host and merged refactoring from Marina's fork \(removed StringManager and latestException\) [\#222](https://github.com/kaazing/gateway/pull/222) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+
+- Remove the Session service \(\<type\>\) from gateway documentation [\#218](https://github.com/kaazing/gateway/pull/218) ([veschup](https://github.com/veschup))
 
 - Removed breadcrumbs. [\#217](https://github.com/kaazing/gateway/pull/217) ([chadpowers](https://github.com/chadpowers))
 
@@ -316,7 +374,7 @@
 
 **Implemented enhancements:**
 
-- Configuration doesn't allow <connect-options\> in <service-defaults\> [\#64](https://github.com/kaazing/gateway/issues/64)
+- Configuration doesn't allow \<connect-options\> in \<service-defaults\> [\#64](https://github.com/kaazing/gateway/issues/64)
 
 **Fixed bugs:**
 

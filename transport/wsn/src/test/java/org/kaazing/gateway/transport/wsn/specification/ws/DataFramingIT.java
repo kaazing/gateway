@@ -16,16 +16,13 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -57,10 +54,8 @@ public class DataFramingIT {
         }
     };
 
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
     @Rule
-    public final TestRule chain = outerRule(k3po).around(gateway).around(timeout);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     // TODO: invalid UTF-8 in text frame (opcode 0x01) RFC-6455, section 8.1
 

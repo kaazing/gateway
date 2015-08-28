@@ -26,14 +26,11 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.URI;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -46,21 +43,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
-import org.kaazing.gateway.security.auth.RealmNameCallback;
-import org.kaazing.gateway.security.auth.RealmNameCallbackHandler;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
 import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
-import org.kaazing.gateway.transport.http.HttpUtils;
-import org.kaazing.gateway.transport.http.MutableHttpCookie;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.security.AuthorizationMapCallback;
-import org.kaazing.gateway.transport.http.security.AuthorizationMapCallbackHandler;
-import org.kaazing.gateway.transport.http.security.HttpRequestMessageCallback;
-import org.kaazing.gateway.transport.http.security.HttpRequestMessageCallbackHandler;
 import org.kaazing.gateway.transport.http.security.auth.token.AuthenticationTokenExtractor;
 import org.kaazing.gateway.transport.http.security.auth.token.DefaultAuthenticationTokenExtractor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -71,9 +60,6 @@ import org.slf4j.Logger;
 public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
 
     public static final String NAME = HttpProtocol.NAME + "#security";
-
-    public static final String SESSION_COOKIE_NAME = "KSESSIONID";
-
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 
@@ -160,111 +146,15 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             return;
         }
 
-        String authorizationMode = httpAddress.getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-
-        if ("recycle".equals(authorizationMode)) {
-            legacySecurityMessageReceived(nextFilter, session, httpRequest);
-        }
-
-        if (!"recycle".equals(authorizationMode)) {
-            securityMessageReceived(nextFilter, session, httpRequest);
-        }
+        securityMessageReceived(nextFilter, session, httpRequest);
     }
-
-    void legacySecurityMessageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
-
-        if (! httpRequestMessageReceived(nextFilter, session, message)) return;
-
-        HttpRequestMessage httpRequest = (HttpRequestMessage) message;
-        ResourceAddress httpAddress = httpRequest.getLocalAddress();
-
-        String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-        String realmAuthorizationMode = httpAddress.getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-        String realmChallengeScheme = httpAddress.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-
-        //
-        // Grab the authorization header/session cookie if any
-        //
-        String authorization = httpRequest.getHeader(AUTHORIZATION_HEADER);
-        MutableHttpCookie sessionCookie = getSessionCookie(httpRequest);
-
-        final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
-        if (loggerIsEnabled) {
-            logger.trace("HTTP session cookie received: {}", sessionCookie);
-            logger.trace("HTTP authorization header received: {}", authorization);
-        }
-
-        if (! AUTHORIZATION_MODE_RECYCLE.equals(realmAuthorizationMode)) {
-            if (loggerIsEnabled) {
-                logger.trace("HttpSubjectSecurityFilter skipped because authorization mode is not recycle.");
-            }
-            super.doMessageReceived(nextFilter, session, message);
-            return;
-        }
-
-        if ( alreadyLoggedIn(session, httpAddress)) {
-            // KG-3232, KG-3267: we should never leave the login context unset
-            // for unprotected services.
-            if (LOGIN_CONTEXT_KEY.get(session) == null) {
-                setUnprotectedLoginContext(session);
-            }
-            if (loggerIsEnabled) {
-                logger.trace("HttpSubjectSecurityFilter skipped because we are already logged in.");
-            }
-            super.doMessageReceived(nextFilter, session, message);
-            return;
-        }
-
-        DefaultAuthenticationToken authToken = new DefaultAuthenticationToken();
-        authToken.setScheme(getBaseAuthScheme(realmChallengeScheme));
-        authToken.add(AUTHORIZATION_HEADER, authorization);
-        if ( sessionCookie != null ) {
-            authToken.add(SESSION_COOKIE_NAME, sessionCookie.getValue());
-        }
-
-        TypedCallbackHandlerMap additionalCallbacks = new TypedCallbackHandlerMap();
-        additionalCallbacks.put(RealmNameCallback.class, new RealmNameCallbackHandler(realmName));
-        additionalCallbacks.put(AuthorizationMapCallback.class, new AuthorizationMapCallbackHandler(authorizationMap));
-        additionalCallbacks.put(HttpRequestMessageCallback.class, new HttpRequestMessageCallbackHandler(httpRequest, HttpRequestMessageCallback.class));
-
-        if (loggerIsEnabled) {
-            logger.trace("HttpSubjectSecurityFilter calling login().");
-        }
-
-        // Suspend incoming events into this filter. Will resume after LoginContext.login() completion
-        suspendIncoming(session);
-
-        // Schedule LoginContext.login() execution using a separate thread
-        LoginContextTask loginContextTask = new LoginContextTask(nextFilter, session, httpRequest, authToken, additionalCallbacks);
-        scheduler.execute(loginContextTask);
-    }
-
-    protected MutableHttpCookie getSessionCookie(HttpRequestMessage httpRequest) {
-        MutableHttpCookie sessionCookie = null;
-        Set<HttpCookie> cookies = httpRequest.getCookies();
-        for (HttpCookie cookie : cookies) {
-            if (SESSION_COOKIE_NAME.equals(cookie.getName())) {
-                sessionCookie = (MutableHttpCookie) cookie;
-                break;
-            }
-        }
-        return sessionCookie;
-    }
-
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
-        MutableHttpCookie sessionCookie = getSessionCookie(httpRequest);
-
         // secure requests always have cookie accessible, even
         // on first access
         final HttpCookie newSessionCookie = (HttpCookie) loginResult.getLoginAuthorizationAttachment();
 
         httpRequest.addCookie(newSessionCookie);
-
-        // if old cookie is still present, remove it from the cookies set
-        if (sessionCookie != null) {
-            httpRequest.removeCookie(sessionCookie);
-        }
 
         session.setAttribute(NEW_SESSION_COOKIE_KEY, newSessionCookie);
         if (loggerEnabled()) {
@@ -462,18 +352,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             return;
         }
 
-        //
-        // This filter method cannot handle "recycle" realms.
-        //
-
-        if (realmAuthorizationMode != null && AUTHORIZATION_MODE_RECYCLE.equals(realmAuthorizationMode)) {
-            if (loggerEnabled()) {
-                logger.trace(String.format("Cannot process authorization mode 'recycle' for requested URI '%s'.", HttpUtils.getRequestURI(httpRequest, session)));
-            }
-            writeResponse(HttpStatus.CLIENT_BAD_REQUEST, nextFilter, session, httpRequest);
-            return;
-        }
-
         if ( realmName == null ) {
             setUnprotectedLoginContext(session);
             if (loggerIsEnabled) {
@@ -482,7 +360,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
             super.doMessageReceived(nextFilter, session, message);
             return;
         }
-
 
         AuthenticationTokenExtractor tokenExtractor = DefaultAuthenticationTokenExtractor.INSTANCE;
 

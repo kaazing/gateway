@@ -2,17 +2,19 @@
  * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
  */
 
-package org.kaazing.gateway.transport.wsn;
+package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
+import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -20,12 +22,7 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.service.IoHandler;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.kaazing.gateway.transport.wsn.WsnConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -37,7 +34,6 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  */
 public class WsnConnectorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
     private WsnConnector wsnConnector;
 
@@ -48,11 +44,7 @@ public class WsnConnectorRule implements TestRule {
     }
 
     public WsnConnectorRule() {
-        this(null);
-    }
 
-    public WsnConnectorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
     }
 
     public ConnectFuture connect(String connect, Long wsInactivityTimeout, IoHandler connectHandler)
@@ -82,17 +74,6 @@ public class WsnConnectorRule implements TestRule {
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                in.close();
-                PropertyConfigurator.configure(log4j);
-            }
             try {
                 // Connector setup
                 schedulerProvider = new SchedulerProvider();
