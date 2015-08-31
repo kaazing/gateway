@@ -39,8 +39,12 @@ public class MMFMonitoringDataManagerTest {
         try {
             assertNotNull(monitoringDataManager);
             MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
-            assertNotNull(monitoringEntityFactory);
-            monitoringEntityFactory.close();
+            try {
+                assertNotNull(monitoringEntityFactory);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
         }
         finally {
             monitoringDataManager.close();
