@@ -39,7 +39,7 @@ public class ResourceAddressFactory {
     private final Map<String, ResourceAddressFactorySpi<?>> addressFactories;
 
     // scheme name -> { alternate scheme name1 -> factory1, alternate scheme name2 -> factory2,...}
-    // "ws" -> { "wse" -> wse factory, "wsr" -> wsr factory, ...}
+    // "ws" -> { "wse" -> wse factory...}
     private final Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories;
 
     public static ResourceAddressFactory newResourceAddressFactory() {
@@ -55,7 +55,7 @@ public class ResourceAddressFactory {
         Map<String, ResourceAddressFactorySpi<?>> addressFactories = new HashMap<>();
 
         // scheme name -> { alternate scheme name1 -> factory1, alternate scheme name2 -> factory2,...}
-        // "ws" -> { "wse" -> wse factory, "wsr" -> wsr factory, ...}
+        // "ws" -> { "wse" -> wse factory,  ...}
         Map<String, Map<String, ResourceAddressFactorySpi<?>>> alternateAddressFactories =
                 new HashMap<>();
 
