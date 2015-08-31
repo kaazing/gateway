@@ -22,8 +22,6 @@
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashSet;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitorFileWriter;
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
@@ -45,7 +43,7 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
 
     private MonitorFileWriter monitorFileWriter;
     private File monitoringDir;
-    private Collection<MonitoredService> services = new HashSet<>();
+    int serviceCount;
     private String gatewayId;
 
     public MMFMonitoringDataManager(String gatewayId) {
@@ -69,9 +67,9 @@ public class MMFMonitoringDataManager implements MonitoringDataManager {
     @Override
     public ServiceCounterManagerImpl addService(MonitoredService monitoredService) {
         MonitoringEntityFactory serviceCountersFactory = monitorFileWriter.getServiceMonitoringEntityFactory(
-                monitoredService, services.size());
+                monitoredService, serviceCount);
 
-        services.add(monitoredService);
+        serviceCount++;
         return new ServiceCounterManagerImpl(serviceCountersFactory);
     }
 

@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.service;
+package org.kaazing.gateway.management.monitoring.entity.impl;
 
 import org.kaazing.gateway.service.LongMonitoringCounter;
 

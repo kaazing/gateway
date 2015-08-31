@@ -21,7 +21,6 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 

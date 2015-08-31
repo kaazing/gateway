@@ -92,7 +92,7 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     }
 
     @Override
-    public void stoppedService(ServiceContext serviceContext) {
+    public void destroyedService(ServiceContext serviceContext) {
         serviceContext.getMonitoringFactory().close();
     }
 

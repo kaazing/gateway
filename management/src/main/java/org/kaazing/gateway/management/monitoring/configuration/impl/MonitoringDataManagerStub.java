@@ -22,9 +22,9 @@
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
 import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.entity.impl.DefaultLongMonitoringCounterStub;
 import org.kaazing.gateway.management.monitoring.entity.manager.impl.ServiceCounterManagerImpl;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
-import org.kaazing.gateway.service.DefaultLongMonitoringCounterStub;
 import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
