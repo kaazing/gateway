@@ -21,35 +21,47 @@
 
 package org.kaazing.gateway.management.monitoring.service.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.Map;
-
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.management.monitoring.service.MonitoredService;
-import org.kaazing.gateway.security.CrossSiteConstraintContext;
-import org.kaazing.gateway.server.context.resolve.DefaultAcceptOptionsContext;
-import org.kaazing.gateway.server.context.resolve.DefaultConnectOptionsContext;
-import org.kaazing.gateway.server.context.resolve.DefaultServiceContext;
-import org.kaazing.gateway.server.context.resolve.DefaultServiceProperties;
 import org.kaazing.gateway.service.ServiceContext;
 
 public class MonitoredServiceImplTest {
 
+    private static final String SERVICE_NAME1 = "serviceName1";
+    private static final String SERVICE_NAME2 = "serviceName2";
+    private static final String SERVICE_NAME3 = "serviceName3";
+    private Mockery context;
+
+    @Before
+    public void before() {
+        context = new Mockery();
+    }
+
     @Test
     public void assertServiceName() {
-        ServiceContext serviceContext = createDefaultServiceContext("serviceName");
-        MonitoredService service = new MonitoredServiceImpl(serviceContext);
-        assertEquals("serviceName", service.getServiceName());
+        ServiceContext serviceContext = createMockedDefaultServiceContext("serviceName");
+        context.checking(new Expectations() {{
+            oneOf(serviceContext).getServiceName().equals("serviceName");
+        }});
+        assertNotNull(new MonitoredServiceImpl(serviceContext));
     }
 
     @Test
     public void assertEqualsOverriden() {
-        ServiceContext serviceContext1 = createDefaultServiceContext("serviceName1");
-        ServiceContext serviceContext2 = createDefaultServiceContext("serviceName2");
-        ServiceContext serviceContext3 = createDefaultServiceContext("serviceName1");
+        ServiceContext serviceContext1 = createMockedDefaultServiceContext(SERVICE_NAME1);
+        ServiceContext serviceContext2 = createMockedDefaultServiceContext(SERVICE_NAME2);
+        ServiceContext serviceContext3 = createMockedDefaultServiceContext(SERVICE_NAME3);
+        context.checking(new Expectations() {{
+            oneOf(serviceContext1).getServiceName().equals(SERVICE_NAME1);will(returnValue(SERVICE_NAME1));
+            oneOf(serviceContext2).getServiceName().equals(SERVICE_NAME2);will(returnValue(SERVICE_NAME2));
+            oneOf(serviceContext3).getServiceName().equals(SERVICE_NAME1);will(returnValue(SERVICE_NAME1));
+        }});
         MonitoredService service1 = new MonitoredServiceImpl(serviceContext1);
         MonitoredService service2 = new MonitoredServiceImpl(serviceContext2);
         MonitoredService service3 = new MonitoredServiceImpl(serviceContext3);
@@ -63,31 +75,8 @@ public class MonitoredServiceImplTest {
      * @param serviceName 
      * @return
      */
-    private DefaultServiceContext createDefaultServiceContext(String serviceName) {
-        return new DefaultServiceContext("type",
-                serviceName,
-                "serviceDescription",
-                null,
-                null,
-                null,
-                Collections.<URI>emptySet(),
-                Collections.<URI>emptySet(),
-                Collections.<URI>emptySet(),
-                new DefaultServiceProperties(),
-                new String[]{},
-                Collections.<String, String>emptyMap(),
-                Collections.<URI, Map<String, CrossSiteConstraintContext>>emptyMap(),
-                null,
-                new DefaultAcceptOptionsContext(),
-                new DefaultConnectOptionsContext(),
-                null,
-                null,
-                null,
-                true,
-                true,
-                false,
-                1,
-                null,
-                null);
+    private ServiceContext createMockedDefaultServiceContext(String serviceName) {
+        return context.mock(ServiceContext.class, serviceName);
     }
+
 }
