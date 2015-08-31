@@ -21,7 +21,7 @@
 
 package org.kaazing.gateway.management.monitoring.configuration.impl;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.File;
 
@@ -34,7 +34,6 @@ import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
 
-
 public class MonitorFileWriterImplTest {
     private static final String LINUX = "Linux";
     private static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
@@ -43,7 +42,7 @@ public class MonitorFileWriterImplTest {
     private static final String MONITOR_FILE_NAME = "monitoring";
 
     @Test
-    public void basicFlow() {
+    public void positiveFlow() {
         Mockery context = new Mockery();
         String monitoringDirName = getMonitoringDirName();
 
@@ -53,12 +52,8 @@ public class MonitorFileWriterImplTest {
             monitorFileWriter.initialize(monitoringFile);
             MonitoringEntityFactory gatewayMonitoringEntityFactory = monitorFileWriter.getGatewayMonitoringEntityFactory();
             assertNotNull(gatewayMonitoringEntityFactory);
-            MonitoredService monitoredService = context.mock(MonitoredService.class);
-            context.checking(new Expectations() {{
-                oneOf(monitoredService).getServiceName();
-            }});
-            MonitoringEntityFactory serviceMonitoringEntityFactory =
-                    monitorFileWriter.getServiceMonitoringEntityFactory(monitoredService , 0);
+            MonitoringEntityFactory serviceMonitoringEntityFactory = getServiceMonitoringEntityFactory(context,
+                    monitorFileWriter);
             assertNotNull(serviceMonitoringEntityFactory);
             assertNotNull(monitorFileWriter.createGatewayCounterValuesBuffer());
             assertNotNull(monitorFileWriter.createGatewayCounterLabelsBuffer());
@@ -68,6 +63,71 @@ public class MonitorFileWriterImplTest {
         finally {
             monitorFileWriter.close(monitoringFile);
         }
+    }
+
+    @Test
+    public void servicesCounterValuesOverflow() {
+        Mockery context = new Mockery();
+        String monitoringDirName = getMonitoringDirName();
+
+        MonitorFileWriter monitorFileWriter = new MonitorFileWriterImpl(MONITOR_FILE_NAME);
+        File monitoringFile = new File(monitoringDirName, MONITOR_FILE_NAME);
+        try {
+            monitorFileWriter.initialize(monitoringFile);
+            MonitoringEntityFactory serviceMonitoringEntityFactory = getServiceMonitoringEntityFactory(context,
+                    monitorFileWriter);
+            assertNotNull(serviceMonitoringEntityFactory);
+            assertNotNull(monitorFileWriter.createServiceCounterValuesBuffer(100));
+            // this should not be reached
+            assertTrue(false);
+        }
+        catch (IndexOutOfBoundsException e) {
+            assertTrue("Service counter values buffer overflow", true);
+        }
+        finally {
+            monitorFileWriter.close(monitoringFile);
+        }
+    }
+
+    @Test
+    public void servicesCounterLabelsOverflow() {
+        Mockery context = new Mockery();
+        String monitoringDirName = getMonitoringDirName();
+
+        MonitorFileWriter monitorFileWriter = new MonitorFileWriterImpl(MONITOR_FILE_NAME);
+        File monitoringFile = new File(monitoringDirName, MONITOR_FILE_NAME);
+        try {
+            monitorFileWriter.initialize(monitoringFile);
+            MonitoringEntityFactory serviceMonitoringEntityFactory = getServiceMonitoringEntityFactory(context,
+                    monitorFileWriter);
+            assertNotNull(serviceMonitoringEntityFactory);
+            assertNotNull(monitorFileWriter.createServiceCounterLabelsBuffer(100));
+            // this should not be reached
+            assertTrue(false);
+        }
+        catch (IndexOutOfBoundsException e) {
+            assertTrue("Service counter labels buffer overflow", true);
+        }
+        finally {
+            monitorFileWriter.close(monitoringFile);
+        }
+    }
+
+    /**
+     * Method returning a service monitoring factory
+     * @param context
+     * @param monitorFileWriter
+     * @return
+     */
+    private MonitoringEntityFactory getServiceMonitoringEntityFactory(Mockery context,
+                                                                      MonitorFileWriter monitorFileWriter) {
+        MonitoredService monitoredService = context.mock(MonitoredService.class);
+        context.checking(new Expectations() {{
+            oneOf(monitoredService).getServiceName();
+        }});
+        MonitoringEntityFactory serviceMonitoringEntityFactory =
+                monitorFileWriter.getServiceMonitoringEntityFactory(monitoredService , 0);
+        return serviceMonitoringEntityFactory;
     }
 
     /**
