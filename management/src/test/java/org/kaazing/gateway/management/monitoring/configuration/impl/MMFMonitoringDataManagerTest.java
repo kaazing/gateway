@@ -36,28 +36,40 @@ public class MMFMonitoringDataManagerTest {
     @Test
     public void basicInitializeFlow() {
         MMFMonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager(MONITORING_FILE);
-        assertNotNull(monitoringDataManager);
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
-        assertNotNull(monitoringEntityFactory);
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+        try {
+            assertNotNull(monitoringDataManager);
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            assertNotNull(monitoringEntityFactory);
+            monitoringEntityFactory.close();
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
     @Test
     public void addService() {
         Mockery context = new Mockery();
         MMFMonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager(MONITORING_FILE);
-        assertNotNull(monitoringDataManager);
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
-        assertNotNull(monitoringEntityFactory);
-        MonitoredService monitoredService = context.mock(MonitoredService.class);
-        context.checking(new Expectations() {{
-            oneOf(monitoredService).getServiceName();
-        }});
-        ServiceCounterManagerImpl serviceCounterManager = monitoringDataManager.addService(monitoredService);
-        assertNotNull(serviceCounterManager);
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+        try {
+            assertNotNull(monitoringDataManager);
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                assertNotNull(monitoringEntityFactory);
+                MonitoredService monitoredService = context.mock(MonitoredService.class);
+                context.checking(new Expectations() {{
+                    oneOf(monitoredService).getServiceName();
+                }});
+                ServiceCounterManagerImpl serviceCounterManager = monitoringDataManager.addService(monitoredService);
+                assertNotNull(serviceCounterManager);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
 }

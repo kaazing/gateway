@@ -44,32 +44,38 @@ public class AgronaMonitoringEntityFactoryTest {
 
     @Test
     public void testAgronaLifecycle() {
-        MMFMonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager(MONITORING_FILE);
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
-        LongMonitoringCounter longMonitoringCounter = monitoringEntityFactory.makeLongMonitoringCounter("test");
-
         File monitoringDir;
         File monitoringFile;
-
-        String osName = System.getProperty(OS_NAME);
-        if (LINUX.equals(osName)) {
-            String monitoringDirName = DEV_SHM + IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
-            monitoringDir = new File(monitoringDirName);
-            assertTrue(monitoringDir.exists());
-            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
-            assertTrue(monitoringFile.exists());
-        } else {
-            String monitoringDirName = IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
-            monitoringDir = new File(monitoringDirName);
-            assertTrue(monitoringDir.exists());
-            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
-            assertTrue(monitoringFile.exists());
+        MMFMonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager(MONITORING_FILE);
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                LongMonitoringCounter longMonitoringCounter = monitoringEntityFactory.makeLongMonitoringCounter("test");
+    
+                String osName = System.getProperty(OS_NAME);
+                if (LINUX.equals(osName)) {
+                    String monitoringDirName = DEV_SHM + IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
+                    monitoringDir = new File(monitoringDirName);
+                    assertTrue(monitoringDir.exists());
+                    monitoringFile = new File(monitoringDirName, MONITORING_FILE);
+                    assertTrue(monitoringFile.exists());
+                } else {
+                    String monitoringDirName = IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
+                    monitoringDir = new File(monitoringDirName);
+                    assertTrue(monitoringDir.exists());
+                    monitoringFile = new File(monitoringDirName, MONITORING_FILE);
+                    assertTrue(monitoringFile.exists());
+                }
+    
+                assertNotNull(longMonitoringCounter);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
         }
-
-        assertNotNull(longMonitoringCounter);
-
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+        finally {
+            monitoringDataManager.close();
+        }
 
         assertFalse(monitoringDir.exists());
         assertFalse(monitoringFile.exists());

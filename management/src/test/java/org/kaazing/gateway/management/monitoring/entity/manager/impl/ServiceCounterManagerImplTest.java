@@ -34,65 +34,91 @@ public class ServiceCounterManagerImplTest {
     @Test
     public void assertAgronaEnabledNativeCounters() {
         MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
+                assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
-        assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
+                serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
+                assertCounters(serviceCounterManager, 0, 1, 1, 0, 1, 1);
 
-        serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
-        assertCounters(serviceCounterManager, 0, 1, 1, 0, 1, 1);
-
-        serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
-        assertCounters(serviceCounterManager, 0, 1, 1, 0, 0, 0);
-
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+                serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
+                assertCounters(serviceCounterManager, 0, 1, 1, 0, 0, 0);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
     @Test
     public void assertAgronaEnabledEmulatedCounters() {
         MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
+                assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
 
-        assertCounters(serviceCounterManager, 0, 0, 0, 0, 0, 0);
+                serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
+                assertCounters(serviceCounterManager, 1, 0, 1, 1, 0, 1);
 
-        serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
-        assertCounters(serviceCounterManager, 1, 0, 1, 1, 0, 1);
-
-        serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
-        assertCounters(serviceCounterManager, 1, 0, 1, 0, 0, 0);
-
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+                serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
+                assertCounters(serviceCounterManager, 1, 0, 1, 0, 0, 0);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
     @Test
     public void assertAgronaDisabledNativeCounters() {
         MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
-
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
-
-        serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
-        serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
+    
+                serviceCounterManager.incrementSessionCounters(ManagementSessionType.NATIVE);
+                serviceCounterManager.decrementSessionCounters(ManagementSessionType.NATIVE);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
     @Test
     public void assertAgronaDisabledEmulatedCounters() {
         MonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager("test");
-        MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
 
-        ServiceCounterManager serviceCounterManager = new ServiceCounterManagerImpl(monitoringEntityFactory);
-
-        serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
-        serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
-        monitoringEntityFactory.close();
-        monitoringDataManager.close();
+                serviceCounterManager.incrementSessionCounters(ManagementSessionType.EMULATED);
+                serviceCounterManager.decrementSessionCounters(ManagementSessionType.EMULATED);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
+        }
+        finally {
+            monitoringDataManager.close();
+        }
     }
 
     /**
