@@ -933,6 +933,9 @@ public class GatewayContextResolver {
                             authType.getHttpCookieArray(),
                             resolveAuthorizationMode(authType.getAuthorizationMode()),
                             authType.getSessionTimeout());
+                    if (AuthenticationType.HttpChallengeScheme.APPLICATION_NEGOTIATE.equals(authType.getHttpChallengeScheme())) {
+                        LOGGER.warn("Application Negotiate is decreped");
+                    }
                 }
 
                 LoginModuleType[] loginModulesArray =
