@@ -18,18 +18,18 @@ To Configure a Ticket Protected Gateway
 1.  Ensure that your environment is configured for Kerberos and note down the required values for the Kerberos login-module.
 2.  Configure the client browsers, which is typically done on the intranet (refer to the browser's documentation, such as Mozilla Firefox or Microsoft Internet Explorer, for help on configuration).
 3.  In the Gateway configuration, create a service entry for `kerberos5.proxy`, which signals the Gateway to communicate with the Kerberos Key Distribution Center in your environment.
-4.  Set the `http-challenge-scheme` element (in the `authentication` element in `security`) to use `Application Negotiate` or `Negotiate`, which allows the client (Application Negotiate) or the browser (Negotiate) to respond to SPNEGO challenges.
+4.  Set the `http-challenge-scheme` element (in the `authentication` element in `security`) to use `Application Token` or `Negotiate`, which allows the client (`Application Token`) or the browser (Negotiate) to respond to SPNEGO challenges.
 5.  Add a `kerberos5` login-module element. See the [Krb5LoginModule](http://docs.oracle.com/javase/7/docs/jre/api/security/jaas/spec/com/sun/security/auth/module/Krb5LoginModule.html "Krb5LoginModule (Java Authentication and Authorization Service )") documentation for information on configuring the options. Note that the `principal` option must point to the HTTP service that is being authenticated, and must always use the form: `HTTP/<serverName>@<kerberosDomainName>`. For example: `HTTP/www.example.com@ExampleKerberosDomain`.
 6.  Add a `gss` login-module element after the `kerberos5` login-module element. This element requires no options but must follow the `kerberos5` login-module element, as the `gss` login-module element uses the credentials obtained by the `kerberos5` login-module element to verify the service ticket presented by the client.
 
-    The following example shows the Application Negotiate `http-challenge-scheme` element, a `principal` element using the correct format, and a `gss` login-module:
+    The following example shows the `Negotiate` `http-challenge-scheme` element, a `principal` element using the correct format, and a `gss` login-module:
 
     ``` xml
     <security>
         <realm>
             <name>demo</demo>
             <authentication>
-                <http-challenge-scheme>Application Negotiate</http-challenge-scheme>
+                <http-challenge-scheme>Negotiate</http-challenge-scheme>
                 <login-modules>
                     <login-module>
                         <type>kerberos5</type>
@@ -57,7 +57,7 @@ To Configure a Ticket Protected Gateway
 Notes
 -----
 
--   If you choose to use `Application Negotiate`, you must also configure your client to handle the SPNEGO-based Kerberos authentication mechanism. For more information, see [How does Kerberos SPNEGO GSS-API work?](c_authentication_kerberos.md#how-does-kerberos-spnego-gss-api-work).
+-   If you choose to use `Application Token`, you must also create a custom token or HTTP cookies for the Gateway to use to challenge the client, and a custom-written challenge handler and/or login handler that the client can use to generate the expected token or cookie value.
 -   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
 
 Next Steps
