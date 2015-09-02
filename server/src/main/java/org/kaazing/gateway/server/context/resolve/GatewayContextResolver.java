@@ -934,7 +934,8 @@ public class GatewayContextResolver {
                             resolveAuthorizationMode(authType.getAuthorizationMode()),
                             authType.getSessionTimeout());
                     if (AuthenticationType.HttpChallengeScheme.APPLICATION_NEGOTIATE.equals(authType.getHttpChallengeScheme())) {
-                        LOGGER.warn("Application Negotiate is deprecated");
+                        LOGGER.warn("Setting http-challenge-scheme to \"Application Negotiate\" is deprecated. Use \"Negotiate\""
+                                + "instead. See \"http-challenge-scheme\" in the documentation for more information.");
                     }
                 }
 
