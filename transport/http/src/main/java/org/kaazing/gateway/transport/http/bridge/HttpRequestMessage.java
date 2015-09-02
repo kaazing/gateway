@@ -37,7 +37,6 @@ import javax.security.auth.Subject;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.http.HttpMethod;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpRequestProfile;
 
 
 public class HttpRequestMessage extends HttpStartMessage {
@@ -68,11 +67,6 @@ public class HttpRequestMessage extends HttpStartMessage {
 
     public void setSubject(Subject subject) {
         this.subject = subject;
-    }
-
-    @Deprecated // See {@link HttpRequestProfile} for when to remove this.
-    public HttpRequestProfile getProfile() {
-        return HttpRequestProfile.valueOf(this);
     }
 
     public void setLocalAddress(ResourceAddress localAddress) {

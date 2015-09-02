@@ -43,7 +43,6 @@ public abstract class HttpBaseSecurityFilter extends SuspendableIoFilterAdapter 
     protected static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
     protected static final Subject SUBJECT_FORBIDDEN = new Subject();
 
-    public static final String AUTHORIZATION_MODE_RECYCLE = "recycle";
     public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
     protected final Logger logger;

@@ -85,7 +85,6 @@ import org.kaazing.gateway.transport.ws.extension.ExtensionParameter;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wsn.WsnSession;
-import org.kaazing.gateway.transport.wsr.WsrSession;
 import org.kaazing.gateway.util.ws.WebSocketWireProtocol;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -1936,10 +1935,6 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
                         if (writeAddr != null) {
                             protocolAttributes.put("writeAddress", writeAddr);
                         }
-                    } else if (session instanceof WsrSession) {
-                        WsrSession wsrSession = (WsrSession) session;
-                        ResourceAddress rtmpAddress = wsrSession.getRtmpAddress();
-                        protocolAttributes.put("rtmpAddress", rtmpAddress);
                     }
                 }
 

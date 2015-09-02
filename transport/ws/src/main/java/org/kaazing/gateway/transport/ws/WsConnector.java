@@ -37,14 +37,13 @@ import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.BridgeConnector;
 
 public class WsConnector implements BridgeConnector {
-    private static final String WSR_PROTOCOL_NAME = "wsr/1.0";
+
     private static final String WSE_PROTOCOL_NAME = "wse/1.0";
     private static final String WS_DRAFT_PROTOCOL_NAME = "ws/draft-7x";
     private static final String WS_NATIVE_PROTOCOL_NAME = "ws/rfc6455";
 
     private BridgeConnector wsnConnector;
     private BridgeConnector wsebConnector;
-    private BridgeConnector wsrConnector;
 
     private Map<String, BridgeConnector> wsBridgeConnectorMap;
 
@@ -59,10 +58,6 @@ public class WsConnector implements BridgeConnector {
         this.wsebConnector = wsebConnector;
     }
 
-    @Resource(name = "wsr.connector")
-    public void setWsrConnector(BridgeConnector wsrConnector) {
-        this.wsrConnector = wsrConnector;
-    }
 
     public WsConnector() {
     }
@@ -113,7 +108,6 @@ public class WsConnector implements BridgeConnector {
 
     private void initwsBridgeConnectorMap() {
         wsBridgeConnectorMap = new HashMap<>();
-        wsBridgeConnectorMap.put(WSR_PROTOCOL_NAME, wsrConnector);
         wsBridgeConnectorMap.put(WSE_PROTOCOL_NAME, wsebConnector);
         wsBridgeConnectorMap.put(WS_DRAFT_PROTOCOL_NAME, wsnConnector);
         wsBridgeConnectorMap.put(WS_NATIVE_PROTOCOL_NAME, wsnConnector);
