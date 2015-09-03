@@ -27,19 +27,18 @@ import org.jdom.Document;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 
 /**
- * Classes which translate/transform a DOM representing the config file implement this interface.  These classes are used by the
- * {@link GatewayConfigParser}
+ * Classes which translate/transform a DOM representing the config file implement this interface. These classes are used
+ * by the {@link GatewayConfigParser}
  */
-class GatewayConfigTranslatorPipeline
-        implements GatewayConfigTranslator {
+public class GatewayConfigTranslatorPipeline implements GatewayConfigTranslator {
 
     private List<GatewayConfigTranslator> translators;
 
-    GatewayConfigTranslatorPipeline() {
-        translators = new ArrayList<>(1);
+    public GatewayConfigTranslatorPipeline() {
+        translators = new ArrayList<GatewayConfigTranslator>(1);
     }
 
-    GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
+    public GatewayConfigTranslatorPipeline addTranslator(GatewayConfigTranslator translator) {
         translators.add(translator);
         return this;
     }
@@ -48,8 +47,11 @@ class GatewayConfigTranslatorPipeline
         translators.remove(translator);
     }
 
-    public void translate(Document dom)
-            throws Exception {
+    public List<GatewayConfigTranslator> getTranslators() {
+        return this.translators;
+    }
+
+    public void translate(Document dom) throws Exception {
 
         for (GatewayConfigTranslator translator : translators) {
             translator.translate(dom);

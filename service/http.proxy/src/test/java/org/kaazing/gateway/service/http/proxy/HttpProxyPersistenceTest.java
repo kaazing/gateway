@@ -21,13 +21,13 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.test.util.ITUtil;
 
 import javax.net.SocketFactory;
 import java.io.EOFException;
@@ -46,7 +46,8 @@ public class HttpProxyPersistenceTest {
     private static final int KEEP_ALIVE_TIMEOUT = 5;
     private static final int KEEP_ALIVE_CONNECTIONS = 2;
 
-    public TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
+    @Rule
+    public TestRule timeout = ITUtil.createRuleChain(15, SECONDS);
 
     @Test
     public void maxPersistentIdleConnections() throws Exception {

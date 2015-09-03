@@ -160,10 +160,6 @@ public class WssResourceAddressFactorySpiTest {
         ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
         assertEquals("wsx-draft+ssl", wsxdraft.getExternalURI().getScheme());
 
-        ResourceAddress wsr = wsxdraft.getOption(ALTERNATE);
-        assertEquals("wsr+ssl", wsr.getExternalURI().getScheme());
-
-        assertNull(wsr.getOption(ALTERNATE));
     }
 
     private void assertEmpty(String[] objects) {

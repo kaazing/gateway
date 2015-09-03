@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -51,7 +52,7 @@ public abstract class AbstractVisitor
     protected ListIterator<Element> toListIterator(Iterator iter) {
         // Copy the iterated items into a List, so we can modify the
         // list while iterating over it...
-        List<Element> elts = new ArrayList<>(1);
+        List<Element> elts = new ArrayList<Element>(1);
         while (iter.hasNext()) {
             elts.add((Element) iter.next());
         }
