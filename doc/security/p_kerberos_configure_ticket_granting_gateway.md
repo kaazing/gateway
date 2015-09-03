@@ -33,7 +33,7 @@ To Configure a Ticket Granting Gateway
 
 2.  Restart the "ticket-granting" Gateway to let the configuration changes take effect.
 
-This allows the client to access the TGG as required by `Negotiate` authentication scheme.
+This allows the client to access the TGG as required by the `Negotiate` authentication scheme.
 
 Next Steps
 ----------
