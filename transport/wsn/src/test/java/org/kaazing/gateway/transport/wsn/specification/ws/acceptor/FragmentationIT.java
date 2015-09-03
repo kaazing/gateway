@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
