@@ -3,15 +3,15 @@ IP Filtering with Kaazing Gateway
 
 You can configure a Gateway service to only accept connections from remote hosts based on their IP addresses. The list of allowed IP addresses is called a [whitelist](https://en.wikipedia.org/wiki/Whitelist). Basically, an IP whitelist puts a Gateway service in a default posture of denying remote connections, permitting only a specific list of remote hosts from connecting to the service.
 
-In order to use IP filtering, you have two options:
+To use IP filtering, you have two options:
 
 
   0.  [Filter Remote IP Addresses Using the ip-filter Login Module Type](#filter-remote-ip-addresses-using-the-ip-filter-login-module-type) - On the Gateway, configure a Gateway [service](../../admin-reference/r_conf_service.html) with a login module of type ip-filter, set the login module’s success element’s value to required, and populate the whitelist element with at least one IP address or IP address range.
   0.  [Filter Remote IP Addresses Using a Custom Login Module](#filter-remote-ip-addresses-using-a-custom-login-module) - Create and use your own custom login module (LoginModule) and apply it to a Gateway service. From within the login module, remote IP addresses can be inspected and the login module can determine whether or not the connection should be allowed.
 
-For most use cases, option \#1 is the easiest solution. Option \#2 is available for more advanced filtering. For example, if you want to look up IP address by country and accept or reject IP addresses different countries or regions.
+For most use cases, option \#1 is the easiest solution. Option \#2 is available for more advanced filtering. For example, if you want to look up IP address by country and accept or reject the IP addresses according to different countries or regions.
 
-**Important:** Never rely entirely on IP filtering for checking whether a request for a remote connection is safe. IP filtering should only be used as part of a comprehensive security configuration for your network resources. Other security tools, such as auditing, firewalls, DMZs (see [Common Kaazing Gateway Production Topologies](../../admin-reference/c_topologies.html)), encryption (see [Secure Network Traffic with the Gateway](../../security/o_tls.html)), Kerberos (see [Configure Kerberos V5 Network Authentication](../../security/o_krb.html)), [Enterprise Shield](../../reverse-connectivity/o_rc_checklist.html), used along with IP filtering will help to ensure safe remote connections. For more information, see [About Security with Kaazing Gateway](../../security/c_sec_security.html).
+**Important:** Never rely entirely on IP filtering to determine whether a request for a remote connection is safe. IP filtering should only be used as part of a comprehensive security configuration for your network resources. Other security tools, such as auditing, firewalls, DMZs (see [Common Kaazing Gateway Production Topologies](../../admin-reference/c_topologies.html)), encryption (see [Secure Network Traffic with the Gateway](../../security/o_tls.html)), Kerberos (see [Configure Kerberos V5 Network Authentication](../../security/o_krb.html)), [Enterprise Shield](../../reverse-connectivity/o_rc_checklist.html), used along with IP filtering will help to ensure safe remote connections. For more information, see [About Security with Kaazing Gateway](../../security/c_sec_security.html).
 
 
 Components and Tools
@@ -34,7 +34,7 @@ How the Gateway Performs IP Filtering
 
 When the Gateway receives a remote connection it attempts to use the HTTP `Forwarded` header ([RFC 7239](http://tools.ietf.org/html/rfc7239)) from the connection to retrieve the remote host’s IP address and pass it into the login module chain. If the `Forwarded` header is not set (or is set to an invalid IP address), then the Gateway will obtain the remote IP address from the IP header in the TCP datagram, and send that IP address to the login module chain.
 
-Any service on the Gateway that is configured with a login module of type `ip-filter` and set to required compares the IP address obtained by the Gateway to those addresses or address ranges in the login module’s `whitelist`. If a match is found, the connection to the service is permitted. If no match is found, the Gateway refuses the connection and sends an authentication challenge to the remote host. The Gateway does not throw an exception.
+Any `service` on the Gateway that is configured with a login module of type `ip-filter` and set to `required` compares the IP address obtained by the Gateway to those addresses or address ranges in the login module’s `whitelist`. If a match is found, the connection to the service is permitted. If no match is found, the Gateway refuses the connection and sends an authentication challenge to the remote host. The Gateway does not throw an exception.
 
 **Notes:**
 
@@ -180,7 +180,7 @@ The following [LoginModule](http://docs.oracle.com/javase/8/docs/api/javax/secur
     }
     ```
 
-  For more information on `getInetAddressFromCallback()`, see the documentation under the Server API Documentation heading on the [table of contents](../../index.html).
+  For more information on `getInetAddressFromCallback()`, see the documentation under the **Server API Documentation** heading on the [table of contents](../../index.html).
 
   2. Use a `login()` method to invoke the `getInetAddressFromCallback()` method above:
 
