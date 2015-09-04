@@ -49,7 +49,7 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     private final IoSessionIdleTracker idleTracker;
 
     // After the first IOException on session, all the other exceptions are ignored
-    private boolean alreadyFiredExceptionCaught;
+    private boolean alreadyFiredIoExceptionCaught;
 
     public IoSessionChannelHandler(ChannelIoSession<? extends ChannelConfig> session, IoFuture future,
             IoSessionInitializer<?> initializer, IoSessionIdleTracker idleTracker) {
@@ -80,14 +80,14 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
             throws Exception {
 
-        if (!alreadyFiredExceptionCaught) {
+        if (!alreadyFiredIoExceptionCaught) {
             // filter chain can change if session is re-aligned
             IoFilterChain filterChain = session.getFilterChain();
             filterChain.fireExceptionCaught(e.getCause());
 
             Throwable cause = e.getCause();
             if (cause instanceof IOException) {
-                alreadyFiredExceptionCaught = true;
+                alreadyFiredIoExceptionCaught = true;
             }
         }
     }
