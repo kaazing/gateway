@@ -1,4 +1,4 @@
-IP Filtering with Kaazing Gateway
+IP Filtering with Kaazing Gateway ![This feature is available in KAAZING Gateway - Enterprise Edition](../images/enterprise-feature.png)
 =================================
 
 You can configure a Gateway service to only accept connections from remote hosts based on their IP addresses. The list of allowed IP addresses is called a [whitelist](https://en.wikipedia.org/wiki/Whitelist). Basically, an IP whitelist puts a Gateway service in a default posture of denying remote connections, permitting only a specific list of remote hosts from connecting to the service.
