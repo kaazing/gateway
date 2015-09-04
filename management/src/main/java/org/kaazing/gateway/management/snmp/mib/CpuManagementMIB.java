@@ -316,9 +316,9 @@ public class CpuManagementMIB implements MOGroup, CounterListener, AgentCapabili
 
             long counterValue = 0;
             if (scalarValue instanceof Double) {
-                counterValue = (long) (((Double) scalarValue).doubleValue() * 1000);
+                counterValue = (long) ((Double) scalarValue * 1000);
             } else if (scalarValue instanceof Float) {
-                counterValue = (long) (((Float) scalarValue).floatValue() * 1000);
+                counterValue = (long) ((Float) scalarValue * 1000);
             } else {
                 counterValue = ((Number) scalarValue).longValue();
             }

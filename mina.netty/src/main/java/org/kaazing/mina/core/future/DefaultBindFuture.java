@@ -62,7 +62,7 @@ public class DefaultBindFuture extends DefaultIoFuture implements BindFuture {
     @Override
     public boolean isBound() {
         if (isDone() && getException() == null) {
-            return ((Boolean) getValue()).booleanValue();
+            return (Boolean) getValue();
         } else {
             return false;
         }
@@ -130,7 +130,7 @@ public class DefaultBindFuture extends DefaultIoFuture implements BindFuture {
         @Override
         public boolean isBound() {
             if (isDone() && getException() == null) {
-                return ((Boolean) getValue()).booleanValue();
+                return (Boolean) getValue();
             } else {
                 return false;
             }

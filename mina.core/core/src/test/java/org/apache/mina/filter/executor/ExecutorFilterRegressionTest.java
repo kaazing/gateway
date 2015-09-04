@@ -100,7 +100,7 @@ public class ExecutorFilterRegressionTest extends TestCase {
         
         public synchronized void setLastCount(Integer newCount) {
             if (lastCount != null) {
-                Assert.assertEquals(lastCount.intValue() + 1, newCount
+                Assert.assertEquals(lastCount + 1, newCount
                         .intValue());
             }
 
