@@ -148,9 +148,7 @@ public class WsnSubjectPropagationIT {
 
             try {
                 callbackHandler.handle(new Callback[] { nameCB, passwordCB });
-            } catch (IOException e) {
-                throw new LoginException(e.toString());
-            } catch (UnsupportedCallbackException e) {
+            } catch (IOException | UnsupportedCallbackException e) {
                 throw new LoginException(e.toString());
             }
 

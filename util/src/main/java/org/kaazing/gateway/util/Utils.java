@@ -884,17 +884,10 @@ public final class Utils {
                         try {
                             method.invoke(target, injectableInstance);
 
-                        } catch (IllegalArgumentException e) {
+                        } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
 
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-
-                        } catch (InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
                         }
                     }
                 }
