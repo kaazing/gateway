@@ -56,14 +56,10 @@ fi
 # Add a directory for management support
 JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
 
-# Verify if the gateway identifier was provided (required by Agorna multiple gateway instances)
-if [ "$GATEWAY_IDENTIFIER" == "" ] && [[ $GATEWAY_OPTS == *"org.kaazing.gateway.management.AGRONA_ENABLED=true"* ]]; then
-  GW_ID=""
-else
+# Set the gateway identifier (Required by multiple gateway instances)
+GW_ID=""
+if [ "$GATEWAY_IDENTIFIER" != "" ]; then
   GW_ID="-Dorg.kaazing.gateway.server.GATEWAY_IDENTIFIER=$GATEWAY_IDENTIFIER"
-
-  # Startup the StatsD publisher
-  ./scripts/metrics.statsD.start $GATEWAY_IDENTIFIER &
 fi
 
 # Startup the gateway

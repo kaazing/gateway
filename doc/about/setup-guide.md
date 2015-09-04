@@ -21,7 +21,7 @@ Setting up KAAZING Gateway on your local computer is recommended if you want to 
 
 To download and set up the Gateway on your local computer, perform the following steps:
 
-1.  Ensure your system meets the system requirements. See the [README.md](../README.md), or you can find the `README.txt` in the `GATEWAY_HOME` directory if you have already unpacked the the Gateway distribution.
+1.  Ensure your system meets the system requirements. See the [README.md](https://github.com/kaazing/gateway/blob/master/README.md), or you can find the `README.txt` in the `GATEWAY_HOME` directory if you have already unpacked the the Gateway distribution.
 2.  Download the Gateway or fork the Gateway GitHub repository from [kaazing.org](http://kaazing.org):
     -   For Linux, Unix, and Mac: kaazing-gateway-community-5.0.*x*-unix.tar.gz
     -   For Windows: kaazing-gateway-community-5.0.*x*-windows.zip
@@ -45,7 +45,7 @@ To download and set up the Gateway on your local computer, perform the following
 
 You are now done setting up the Gateway locally.
 
--   To start building your first application, see the [For Developers](../index.md#dev_topics) documentation topics.
+-   To start building your first application, see the [For Developers](../index.md#for-developers) documentation topics.
 -   For more information about configuration settings and to perform additional Gateway configuration, see [About Gateway Configuration](../admin-reference/c_configure_gateway_concepts.md).
 -   For real-world demos, see <http://kaazing.org/>.
 -   To uninstall the Gateway, see the [Uninstall KAAZING Gateway](#uninstall-kaazing-gateway) section at the end of this document.

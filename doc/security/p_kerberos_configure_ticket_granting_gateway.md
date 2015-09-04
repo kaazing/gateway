@@ -20,7 +20,7 @@ To Configure a Ticket Granting Gateway
     ``` xml
     <service>
       <accept>wss://gateway.example.com:9002/kerberos5</accept>
-      <connect>udp://kdc.example.com:88</connect>
+      <connect>tcp://kdc.example.com:88</connect>
       <type>kerberos5.proxy</type>
       <cross-site-constraint>
         <allow-origin>http://gateway.example.com:8000</allow-origin>

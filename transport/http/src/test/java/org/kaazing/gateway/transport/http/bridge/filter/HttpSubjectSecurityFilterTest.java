@@ -50,6 +50,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
+import org.kaazing.gateway.resource.address.tcp.TcpResourceAddressFactorySpi;
 import org.kaazing.gateway.security.LoginContextFactory;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
@@ -80,6 +81,9 @@ public class HttpSubjectSecurityFilterTest {
         }
     };
 
+    public HttpSubjectSecurityFilterTest() {
+    }
+
     @Test
     public void testNonHttpRequestMessage() throws Exception {
         Mockery context = new Mockery() {
@@ -97,7 +101,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -129,6 +133,12 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
 
+                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
+                will(returnValue(null));
+
+                allowing(session).getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                will(returnValue(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK));
+
                 allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
                 will(VoidAction.INSTANCE);
 
@@ -136,7 +146,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -170,6 +180,12 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
                 will(returnValue(null));
+
+                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
+                will(returnValue(null));
+
+                oneOf(session).getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY);
+                will(returnValue(null));
                 allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
                 will(VoidAction.INSTANCE);
 
@@ -177,7 +193,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.legacySecurityMessageReceived(nextFilter, session, message);
+        filter.securityMessageReceived(nextFilter, session, message);
         context.assertIsSatisfied();
     }
 
@@ -253,60 +269,6 @@ public class HttpSubjectSecurityFilterTest {
     }
 
     @Test
-    public void filterShouldEndChainIfARecycleModeRealmIsConfigured() throws Exception {
-        Mockery context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
-        context.setThreadingPolicy(new Synchroniser());
-        final NextFilter nextFilter = context.mock(NextFilter.class);
-        final IoSessionEx session = context.mock(IoSessionEx.class);
-        final ResourceAddress address = context.mock(ResourceAddress.class);
-
-        final HttpRequestMessage message = new HttpRequestMessage();
-        message.setMethod(HttpMethod.GET);
-        message.setVersion(HttpVersion.HTTP_1_1);
-        message.setRequestURI(URI.create(BASE_URI));
-        message.addHeader("Connection", "Upgrade");
-        message.addHeader("Upgrade", "WebSocket");
-        message.addHeader("Host", "localhost:8000");
-        message.addHeader("Authorization", "gobbledegook");
-        message.setLocalAddress(address);
-
-        context.checking(new Expectations() {
-            {
-                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
-                will(returnValue(null));
-
-                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
-                will(returnValue("recycle"));
-
-                // alreadyLoggedIn == false
-                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
-                will(returnValue(new String[]{"ADMINISTRATOR"}));
-
-                oneOf(session).getSubject();
-
-
-                // writes a 400
-                oneOf(nextFilter).filterWrite(with(same(session)),
-                        with(writeRequest(withStatus(HttpStatus.CLIENT_BAD_REQUEST))));
-
-                // end of chain
-                never(nextFilter).messageReceived(session, message);
-                never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));
-            }
-        });
-        HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
-        filter.securityMessageReceived(nextFilter, session, message);
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public void filterShouldPassThroughIfNoServiceSecurityRealmIsConfigured() throws Exception {
         Mockery context = new Mockery() {
             {
@@ -372,6 +334,9 @@ public class HttpSubjectSecurityFilterTest {
         final NextFilter nextFilter = context.mock(NextFilter.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final ResourceAddress address = context.mock(ResourceAddress.class);
+        TcpResourceAddressFactorySpi factory = new TcpResourceAddressFactorySpi();
+        URI addressURI = URI.create("tcp://localhost:2020");
+        ResourceAddress tcpResourceAddress = factory.newResourceAddress(addressURI);
 
         final HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(HttpMethod.GET);
@@ -381,6 +346,117 @@ public class HttpSubjectSecurityFilterTest {
         message.addHeader("Connection", "Upgrade");
         message.addHeader("Upgrade", "WebSocket");
         message.addHeader("Host", "localhost:8000");
+        message.addHeader("Authorization", "Token gobbledegook");
+        message.setLocalAddress(address);
+
+        final ResultAwareLoginContext loginContext = context.mock(ResultAwareLoginContext.class);
+        final LoginContextFactory loginContextFactory = context.mock(DefaultLoginContextFactory.class);
+        final DefaultLoginResult loginResult  = context.mock(DefaultLoginResult.class);
+
+        final Set<Principal> principals = new HashSet<>();
+        principals.add(AUTHORIZED_PRINCIPAL);
+        final Subject subject = new Subject(false, principals, Collections.EMPTY_SET, Collections.EMPTY_SET);
+
+        final HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
+        filter.setSchedulerProvider(new SchedulerProvider());
+
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(session).getRemoteAddress(); will(returnValue(tcpResourceAddress));
+
+                oneOf(session).getSubject(); will(returnValue(null));
+                allowing(address).getOption(HttpResourceAddress.REALM_NAME);
+                will(returnValue("demo"));
+
+                allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
+                will(returnValue(new String[]{"AUTHORIZED"}));
+
+                allowing(address).getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
+                will(returnValue("Application Token"));
+
+                allowing(address).getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
+                will(returnValue("challenge"));
+
+                // not already logged in
+                oneOf(session).getSubject();
+
+
+                // login() method itself
+                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
+                will(returnValue(null));
+
+                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_PARAMETER_NAMES);
+                will(returnValue(null));
+
+                allowing(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES);
+                will(returnValue(null));
+
+
+                oneOf(address).getOption(HttpResourceAddress.LOGIN_CONTEXT_FACTORY);
+                will(returnValue(loginContextFactory));
+
+                oneOf(loginContextFactory).createLoginContext(with(aNonNull(TypedCallbackHandlerMap.class)));
+                will(returnValue(loginContext));
+
+                oneOf(session).suspendRead();
+
+                oneOf(loginContext).login();
+                will(VoidAction.INSTANCE);
+
+                oneOf(loginContext).getLoginResult();
+                will(returnValue(loginResult));
+
+                oneOf(loginResult).getType();
+                will(returnValue(LoginResult.Type.SUCCESS));
+
+                oneOf(loginResult).hasLoginAuthorizationAttachment();
+                will(returnValue(false));
+
+                atMost(2).of(loginContext).getSubject();
+                will(returnValue(subject));
+
+
+                oneOf(session).setAttribute(with(same(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY)),
+                        with(any(LoginContext.class)));
+
+                oneOf(nextFilter).messageReceived(session, message);
+
+                oneOf(session).getIoExecutor();
+                will(returnValue(HTTP_SUBJECT_SECURITY_FILTER_TEST_EXECUTOR));
+
+                oneOf(session).resumeRead();
+                will(new LoginContextTaskDoneAction(latch, "login context task done"));
+            }
+        });
+        filter.messageReceived(nextFilter, session, message);
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void filterShouldPassThroughWhenLoginSucceedsWithForwardedHeader() throws Exception {
+        Mockery context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+                setThreadingPolicy(new Synchroniser());
+            }
+        };
+        context.setThreadingPolicy(new Synchroniser());
+        final NextFilter nextFilter = context.mock(NextFilter.class);
+        final IoSessionEx session = context.mock(IoSessionEx.class);
+        final ResourceAddress address = context.mock(ResourceAddress.class);
+
+        final HttpRequestMessage message = new HttpRequestMessage();
+        message.setMethod(HttpMethod.GET);
+        message.setVersion(HttpVersion.HTTP_1_1);
+        message.setRequestURI(URI.create(BASE_URI));
+
+        message.addHeader("Connection", "Upgrade");
+        message.addHeader("Upgrade", "WebSocket");
+        message.addHeader("Host", "localhost:8000");
+        message.addHeader("Forwarded", "for=\"[0:0:0:0:0:0:0:1]:8000\";by=198.51.100.17;proto=http");
         message.addHeader("Authorization", "Token gobbledegook");
         message.setLocalAddress(address);
 
@@ -464,7 +540,7 @@ public class HttpSubjectSecurityFilterTest {
             }
         });
         filter.messageReceived(nextFilter, session, message);
-        latch.await(2000, TimeUnit.MILLISECONDS);
+        latch.await(200000, TimeUnit.MILLISECONDS);
         context.assertIsSatisfied();
     }
 
@@ -488,6 +564,7 @@ public class HttpSubjectSecurityFilterTest {
         message.addHeader("Connection", "Upgrade");
         message.addHeader("Upgrade", "WebSocket");
         message.addHeader("Host", "localhost:8000");
+        message.addHeader("Forwarded", "for=127.0.0.1");
         message.addHeader("Authorization", "Token gobbledegook");
         message.setLocalAddress(address);
 
@@ -573,6 +650,7 @@ public class HttpSubjectSecurityFilterTest {
         message.addHeader("Connection", "Upgrade");
         message.addHeader("Upgrade", "WebSocket");
         message.addHeader("Host", "localhost:8000");
+        message.addHeader("Forwarded", "for=127.0.0.1");
         message.addHeader("Authorization", "Token gobbledegook");
         message.setLocalAddress(address);
 

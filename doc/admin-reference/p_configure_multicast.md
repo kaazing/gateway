@@ -8,7 +8,7 @@ This procedure demonstrates how to configure a service that is running on KAAZIN
 -   Specify the multicast URI udp://*group-address*:*port-number* in the `accept` or `connect` element.
 -   Specify the udp interface name in the `accept-option` or `connect-option`.
 
-The following example shows a service using a multicast address. In the example, data packets sent to `udp://multicast-group:port` (shown in line 7) with udp-interface `eth0` (shown in line 9) will be broadcast to all clients connected to `sse://localhost:8000/sse`.
+The following example shows a service using a multicast address. In the example, data packets sent to `udp://multicast-group:port` with udp-interface `eth0` will be broadcast to all clients connected to `sse://localhost:8000/sse`.
 
 ``` xml
 <!-- Broadcast multicast messages -->
@@ -46,5 +46,5 @@ You can now configure and run a second KAAZING Gateway to serve server-sent even
 See Also
 -------------------------------
 
--   The `broadcast` element in the Service Reference.
+-   The [`broadcast`](r_configure_gateway_service.md#broadcast) element in the Service Reference.
 -   [Classful Networks](http://en.wikipedia.org/wiki/Classful_network "Follow link") for more information about Class D address classes.

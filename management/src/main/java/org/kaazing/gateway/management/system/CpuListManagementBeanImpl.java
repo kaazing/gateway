@@ -38,16 +38,16 @@ public class CpuListManagementBeanImpl extends AbstractSystemManagementBean impl
     // To avoid overload of exception messages when we somehow have an issue,
     // I'll show the error messages once, then suppress them (it's really more
     // of an issue with NICs). This flag is the suppressor.
-    private boolean errorShown;
 
     private CpuManagementBean[] cpuManagementBeans;
 
-    public CpuListManagementBeanImpl(GatewayManagementBean gatewayManagementBean) {
+    public CpuListManagementBeanImpl(GatewayManagementBean gatewayManagementBean, int summaryDataLimit) {
         super(gatewayManagementBean.getManagementContext(),
                 gatewayManagementBean.getManagementContext().getSystemSummaryDataNotificationInterval(),
                 CpuManagementBean.SUMMARY_DATA_FIELD_LIST,
                 gatewayManagementBean.getManagementContext().getCpuListSummaryDataGatherInterval(),
                 "CPU list stats",
+                summaryDataLimit,
                 "SNMPCpuListSummaryData");
         this.gatewayManagementBean = gatewayManagementBean;
 

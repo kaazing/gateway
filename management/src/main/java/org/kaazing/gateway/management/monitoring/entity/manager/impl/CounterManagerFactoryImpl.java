@@ -22,15 +22,15 @@
 package org.kaazing.gateway.management.monitoring.entity.manager.impl;
 
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.ServiceSessionCounterManager;
+import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
 import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
 
 public class CounterManagerFactoryImpl implements CounterManagerFactory {
 
     @Override
-    public ServiceSessionCounterManager makeServiceSessionCounterManager(MonitoringEntityFactory monitoringEntityFactory,
+    public ServiceCounterManager makeServiceCounterManager(MonitoringEntityFactory monitoringEntityFactory,
             String serviceName, String gatewayId) {
-        return new ServiceSessionCounterManagerImpl(monitoringEntityFactory, serviceName, gatewayId);
+        return new ServiceCounterManagerImpl(monitoringEntityFactory, serviceName, gatewayId);
     }
 
 }

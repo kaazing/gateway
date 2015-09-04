@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -21,15 +21,13 @@
 
 package org.kaazing.gateway.transport.wsn.extensions.idletimeout;
 
-import static org.junit.rules.RuleChain.outerRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -42,15 +40,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 public class IdleTimeoutExtensionPongsIT {
 
     private K3poRule robot = new K3poRule();
-
-    private static final boolean ENABLE_DIAGNOSTICS = false;
-    @BeforeClass
-    public static void init()
-            throws Exception {
-        if (ENABLE_DIAGNOSTICS) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
 
     public GatewayRule gateway = new GatewayRule() {
         {
@@ -72,10 +61,10 @@ public class IdleTimeoutExtensionPongsIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification("shouldGetPongsFromidleTimeoutExtension")
-    @Test(timeout = 8 * 1000) 
+    @Test
     public void shouldGetPongsFromidleTimeoutExtensionWhenWriterIdle() throws Exception {
         System.out.println("### Creating server socket and listening");
         ServerSocket listen = new ServerSocket();

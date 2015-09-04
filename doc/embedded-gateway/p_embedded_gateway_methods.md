@@ -59,7 +59,7 @@ setProperties() Method
 
 By default, the embedded Gateway uses the properties set in the `GATEWAY_HOME/conf/gateway-config.xml` configuration file. The `setProperties()` method configures property names and values for the embedded Gateway that override the settings in the default configuration file. The method is optional and you do not need to change any default settings to use the embedded Gateway.
 
-**Note:** For information on the default properties of the Gateway configuration file, see [About KAAZING Gateway Configuration File Elements and Properties](../admin-reference/c_configure_gateway_concepts.md#aboutconfelements).
+**Note:** For information on the default properties of the Gateway configuration file, see [About KAAZING Gateway Configuration File Elements and Properties](../admin-reference/c_configure_gateway_concepts.md#about-kaazing-gateway-configuration-file-elements-and-properties).
 ### Syntax and Example
 
 `void setProperties(java.util.Properties properties);`

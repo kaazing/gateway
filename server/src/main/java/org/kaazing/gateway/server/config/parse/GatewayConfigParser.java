@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,40 +85,11 @@ import org.xml.sax.ext.Locator2;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class GatewayConfigParser {
-    /**
-     * Namespace for current release.
-     */
-    private static final String GATEWAY_CONFIG_NS = "http://xmlns.kaazing.org/2014/09/gateway";
-
-    /**
-     * Namespace for 4.0 release
-     */
-    private static final String GATEWAY_CONFIG_201209_NS = "http://xmlns.kaazing.com/2012/09/gateway";
-
-    /**
-     * Namespace for 3.5 release.
-     */
-    private static final String GATEWAY_CONFIG_201208_NS = "http://xmlns.kaazing.com/2012/08/gateway";
-
-    /**
-     * Namespace for 3.2-3.3 release.
-     */
-    private static final String GATEWAY_CONFIG_201203_NS = "http://xmlns.kaazing.com/2012/03/gateway";
-
-    /**
-     * Namespace for 3.0 -- 3.2 releases.
-     */
-    private static final String GATEWAY_CONFIG_EXCALIBUR_NS = "http://xmlns.kaazing.com/gateway-config/excalibur";
 
     /**
      * XSL stylesheet to be used before parsing. Adds xsi:type to login-module and service elements.
      */
     private static final String GATEWAY_CONFIG_ANNOTATE_TYPES_XSL = "META-INF/gateway-config-annotate-types.xsl";
-
-    /**
-     * XSL stylesheet to convert Dragonfire gateway-config.xml files to Excalibur production.
-     */
-    private static final String GATEWAY_CONFIG_UPGRADE_DRAGONFIRE_XSL = "META-INF/gateway-config-upgrade-dragonfire.xsl";
 
     /**
      * Charset string for XML prologue, must match {@link #CHARSET_OUTPUT}
@@ -148,23 +118,17 @@ public class GatewayConfigParser {
         this.configuration = configuration;
     }
 
-    private void translate(final GatewayConfigNamespace ns,
-                           final Document dom,
-                           final File translatedConfigFile)
-            throws Exception {
-        translate(ns, dom, translatedConfigFile, false);
-    }
 
     private void translate(final GatewayConfigNamespace ns,
                            final Document dom,
                            final File translatedConfigFile,
-                           boolean skipWrite)
+                           boolean writeTranslatedFile)
             throws Exception {
 
-        GatewayConfigTranslator translator = GatewayConfigTranslatorFactory.getInstance().getTranslator(ns);
+        GatewayConfigTranslator translator = GatewayConfigTranslatorFactory.newInstance().getTranslator(ns);
         translator.translate(dom);
 
-        if (!skipWrite) {
+        if (writeTranslatedFile) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             BufferedOutputStream bos = new BufferedOutputStream(baos);
 
@@ -199,16 +163,14 @@ public class GatewayConfigParser {
         SAXBuilder xmlReader = new SAXBuilder();
         Document dom = xmlReader.build(configFile);
         Element root = dom.getRootElement();
-        GatewayConfigNamespace ns = GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
+        GatewayConfigNamespace namespace =  GatewayConfigNamespace.fromURI(root.getNamespace().getURI());
 
-        File translatedConfigFile = null;
+        boolean writeTranslatedFile = !namespace.equals(GatewayConfigNamespace.CURRENT_NS);
+        File translatedConfigFile = writeTranslatedFile ?
+                new File(configFile.getParent(), configFile.getName()
+                + TRANSLATED_CONFIG_FILE_EXT) : configFile;
 
-        switch (ns) {
-            case SEPTEMBER_2014:
-                translatedConfigFile = configFile;
-                translate(ns, dom, translatedConfigFile, true);
-                break;
-        }
+        translate(namespace, dom, translatedConfigFile, writeTranslatedFile);
 
         return translatedConfigFile;
     }
@@ -269,7 +231,6 @@ public class GatewayConfigParser {
             config = GatewayConfigDocument.Factory.parse(new FileInputStream(translatedConfigFile), parseOptions);
 
         } catch (Exception e) {
-
             // track the parse error so that we don't make the 2nd pass through the file
             xmlParseErrors.add("Invalid XML: " + getRootCause(e).getMessage());
         }
@@ -315,7 +276,9 @@ public class GatewayConfigParser {
             try {
                 config = GatewayConfigDocument.Factory.parse(xmlTransformedIn, parseOptions);
             } catch (Exception e) {
-                try {
+                // If parsing with previous namespace was also unsuccessful,
+                // process errors top down, failing fast, for user level errors
+               try {
                     if (xmlInjectedFuture.get()) {
                         if (xmlTransformedFuture.get()) {
                             throw e;
@@ -412,7 +375,13 @@ public class GatewayConfigParser {
                         LOGGER.error("  Line: " + line + " Column: " + column);
                     }
                 }
-                LOGGER.error("  " + error.getMessage().replaceAll("@" + GATEWAY_CONFIG_NS, ""));
+                LOGGER.error("  " + error.getMessage().replaceAll("@" + GatewayConfigNamespace.CURRENT_NS, ""));
+                if (error.getMessage().contains("notify-options") || error.getMessage().contains("notify")) {
+                    validationError = "Could not start because of references to APNs in the configuration."
+                     + " APNs is not supported in this version of the gateway, but will be added in a future release.";
+                    LOGGER.error(validationError);
+
+                }
                 if (error.getMessage().contains("DataRateString")) {
                     // Yeah, it's crude, but customers are going to keep tripping over cases like 100KB/s being invalid otherwise
                     // Example output:
@@ -429,37 +398,6 @@ public class GatewayConfigParser {
                 }
             }
             throw new GatewayConfigParserException(validationError);
-        }
-    }
-
-    /**
-     * Write out an input stream to a new file.
-     *
-     * @param in       the input stream
-     * @param fileName the file name
-     * @return whether file was successfully written
-     * @throws IOException
-     */
-    private void writeToNewFile(InputStream in, String fileName) throws IOException {
-        // Create the new file
-        File file = new File(fileName);
-        boolean created = file.createNewFile();
-        // Read from input stream and write to file
-        if (created) {
-            OutputStream out = new FileOutputStream(file);
-            try {
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-            } finally {
-                out.flush();
-                out.close();
-                in.close();
-            }
-        } else {
-            throw new IOException("Unable to create file " + fileName);
         }
     }
 
@@ -648,6 +586,8 @@ public class GatewayConfigParser {
 
                 };
                 parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
+                parser.getXMLReader().setProperty("http://apache.org/xml/properties/input-buffer-size",
+                        new Integer(souceInput.available()));
                 parser.parse(souceInput, handler);
             } finally {
                 close();

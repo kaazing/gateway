@@ -22,10 +22,11 @@
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
 import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.StringMonitoringEntity;
 import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 
 public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
+
+    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
 
     @Override
     public void close() {
@@ -33,12 +34,7 @@ public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFacto
 
     @Override
     public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return new DefaultLongMonitoringCounterStub();
-    }
-
-    @Override
-    public StringMonitoringEntity makeStringMonitoringEntity(String name, String value) {
-        return new DefaultStringMonitoringEntityStub();
+        return COUNTER_STUB;
     }
 
 }

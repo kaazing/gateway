@@ -21,31 +21,25 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.kaazing.gateway.server.test.GatewayRule;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class HttpProxyStreamingIT {
 
-    @Rule
-    public TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
-
-    private final K3poRule robot = new K3poRule();
+    private final K3poRule k3po = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -65,7 +59,7 @@ public class HttpProxyStreamingIT {
     };
 
     @Rule
-    public TestRule chain = outerRule(robot).around(gateway);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
     @Specification("http.proxy.origin.server.response.streaming")
@@ -77,7 +71,7 @@ public class HttpProxyStreamingIT {
             listen.bind(new InetSocketAddress("localhost", 61234));
 
             // port is bound, start the robot
-            robot.start();
+            k3po.start();
 
             try (Socket socket = listen.accept()) {
                 Thread.sleep(500);
@@ -85,13 +79,13 @@ public class HttpProxyStreamingIT {
             }
         }
 
-        robot.finish();
+        k3po.finish();
     }
 
     @Test
     @Specification("http.proxy.client.request.streaming")
     public void clientRequestStreaming() throws Exception {
-        robot.finish();
+        k3po.finish();
     }
 
 }

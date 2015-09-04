@@ -34,7 +34,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJE
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_MAX_CONNECTIONS;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
@@ -89,11 +89,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
         RESOURCE_FACTORIES_BY_KEY.put("wse/1.0",
                                       insecureAlternateResourceFactories);
-        RESOURCE_FACTORIES_BY_KEY.put("wsr/1.0",
-                                      insecureAlternateResourceFactories);
         RESOURCE_FACTORIES_BY_KEY.put("wse/1.0 secure",
-                                      secureAlternateResourceFactories);
-        RESOURCE_FACTORIES_BY_KEY.put("wsr/1.0 secure",
                                       secureAlternateResourceFactories);
     }
 
@@ -137,9 +133,9 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(KEEP_ALIVE_TIMEOUT, keepAliveTimeout);
         }
 
-        Integer maxKeepAliveConnections = (Integer) optionsByName.remove(KEEP_ALIVE_MAX_CONNECTIONS.name());
-        if (maxKeepAliveConnections != null) {
-            options.setOption(KEEP_ALIVE_MAX_CONNECTIONS, maxKeepAliveConnections);
+        Integer keepAliveConnections = (Integer) optionsByName.remove(KEEP_ALIVE_CONNECTIONS.name());
+        if (keepAliveConnections != null) {
+            options.setOption(KEEP_ALIVE_CONNECTIONS, keepAliveConnections);
         }
         
         String[] requiredRoles = (String[]) optionsByName.remove(REQUIRED_ROLES.name());
@@ -299,7 +295,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
         address.setOption0(KEEP_ALIVE, options.getOption(KEEP_ALIVE));
         address.setOption0(KEEP_ALIVE_TIMEOUT, options.getOption(KEEP_ALIVE_TIMEOUT));
-        address.setOption0(KEEP_ALIVE_MAX_CONNECTIONS, options.getOption(KEEP_ALIVE_MAX_CONNECTIONS));
+        address.setOption0(KEEP_ALIVE_CONNECTIONS, options.getOption(KEEP_ALIVE_CONNECTIONS));
         address.setOption0(REQUIRED_ROLES, options.getOption(REQUIRED_ROLES));
         address.setOption0(REALM_NAME, options.getOption(REALM_NAME));
         address.setOption0(REALM_AUTHORIZATION_MODE, options.getOption(REALM_AUTHORIZATION_MODE));

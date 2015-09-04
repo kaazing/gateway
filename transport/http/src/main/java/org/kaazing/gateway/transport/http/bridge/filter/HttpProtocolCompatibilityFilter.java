@@ -78,8 +78,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
     public static final String PROTOCOL_HTTPXE_1_1 = "httpxe/1.1";
     
     private static final String CONTENT_TYPE_APPLICATION_X_MESSAGE_HTTP = "application/x-message-http";
-    
-    private static final String PROTOCOL_WSR_1_0 = "wsr/1.0";
+
     private static final String PROTOCOL_WSE_1_0 = "wse/1.0";
     
     private static final String HEADER_CREATE_ENCODING = "X-Create-Encoding";
@@ -117,6 +116,8 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
 
     private static final String PATH_ENCODED_METHOD_PREFIX = "/;";
     private static final int PATH_ENCODED_METHOD_PREFIX_LENGTH = PATH_ENCODED_METHOD_PREFIX.length();
+
+    public static final String API_PATH = "/;api";
 
     public static final AttributeKey EMPTY_PACKET_PRODUCER_FILTER = new AttributeKey(HttpProtocolCompatibilityFilter.class, "emptyPacketProducerFilter");
 
@@ -267,7 +268,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             }
         }
         
-        // default next-protocol header for backwards compatibility with httpe-1.0, wse-1.0, wsr-1.0
+        // default next-protocol header for backwards compatibility with httpe-1.0, wse-1.0,
         if (!httpRequest.hasHeader(HEADER_X_NEXT_PROTOCOL)) {
             URI requestURI = httpRequest.getRequestURI();
             String path = requestURI.getPath();
@@ -300,13 +301,9 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                                 httpRequest.setHeader(HEADER_CREATE_ENCODING, createEncoding);
                             }
                             break;
-                        case 'r':
-                            // cr
-                            httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_WSR_1_0);
-                            break;
+
                         }
-                        
-                        // TODO: once WsebAcceptor / WsrAcceptor change bind to use non-suffix create URI
+
                         if (extendedPath.charAt(0) == 'c') {
                             //httpRequest.setRequestURI(truncateURI(requestURI, format(";e/%s", extendedPath)));
                         }
@@ -327,6 +324,14 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                     if (!PROTOCOL_HTTPXE_1_1.equals(nextProtocol)) {
                         httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);
                     }
+                }
+            }
+
+            if (isApiPath(path)) {
+                if (httpRequest.getHeader(HttpHeaders.HEADER_X_ORIGIN) != null) {
+                    // Remove operation filter at http layer so that request will flow to httpxe layer
+                    session.getFilterChain().remove(HttpAcceptFilter.OPERATION.filter());
+                    httpRequest.setHeader(HEADER_X_NEXT_PROTOCOL, PROTOCOL_HTTPXE_1_1);
                 }
             }
         }
@@ -539,7 +544,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // XDR needs to explicitly envelope the request, so we must not treat this as requiring implicit elevation
                 return !isExplicitEnvelopedContentType(httpSession) &&
                         isLegacyClient(httpSession) &&
-                        (isEmulatedWebSocketRequest(httpSession) || isRevalidateWebSocketRequest(httpSession));
+                        (isEmulatedWebSocketRequest(httpSession) || isRevalidateWebSocketRequest(httpSession) || isApiRequest(httpSession));
             }
             return false;
         }
@@ -555,6 +560,15 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             req.setRequestURI(session.getRequestURI());
             req.setSecure(session.isSecure());
             req.setCookies(session.getReadCookies());
+            // Populate with incomplete content message so that HttpRequestMessage.isComplete() returns correctly
+            // This logic is based on Content-Length, otherwise, DefaultHttpSession needs to be populated
+            // when it is constructed in HttpAcceptor and then use it to populate here.
+            String contentLengthStr = session.getReadHeader("Content-Length");
+            if (contentLengthStr != null && !"0".equals(contentLengthStr)) {
+                IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
+                HttpContentMessage httpContent = new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false);
+                req.setContent(httpContent);
+            }
 
             // establish all the headers (mutable) and then restrict to just the ones we want.
             Map<String,List<String>> requestHeaders = new HashMap<>(session.getReadHeaders());
@@ -581,6 +595,12 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
         // EmulatedWebSocket requests need elevating.
         // they're elevated from the session data.
         return isEmulatedWebSocketPath(session.getRequestURI().getPath());
+    }
+
+    private static boolean isApiRequest(HttpAcceptSession session) {
+        // /;api requests need elevating.
+        // they're elevated from the session data.
+        return isApiPath(session.getRequestURI().getPath());
     }
 
     private static boolean isRevalidateWebSocketRequest(HttpRequestMessage message) {
@@ -629,6 +649,10 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
             }
         }
         return false;
+    }
+
+    private static boolean isApiPath(String path) {
+        return path != null && path.contains(API_PATH);
     }
 
     public static class HttpConditionalWrappedResponseFilter extends HttpFilterAdapter<IoSessionEx> {
