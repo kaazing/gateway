@@ -28,7 +28,7 @@ To Configure the HTTP Challenge Scheme
     | `Negotiate`             | Browser                     | A Negotiated scheme per RFC 4559\*                                             | `NegotiateHandler`, `NegotiableHandler`, `LoginHandler`                                                             |
     | `Application Token`     | Client                      | A custom token or HTTP cookies, usually expected by a custom login module.\*\* | A custom-written challenge handler and/or login handler that can generate the expected token or cookie value.\*\* |
 
-    **Note:** Previous versions of Kaazing Gateway allowed the `Application Negotiate` scheme (per RFC 4559). `Application Negotiate` is now **obsolete** in Kaazing Gateway. Please use `Negotiate` instead.
+    **Note:** Previous versions of Kaazing Gateway allowed the `Application Negotiate` scheme (per RFC 4559). `Application Negotiate` is now **deprecated** in Kaazing Gateway. Please use `Negotiate` instead.
 
     \* The HTTP Negotiate scheme is based on using Object Identifiers (OIDs) per RFC 4559 to identify kinds of tokens. If you use or register your own OID, then you can use that OID with the `NegotiateHandler` and `NegotiableHandler` challenge handlers.
 
