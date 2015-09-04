@@ -1,8 +1,8 @@
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -11,12 +11,21 @@ import java.util.List;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
+import org.jmock.lib.concurrent.Synchroniser;
+import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -25,281 +34,996 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class FragmentationIT {
+    private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/fragmentation");
-
-    private final WsnConnectorRule connectorRule = new WsnConnectorRule();
+    private final TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
+                .withLookingForStuckThread(true).build());
+    private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public TestRule chain = createRuleChain(connectorRule, k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(k3po).around(connector);
 
+    private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
+
+    private Mockery context;
+
+    @Before
+    public void initialize() {
+        context = new Mockery() {
+            {
+                setImposteriser(ClassImposteriser.INSTANCE);
+            }
+        };
+        context.setThreadingPolicy(new Synchroniser());
+    }
 
     @Test
     @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.BINARY, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exception") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        throwable.printStackTrace();
+                        return null;
+                    }
+                });
+
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.binary.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.BINARY, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
+                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
+                                parentFilterChain.remove(TEXT_FILTER_NAME);
+                            }
+
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.binary.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.BINARY, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
+                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
+                                parentFilterChain.remove(TEXT_FILTER_NAME);
+                            }
+
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.binary.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.BINARY, 7);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
+                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
+                                parentFilterChain.remove(TEXT_FILTER_NAME);
+                            }
+
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 7) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.binary.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendBinaryFrameWithPayloadNotFragmented() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.BINARY, 1);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
+                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
+                                parentFilterChain.remove(TEXT_FILTER_NAME);
+                            }
+
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 1) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
-        "server.echo.text.payload.length.0.fragmented/handshake.response.and.frames" })
+        "server.echo.text.payload.length.0.fragmented/handshake.response.and.frames"
+        })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmented() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exception") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        throwable.printStackTrace();
+                        return null;
+                    }
+                });
+                oneOf(handler).messageSent(with(any(IoSessionEx.class)), with(any(Object.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
-        "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
+        "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames"
+        })
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exception") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        throwable.printStackTrace();
+                        return null;
+                    }
+                });
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.text.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.text.payload.length.125.fragmented.but.not.utf8.aligned/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 2);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 2) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.text.payload.length.125.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 5);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 5) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.text.payload.length.125.fragmented.with.some.empty.fragments/handshake.response.and.frames" })
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 7);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 7) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.echo.text.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldEchoServerSendTextFrameWithPayloadNotFragmented() throws Exception {
-        IoHandler handler = newFragmentationIoHandlerAdapter(WsBuffer.Kind.TEXT, 1);
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+        final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                will(new CustomAction("Capture messageReceived() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Object message = invocation.getParameter(1);
+                        IoBufferEx ioBuffer = (IoBufferEx) message;
+                        bufferList.add(ioBuffer.buf());
+
+                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                        if (wsnConnectSession != null) {
+                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                            IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
+
+                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
+                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
+                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
+                            boolean sendMessagesDirect = isLightweightWsnSession
+                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
+
+                            if (sendMessagesDirect) {
+                                filterChain.fireMessageReceived(message);
+                                return null;
+                            }
+
+                            if (bufferList.size() == 1) {
+                                ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                                for (ByteBuffer bb : bufferList) {
+                                    buffer.put(bb);
+                                }
+
+                                buffer.flip();
+                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                                wsnConnectSession.write(wsBuffer);
+                            }
+                        }
+
+                        return null;
+                    }
+                });
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        final ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
-
         k3po.finish();
+//        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.close.payload.length.2.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.continuation.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.continuation.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadNotFragmented() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.ping.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        context.assertIsSatisfied();
     }
 
     @Test
     @Specification({
         "server.send.pong.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadFragmented() throws Exception {
-        IoHandler handler = new IoHandlerAdapter<IoSessionEx>();
-        ConnectFuture connectFuture = connectorRule.connect("ws://localhost:8080/echo", null, handler);
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
-    }
-
-    private IoHandlerAdapter<IoSessionEx> newFragmentationIoHandlerAdapter(WsBuffer.Kind kind, int fragmentCount) {
-        IoHandlerAdapter<IoSessionEx> connectHandler = new IoHandlerAdapter<IoSessionEx>() {
-            List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
-
-            @Override
-            protected void doMessageReceived(IoSessionEx session, Object message) throws Exception {
-                WsnSession wsnConnectSession = (WsnSession) session;
-                String filterName = WsnProtocol.NAME + "#text";
-
-                if (wsnConnectSession != null) {
-                    IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
-                    if (parentFilterChain.contains(filterName)) {
-                        parentFilterChain.remove(filterName);
-                    }
-
-                    IoFilterChain filterChain = wsnConnectSession.getFilterChain();
-                    IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                    final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == this;
-                    final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                    final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                    boolean sendMessagesDirect = isLightweightWsnSession
-                                                 && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                    if (sendMessagesDirect) {
-                        filterChain.fireMessageReceived(message);
-                        return;
-                    }
-
-                    IoBufferEx ioBuffer = (IoBufferEx) message;
-                    bufferList.add(ioBuffer.buf());
-
-                    if (bufferList.size() == fragmentCount) {
-                        ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                        for (ByteBuffer bb : bufferList) {
-                            buffer.put(bb);
-                        }
-                        buffer.flip();
-                        WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                        wsBuffer.setKind(kind);
-                        session.write(wsBuffer);
-                    }
-                }
-            }
-        };
-        return connectHandler;
+        context.assertIsSatisfied();
     }
 }
