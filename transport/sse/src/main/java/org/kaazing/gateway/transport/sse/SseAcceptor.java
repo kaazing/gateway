@@ -271,24 +271,29 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
         @Override
         protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-            SseSession sseSession = SSE_SESSION_KEY.get(session);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSE connection, closing connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
+                }
+                else {
+                    logger.debug(message);
+                }
+            }
+            session.close(true);
+        }
+
+
+        @Override
+        protected void doSessionClosed(HttpAcceptSession session) throws Exception {
+            SseSession sseSession = SSE_SESSION_KEY.remove(session);
             if (sseSession != null && !sseSession.isClosing()) {
-                // behave similarly to connection reset by peer at NIO layer
                 sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
             }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on SSE connection, closing connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
-                }
-                session.close(true);
-            }
+
+            IoFilterChain filterChain = session.getFilterChain();
+            removeBridgeFilters(filterChain);
         }
 
 

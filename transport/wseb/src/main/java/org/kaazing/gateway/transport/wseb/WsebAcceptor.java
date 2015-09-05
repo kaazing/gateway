@@ -479,7 +479,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 }
             }
             else {
-                super.doMessageReceived(session,message);
+                super.doMessageReceived(session, message);
             }
         }
 
@@ -884,23 +884,29 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         @Override
         protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
             // HTTP exception occurred, usually due to underlying connection failure during HTTP response
-            WsebSession wseSession = SESSION_KEY.get(session);
-            if (wseSession != null && !wseSession.isClosing()) {
-                wseSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Exception while handling HttpSession to create WsebSession: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+
+            if (logger.isDebugEnabled()) {
+                String message = format("Exception while handling HttpSession to create WsebSession: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                session.close(true);
+                else {
+                    logger.debug(message);
+                }
             }
+            session.close(true);
+        }
+
+        @Override
+        protected void doSessionClosed(HttpAcceptSession session) throws Exception {
+            WsebSession wsebSession = SESSION_KEY.remove(session);
+            if (wsebSession != null && !wsebSession.isClosing()) {
+                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+            }
+
+            IoFilterChain filterChain = session.getFilterChain();
+            removeBridgeFilters(filterChain);
         }
 
         protected ResourceAddress getWseLocalAddress(HttpAcceptSession session,

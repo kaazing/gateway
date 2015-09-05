@@ -137,4 +137,8 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
     public Throwable getCloseException() {
         return closeException;
     }
+
+    void setCloseException(Throwable t) {
+        this.closeException = t;
+    }
 }
