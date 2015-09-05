@@ -78,7 +78,6 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
-import org.kaazing.gateway.security.auth.DefaultLoginResult;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
@@ -104,10 +103,8 @@ import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpMergeRequestFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpSubjectSecurityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsBinaryMessage;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
@@ -144,6 +141,8 @@ import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
+    private static final TypedAttributeKey<ResultAwareLoginContext> LOGIN_CONTEXT_TRANSFER_KEY
+                            = new TypedAttributeKey<>(WsnAcceptor.class, "login_transfer");
     private static final TypedAttributeKey<Subject> SUBJECT_TRANSFER_KEY
                             = new TypedAttributeKey<>(WsnAcceptor.class, "subject_transfer");
 
@@ -207,10 +206,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
-        public void setSubject(IoSession session, Subject subject) {
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
             WsnSession wsnSession = SESSION_KEY.get(session);
             assert wsnSession !=  null;
-            wsnSession.setSubject(subject);
+            wsnSession.setLoginContext(loginContext);
         }
 
         @Override
@@ -571,12 +570,12 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                 @Override
                 public WsnSession call() {
                     URI httpRequestURI = httpUri;
-                    ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                    ResultAwareLoginContext loginContext = LOGIN_CONTEXT_TRANSFER_KEY.remove(session);
                     IoBufferAllocatorEx<?> parentAllocator = session.getBufferAllocator();
                     IoBufferAllocatorEx<WsBuffer> allocator = wasHixieHandshake ? new WsDraftHixieBufferAllocator(parentAllocator)
                                                                                 : new WsBufferAllocator(parentAllocator, false /* masking */);
                     WsnSession newWsnSession = new WsnSession(WsnAcceptor.this, getProcessor(), localAddress, remoteAddress,
-                            session, allocator, httpRequestURI, loginContext == null ? new DefaultLoginResult() : loginContext.getLoginResult(),
+                            session, allocator, httpRequestURI, loginContext,
                             wsVersion, null);
 
                     IoHandler handler = getHandler(localAddress);
@@ -1154,7 +1153,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
                             parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
-                            parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY, session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
+                            parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                             parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                         }
                     });
@@ -1391,10 +1390,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                         .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                                 parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                                 parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                                parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
-                                                    session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
-
-
+                                parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                             }
                         });
                         session.close(false);
@@ -1553,10 +1549,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                    .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                            parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                            parent.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
-                           parent.setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY,
-                                               session.getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY));
-
-
+                           parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
                        }
                    });
                    session.close(false);

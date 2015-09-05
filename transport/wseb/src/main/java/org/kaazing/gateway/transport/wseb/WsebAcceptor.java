@@ -27,9 +27,9 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.URLUtils.*;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
+import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -52,10 +52,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
-import javax.security.auth.Subject;
 
-import org.kaazing.gateway.resource.address.URLUtils;
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFuture;
@@ -91,10 +88,10 @@ import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsProtocol;
@@ -412,8 +409,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
 
         @Override
-        public void setSubject(IoSession session, Subject subject) {
-            ((WsebSession.TransportSession)session).getWsebSession().setSubject(subject);
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            ((WsebSession.TransportSession)session).getWsebSession().setLoginContext(loginContext);
         }
 
         @Override
@@ -648,11 +645,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                             .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                     wsSession.setAttribute(HTTP_REQUEST_URI_KEY, session.getRequestURL());
                     WsebSession wsebSession = (WsebSession)wsSession;
-                    wsebSession.setSubject(session.getSubject());
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
-                    HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.set(wsSession,
-                            HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY.get(session));
-
+                    wsebSession.setLoginContext(session.getLoginContext());
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
                     WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
@@ -662,10 +656,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }, new Callable<WsebSession>() {
                 @Override
                 public WsebSession call() {
-                    ResultAwareLoginContext loginContext = (ResultAwareLoginContext) session.getAttribute(
-                            HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
+                    ResultAwareLoginContext loginContext = session.getLoginContext();
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
-                            localAddress, remoteAddress, allocator, loginContext.getLoginResult(), clientIdleTimeout, inactivityTimeout,
+                            localAddress, remoteAddress, allocator, loginContext, clientIdleTimeout, inactivityTimeout,
                             validateSequenceNo, sequenceNo, negotiated);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);

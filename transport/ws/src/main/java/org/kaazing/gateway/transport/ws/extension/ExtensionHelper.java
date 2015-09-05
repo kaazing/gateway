@@ -21,9 +21,8 @@
 
 package org.kaazing.gateway.transport.ws.extension;
 
-import javax.security.auth.Subject;
-
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 
 /**
  * This interface provides methods which can be used within extension filters.
@@ -31,11 +30,11 @@ import org.apache.mina.core.session.IoSession;
 public interface ExtensionHelper {
 
     /**
-     * Change the authenticated subject on the WebSocket connection
-     * @param session    transport session on whose filter chain the WebSocket frames flow
-     * @param subject    the new authenticated Subject
+     * Signal re-authentication on the WebSocket connection
+     * @param session        transport session on whose filter chain the WebSocket frames flow
+     * @param loginContext   the new authenticated login context
      */
-    void setSubject(IoSession session, Subject subject);
+    void setLoginContext(IoSession session, ResultAwareLoginContext loginContext);
 
     /**
      * Close the WebSocket connection associated with the given transport session.

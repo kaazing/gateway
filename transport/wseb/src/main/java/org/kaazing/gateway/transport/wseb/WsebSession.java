@@ -40,7 +40,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.Direction;
@@ -145,7 +145,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        ResourceAddress localAddress,
                        ResourceAddress remoteAddress,
                        IoBufferAllocatorEx<WsBuffer> allocator,
-                       DefaultLoginResult loginResult,
+                       ResultAwareLoginContext loginContext,
                        int clientIdleTimeout,
                        long inactivityTimeout,
                        boolean validateSequenceNo,
@@ -160,7 +160,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               remoteAddress,
               allocator,
               Direction.BOTH,
-              loginResult,
+              loginContext,
               extensions);
         this.attachingWrite = new AtomicBoolean(false);
         this.readSession = new AtomicReference<>();

@@ -36,6 +36,7 @@ import java.util.TreeMap;
 import javax.security.auth.Subject;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.http.HttpMethod;
 
 
@@ -51,6 +52,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 	private HttpMethod method;
 	private ResourceAddress localAddress;
 	private Subject subject;
+	private ResultAwareLoginContext loginContext;
 	private URI externalURI;
 
 	private QueryUpdate queryUpdate;
@@ -60,6 +62,14 @@ public class HttpRequestMessage extends HttpStartMessage {
 	public Kind getKind() {
 		return Kind.REQUEST;
 	}
+
+    public ResultAwareLoginContext getLoginContext() {
+        return loginContext;
+    }
+
+    public void setLoginContext(ResultAwareLoginContext loginContext) {
+        this.loginContext = loginContext;
+    }
 
     public Subject getSubject() {
         return subject;
