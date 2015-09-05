@@ -2,11 +2,11 @@ package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.LIGHTWEIGHT;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
@@ -25,7 +25,6 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -61,7 +60,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
+    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.binary.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames" })
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
@@ -80,39 +79,32 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
+                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+                            //                  instead of BINARY is resolved.
+                            IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
+                            if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
+                                parentFilterChain.remove(TEXT_FILTER_NAME);
+                            }
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
+                // Once the issue is fixed, we can relax this expectation.
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 will(new CustomAction("Capture exception") {
                     @Override
@@ -153,46 +145,32 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
+                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+                            //                  instead of BINARY is resolved.
                             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
                             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
                                 parentFilterChain.remove(TEXT_FILTER_NAME);
                             }
 
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -223,46 +201,32 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
+                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+                            //                  instead of BINARY is resolved.
                             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
                             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
                                 parentFilterChain.remove(TEXT_FILTER_NAME);
                             }
 
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -293,46 +257,32 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                        if (bufferList.size() == 7) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
+                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+                            //                  instead of BINARY is resolved.
                             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
                             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
                                 parentFilterChain.remove(TEXT_FILTER_NAME);
                             }
 
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 7) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -363,46 +313,32 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+                        if (bufferList.size() == 1) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
+                            // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+                            //                  instead of BINARY is resolved.
                             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
                             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
                                 parentFilterChain.remove(TEXT_FILTER_NAME);
                             }
 
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 1) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.BINARY);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.BINARY);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -415,7 +351,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
+    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.text.payload.length.0.fragmented/handshake.response.and.frames"
         })
@@ -435,40 +371,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 will(new CustomAction("Capture exception") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -490,7 +411,7 @@ public class FragmentationIT {
     }
 
     @Test
-    @Ignore("IllegalArgumentException: message is empty. Forgot to call flip")
+    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "server.echo.text.payload.length.0.fragmented.with.injected.ping.pong/handshake.response.and.frames"
         })
@@ -510,39 +431,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
+                // Once the issue is fixed, we can relax this expectation.
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 will(new CustomAction("Capture exception") {
                     @Override
@@ -582,40 +489,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -646,40 +538,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 2) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 2) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -710,40 +587,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 5) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 5) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -774,40 +636,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 7) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 7) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -838,40 +685,25 @@ public class FragmentationIT {
                         IoBufferEx ioBuffer = (IoBufferEx) message;
                         bufferList.add(ioBuffer.buf());
 
-                        WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
-                        if (wsnConnectSession != null) {
-                            IoFilterChain filterChain = wsnConnectSession.getFilterChain();
+                        if (bufferList.size() == 1) {
+                            WsnSession wsnConnectSession = (WsnSession) invocation.getParameter(0);
+                            ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+                            for (ByteBuffer bb : bufferList) {
+                                buffer.put(bb);
+                            }
+                            buffer.flip();
+
                             IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
-
-                            final boolean hasPostUpgradeChildWsnSession = wsnConnectSession.getHandler() == handler;
-                            final ResourceAddress wsnSessionLocalAddress = wsnConnectSession.getLocalAddress();
-                            final boolean isLightweightWsnSession = wsnSessionLocalAddress.getOption(LIGHTWEIGHT);
-                            boolean sendMessagesDirect = isLightweightWsnSession
-                                                         && hasPostUpgradeChildWsnSession; // post-upgrade
-
-                            if (sendMessagesDirect) {
-                                filterChain.fireMessageReceived(message);
-                                return null;
-                            }
-
-                            if (bufferList.size() == 1) {
-                                ByteBuffer buffer = ByteBuffer.allocate(4096);
-
-                                for (ByteBuffer bb : bufferList) {
-                                    buffer.put(bb);
-                                }
-
-                                buffer.flip();
-                                WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
-                                wsBuffer.setKind(WsBuffer.Kind.TEXT);
-                                wsnConnectSession.write(wsBuffer);
-                            }
+                            WsBuffer wsBuffer = allocator.wrap(buffer, IoBufferEx.FLAG_SHARED);
+                            wsBuffer.setKind(WsBuffer.Kind.TEXT);
+                            wsnConnectSession.write(wsBuffer);
                         }
 
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -888,6 +720,7 @@ public class FragmentationIT {
         "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -895,6 +728,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -905,6 +746,7 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -912,6 +754,7 @@ public class FragmentationIT {
         "server.send.close.payload.length.2.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -919,6 +762,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -929,6 +780,7 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -936,6 +788,7 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -943,6 +796,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -953,6 +814,7 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -960,6 +822,7 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -967,6 +830,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -977,6 +848,7 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -984,6 +856,7 @@ public class FragmentationIT {
         "server.send.ping.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -991,6 +864,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -1001,6 +882,7 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -1008,6 +890,7 @@ public class FragmentationIT {
         "server.send.pong.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
@@ -1015,6 +898,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -1025,5 +916,6 @@ public class FragmentationIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 }

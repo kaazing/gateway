@@ -18,10 +18,14 @@ package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
@@ -109,12 +113,21 @@ public class ControlIT {
         "server.send.close.payload.length.126/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadTooLong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -125,6 +138,7 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -178,12 +192,21 @@ public class ControlIT {
         "server.send.ping.payload.length.126/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadTooLong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -194,6 +217,7 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -247,12 +271,21 @@ public class ControlIT {
         "server.send.pong.payload.length.126/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadTooLong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -263,6 +296,7 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -316,12 +350,21 @@ public class ControlIT {
         "server.send.opcode.0x0d/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendOpcode13Frame() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -332,6 +375,7 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -339,12 +383,21 @@ public class ControlIT {
         "server.send.opcode.0x0e/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendOpcode14Frame() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -355,6 +408,7 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -362,12 +416,21 @@ public class ControlIT {
         "server.send.opcode.0x0f/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendOpcode15Frame() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                will(new CustomAction("Capture exceptionCaught() parameters") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        Throwable throwable = (Throwable) invocation.getParameter(1);
+                        reference.set(throwable);
+                        return null;
+                    }
+                });
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -378,6 +441,6 @@ public class ControlIT {
 
         k3po.finish();
         context.assertIsSatisfied();
+        assertTrue(reference.get() != null);
     }
-
 }

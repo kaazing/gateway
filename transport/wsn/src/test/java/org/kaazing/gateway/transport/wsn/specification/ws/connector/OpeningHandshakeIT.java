@@ -196,7 +196,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Sec-WebSocket-Extensions header in the handshake request")
+    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "request.header.sec.websocket.extensions/handshake.response"
         })
@@ -222,7 +222,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Sec-WebSocket-Extensions header in the handshake request")
+    @Ignore("Issue# 309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "response.header.sec.websocket.extensions.partial.agreement/handshake.response"
         })
@@ -248,7 +248,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Sec-WebSocket-Extensions header in the handshake request")
+    @Ignore("Issue #309: Missing Sec-WebSocket-Extensions header in the handshake request")
     @Specification({
         "response.header.sec.websocket.extensions.reordered/handshake.response"
         })
@@ -274,7 +274,8 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Connection header set to invalid value in the handshake response. connectFuture.isConnected() must return false")
+    @Ignore("Issue# 310: Connection header set to invalid value in the handshake response. "
+            + " connectFuture.isConnected() must return false")
     @Specification({
         "response.header.connection.not.upgrade/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderConnectionNotUpgrade() throws Exception {
@@ -298,7 +299,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Connection header in handshake response. connectFuture.isConnected() must return false")
+    @Ignore("Issue# 311: Missing Connection header in handshake response. connectFuture.isConnected() must return false")
     @Specification({
         "response.header.connection.missing/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderConnectionMissing() throws Exception {
@@ -322,7 +323,8 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Upgrade header set to invalid value in the handshake response. connectFuture.isConnected() must return false")
+    @Ignore("Issue# 312: Upgrade header set to invalid value in the handshake response."
+            + " connectFuture.isConnected() must return false")
     @Specification({
         "response.header.upgrade.not.websocket/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderUpgradeNotWebSocket() throws Exception {
@@ -346,7 +348,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Upgrade header in handshake response. connectFuture.isConnected() must return false")
+    @Ignore("Issue# 313: Missing Upgrade header in handshake response. connectFuture.isConnected() must return false")
     @Specification({
         "response.header.upgrade.missing/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderUpgradeMissing() throws Exception {
@@ -370,7 +372,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Did not fail and should")
+    @Ignore("Did not fail and should -- I think the script is hashing Sec-WebSocket-Accept. Need clarification.")
     @Specification({
         "response.header.sec.websocket.accept.not.hashed/handshake.response" })
     public void shouldFailConnectionWhenResponseHeaderSecWebSocketAcceptNotHashed() throws Exception {
@@ -417,7 +419,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("Missing Sec-WebSocket-Extensions header in the handshake request. Also, connectFuture.isConnected()"
+    @Ignore("Issues# 309, 314: Missing Sec-WebSocket-Extensions header in the handshake request. connectFuture.isConnected()"
             + "must return false as the negotiated extension does not match the supported extensions.")
     @Specification({
         "response.header.sec.websocket.extensions.not.negotiated/handshake.response" })
@@ -443,7 +445,7 @@ public class OpeningHandshakeIT {
     }
 
     @Test
-    @Ignore("connectFuture.isConnected() must return false as the negotiated protocol does not match any"
+    @Ignore("Issue# 315: connectFuture.isConnected() must return false as the negotiated protocol does not match any"
             + "of the supported protocols")
     @Specification({
         "response.header.sec.websocket.protocol.not.negotiated/handshake.response" })

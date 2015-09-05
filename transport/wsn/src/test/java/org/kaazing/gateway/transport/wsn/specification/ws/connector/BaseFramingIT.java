@@ -73,7 +73,7 @@ public class BaseFramingIT {
     }
 
     @Test
-    @Ignore("Exception: message is empty. Forgot to call flip()?")
+    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "echo.binary.payload.length.0/handshake.response.and.frame"
         })
@@ -95,7 +95,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -104,8 +105,7 @@ public class BaseFramingIT {
         }
 
         byte[] bytes = new byte[0];
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -136,7 +136,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -148,8 +149,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[125];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -180,7 +180,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -192,8 +193,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[126];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -224,7 +224,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -236,8 +237,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[127];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -268,7 +268,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -280,8 +281,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[128];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -312,7 +312,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -324,8 +325,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[65535];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -356,7 +356,8 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        // ### Temporary hack till the issue related to Connector writing out TEXT frame instead of BINARY is resolved.
+        // ### Issue# 316: Temporary hack till the issue related to Connector writing out TEXT frame
+        //                  instead of BINARY is resolved.
         if (wsnConnectSession != null) {
             IoFilterChain parentFilterChain = wsnConnectSession.getParent().getFilterChain();
             if (parentFilterChain.contains(TEXT_FILTER_NAME)) {
@@ -368,8 +369,7 @@ public class BaseFramingIT {
         byte[] bytes = new byte[65536];
         random.nextBytes(bytes);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
         wsnConnectSession.write(wsBuffer);
@@ -379,7 +379,7 @@ public class BaseFramingIT {
     }
 
     @Test
-    @Ignore("IllegalArgumentException: emessage is empty forgot to call flip")
+    @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
         "echo.text.payload.length.0/handshake.response.and.frame"
         })
@@ -404,8 +404,7 @@ public class BaseFramingIT {
         String str = "";
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
@@ -439,8 +438,7 @@ public class BaseFramingIT {
         String str = new RandomString(125).nextString();
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
@@ -474,8 +472,7 @@ public class BaseFramingIT {
         String str = new RandomString(126).nextString();
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
@@ -509,8 +506,7 @@ public class BaseFramingIT {
         String str = new RandomString(127).nextString();
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
@@ -544,8 +540,7 @@ public class BaseFramingIT {
         String str = new RandomString(128).nextString();
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
@@ -579,8 +574,7 @@ public class BaseFramingIT {
         String str = new RandomString(65535).nextString();
         byte[] bytes = str.getBytes(UTF_8);
 
-        IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+        IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
