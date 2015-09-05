@@ -282,7 +282,9 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
             getFilterChain().fireExceptionCaught(cause);
         }
         finally {
-            getProcessor().remove((S) this);
+            if (!isClosing()) {
+                getProcessor().remove((S) this);
+            }
         }
     }
 
