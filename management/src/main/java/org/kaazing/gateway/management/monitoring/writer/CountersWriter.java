@@ -19,22 +19,20 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity.impl;
+package org.kaazing.gateway.management.monitoring.writer;
 
-import org.kaazing.gateway.service.LongMonitoringCounter;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 
-public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
+/**
+ * Interface holding specific service writer API
+ *
+ */
+public interface CountersWriter {
 
-    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return COUNTER_STUB;
-    }
+    /**
+     * Method creating a writers factory
+     * @return
+     */
+    MonitoringEntityFactory writeCountersFactory();
 
 }

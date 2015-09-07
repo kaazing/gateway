@@ -19,22 +19,26 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity.impl;
+package org.kaazing.gateway.service;
 
-import org.kaazing.gateway.service.LongMonitoringCounter;
-import org.kaazing.gateway.service.MonitoringEntityFactory;
+/**
+ * Factory for instantiating a specific monitoring entity.
+ *
+ * Monitoring entities represent values which indicate specific gateway relevant information, such as the number of open
+ * sessions, the number of bytes sent/received, etc.
+ *
+ * This interface exposes the API for retrieving monitoring entities.
+ */
+public interface MonitoringEntityFactory {
+    /**
+     * Method returning a LongMonitoringCounter object
+     * @param label - the name associated to the counter
+     * @return - LongMonitoringCounter
+     */
+    LongMonitoringCounter makeLongMonitoringCounter(String name);
 
-public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
-
-    private static final LongMonitoringCounter COUNTER_STUB = new DefaultLongMonitoringCounterStub();
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public LongMonitoringCounter makeLongMonitoringCounter(String name) {
-        return COUNTER_STUB;
-    }
-
+    /**
+     * Cleans up the monitoring entities
+     */
+    void close();
 }

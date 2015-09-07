@@ -19,19 +19,16 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.configuration;
-
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+package org.kaazing.gateway.management.monitoring.service;
 
 /**
- * This interface represents the abstraction layer for creating the monitoring entity factory {@link MonitoringEntityFactory},
- * with the specific underlying implementation, e.g. Agrona
+ * Interface over monitored services
+ *
  */
-public interface MonitoringEntityFactoryBuilder {
-
+public interface MonitoredService {
     /**
-     * Creates the monitoring entity factory
-     * @return the monitoring entity factory
+     * Method returning a service's name
+     * @return - service name
      */
-    MonitoringEntityFactory build();
+    String getServiceName();
 }
