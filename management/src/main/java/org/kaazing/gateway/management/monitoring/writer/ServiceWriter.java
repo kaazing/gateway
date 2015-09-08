@@ -19,18 +19,13 @@
  * under the License.
  */
 
+package org.kaazing.gateway.management.monitoring.writer;
 
-package org.kaazing.gateway.management.monitoring.configuration.impl;
 
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
-import org.kaazing.gateway.management.monitoring.entity.impl.DefaultMonitoringEntityFactoryStub;
-
-public class DefaultMonitoringEntityFactoryBuilderStub implements MonitoringEntityFactoryBuilder {
-
-    @Override
-    public MonitoringEntityFactory build() {
-        return new DefaultMonitoringEntityFactoryStub();
-    }
+/**
+ * Interface holding specific service writer API
+ *
+ */
+public interface ServiceWriter  extends CountersWriter {
 
 }

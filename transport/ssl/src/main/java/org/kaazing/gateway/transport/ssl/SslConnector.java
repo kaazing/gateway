@@ -425,29 +425,23 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-
-            SslSession sslSession = SSL_SESSION_KEY.get(session);
-            if (sslSession != null && !sslSession.isClosing()) {
-                sslSession.reset(cause);
-            } else {
-                // exception may be triggered by SSL handshake
-                ConnectFuture sslConnectFuture = SSL_CONNECT_FUTURE_KEY.remove(session);
-                if (sslConnectFuture != null) {
-                    sslConnectFuture.setException(cause);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on SSL connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
                 else {
-                    if (logger.isDebugEnabled()) {
-                        String message = format("Error on SSL connection attempt: %s", cause);
-                        if (logger.isTraceEnabled()) {
-                            // note: still debug level, but with extra detail about the exception
-                            logger.debug(message, cause);
-                        }
-                        else {
-                            logger.debug(message);
-                        }
-                    }
+                    logger.debug(message);
                 }
-                session.close(true);
+            }
+
+            session.close(true);
+
+            // exception may be triggered by SSL handshake
+            ConnectFuture sslConnectFuture = SSL_CONNECT_FUTURE_KEY.remove(session);
+            if (sslConnectFuture != null) {
+                sslConnectFuture.setException(cause);
             }
         }
 

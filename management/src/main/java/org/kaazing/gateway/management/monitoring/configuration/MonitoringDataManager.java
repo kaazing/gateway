@@ -19,28 +19,32 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity.factory;
+package org.kaazing.gateway.management.monitoring.configuration;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
+import org.kaazing.gateway.management.monitoring.service.MonitoredService;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 /**
- * Factory for instantiating a specific monitoring entity.
- *
- * Monitoring entities represent values which indicate specific gateway relevant information, such as the number of open
- * sessions, the number of bytes sent/received, etc.
- *
- * This interface exposes the API for retrieving monitoring entities.
+ * This interface represents the abstraction layer for creating the monitoring entity factories {@link MonitoringEntityFactory},
+ * with the specific underlying implementation, e.g. Agrona
  */
-public interface MonitoringEntityFactory {
-    /**
-     * Method returning a LongMonitoringCounter object
-     * @param label - the name associated to the counter
-     * @return - LongMonitoringCounter
-     */
-    LongMonitoringCounter makeLongMonitoringCounter(String name);
+public interface MonitoringDataManager {
 
     /**
-     * Cleans up the monitoring entities
+     * Method initializing data manager
+     * @return the gw monitoring entity factory
+     */
+    MonitoringEntityFactory initialize();
+
+    /**
+     * Method for adding a monitored service
+     * @param monitoredService
+     * @return
+     */
+    MonitoringEntityFactory addService(MonitoredService monitoredService);
+
+    /**
+     * Method cleaning up resources in MonitoringDataManager
      */
     void close();
 }

@@ -64,9 +64,6 @@ import org.kaazing.gateway.management.gateway.GatewayManagementBean;
 import org.kaazing.gateway.management.gateway.GatewayManagementBeanImpl;
 import org.kaazing.gateway.management.gateway.GatewayManagementListener;
 import org.kaazing.gateway.management.gateway.ManagementGatewayStrategy;
-import org.kaazing.gateway.management.monitoring.configuration.MonitoringEntityFactoryInjector;
-import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringEntityFactoryInjectorImpl;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.service.CollectOnlyManagementServiceStrategy;
 import org.kaazing.gateway.management.service.FullManagementServiceStrategy;
 import org.kaazing.gateway.management.service.ManagementServiceStrategy;
@@ -248,10 +245,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
 
     private final ServiceManagementBeanFactory serviceManagmentBeanFactory = newServiceManagementBeanFactory();
 
-    // The monitoring entity factory which will be used for creating monitoring specific entities, such as counters.
-    // This implementation needs to be passed to the management filter.
-    private MonitoringEntityFactory monitoringEntityFactory;
-
     public DefaultManagementContext() {
         this.managementServiceHandlers = new ArrayList<>();
 
@@ -296,7 +289,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
-        buildMonitoringEntityFactory();
     }
 
     @Override
@@ -643,32 +635,9 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
     }
 
     private ManagementFilter addManagementFilter(ServiceContext serviceContext, ServiceManagementBean serviceBean) {
-        ManagementFilter managementFilter = new ManagementFilter(serviceBean,
-                                                                 monitoringEntityFactory,
-                                                                 serviceContext.getServiceName(),
-                                                                 configuration);
+        ManagementFilter managementFilter = new ManagementFilter(serviceBean);
         managementFilters.put(serviceContext, managementFilter);
         return managementFilter;
-    }
-
-    /**
-     * Method instantiating a monitoring entity factory injector and building an actual
-     * monitoring entity factory
-     *
-     * The monitoring entity factory builder is initialized here and not in the constructor
-     * in order to have the configuration Properties object injected
-     *
-     */
-    private void buildMonitoringEntityFactory() {
-        // We create a new monitoring entity factory using the factory injector.
-
-        MonitoringEntityFactoryInjector monitoringEntityFactoryInjector = new MonitoringEntityFactoryInjectorImpl(configuration);
-        monitoringEntityFactory = monitoringEntityFactoryInjector.makeMonitoringEntityFactory();
-    }
-
-    @Override
-    public MonitoringEntityFactory getMonitoringEntityFactory() {
-        return monitoringEntityFactory;
     }
 
     @Override
@@ -678,7 +647,6 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
             // Service Management Beans are created in initing, getManagementFilter is done
             // on service start through session initializer
             ServiceManagementBean serviceBean = serviceManagementBeans.get(serviceContext);
-            //Initializing monitoring entity factory in order to be able to pass it on to the management filter
             managementFilter = addManagementFilter(serviceContext, serviceBean);
         }
 
@@ -890,14 +858,4 @@ public class DefaultManagementContext implements ManagementContext, DependencyCo
         gatewayManagementBeans.put(localGatewayHostAndPid, gatewayManagementBean);
     }
 
-    @Override
-    public void close() {
-        // Stopping here if no monitoring entity factory was built
-        if (monitoringEntityFactory == null) {
-            return;
-        }
-        // We need to manually close the monitoring entity factory because we don't use a
-        // try-with-resources block in order to be invoked by the JVM
-        monitoringEntityFactory.close();
-    }
 }
