@@ -539,28 +539,22 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
-            if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(cause);
-            }
-            else {
-                ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.remove(session);
-                if (wsnConnectFuture != null) {
-                    wsnConnectFuture.setException(cause);
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on WebSocket connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
                 else {
-                    if (logger.isDebugEnabled()) {
-                        String message = format("Error on WebSocket connection attempt: %s", cause);
-                        if (logger.isTraceEnabled()) {
-                            // note: still debug level, but with extra detail about the exception
-                            logger.debug(message, cause);
-                        }
-                        else {
-                            logger.debug(message);
-                        }
-                    }
+                    logger.debug(message);
                 }
-                session.close(true);
+            }
+
+            session.close(true);
+
+            ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.remove(session);
+            if (wsnConnectFuture != null) {
+                wsnConnectFuture.setException(cause);
             }
         }
 
@@ -573,7 +567,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            WsnSession wsnSession = SESSION_KEY.get(session);
+            WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
                 // TODO: require WebSocket controlled close handshake
                 wsnSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
