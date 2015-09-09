@@ -48,7 +48,7 @@ public class ExtensibilityIT {
     private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(k3po).around(connector);
+    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(connector).around(k3po);
 
     private Mockery context;
 
