@@ -177,8 +177,8 @@ final class GatewayImpl implements Gateway {
                 !bypassPlatformCheckStr.equalsIgnoreCase("no") &&
                 !bypassPlatformCheckStr.equalsIgnoreCase("n");
 
-        if (!bypassPlatformCheck && !supportedJavaVersion(1, 7, "0_21")) {
-            throw new RuntimeException("Unsupported JDK version, Please install Java SE 7.0 patch 21 or later and relaunch " +
+        if (!bypassPlatformCheck && !supportedJavaVersion(1, 8, "0")) {
+            throw new RuntimeException("Unsupported JDK version, Please install Java SE 8.0 or later and relaunch " +
                     "Kaazing WebSocket Gateway");
         }
 
