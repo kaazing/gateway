@@ -356,12 +356,13 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doSessionClosed(HttpSession createSession) throws Exception {
-            final WsebSession wsebSession = WSE_SESSION_KEY.get(createSession);
+            final WsebSession wsebSession = WSE_SESSION_KEY.remove(createSession);
             assert (wsebSession != null);
 
             IoBufferEx buf = CREATE_RESPONSE_KEY.remove(createSession);
             if (buf == null || createSession.getStatus() != HttpStatus.SUCCESS_CREATED) {
-                throw new IllegalStateException("Create handshake failed: invalid response");
+                wsebSession.reset(new Exception("Create handshake failed: invalid response").fillInStackTrace());
+                return;
             }
 
             buf.flip();
@@ -370,7 +371,8 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             String[] locations = responseText.split("\n");
 
             if (locations.length < 2) {
-                throw new IllegalStateException("Create handshake failed: invalid response");
+                wsebSession.reset(new Exception("Create handshake failed: invalid response").fillInStackTrace());
+                return;
             }
 
             URI writeURI = URI.create(locations[0]);
@@ -409,23 +411,18 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doExceptionCaught(HttpSession createSession, Throwable cause) throws Exception {
-            WsebSession wsebSession = WSE_SESSION_KEY.get(createSession);
-            if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on WebSocket WSE connection attempt: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on WebSocket WSE connection attempt: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
                 }
-                createSession.close(true);
+                else {
+                    logger.debug(message);
+                }
             }
+
+            createSession.close(true);
         }
 
     };
@@ -513,24 +510,27 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doExceptionCaught(HttpSession readSession, Throwable cause) throws Exception {
+            if (logger.isDebugEnabled()) {
+                String message = format("Error on WebSocket WSE connection: %s", cause);
+                if (logger.isTraceEnabled()) {
+                    // note: still debug level, but with extra detail about the exception
+                    logger.debug(message, cause);
+                }
+                else {
+                    logger.debug(message);
+                }
+            }
+            readSession.close(true);
+        }
+
+
+        @Override
+        protected void doSessionClosed(HttpSession readSession) throws Exception {
             ResourceAddress readAddress = readSession.getLocalAddress();
             WsebSession wsebSession = sessionMap.get(readAddress);
 
-            if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(cause);
-            }
-            else {
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on WebSocket WSE connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
-                }
-                readSession.close(true);
+            if (wsebSession != null && readSession.getStatus() != HttpStatus.SUCCESS_OK) {
+                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
         }
     };

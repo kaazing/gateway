@@ -21,20 +21,14 @@
 
 package org.kaazing.gateway.management.filter;
 
-import java.util.Properties;
-
 import org.apache.mina.core.write.WriteRequest;
 import org.kaazing.gateway.management.Utils;
 import org.kaazing.gateway.management.Utils.ManagementSessionType;
 import org.kaazing.gateway.management.context.ManagementContext;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
 import org.kaazing.gateway.management.monitoring.entity.manager.ServiceCounterManager;
-import org.kaazing.gateway.management.monitoring.entity.manager.factory.CounterManagerFactory;
-import org.kaazing.gateway.management.monitoring.entity.manager.impl.CounterManagerFactoryImpl;
 import org.kaazing.gateway.management.service.ServiceManagementBean;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.transport.IoFilterAdapter;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 /**
@@ -57,19 +51,11 @@ public class ManagementFilter extends IoFilterAdapter<IoSessionEx> {
     protected ServiceContext serviceContext;
     private ServiceCounterManager serviceCounterManager;
 
-    public ManagementFilter(ServiceManagementBean serviceBean,
-                            MonitoringEntityFactory monitoringEntityFactory,
-                            String serviceName,
-                            Properties configuration) {
+    public ManagementFilter(ServiceManagementBean serviceBean) {
         this.serviceBean = serviceBean;
         this.managementContext = serviceBean.getGatewayManagementBean().getManagementContext();
         this.serviceContext = serviceBean.getServiceContext();
-        String gatewayId = InternalSystemProperty.GATEWAY_IDENTIFIER.getProperty(configuration);
-
-        CounterManagerFactory counterFactory = new CounterManagerFactoryImpl();
-        serviceCounterManager = counterFactory.makeServiceCounterManager(monitoringEntityFactory,
-                serviceName, gatewayId);
-        serviceCounterManager.initializeSessionCounters();
+        serviceCounterManager = (ServiceCounterManager) serviceContext.getMonitoringFactory();
     }
 
     public ServiceManagementBean getServiceBean() {

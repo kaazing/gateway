@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.monitoring.entity;
+package org.kaazing.gateway.service;
 
 /**
  * This interface represents the abstraction layer for long monitoring counters.

@@ -26,47 +26,58 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Properties;
 
 import org.junit.Test;
-import org.kaazing.gateway.management.monitoring.configuration.impl.AgronaMonitoringEntityFactoryBuilder;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MMFMonitoringDataManager;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 import uk.co.real_logic.agrona.IoUtil;
 
 public class AgronaMonitoringEntityFactoryTest {
 
+    private static final String DEV_SHM = "/dev/shm/";
+    private static final String LINUX = "Linux";
+    private static final String OS_NAME = "os.name";
     private static final String MONITORING_FILE = "monitor";
     private static final String MONITORING_FILE_LOCATION = "/kaazing";
 
     @Test
     public void testAgronaLifecycle() {
-        AgronaMonitoringEntityFactoryBuilder builder = new AgronaMonitoringEntityFactoryBuilder(new Properties());
-        MonitoringEntityFactory factory = builder.build();
         File monitoringDir;
         File monitoringFile;
-
-        String osName = System.getProperty("os.name");
-        if ("Linux".equals(osName)) {
-            String monitoringDirName = "/dev/shm/" + IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
-            monitoringDir = new File(monitoringDirName);
-            assertTrue(monitoringDir.exists());
-            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
-            assertTrue(monitoringFile.exists());
-        } else {
-            String monitoringDirName = IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
-            monitoringDir = new File(monitoringDirName);
-            assertTrue(monitoringDir.exists());
-            monitoringFile = new File(monitoringDirName, MONITORING_FILE);
-            assertTrue(monitoringFile.exists());
+        MMFMonitoringDataManager monitoringDataManager = new MMFMonitoringDataManager(MONITORING_FILE);
+        try {
+            MonitoringEntityFactory monitoringEntityFactory = monitoringDataManager.initialize();
+            try {
+                LongMonitoringCounter longMonitoringCounter = monitoringEntityFactory.makeLongMonitoringCounter("test");
+    
+                String osName = System.getProperty(OS_NAME);
+                if (LINUX.equals(osName)) {
+                    String monitoringDirName = DEV_SHM + IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
+                    monitoringDir = new File(monitoringDirName);
+                    assertTrue(monitoringDir.exists());
+                    monitoringFile = new File(monitoringDirName, MONITORING_FILE);
+                    assertTrue(monitoringFile.exists());
+                } else {
+                    String monitoringDirName = IoUtil.tmpDirName() + MONITORING_FILE_LOCATION;
+                    monitoringDir = new File(monitoringDirName);
+                    assertTrue(monitoringDir.exists());
+                    monitoringFile = new File(monitoringDirName, MONITORING_FILE);
+                    assertTrue(monitoringFile.exists());
+                }
+    
+                assertNotNull(longMonitoringCounter);
+            }
+            finally {
+                monitoringEntityFactory.close();
+            }
         }
-
-        assertNotNull(factory.makeLongMonitoringCounter("test"));
-
-        factory.close();
+        finally {
+            monitoringDataManager.close();
+        }
 
         assertFalse(monitoringDir.exists());
         assertFalse(monitoringFile.exists());
     }
-
 }

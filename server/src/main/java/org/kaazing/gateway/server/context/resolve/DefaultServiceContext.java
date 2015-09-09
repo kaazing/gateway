@@ -70,6 +70,7 @@ import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.server.service.AbstractSessionInitializer;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -181,6 +182,8 @@ public class DefaultServiceContext implements ServiceContext {
             });
         }
     };
+
+    private MonitoringEntityFactory monitoringFactory;
 
     public DefaultServiceContext(String serviceType, Service service) {
         this(serviceType,
@@ -1070,4 +1073,15 @@ public class DefaultServiceContext implements ServiceContext {
     public void setSessionInitializor(IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
         this.sessionInitializer = ioSessionInitializer;
     }
+
+    @Override
+    public MonitoringEntityFactory getMonitoringFactory() {
+        return monitoringFactory;
+    }
+
+    @Override
+    public void setMonitoringFactory(MonitoringEntityFactory monitoringFactory) {
+        this.monitoringFactory = monitoringFactory;
+    }
+
 }
