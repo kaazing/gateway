@@ -54,7 +54,6 @@ import org.kaazing.gateway.server.spi.security.AuthenticationToken;
 import org.kaazing.gateway.server.spi.security.AuthenticationTokenCallback;
 import org.kaazing.gateway.server.spi.security.InetAddressCallback;
 import org.kaazing.gateway.server.spi.security.LoginResult;
-import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
@@ -66,13 +65,6 @@ import org.slf4j.Logger;
 public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
 
     protected static final String AUTH_SCHEME_APPLICATION_PREFIX = "Application ";
-
-    /**
-     * Session key used for communicating the login context to higher level sessions.
-     */
-    public static final TypedAttributeKey<ResultAwareLoginContext> LOGIN_CONTEXT_KEY =
-            new TypedAttributeKey<>(HttpLoginSecurityFilter.class, "loginContext");
-
 
     /**
      * Used to model the result of a login when login is not required but is successful
@@ -114,10 +106,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             return authorizedRoles.containsAll(requiredRoles);
         }
         return false;
-    }
-
-    public static void cleanup(IoSession session) {
-        LOGIN_CONTEXT_KEY.remove(session);
     }
 
     /**
@@ -418,12 +406,12 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
             writeSessionCookie(session, httpRequest, loginResult);
         }
 
-        if (loginOK ) {
+        if (loginOK) {
             // store information into the session
             try {
 
                 // remember login context
-                LOGIN_CONTEXT_KEY.set(session, loginContext);
+                httpRequest.setLoginContext(loginContext);
 
                 // remember subject
                 httpRequest.setSubject((loginContext == null || loginContext == LOGIN_CONTEXT_OK) ? subject : loginContext.getSubject());
@@ -433,9 +421,6 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
                 }
                 loginOK = false;
             }
-        } else {
-            // forget login context
-            LOGIN_CONTEXT_KEY.remove(session);
         }
 
         if ( loginOK && loggerEnabled() ) {
@@ -460,8 +445,8 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
      * This allows the rest of the pipeline to issue the login context is always set.
      * @param session
      */
-    protected void setUnprotectedLoginContext(final IoSession session) {
-        LOGIN_CONTEXT_KEY.set(session, LOGIN_CONTEXT_OK);
+    protected void setUnprotectedLoginContext(final HttpRequestMessage request) {
+        request.setLoginContext(LOGIN_CONTEXT_OK);
     }
 
     private void registerCallbacks(
@@ -548,18 +533,4 @@ public abstract class HttpLoginSecurityFilter extends HttpBaseSecurityFilter {
     private void log(String msg, Throwable t) {
         logger.trace(msg, t);
     }
-
-    // Aggressive removal of TCP session attributes as and when session closes.
-    @Override
-    public void filterClose(NextFilter nextFilter, IoSession session) throws Exception {
-        LOGIN_CONTEXT_KEY.remove(session);
-        super.filterClose(nextFilter, session);
-    }
-
-    @Override
-    public void doSessionClosed(NextFilter nextFilter, IoSession session) throws Exception {
-        LOGIN_CONTEXT_KEY.remove(session);
-        super.doSessionClosed(nextFilter, session);
-    }
-
 }

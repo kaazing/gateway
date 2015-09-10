@@ -39,10 +39,10 @@ public abstract class WebSocketExtension {
      * in the order that the extensions were specified in the HTTP request, so the first extension is closest to the network
      * (i.e. gets to see and possibly modify frames read from the client before other extensions, and  gets the final say for
      * Frames being written to the client).
-     * @param extension    Details of the negotiated extension and parameters
+     * @param helper    Provides methods which may be used within extension filters
      * @return A filter which is to be added to the filter chain, or null if none is to be added
      */
-    public IoFilter getFilter() {
+    public IoFilter getFilter(ExtensionHelper helper) {
         return null;
     };
 

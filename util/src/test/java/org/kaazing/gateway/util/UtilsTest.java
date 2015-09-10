@@ -273,6 +273,24 @@ public class UtilsTest {
         buf.order(LITTLE_ENDIAN);
         Utils.getShort(buf, 2);
     }
+    
+    @Test
+    public void initCapsShouldReturnEmptyString() {
+        String result = Utils.initCaps("");
+        assertEquals("", result);
+    }
+    
+    @Test
+    public void initCapsShouldUppercaseMultipleCharacterString() {
+        String result = Utils.initCaps("abc");
+        assertEquals("Abc", result);
+    }
+    
+    @Test
+    public void initCapsShouldUppercaseMCharacterString() {
+        String result = Utils.initCaps("a");
+        assertEquals("A", result);
+    }
 
     @Test
     public void loadStaticIntValidOuterClass() throws Exception {

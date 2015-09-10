@@ -1,0 +1,29 @@
+#
+# Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+#
+
+connect tcp://localhost:8001
+connected
+
+write "hi"
+
+read "hi"
+
+# connection will be closed by the "echo server" stream below
+closed
+
+############################################################ Backend Echo Service stream ###################################################################
+
+accept tcp://localhost:8002
+accepted
+connected
+
+read "injected"
+read "hi"
+
+# echo "hi"
+write "hi"
+
+# This time close the connection
+close
+closed

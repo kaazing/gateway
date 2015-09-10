@@ -21,60 +21,125 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static java.lang.String.format;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.kaazing.gateway.security.AuthenticationContext;
+import org.kaazing.gateway.server.config.sep2014.AuthenticationType;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class DefaultAuthenticationContext implements AuthenticationContext {
+    private static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
-    private String httpChallengeScheme;
-    private String[] httpHeaders;
-    private String[] httpQueryParameters;
-    private String[] httpCookieNames;
-    private String authorizationMode;
-    private String sessionTimeout;
+    private static final String HTTP_CHALLENGE_SCHEME = "http-challenge-scheme";
+    private static final String HTTP_HEADERS = "http-header";
+    private static final String HTTP_QUERY_PARAMETERS = "http-query-parameter";
+    private static final String HTTP_COOKIE_NAMES = "http-cookie";
+    private static final String HTTP_AUTHORIZATION_MODE = "authorization-mode";
+    private static final String SESSION_TIMEOUT = "session-timeout";
 
+    private Map<String, String> options;
 
-    public DefaultAuthenticationContext(String httpChallengeScheme,
-                                        String[] httpHeaders,
-                                        String[] httpQueryParameters,
-                                        String[] httpCookieNames,
-                                        String authorizationMode,
-                                        String sessionTimeout) {
-        this.httpChallengeScheme = httpChallengeScheme;
-        this.httpHeaders = httpHeaders;
-        this.httpQueryParameters = httpQueryParameters;
-        this.httpCookieNames = httpCookieNames;
-        this.authorizationMode = authorizationMode;
-        this.sessionTimeout = sessionTimeout;
-        this.sessionTimeout = sessionTimeout;
+    public DefaultAuthenticationContext(AuthenticationType authenticationType) {
+        options = new HashMap<>();
+        parseAuthenticationType(authenticationType);
     }
 
     @Override
     public String getHttpChallengeScheme() {
-        return httpChallengeScheme;
+        return options.get(HTTP_CHALLENGE_SCHEME);
     }
 
     @Override
     public String[] getHttpHeaders() {
-        return httpHeaders;
+        String headers = options.get(HTTP_HEADERS);
+        if (headers != null) {
+            return headers.split(",");
+        }
+        return null;
     }
 
     @Override
     public String[] getHttpQueryParameters() {
-        return httpQueryParameters;
+        String queryParams = options.get(HTTP_QUERY_PARAMETERS);
+        if (queryParams != null) {
+            return queryParams.split(",");
+        }
+        return null;
     }
 
     @Override
     public String[] getHttpCookieNames() {
-        return httpCookieNames;
+        String cookieNames = options.get(HTTP_COOKIE_NAMES);
+        if (cookieNames != null) {
+            return cookieNames.split(",");
+        }
+        return null;
     }
 
     @Override
     public String getAuthorizationMode() {
-        return authorizationMode;
+        return resolveAuthorizationMode(options.get(HTTP_AUTHORIZATION_MODE));
     }
 
     @Override
     public String getSessionTimeout() {
-        return sessionTimeout;
+        return options.get(SESSION_TIMEOUT);
+    }
+
+    @Override
+    public String getProperty(String name) {
+        return options.get(name);
+    }
+
+    private void parseAuthenticationType(AuthenticationType authenticationType) {
+        if (authenticationType != null) {
+            parseOptions(authenticationType.getDomNode(), options);
+        }
+    }
+
+    private void parseOptions(Node parent, Map<String, String> optionsMap) {
+        NodeList childNodes = parent.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node node = childNodes.item(i);
+            if (Node.ELEMENT_NODE == node.getNodeType()) {
+                NodeList content = node.getChildNodes();
+                String nodeValue = "";
+                for (int j = 0; j < content.getLength(); j++) {
+                    Node child = content.item(j);
+                    if (child != null) {
+                        if (child.getNodeType() == Node.TEXT_NODE) {
+                            // GatewayConfigParser skips white space so we don't need to trim. We concatenate in case
+                            // the parser coughs up text content as more than one Text node.
+                            String fragment = child.getNodeValue();
+                            if (fragment != null) {
+                                nodeValue = nodeValue + fragment;
+                            }
+                        }
+                        // Skip over other node types
+                    }
+                }
+
+                // if the option exists, convert to array
+                String currentValue = optionsMap.get(node.getLocalName());
+                if (currentValue != null) {
+                    currentValue = format("%s,%s", currentValue, nodeValue);
+                } else {
+                    currentValue = nodeValue;
+                }
+                optionsMap.put(node.getLocalName(), currentValue);
+            }
+        }
+    }
+
+    private String resolveAuthorizationMode(String authorizationMode) {
+        if (authorizationMode == null) {
+            return AUTHORIZATION_MODE_CHALLENGE;
+        } else {
+            return authorizationMode;
+        }
     }
 }
