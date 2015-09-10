@@ -21,14 +21,16 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -64,11 +66,7 @@ public class BaseFramingIT {
 
     @Before
     public void initialize() {
-        context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
     }
 
@@ -79,6 +77,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength0() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -86,7 +85,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -111,6 +117,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -120,6 +127,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength125() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -127,7 +135,13 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -155,6 +169,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -164,6 +179,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength126() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -171,7 +187,13 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -199,6 +221,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -208,6 +231,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength127() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -215,7 +239,13 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -243,6 +273,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -252,6 +283,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength128() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -259,7 +291,13 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -287,6 +325,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -296,6 +335,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength65535() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -303,7 +343,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -331,6 +378,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -340,6 +388,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoBinaryFrameWithPayloadLength65536() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -347,7 +396,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -375,6 +431,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -385,6 +442,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength0() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -392,7 +450,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -410,6 +475,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -419,6 +485,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength125() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -426,7 +493,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -444,6 +518,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -453,6 +528,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength126() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -460,7 +536,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -478,6 +561,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -487,6 +571,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength127() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -494,7 +579,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -512,6 +604,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -521,6 +614,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength128() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -528,7 +622,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -546,6 +647,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -555,6 +657,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength65535() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -562,7 +665,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -580,6 +690,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -589,6 +700,7 @@ public class BaseFramingIT {
         })
     public void shouldEchoTextFrameWithPayloadLength65536() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -596,7 +708,14 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -615,6 +734,7 @@ public class BaseFramingIT {
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 

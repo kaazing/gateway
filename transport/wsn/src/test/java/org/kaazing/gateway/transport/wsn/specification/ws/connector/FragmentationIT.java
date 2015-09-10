@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
@@ -16,7 +16,6 @@ import org.jmock.Mockery;
 import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -51,11 +50,7 @@ public class FragmentationIT {
 
     @Before
     public void initialize() {
-        context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
     }
 
@@ -66,6 +61,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendBinaryFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -115,7 +111,14 @@ public class FragmentationIT {
                     }
                 });
 
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -123,6 +126,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -132,6 +136,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -171,7 +176,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -179,6 +191,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -188,6 +201,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -227,7 +241,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -235,6 +256,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -244,6 +266,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendBinaryFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -283,7 +306,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -291,6 +321,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -300,6 +331,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendBinaryFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -339,7 +371,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -347,6 +386,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -358,6 +398,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -399,7 +440,14 @@ public class FragmentationIT {
                     }
                 });
                 oneOf(handler).messageSent(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -407,6 +455,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -418,6 +467,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithEmptyPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -459,7 +509,14 @@ public class FragmentationIT {
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -467,6 +524,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -476,6 +534,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -508,7 +567,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -516,6 +582,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -525,6 +592,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedEvenWhenNotUTF8Aligned() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -557,7 +625,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -565,6 +640,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -574,6 +650,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedAndInjectedPingPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -606,7 +683,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -614,6 +698,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -623,6 +708,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithPayloadFragmentedWithSomeEmptyFragments() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -655,7 +741,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -663,6 +756,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -672,6 +766,7 @@ public class FragmentationIT {
     public void shouldEchoServerSendTextFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -704,7 +799,14 @@ public class FragmentationIT {
                     }
                 });
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -712,6 +814,7 @@ public class FragmentationIT {
         connectFuture.awaitUninterruptibly();
         assertTrue(connectFuture.isConnected());
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -720,7 +823,7 @@ public class FragmentationIT {
         "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -728,15 +831,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -745,8 +847,8 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -754,7 +856,7 @@ public class FragmentationIT {
         "server.send.close.payload.length.2.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -762,15 +864,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -779,8 +880,8 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -788,7 +889,7 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -796,15 +897,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -813,8 +913,8 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -822,7 +922,7 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -830,15 +930,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -847,8 +946,8 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -856,7 +955,7 @@ public class FragmentationIT {
         "server.send.ping.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -864,15 +963,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -881,8 +979,8 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 
     @Test
@@ -890,7 +988,7 @@ public class FragmentationIT {
         "server.send.pong.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final AtomicReference<Throwable> reference = new AtomicReference<Throwable>();
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -898,15 +996,14 @@ public class FragmentationIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                will(new CustomAction("Capture exceptionCaught() parameters") {
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
-                        Throwable throwable = (Throwable) invocation.getParameter(1);
-                        reference.set(throwable);
+                        latch.countDown();
                         return null;
                     }
                 });
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -915,7 +1012,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
-        assertTrue(reference.get() != null);
     }
 }

@@ -8,12 +8,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.api.Invocation;
+import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -41,11 +44,7 @@ public class OpeningHandshakeIT {
 
     @Before
     public void initialize() {
-        context = new Mockery() {
-            {
-                setImposteriser(ClassImposteriser.INSTANCE);
-            }
-        };
+        context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
     }
 
@@ -80,13 +79,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnection() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -95,6 +102,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -104,13 +112,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithRandomCaseRequestHeaders() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -119,6 +135,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -128,13 +145,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithRandomCaseResponseHeaders() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -143,6 +168,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -152,13 +178,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithRequestHeaderOrigin() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -167,6 +201,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -176,13 +211,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithRequestHeaderSecWebSocketProtocol() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -192,6 +235,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -202,13 +246,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithRequestHeaderSecWebSocketExtensions() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -218,6 +270,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -228,13 +281,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWithSomeExtensionsNegotiated() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -244,6 +305,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -254,13 +316,21 @@ public class OpeningHandshakeIT {
         })
     public void shouldEstablishConnectionWhenOrderOfExtensionsNegotiatedChanged() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
             }
         });
 
@@ -270,6 +340,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 
@@ -477,18 +548,33 @@ public class OpeningHandshakeIT {
     public void shouldEstablishMultipleConnections() throws Exception {
         final IoHandler handler1 = context.mock(IoHandler.class, "handler1");
         final IoHandler handler2 = context.mock(IoHandler.class, "handler2");
+        final CountDownLatch latch = new CountDownLatch(2);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler1).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler1).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler1).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler1).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler1).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
 
                 oneOf(handler2).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler2).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler2).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                allowing(handler2).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler2).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        latch.countDown();
+                        return null;
+                    }
+                });
 
             }
         });
@@ -502,6 +588,7 @@ public class OpeningHandshakeIT {
         assertTrue(connectFuture2.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
 }
