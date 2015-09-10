@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.management.context;
 
+import java.util.Properties;
+
 import javax.annotation.Resource;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -28,7 +30,12 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.management.ManagementService;
 import org.kaazing.gateway.management.filter.ManagementFilter;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManager;
+import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataManagerInjector;
+import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringDataManagerInjectorImpl;
+import org.kaazing.gateway.management.monitoring.service.impl.MonitoredServiceImpl;
 import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -36,15 +43,31 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototype {
 
     private ManagementContext managementContext;
+    private Properties configuration;
+    private MonitoringDataManager monitoringDataManager;
 
     @Resource(name = "managementContext")
     public void setManagementContext(ManagementContext managementContext) {
         this.managementContext = managementContext;
     }
 
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
+
     @Override
     public void startingGateway() {
         managementContext.createGatewayManagementBean();
+        MonitoringDataManagerInjector injector = new MonitoringDataManagerInjectorImpl(configuration);
+        monitoringDataManager = injector.makeMonitoringDataManager();
+    }
+
+    @Override
+    public void initingService(ServiceContext serviceContext) {
+        MonitoringEntityFactory monitoringEntityFactory =
+                monitoringDataManager.addService(new MonitoredServiceImpl(serviceContext));
+        serviceContext.setMonitoringFactory(monitoringEntityFactory);
     }
 
     /**
@@ -69,8 +92,13 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     }
 
     @Override
+    public void destroyedService(ServiceContext serviceContext) {
+        serviceContext.getMonitoringFactory().close();
+    }
+
+    @Override
     public void stoppedGateway() {
-        managementContext.close();
+        monitoringDataManager.close();
     }
 
     private void addSessionInitializer(Service service, ServiceContext serviceContext) {

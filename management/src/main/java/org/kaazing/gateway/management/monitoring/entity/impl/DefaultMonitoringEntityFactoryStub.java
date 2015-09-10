@@ -21,8 +21,8 @@
 
 package org.kaazing.gateway.management.monitoring.entity.impl;
 
-import org.kaazing.gateway.management.monitoring.entity.LongMonitoringCounter;
-import org.kaazing.gateway.management.monitoring.entity.factory.MonitoringEntityFactory;
+import org.kaazing.gateway.service.LongMonitoringCounter;
+import org.kaazing.gateway.service.MonitoringEntityFactory;
 
 public class DefaultMonitoringEntityFactoryStub implements MonitoringEntityFactory {
 

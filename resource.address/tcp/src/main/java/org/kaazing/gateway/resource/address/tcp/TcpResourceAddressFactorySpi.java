@@ -226,12 +226,6 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
         super.setOptions(address, options, qualifier);
 
-        // note:  need to propagate bind address and network context,
-        //        you might think they are already handled during address creation
-        //        but in fact due to dynamic creation of WSR RTMP addresses they should be propagated
-        //        so that the new TCP layer can know about rtmp/1.0, the bind address and the network context
-        //        because we need to map addresses, bind properly for the WSR RTMP tcp transport layer.
-
         address.setOption0(BIND_ADDRESS, options.getOption(BIND_ADDRESS));
         address.setOption0(MAXIMUM_OUTBOUND_RATE, options.getOption(MAXIMUM_OUTBOUND_RATE));
     }

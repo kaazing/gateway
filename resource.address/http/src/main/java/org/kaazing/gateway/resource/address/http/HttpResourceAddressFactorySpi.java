@@ -89,11 +89,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
 
         RESOURCE_FACTORIES_BY_KEY.put("wse/1.0",
                                       insecureAlternateResourceFactories);
-        RESOURCE_FACTORIES_BY_KEY.put("wsr/1.0",
-                                      insecureAlternateResourceFactories);
         RESOURCE_FACTORIES_BY_KEY.put("wse/1.0 secure",
-                                      secureAlternateResourceFactories);
-        RESOURCE_FACTORIES_BY_KEY.put("wsr/1.0 secure",
                                       secureAlternateResourceFactories);
     }
 

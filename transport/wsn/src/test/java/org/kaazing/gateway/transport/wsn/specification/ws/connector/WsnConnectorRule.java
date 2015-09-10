@@ -4,6 +4,10 @@
 
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
 
+import static java.util.Arrays.asList;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +41,6 @@ public class WsnConnectorRule implements TestRule {
     private ResourceAddressFactory addressFactory;
     private WsnConnector wsnConnector;
 
-
     @Override
     public Statement apply(Statement base, Description description) {
         return new ConnectorStatement(base);
@@ -53,9 +56,27 @@ public class WsnConnectorRule implements TestRule {
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
         }
-        final ResourceAddress connectAddress =
+
+        ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(URI.create(connect), connectOptions);
 
+        return wsnConnector.connect(connectAddress, connectHandler, null);
+    }
+
+    public ConnectFuture connect(String connect, String[] protocols, String[] extensions, IoHandler connectHandler)
+            throws InterruptedException {
+        Map<String, Object> connectOptions = new HashMap<>();
+
+        if (protocols != null) {
+            connectOptions.put(SUPPORTED_PROTOCOLS.name(), protocols);
+        }
+
+        if (extensions != null) {
+            connectOptions.put(EXTENSIONS.name(), asList(extensions));
+        }
+
+        ResourceAddress connectAddress =
+                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
 
@@ -113,6 +134,4 @@ public class WsnConnectorRule implements TestRule {
         }
 
     }
-
-
 }
