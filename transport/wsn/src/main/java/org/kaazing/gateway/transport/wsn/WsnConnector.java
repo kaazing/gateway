@@ -550,6 +550,9 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 }
             }
 
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            wsnSession.setCloseException(cause);
+
             session.close(true);
 
             ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.remove(session);

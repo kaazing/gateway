@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -173,5 +173,4 @@ public class BaseFramingIT {
     public void shouldEchoTextFrameWithPayloadLength65536() throws Exception {
         k3po.finish();
     }
-
 }

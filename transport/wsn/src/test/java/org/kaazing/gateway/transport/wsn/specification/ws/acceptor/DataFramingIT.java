@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -31,15 +30,13 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 /**
- * RFC-6455
- * section 5.1 "Overview"
- * section 5.3 "Client-to-Server Masking"
+ * RFC-6455, section 5.6 "Data Frames"
  */
-public class MaskingIT {
+public class DataFramingIT {
 
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/masking");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/data");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private final GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
@@ -60,42 +57,45 @@ public class MaskingIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-/*
- *  Client-only Tests
- *
-    @Test
-    @Specification({
-        "server.send.masked.text/handshake.request.and.frame",
-        "server.send.masked.text/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendsMaskWithTextFrame() throws Exception {
-        k3po.finish();
-    }
+    // TODO: invalid UTF-8 in text frame (opcode 0x01) RFC-6455, section 8.1
 
     @Test
     @Specification({
-        "server.send.masked.binary/handshake.request.and.frame",
-        "server.send.masked.binary/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendsMaskWithBinaryFrame() throws Exception {
-        k3po.finish();
-    }
-*/
-
-    @Test
-    @Ignore("Read value for client differs from expected.")
-    @Specification({
-        "send.text.payload.not.masked/handshake.request.and.frame"
+        "client.send.opcode.0x03/handshake.request.and.frame"
         })
-    public void shouldFailWebSocketConnectionWhenSendTextFrameNotMasked() throws Exception {
+    public void shouldFailWebSocketConnectionWhenClientSendOpcode3Frame() throws Exception {
         k3po.finish();
     }
 
     @Test
-    @Ignore("Read value for client differs from expected.")
     @Specification({
-        "send.binary.payload.not.masked/handshake.request.and.frame"
+        "client.send.opcode.0x04/handshake.request.and.frame"
         })
-    public void shouldFailWebSocketConnectionWhenSendBinaryFrameNotMasked() throws Exception {
+    public void shouldFailWebSocketConnectionWhenClientSendOpcode4Frame() throws Exception {
         k3po.finish();
     }
 
+    @Test
+    @Specification({
+        "client.send.opcode.0x05/handshake.request.and.frame"
+        })
+    public void shouldFailWebSocketConnectionWhenClientSendOpcode5Frame() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({
+        "client.send.opcode.0x06/handshake.request.and.frame"
+        })
+    public void shouldFailWebSocketConnectionWhenClientSendOpcode6Frame() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({
+        "client.send.opcode.0x07/handshake.request.and.frame"
+        })
+    public void shouldFailWebSocketConnectionWhenClientSendOpcode7Frame() throws Exception {
+        k3po.finish();
+    }
 }
