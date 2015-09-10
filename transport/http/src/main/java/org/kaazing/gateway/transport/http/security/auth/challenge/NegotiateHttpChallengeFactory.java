@@ -51,7 +51,13 @@ public class NegotiateHttpChallengeFactory extends HttpChallengeFactoryAdapter {
             builder.append(AUTH_SCHEME_APPLICATION_PREFIX);
         }
         builder.append(getAuthenticationScheme());
-        if (application && authConnect != null) { // Use authentication-connect URI for Application Negotiate
+        String gssData = null;
+        if ( params != null && params.length == 1) {
+             gssData = (String) params[0];
+        }
+        if (gssData != null) {
+            builder.append(' ').append(gssData);
+        } else if (application && authConnect != null) { // Use authentication-connect URI for Application Negotiate
             builder.append(' ').append(authConnect);
             if (authIdentifier != null) {
                 builder.append(' ').append(authIdentifier); // Use authentication-identified if one is specified

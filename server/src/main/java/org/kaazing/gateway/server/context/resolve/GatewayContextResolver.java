@@ -933,6 +933,10 @@ public class GatewayContextResolver {
                             authType.getHttpCookieArray(),
                             resolveAuthorizationMode(authType.getAuthorizationMode()),
                             authType.getSessionTimeout());
+                    if (AuthenticationType.HttpChallengeScheme.APPLICATION_NEGOTIATE.equals(authType.getHttpChallengeScheme())) {
+                        LOGGER.warn("Setting http-challenge-scheme to \"Application Negotiate\" is deprecated. Use \"Negotiate\""
+                                + "instead. See \"http-challenge-scheme\" in the documentation for more information.");
+                    }
                 }
 
                 LoginModuleType[] loginModulesArray =
