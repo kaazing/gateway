@@ -135,6 +135,7 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -187,6 +188,7 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -239,6 +241,7 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
@@ -291,6 +294,7 @@ public class BaseFramingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
                 allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(new CustomAction("Latch countdown") {
                     @Override
                     public Object invoke(Invocation invocation) throws Throwable {
