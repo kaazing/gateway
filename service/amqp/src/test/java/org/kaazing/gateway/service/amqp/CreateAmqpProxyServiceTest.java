@@ -35,7 +35,7 @@ public class CreateAmqpProxyServiceTest {
 
     @Test
     public void createTestService() {
-                ServiceFactory factory = ServiceFactory.newServiceFactory();
+        ServiceFactory factory = ServiceFactory.newServiceFactory();
         Service amqpProxyService = factory.newService("amqp.proxy");
 
         Assert.assertNotNull("Failed to create amqp.proxy service", amqpProxyService);

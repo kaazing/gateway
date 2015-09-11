@@ -40,7 +40,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private Suppressible<String> _httpChallengeScheme;
     private Suppressible<String> _authorizationMode;
     private Suppressible<String> _sessionTimeout;
-    private Map<String, Suppressible<String>> _extendedProperties = new HashMap<String, Suppressible<String>>();
+    private Map<String, Suppressible<String>> _extendedProperties = new HashMap<>();
     private final List<Suppressible<String>> httpHeaders = new ArrayList<>();
     private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
     private final List<Suppressible<String>> httpCookies = new ArrayList<>();
