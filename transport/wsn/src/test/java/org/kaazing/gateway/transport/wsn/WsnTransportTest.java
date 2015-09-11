@@ -21,8 +21,10 @@
 
 package org.kaazing.gateway.transport.wsn;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.util.Collections;
@@ -57,11 +59,11 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnTransportTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule cain = createRuleChain(30, SECONDS);
+
 
     private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
 
@@ -151,7 +153,7 @@ public class WsnTransportTest {
 	}
 
 
-    @Test // (timeout = 30000)
+    @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
         URI location = URI.create("ws://localhost:8000/echo");
@@ -209,7 +211,6 @@ public class WsnTransportTest {
     }
 
     @Test
-    // (timeout = 30000)
     public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
         URI location = URI.create("wsn://localhost:8000/echo");
@@ -264,7 +265,7 @@ public class WsnTransportTest {
         // "sessionClosed did not fire on the acceptor");
     }
 
-    public static void waitForLatch(CountDownLatch l,
+    private static void waitForLatch(CountDownLatch l,
                                     final int delay,
                                     final TimeUnit unit,
                                     final String failureMessage)

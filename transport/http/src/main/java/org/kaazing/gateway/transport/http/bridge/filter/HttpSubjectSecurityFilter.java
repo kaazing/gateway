@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
 
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
@@ -43,7 +44,9 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.TypedCallbackHandlerMap;
 import org.kaazing.gateway.security.auth.DefaultLoginResult;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.security.auth.token.DefaultAuthenticationToken;
+import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -138,7 +141,18 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
 
         if ( realmName == null ) {
-            setUnprotectedLoginContext(session);
+            ResultAwareLoginContext loginContext = null;
+            // Make sure we propagate the login context from the layer below in httpxe case
+            if (session instanceof DefaultHttpSession) {
+                loginContext = ((DefaultHttpSession)session).getLoginContext();
+            }
+            if (loginContext != null) {
+                httpRequest.setLoginContext(loginContext);
+            }
+            else {
+                setUnprotectedLoginContext(httpRequest);
+            }
+
             if (loggerIsEnabled) {
                 logger.trace("HttpSubjectSecurityFilter skipped because no realm is configured.");
             }
@@ -335,14 +349,13 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         ResourceAddress httpAddress = httpRequest.getLocalAddress();
 
         String realmName = httpAddress.getOption(HttpResourceAddress.REALM_NAME);
-        String realmAuthorizationMode = httpAddress.getOption(HttpResourceAddress.REALM_AUTHORIZATION_MODE);
         String realmChallengeScheme = httpAddress.getOption(HttpResourceAddress.REALM_CHALLENGE_SCHEME);
 
         if ( alreadyLoggedIn(session, httpAddress)) {
             // KG-3232, KG-3267: we should never leave the login context unset
             // for unprotected services.
-            if (LOGIN_CONTEXT_KEY.get(session) == null) {
-                setUnprotectedLoginContext(session);
+            if (httpRequest.getLoginContext() == null) {
+                setUnprotectedLoginContext(httpRequest);
             }
             if (loggerIsEnabled) {
                 logger.trace("HttpSubjectSecurityFilter skipped because we are already allowed or logged in.");
@@ -353,7 +366,7 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         }
 
         if ( realmName == null ) {
-            setUnprotectedLoginContext(session);
+            setUnprotectedLoginContext(httpRequest);
             if (loggerIsEnabled) {
                 logger.trace("HttpSecurityStandardFilter skipped because no realm is configured.");
             }

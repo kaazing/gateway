@@ -34,4 +34,6 @@ public interface AuthenticationContext {
      String getAuthorizationMode();
 
      String getSessionTimeout();
+
+     String getProperty(String name);
 }

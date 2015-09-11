@@ -19,35 +19,28 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.http;
+package org.kaazing.gateway.transport.ws.extension;
 
-import java.net.URI;
-
-import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
-import org.kaazing.gateway.transport.CommitFuture;
-import org.kaazing.gateway.transport.UpgradeFuture;
 
-public interface HttpAcceptSession extends HttpSession {
+/**
+ * This interface provides methods which can be used within extension filters.
+ */
+public interface ExtensionHelper {
 
-    void setStatus(HttpStatus status);
+    /**
+     * Signal re-authentication on the WebSocket connection
+     * @param session        transport session on whose filter chain the WebSocket frames flow
+     * @param loginContext   the new authenticated login context
+     */
+    void setLoginContext(IoSession session, ResultAwareLoginContext loginContext);
 
-    void setReason(String reason);
-
-    void setMethod(HttpMethod method);
-
-    ResultAwareLoginContext getLoginContext();
-
-    URI getServicePath();
-
-    URI getPathInfo();
-
-    UpgradeFuture upgrade(IoHandler handler);
-
-    UpgradeFuture getUpgradeFuture();
-
-    CommitFuture getCommitFuture();
-
-    CommitFuture commit();
+    /**
+     * Close the WebSocket connection associated with the given transport session.
+     * Also cleans up any login context state that should be cleaned up.
+     * @param session    transport session on whose filter chain the WebSocket frames flow
+     */
+    void closeWebSocketConnection(IoSession session);
 
 }
