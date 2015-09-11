@@ -67,7 +67,7 @@ To Configure the HTTP Challenge Scheme
 
 4.  Save `gateway-config.xml`.
 
-The Gateway matches the <span class="brush: js; highlight: [6]; toolbar: false;">*gateway.hostname*</span> for this domain to look up the authentication scheme. The Gateway uses the cookie name defined by `http-cookie` element as the authentication token to log in. The cookie value become accessible in the login module that reads the cookies using the `AuthenticationToken` class.
+The Gateway matches the *gateway.hostname* for this domain to look up the authentication scheme. The Gateway uses the cookie name defined by `http-cookie` element as the authentication token to log in. The cookie value become accessible in the login module that reads the cookies using the `AuthenticationToken` class.
 
 Notes
 -----
