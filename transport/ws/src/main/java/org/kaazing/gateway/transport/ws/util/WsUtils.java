@@ -125,7 +125,7 @@ public class WsUtils {
             // No codec, add at start of filter chain
             for (WebSocketExtension extension: extensions) {
                 IoFilter filter;
-                if ((filter = extension.getFilter(helper)) != null) {
+                if ((filter = extension.getFilter()) != null) {
                     filterChain.addFirst(extension.getExtensionHeader().getExtensionToken(), filter);
                 }
             }
@@ -140,7 +140,7 @@ public class WsUtils {
                 // We must add the extensions starting with the closest to the network, that is, in reverse order
                 for (WebSocketExtension extension : extensions) {
                     IoFilter filter;
-                    if ((filter = extension.getFilter(helper)) != null) {
+                    if ((filter = extension.getFilter()) != null) {
                         filterChain.addAfter(entry.getName(), extension.getExtensionHeader().getExtensionToken(), filter);
                     }
                 }
@@ -332,9 +332,9 @@ public class WsUtils {
                                                         WsResourceAddress address,
                                                         List<String> requestedExtensions,
                                                         HttpAcceptSession session,
-                                                        String extendionsHeaderName)
+                                                        String extendionsHeaderName, ExtensionHelper extensionHelper)
         throws ProtocolException {
-            List<WebSocketExtension> negotiated = factory.negotiateWebSocketExtensions(address, requestedExtensions);
+            List<WebSocketExtension> negotiated = factory.negotiateWebSocketExtensions(address, requestedExtensions, extensionHelper);
             for (WebSocketExtension extension : negotiated) {
                 session.addWriteHeader(extendionsHeaderName, extension.getExtensionHeader().toString());
             }

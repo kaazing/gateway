@@ -37,7 +37,8 @@ public final class PingPongExtension extends WebSocketExtension {
 
     private final ExtensionHeader extension;
 
-    public PingPongExtension(ExtensionHeader extension) {
+    public PingPongExtension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+        super(extensionHelper);
         this.extension = new ExtensionHeaderBuilder(extension).append(
                 new ExtensionParameterBuilder(Utils.toHex(CONTROL_BYTES))).done();
     }
@@ -48,7 +49,7 @@ public final class PingPongExtension extends WebSocketExtension {
     }
 
     @Override
-    public IoFilter getFilter(ExtensionHelper helper) {
+    public IoFilter getFilter() {
         return new PingPongFilter();
     };
 

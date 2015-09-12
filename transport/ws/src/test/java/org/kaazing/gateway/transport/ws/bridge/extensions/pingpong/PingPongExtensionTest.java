@@ -25,9 +25,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.mina.core.filterchain.IoFilter;
+import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
@@ -39,15 +41,28 @@ import org.kaazing.gateway.util.Utils;
 */
 public class PingPongExtensionTest {
     private static final String extensionName = "x-kaazing-ping-pong";
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            throw new RuntimeException("Not expected to be called");
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            throw new RuntimeException("Not expected to be called");
+        }
+    };
 
     private ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
     
     @Rule
     public JUnitRuleMockery context = new  JUnitRuleMockery();
 
+
     @Test
     public void shouldAddControlBytesParameter() throws Exception {
-        PingPongExtension extension = new PingPongExtension(requested);
+        PingPongExtension extension = new PingPongExtension(requested, extensionHelper);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Utils.toHex(PingPongExtension.CONTROL_BYTES), extension.getExtensionHeader().getParameters().get(0).getName());
     }
@@ -55,8 +70,8 @@ public class PingPongExtensionTest {
     @Test
     public void shouldCreateIdleTimeoutFilter() {
         final ExtensionHelper extensionHelper = context.mock(ExtensionHelper.class);
-        PingPongExtension extension = new PingPongExtension(requested);
-        IoFilter filter = extension.getFilter(extensionHelper);
+        PingPongExtension extension = new PingPongExtension(requested, extensionHelper);
+        IoFilter filter = extension.getFilter();
         assertTrue(filter instanceof PingPongFilter);
     }
 

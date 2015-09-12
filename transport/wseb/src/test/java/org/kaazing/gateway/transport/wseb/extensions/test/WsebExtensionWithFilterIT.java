@@ -84,15 +84,16 @@ public class WsebExtensionWithFilterIT {
         }
 
         @Override
-        public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
-            return new Extension(header);
+        public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
+            return new Extension(header, extensionHelper);
         }
     }
 
     public static class Extension extends WebSocketExtension  {
         private final ExtensionHeader extension;
 
-        public Extension(ExtensionHeader extension) {
+        public Extension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+            super(extensionHelper);
             this.extension = extension;
         }
 
@@ -102,7 +103,7 @@ public class WsebExtensionWithFilterIT {
         }
 
         @Override
-        public IoFilter getFilter(ExtensionHelper helper) {
+        public IoFilter getFilter() {
             return new ExtensionFilter();
         };
     }

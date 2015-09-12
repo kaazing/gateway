@@ -1123,7 +1123,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     try {
                         negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                 webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION, extensionHelper);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1332,7 +1332,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     try {
                         negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                 webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                                session, HEADER_SEC_WEBSOCKET_EXTENSION);
+                                session, HEADER_SEC_WEBSOCKET_EXTENSION, extensionHelper);
                     }
                     catch(ProtocolException e) {
                         handleExtensionNegotiationException(session, clientRequestedExtensions, e);
@@ -1509,7 +1509,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                    try {
                        negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                                webSocketExtensionFactory, (WsResourceAddress) wsLocalAddress, clientRequestedExtensions,
-                               session, HEADER_X_WEBSOCKET_EXTENSIONS);
+                               session, HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
                    }
                    catch(ProtocolException e) {
                        handleExtensionNegotiationException(session, clientRequestedExtensions, e);

@@ -568,7 +568,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             try {
                 negotiated = WsUtils.negotiateExtensionsAndSetResponseHeader(
                         webSocketExtensionFactory, (WsResourceAddress) wseLocalAddress, clientRequestedExtensions,
-                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS);
+                        session, WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS, extensionHelper);
             }
             catch(ProtocolException e) {
                 WsUtils.handleExtensionNegotiationException(session, clientRequestedExtensions, e, logger);

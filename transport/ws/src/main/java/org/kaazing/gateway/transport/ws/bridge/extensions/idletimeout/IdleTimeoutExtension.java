@@ -34,7 +34,8 @@ public final class IdleTimeoutExtension extends WebSocketExtension  {
     private final long idleTimeoutMillis;
     private final ExtensionHeader extension;
 
-    public IdleTimeoutExtension(ExtensionHeader extension, long idleTimeoutMillis) {
+    public IdleTimeoutExtension(ExtensionHeader extension, ExtensionHelper extensionHelper, long idleTimeoutMillis) {
+        super(extensionHelper);
         this.idleTimeoutMillis = idleTimeoutMillis;
         this.extension = new ExtensionHeaderBuilder(extension).append(
                 new ExtensionParameterBuilder(IDLE_TIMEOUT_TIMEOUT_PARAM, Long.toString(idleTimeoutMillis)))
@@ -47,7 +48,7 @@ public final class IdleTimeoutExtension extends WebSocketExtension  {
     }
 
     @Override
-    public IoFilter getFilter(ExtensionHelper helper) {
+    public IoFilter getFilter() {
         return new IdleTimeoutFilter(idleTimeoutMillis);
     };
 

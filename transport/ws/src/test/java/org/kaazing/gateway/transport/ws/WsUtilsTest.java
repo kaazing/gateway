@@ -290,14 +290,14 @@ public class WsUtilsTest {
                 oneOf(filter1).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(filter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(filter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
-                oneOf(extension1).getFilter(helper); will(returnValue((null)));
-                oneOf(extension2).getFilter(helper); will(returnValue((extensionFilter2)));
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
                 oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
                 oneOf(extensionFilter2).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(extensionFilter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(extensionFilter3).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(extensionFilter3).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
-                oneOf(extension3).getFilter(helper); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
                 oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
                 oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
                 oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
@@ -345,8 +345,8 @@ public class WsUtilsTest {
 
         context.checking(new Expectations() {
             {
-                oneOf(extension1).getFilter(helper); will(returnValue((null)));
-                oneOf(extension2).getFilter(helper); will(returnValue((extensionFilter2)));
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
                 oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
                 oneOf(filter1).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(filter1).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
@@ -356,7 +356,7 @@ public class WsUtilsTest {
                 oneOf(extensionFilter2).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(extensionFilter3).onPreAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
                 oneOf(extensionFilter3).onPostAdd(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
-                oneOf(extension3).getFilter(helper); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
                 oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
                 oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
                 oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
@@ -383,13 +383,13 @@ public class WsUtilsTest {
 
         context.checking(new Expectations() {
             {
-                oneOf(extension1).getFilter(extensionHelper); will(returnValue((null)));
-                oneOf(extension2).getFilter(extensionHelper); will(returnValue((extensionFilter2)));
+                oneOf(extension1).getFilter(); will(returnValue((null)));
+                oneOf(extension2).getFilter(); will(returnValue((extensionFilter2)));
                 oneOf(extension1).getExtensionHeader(); will(returnValue(extensionHeader1));
                 oneOf(extensionHeader1).getExtensionToken(); will(returnValue(("extension1")));
                 oneOf(extension2).getExtensionHeader(); will(returnValue(extensionHeader2));
                 oneOf(extensionHeader2).getExtensionToken(); will(returnValue(("extension2")));
-                oneOf(extension3).getFilter(extensionHelper); will(returnValue((extensionFilter3)));
+                oneOf(extension3).getFilter(); will(returnValue((extensionFilter3)));
                 oneOf(extension3).getExtensionHeader(); will(returnValue(extensionHeader3));
                 oneOf(extensionHeader3).getExtensionToken(); will(returnValue(("extension3")));
                 oneOf(extensionFilter2).onPreRemove(with(filterChain), with(any(String.class)), with(any(NextFilter.class)));
