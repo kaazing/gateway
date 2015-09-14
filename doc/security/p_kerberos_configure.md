@@ -67,7 +67,7 @@ Notes
 -------------------------
 
 -   Previous versions of the Gateway supported the `Application Negotiate` challenge scheme. `Application Negotiate` has been deprecated. If you are migrating a Gateway configuration that uses `Application Negotiate`, change the scheme to `Negotiate`.
--   For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
+-   For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [For Developers](../index.md) documentation on the table of contents.
 
 See Also
 ------------------------------
