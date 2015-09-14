@@ -65,7 +65,7 @@ Notes
 -----
 
 -   If you choose to use `Application Token`, you must also create a custom token or HTTP cookies for the Gateway to use to challenge the client, and a custom-written challenge handler and/or login handler that the client can use to generate the expected token or cookie value.
--   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [Howto](../index.md) documentation for developers.
+-   After you configure the Gateway, ensure your clients are also configured for Kerberos. For information on creating KAAZING Gateway client Kerberos challenge handlers, see the [For Developers](../index.md) documentation on the table of contents.
 
 See Also
 ------------------------------
