@@ -169,7 +169,7 @@ public abstract class AbstractTrafficControlTest {
     }
 
     private int read(IoSession session) throws Exception {
-        int pos = ((Integer) session.getAttribute("pos")).intValue();
+        int pos = (Integer) session.getAttribute("pos");
         for (int i = 0; i < 10 && pos == getReceived(session).length(); i++) {
             Object lock = session.getAttribute("lock");
             lock.wait(200);
@@ -181,7 +181,7 @@ public abstract class AbstractTrafficControlTest {
     }
 
     private boolean canRead(IoSession session) throws Exception {
-        int pos = ((Integer) session.getAttribute("pos")).intValue();
+        int pos = (Integer) session.getAttribute("pos");
         Object lock = session.getAttribute("lock");
         lock.wait(250);
         String received = getReceived(session);

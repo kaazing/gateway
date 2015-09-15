@@ -380,13 +380,7 @@ public class DefaultClusterContextTest {
         try {
             t.get(30, TimeUnit.SECONDS); // increased from 15, because sometimes get timeout on heavily loaded machine
             // (see note in KG-6045)
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-            fail("Could not start cluster context : " + e);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            fail("Could not start cluster context : " + e);
-        } catch (ExecutionException e) {
+        } catch (TimeoutException | ExecutionException | InterruptedException e) {
             e.printStackTrace();
             fail("Could not start cluster context : " + e);
         }

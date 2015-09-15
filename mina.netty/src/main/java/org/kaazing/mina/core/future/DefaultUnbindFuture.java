@@ -63,7 +63,7 @@ public class DefaultUnbindFuture extends DefaultIoFuture implements UnbindFuture
     @Override
     public boolean isUnbound() {
         if (isDone() && getException() == null) {
-            return ((Boolean) getValue()).booleanValue();
+            return (Boolean) getValue();
         } else {
             return false;
         }
@@ -131,7 +131,7 @@ public class DefaultUnbindFuture extends DefaultIoFuture implements UnbindFuture
         @Override
         public boolean isUnbound() {
             if (isDone() && getException() == null) {
-                return ((Boolean) getValue()).booleanValue();
+                return (Boolean) getValue();
             } else {
                 return false;
             }
