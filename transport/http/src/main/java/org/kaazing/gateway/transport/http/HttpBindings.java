@@ -90,32 +90,10 @@ public class HttpBindings extends Bindings<HttpBinding> {
         if (httpBinding != null) {
             URI location = address.getResource();
             String path = location.getPath();
-
-            Binding httpBinding2 = httpBinding.get(path);
-            if (httpBinding2 != null) {
-                ResourceAddress boundAddress = httpBinding2.bindAddress();
-                ResourceAddress boundAddressFloor = getFloorTransport(boundAddress);
-                ResourceAddress sourceAddressFloor = getFloorTransport(address);
-
-                URI sourceAddressURI = sourceAddressFloor.getResource();
-                while (boundAddressFloor != null) {
-                    if (sourceAddressURI.equals(boundAddressFloor.getResource())) {
-                        return httpBinding2;
-                    }
-                    boundAddressFloor = boundAddressFloor.getOption(ALTERNATE);
-                }
-            }
+            return httpBinding.get(path);
         }
         
         return null;
-    }
-
-    private ResourceAddress getFloorTransport(ResourceAddress boundAddress) {
-        if(boundAddress.getTransport() == null){
-            return boundAddress;
-        }
-        return getFloorTransport(boundAddress.getTransport());
-        
     }
 
     @Override

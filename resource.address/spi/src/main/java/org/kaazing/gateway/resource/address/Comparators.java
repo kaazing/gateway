@@ -81,7 +81,7 @@ public final class Comparators {
     }
 
     public static <T> Comparator<T> compareNonNull(Comparator<T> comparator) {
-        return new NonNullComparator<>(comparator);
+        return new NonNullComparator<T>(comparator);
     }
 
     public static <T extends Comparable<T>> Comparator<T> compareComparable(Class<T> clazz) {
@@ -192,22 +192,34 @@ public final class Comparators {
         
     }
 
+    private static ResourceAddress getFloorTransport(ResourceAddress address) {
+        assert address != null;
+
+        ResourceAddress transport;
+        while((transport = address.getTransport()) != null) {
+            address = transport;
+        }
+        return address;
+    }
+
     private static final class ResourceOriginAndProtocolStackComparator implements Comparator<ResourceAddress> {
 
         @Override
         public int compare(ResourceAddress addr1, ResourceAddress addr2) {
-            
+
             int compareOrigin = ORIGIN_COMPARATOR.compare(addr1, addr2);
             if (compareOrigin != 0) {
                 return compareOrigin;
             }
-            
+
             int compareNextProtocol = PROTOCOL_STACK_COMPARATOR.compare(addr1, addr2);
             if (compareNextProtocol != 0) {
                 return compareNextProtocol;
             }
-            
-            return 0;
+
+            ResourceAddress floor1 = getFloorTransport(addr1);
+            ResourceAddress floor2 = getFloorTransport(addr2);
+            return ORIGIN_PATH_ALTERNATES_AND_PROTOCOL_STACK_COMPARATOR.compare(floor1, floor2);
         }
     }
 
