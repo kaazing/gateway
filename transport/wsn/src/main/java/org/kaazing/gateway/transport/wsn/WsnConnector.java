@@ -285,105 +285,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 if ( !future.isConnected() ) {
                     wsnConnectFuture.setException(future.getException());
                 }
-                else {
-                    // (KG-5691) fail bridge connect future if we get an unexpected HTTP response code
-                    // (like 404 not found)
-                    IoSession httpSession = future.getSession();
-                    httpSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
-                        @Override
-                        public void operationComplete(CloseFuture future) {
-                            HttpConnectSession httpSession = (HttpConnectSession) future.getSession();
-                            HttpStatus httpStatus = httpSession.getStatus();
-                            switch (httpStatus) {
-                            case INFO_SWITCHING_PROTOCOLS:
-                                doUpgrade(httpSession);
-                                break;
-                            default:
-                                Throwable exception = new ConnectException(String.format("Unexpected HTTP response %d - %s",
-                                        httpStatus.code(), httpStatus.reason())).fillInStackTrace();
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug("WsnConnector: failing connection with exception " + exception);
-                                }
-                                wsnConnectFuture.setException(exception);
-                                break;
-                            }
-                        }
-
-                        private void doUpgrade(final HttpConnectSession httpSession) {
-                            String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
-                            if (wsAcceptHeader == null) {
-                                logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
-                                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: no Sec-WebSocket-Accept header"));
-                                return;
-                            }
-
-                            String key = httpSession.getWriteHeader("Sec-WebSocket-Key");
-                            if (!WsUtils.acceptHash(key).equals(wsAcceptHeader)) {
-                                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Accept header. " +
-                                        "Sec-WebSocket-key=%s, Sec-WebSocket-Accept=%s", key, wsAcceptHeader));
-                                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Accept header"));
-                                return;
-                            }
-
-                            final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
-                            final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
-                            final ResourceAddress wsnConnectAddress = WSN_CONNECT_ADDRESS_KEY.remove(httpSession);
-
-
-                            UpgradeFuture upgrade = httpSession.upgrade(ioBridgeHandler);
-                            upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
-                                @Override
-                                public void operationComplete(UpgradeFuture future) {
-                                    final IoSessionEx parent = (IoSessionEx) future.getSession();
-
-                                    // factory to create a new bridge session
-                                    final Callable<WsnSession> createSession = new Callable<WsnSession>() {
-                                        @Override
-                                        public WsnSession call() throws Exception {
-
-                                            Callable<WsnSession> wsnSessionFactory = new Callable<WsnSession>() {
-                                                @Override
-                                                public WsnSession call() throws Exception {
-                                                    final ResourceAddress localAddress =
-                                                            resourceAddressFactory.newResourceAddress(wsnConnectAddress,
-                                                                                                      BridgeSession.LOCAL_ADDRESS.get(httpSession));
-                                                    IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
-                                                    WsBufferAllocator wsAllocator = new WsBufferAllocator(parentAllocator);
-                                                    return new WsnSession(WsnConnector.this, getProcessor(), localAddress, wsnConnectAddress,
-                                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455, null);
-                                                }
-                                            };
-
-                                            return newSession(wsnSessionInitializer, wsnConnectFuture, wsnSessionFactory);
-                                        }
-                                    };
-
-                                    String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
-                                    // fail wsn connection if accept header is not correct
-                                    // TODO check hash
-                                    if (wsAcceptHeader == null) {
-                                        logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
-                                        wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed"));
-                                        return;
-                                    }
-
-                                    String frameType = httpSession.getReadHeader("X-Frame-Type");
-                                    if ("binary".equals(frameType)) {
-                                        parent.setAttribute(ENCODING_KEY, Encoding.BINARY);
-                                    } else if ("base64".equals(frameType)) {
-                                        parent.setAttribute(ENCODING_KEY, Encoding.BASE64);
-                                    } else {
-                                        parent.setAttribute(ENCODING_KEY, Encoding.TEXT);
-                                    }
-
-                                    WSN_SESSION_FACTORY_KEY.set(parent, createSession);
-                                    parent.setAttribute(WSN_CONNECT_ADDRESS_KEY, wsnConnectAddress);
-                                }
-                            });
-                        }
-                    });
-                }
             }
+
         };
 
         IoSessionInitializer<ConnectFuture> parentInitializer =
@@ -457,6 +360,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
                 httpSession.setWriteHeader("Origin", origin);
                 httpSession.setWriteHeader("Sec-WebSocket-Version", "13");
                 httpSession.setWriteHeader("Sec-WebSocket-Key", WsUtils.secWebSocketKey());
+                httpSession.getCloseFuture().addListener(new HttpSessionCloseListener(wsnConnectFuture));
 
                 List<String> protocols = asList(wsnConnectAddress.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS));
 
@@ -609,4 +513,101 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             }
         }
     };
+
+    private class HttpSessionCloseListener implements IoFutureListener<CloseFuture> {
+
+        private final ConnectFuture wsnConnectFuture;
+
+        HttpSessionCloseListener(ConnectFuture wsnConnectFuture) {
+            this.wsnConnectFuture = wsnConnectFuture;
+        }
+
+        @Override
+        public void operationComplete(CloseFuture future) {
+            if (wsnConnectFuture.isDone()) {
+                return;
+            }
+
+            HttpConnectSession httpSession = (HttpConnectSession) future.getSession();
+            HttpStatus httpStatus = httpSession.getStatus();
+            switch (httpStatus) {
+                case INFO_SWITCHING_PROTOCOLS:
+                    doUpgrade(httpSession);
+                    break;
+                default:
+                    Throwable exception = new ConnectException(String.format("Unexpected HTTP response %d - %s",
+                            httpStatus.code(), httpStatus.reason())).fillInStackTrace();
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("WsnConnector: failing connection with exception " + exception);
+                    }
+                    wsnConnectFuture.setException(exception);
+                    break;
+            }
+
+        }
+
+        private void doUpgrade(final HttpConnectSession httpSession) {
+            String wsAcceptHeader = httpSession.getReadHeader("Sec-WebSocket-Accept");
+            if (wsAcceptHeader == null) {
+                logger.info("WebSocket connection failed: missing Sec-WebSocket-Accept response header, does not comply with RFC 6455 - use connect options or another protocol");
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: no Sec-WebSocket-Accept header"));
+                return;
+            }
+
+            String key = httpSession.getWriteHeader("Sec-WebSocket-Key");
+            if (!WsUtils.acceptHash(key).equals(wsAcceptHeader)) {
+                logger.warn(String.format("WebSocket upgrade failed: Invalid Sec-WebSocket-Accept header. " +
+                        "Sec-WebSocket-key=%s, Sec-WebSocket-Accept=%s", key, wsAcceptHeader));
+                wsnConnectFuture.setException(new Exception("WebSocket Upgrade Failed: Invalid Sec-WebSocket-Accept header"));
+                return;
+            }
+
+            final IoSessionInitializer<? extends IoFuture> wsnSessionInitializer = WSN_SESSION_INITIALIZER_KEY.remove(httpSession);
+            final ConnectFuture wsnConnectFuture = WSN_CONNECT_FUTURE_KEY.get(httpSession);
+            final ResourceAddress wsnConnectAddress = WSN_CONNECT_ADDRESS_KEY.remove(httpSession);
+
+
+            UpgradeFuture upgrade = httpSession.upgrade(ioBridgeHandler);
+            upgrade.addListener(new IoFutureListener<UpgradeFuture>() {
+                @Override
+                public void operationComplete(UpgradeFuture future) {
+                    final IoSessionEx parent = (IoSessionEx) future.getSession();
+
+                    // factory to create a new bridge session
+                    final Callable<WsnSession> createSession = new Callable<WsnSession>() {
+                        @Override
+                        public WsnSession call() throws Exception {
+
+                            Callable<WsnSession> wsnSessionFactory = new Callable<WsnSession>() {
+                                @Override
+                                public WsnSession call() throws Exception {
+                                    final ResourceAddress localAddress =
+                                            resourceAddressFactory.newResourceAddress(wsnConnectAddress,
+                                                    BridgeSession.LOCAL_ADDRESS.get(httpSession));
+                                    IoBufferAllocatorEx<?> parentAllocator = parent.getBufferAllocator();
+                                    WsBufferAllocator wsAllocator = new WsBufferAllocator(parentAllocator);
+                                    return new WsnSession(WsnConnector.this, getProcessor(), localAddress, wsnConnectAddress,
+                                            parent, wsAllocator, httpSession.getRequestURI(), null, WebSocketWireProtocol.RFC_6455, null);
+                                }
+                            };
+
+                            return newSession(wsnSessionInitializer, wsnConnectFuture, wsnSessionFactory);
+                        }
+                    };
+
+                    String frameType = httpSession.getReadHeader("X-Frame-Type");
+                    if ("binary".equals(frameType)) {
+                        parent.setAttribute(ENCODING_KEY, Encoding.BINARY);
+                    } else if ("base64".equals(frameType)) {
+                        parent.setAttribute(ENCODING_KEY, Encoding.BASE64);
+                    } else {
+                        parent.setAttribute(ENCODING_KEY, Encoding.TEXT);
+                    }
+
+                    WSN_SESSION_FACTORY_KEY.set(parent, createSession);
+                    parent.setAttribute(WSN_CONNECT_ADDRESS_KEY, wsnConnectAddress);
+                }
+            });
+        }
+    }
 }
