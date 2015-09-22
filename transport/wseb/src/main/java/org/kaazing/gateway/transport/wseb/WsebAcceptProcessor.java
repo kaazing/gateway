@@ -76,8 +76,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
             }
         }
 
-        // Shouldn't we detach any pending writer ?
-        // session.detachPendingWriter();
+        session.detachPendingWriter();
         session.cancelTimeout();
     }
 
