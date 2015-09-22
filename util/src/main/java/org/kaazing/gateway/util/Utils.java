@@ -445,6 +445,13 @@ public final class Utils {
     }
 
     /**
+     * Converts the first character of the string to uppercase. Does NOT deal with surrogate pairs.
+     */
+    public static String initCaps(String in) {
+        return in.length() < 2 ? in.toUpperCase() : in.substring(0, 1).toUpperCase() + in.substring(1);
+    }
+
+    /**
      * Writes the contents of source to target without mutating source (so safe for
      * multithreaded access to source) and without GC (unless source is a direct buffer).
      */

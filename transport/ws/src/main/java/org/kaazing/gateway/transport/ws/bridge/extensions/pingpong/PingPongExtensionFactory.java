@@ -25,6 +25,7 @@ import java.net.ProtocolException;
 
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 
@@ -41,9 +42,9 @@ public final class PingPongExtensionFactory extends WebSocketExtensionFactorySpi
     }
 
     @Override
-    public WebSocketExtension negotiate(ExtensionHeader requestedExtension, WsResourceAddress address)
+    public WebSocketExtension negotiate(ExtensionHeader requestedExtension, ExtensionHelper extensionHelper, WsResourceAddress address)
             throws ProtocolException {
-        return new PingPongExtension(requestedExtension);
+        return new PingPongExtension(requestedExtension, extensionHelper);
     }
 
 }

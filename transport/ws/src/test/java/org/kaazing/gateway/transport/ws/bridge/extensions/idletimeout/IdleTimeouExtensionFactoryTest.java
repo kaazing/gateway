@@ -28,11 +28,14 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 
 /**
 * NOTE: this class is a "classic" unit test for the WsCloseFilter. Overall testing of websocket close
@@ -41,6 +44,18 @@ import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 public class IdleTimeouExtensionFactoryTest {
     private static final String extensionName = "x-kaazing-idle-timeout";
     private static final Long TIMEOUT = 2500L;
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            throw new RuntimeException("Not expected to be called");
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            throw new RuntimeException("Not expected to be called");
+        }
+    };
 
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
 
@@ -51,7 +66,7 @@ public class IdleTimeouExtensionFactoryTest {
         options.put("ws.inactivityTimeout", 2500L);
         WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
         IdleTimeoutExtensionFactory factory = new IdleTimeoutExtensionFactory();
-        IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, address);
+        IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, extensionHelper, address);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Long.toString(TIMEOUT), extension.getExtensionHeader().getParameters().get(0).getValue());
     }
@@ -62,7 +77,7 @@ public class IdleTimeouExtensionFactoryTest {
         Map<String, Object> options = new HashMap<>();
         WsResourceAddress address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);
         IdleTimeoutExtensionFactory factory = new IdleTimeoutExtensionFactory();
-        IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, address);
+        IdleTimeoutExtension extension = (IdleTimeoutExtension) factory.negotiate(requested, extensionHelper, address);
         assertNull(extension);
     }
 

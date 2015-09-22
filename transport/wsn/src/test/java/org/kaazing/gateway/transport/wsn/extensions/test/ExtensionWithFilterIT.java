@@ -41,6 +41,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -86,15 +87,16 @@ public class ExtensionWithFilterIT {
         }
 
         @Override
-        public WebSocketExtension negotiate(ExtensionHeader header, WsResourceAddress address) throws ProtocolException {
-            return new Extension(header);
+        public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
+            return new Extension(header, extensionHelper);
         }
     }
 
     public static class Extension extends WebSocketExtension  {
         private final ExtensionHeader extension;
 
-        public Extension(ExtensionHeader extension) {
+        public Extension(ExtensionHeader extension, ExtensionHelper extensionHelper) {
+            super(extensionHelper);
             this.extension = extension;
         }
 

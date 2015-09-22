@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,6 +45,7 @@ import javax.security.auth.Subject;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultCommitFuture;
@@ -69,9 +70,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
     private static final String DEFAULT_CACHE_KEY = "http";
     private static final String GZIPPED_CACHE_KEY = "http/gzipped";
-    
+
 	private static final String UTF_8 = "utf-8";
-	
+
     // read/write
     private final Map<String, List<String>> writeHeaders;
     private final Set<HttpCookie> writeCookies;
@@ -107,6 +108,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private final CommitFuture commitFuture;
     private final AtomicBoolean committing;
     private final AtomicBoolean connectionClose;
+    private ResultAwareLoginContext loginContext;
     private final AtomicBoolean shutdownWrite;
     private IoBufferEx readRequest;
 
@@ -114,15 +116,15 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
 	private boolean isGzipped;
 
-    private DefaultHttpSession(IoServiceEx service, 
-                               IoProcessorEx<DefaultHttpSession> processor, 
-                               ResourceAddress address, 
-                               ResourceAddress remoteAddress, 
-                               IoSessionEx parent, 
-                               IoBufferAllocatorEx<HttpBuffer> allocator, 
+    private DefaultHttpSession(IoServiceEx service,
+                               IoProcessorEx<DefaultHttpSession> processor,
+                               ResourceAddress address,
+                               ResourceAddress remoteAddress,
+                               IoSessionEx parent,
+                               IoBufferAllocatorEx<HttpBuffer> allocator,
                                Direction direction) {
         super(service, processor, address, remoteAddress, parent, allocator, direction);
-        
+
         writeHeaders = new LinkedHashMap<>();
         writeCookies = new HashSet<>();
         status = HttpStatus.SUCCESS_OK;
@@ -132,16 +134,16 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         committing = new AtomicBoolean(false);
         connectionClose = new AtomicBoolean(false);
         shutdownWrite = new AtomicBoolean(false);
-        
+
         upgradeFuture = new DefaultUpgradeFuture(parent);
         commitFuture = new DefaultCommitFuture(this);
     }
 
-    public DefaultHttpSession(IoServiceEx service, 
-                              IoProcessorEx<DefaultHttpSession> processor, 
-                              ResourceAddress address, 
-                              ResourceAddress remoteAddress, 
-                              IoSessionEx parent, 
+    public DefaultHttpSession(IoServiceEx service,
+                              IoProcessorEx<DefaultHttpSession> processor,
+                              ResourceAddress address,
+                              ResourceAddress remoteAddress,
+                              IoSessionEx parent,
                               IoBufferAllocatorEx<HttpBuffer> allocator) {
         this(service, processor, address, remoteAddress, parent, allocator, Direction.WRITE);
 
@@ -152,9 +154,9 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         }
         catch (URISyntaxException e) {
         }
-        
+
         parameters = new HashMap<>();
-        
+
         String query = requestURL.getRawQuery();
         if (query != null) {
             String[] nvPairs = query.split("&");
@@ -213,7 +215,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 		}
 		return null;
     }
-    
+
     // TODO: need to clean this up and provide some mix-in or other for param managment
     private void _addParameter(String parameterName, String parameterValue) {
         if (parameterName == null) {
@@ -225,7 +227,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         List<String> parameterValues = _getParameterValues(parameterName);
         parameterValues.add(parameterValue);
     }
-    
+
     private List<String> _getParameterValues(String parameterName) {
         List<String> parameterValues = parameters.get(parameterName);
         if (parameterValues == null) {
@@ -235,14 +237,14 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return parameterValues;
     }
     //--
-    
+
     // TODO: need to change http session direction after read is complete
-    public DefaultHttpSession(IoServiceEx service, 
-                              IoProcessorEx<DefaultHttpSession> processor, 
-                              ResourceAddress address, 
-                              ResourceAddress remoteAddress, 
-                              IoSessionEx parent, 
-                              IoBufferAllocatorEx<HttpBuffer> allocator, 
+    public DefaultHttpSession(IoServiceEx service,
+                              IoProcessorEx<DefaultHttpSession> processor,
+                              ResourceAddress address,
+                              ResourceAddress remoteAddress,
+                              IoSessionEx parent,
+                              IoBufferAllocatorEx<HttpBuffer> allocator,
                               HttpRequestMessage request,
                               URI serviceURI) {
         this(service, processor, address, remoteAddress, parent, allocator, Direction.READ);
@@ -349,7 +351,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         }
         writeHeaders.put(name, value);
     }
-    
+
     @Override
     public void setWriteHeaders(Map<String, List<String>> headers) {
         if (commitFuture.isCommitted()) {
@@ -491,29 +493,29 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     public final boolean isCommitting() {
         return committing.get() || commitFuture.isCommitted();
     }
-    
+
     public IoHandler getUpgradeHandler() {
         return upgradeHandler;
     }
-    
+
     @Override
     public UpgradeFuture getUpgradeFuture() {
         return upgradeFuture;
     }
-    
+
     @Override
     public UpgradeFuture upgrade(IoHandler handler) {
         upgradeHandler = handler;
         return upgradeFuture;
     }
-    
+
     @Override
     public CommitFuture getCommitFuture() {
         return commitFuture;
     }
 
     @Override
-    public CommitFuture commit() {        
+    public CommitFuture commit() {
         if (committing.compareAndSet(false, true)) {
             IoProcessor<DefaultHttpSession> processor = getProcessor();
             // for now handle this with an instance check. It could require an abstract processor
@@ -525,12 +527,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         }
         return commitFuture;
     }
-    
+
     @Override
     public void shutdownWrite() {
         shutdownWrite.set(true);
     }
-    
+
     public boolean isWriteShutdown() {
         return shutdownWrite.get();
     }
@@ -539,7 +541,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     public ResourceAddress getLocalAddress() {
         return super.getLocalAddress();
     }
-    
+
     @Override
     public ResourceAddress getRemoteAddress() {
         return super.getRemoteAddress();
@@ -564,19 +566,27 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 	public boolean isChunked() {
 		return this.isChunked;
 	}
-	
+
 	public void setChunked(boolean isChunked) {
 		this.isChunked = isChunked;
 	}
-	
+
 	public boolean isGzipped() {
 		return this.isGzipped;
 	}
-	
+
 	public void setGzipped(boolean isGzipped) {
 		this.isGzipped = isGzipped;
 	}
 
+    @Override
+    public ResultAwareLoginContext getLoginContext() {
+        return loginContext;
+    }
+
+	public void setLoginContext(ResultAwareLoginContext loginContext) {
+	    this.loginContext = loginContext;
+	}
 
     public boolean isChunkingNecessary() {
         // if there is no content length specified, is chunking necessary?
