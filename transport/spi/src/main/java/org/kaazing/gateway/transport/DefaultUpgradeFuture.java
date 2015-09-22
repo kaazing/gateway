@@ -34,7 +34,7 @@ public class DefaultUpgradeFuture extends DefaultIoFuture implements UpgradeFutu
     @Override
     public boolean isUpgraded() {
         if (isDone()) {
-            return ((Boolean) getValue()).booleanValue();
+            return (Boolean) getValue();
         } else {
             return false;
         }

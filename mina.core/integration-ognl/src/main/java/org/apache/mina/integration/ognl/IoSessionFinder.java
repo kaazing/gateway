@@ -77,7 +77,7 @@ public class IoSessionFinder {
             context.put(AbstractPropertyAccessor.QUERY, query);
             Object result = Ognl.getValue(expression, context, s);
             if (result instanceof Boolean) {
-                if (((Boolean) result).booleanValue()) {
+                if ((Boolean) result) {
                     answer.add(s);
                 }
             } else {

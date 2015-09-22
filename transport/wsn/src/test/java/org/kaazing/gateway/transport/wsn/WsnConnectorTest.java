@@ -75,7 +75,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 
 public class WsnConnectorTest {
     @Rule
-    public TestRule cain = createRuleChain(30, SECONDS);
+    public TestRule chain = createRuleChain(30, SECONDS);
 
     private SchedulerProvider schedulerProvider;
 

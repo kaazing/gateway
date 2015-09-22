@@ -162,7 +162,7 @@ class PingPongFilter extends WsFilterAdapter {
     }
 
     private WsTextMessage createTextMessage(IoBufferAllocatorEx<?> allocator, byte[] content) {
-        // Use FLAG_SHARED to the same message instance can be written safely multiple times
+        // Use FLAG_SHARED so the same message instance can be written safely multiple times
         ByteBuffer payload = allocator.allocate(content.length, IoBufferEx.FLAG_SHARED);
         int offset = payload.position();
         payload.put(content);

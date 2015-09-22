@@ -2,7 +2,22 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.30...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.31...HEAD)
+
+**Fixed bugs:**
+
+- sporadic failure of wsn build: WsnConnectorTest.shouldNotHangOnToHttpConnectSessionsWhenEstablishingAndTearingDownWsnConnectorSessions [\#162](https://github.com/kaazing/gateway/issues/162)
+
+**Merged pull requests:**
+
+- upgrade handler is not found during ws connect [\#328](https://github.com/kaazing/gateway/pull/328) ([jitsni](https://github.com/jitsni))
+- Gateway enhancements for improved extensibility [\#318](https://github.com/kaazing/gateway/pull/318) ([dpwspoon](https://github.com/dpwspoon))
+- change minimum required jdk version from 1.7.0\_21 to 1.8.0 [\#317](https://github.com/kaazing/gateway/pull/317) ([chao-sun-kaazing](https://github.com/chao-sun-kaazing))
+- Cleanup: remove unnecessary boxing, using multi-catch [\#304](https://github.com/kaazing/gateway/pull/304) ([jitsni](https://github.com/jitsni))
+- deprecating Application Negotiate [\#299](https://github.com/kaazing/gateway/pull/299) ([michaelcretzman](https://github.com/michaelcretzman))
+
+## [5.0.1.31](https://github.com/kaazing/gateway/tree/5.0.1.31) (2015-09-10)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.30...5.0.1.31)
 
 **Closed issues:**
 

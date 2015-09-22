@@ -21,7 +21,11 @@
 
 package org.kaazing.gateway.server.test;
 
+import static org.kaazing.gateway.util.Utils.initCaps;
+
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
@@ -186,6 +190,27 @@ public class Gateway {
             String sessionTimeout = realm.getSessionTimeout();
             if (sessionTimeout != null) {
                 authenticationType.setSessionTimeout(sessionTimeout);
+            }
+
+            // Apply any extended properties that match setter methods on the XML Bean
+            for (Entry<String, String> entry : realm.getExtendedProperties().entrySet()) {
+                if (entry.getValue() == null) {
+                    continue;
+                }
+                String[] nameParts = entry.getKey().split("-");
+                String methodName = "set" + initCaps(nameParts[0]);
+                for (int i = 1; i < nameParts.length; i++) {
+                    methodName += initCaps(nameParts[i]);
+                }
+                try {
+                    Method setter = authenticationType.getClass().getMethod(methodName, String.class);
+                    if (setter != null) {
+                        setter.invoke(authenticationType, entry.getValue());
+                    }
+                }
+                catch (NoSuchMethodException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
+                    throw new RuntimeException("Problem invoking " + methodName, e);
+                }
             }
 
             // if there are login modules initialize them
