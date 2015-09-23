@@ -26,6 +26,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.mina.core.session.IdleStatus.WRITER_IDLE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -289,7 +290,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
         protected void doSessionClosed(HttpAcceptSession session) throws Exception {
             SseSession sseSession = SSE_SESSION_KEY.remove(session);
             if (sseSession != null && !sseSession.isClosing()) {
-                sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -670,7 +671,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                 IoSession parent = sseSession.getParent();
                 if (parent == null || parent.isClosing()) {
                     // behave similarly to connection reset by peer at NIO layer
-                    sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                    sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 }
             }
         }

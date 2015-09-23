@@ -23,6 +23,7 @@ package org.kaazing.gateway.transport.sse;
 
 import static java.lang.String.format;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
@@ -256,7 +257,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
             }
         }
         else {
-            sseSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+            sseSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
         }
     }
 
