@@ -35,6 +35,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
+import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -453,7 +454,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 return;
             }
 

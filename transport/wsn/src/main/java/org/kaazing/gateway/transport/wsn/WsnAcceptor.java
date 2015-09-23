@@ -43,6 +43,7 @@ import static org.kaazing.gateway.transport.ws.util.WsUtils.negotiateWebSocketPr
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_NONE;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -715,7 +716,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                wsnSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();

@@ -30,6 +30,7 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_C
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static java.lang.String.format;
 
+import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -390,7 +391,7 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
         	if (sslSession != null) {
         	    if (!sslSession.isClosing()) {
         	        // behave similarly to connection reset by peer at NIO layer
-        	        sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+        	        sslSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
         	    }
         	}
         	else {

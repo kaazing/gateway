@@ -27,6 +27,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.transport.wsn.WsnSession.SESSION_KEY;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -477,7 +478,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
                 // TODO: require WebSocket controlled close handshake
-                wsnSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                wsnSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
             }
         }
 

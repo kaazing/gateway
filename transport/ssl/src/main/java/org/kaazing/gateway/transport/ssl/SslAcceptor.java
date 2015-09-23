@@ -73,6 +73,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Resource;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import java.io.IOException;
 import java.net.URI;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -572,7 +573,7 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                     sslSession.getProcessor().remove(sslSession);
                 } else {
                     // behave similarly to connection reset by peer at NIO layer
-                    sslSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                    sslSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 }
             }
         }

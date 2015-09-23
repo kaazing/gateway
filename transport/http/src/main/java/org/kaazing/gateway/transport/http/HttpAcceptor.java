@@ -347,7 +347,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             DefaultHttpSession httpSession = SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
-                httpSession.reset(new Exception("Early termination of IO session").fillInStackTrace());
+                httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
             }
         }
 
