@@ -125,8 +125,7 @@ public class Gateway {
 
         MBeanServer jmxMBeanServer = configuration.getJmxMBeanServer();
 
-        GatewayContextResolver resolver = new GatewayContextResolver(securityResolver, webRootDir, tempDir,
-                jmxMBeanServer);
+        GatewayContextResolver resolver = new GatewayContextResolver(securityResolver, webRootDir, tempDir, jmxMBeanServer);
         GatewayContext context = resolver.resolve(gatewayConfigDocument, asProperties(configuration.getProperties()));
         return context;
     }
@@ -170,8 +169,7 @@ public class Gateway {
 
             AuthenticationType authenticationType = newRealm.addNewAuthentication();
             if (realm.getHttpChallengeScheme() != null) {
-                authenticationType.setHttpChallengeScheme(HttpChallengeScheme.Enum.forString(realm
-                        .getHttpChallengeScheme()));
+                authenticationType.setHttpChallengeScheme(HttpChallengeScheme.Enum.forString(realm.getHttpChallengeScheme()));
             }
             for (String httpHeader : realm.getHttpHeaders()) {
                 authenticationType.addHttpHeader(httpHeader);
@@ -207,8 +205,8 @@ public class Gateway {
                     if (setter != null) {
                         setter.invoke(authenticationType, entry.getValue());
                     }
-                }
-                catch (NoSuchMethodException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalArgumentException
+                        | IllegalAccessException e) {
                     throw new RuntimeException("Problem invoking " + methodName, e);
                 }
             }
@@ -248,8 +246,7 @@ public class Gateway {
         }
     }
 
-    private void setServiceDefaults(GatewayConfig gatewayConfig,
-                                    ServiceDefaultsConfiguration serviceDefaultsConfiguration) {
+    private void setServiceDefaults(GatewayConfig gatewayConfig, ServiceDefaultsConfiguration serviceDefaultsConfiguration) {
         if (serviceDefaultsConfiguration == null) {
             return;
         }
@@ -285,13 +282,12 @@ public class Gateway {
         }
     }
 
-    private void appendAcceptOptions(ServiceAcceptOptionsType newAcceptOptions,
-                                     Map<String, String> configuredAcceptOptions) throws Exception {
+    private void appendAcceptOptions(ServiceAcceptOptionsType newAcceptOptions, Map<String, String> configuredAcceptOptions)
+            throws Exception {
         Node domNode = newAcceptOptions.getDomNode();
         Document ownerDocument = domNode.getOwnerDocument();
         for (Entry<String, String> acceptOption : configuredAcceptOptions.entrySet()) {
-            Element newElement = ownerDocument
-                    .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
+            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
             Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
@@ -322,8 +318,7 @@ public class Gateway {
         }
     }
 
-    private void appendServices(GatewayConfig newGatewayConfig, Collection<ServiceConfiguration> services)
-            throws Exception {
+    private void appendServices(GatewayConfig newGatewayConfig, Collection<ServiceConfiguration> services) throws Exception {
         // services
         for (ServiceConfiguration service : services) {
             ServiceType newService = newGatewayConfig.addNewService();
@@ -397,8 +392,7 @@ public class Gateway {
                 Node domNode = newAcceptOptions.getDomNode();
                 Document ownerDocument = domNode.getOwnerDocument();
                 for (Entry<String, String> acceptOption : acceptOptions.entrySet()) {
-                    Element newElement = ownerDocument
-                            .createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
+                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), acceptOption.getKey());
                     Text newTextNode = ownerDocument.createTextNode(acceptOption.getValue());
                     newElement.appendChild(newTextNode);
                     domNode.appendChild(newElement);
@@ -431,8 +425,7 @@ public class Gateway {
                 Node domNode = newConnectOptions.getDomNode();
                 Document ownerDocument = domNode.getOwnerDocument();
                 for (Entry<String, String> connectOption : connectOptions.entrySet()) {
-                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
-                            connectOption.getKey());
+                    Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
                     Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
                     newElement.appendChild(newTextNode);
                     domNode.appendChild(newElement);
@@ -449,8 +442,7 @@ public class Gateway {
         Node domNode = newConnectOptions.getDomNode();
         Document ownerDocument = domNode.getOwnerDocument();
         for (Entry<String, String> connectOption : connectOptions.entrySet()) {
-            Element newElement = ownerDocument
-                    .createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
+            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), connectOption.getKey());
             Text newTextNode = ownerDocument.createTextNode(connectOption.getValue());
             newElement.appendChild(newTextNode);
             domNode.appendChild(newElement);
@@ -466,8 +458,7 @@ public class Gateway {
 
         // nested properties
         for (NestedServicePropertiesConfiguration nestedProperty : service.getNestedProperties()) {
-            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
-                    nestedProperty.getConfigElementName());
+            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), nestedProperty.getConfigElementName());
             appendNestedProperties(nestedProperty, newElement, ownerDocument);
             domNode.appendChild(newElement);
         }
@@ -482,13 +473,11 @@ public class Gateway {
         }
     }
 
-    private void appendNestedProperties(NestedServicePropertiesConfiguration nestedPropertyConfig,
-                                        Node domNode,
-                                        Document ownerDocument) {
+    private void appendNestedProperties(NestedServicePropertiesConfiguration nestedPropertyConfig, Node domNode,
+        Document ownerDocument) {
         appendSimpleProperties(nestedPropertyConfig.getSimpleProperties(), domNode, ownerDocument);
         for (NestedServicePropertiesConfiguration nestedProperty : nestedPropertyConfig.getNestedProperties()) {
-            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(),
-                    nestedProperty.getConfigElementName());
+            Element newElement = ownerDocument.createElementNS(domNode.getNamespaceURI(), nestedProperty.getConfigElementName());
             appendNestedProperties(nestedProperty, newElement, ownerDocument);
         }
     }
@@ -584,6 +573,7 @@ public class Gateway {
         private KeyStore trustStore;
         private String keyStoreFile;
         private char[] trustStorePassword;
+        private String keyStoreFilePath;
 
         @SuppressWarnings("deprecation")
         SecurityContextResolver(SecurityConfiguration configuration) {
@@ -606,17 +596,20 @@ public class Gateway {
                 if (configuration.getTrustStorePassword() != null) {
                     trustStorePassword = configuration.getTrustStorePassword();
                 }
+                if (configuration.getKeyStoreFile() != null) {
+                    keyStoreFilePath = configuration.getKeyStoreFile();
+                }
+
             }
         }
 
         @Override
         public DefaultSecurityContext resolve(SecurityType config) throws Exception {
-            String keyStoreFilePath = null;
             String keyStorePasswordFile = null;
             String trustStoreFile = null;
             String trustStoreFilePath = null;
-            return new DefaultSecurityContext(keyStore, keyStoreFile, keyStoreFilePath, keyStorePassword,
-                    keyStorePasswordFile, trustStore, trustStoreFile, trustStoreFilePath, trustStorePassword);
+            return new DefaultSecurityContext(keyStore, keyStoreFile, keyStoreFilePath, keyStorePassword, keyStorePasswordFile,
+                    trustStore, trustStoreFile, trustStoreFilePath, trustStorePassword);
         }
     }
 }

@@ -21,6 +21,8 @@
 
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.kaazing.gateway.server.Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -949,8 +951,8 @@ public class GatewayContextResolver {
 
                     // add the GATEWAY_CONFIG_DIRECTORY to the options so it can be used from various login modules
                     // (see FileLoginModule for an example)
-                    options.put(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
-                            .getProperty(Gateway.GATEWAY_CONFIG_DIRECTORY_PROPERTY));
+                    options.put(GATEWAY_CONFIG_DIRECTORY_PROPERTY, configuration
+                            .getProperty(GATEWAY_CONFIG_DIRECTORY_PROPERTY));
 
                     LoginModuleOptionsType rawOptions = loginModule.getOptions();
                     if (rawOptions != null) {
