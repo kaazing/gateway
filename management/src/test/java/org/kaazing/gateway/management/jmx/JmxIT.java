@@ -111,24 +111,19 @@ public class JmxIT {
 
     @Specification("simple.echo.for.session.cnt")
     @Test
-    @Ignore("https://github.com/kaazing/gateway/issues/331")
+    // @Ignore("https://github.com/kaazing/gateway/issues/331")
     public void echoServiceCrossOriginAllow() throws Exception {
         k3po.start();
         k3po.awaitBarrier("SESSION_ESTABLISHED");
-        String attributeNames[] = {"NumberOfCurrentSessions", "NumberOfCurrentNativeSessions", "NumberOfCurrentEmulatedSessions",
-                "TotalMessageSentCount"};
         // Could do this cleaner
         MBeanServerConnection mbeanServerConn = jmxConnection.getConnection();
         Set<ObjectName> mbeanNames = mbeanServerConn.queryNames(null, null);
         String MBeanPrefix = "subtype=services,serviceType=echo";
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
-                AttributeList attrValues = mbeanServerConn.getAttributes(name, attributeNames);
-                for (int i = 0; i < attrValues.size(); i++) {
-                    if (attrValues.get(i).toString().contains("NumberOfCurrentSessions")) {
-                        assertEquals("NumberOfCurrentSessions = 1", attrValues.get(i));
-                    }
-                }
+                Long numOfCurrentSessions = (Long) mbeanServerConn.getAttribute(name, "NumberOfCurrentSessions");
+                System.out.println(numOfCurrentSessions);
+                assertEquals((Long) 1L, numOfCurrentSessions);
             }
         }
 

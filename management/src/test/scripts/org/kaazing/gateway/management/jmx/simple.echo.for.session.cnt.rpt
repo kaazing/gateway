@@ -60,3 +60,6 @@ read [0x82 0x04 0xEF 0x83 0xbf 0x4e]
 read notify SESSION_ESTABLISHED
 
 write await READ_NUM_OF_SESSIONS
+
+close
+closed
