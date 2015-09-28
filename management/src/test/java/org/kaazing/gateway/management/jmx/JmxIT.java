@@ -29,7 +29,6 @@ import java.security.KeyStore;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.management.AttributeList;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
@@ -46,11 +45,14 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
+import com.kaazing.gateway.management.test.util.JmxRule;
+import com.kaazing.gateway.management.test.util.TlsTestUtil;
+
 public class JmxIT {
 
     private static final String JMX_URI = "service:jmx:rmi:///jndi/rmi://localhost:2010/jmxrmi";
 
-    protected static final String ADMIN = "ADMINISTRATOR";
+    protected static final String ADMIN = "AUTHORIZED";
 
     private final KeyStore keyStore = TlsTestUtil.keyStore();
     private final char[] password = TlsTestUtil.password();
@@ -91,13 +93,12 @@ public class JmxIT {
                                 .description("realm for jmx")
                                 .httpChallengeScheme("Application Basic")
                                 .loginModule()
-                                    .type("file")
-                                    .success("required")
-                                    .option("file", "jaas-config.xml")
+                                    .type("class:com.kaazing.gateway.management.test.util.TestLoginModule")
+                                    .success("requisite")
                                 .done()
                             .done()
                         .done()
-                        .property(GATEWAY_CONFIG_DIRECTORY_PROPERTY, "/Users/David/Desktop/kaazing-websocket-gateway-4.0.9/conf")
+                        .property(GATEWAY_CONFIG_DIRECTORY_PROPERTY, "target")
                     .done();
             // @formatter:on
             init(configuration);
@@ -111,7 +112,7 @@ public class JmxIT {
 
     @Specification("simple.echo.for.session.cnt")
     @Test
-    // @Ignore("https://github.com/kaazing/gateway/issues/331")
+    @Ignore("https://github.com/kaazing/gateway/issues/331")
     public void echoServiceCrossOriginAllow() throws Exception {
         k3po.start();
         k3po.awaitBarrier("SESSION_ESTABLISHED");
@@ -122,7 +123,6 @@ public class JmxIT {
         for (ObjectName name : mbeanNames) {
             if (name.toString().indexOf(MBeanPrefix) > 0) {
                 Long numOfCurrentSessions = (Long) mbeanServerConn.getAttribute(name, "NumberOfCurrentSessions");
-                System.out.println(numOfCurrentSessions);
                 assertEquals((Long) 1L, numOfCurrentSessions);
             }
         }

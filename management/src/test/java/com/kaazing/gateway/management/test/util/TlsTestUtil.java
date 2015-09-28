@@ -1,4 +1,4 @@
-package org.kaazing.gateway.management.jmx;
+package com.kaazing.gateway.management.test.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,11 +8,11 @@ public class TlsTestUtil {
     static char[] password = "ab987c".toCharArray();
     static String keyStoreFileLocation = "target/truststore/keystore.db";
 
-    static char[] password() {
+    public static char[] password() {
         return password;
     }
 
-    static KeyStore keyStore() {
+    public static KeyStore keyStore() {
         try {
             // Initialize KeyStore of gateway
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
@@ -26,7 +26,7 @@ public class TlsTestUtil {
         }
     }
 
-    static KeyStore trustStore() {
+    public static KeyStore trustStore() {
         try {
             // Initialize TrustStore of gateway
             KeyStore trustStore = KeyStore.getInstance("JKS");

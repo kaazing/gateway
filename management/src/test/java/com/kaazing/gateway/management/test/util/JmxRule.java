@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.management.jmx;
+package com.kaazing.gateway.management.test.util;
 
 import java.util.HashMap;
 import java.util.Map;
