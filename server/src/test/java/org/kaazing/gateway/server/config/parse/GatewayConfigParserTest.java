@@ -78,8 +78,8 @@ public class GatewayConfigParserTest {
         return file;
     }
 
-    @Test
-    // KG-3472
+   
+    @Test(expected = GatewayConfigParserException.class)
     public void testBroadcastPropertiesWithAccepts() throws Exception {
         File configFile = null;
         try {

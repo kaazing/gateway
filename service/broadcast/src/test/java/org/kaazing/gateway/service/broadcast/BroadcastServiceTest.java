@@ -101,10 +101,9 @@ public class BroadcastServiceTest {
 
     @Test
     public void testBroadcast() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), null);
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
         ServiceProperties serviceProperties = serviceContext.getProperties();
-        serviceProperties.put("accept", "tcp://localhost:9090");
-
+      
         // set up the configuration -- empty properties so the values just default
         service.setConfiguration(new Properties());
 
@@ -160,17 +159,15 @@ public class BroadcastServiceTest {
 
     @Test
     public void testSlowConsumer() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), null);
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
         ServiceProperties serviceProperties = serviceContext.getProperties();
-        serviceProperties.put("accept", "tcp://localhost:9090");
-
         // set up the configuration -- empty properties so the values just default
         Properties slowConsumerProps = new Properties();
         slowConsumerProps.setProperty("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES", "40000"); // FIXME: why this number?
         service.setConfiguration(slowConsumerProps);
-
         service.init(serviceContext);
         service.start();
+        System.out.println("service started");
 
         FastTestBackendProducer producer = new FastTestBackendProducer();
         Thread t = new Thread(producer, "FastBackendProducerThread");
@@ -270,10 +267,12 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
+            ServerSocket socket = null;
             try {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress("localhost", 9090));
-                OutputStream os = socket.getOutputStream();
+                socket = new ServerSocket();
+                socket.bind(new InetSocketAddress("localhost", 9090));
+                Socket acceptSockect = socket.accept();
+                OutputStream os = acceptSockect.getOutputStream();
 
                 latch.countDown(); // someone connected, count down
                 while (running == true) {
@@ -285,9 +284,16 @@ public class BroadcastServiceTest {
                         // ignore
                     }
                 }
-                socket.close();
+                
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
+            }
+            finally{
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -361,20 +367,22 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
+            ServerSocket socket = null;
             try {
-                Socket socket = new Socket();
-                socket.connect(new InetSocketAddress("localhost", 9090));
-                OutputStream os = socket.getOutputStream();
+                socket = new ServerSocket();
+                socket.bind(new InetSocketAddress("localhost", 9090));
+                Socket acceptSockect = socket.accept();
+                OutputStream os = acceptSockect.getOutputStream();
 
                 // Some diagnostics for the test
-                System.out.println(format("FastTestBackendProducer receive buffer size: %d", socket.getReceiveBufferSize()));
-                System.out.println(format("FastTestBackendProducer send buffer size: %d", socket.getSendBufferSize()));
+                System.out.println(format("FastTestBackendProducer receive buffer size: %d",acceptSockect.getReceiveBufferSize()));
+                System.out.println(format("FastTestBackendProducer send buffer size: %d", acceptSockect.getSendBufferSize()));
 
                 // The bytes for ">|<"
                 byte[] packet = new byte[] { 0x3E, 0x7C, 0x3C };
                 int messagesPerSecond = 20;
                 int testLengthTime = 4;
-                long targetBytes = 2 * (socket.getReceiveBufferSize() + socket.getSendBufferSize());
+                long targetBytes = 2 * (acceptSockect.getReceiveBufferSize() + acceptSockect.getSendBufferSize());
                 long batchSize = targetBytes / (messagesPerSecond * testLengthTime);
                 long totalBytesSent = 0;
                 long bytesSent = 0;
@@ -402,9 +410,15 @@ public class BroadcastServiceTest {
                         // ignore
                     }
                 }
-                socket.close();
+                
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
+            }finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

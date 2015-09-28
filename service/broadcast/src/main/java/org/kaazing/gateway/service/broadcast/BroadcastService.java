@@ -71,7 +71,6 @@ public class BroadcastService implements Service {
     private ServiceContext serviceContext;
     private Properties configuration;
 
-    private URI acceptURI;
     private URI connectURI;
     private int reconnectDelay;
 
@@ -123,15 +122,12 @@ public class BroadcastService implements Service {
 
         Collection<URI> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
-        String accept = properties.get("accept");
         String reconnectDelay = properties.get("reconnect.delay");
-        // TODO: change error message when connect property is documented
-        if (accept == null && (connectURIs == null || connectURIs.isEmpty())) {
-            throw new IllegalArgumentException("Missing required property: accept");
+        if ((connectURIs == null || connectURIs.isEmpty())) {
+            throw new IllegalArgumentException("Missing required connect");
         }
 
-        this.acceptURI = (accept != null) ? URI.create(accept) : null;
-        this.connectURI = (connectURIs == null || connectURIs.isEmpty()) ? null : connectURIs.iterator().next();
+        this.connectURI = connectURIs.iterator().next();
         this.reconnectDelay = (reconnectDelay != null) ? Integer.parseInt(reconnectDelay) : 3000;
     }
 
@@ -143,15 +139,12 @@ public class BroadcastService implements Service {
         serviceContext.bindConnectsIfNecessary(serviceContext.getConnects());
 
         try {
-            if (acceptURI != null) {
-                serviceContext.bind(Arrays.asList(acceptURI), handler.getListenHandler());
-            }
-
+            
             if (connectURI != null) {
                 scheduler.schedule(connectTask, 0, TimeUnit.MILLISECONDS);
             }
         } catch (Exception e) {
-            logger.error("Unable to bind to resource: " + acceptURI, e);
+            logger.error("Unable to configure connectURI scheduler: " + e);
         }
     }
 
@@ -176,11 +169,7 @@ public class BroadcastService implements Service {
         reconnect.set(true);
 
         if (serviceContext != null) {
-            serviceContext.unbind(serviceContext.getAccepts(), handler);
-
-            if (acceptURI != null) {
-                serviceContext.unbind(Arrays.asList(acceptURI), handler.getListenHandler());
-            }
+            serviceContext.unbind(serviceContext.getAccepts(), handler);           
         }
     }
 

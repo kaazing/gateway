@@ -20,7 +20,8 @@
 #
 
 # broadcast.backend.tcp.connect.and.close.rpt
-connect tcp://localhost:7788
+accept tcp://localhost:7788
+accepted
 connected
 close
 closed
