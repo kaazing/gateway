@@ -5,11 +5,10 @@ import java.io.FileInputStream;
 import java.security.KeyStore;
 
 public class TlsTestUtil {
-    static char[] password = "ab987c".toCharArray();
     static String keyStoreFileLocation = "target/truststore/keystore.db";
 
     public static char[] password() {
-        return password;
+        return "ab987c".toCharArray();
     }
 
     public static KeyStore keyStore() {
@@ -17,7 +16,7 @@ public class TlsTestUtil {
             // Initialize KeyStore of gateway
             KeyStore keyStore = KeyStore.getInstance("JCEKS");
             FileInputStream kis = new FileInputStream(keyStoreFileLocation);
-            keyStore.load(kis, password);
+            keyStore.load(kis, password());
             kis.close();
             return keyStore;
         } catch (Exception e) {
