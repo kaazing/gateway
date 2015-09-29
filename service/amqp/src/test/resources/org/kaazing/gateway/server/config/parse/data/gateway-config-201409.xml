@@ -302,10 +302,10 @@
   <service>
     <name>broadcast</name>
     <accept>sse://${gateway.hostname}:${gateway.extras.port}/sse</accept>
-
+    <connect>udp://${gateway.hostname}:50505</connect>
     <type>broadcast</type>
     <properties>
-      <accept>udp://${gateway.hostname}:50505</accept>
+     
     </properties>
 
     <!--
