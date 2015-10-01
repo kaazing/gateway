@@ -35,7 +35,6 @@ public class SchedulerProvider {
 
     private final List<ManagedScheduledExecutorService> schedulers = new ArrayList<>(10);
     private final ManagedScheduledExecutorService sharedScheduler;
-    private final List<String> sharedUsages = new ArrayList<>(10);
 
     public SchedulerProvider() {
         this(new Properties());
@@ -59,19 +58,16 @@ public class SchedulerProvider {
      * @return
      */
     public synchronized ScheduledExecutorService getScheduler(final String purpose, boolean needDedicatedThread) {
-        if (needDedicatedThread) {
-            return new ManagedScheduledExecutorService(1, purpose, false);
-        }
-        else {
-            sharedUsages.add(purpose);
-            return sharedScheduler;
-        }
+        return needDedicatedThread ? new ManagedScheduledExecutorService(1, purpose, false) : sharedScheduler;
     }
 
     public synchronized void shutdownNow() {
         for (ManagedScheduledExecutorService scheduler : schedulers) {
             scheduler.shutdownImmediate();
         }
+
+        schedulers.clear();
+        sharedScheduler.shutdownImmediate();
     }
 
     /**
@@ -80,7 +76,7 @@ public class SchedulerProvider {
      *
      */
     private class ManagedScheduledExecutorService extends ScheduledThreadPoolExecutor {
-        private boolean shared;
+        private final boolean shared;
 
         ManagedScheduledExecutorService(int corePoolSize, final String purpose, boolean shared) {
             super(corePoolSize, new ThreadFactory() {
@@ -99,6 +95,7 @@ public class SchedulerProvider {
         @Override
         public void shutdown() {
             if (!shared) {
+                schedulers.remove(this);
                 super.shutdown();
             }
         }
@@ -106,16 +103,16 @@ public class SchedulerProvider {
         @Override
         public List<Runnable> shutdownNow() {
             if (!shared) {
+                schedulers.remove(this);
                 return super.shutdownNow();
             }
-            else {
-                return null;
-            }
+
+            return null;
         }
 
         void shutdownImmediate() {
             super.shutdownNow();
         }
     }
-
 }
+
