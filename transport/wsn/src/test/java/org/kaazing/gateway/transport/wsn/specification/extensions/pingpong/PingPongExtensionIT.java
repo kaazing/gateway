@@ -20,7 +20,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -29,7 +28,6 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
 
 public class PingPongExtensionIT {
 
@@ -78,31 +76,11 @@ public class PingPongExtensionIT {
         k3po.finish();
     }
 
-    @Test
-    @Ignore ("Not working yet")
-    @Specification({"client.should.reply.to.standard.ping.with.standard.pong/request" })
-    public void clientShouldReplyToStandardPingWithStandardPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Ignore ("Not working yet")
-    @Specification({"client.should.disconnect.if.wrong.control.bytes.length/request" })
-    public void clientShouldDisconnectIfWrongControlBytesLength() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Ignore ("Not working yet")
-    @Specification({"client.should.disconnect.if.wrong.control.bytes.value/request" })
-    public void clientShouldDisconnectIfWrongControlBytesValue() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Ignore ("Not working yet")
-    @Specification({"client.should.disconnect.if.no.control.bytes.sent/request" })
-    public void clientShouldDisconnectIfNoControlBytesSent() throws Exception {
-        k3po.finish();
-    }
+    /* The following test cases are client tests only in the k3po project
+         - server.may.send.extended.ping.control.frames
+         - client.should.reply.to.standard.ping.with.standard.pong
+         - client.should.disconnect.if.wrong.control.bytes.length
+         - client.should.disconnect.if.wrong.control.bytes.value
+         - client.should.disconnect.if.no.control.bytes.sent
+    */
 }
