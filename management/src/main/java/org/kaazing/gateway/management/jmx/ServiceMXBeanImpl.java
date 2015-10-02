@@ -236,4 +236,38 @@ public class ServiceMXBeanImpl implements ServiceMXBean {
     public void restart() throws Exception {
         serviceManagementBean.restart();
     }
+
+    @Override
+    public void closeSessions(String principalName, String principalClassName) throws Exception {
+        if ((principalName == null) ||
+            (principalName.trim().length() == 0) ||
+            (principalClassName == null) ||
+            (principalClassName.trim().length() == 0)) {
+            return;
+        }
+
+        principalName = principalName.trim();
+        principalClassName = principalClassName.trim();
+
+        Map<Long, Map<String, String>> sessionPrincipalMap = serviceManagementBean.getLoggedInSessions();
+
+        for (Map.Entry<Long, Map<String, String>> entry : sessionPrincipalMap.entrySet()) {
+            long sessionId = entry.getKey();
+            Map<String, String> userPrincipals = entry.getValue();
+
+            for (Map.Entry<String, String> principal : userPrincipals.entrySet()) {
+                String key = principal.getKey();
+                String value = principal.getValue();
+
+                // Case sensitive for both name and class-name.
+                if (key.equals(principalName) && (value.equals(principalClassName))) {
+                    SessionMXBean sessionBean = managementServiceHandler.getSessionMXBean(sessionId);
+                    sessionBean.close();
+                    serviceManagementBean.removeSessionManagementBean(sessionId);
+                    break;
+                }
+            }
+        }
+    }
 }
+

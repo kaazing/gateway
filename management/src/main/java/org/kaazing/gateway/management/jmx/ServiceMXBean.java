@@ -80,8 +80,7 @@ public interface ServiceMXBean {
 
     // lifecycle methods
     void start() throws Exception;
-
     void stop() throws Exception;
-
     void restart() throws Exception;
+    void closeSessions(String prinicpalName, String prinicpalClassName) throws Exception;
 }
