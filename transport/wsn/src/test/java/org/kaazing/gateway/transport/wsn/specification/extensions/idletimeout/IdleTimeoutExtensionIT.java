@@ -19,12 +19,13 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wsn.extensions.idletimeout;
+package org.kaazing.gateway.transport.wsn.specification.extensions.idletimeout;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -34,7 +35,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 // Note: further testing of this extension is done in WsnInactivityTimeoutIT
-public class IdleTimeoutExtensionK3POIT {
+public class IdleTimeoutExtensionIT {
 
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/ws.extensions/x-kaazing-idle-timeout");
 
@@ -86,6 +87,7 @@ public class IdleTimeoutExtensionK3POIT {
 
     @Specification("negative.timeout.sent.by.server.client.closes.connection/request")
     @Test
+    @Ignore
     public void negativeTimeoutSentByServerClientClosesConnection() throws Exception {
         robot.finish();
     }
@@ -104,7 +106,14 @@ public class IdleTimeoutExtensionK3POIT {
 
     @Specification("zero.timeout.sent.by.server.client.closes.connection/request")
     @Test
+    @Ignore
     public void zeroTimeoutSentByServerClientClosesConnection() throws Exception {
+        robot.finish();
+    }
+    
+    @Specification("pong.frames.sent.by.server.no.client.timeout/request")
+    @Test
+    public void pongFramesSentByServerNoClientTimeout() throws Exception {
         robot.finish();
     }
 }
