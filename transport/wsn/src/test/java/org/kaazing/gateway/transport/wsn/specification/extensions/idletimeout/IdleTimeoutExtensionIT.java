@@ -67,34 +67,9 @@ public class IdleTimeoutExtensionIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("downstream.data.sent.by.server.no.client.timeout/request")
-    @Test
-    public void downstreamDataSentByServerNoClientTimeout() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("extension.ping.pong.should.not.be.native.client.closes.conn/request")
-    @Test
-    public void extensionPingPongEnabledShouldNotBeNativeClientClosesConnection() throws Exception {
-        robot.finish();
-    }
-
     @Specification("extension.ping.pong.frames.sent.by.server.no.client.timeout/request")
     @Test
     public void extensionPingPongFramesSentByServerNoClientTimeout() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("negative.timeout.sent.by.server.client.closes.connection/request")
-    @Test
-    @Ignore
-    public void negativeTimeoutSentByServerClientClosesConnection() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("no.data.sent.by.server.client.timeout/request")
-    @Test
-    public void noDataSentByServerClientTimeout() throws Exception {
         robot.finish();
     }
 
@@ -104,16 +79,45 @@ public class IdleTimeoutExtensionIT {
         robot.finish();
     }
 
+    
+    @Specification("extension.pong.frames.sent.by.server.no.client.timeout/request")
+    @Test
+    public void extensionPongFramesSentByServerNoClientTimeout() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("standard.pong.frames.sent.by.server.no.client.timeout/request")
+    @Test
+    public void standardPongFramesSentByServerNoClientTimeout() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("negative.timeout.sent.by.server.client.closes.connection/request")
+    @Test
+    @Ignore("Client test")
+    public void negativeTimeoutSentByServerClientClosesConnection() throws Exception {
+        robot.finish();
+    }
+
     @Specification("zero.timeout.sent.by.server.client.closes.connection/request")
     @Test
-    @Ignore
+    @Ignore("Client test")
     public void zeroTimeoutSentByServerClientClosesConnection() throws Exception {
         robot.finish();
     }
-    
-    @Specification("pong.frames.sent.by.server.no.client.timeout/request")
+
+
+    @Specification("no.data.sent.by.server.client.timeout/request")
     @Test
-    public void pongFramesSentByServerNoClientTimeout() throws Exception {
+    @Ignore("Client test")
+    public void noDataSentByServerClientTimeout() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("downstream.data.sent.by.server.no.client.timeout/request")
+    @Test
+    @Ignore("Client test")
+    public void downstreamDataSentByServerNoClientTimeout() throws Exception {
         robot.finish();
     }
 }
