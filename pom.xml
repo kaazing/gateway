@@ -272,7 +272,6 @@
                                     <pluginExecutionFilter>
                                         <groupId>com.google.code.maven-license-plugin</groupId>
                                         <artifactId>maven-license-plugin</artifactId>
-                                        <versionRange>[1.0.0,)</versionRange>
                                         <goals>
                                             <goal>check</goal>
                                         </goals>
@@ -310,6 +309,11 @@
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.code.maven-license-plugin</groupId>
+                    <artifactId>maven-license-plugin</artifactId>
+                    <version>1.4.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
