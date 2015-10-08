@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.32</version>
+        <version>5.0.1.33</version>
     </parent>
 
     <artifactId>gateway.server.spi</artifactId>
@@ -33,10 +33,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>

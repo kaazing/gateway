@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.32</version>
+        <version>5.0.1.33</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service.http.proxy</artifactId>
@@ -88,15 +88,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/test/**/*.html</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

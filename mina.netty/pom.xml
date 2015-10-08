@@ -5,7 +5,7 @@
       <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.32</version>
+        <version>5.0.1.33</version>
     </parent>
     <artifactId>mina.netty</artifactId>
     <packaging>jar</packaging>
@@ -158,15 +158,6 @@
                         <version>1.1</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/ChannelIoProcessor.java</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>

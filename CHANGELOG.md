@@ -2,7 +2,17 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.31...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.32...HEAD)
+
+**Merged pull requests:**
+
+- Update configuration of license-maven-plugin, add/update license as needed [\#339](https://github.com/kaazing/gateway/pull/339) ([ahousing](https://github.com/ahousing))
+- Issue \#508, Issue \#151: Forward port memory leak fixes and the abilit… [\#336](https://github.com/kaazing/gateway/pull/336) ([sanjay-saxena](https://github.com/sanjay-saxena))
+- Refactored tests rules in order for time out to give K3po diffs [\#334](https://github.com/kaazing/gateway/pull/334) ([dpwspoon](https://github.com/dpwspoon))
+- Forward port: report "Early termination of IO session" and "Network collectivity has been lost [\#330](https://github.com/kaazing/gateway/pull/330) ([cmebarrow](https://github.com/cmebarrow))
+
+## [5.0.1.32](https://github.com/kaazing/gateway/tree/5.0.1.32) (2015-09-22)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.31...5.0.1.32)
 
 **Fixed bugs:**
 
