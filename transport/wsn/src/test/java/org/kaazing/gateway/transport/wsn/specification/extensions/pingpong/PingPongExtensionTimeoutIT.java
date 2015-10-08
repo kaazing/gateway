@@ -29,7 +29,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class PingPongExtensionIT {
+public class PingPongExtensionTimeoutIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws.extensions/x-kaazing-ping-pong");
 
@@ -42,6 +42,7 @@ public class PingPongExtensionIT {
                     .crossOrigin()
                         .allowOrigin("*")
                     .done()
+                    .acceptOption("ws.inactivity.timeout", "4secs")
                 .done()
             .done();
             init(configuration);
@@ -52,30 +53,8 @@ public class PingPongExtensionIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
-    @Specification({"server.should.reply.to.standard.ping.with.standard.pong/request" })
-    public void serverShouldReplyToStandardPingWithStandardPong() throws Exception {
+    @Specification({"server.should.timeout.if.client.does.not.respond.to.extended.ping/request" })
+    public void serverShouldTimeoutIfClientDoesNotRespondToExtendedPing() throws Exception {
         k3po.finish();
     }
-
-    @Test
-    @Specification({"server.should.reply.to.extended.ping.with.extended.pong/request" })
-    public void serverShouldReplyToExtendedPingWithExtendedPong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({"should.escape.data.frame.starting.with.control.bytes/request" })
-    public void shouldEscapeDataFrameStartingWithControlBytes() throws Exception {
-        k3po.finish();
-    }
-
-    /* The following test cases are client tests only in the k3po project
-         - client.should.reply.to.extended.ping.with.extended.pong
-         - client.should.receive.extended.pong.frame
-         - client.should.reply.to.standard.ping.with.standard.pong
-         - client.should.disconnect.if.wrong.control.bytes.length
-         - client.should.disconnect.if.no.control.bytes.sent
-     * The following scenario is tested in the PingPongExtensionTimeoutIT class
-         - server.should.timeout.if.client.does.not.respond.to.extended.ping
-    */
 }
