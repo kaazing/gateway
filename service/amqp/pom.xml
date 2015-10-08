@@ -87,10 +87,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.kaazing</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>

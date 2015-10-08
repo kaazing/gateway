@@ -87,10 +87,12 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
+                        <exclude>**/*.apk</exclude>
+                        <exclude>**/*.xap</exclude>
                         <exclude>src/test/**/*.html</exclude>
                     </excludes>
                 </configuration>

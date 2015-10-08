@@ -1,1 +1,0 @@
-keytool -keystore ./keystore -genkeypair -dname cn=testing -alias testing -keyalg RSA -storepass testing -validity 3650

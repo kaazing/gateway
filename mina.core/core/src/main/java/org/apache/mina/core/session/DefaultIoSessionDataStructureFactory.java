@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/** The copyright above pertains to portions created by Kaazing */
+
 package org.apache.mina.core.session;
 
 import java.util.Collections;
