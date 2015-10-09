@@ -1,0 +1,18 @@
+#
+# Copyright (c) 2007-2015, Kaazing Corporation. All rights reserved.
+#
+
+connect http://localhost:8001/echoAuth/;e/db
+connected
+
+write method "GET"
+write header host
+write header "Content-Type" "text/plain"
+write header "User-Agent" "Java/1.8.0_45"
+write header "Accept" "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"
+write header "Connection" "keep-alive"
+write header "Content-Length" "3"
+write ">|<"
+write close
+
+read status "404" /.*/
