@@ -34,7 +34,11 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-// Note: further testing of this extension is done in WsnInactivityTimeoutIT
+
+/**
+ * Class performing x-kaazing-idle-timeout-extension robot tests integrated with the gateway
+ *
+ */
 public class IdleTimeoutExtensionIT {
 
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/ws.extensions/x-kaazing-idle-timeout");
@@ -49,14 +53,6 @@ public class IdleTimeoutExtensionIT {
                             .allowOrigin("*")
                         .done()
                         .acceptOption("ws.inactivity.timeout", "2sec")
-                    .done()
-                    .service()
-                        .accept(URI.create("wsn://localhost:8001/echoZeroTimeout"))
-                        .type("echo")
-                        .crossOrigin()
-                            .allowOrigin("*")
-                        .done()
-                        .acceptOption("ws.inactivity.timeout", "0sec")
                     .done()
                 .done();
 
@@ -78,16 +74,17 @@ public class IdleTimeoutExtensionIT {
     public void standardPingPongFramesSentByServerNoClientTimeout() throws Exception {
         robot.finish();
     }
-
     
     @Specification("extension.pong.frames.sent.by.server.no.client.timeout/request")
     @Test
+    @Ignore("WSNAcceptorRule test")
     public void extensionPongFramesSentByServerNoClientTimeout() throws Exception {
         robot.finish();
     }
 
     @Specification("standard.pong.frames.sent.by.server.no.client.timeout/request")
     @Test
+    @Ignore("WSNAcceptorRule test")
     public void standardPongFramesSentByServerNoClientTimeout() throws Exception {
         robot.finish();
     }
@@ -105,7 +102,6 @@ public class IdleTimeoutExtensionIT {
     public void zeroTimeoutSentByServerClientClosesConnection() throws Exception {
         robot.finish();
     }
-
 
     @Specification("no.data.sent.by.server.client.timeout/request")
     @Test
