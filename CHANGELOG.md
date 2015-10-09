@@ -2,7 +2,14 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.32...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.33...HEAD)
+
+**Merged pull requests:**
+
+- Upgrade k3po version from 2.0.1 to latest version 2.1.0. [\#341](https://github.com/kaazing/gateway/pull/341) ([cmebarrow](https://github.com/cmebarrow))
+
+## [5.0.1.33](https://github.com/kaazing/gateway/tree/5.0.1.33) (2015-10-08)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.32...5.0.1.33)
 
 **Merged pull requests:**
 
