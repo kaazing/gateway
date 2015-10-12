@@ -458,12 +458,5 @@
         <!-- remove this after next core.common release -->
         <commons-cli.version>1.2</commons-cli.version>
         <checkstyle.config.location>org/kaazing/code/quality/checkstyle.xml</checkstyle.config.location>
-
-        <!-- temporarily override license.version until we can move to core.common 
-            latest -->
-        <license.version>24</license.version>
-
-
-
     </properties>
 </project>

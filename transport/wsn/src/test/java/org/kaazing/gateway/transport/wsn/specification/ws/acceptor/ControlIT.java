@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -178,120 +177,4 @@ public class ControlIT {
     public void shouldFailWebSocketConnectionWhenClientSendOpcode15Frame() throws Exception {
         k3po.finish();
     }
-
-/*
- * Client-only Tests
- *
-    @Test
-    @Specification({
-        "server.send.close.payload.length.0/handshake.request.and.frame",
-        "server.send.close.payload.length.0/handshake.response.and.frame" })
-    public void shouldEchoServerCloseFrameWithEmptyPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.payload.length.125/handshake.request.and.frame",
-        "server.send.close.payload.length.125/handshake.response.and.frame" })
-    public void shouldEchoServerCloseFrameWithPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.payload.length.126/handshake.request.and.frame",
-        "server.send.close.payload.length.126/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadTooLong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.ping.payload.length.0/handshake.request.and.frame",
-        "server.send.ping.payload.length.0/handshake.response.and.frame" })
-    public void shouldPongServerPingFrameWithEmptyPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.ping.payload.length.125/handshake.request.and.frame",
-        "server.send.ping.payload.length.125/handshake.response.and.frame" })
-    public void shouldPongServerPingFrameWithPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.ping.payload.length.126/handshake.request.and.frame",
-        "server.send.ping.payload.length.126/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadTooLong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.pong.payload.length.0/handshake.request.and.frame",
-        "server.send.pong.payload.length.0/handshake.response.and.frame" })
-    public void shouldReceiveServerPongFrameWithEmptyPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.pong.payload.length.125/handshake.request.and.frame",
-        "server.send.pong.payload.length.125/handshake.response.and.frame" })
-    public void shouldReceiveServerPongFrameWithPayload() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.pong.payload.length.126/handshake.request.and.frame",
-        "server.send.pong.payload.length.126/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadTooLong() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.opcode.0x0b/handshake.request.and.frame",
-        "server.send.opcode.0x0b/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendOpcode11Frame() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.opcode.0x0c/handshake.request.and.frame",
-        "server.send.opcode.0x0c/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendOpcode12Frame() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.opcode.0x0d/handshake.request.and.frame",
-        "server.send.opcode.0x0d/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendOpcode13Frame() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.opcode.0x0e/handshake.request.and.frame",
-        "server.send.opcode.0x0e/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendOpcode14Frame() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.opcode.0x0f/handshake.request.and.frame",
-        "server.send.opcode.0x0f/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendOpcode15Frame() throws Exception {
-        k3po.finish();
-    }*/
-
 }
