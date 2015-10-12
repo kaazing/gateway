@@ -23,9 +23,15 @@ package org.kaazing.gateway.transport.wsn.specification.extensions.idletimeout;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.wsn.WsnAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -41,21 +47,51 @@ public class IdleTimeoutExtensionWSNAcceptorIT {
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws.extensions/x-kaazing-idle-timeout");
 
     private final WsnAcceptorRule acceptor = new WsnAcceptorRule();
+    
+    private final ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
     @Rule
-    public TestRule chain = createRuleChain(acceptor, k3po);
+    public TestRule chain = createRuleChain(acceptor, k3po);    
 
     @Test
     @Specification("standard.pong.frames.sent.by.server.no.client.timeout/request")
     public void standardPongFramesSentByServerNoClientTimeout() throws Exception {
-        acceptor.bind("ws://localhost:8001/echo", new IoHandlerAdapter<IoSessionEx>());
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("ws.inactivityTimeout", 2000L);
+        ResourceAddress address = addressFactory.newResourceAddress(
+                new URI("ws://localhost:8001/echo"), options);
+        acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
+        k3po.start();        
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_ONE");
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_TWO");        
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_THREE");
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_FOUR");
+        Thread.sleep(700);
         k3po.finish();
     }
 
     @Test
     @Specification("extension.pong.frames.sent.by.server.no.client.timeout/request")
     public void extensionPongFramesSentByServerNoClientTimeout() throws Exception {
-        acceptor.bind("ws://localhost:8001/echo", new IoHandlerAdapter<IoSessionEx>());
+    	Map<String, Object> options = new HashMap<String, Object>();
+        options.put("ws.inactivityTimeout", 2000L);
+        ResourceAddress address = addressFactory.newResourceAddress(
+                new URI("ws://localhost:8001/echo"), options);
+        acceptor.bind(address, new IoHandlerAdapter<IoSessionEx>());
+        k3po.start();        
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_ONE");
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_TWO");        
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_THREE");
+        Thread.sleep(700);
+        k3po.notifyBarrier("SEND_FOUR");
+        Thread.sleep(700);
         k3po.finish();
     }
 }
