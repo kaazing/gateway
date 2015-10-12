@@ -21,6 +21,11 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.mina.core.service.IoHandler;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -28,11 +33,6 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.mina.core.service.IoHandler;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -69,8 +69,12 @@ public class WsnAcceptorRule implements TestRule {
 
         wsnAcceptor.bind(acceptAddress, acceptHandler, null);
     }
+   
+   public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
+       wsnAcceptor.bind(acceptAddress, acceptHandler, null);
+   }
 
-    private final class AcceptorStatement extends Statement {
+   private final class AcceptorStatement extends Statement {
 
         private final Statement base;
 
