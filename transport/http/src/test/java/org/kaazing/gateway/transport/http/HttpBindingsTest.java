@@ -160,6 +160,50 @@ public class HttpBindingsTest {
     }
 
     @Test
+    public void shouldCorrectlyBindTwoAddressesWithTcpBind() throws Exception {
+        URI uri1 = URI.create("http://localhost:8001/");
+        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        options1.put("tcp.bind", "7777");
+
+        URI uri2 = URI.create("http://localhost:8001/");
+        HashMap<String, Object> options2 = new HashMap<String, Object>();
+
+
+        ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
+        ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);
+
+        Bindings.Binding binding1 = new Bindings.Binding(address1, handler, initializer);
+        Bindings.Binding binding2 = new Bindings.Binding(address2, handler, initializer);
+
+        Bindings.Binding oldBinding = httpBindings.addBinding(binding1);
+        assertNull(oldBinding);
+        oldBinding = httpBindings.addBinding(binding2);
+        assertNull(oldBinding);
+    }
+
+    @Test
+    public void shouldCorrectlyBindTwoSecureAddressesWithTcpBind() throws Exception {
+        URI uri1 = URI.create("https://localhost:8001/");
+        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        options1.put("tcp.bind", "7777");
+
+        URI uri2 = URI.create("https://localhost:8001/");
+        HashMap<String, Object> options2 = new HashMap<String, Object>();
+
+
+        ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
+        ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);
+
+        Bindings.Binding binding1 = new Bindings.Binding(address1, handler, initializer);
+        Bindings.Binding binding2 = new Bindings.Binding(address2, handler, initializer);
+
+        Bindings.Binding oldBinding = httpBindings.addBinding(binding1);
+        assertNull(oldBinding);
+        oldBinding = httpBindings.addBinding(binding2);
+        assertNull(oldBinding);
+    }
+
+    @Test
     public void testAddHttpBindingTwiceShouldIncrementHttpBindingBindingReferenceCount() throws Exception {
         URI fooURI = URI.create("http://example.com/foo");
         ResourceAddress address = addressFactory.newResourceAddress(fooURI, makeOpts());
