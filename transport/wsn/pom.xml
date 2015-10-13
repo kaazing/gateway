@@ -153,7 +153,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.x-kaazing-ping-pong</artifactId>
-            <version>develop-SNAPSHOT</version>
+            <version>2.1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
