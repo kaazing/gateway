@@ -153,7 +153,7 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.x-kaazing-idle-timeout</artifactId>
-            <version>develop-SNAPSHOT</version>
+            <version>2.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
