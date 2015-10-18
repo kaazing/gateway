@@ -350,6 +350,16 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
+    public void detachPendingWriter() {
+        HttpSession pendingWriter = pendingNewWriter.getAndSet(null);
+        if (pendingWriter != null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(String.format("detachPendingWriter on WsebSession wseb#%d, writer %s", this.getId(), pendingWriter));
+            }
+            pendingWriter.close(false);
+        }
+    }
+
     public boolean attachPendingWriter() {
         HttpSession pendingWriter = pendingNewWriter.getAndSet(null);
         if (pendingWriter != null) {
