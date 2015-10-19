@@ -1,24 +1,18 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.resource.address;
 
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
@@ -81,7 +75,7 @@ public final class Comparators {
     }
 
     public static <T> Comparator<T> compareNonNull(Comparator<T> comparator) {
-        return new NonNullComparator<>(comparator);
+        return new NonNullComparator<T>(comparator);
     }
 
     public static <T extends Comparable<T>> Comparator<T> compareComparable(Class<T> clazz) {
@@ -192,22 +186,34 @@ public final class Comparators {
         
     }
 
+    private static ResourceAddress getFloorTransport(ResourceAddress address) {
+        assert address != null;
+
+        ResourceAddress transport;
+        while((transport = address.getTransport()) != null) {
+            address = transport;
+        }
+        return address;
+    }
+
     private static final class ResourceOriginAndProtocolStackComparator implements Comparator<ResourceAddress> {
 
         @Override
         public int compare(ResourceAddress addr1, ResourceAddress addr2) {
-            
+
             int compareOrigin = ORIGIN_COMPARATOR.compare(addr1, addr2);
             if (compareOrigin != 0) {
                 return compareOrigin;
             }
-            
+
             int compareNextProtocol = PROTOCOL_STACK_COMPARATOR.compare(addr1, addr2);
             if (compareNextProtocol != 0) {
                 return compareNextProtocol;
             }
-            
-            return 0;
+
+            ResourceAddress floor1 = getFloorTransport(addr1);
+            ResourceAddress floor2 = getFloorTransport(addr2);
+            return ORIGIN_PATH_ALTERNATES_AND_PROTOCOL_STACK_COMPARATOR.compare(floor1, floor2);
         }
     }
 

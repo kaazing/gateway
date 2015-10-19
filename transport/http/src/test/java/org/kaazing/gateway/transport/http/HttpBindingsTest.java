@@ -1,24 +1,18 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.http;
 
 import static org.junit.Assert.assertEquals;
@@ -163,6 +157,50 @@ public class HttpBindingsTest {
         assertEquals(1, foundBinding1.referenceCount());
 
         System.out.println(httpBindings);
+    }
+
+    @Test
+    public void shouldCorrectlyBindTwoAddressesWithTcpBind() throws Exception {
+        URI uri1 = URI.create("http://localhost:8001/");
+        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        options1.put("tcp.bind", "7777");
+
+        URI uri2 = URI.create("http://localhost:8001/");
+        HashMap<String, Object> options2 = new HashMap<String, Object>();
+
+
+        ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
+        ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);
+
+        Bindings.Binding binding1 = new Bindings.Binding(address1, handler, initializer);
+        Bindings.Binding binding2 = new Bindings.Binding(address2, handler, initializer);
+
+        Bindings.Binding oldBinding = httpBindings.addBinding(binding1);
+        assertNull(oldBinding);
+        oldBinding = httpBindings.addBinding(binding2);
+        assertNull(oldBinding);
+    }
+
+    @Test
+    public void shouldCorrectlyBindTwoSecureAddressesWithTcpBind() throws Exception {
+        URI uri1 = URI.create("https://localhost:8001/");
+        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        options1.put("tcp.bind", "7777");
+
+        URI uri2 = URI.create("https://localhost:8001/");
+        HashMap<String, Object> options2 = new HashMap<String, Object>();
+
+
+        ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
+        ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);
+
+        Bindings.Binding binding1 = new Bindings.Binding(address1, handler, initializer);
+        Bindings.Binding binding2 = new Bindings.Binding(address2, handler, initializer);
+
+        Bindings.Binding oldBinding = httpBindings.addBinding(binding1);
+        assertNull(oldBinding);
+        oldBinding = httpBindings.addBinding(binding2);
+        assertNull(oldBinding);
     }
 
     @Test
