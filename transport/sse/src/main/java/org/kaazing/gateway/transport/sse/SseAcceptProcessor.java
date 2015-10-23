@@ -1,24 +1,18 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.sse;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -258,7 +252,7 @@ public class SseAcceptProcessor extends BridgeAcceptProcessor<SseSession> {
         // check to see if we need to add a padding message to the end of sent messages
         long writtenBytes = session.getWrittenBytes();
         Long bytesWrittenOnLastFlush = ((Long)session.getAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY));
-        if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush.longValue()) {
+        if (bytesWrittenOnLastFlush == null || writtenBytes != bytesWrittenOnLastFlush) {
             // Block Padding is required
             session.write(SseEncoder.BLOCK_PADDING_MESSAGE);
             session.setAttribute(SseAcceptor.BYTES_WRITTEN_ON_LAST_FLUSH_KEY, writtenBytes + 4096);

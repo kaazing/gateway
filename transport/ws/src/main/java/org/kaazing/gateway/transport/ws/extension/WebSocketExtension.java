@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.ws.extension;
 
 import org.apache.mina.core.filterchain.IoFilter;
@@ -25,6 +24,15 @@ import org.apache.mina.core.filterchain.IoFilter;
  * a filter that can view and manipulate WebSocket traffic.
  */
 public abstract class WebSocketExtension {
+
+    private final ExtensionHelper extensionHelper;
+
+    public WebSocketExtension(ExtensionHelper extensionHelper) {
+        if (extensionHelper == null) {
+            throw new NullPointerException(String.format("extensionHelper is null"));
+        }
+        this.extensionHelper = extensionHelper;
+    }
 
     /**
      * This method is called when the extension is successfully negotiated.
@@ -39,11 +47,18 @@ public abstract class WebSocketExtension {
      * in the order that the extensions were specified in the HTTP request, so the first extension is closest to the network
      * (i.e. gets to see and possibly modify frames read from the client before other extensions, and  gets the final say for
      * Frames being written to the client).
-     * @param extension    Details of the negotiated extension and parameters
      * @return A filter which is to be added to the filter chain, or null if none is to be added
      */
     public IoFilter getFilter() {
         return null;
     };
+
+    /**
+     * This method allows extensions access to session methods which can be used within extension filters.
+     * @return The extension helper which may be used within extension filters.
+     */
+    public ExtensionHelper getExtensionHelper() {
+        return extensionHelper;
+    }
 
 }

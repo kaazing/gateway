@@ -1,24 +1,18 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
 import static org.junit.Assert.assertEquals;
@@ -27,12 +21,15 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.mina.core.session.IoSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
+import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.util.Utils;
 
 /**
@@ -41,10 +38,23 @@ import org.kaazing.gateway.util.Utils;
 */
 public class PingPongExtensionFactoryTest {
     private static final String extensionName = "x-kaazing-ping-pong";
+    private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
+
+        @Override
+        public void setLoginContext(IoSession session, ResultAwareLoginContext loginContext) {
+            throw new RuntimeException("Not expected to be called");
+        }
+
+        @Override
+        public void closeWebSocketConnection(IoSession session) {
+            throw new RuntimeException("Not expected to be called");
+        }
+    };
 
     WsResourceAddress address;
     PingPongExtensionFactory factory;
     ExtensionHeader requested = new ExtensionHeaderBuilder(extensionName).done();
+
 
     @Before
     public void setUp() {
@@ -57,7 +67,7 @@ public class PingPongExtensionFactoryTest {
 
     @Test
     public void negotiateShouldAddTimeoutParameter() throws Exception {
-        PingPongExtension extension = (PingPongExtension) factory.negotiate(requested, address);
+        PingPongExtension extension = (PingPongExtension) factory.negotiate(requested, extensionHelper, address);
         assertEquals(extensionName, extension.getExtensionHeader().getExtensionToken());
         assertEquals(Utils.toHex(PingPongExtension.CONTROL_BYTES), extension.getExtensionHeader().getParameters().get(0).getName());
     }

@@ -61,10 +61,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -89,22 +85,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <inherited>true</inherited>
             </plugin>
             <plugin>
                 <groupId>org.kaazing</groupId>

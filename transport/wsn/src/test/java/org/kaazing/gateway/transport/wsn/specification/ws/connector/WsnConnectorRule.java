@@ -1,8 +1,23 @@
 /**
- * Copyright (c) 2007-2014, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wsn.specification.ws.connector;
+
+import static java.util.Arrays.asList;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.EXTENSIONS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 
 import java.net.URI;
 import java.util.Collections;
@@ -37,7 +52,6 @@ public class WsnConnectorRule implements TestRule {
     private ResourceAddressFactory addressFactory;
     private WsnConnector wsnConnector;
 
-
     @Override
     public Statement apply(Statement base, Description description) {
         return new ConnectorStatement(base);
@@ -53,9 +67,27 @@ public class WsnConnectorRule implements TestRule {
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
         }
-        final ResourceAddress connectAddress =
+
+        ResourceAddress connectAddress =
                 addressFactory.newResourceAddress(URI.create(connect), connectOptions);
 
+        return wsnConnector.connect(connectAddress, connectHandler, null);
+    }
+
+    public ConnectFuture connect(String connect, String[] protocols, String[] extensions, IoHandler connectHandler)
+            throws InterruptedException {
+        Map<String, Object> connectOptions = new HashMap<>();
+
+        if (protocols != null) {
+            connectOptions.put(SUPPORTED_PROTOCOLS.name(), protocols);
+        }
+
+        if (extensions != null) {
+            connectOptions.put(EXTENSIONS.name(), asList(extensions));
+        }
+
+        ResourceAddress connectAddress =
+                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
         return wsnConnector.connect(connectAddress, connectHandler, null);
     }
 
@@ -113,6 +145,4 @@ public class WsnConnectorRule implements TestRule {
         }
 
     }
-
-
 }

@@ -1,24 +1,18 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wsn;
 
 import java.net.URI;
@@ -28,6 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +39,8 @@ import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.UnbindFuture;
+
+import static org.junit.Assert.assertTrue;
 
 public class WsnAcceptorTest {
 
@@ -176,4 +173,29 @@ public class WsnAcceptorTest {
         System.out.println(wsnAcceptor.bindings());
     }
 
+    @Test
+    public void shouldBindWsxAddressesWithTcpBind() throws Exception {
+        URI uri1 = URI.create("wsx://localhost:8001/");
+        HashMap<String, Object> options1 = new HashMap<String, Object>();
+        options1.put("tcp.bind", "7777");
+
+        URI uri2 = URI.create("wsx://localhost:8001/");
+        HashMap<String, Object> options2 = new HashMap<String, Object>();
+
+        ResourceAddress address1 = addressFactory.newResourceAddress(uri1, options1);
+        ResourceAddress address2 = addressFactory.newResourceAddress(uri2, options2);
+
+        final IoHandler ioHandler = new IoHandlerAdapter();
+        wsnAcceptor.bind(address1, ioHandler, null);
+        wsnAcceptor.bind(address2, ioHandler, null);
+
+        IoFuture future1 = wsnAcceptor.unbind(address1);
+        IoFuture future2 = wsnAcceptor.unbind(address2);
+        future1.await(5, TimeUnit.SECONDS);
+        future2.await(5, TimeUnit.SECONDS);
+
+        assertTrue(wsnAcceptor.emptyBindings());
+        assertTrue(httpAcceptor.emptyBindings());
+        assertTrue(tcpAcceptor.emptyBindings());
+    }
 }

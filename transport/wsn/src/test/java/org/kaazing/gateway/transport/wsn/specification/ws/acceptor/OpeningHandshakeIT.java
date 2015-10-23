@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -236,74 +235,6 @@ public class OpeningHandshakeIT {
     public void shouldFailHandshakeWhenRequestHeaderSecWebSocketVersionNot13() throws Exception {
         k3po.finish();
     }
-
-/*
- *  Client-only Tests
- *
-    @Test
-    @Specification({
-        "response.header.connection.not.upgrade/handshake.request",
-        "response.header.connection.not.upgrade/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderConnectionNotUpgrade() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.connection.missing/handshake.request",
-        "response.header.connection.missing/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderConnectionMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.upgrade.not.websocket/handshake.request",
-        "response.header.upgrade.not.websocket/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderUpgradeNotWebSocket() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.upgrade.missing/handshake.request",
-        "response.header.upgrade.missing/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderUpgradeMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.accept.not.hashed/handshake.request",
-        "response.header.sec.websocket.accept.not.hashed/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketAcceptNotHashed() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.accept.missing/handshake.request",
-        "response.header.sec.websocket.accept.missing/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketAcceptMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.extensions.not.negotiated/handshake.request",
-        "response.header.sec.websocket.extensions.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketExtensionsNotNegotiated() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.sec.websocket.protocol.not.negotiated/handshake.request",
-        "response.header.sec.websocket.protocol.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderSecWebSocketProtocolNotNegotiated() throws Exception {
-        k3po.finish();
-    }
-    */
 
     @Test
     @Specification({

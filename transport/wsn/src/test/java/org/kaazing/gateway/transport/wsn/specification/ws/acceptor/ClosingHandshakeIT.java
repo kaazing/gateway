@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.kaazing.gateway.transport.wsn.specification.ws;
+package org.kaazing.gateway.transport.wsn.specification.ws.acceptor;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
@@ -115,71 +114,4 @@ public class ClosingHandshakeIT {
     public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithCode1015() throws Exception {
         k3po.finish();
     }
-
-/*
- * CLIENT-ONLY TESTS
- *
-    @Test
-    @Specification({
-        "server.send.empty.close.frame/handshake.request.and.frame",
-        "server.send.empty.close.frame/handshake.response.and.frame" })
-    public void shouldCompleteCloseHandshakeWhenServerSendEmptyCloseFrame() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1000/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1000/handshake.response.and.frame" })
-    public void shouldCompleteCloseHandshakeWhenServerSendCloseFrameWithCode1000() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1000.and.reason/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1000.and.reason/handshake.response.and.frame" })
-    public void shouldCompleteCloseHandshakeWhenServerSendCloseFrameWithCode1000AndReason() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1000.and.invalid.utf8.reason/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1000.and.invalid.utf8.reason/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithCode1000AndInvalidUTF8Reason() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1001/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1001/handshake.response.and.frame" })
-    public void shouldCompleteCloseHandshakeWhenServerSendCloseFrameWithCode1001() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1005/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1005/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithCode1005() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1006/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1006/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithCode1006() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "server.send.close.frame.with.code.1015/handshake.request.and.frame",
-        "server.send.close.frame.with.code.1015/handshake.response.and.frame" })
-    public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithCode1015() throws Exception {
-        k3po.finish();
-    }*/
 }

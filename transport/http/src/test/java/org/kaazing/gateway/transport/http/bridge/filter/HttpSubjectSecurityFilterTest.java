@@ -1,25 +1,22 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
- * 
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.http.bridge.filter;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
 import java.security.Principal;
@@ -120,6 +117,7 @@ public class HttpSubjectSecurityFilterTest {
         final URI serviceURI = URI.create("http://localhost:8000/echo");
         message.setRequestURI(serviceURI);
         message.addHeader("Host", "localhost:8000");
+        message.setLoginContext(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
         final ResourceAddress address = context.mock(ResourceAddress.class);
         message.setLocalAddress(address);
         context.checking(new Expectations() {
@@ -135,12 +133,6 @@ public class HttpSubjectSecurityFilterTest {
 
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
-
-                allowing(session).getAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
-                will(returnValue(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK));
-
-                allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
-                will(VoidAction.INSTANCE);
 
                 oneOf(nextFilter).messageReceived(session, message);
             }
@@ -184,16 +176,12 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(null));
 
-                oneOf(session).getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY);
-                will(returnValue(null));
-                allowing(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpLoginSecurityFilter.LOGIN_CONTEXT_OK);
-                will(VoidAction.INSTANCE);
-
                 oneOf(nextFilter).messageReceived(session, message);
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
         filter.securityMessageReceived(nextFilter, session, message);
+        assertEquals(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK, message.getLoginContext());
         context.assertIsSatisfied();
     }
 
@@ -255,16 +243,13 @@ public class HttpSubjectSecurityFilterTest {
                 allowing(address).getOption(HttpResourceAddress.REQUIRED_ROLES);
                 will(returnValue(new String[]{}));
 
-                oneOf(session).getAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY);
-                will(returnValue(null));
-                oneOf(session).setAttribute(HttpSubjectSecurityFilter.LOGIN_CONTEXT_KEY, HttpSubjectSecurityFilter.LOGIN_CONTEXT_OK);
-
                 oneOf(nextFilter).messageReceived(session, message);
                 never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));
             }
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter(LoggerFactory.getLogger("security"));
         filter.securityMessageReceived(nextFilter, session, message);
+        assertEquals(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK, message.getLoginContext());
         context.assertIsSatisfied();
     }
 
@@ -308,9 +293,6 @@ public class HttpSubjectSecurityFilterTest {
 
                 oneOf(session).getSubject();
 
-                // KG-3232, KG-3267: we should never leave the login context unset
-                oneOf(session).setAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY, HttpSubjectSecurityFilter.LOGIN_CONTEXT_OK);
-
                 // pass through
                 oneOf(nextFilter).messageReceived(session, message);
                 never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));
@@ -319,6 +301,10 @@ public class HttpSubjectSecurityFilterTest {
         });
         HttpSubjectSecurityFilter filter = new HttpSubjectSecurityFilter();
         filter.securityMessageReceived(nextFilter, session, message);
+
+        // KG-3232, KG-3267: we should never leave the login context unset
+        assertEquals(HttpLoginSecurityFilter.LOGIN_CONTEXT_OK, message.getLoginContext());
+
         context.assertIsSatisfied();
     }
 
@@ -418,9 +404,6 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue(subject));
 
 
-                oneOf(session).setAttribute(with(same(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY)),
-                        with(any(LoginContext.class)));
-
                 oneOf(nextFilter).messageReceived(session, message);
 
                 oneOf(session).getIoExecutor();
@@ -432,6 +415,7 @@ public class HttpSubjectSecurityFilterTest {
         });
         filter.messageReceived(nextFilter, session, message);
         latch.await(2000, TimeUnit.MILLISECONDS);
+        assertNotNull(message.getLoginContext());
         context.assertIsSatisfied();
     }
 
@@ -527,9 +511,6 @@ public class HttpSubjectSecurityFilterTest {
                 will(returnValue(subject));
 
 
-                oneOf(session).setAttribute(with(same(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY)),
-                        with(any(LoginContext.class)));
-
                 oneOf(nextFilter).messageReceived(session, message);
 
                 oneOf(session).getIoExecutor();
@@ -541,6 +522,7 @@ public class HttpSubjectSecurityFilterTest {
         });
         filter.messageReceived(nextFilter, session, message);
         latch.await(200000, TimeUnit.MILLISECONDS);
+        assertNotNull(message.getLoginContext());
         context.assertIsSatisfied();
     }
 
@@ -590,7 +572,7 @@ public class HttpSubjectSecurityFilterTest {
                 // not already logged in
                 oneOf(session).getSubject(); will(returnValue(null));
 
-                
+
 
                 // login() method itself
                 oneOf(address).getOption(HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES);
@@ -612,7 +594,6 @@ public class HttpSubjectSecurityFilterTest {
                 oneOf(nextFilter).filterWrite(with(same(session)),
                         with(writeRequest(withStatus(HttpStatus.CLIENT_FORBIDDEN))));
                 will(VoidAction.INSTANCE);
-                oneOf(session).removeAttribute(HttpLoginSecurityFilter.LOGIN_CONTEXT_KEY);
 
                 never(nextFilter).messageReceived(session, message);
                 never(session).setAttribute(with(any(String.class)), with(any(Subject.class)));

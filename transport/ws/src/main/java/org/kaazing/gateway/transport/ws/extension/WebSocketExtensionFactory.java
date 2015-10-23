@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.ws.extension;
 
 import static java.util.Collections.unmodifiableMap;
@@ -69,12 +68,14 @@ public final class WebSocketExtensionFactory {
      * @param address  WsResourceAddress for the WebSocket connection for which extensions are being negotiated
      * @param clientRequestedExtensions List of extension header values (one per requested extension, parsing of
      *                                  any comma-separated list is already done by the HTTP transport layer)
+     * @param extensionHelper TODO
      * @return list of negotiated WebSocketExtensionSpi instances in the order they should appear
      *         negotiated in (farthest from network to closest)
      * @throws ProtocolException
      */
     public List<WebSocketExtension> negotiateWebSocketExtensions(WsResourceAddress address,
-                                                                 List<String> clientRequestedExtensions)
+                                                                 List<String> clientRequestedExtensions,
+                                                                 ExtensionHelper extensionHelper)
             throws ProtocolException {
 
         List<WebSocketExtension> result = Collections.emptyList();
@@ -89,7 +90,7 @@ public final class WebSocketExtensionFactory {
                 for (ExtensionHeader candidate : requestedExtensions) {
                     if(extensionHeaders.contains(candidate)){
                         WebSocketExtensionFactorySpi extension = factoriesRO.get(candidate.getExtensionToken());
-                        WebSocketExtension acceptedExtension = extension.negotiate(candidate, address);
+                        WebSocketExtension acceptedExtension = extension.negotiate(candidate, extensionHelper, address);
                         // negotiated can be null if the extension doesn't want to be active
                         if (acceptedExtension != null) {
                             acceptedExtensions.add(acceptedExtension);

@@ -1,21 +1,17 @@
-/*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.mina.proxy.handlers.socks;
 
@@ -92,8 +88,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
         LOGGER.debug(" doHandshake()");
 
         // Send request
-        writeRequest(nextFilter, request, ((Integer) getSession().getAttribute(
-                HANDSHAKE_STEP)).intValue());
+        writeRequest(nextFilter, request, (Integer) getSession().getAttribute(
+                HANDSHAKE_STEP));
     }
 
     /**
@@ -180,8 +176,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
      */
     private IoBuffer encodeAuthenticationPacket(final SocksProxyRequest request)
             throws UnsupportedEncodingException, GSSException {
-        byte method = ((Byte) getSession().getAttribute(
-                Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+        byte method = (Byte) getSession().getAttribute(
+                Socks5LogicHandler.SELECTED_AUTH_METHOD);
 
         switch (method) {
             case SocksProxyConstants.NO_AUTH:
@@ -331,8 +327,7 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
     public synchronized void messageReceived(final NextFilter nextFilter,
             final IoBuffer buf) {
         try {
-            int step = ((Integer) getSession().getAttribute(HANDSHAKE_STEP))
-                    .intValue();
+            int step = (Integer) getSession().getAttribute(HANDSHAKE_STEP);
 
             if (step == SocksProxyConstants.SOCKS5_GREETING_STEP
                     && buf.get(0) != SocksProxyConstants.SOCKS_VERSION_5) {
@@ -377,8 +372,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
 
         } else if (step == SocksProxyConstants.SOCKS5_AUTH_STEP) {
             // Authentication to the SOCKS server 
-            byte method = ((Byte) getSession().getAttribute(
-                    Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+            byte method = (Byte) getSession().getAttribute(
+                    Socks5LogicHandler.SELECTED_AUTH_METHOD);
 
             if (method == SocksProxyConstants.GSSAPI_AUTH) {
                 int oldPos = buf.position();
@@ -453,8 +448,8 @@ public class Socks5LogicHandler extends AbstractSocksLogicHandler {
         // the authentication process
         boolean isAuthenticating = false;
         if (step == SocksProxyConstants.SOCKS5_AUTH_STEP) {
-            byte method = ((Byte) getSession().getAttribute(
-                    Socks5LogicHandler.SELECTED_AUTH_METHOD)).byteValue();
+            byte method = (Byte) getSession().getAttribute(
+                    Socks5LogicHandler.SELECTED_AUTH_METHOD);
             if (method == SocksProxyConstants.GSSAPI_AUTH) {
                 GSSContext ctx = (GSSContext) getSession().getAttribute(
                         GSS_CONTEXT);
