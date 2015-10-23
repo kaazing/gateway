@@ -69,6 +69,12 @@ public class HttpProxyRequestIT {
     public void status500() throws Exception {
         robot.finish();
     }
+    
+    @Specification( "http.proxy.status.504")
+    @Test
+    public void status504() throws Exception {
+        robot.finish();
+    }
 
     @Specification( "http.proxy.get.method.status.401")
     @Test
