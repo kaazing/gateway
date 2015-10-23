@@ -448,6 +448,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
+            	httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 return;
             }
