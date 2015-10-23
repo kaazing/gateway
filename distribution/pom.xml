@@ -318,7 +318,7 @@
 
     <properties>
         <keywords>HTML5,Kaazing,WebSocket,Gateway,Installer</keywords>
-        <comments>(c) 2007-2014 Kaazing Corporation</comments>
+        <comments>(c) 2007-2015 Kaazing Corporation</comments>
         <edition>Community Edition Gateway</edition>
 
         <!-- gateway.feature.version supplies a 2-digit version of the major/minor version of the Gateway. -->
