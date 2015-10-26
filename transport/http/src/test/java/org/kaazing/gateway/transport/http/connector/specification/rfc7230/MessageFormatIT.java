@@ -50,6 +50,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
+@org.junit.Ignore
 public class MessageFormatIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();

@@ -15,22 +15,42 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
+import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
+import static org.kaazing.mina.core.session.IoSessionEx.IMMEDIATE_EXECUTOR;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.core.filterchain.IoFilterChain;
+import org.apache.mina.core.future.DefaultWriteFuture;
+import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.service.IoProcessor;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteRequest;
+import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
+import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
+import org.kaazing.gateway.transport.http.HttpAcceptProcessor;
+import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
@@ -39,6 +59,11 @@ import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
+import org.kaazing.mina.core.service.IoProcessorEx;
+import org.kaazing.mina.core.service.IoServiceEx;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecSessionEx;
 import org.kaazing.test.util.Mockery;
 
@@ -112,19 +137,32 @@ public class HttpResponseDecoderTest {
     }
 
     @Test
-    public void decodeHeadResponseComplete() throws Exception {
+    public void decodeHeadResponseWihtContentLengthButNoContent() throws Exception {
         Mockery context = new Mockery();
-        HttpSession httpSession = context.mock(HttpSession.class);
         context.setThreadingPolicy(new Synchroniser());
+
+        IoServiceEx httpService = context.mock(IoServiceEx.class);
+        IoHandler httpHandler = context.mock(IoHandler.class);
+        IoProcessorEx<DefaultHttpSession> processor = context.mock(IoProcessorEx.class);
         context.checking(new Expectations() {{
-            allowing(httpSession).getMethod(); will(returnValue(HttpMethod.HEAD));
+            allowing(httpService).getTransportMetadata(); will(returnValue(new DefaultTransportMetadata(HttpProtocol.NAME)));
+            allowing(httpService).getHandler(); will(returnValue(httpHandler));
+            allowing(httpService).getSessionConfig(); will(returnValue(new DefaultIoSessionConfigEx()));
+            allowing(httpService).getThreadLocalWriteRequest(with(any(int.class))); will(returnValue(new DefaultWriteRequestEx.ShareableWriteRequest()));
         }});
 
+        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+        ResourceAddress address = addressFactory.newResourceAddress(URI.create("http://localhost:4232/"));
+        ResourceAddress remoteAddress = addressFactory.newResourceAddress(URI.create("http://localhost:8080/"));
+
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        DefaultHttpSession httpSession = new DefaultHttpSession(httpService, processor, address, remoteAddress, session, null);
+        httpSession.setMethod(HttpMethod.HEAD);
         HttpConnector.HTTP_SESSION_KEY.set(session, httpSession);
         ProtocolDecoder decoder = new HttpResponseDecoder();
 
-        ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\n" +
+        ByteBuffer in = ByteBuffer.wrap((
+                "HTTP/1.1 200 OK\r\n" +
                 "Content-Length: 55\r\n" +
                 "\r\n").getBytes());
 
