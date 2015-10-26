@@ -50,7 +50,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
-@org.junit.Ignore
+@org.junit.Ignore("The head response test passes even without fix")
 public class MessageFormatIT {
 
     private final HttpConnectorRule connector = new HttpConnectorRule();
