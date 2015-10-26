@@ -446,7 +446,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
-            DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
+            DefaultHttpSession httpSession = (DefaultHttpSession) HTTP_SESSION_KEY.remove(session);
             if (httpSession != null && !httpSession.isClosing()) {
             	httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
@@ -493,7 +493,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             // TODO: if content is complete then suspendRead on iosession
             // TODO: in processor when complete resume iosession read (parent)
 
-            DefaultHttpSession httpSession = HTTP_SESSION_KEY.get(session);
+            DefaultHttpSession httpSession = (DefaultHttpSession) HTTP_SESSION_KEY.get(session);
             HttpMessage httpMessage = (HttpMessage) message;
             switch (httpMessage.getKind()) {
             case RESPONSE:
