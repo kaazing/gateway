@@ -31,6 +31,8 @@ import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.kaazing.gateway.transport.DecodingStateMachine;
 import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.HttpCookie;
+import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -46,9 +48,11 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(HttpResponseDecodingState.class);
+	private final HttpSession httpSession;
 
-	public HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator) {
+	public HttpResponseDecodingState(IoBufferAllocatorEx<?> allocator, HttpSession httpSession) {
         super(allocator);
+		this.httpSession = httpSession;
     }
 
     private final DecodingState SKIP_EMPTY_LINES = new CrLfDecodingState() {
@@ -117,7 +121,11 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 						+ version + "\"");
 			}
 
-			if ((version == HttpVersion.HTTP_1_1) && isChunked(httpResponse)) {
+			if (httpSession != null && httpSession.getMethod() == HttpMethod.HEAD) {
+				httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), true));
+				out.write(httpResponse);
+				return null;
+			} else if ((version == HttpVersion.HTTP_1_1) && isChunked(httpResponse)) {
 				httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
 				out.write(httpResponse);
 				return READ_CHUNK;

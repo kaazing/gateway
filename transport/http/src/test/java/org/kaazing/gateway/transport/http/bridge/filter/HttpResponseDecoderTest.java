@@ -26,14 +26,21 @@ import java.util.Arrays;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
+import org.kaazing.gateway.transport.http.DefaultHttpSession;
+import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecSessionEx;
+import org.kaazing.test.util.Mockery;
 
 
 public class HttpResponseDecoderTest {
@@ -102,6 +109,41 @@ public class HttpResponseDecoderTest {
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         assertFalse(in.hasRemaining());
+    }
+
+    @Test
+    public void decodeHeadResponseComplete() throws Exception {
+        Mockery context = new Mockery();
+        HttpSession httpSession = context.mock(HttpSession.class);
+        context.setThreadingPolicy(new Synchroniser());
+        context.checking(new Expectations() {{
+            allowing(httpSession).getMethod(); will(returnValue(HttpMethod.HEAD));
+        }});
+
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        HttpConnector.HTTP_SESSION_KEY.set(session, httpSession);
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+
+        ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 55\r\n" +
+                "\r\n").getBytes());
+
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpResponseMessage httpResponse = (HttpResponseMessage)session.getDecoderOutputQueue().poll();
+        HttpContentMessage httpContent = httpResponse.getContent();
+        assertTrue(httpContent.isComplete());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        decoder.finishDecode(session, session.getDecoderOutput());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(in.hasRemaining());
+
+        context.assertIsSatisfied();
     }
 
     @Test
