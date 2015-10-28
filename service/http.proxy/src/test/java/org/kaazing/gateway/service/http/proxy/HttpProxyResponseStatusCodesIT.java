@@ -32,29 +32,26 @@ public class HttpProxyResponseStatusCodesIT {
 
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7231/server.error");
 
-    private final GatewayRule gateway = new GatewayRule() {
-        {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept(URI.create("http://localhost:8080/proxy"))
-                            .connect(URI.create("http://localhost:8080/server"))
-                            .type("http.proxy")
-                            .connectOption("http.keepalive", "disabled")
-                            .done()
-                    .done();
-            // @formatter:on
-            init(configuration);
-        }
-    };
+    private final GatewayRule gateway = new GatewayRule() {{
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                    .service()
+                        .accept(URI.create("http://localhost:8080/proxy"))
+                        .connect(URI.create("http://localhost:8080/server"))
+                        .type("http.proxy")
+                        .connectOption("http.transport", "tcp://localhost:8081")
+                    .done()
+                .done();
+        // @formatter:on
+        init(configuration);
+    }};
 
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
     @Specification( {
         "proxy.should.return.504.response.when.server.is.down/client",
-        "proxy.should.return.504.response.when.server.is.down/server"
     })
     @Test
     public void proxyShouldReturn504ResponseWhenServerIsDown() throws Exception {
