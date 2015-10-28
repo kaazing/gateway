@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wsn;
 
-import java.io.IOException;
-import java.io.InputStream;
+package org.kaazing.gateway.transport.http;
+
 import java.net.URI;
 import java.util.Collections;
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSessionInitializer;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -30,10 +31,8 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -43,64 +42,38 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  * can be chained with a K3poRule for use with robot (this causes Robot to be
  * started before the gateway and stopped after it).
  */
-public class WsnAcceptorRule implements TestRule {
+public class HttpConnectorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
-    private WsnAcceptor wsnAcceptor;
+    private HttpConnector httpConnector;
 
     @Override
     public Statement apply(Statement base, Description description) {
-        return new AcceptorStatement(base);
+        return new ConnectorStatement(base);
     }
 
-    public WsnAcceptorRule() {
-        this(null);
+    public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
+        Map<String, Object> connectOptions = new HashMap<>();
+        ResourceAddress connectAddress =
+                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+
+        return httpConnector.connect(connectAddress, connectHandler, initializer);
     }
 
-    public WsnAcceptorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
-    }
-
-    public void bind(String accept, IoHandler acceptHandler) {
-
-        final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
-
-        wsnAcceptor.bind(acceptAddress, acceptHandler, null);
-    }
-   
-   public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
-       wsnAcceptor.bind(acceptAddress, acceptHandler, null);
-   }
-
-   private final class AcceptorStatement extends Statement {
+    private final class ConnectorStatement extends Statement {
 
         private final Statement base;
 
         private NioSocketConnector tcpConnector;
         private NioSocketAcceptor tcpAcceptor;
-        private WsAcceptor wsAcceptor;
-        private HttpAcceptor httpAcceptor;
         private SchedulerProvider schedulerProvider;
 
-        public AcceptorStatement(Statement base) {
+        public ConnectorStatement(Statement base) {
             this.base = base;
         }
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                in.close();
-                PropertyConfigurator.configure(log4j);
-            }
             try {
                 // Connector setup
                 schedulerProvider = new SchedulerProvider();
@@ -119,31 +92,18 @@ public class WsnAcceptorRule implements TestRule {
                 tcpConnector.setBridgeServiceFactory(serviceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
 
-                httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
-                httpAcceptor.setBridgeServiceFactory(serviceFactory);
-                httpAcceptor.setResourceAddressFactory(addressFactory);
-                httpAcceptor.setSchedulerProvider(schedulerProvider);
-
-                wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
-
-                wsnAcceptor = (WsnAcceptor)transportFactory.getTransport("wsn").getAcceptor();
-                wsnAcceptor.setConfiguration(new Properties());
-                wsnAcceptor.setBridgeServiceFactory(serviceFactory);
-                wsnAcceptor.setSchedulerProvider(schedulerProvider);
-                wsnAcceptor.setResourceAddressFactory(addressFactory);
-                wsnAcceptor.setWsAcceptor(wsAcceptor);
+                httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
+                httpConnector.setBridgeServiceFactory(serviceFactory);
+                httpConnector.setResourceAddressFactory(addressFactory);
 
                 base.evaluate();
             } finally {
                 tcpConnector.dispose();
                 tcpAcceptor.dispose();
-                httpAcceptor.dispose();
-                wsnAcceptor.dispose();
+                httpConnector.dispose();
                 schedulerProvider.shutdownNow();
             }
         }
 
     }
-
-
 }
