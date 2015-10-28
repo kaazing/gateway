@@ -28,9 +28,9 @@ import java.net.URI;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-public class HttpProxyStatusIT {
+public class HttpProxyResponseStatusCodesIT {
 
-    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc2616/status.code");
+    private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7231/server.error");
 
     private final GatewayRule gateway = new GatewayRule() {
         {
@@ -39,7 +39,7 @@ public class HttpProxyStatusIT {
                     new GatewayConfigurationBuilder()
                         .service()
                             .accept(URI.create("http://localhost:8080/proxy"))
-                            .connect(URI.create("http://localhost:8081/server"))
+                            .connect(URI.create("tcp://localhost:8081"))
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                             .done()
