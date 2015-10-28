@@ -39,7 +39,7 @@ public class HttpProxyResponseStatusCodesIT {
                     new GatewayConfigurationBuilder()
                         .service()
                             .accept(URI.create("http://localhost:8080/proxy"))
-                            .connect(URI.create("tcp://localhost:8081"))
+                            .connect(URI.create("http://localhost:8080/server"))
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                             .done()
