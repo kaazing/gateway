@@ -67,6 +67,11 @@
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.http</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -88,15 +93,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>src/test/**/*.html</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

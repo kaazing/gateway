@@ -288,31 +288,6 @@
             </plugin>
 
             <plugin>
-                <groupId>com.google.code.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <configuration>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <includes>
-                        <include>src/**</include>
-                    </includes>
-                    <excludes>
-                        <exclude>**/3RDPARTY.txt</exclude>
-                        <exclude>**/NOTICE.txt</exclude>
-                        <exclude>**/README.txt</exclude>
-                        <exclude>**/*.db</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -343,7 +318,7 @@
 
     <properties>
         <keywords>HTML5,Kaazing,WebSocket,Gateway,Installer</keywords>
-        <comments>(c) 2007-2014 Kaazing Corporation</comments>
+        <comments>(c) 2007-2015 Kaazing Corporation</comments>
         <edition>Community Edition Gateway</edition>
 
         <!-- gateway.feature.version supplies a 2-digit version of the major/minor version of the Gateway. -->
