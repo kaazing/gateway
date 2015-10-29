@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -570,28 +570,26 @@ public class DefaultServiceContext implements ServiceContext {
                 if (accepts != null) {
                     acceptUris.addAll(accepts);
                 }
-
-                IMap<URI, Set<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
+                //Must use TreeSet , hazelcast map requires a ordered set to hash consistently.
+                IMap<URI, TreeSet<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
                 for (URI balanceURI : balances) {
                     if (accepts != null) {
                         memberBalanceUriMap.put(balanceURI, acceptUris);
 
                         // get and add to the list here instead of overwriting it
-                        Set<URI> balanceUris = null;
-                        Set<URI> newBalanceUris = null;
-
+                        TreeSet<URI> balanceUris = null;
+                        TreeSet<URI> newBalanceUris = null;
                         do {
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris == null) {
-                                newBalanceUris = new HashSet<>();
+                                newBalanceUris = new TreeSet<URI>();
                                 newBalanceUris.addAll(accepts);
                                 balanceUris = sharedBalanceUriMap.putIfAbsent(balanceURI, newBalanceUris);
                                 if (balanceUris == null) {
                                     break;
                                 }
                             }
-
-                            newBalanceUris = new HashSet<>(balanceUris);
+                            newBalanceUris = new TreeSet<URI>(balanceUris);
                             newBalanceUris.addAll(accepts);
                             if (newBalanceUris.equals(balanceUris)) {
                                 break;
@@ -884,20 +882,20 @@ public class DefaultServiceContext implements ServiceContext {
                 if (memberBalanceUriMap == null) {
                     throw new IllegalStateException("Member balancerMap is null for member " + localMember);
                 }
-
-                IMap<URI, Set<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
+                //Must use TreeSet , hazelcast map requires a ordered set to hash consistently.
+                IMap<URI, TreeSet<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
                 for (URI balanceURI : balances) {
                     if (accepts != null) {
                         memberBalanceUriMap.remove(balanceURI);
 
                         // get and add to the list here instead of overwriting it
-                        Set<URI> balanceUris = null;
-                        Set<URI> newBalanceUris = null;
+                        TreeSet<URI> balanceUris = null;
+                        TreeSet<URI> newBalanceUris = null;
                         do {
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {
-                                newBalanceUris = new HashSet<>(balanceUris);
+                                newBalanceUris = new TreeSet<URI>(balanceUris);
                                 for (URI acceptUri : accepts) {
                                     didRemove = didRemove || newBalanceUris.remove(acceptUri);
                                 }
