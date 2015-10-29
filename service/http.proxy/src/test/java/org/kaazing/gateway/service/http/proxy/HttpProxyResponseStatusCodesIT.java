@@ -37,8 +37,8 @@ public class HttpProxyResponseStatusCodesIT {
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("http://localhost:8080/proxy"))
-                        .connect(URI.create("http://localhost:8080/server"))
+                        .accept(URI.create("http://localhost:8080/"))
+                        .connect(URI.create("http://localhost:8080/"))
                         .type("http.proxy")
                         .connectOption("http.transport", "tcp://localhost:8081")
                     .done()
@@ -55,6 +55,15 @@ public class HttpProxyResponseStatusCodesIT {
     })
     @Test
     public void proxyShouldReturn504ResponseWhenServerIsDown() throws Exception {
+        robot.finish();
+    }
+
+    @Specification( {
+            "proxy.should.return.504.response.when.server.disconnects/client",
+            "proxy.should.return.504.response.when.server.disconnects/server",
+    })
+    @Test
+    public void proxyShouldReturn504ResponseWhenServerDisconnects() throws Exception {
         robot.finish();
     }
 
