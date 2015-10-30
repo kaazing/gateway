@@ -262,10 +262,11 @@ public class BroadcastServiceTest {
         @Override
         public void run() {
             ServerSocket socket = null;
+            Socket acceptSockect = null;
             try {
                 socket = new ServerSocket();
                 socket.bind(new InetSocketAddress("localhost", 9090));
-                Socket acceptSockect = socket.accept();
+                acceptSockect = socket.accept();
                 OutputStream os = acceptSockect.getOutputStream();
 
                 latch.countDown(); // someone connected, count down
@@ -284,6 +285,7 @@ public class BroadcastServiceTest {
             }
             finally{
                 try {
+                    acceptSockect.close();
                     socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -311,8 +313,8 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
+            Socket socket = new Socket();
             try {
-                Socket socket = new Socket();
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 InputStream in = socket.getInputStream();
 
@@ -340,9 +342,16 @@ public class BroadcastServiceTest {
                         System.out.println(format("Failure in TestClient %d:  read returned %d", clientNumber, numBytes));
                     }
                 }
-                socket.close();
+                
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestClient.run()", ex);
+            }
+            finally{
+                try {
+                     socket.close();
+                } catch (IOException e) {
+                     e.printStackTrace();
+                }
             }
         }
 
@@ -362,15 +371,16 @@ public class BroadcastServiceTest {
         @Override
         public void run() {
             ServerSocket socket = null;
+            Socket acceptSockect = null;
             try {
                 socket = new ServerSocket();
                 socket.bind(new InetSocketAddress("localhost", 9090));
-                Socket acceptSockect = socket.accept();
+                acceptSockect = socket.accept();
                 OutputStream os = acceptSockect.getOutputStream();
 
                 // Some diagnostics for the test
-                System.out.println(format("FastTestBackendProducer receive buffer size: %d",acceptSockect.getReceiveBufferSize()));
-                System.out.println(format("FastTestBackendProducer send buffer size: %d", acceptSockect.getSendBufferSize()));
+                System.out.println(format("FastTestBackendProducer receive buffer size: %d",socket.getReceiveBufferSize()));
+                System.out.println(format("FastTestBackendProducer send buffer size: %d", socket.getReceiveBufferSize()));
 
                 // The bytes for ">|<"
                 byte[] packet = new byte[] { 0x3E, 0x7C, 0x3C };
@@ -409,6 +419,7 @@ public class BroadcastServiceTest {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
             }finally {
                 try {
+                    acceptSockect.close();
                     socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -437,8 +448,8 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
+            Socket socket = new Socket();
             try {
-                Socket socket = new Socket();
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
                 System.out.println(format("SlowTestClient receive buffer size: %d", socket.getReceiveBufferSize()));
@@ -466,10 +477,15 @@ public class BroadcastServiceTest {
                 }
 
                 System.out.println(format("SlowTestClient %d: connection closed, that'll teach me", clientNumber));
-
-                socket.close();
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestClient.run()", ex);
+            }
+            finally{
+                try {
+                     socket.close();
+                } catch (IOException e) {
+                     e.printStackTrace();
+                }
             }
         }
 
