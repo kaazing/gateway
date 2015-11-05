@@ -107,6 +107,7 @@ read "\n"
 # upstream
 # --------
 # Example: "POST /appbasic/;e/utm/Ku4bzUCoZgD4icQExW9iMejFrHVxeG39&.krn=0.7393842079985082 HTTP/1.1\r\n"
+# wrong request URI by javascript client : https://github.com/kaazing-private/gateway.client.javascript/issues/4
 write "POST /appbasic/;e/utm/"
 write ${sessionId}
 write "&.krn=0.7393842079985082 HTTP/1.1\r\n"

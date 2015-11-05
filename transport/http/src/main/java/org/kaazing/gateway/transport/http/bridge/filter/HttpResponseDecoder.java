@@ -17,6 +17,9 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
+import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.http.HttpMethod;
+import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
@@ -26,7 +29,8 @@ public class HttpResponseDecoder extends HttpMessageDecoder {
 	protected DecodingState initDecodingState(IoSession session) {
         IoSessionEx sessionEx = (IoSessionEx) session;
         IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-		return new HttpResponseDecodingState(allocator);
+		HttpSession httpSession = HttpConnector.HTTP_SESSION_KEY.get(session);
+		return new HttpResponseDecodingState(allocator, httpSession);
 	}
 
 }

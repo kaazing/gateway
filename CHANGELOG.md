@@ -2,7 +2,21 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.33...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.34...HEAD)
+
+**Merged pull requests:**
+
+- Cluster bug [\#350](https://github.com/kaazing/gateway/pull/350) ([mjolie](https://github.com/mjolie))
+- HTTP HEAD method resources may have Content-Length without content [\#348](https://github.com/kaazing/gateway/pull/348) ([jitsni](https://github.com/jitsni))
+- Fix license headers in two recently added test files in transport/wseb. [\#344](https://github.com/kaazing/gateway/pull/344) ([cmebarrow](https://github.com/cmebarrow))
+- Really fix the license header in HttpPathMatchingFilter.java [\#343](https://github.com/kaazing/gateway/pull/343) ([cmebarrow](https://github.com/cmebarrow))
+- Fix year in license header in HttpPathMatchingFilter.java [\#342](https://github.com/kaazing/gateway/pull/342) ([cmebarrow](https://github.com/cmebarrow))
+- Added WSN x-kaazing-idle-timeout k3po test scenarios [\#340](https://github.com/kaazing/gateway/pull/340) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+- HttpBindings comparator didn't check transport's origin [\#319](https://github.com/kaazing/gateway/pull/319) ([jitsni](https://github.com/jitsni))
+- upstream/downstream requests should get 404 \(instead of 401\)  [\#257](https://github.com/kaazing/gateway/pull/257) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.34](https://github.com/kaazing/gateway/tree/5.0.1.34) (2015-10-09)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.33...5.0.1.34)
 
 **Merged pull requests:**
 
