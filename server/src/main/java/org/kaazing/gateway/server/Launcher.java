@@ -19,10 +19,13 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.kaazing.gateway.resource.address.pipe.NamedPipePathException;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +36,14 @@ public class Launcher {
     // from the log4j-config.xml except for debugging/tracing information).
     private static final Logger LOGGER = LoggerFactory.getLogger(Gateway.class);
 
+    private static final String PIPE_URI_ERROR_MESSAGE = "Using pipe://%s instead of pipe://%s%s from service '%s' "
+            + "because paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.";
+
     private GatewayContext context;
 
     private GatewayObserver gatewayListener;
+
+    private ServiceContext currentInitingServiceContext;
 
     public Launcher() {
 
@@ -46,6 +54,13 @@ public class Launcher {
         gatewayListener.startingGateway();
         try {
             initInternal(context);
+        } catch (NamedPipePathException pipePathException) {
+            destroy();
+            String pipePath = pipePathException.getPathFromError();
+            String pipeAuthority = pipePathException.getAuthorityFromError();
+            String serviceName = currentInitingServiceContext.getServiceName();
+            throw new NamedPipePathException(
+                    String.format(PIPE_URI_ERROR_MESSAGE, pipeAuthority, pipeAuthority, pipePath, serviceName));
         } catch (Exception e) {
             // shut down gateway if there was an error during init
             destroy();
@@ -74,6 +89,7 @@ public class Launcher {
         }
 
         for (ServiceContext serviceContext : context.getServices()) {
+            currentInitingServiceContext = serviceContext;
             gatewayListener.startingService(serviceContext);
             serviceContext.start();
             gatewayListener.startedService(serviceContext);

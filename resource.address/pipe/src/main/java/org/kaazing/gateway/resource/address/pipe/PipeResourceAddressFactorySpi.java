@@ -56,11 +56,17 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
         // suffices.
 
         String pipeName = location.getAuthority();
+		String pathName = location.getPath();
         if (pipeName == null) {
             throw new IllegalArgumentException(String.format("URI %s missing pipe name", location));
         }
+        if (pathName != null && !pathName.isEmpty()) {
+            String authorityName = location.getAuthority();
+            throw new NamedPipePathException(pathName, authorityName);
+        }
 
         return new PipeResourceAddress(original, location);
+       
     }
     
 }
