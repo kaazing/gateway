@@ -694,7 +694,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
 
             WsnSession wsnSession = SESSION_KEY.get(session);
-            wsnSession.setCloseException(cause);
+            if (wsnSession != null) {
+                wsnSession.setCloseException(cause);
+            }
 
             session.close(true);
         }
