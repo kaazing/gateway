@@ -36,7 +36,7 @@ public class PipeResourceAddressFactorySpiTest {
     private PipeResourceAddressFactorySpi addressFactorySpi;
     private URI addressURI;
     private Map<String, Object> options;
-    
+
     @Before
     public void before() {
         addressFactorySpi = new PipeResourceAddressFactorySpi();
@@ -90,12 +90,17 @@ public class PipeResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNull(address.getOption(TRANSPORT_URI));
     }
-    
+
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
         assertEquals(URI.create("socks://localhost:2121"), address.getOption(TRANSPORT_URI));
     }
-    
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotUsePathInPipeURL() throws Exception {
+        addressFactorySpi.newResourceAddress(URI.create("pipe://customera/app1"));
+    }
+
 }

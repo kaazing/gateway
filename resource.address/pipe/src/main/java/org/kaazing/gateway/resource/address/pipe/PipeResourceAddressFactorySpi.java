@@ -23,10 +23,13 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 
 public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<PipeResourceAddress> {
-    
+
     private static final String SCHEME_NAME = "pipe";
 
     private static final String PROTOCOL_NAME = "pipe";
+
+    private static final String PIPE_PATH_ERROR_MESSAGE = "Using pipe://%s instead of pipe://%s%s "
+            + "because paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.";
 
     @Override
     public String getSchemeName() {
@@ -37,12 +40,12 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     protected String getTransportName() {
         return TRANSPORT_NAME;
     }
-    
+
     @Override
     protected String getProtocolName() {
         return PROTOCOL_NAME;
     }
-    
+
     @Override
     protected ResourceFactory getTransportFactory() {
         return null;
@@ -52,7 +55,7 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     protected PipeResourceAddress newResourceAddress0(URI original, URI location) {
 
         // Unlike a normal-looking URI, our custom "pipe://" does not have
-        // host/port/path components.  Instead, the authority component
+        // host/port/path components. Instead, the authority component
         // suffices.
 
         String pipeName = location.getAuthority();
@@ -61,12 +64,11 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
             throw new IllegalArgumentException(String.format("URI %s missing pipe name", location));
         }
         if (pathName != null && !pathName.isEmpty()) {
-            String authorityName = location.getAuthority();
-            throw new NamedPipePathException(pathName, authorityName);
+            throw new IllegalArgumentException(String.format(PIPE_PATH_ERROR_MESSAGE, pipeName, pipeName, pathName));
         }
 
         return new PipeResourceAddress(original, location);
-       
+
     }
-    
+
 }
