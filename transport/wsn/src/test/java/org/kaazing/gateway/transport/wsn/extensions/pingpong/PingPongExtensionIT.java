@@ -65,21 +65,9 @@ public class PingPongExtensionIT {
         robot.finish();
     }
 
-    @Specification("shouldNotEchoEscapeFrame")
-    @Test
-    public void shouldNotEchoEscapeFrame() throws Exception {
-        robot.finish();
-    }
-
     @Specification("shouldReplyToExtendedPingWithExtendedPong")
     @Test
     public void shouldReplyToExtendedPingWithExtendedPong() throws Exception {
-        robot.finish();
-    }
-
-    @Specification("shouldEchoEscapedFrameWithPingPongControlBytes")
-    @Test
-    public void shouldEchoEscapedFrameWithPingPongControlBytes() throws Exception {
         robot.finish();
     }
 
