@@ -40,7 +40,7 @@ public class PipeResourceAddressFactorySpiTest {
     @Before
     public void before() {
         addressFactorySpi = new PipeResourceAddressFactorySpi();
-        addressURI = URI.create("pipe://authority/path");
+        addressURI = URI.create("pipe://authority");
         options = new HashMap<>();
         options.put("pipe.nextProtocol", "custom");
         options.put("pipe.qualifier", "random");
@@ -65,7 +65,7 @@ public class PipeResourceAddressFactorySpiTest {
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("pipe://authority/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("pipe://authority"));
         assertNotNull(address);
     }
 
