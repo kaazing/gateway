@@ -24,16 +24,19 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.service.proxy.AbstractProxyAcceptHandler;
 import org.kaazing.gateway.service.proxy.AbstractProxyHandler;
+import org.kaazing.gateway.transport.Direction;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -165,11 +168,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
 
     /*
-     * Write all (except hop-by-hop) headers from source session to destination
-     * session.
+     * Write all (except hop-by-hop) headers from source session to destination session.
      *
-     * If the header is an upgrade one, let the Upgrade header go through as this
-     * service supports upgrade
+     * If the header is an upgrade one, let the Upgrade header go through as this service supports upgrade
      */
     private static boolean processHopByHopHeaders(HttpSession src, HttpSession dest) {
         Set<String> hopByHopHeaders = getHopByHopHeaders(src);
@@ -179,23 +180,25 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
 
         // Add source session headers to destination session
-        for(Map.Entry<String, List<String>> e : src.getReadHeaders().entrySet()) {
+        for (Map.Entry<String, List<String>> e : src.getReadHeaders().entrySet()) {
             String name = e.getKey();
-            for(String value : e.getValue()) {
+            for (String value : e.getValue()) {
                 if (!hopByHopHeaders.contains(name)) {
-                    dest.addWriteHeader(name, value);
+                    if (name.equalsIgnoreCase(HttpHeaders.HEADER_HOST)) {
+                        dest.addWriteHeader(name, dest.getRemoteAddress().getResource().getAuthority());
+                    } else {
+                        dest.addWriteHeader(name, value);
+                    }
                 }
             }
         }
 
         return upgrade;
     }
-    
-    
+
     /*
-     * Write all (except hop-by-hop) request headers from accept session to connect session.
-     * If the request is an upgrade one, let the Upgrade header go through as this
-     * service supports upgrade
+     * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
+     * upgrade one, let the Upgrade header go through as this service supports upgrade
      */
     private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
         boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
