@@ -64,11 +64,6 @@
             <classifier>keystore</classifier>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>specification.http</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

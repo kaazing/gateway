@@ -15,10 +15,20 @@
  */
 package org.kaazing.test.util;
 
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.Field;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.spi.LoggingEvent;
@@ -56,10 +66,60 @@ public class MemoryAppender extends ConsoleAppender {
         gatewayBeingStarted = null;
     }
 
+    private static Queue<LoggingEvent> getEvents() {
+        return eventsList;
+    }
+
+    public static void assertMessagesLogged(Collection<String> expectedPatterns,
+                                            Collection<String> unexpectedPatterns,
+                                            String filterPattern,
+                                            boolean verbose) {
+        Set<String> encounteredPatterns = new TreeSet<String>();
+        List<String> encounteredUnexpectedMessages = new ArrayList<String>();
+        Collection<String> unexpected = unexpectedPatterns == null ? Collections.<String>emptyList() : unexpectedPatterns;
+
+        for (LoggingEvent event : MemoryAppender.getEvents()) {
+            String message = event.getMessage().toString();
+            if (filterPattern == null || message.matches(filterPattern)) {
+                if (verbose) {
+                    System.out.println(event.getLevel() + " " + message);
+                }
+                Iterator<String> iterator = expectedPatterns.iterator();
+                while (iterator.hasNext()) {
+                    String pattern = iterator.next();
+                    if (message.matches(".*" + pattern + ".*")) {
+                        encounteredPatterns.add(pattern);
+                        iterator.remove();
+                    }
+                }
+                iterator = unexpected.iterator();
+                while (iterator.hasNext()) {
+                    String pattern = iterator.next();
+                    if (message.matches(".*" + pattern + ".*")) {
+                        encounteredUnexpectedMessages.add(message);
+                    }
+                }
+            }
+        }
+        StringBuffer errorMessage = new StringBuffer();
+        if (!encounteredUnexpectedMessages.isEmpty()) {
+            errorMessage.append("\n- the following unexpected messages were encountered: ");
+            for (String message : encounteredUnexpectedMessages) {
+                errorMessage.append("\n  " + message);
+            }
+        }
+        if (!expectedPatterns.isEmpty()) {
+            errorMessage.append("\n- the following patterns of log messages were not logged: " + expectedPatterns
+                    + (verbose ? ",\nonly these were logged: " + encounteredPatterns : ""));
+        }
+        assertTrue("Log messages were not as expected" + errorMessage.toString(),
+                expectedPatterns.isEmpty() && encounteredUnexpectedMessages.isEmpty());
+    }
+
     public static void printAllMessages() {
         if (lastInstance == null) {
             System.out.println("Unable to print out trace level root logger messages - please "
-                               + "configure MemoryAppender on the <root> logger in log4j - config.xml");
+                    + "configure MemoryAppender on the <root> logger in log4j - config.xml");
         } else {
             System.out.println(String.format("Printing last %d of %d log messages", eventsList.size(), messageCount.get()));
             lastInstance.appendAll();
