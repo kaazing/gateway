@@ -156,6 +156,12 @@
             <version>2.2.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.x-kaazing-ping-pong</artifactId>
+            <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
