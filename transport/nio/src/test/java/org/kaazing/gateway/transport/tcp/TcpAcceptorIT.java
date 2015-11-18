@@ -29,6 +29,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -97,6 +98,7 @@ public class TcpAcceptorIT {
         }
     }
 
+    @Ignore("https://github.com/kaazing/gateway/issues/357")
     @Test
     @Specification({
         "establish.connection/tcp.client"
