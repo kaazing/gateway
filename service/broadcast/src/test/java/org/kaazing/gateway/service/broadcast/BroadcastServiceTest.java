@@ -466,6 +466,7 @@ public class BroadcastServiceTest {
                         Thread.sleep(1000);
                         System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, in.available()));
                         try {
+                            System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
                             int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
                             if (read == -1) {
                                 // socket closed
@@ -478,6 +479,7 @@ public class BroadcastServiceTest {
                             break;
                         }
                         try {
+                            System.out.println(format("SlowTestClient %d: writing 1 byte", clientNumber));
                             os.write(new byte[] { 0x21 }); // write '!' back to the Gateway
                         } catch (IOException e) {
                             // Expected as this is the way the socket is tested for being closed, just quit the loop
