@@ -466,8 +466,22 @@ public class BroadcastServiceTest {
                         System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, in.available()));
                         try {
                             os.write(new byte[] { 0x21 }); // write '!' back to the Gateway
-                        } catch (IOException writeIOEx) {
+                        } catch (IOException e) {
                             // Expected as this is the way the socket is tested for being closed, just quit the loop
+                            System.out.println(format("SlowTestClient %d: write threw exception %s, assuming socket closed",
+                                    clientNumber, e));
+                            break;
+                        }
+                        try {
+                            int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
+                            if (read == -1) {
+                                // socket closed
+                                System.out.println(format("SlowTestClient %d: read returned -1, socket closed", clientNumber));
+                                break;
+                            }
+                        } catch (IOException e) {
+                            System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
+                                    clientNumber, e));
                             break;
                         }
                     } catch (InterruptedException interEx) {
