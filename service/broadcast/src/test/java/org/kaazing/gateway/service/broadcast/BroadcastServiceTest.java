@@ -366,7 +366,7 @@ public class BroadcastServiceTest {
 
     private class FastTestBackendProducer implements Runnable {
         private CountDownLatch latch = new CountDownLatch(1);
-        private boolean running = true;
+        private volatile boolean running = true;
 
         @Override
         public void run() {
