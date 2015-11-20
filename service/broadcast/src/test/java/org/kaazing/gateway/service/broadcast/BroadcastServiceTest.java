@@ -16,6 +16,7 @@
 package org.kaazing.gateway.service.broadcast;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,11 +38,11 @@ import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceFactory;
 import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.test.util.MethodExecutionTrace;
+import org.kaazing.test.util.ITUtil;
 
 public class BroadcastServiceTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTraceAndTimeout = ITUtil.createRuleChain(30, SECONDS);
 
     private BroadcastService service;
 
@@ -95,8 +96,8 @@ public class BroadcastServiceTest {
 
     @Test
     public void testBroadcast() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
-        ServiceProperties serviceProperties = serviceContext.getProperties();
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
+                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
       
         // set up the configuration -- empty properties so the values just default
         service.setConfiguration(new Properties());
@@ -465,14 +466,6 @@ public class BroadcastServiceTest {
                         Thread.sleep(1000);
                         System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, in.available()));
                         try {
-                            os.write(new byte[] { 0x21 }); // write '!' back to the Gateway
-                        } catch (IOException e) {
-                            // Expected as this is the way the socket is tested for being closed, just quit the loop
-                            System.out.println(format("SlowTestClient %d: write threw exception %s, assuming socket closed",
-                                    clientNumber, e));
-                            break;
-                        }
-                        try {
                             int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
                             if (read == -1) {
                                 // socket closed
@@ -481,6 +474,14 @@ public class BroadcastServiceTest {
                             }
                         } catch (IOException e) {
                             System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
+                                    clientNumber, e));
+                            break;
+                        }
+                        try {
+                            os.write(new byte[] { 0x21 }); // write '!' back to the Gateway
+                        } catch (IOException e) {
+                            // Expected as this is the way the socket is tested for being closed, just quit the loop
+                            System.out.println(format("SlowTestClient %d: write threw exception %s, assuming socket closed",
                                     clientNumber, e));
                             break;
                         }
