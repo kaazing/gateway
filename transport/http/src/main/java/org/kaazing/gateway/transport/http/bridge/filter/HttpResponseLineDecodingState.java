@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import org.apache.mina.core.buffer.IoBuffer;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.statemachine.DecodingState;
 import org.apache.mina.filter.codec.statemachine.LinearWhitespaceSkippingState;
@@ -39,6 +40,20 @@ public abstract class HttpResponseLineDecodingState extends DecodingStateMachine
 	private final CharsetDecoder UTF_8_DECODER = UTF_8.newDecoder();
 
 	private final DecodingState READ_VERSION = new ConsumeToLinearWhitespaceDecodingState(allocator) {
+        boolean verifiedVersion;
+
+        public DecodingState decode(IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+            if (!verifiedVersion && in.hasRemaining()) {
+                verifiedVersion = true;
+                int ch = in.get(in.position());
+                if (ch != 'H') {
+                    throw new ProtocolDecoderException("Invalid HTTP version, starting with char = " + ch);
+                }
+            }
+
+            return super.decode(in, out);
+        }
+
 		@Override
 		protected DecodingState finishDecode(IoBuffer buffer, ProtocolDecoderOutput out) throws Exception {
 			if (!buffer.hasRemaining()) {
