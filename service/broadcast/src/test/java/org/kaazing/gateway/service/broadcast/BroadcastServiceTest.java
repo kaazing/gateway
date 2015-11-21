@@ -409,6 +409,7 @@ public class BroadcastServiceTest {
                 while (running) {
                     while (bytesSent < batchSize) {
                         os.write(packet);
+                        os.flush();
                         bytesSent += packet.length;
                     }
                     totalBytesSent += bytesSent;
