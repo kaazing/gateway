@@ -37,13 +37,12 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceFactory;
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.test.util.ITUtil;
 
 public class BroadcastServiceTest {
     @Rule
-    public TestRule testExecutionTraceAndTimeout = ITUtil.createRuleChain(30, SECONDS);
+    public TestRule testExecutionTraceAndTimeout = ITUtil.createRuleChain(20, SECONDS);
 
     private BroadcastService service = null;
 
@@ -158,16 +157,18 @@ public class BroadcastServiceTest {
     @Test
     public void testSlowConsumer() throws Exception {
         final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
-        ServiceProperties serviceProperties = serviceContext.getProperties();
-        // set up the configuration -- empty properties so the values just default
+
+        // set up the configuration
         Properties slowConsumerProps = new Properties();
-        slowConsumerProps.setProperty("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES", "40000"); // FIXME: why this number?
+        int maxPendingBytes = 5000;
+        slowConsumerProps.setProperty("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES", "5000"); 
         service.setConfiguration(slowConsumerProps);
+
         service.init(serviceContext);
         service.start();
         System.out.println("service started");
 
-        FastTestBackendProducer producer = new FastTestBackendProducer();
+        FastTestBackendProducer producer = new FastTestBackendProducer(maxPendingBytes);
         Thread t = new Thread(producer, "FastBackendProducerThread");
 
         SlowTestClient c1 = new SlowTestClient(1, 1000);
@@ -369,8 +370,13 @@ public class BroadcastServiceTest {
     }
 
     private class FastTestBackendProducer implements Runnable {
-        private CountDownLatch latch = new CountDownLatch(1);
+        private final CountDownLatch latch = new CountDownLatch(1);
+        private final int maxPendingBytes;
         private volatile boolean running = true;
+        
+        public FastTestBackendProducer(int maxPendingBytes) {
+            this.maxPendingBytes = maxPendingBytes;
+        }
         
         @Override
         public void run() {
@@ -381,14 +387,18 @@ public class BroadcastServiceTest {
                 socket.bind(new InetSocketAddress("localhost", 9090));
                 acceptSocket = socket.accept();
                 OutputStream os = acceptSocket.getOutputStream();
-
+                int sendBufferSize = acceptSocket.getSendBufferSize();
                 // Some diagnostics for the test
-                System.out.println(format("FastTestBackendProducer send buffer size: %d", socket.getReceiveBufferSize()));
+                System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
 
                 int messagesPerSecond = 5;
-                int producerDurationSeconds = 2;
-                long targetBytes = 2 * (acceptSocket.getSendBufferSize());
-                long batchSize = targetBytes / (messagesPerSecond * producerDurationSeconds);
+                
+                // Several times send buffer size should hopefully saturate the buffers and make socket unwritable
+                long targetBytes = 3 * (sendBufferSize) + maxPendingBytes;
+                
+                // Send half sendBufferSize every second
+                long batchSize = (sendBufferSize/2) / messagesPerSecond;
+                
                 byte[] packet = new byte[(int) batchSize];
                 long totalBytesSent = 0;
                 long bytesSent = 0;
@@ -481,7 +491,7 @@ public class BroadcastServiceTest {
                                     clientNumber, e));
                             break;
                         }
-                        if (available > 0) {
+                        if (available > 0) { // read may block othewise
                             try {
                                 System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
                                 int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
@@ -510,7 +520,6 @@ public class BroadcastServiceTest {
                         break;
                     }
                 }
-
                 System.out.println(format("SlowTestClient %d: connection closed, that'll teach me", clientNumber));
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestClient.run()", ex);
