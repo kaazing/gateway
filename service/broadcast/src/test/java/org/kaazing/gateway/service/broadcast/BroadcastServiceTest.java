@@ -156,7 +156,8 @@ public class BroadcastServiceTest {
 
     @Test
     public void testSlowConsumer() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
+                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
 
         // set up the configuration
         Properties slowConsumerProps = new Properties();
@@ -387,6 +388,14 @@ public class BroadcastServiceTest {
                 int sendBufferSize = acceptSocket.getSendBufferSize();
                 // Some diagnostics for the test
                 System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
+                
+                // The bytes for ">|<"
+                os.write(new byte[] { 0x3E, 0x7C, 0x3C});
+                try {
+                    Thread.sleep(500); // sending 2 messages / second
+                } catch (InterruptedException interEx) {
+                    // ignore
+                }
 
                 int messagesPerSecond = 5;
                 
@@ -474,7 +483,18 @@ public class BroadcastServiceTest {
                 System.out.println(format("SlowTestClient send buffer size: %d", socket.getSendBufferSize()));
                 InputStream in = socket.getInputStream();
                 OutputStream os = socket.getOutputStream();
-                latch.countDown(); // SlowTestClient successfully connected, now won't read
+                
+                // read a message, countdown the latch, then keep reading messages until stop is called
+                byte[] b = new byte[3];
+                int numBytes = in.read(b);
+
+                if (numBytes == 3) {
+                    System.out.println(format("TestClient %d:  received message %s", clientNumber, new String(b)));
+                    latch.countDown(); // SlowTestClient successfully connected, now won't read
+                } else {
+                    System.out.println(format("Failure in TestClient %d:  read returned %d", clientNumber, numBytes));
+                }
+
 
                 int iteration = 0;
                 while (!socket.isClosed() && socket.isConnected() && !socket.isInputShutdown()) {
