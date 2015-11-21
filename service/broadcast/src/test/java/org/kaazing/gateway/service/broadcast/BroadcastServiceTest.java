@@ -188,6 +188,7 @@ public class BroadcastServiceTest {
             if (!c1.getLatch().await(5, TimeUnit.SECONDS)) {
                 Assert.fail("SlowClient 1 failed to connect in 5 seconds");
             }
+            producer.setClientConnected();
 
             // Wait up to 15 seconds for slow client to get killed, after that the test has timed out and failure is asserted
             tc1.join(15 * 1000);
@@ -371,6 +372,7 @@ public class BroadcastServiceTest {
         private final CountDownLatch latch = new CountDownLatch(1);
         private final int maxPendingBytes;
         private volatile boolean running = true;
+        private volatile boolean clientConnected = false;
         
         public FastTestBackendProducer(int maxPendingBytes) {
             this.maxPendingBytes = maxPendingBytes;
@@ -388,23 +390,21 @@ public class BroadcastServiceTest {
                 int sendBufferSize = acceptSocket.getSendBufferSize();
                 // Some diagnostics for the test
                 System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
+                latch.countDown(); // service connected, count down
                 
-                // The bytes for ">|<"
-                os.write(new byte[] { 0x3E, 0x7C, 0x3C});
-                try {
-                    Thread.sleep(500); // sending 2 messages / second
-                } catch (InterruptedException interEx) {
-                    // ignore
+                while (!clientConnected) {
+                    // The bytes for ">|<"
+                    os.write(new byte[] {0x3E, 0x7C, 0x3C});
+                    Thread.sleep(200);
                 }
 
                 int messagesPerSecond = 5;
                 
                 // Several times send buffer size should hopefully saturate the buffers and make socket unwritable
-                long targetBytes = (30 * sendBufferSize) + maxPendingBytes;
+                long targetBytes = (3 * sendBufferSize) + maxPendingBytes;
                 
                 // Send half sendBufferSize every second
-                // Try to force tcp buffer full on Travis by writing more aggressively 
-                long batchSize = targetBytes; //(sendBufferSize/2) / messagesPerSecond;
+                long batchSize = (sendBufferSize/2) / messagesPerSecond;
                 
                 byte[] packet = new byte[(int) batchSize];
                 long totalBytesSent = 0;
@@ -414,7 +414,6 @@ public class BroadcastServiceTest {
                 System.out.println(format("FastTestBackendProducer batch size: %d", batchSize));
 
                 long startTime = System.currentTimeMillis();
-                latch.countDown(); // someone connected, count down
                 while (running) {
                     while (bytesSent < batchSize) {
                         os.write(packet);
@@ -440,6 +439,9 @@ public class BroadcastServiceTest {
                 
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }finally {
                 try {
                     acceptSocket.close();
@@ -448,6 +450,10 @@ public class BroadcastServiceTest {
                     e.printStackTrace();
                 }
             }
+        }
+        
+        public void setClientConnected() {
+            clientConnected = true;
         }
 
         private void stop() {
