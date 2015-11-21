@@ -164,10 +164,10 @@ public class BroadcastServiceTest {
         service.start();
         System.out.println("service started");
 
-        FastTestBackendProducer producer = new FastTestBackendProducer();
+        FastTestBackendProducer producer = new FastTestBackendProducer(1000*1000);
         Thread t = new Thread(producer, "FastBackendProducerThread");
 
-        SlowTestClient c1 = new SlowTestClient(1);
+        SlowTestClient c1 = new SlowTestClient(1, 1000);
         Thread tc1 = new Thread(c1, "SlowClient 1");
 
         try {
@@ -367,7 +367,12 @@ public class BroadcastServiceTest {
 
     private class FastTestBackendProducer implements Runnable {
         private CountDownLatch latch = new CountDownLatch(1);
+        private final int maxBytesToWrite;
         private volatile boolean running = true;
+        
+        public FastTestBackendProducer(int maxBytesToWrite) {
+            this.maxBytesToWrite = maxBytesToWrite;
+        }
 
         @Override
         public void run() {
@@ -401,6 +406,11 @@ public class BroadcastServiceTest {
                     while (bytesSent < batchSize) {
                         os.write(packet);
                         bytesSent += packet.length;
+                        if (bytesSent > maxBytesToWrite) {
+                            System.out.println(format("Time: Producer stopping because bytes sent %d exceeds limit %d",
+                                    totalBytesSent, maxBytesToWrite));
+                            break;
+                        }
                     }
 
                     totalBytesSent += bytesSent;
@@ -438,10 +448,13 @@ public class BroadcastServiceTest {
     }
 
     private class SlowTestClient implements Runnable {
-        private CountDownLatch latch = new CountDownLatch(1);
-        private int clientNumber;
-        private SlowTestClient(int num) {
+        private final CountDownLatch latch = new CountDownLatch(1);
+        private final int clientNumber;
+        private final int receiveBufferSize;
+        
+        private SlowTestClient(int num, int receiveBufferSize) {
             clientNumber = num;
+            this.receiveBufferSize = receiveBufferSize;
         }
 
         public void stop() {
@@ -452,6 +465,7 @@ public class BroadcastServiceTest {
             Socket socket = new Socket();
             try {
                 socket.connect(new InetSocketAddress("localhost", 9880));
+                socket.setReceiveBufferSize(receiveBufferSize);
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
                 System.out.println(format("SlowTestClient receive buffer size: %d", socket.getReceiveBufferSize()));
                 System.out.println(format("SlowTestClient send buffer size: %d", socket.getSendBufferSize()));
@@ -464,19 +478,22 @@ public class BroadcastServiceTest {
                     // take little naps, mmmmmmmmm naps....
                     try {
                         Thread.sleep(1000);
-                        System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, in.available()));
-                        try {
-                            System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
-                            int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
-                            if (read == -1) {
-                                // socket closed
-                                System.out.println(format("SlowTestClient %d: read returned -1, socket closed", clientNumber));
+                        int available = in.available();
+                        System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, available));
+                        if (available > 0) {
+                            try {
+                                System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
+                                int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
+                                if (read == -1) {
+                                    // socket closed
+                                    System.out.println(format("SlowTestClient %d: read returned -1, socket closed", clientNumber));
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
+                                        clientNumber, e));
                                 break;
                             }
-                        } catch (IOException e) {
-                            System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
-                                    clientNumber, e));
-                            break;
                         }
                         try {
                             System.out.println(format("SlowTestClient %d: writing 1 byte", clientNumber));
