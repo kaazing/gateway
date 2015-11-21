@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,12 +45,20 @@ public class BroadcastServiceTest {
     @Rule
     public TestRule testExecutionTraceAndTimeout = ITUtil.createRuleChain(30, SECONDS);
 
-    private BroadcastService service;
+    private BroadcastService service = null;
 
     @Before
     public void setup() {
         service = (BroadcastService)ServiceFactory.newServiceFactory().newService("broadcast");
         service.setSchedulerProvider(new SchedulerProvider());
+    }
+    
+    @After
+    public void tearDown() throws Exception {
+        if (service != null) {
+            service.stop();
+            service.destroy();
+        }
     }
 
     @Test
@@ -89,9 +98,6 @@ public class BroadcastServiceTest {
 
         backend.stop();
         t.join();
-
-        service.stop();
-        service.destroy();
     }
 
     @Test
@@ -147,9 +153,6 @@ public class BroadcastServiceTest {
         // quit back-end
         producer.stop();
         t.join();
-
-        service.stop();
-        service.destroy();
     }
 
     @Test
@@ -164,7 +167,7 @@ public class BroadcastServiceTest {
         service.start();
         System.out.println("service started");
 
-        FastTestBackendProducer producer = new FastTestBackendProducer(1000*1000);
+        FastTestBackendProducer producer = new FastTestBackendProducer();
         Thread t = new Thread(producer, "FastBackendProducerThread");
 
         SlowTestClient c1 = new SlowTestClient(1, 1000);
@@ -367,33 +370,26 @@ public class BroadcastServiceTest {
 
     private class FastTestBackendProducer implements Runnable {
         private CountDownLatch latch = new CountDownLatch(1);
-        private final int maxBytesToWrite;
         private volatile boolean running = true;
         
-        public FastTestBackendProducer(int maxBytesToWrite) {
-            this.maxBytesToWrite = maxBytesToWrite;
-        }
-
         @Override
         public void run() {
             ServerSocket socket = null;
-            Socket acceptSockect = null;
+            Socket acceptSocket = null;
             try {
                 socket = new ServerSocket();
                 socket.bind(new InetSocketAddress("localhost", 9090));
-                acceptSockect = socket.accept();
-                OutputStream os = acceptSockect.getOutputStream();
+                acceptSocket = socket.accept();
+                OutputStream os = acceptSocket.getOutputStream();
 
                 // Some diagnostics for the test
-                System.out.println(format("FastTestBackendProducer receive buffer size: %d",socket.getReceiveBufferSize()));
                 System.out.println(format("FastTestBackendProducer send buffer size: %d", socket.getReceiveBufferSize()));
 
-                // The bytes for ">|<"
-                byte[] packet = new byte[] { 0x3E, 0x7C, 0x3C };
-                int messagesPerSecond = 20;
-                int testLengthTime = 4;
-                long targetBytes = 2 * (acceptSockect.getReceiveBufferSize() + acceptSockect.getSendBufferSize());
-                long batchSize = targetBytes / (messagesPerSecond * testLengthTime);
+                int messagesPerSecond = 5;
+                int producerDurationSeconds = 2;
+                long targetBytes = 2 * (acceptSocket.getSendBufferSize());
+                long batchSize = targetBytes / (messagesPerSecond * producerDurationSeconds);
+                byte[] packet = new byte[(int) batchSize];
                 long totalBytesSent = 0;
                 long bytesSent = 0;
 
@@ -406,19 +402,17 @@ public class BroadcastServiceTest {
                     while (bytesSent < batchSize) {
                         os.write(packet);
                         bytesSent += packet.length;
-                        if (bytesSent > maxBytesToWrite) {
-                            System.out.println(format("Time: Producer stopping because bytes sent %d exceeds limit %d",
-                                    totalBytesSent, maxBytesToWrite));
-                            break;
-                        }
                     }
-
                     totalBytesSent += bytesSent;
                     bytesSent = 0;
                     long delta = (System.currentTimeMillis() - startTime);
 
-                    // In the event the test fails, print some diagnostics
                     System.out.println(format("Time: %d  Producer, sent %d bytes", delta, totalBytesSent));
+                    if (totalBytesSent > targetBytes) {
+                        System.out.println(format("Time: Producer stopping because total bytes sent %d exceeds limit %d",
+                                totalBytesSent, targetBytes));
+                        break;
+                    }
                     try {
                         Thread.sleep(1000 / messagesPerSecond); // sending 20 messages / second
                     } catch (InterruptedException interEx) {
@@ -430,7 +424,7 @@ public class BroadcastServiceTest {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
             }finally {
                 try {
-                    acceptSockect.close();
+                    acceptSocket.close();
                     socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -464,8 +458,8 @@ public class BroadcastServiceTest {
         public void run() {
             Socket socket = new Socket();
             try {
-                socket.connect(new InetSocketAddress("localhost", 9880));
                 socket.setReceiveBufferSize(receiveBufferSize);
+                socket.connect(new InetSocketAddress("localhost", 9880));
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
                 System.out.println(format("SlowTestClient receive buffer size: %d", socket.getReceiveBufferSize()));
                 System.out.println(format("SlowTestClient send buffer size: %d", socket.getSendBufferSize()));
@@ -478,8 +472,15 @@ public class BroadcastServiceTest {
                     // take little naps, mmmmmmmmm naps....
                     try {
                         Thread.sleep(1000);
-                        int available = in.available();
-                        System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, available));
+                        int available = 0;
+                        try {
+                            available = in.available();
+                            System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, available));
+                        } catch (IOException e) {
+                            System.out.println(format("SlowTestClient %d: available threw exception %s, assuming socket closed",
+                                    clientNumber, e));
+                            break;
+                        }
                         if (available > 0) {
                             try {
                                 System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
