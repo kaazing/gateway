@@ -392,7 +392,8 @@ public class BroadcastServiceTest {
                 System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
                 latch.countDown(); // service connected, count down
                 
-                while (!clientConnected) {
+                while (!clientConnected  && running) {
+                    System.out.println("FastTestBackendProducer sending hello message >|<");
                     // The bytes for ">|<"
                     os.write(new byte[] {0x3E, 0x7C, 0x3C});
                     Thread.sleep(200);
@@ -442,7 +443,7 @@ public class BroadcastServiceTest {
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            }finally {
+            } finally {
                 try {
                     acceptSocket.close();
                     socket.close();
@@ -469,10 +470,12 @@ public class BroadcastServiceTest {
         private final CountDownLatch latch = new CountDownLatch(1);
         private final int clientNumber;
         private final int receiveBufferSize;
+        private final long startTime;
         
         private SlowTestClient(int num, int receiveBufferSize) {
             clientNumber = num;
             this.receiveBufferSize = receiveBufferSize;
+            startTime = System.currentTimeMillis();
         }
 
         public void stop() {
@@ -493,7 +496,7 @@ public class BroadcastServiceTest {
                 // read a message, countdown the latch, then keep reading messages until stop is called
                 byte[] b = new byte[3];
                 int numBytes = in.read(b);
-
+                System.out.println(format("TestClient %d:  read returned %d", clientNumber, numBytes));
                 if (numBytes == 3) {
                     System.out.println(format("TestClient %d:  received message %s", clientNumber, new String(b)));
                     latch.countDown(); // SlowTestClient successfully connected, now won't read
@@ -547,7 +550,8 @@ public class BroadcastServiceTest {
                 }
                 System.out.println(format("SlowTestClient %d: connection closed, that'll teach me", clientNumber));
             } catch (IOException ex) {
-                throw new RuntimeException("Issue in TestClient.run()", ex);
+                throw new RuntimeException(format("Issue in TestClient.run() %d millis after contruction", 
+                        System.currentTimeMillis() - startTime), ex);
             }
             finally{
                 try {

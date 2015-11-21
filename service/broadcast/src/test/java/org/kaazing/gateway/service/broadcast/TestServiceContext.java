@@ -59,7 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestServiceContext implements ServiceContext {
-    private static final Logger logger = LoggerFactory.getLogger(TestServiceContext.class);
+    private final Logger logger = LoggerFactory.getLogger(TestServiceContext.class);
 
     private final Service service;
     private final String name;
