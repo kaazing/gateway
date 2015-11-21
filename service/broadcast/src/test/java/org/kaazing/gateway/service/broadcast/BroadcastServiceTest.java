@@ -193,16 +193,13 @@ public class BroadcastServiceTest {
             if (tc1.isAlive()) {
                 c1.stop();
                 tc1.join();
-                Assert.fail("SlowClient 1 was not terminated in 30 seconds");
+                Assert.fail("SlowClient 1 did not complete within the expected time, connection not closed by broadcast service?");
             }
-	} finally {
+        } finally {
             // quit back-end
             producer.stop();
             t.join();
-	}
-
-        service.stop();
-        service.destroy();
+        }
     }
 
     private class TestBackendService implements Runnable {
@@ -394,10 +391,12 @@ public class BroadcastServiceTest {
                 int messagesPerSecond = 5;
                 
                 // Several times send buffer size should hopefully saturate the buffers and make socket unwritable
-                long targetBytes = 3 * (sendBufferSize) + maxPendingBytes;
+                long targetBytes = (3 * sendBufferSize) + maxPendingBytes;
                 
                 // Send half sendBufferSize every second
-                long batchSize = (sendBufferSize/2) / messagesPerSecond;
+                // Try to force tcp buffer full on Travis by writing more aggressively 
+                long batchSize = targetBytes; //(sendBufferSize/2) / messagesPerSecond;
+                targetBytes *= 5;
                 
                 byte[] packet = new byte[(int) batchSize];
                 long totalBytesSent = 0;
