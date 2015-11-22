@@ -159,7 +159,7 @@ public class BroadcastService implements Service {
 
     @Override
     public void quiesce() throws Exception {
-        reconnect.set(true);
+        reconnect.set(false);
 
         if (serviceContext != null) {
             serviceContext.unbind(serviceContext.getAccepts(), handler);           
