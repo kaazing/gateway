@@ -51,6 +51,8 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
+        System.out.println("BroadcastListenHandler,sessionClosed, disconnectClientsOnReconnect="
+                + disconnectClientsOnReconnect);
         if (disconnectClientsOnReconnect) {
             Iterator<IoSession> clientsIterator = clients.iterator();
             while (clientsIterator.hasNext()) {
@@ -64,6 +66,8 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 	public void messageReceived(IoSession session, Object message) throws Exception {
         if (message instanceof IoBuffer) {
 			IoBuffer buf = (IoBuffer) message;
+			System.out.println("BroadcastListenHandler: writing message to clients: " + message
+			        + ", clients=" + clients);
 			for (IoSession client : clients) {
 			    writeOrClose(client, buf);
 			}
@@ -73,7 +77,8 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 	        if (message instanceof Message) {
 	            ((Message)message).initCache();
 	        }
-	        
+            System.out.println("BroadcastListenHandler: writing message to clients: " + message
+                    + ", clients=" + clients);
 			for (IoSession client : clients) {
 			    writeOrClose(client, message);
 			}
