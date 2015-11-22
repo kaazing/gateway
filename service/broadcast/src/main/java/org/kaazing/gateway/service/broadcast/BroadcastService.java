@@ -192,7 +192,7 @@ public class BroadcastService implements Service {
                 @Override
                 public void operationComplete(ConnectFuture future) {
                     System.out.println("BroadcastService.ConnectTask: operationComplete, future.isConnected()="
-                            + future.isConnected() + " session=" + future.getSession());
+                            + future.isConnected());
                     if (future.isConnected()) {
                         IoSession newSession = future.getSession();
                         newSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
