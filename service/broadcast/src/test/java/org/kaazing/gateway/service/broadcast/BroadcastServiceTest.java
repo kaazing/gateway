@@ -401,8 +401,8 @@ public class BroadcastServiceTest {
 
                 int messagesPerSecond = 5;
                 
-                // Several times send buffer size should hopefully saturate the buffers and make socket unwritable
-                long targetBytes = (3 * sendBufferSize) + maxPendingBytes;
+                // Twice the send buffer size should be ample to saturate the buffers and make socket unwritable
+                long targetBytes = (2 * sendBufferSize) + maxPendingBytes;
                 
                 // Send half sendBufferSize every second
                 long batchSize = (sendBufferSize/2) / messagesPerSecond;
