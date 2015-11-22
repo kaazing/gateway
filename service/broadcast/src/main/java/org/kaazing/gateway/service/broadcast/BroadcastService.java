@@ -38,6 +38,7 @@ import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -187,12 +188,9 @@ public class BroadcastService implements Service {
 
         @Override
         public void run() {
-            System.out.println("BroadcastService.ConnectTask: connecting");
             serviceContext.connect(connectURI, handler.getListenHandler(), null).addListener(new IoFutureListener<ConnectFuture>() {
                 @Override
                 public void operationComplete(ConnectFuture future) {
-                    System.out.println("BroadcastService.ConnectTask: operationComplete, future.isConnected()="
-                            + future.isConnected());
                     if (future.isConnected()) {
                         IoSession newSession = future.getSession();
                         newSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {

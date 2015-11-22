@@ -76,7 +76,6 @@ class BroadcastServiceHandler extends IoHandlerAdapter {
     @Override
     public void sessionOpened(IoSession session) throws Exception {
         session.getFilterChain().addLast("io", codec);
-        System.out.println("BroadcastServiceHandler: adding client " + session);
         clients.add(session);
     }
 

@@ -550,7 +550,6 @@ public class BroadcastServiceTest {
                 }
                 System.out.println(format("SlowTestClient %d: connection closed, that'll teach me", clientNumber));
             } catch (IOException ex) {
-                ex.printStackTrace();
                 throw new RuntimeException(format("Issue in TestClient.run() %d millis after contruction", 
                         System.currentTimeMillis() - startTime), ex);
             }
