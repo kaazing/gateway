@@ -192,7 +192,7 @@ public class BroadcastService implements Service {
                 @Override
                 public void operationComplete(ConnectFuture future) {
                     System.out.println("BroadcastService.ConnectTask: operationComplete, future.isConnected()="
-                            + future.isConnected() + " session=" + future.getSession());
+                            + future.isConnected());
                     if (future.isConnected()) {
                         IoSession newSession = future.getSession();
                         newSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
@@ -201,8 +201,6 @@ public class BroadcastService implements Service {
                                 session.set(null);
 
                                 if (reconnect.get()) {
-                                    System.out.println("BroadcastService.ConnectTask: close listener "
-                                            + " session=" + future.getSession() + " scheduling reconnect");
                                     scheduler.schedule(connectTask, reconnectDelay, TimeUnit.MILLISECONDS);
                                 }
                             }
@@ -210,7 +208,6 @@ public class BroadcastService implements Service {
                         session.set(newSession);
                     }
                     else {
-                        System.out.println("BroadcastService.ConnectTask: operationComplete, scheduling reconnect"); 
                         scheduler.schedule(connectTask, reconnectDelay, TimeUnit.MILLISECONDS);
                     }
                 }

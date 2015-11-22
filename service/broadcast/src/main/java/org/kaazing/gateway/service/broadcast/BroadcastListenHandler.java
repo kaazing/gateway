@@ -46,13 +46,12 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 
 	@Override
     public void sessionOpened(IoSession session) throws Exception {
-	    System.out.println("BroadcastListenHandler.sessionClosed: adding codec");
 	    session.getFilterChain().addLast("io", codec);
     }
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
-        System.out.println("BroadcastListenHandler.sessionClosed: disconnectClientsOnReconnect="
+        System.out.println("BroadcastListenHandler,sessionClosed, disconnectClientsOnReconnect="
                 + disconnectClientsOnReconnect);
         if (disconnectClientsOnReconnect) {
             Iterator<IoSession> clientsIterator = clients.iterator();
@@ -88,8 +87,6 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
  
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-        System.out.println("BroadcastListenHandler.exceptionCaught: session="
-               + session + ", exception=" + cause);
         LoggingUtils.log(logger, cause);
     }
 
