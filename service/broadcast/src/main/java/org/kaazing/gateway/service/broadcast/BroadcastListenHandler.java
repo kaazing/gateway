@@ -46,7 +46,7 @@ public class BroadcastListenHandler extends IoHandlerAdapter {
 
 	@Override
     public void sessionOpened(IoSession session) throws Exception {
-	    System.out.println("BroadcastListenHandler.sessionOpened: adding codec");
+	    System.out.println("BroadcastListenHandler.sessionClosed: adding codec");
 	    session.getFilterChain().addLast("io", codec);
     }
 
