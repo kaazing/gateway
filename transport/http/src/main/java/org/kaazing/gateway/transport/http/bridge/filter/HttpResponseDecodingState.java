@@ -257,7 +257,8 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 						// create the cookie name and value
 						DefaultHttpCookie cookie = new DefaultHttpCookie(
 								nvPair[0].trim());
-						cookie.setValue(nvPair[1].trim());
+						if (nvPair.length > 1)
+						    cookie.setValue(nvPair[1].trim());
 
 						// read the cookie properties
 						for (int i = 1; i < nvPairCount; i++) {
