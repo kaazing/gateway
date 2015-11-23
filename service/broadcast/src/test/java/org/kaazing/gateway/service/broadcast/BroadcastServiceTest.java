@@ -16,6 +16,7 @@
 package org.kaazing.gateway.service.broadcast;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,20 +37,27 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceFactory;
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import org.kaazing.test.util.MethodExecutionTrace;
+import org.kaazing.test.util.ITUtil;
 
 public class BroadcastServiceTest {
     @Rule
-    public TestRule testExecutionTrace = new MethodExecutionTrace();
+    public TestRule testExecutionTraceAndTimeout = ITUtil.createRuleChain(20, SECONDS);
 
-    private BroadcastService service;
+    private BroadcastService service = null;
 
     @Before
     public void setup() {
         service = (BroadcastService)ServiceFactory.newServiceFactory().newService("broadcast");
         service.setSchedulerProvider(new SchedulerProvider());
+    }
+    
+    @After
+    public void tearDown() throws Exception {
+        if (service != null) {
+            service.stop();
+            service.destroy();
+        }
     }
 
     @Test
@@ -88,15 +97,12 @@ public class BroadcastServiceTest {
 
         backend.stop();
         t.join();
-
-        service.stop();
-        service.destroy();
     }
 
     @Test
     public void testBroadcast() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
-        ServiceProperties serviceProperties = serviceContext.getProperties();
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
+                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
       
         // set up the configuration -- empty properties so the values just default
         service.setConfiguration(new Properties());
@@ -146,27 +152,27 @@ public class BroadcastServiceTest {
         // quit back-end
         producer.stop();
         t.join();
-
-        service.stop();
-        service.destroy();
     }
 
     @Test
     public void testSlowConsumer() throws Exception {
-        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
-        ServiceProperties serviceProperties = serviceContext.getProperties();
-        // set up the configuration -- empty properties so the values just default
+        final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
+                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
+
+        // set up the configuration
         Properties slowConsumerProps = new Properties();
-        slowConsumerProps.setProperty("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES", "40000"); // FIXME: why this number?
+        int maxPendingBytes = 5000;
+        slowConsumerProps.setProperty("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES", "5000"); 
         service.setConfiguration(slowConsumerProps);
+
         service.init(serviceContext);
         service.start();
         System.out.println("service started");
 
-        FastTestBackendProducer producer = new FastTestBackendProducer();
+        FastTestBackendProducer producer = new FastTestBackendProducer(maxPendingBytes);
         Thread t = new Thread(producer, "FastBackendProducerThread");
 
-        SlowTestClient c1 = new SlowTestClient(1);
+        SlowTestClient c1 = new SlowTestClient(1, 1000);
         Thread tc1 = new Thread(c1, "SlowClient 1");
 
         try {
@@ -182,22 +188,20 @@ public class BroadcastServiceTest {
             if (!c1.getLatch().await(5, TimeUnit.SECONDS)) {
                 Assert.fail("SlowClient 1 failed to connect in 5 seconds");
             }
+            producer.setClientConnected();
 
             // Wait up to 15 seconds for slow client to get killed, after that the test has timed out and failure is asserted
             tc1.join(15 * 1000);
             if (tc1.isAlive()) {
                 c1.stop();
                 tc1.join();
-                Assert.fail("SlowClient 1 was not terminated in 30 seconds");
+                Assert.fail("SlowClient 1 did not complete within the expected time, connection not closed by broadcast service?");
             }
-	} finally {
+        } finally {
             // quit back-end
             producer.stop();
             t.join();
-	}
-
-        service.stop();
-        service.destroy();
+        }
     }
 
     private class TestBackendService implements Runnable {
@@ -365,29 +369,45 @@ public class BroadcastServiceTest {
     }
 
     private class FastTestBackendProducer implements Runnable {
-        private CountDownLatch latch = new CountDownLatch(1);
-        private boolean running = true;
-
+        private final CountDownLatch latch = new CountDownLatch(1);
+        private final int maxPendingBytes;
+        private volatile boolean running = true;
+        private volatile boolean clientConnected = false;
+        
+        public FastTestBackendProducer(int maxPendingBytes) {
+            this.maxPendingBytes = maxPendingBytes;
+        }
+        
         @Override
         public void run() {
             ServerSocket socket = null;
-            Socket acceptSockect = null;
+            Socket acceptSocket = null;
             try {
                 socket = new ServerSocket();
                 socket.bind(new InetSocketAddress("localhost", 9090));
-                acceptSockect = socket.accept();
-                OutputStream os = acceptSockect.getOutputStream();
-
+                acceptSocket = socket.accept();
+                OutputStream os = acceptSocket.getOutputStream();
+                int sendBufferSize = acceptSocket.getSendBufferSize();
                 // Some diagnostics for the test
-                System.out.println(format("FastTestBackendProducer receive buffer size: %d",socket.getReceiveBufferSize()));
-                System.out.println(format("FastTestBackendProducer send buffer size: %d", socket.getReceiveBufferSize()));
+                System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
+                latch.countDown(); // service connected, count down
+                
+                while (!clientConnected  && running) {
+                    System.out.println("FastTestBackendProducer sending hello message >|<");
+                    // The bytes for ">|<"
+                    os.write(new byte[] {0x3E, 0x7C, 0x3C});
+                    Thread.sleep(200);
+                }
 
-                // The bytes for ">|<"
-                byte[] packet = new byte[] { 0x3E, 0x7C, 0x3C };
-                int messagesPerSecond = 20;
-                int testLengthTime = 4;
-                long targetBytes = 2 * (acceptSockect.getReceiveBufferSize() + acceptSockect.getSendBufferSize());
-                long batchSize = targetBytes / (messagesPerSecond * testLengthTime);
+                int messagesPerSecond = 5;
+                
+                // Twice the send buffer size should be ample to saturate the buffers and make socket unwritable
+                long targetBytes = (2 * sendBufferSize) + maxPendingBytes;
+                
+                // Send half sendBufferSize every second
+                long batchSize = (sendBufferSize/2) / messagesPerSecond;
+                
+                byte[] packet = new byte[(int) batchSize];
                 long totalBytesSent = 0;
                 long bytesSent = 0;
 
@@ -395,19 +415,22 @@ public class BroadcastServiceTest {
                 System.out.println(format("FastTestBackendProducer batch size: %d", batchSize));
 
                 long startTime = System.currentTimeMillis();
-                latch.countDown(); // someone connected, count down
                 while (running) {
                     while (bytesSent < batchSize) {
                         os.write(packet);
+                        os.flush();
                         bytesSent += packet.length;
                     }
-
                     totalBytesSent += bytesSent;
                     bytesSent = 0;
                     long delta = (System.currentTimeMillis() - startTime);
 
-                    // In the event the test fails, print some diagnostics
                     System.out.println(format("Time: %d  Producer, sent %d bytes", delta, totalBytesSent));
+                    if (totalBytesSent > targetBytes) {
+                        System.out.println(format("Time: Producer stopping because total bytes sent %d exceeds limit %d",
+                                totalBytesSent, targetBytes));
+                        break;
+                    }
                     try {
                         Thread.sleep(1000 / messagesPerSecond); // sending 20 messages / second
                     } catch (InterruptedException interEx) {
@@ -417,14 +440,21 @@ public class BroadcastServiceTest {
                 
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
-            }finally {
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } finally {
                 try {
-                    acceptSockect.close();
+                    acceptSocket.close();
                     socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+        }
+        
+        public void setClientConnected() {
+            clientConnected = true;
         }
 
         private void stop() {
@@ -437,10 +467,15 @@ public class BroadcastServiceTest {
     }
 
     private class SlowTestClient implements Runnable {
-        private CountDownLatch latch = new CountDownLatch(1);
-        private int clientNumber;
-        private SlowTestClient(int num) {
+        private final CountDownLatch latch = new CountDownLatch(1);
+        private final int clientNumber;
+        private final int receiveBufferSize;
+        private final long startTime;
+        
+        private SlowTestClient(int num, int receiveBufferSize) {
             clientNumber = num;
+            this.receiveBufferSize = receiveBufferSize;
+            startTime = System.currentTimeMillis();
         }
 
         public void stop() {
@@ -450,37 +485,61 @@ public class BroadcastServiceTest {
         public void run() {
             Socket socket = new Socket();
             try {
+                socket.setReceiveBufferSize(receiveBufferSize);
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
                 System.out.println(format("SlowTestClient receive buffer size: %d", socket.getReceiveBufferSize()));
                 System.out.println(format("SlowTestClient send buffer size: %d", socket.getSendBufferSize()));
                 InputStream in = socket.getInputStream();
                 OutputStream os = socket.getOutputStream();
-                latch.countDown(); // SlowTestClient successfully connected, now won't read
+                
+                // read a message, countdown the latch, then keep reading messages until stop is called
+                byte[] b = new byte[3];
+                int numBytes = in.read(b);
+                System.out.println(format("TestClient %d:  read returned %d", clientNumber, numBytes));
+                if (numBytes == 3) {
+                    System.out.println(format("TestClient %d:  received message %s", clientNumber, new String(b)));
+                    latch.countDown(); // SlowTestClient successfully connected, now won't read
+                } else {
+                    System.out.println(format("Failure in TestClient %d:  read returned %d", clientNumber, numBytes));
+                }
+
 
                 int iteration = 0;
                 while (!socket.isClosed() && socket.isConnected() && !socket.isInputShutdown()) {
                     // take little naps, mmmmmmmmm naps....
                     try {
                         Thread.sleep(1000);
-                        System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, in.available()));
+                        int available = 0;
                         try {
+                            available = in.available();
+                            System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, available));
+                        } catch (IOException e) {
+                            System.out.println(format("SlowTestClient %d: available threw exception %s, assuming socket closed",
+                                    clientNumber, e));
+                            break;
+                        }
+                        if (available > 0) { // read may block othewise
+                            try {
+                                System.out.println(format("SlowTestClient %d: reading 1 byte", clientNumber));
+                                int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
+                                if (read == -1) {
+                                    // socket closed
+                                    System.out.println(format("SlowTestClient %d: read returned -1, socket closed", clientNumber));
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
+                                        clientNumber, e));
+                                break;
+                            }
+                        }
+                        try {
+                            System.out.println(format("SlowTestClient %d: writing 1 byte", clientNumber));
                             os.write(new byte[] { 0x21 }); // write '!' back to the Gateway
                         } catch (IOException e) {
                             // Expected as this is the way the socket is tested for being closed, just quit the loop
                             System.out.println(format("SlowTestClient %d: write threw exception %s, assuming socket closed",
-                                    clientNumber, e));
-                            break;
-                        }
-                        try {
-                            int read = in.read(new byte[1]); // read 1 byte (necessary on some platforms to detect socket closed)
-                            if (read == -1) {
-                                // socket closed
-                                System.out.println(format("SlowTestClient %d: read returned -1, socket closed", clientNumber));
-                                break;
-                            }
-                        } catch (IOException e) {
-                            System.out.println(format("SlowTestClient %d: read threw exception %s, assuming socket closed",
                                     clientNumber, e));
                             break;
                         }
@@ -489,10 +548,10 @@ public class BroadcastServiceTest {
                         break;
                     }
                 }
-
                 System.out.println(format("SlowTestClient %d: connection closed, that'll teach me", clientNumber));
             } catch (IOException ex) {
-                throw new RuntimeException("Issue in TestClient.run()", ex);
+                throw new RuntimeException(format("Issue in TestClient.run() %d millis after contruction", 
+                        System.currentTimeMillis() - startTime), ex);
             }
             finally{
                 try {
