@@ -182,11 +182,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             String name = e.getKey();
             for (String value : e.getValue()) {
                 if (!hopByHopHeaders.contains(name)) {
-                    if (name.equalsIgnoreCase(HttpHeaders.HEADER_HOST)) {
-                        dest.addWriteHeader(name, dest.getRemoteAddress().getResource().getAuthority());
-                    } else {
-                        dest.addWriteHeader(name, value);
-                    }
+                    dest.addWriteHeader(name, value);
                 }
             }
         }

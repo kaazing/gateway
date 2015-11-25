@@ -87,11 +87,12 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                 // TODO: strip port if default
                 httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
             }
-
             // override headers
             httpRequest.putHeaders(session.getWriteHeaders());
 
             httpRequest.setCookies(session.getWriteCookies());
+
+            httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
 
             if (isChunked) {
                 IoBufferAllocatorEx<? extends HttpBuffer> allocator = session.getBufferAllocator();
@@ -152,9 +153,7 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
 
                         // override headers
                         httpRequest.putHeaders(session.getWriteHeaders());
-                        if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
-                            httpRequest.setHeader(HttpHeaders.HEADER_HOST, session.getRemoteAddress().getResource().getAuthority());
-                        }
+                        httpRequest.setHeader(HttpHeaders.HEADER_HOST, session.getRemoteAddress().getResource().getAuthority());
 
                         httpRequest.setCookies(session.getWriteCookies());
 
