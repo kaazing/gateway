@@ -38,6 +38,7 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
@@ -286,5 +287,17 @@ public class HttpResponseDecoderTest {
         decoder.finishDecode(session, session.getDecoderOutput());
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
+    }
+
+    @Test(expected = ProtocolDecoderException.class)
+    public void decodeIncorrectHttpVersion() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+
+        ByteBuffer in = ByteBuffer.wrap(new byte[] { 0x03, 0x00, 0x00, 0x00, 0x00 });
+
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
     }
 }

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.35</version>
+        <version>5.0.1.36</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.transport.wsn</artifactId>
@@ -153,6 +153,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.x-kaazing-idle-timeout</artifactId>
+            <version>2.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.x-kaazing-ping-pong</artifactId>
             <version>2.2.0</version>
             <scope>test</scope>
         </dependency>

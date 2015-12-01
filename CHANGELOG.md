@@ -2,7 +2,22 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.34...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.35...HEAD)
+
+**Merged pull requests:**
+
+- Added IT tests for RFC 7232 for Directory Service [\#358](https://github.com/kaazing/gateway/pull/358) ([sanjay-saxena](https://github.com/sanjay-saxena))
+- RFC 7235 specification tests [\#356](https://github.com/kaazing/gateway/pull/356) ([jitsni](https://github.com/jitsni))
+- If the parent session is already closed, ssl filter would be null. [\#355](https://github.com/kaazing/gateway/pull/355) ([jitsni](https://github.com/jitsni))
+- Fail-fast HTTP responses while decoding HTTP version [\#354](https://github.com/kaazing/gateway/pull/354) ([jitsni](https://github.com/jitsni))
+- wsn session may be null when there is an exception [\#353](https://github.com/kaazing/gateway/pull/353) ([jitsni](https://github.com/jitsni))
+- Throwing an exception at gateway startup when 'pipe://' URL is used with path [\#352](https://github.com/kaazing/gateway/pull/352) ([msalavastru](https://github.com/msalavastru))
+- Adding tests for http proxy sending 504 status code [\#349](https://github.com/kaazing/gateway/pull/349) ([jitsni](https://github.com/jitsni))
+- Added x-kaazing-ping-pong WSN robot tests [\#338](https://github.com/kaazing/gateway/pull/338) ([mgherghe](https://github.com/mgherghe))
+- Remove/block use of accept in properties section of broadcast service  [\#335](https://github.com/kaazing/gateway/pull/335) ([mjolie](https://github.com/mjolie))
+
+## [5.0.1.35](https://github.com/kaazing/gateway/tree/5.0.1.35) (2015-11-05)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.34...5.0.1.35)
 
 **Merged pull requests:**
 
