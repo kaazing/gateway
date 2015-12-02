@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class HttpResponseDecodingState extends DecodingStateMachine {
+	private static final int MAXIMUM_NON_STREAMING_CONTENT_LENGTH = 4096;
 
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(HttpResponseDecodingState.class);
@@ -135,20 +136,24 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 				if (lengthValue != null) {
 					int length = parseContentLength(lengthValue);
 					if (length > 0) {
-					    // TODO: fragment large content lengths
-						return new FixedLengthDecodingState(allocator, length) {
-							@Override
-							protected DecodingState finishDecode(
-									IoBuffer readData, ProtocolDecoderOutput out)
-									throws Exception {
-								HttpContentMessage content = new HttpContentMessage((IoBufferEx) readData, true);
-								httpResponse.setContent(content);
-								out.write(httpResponse);
-								return FLUSH_MESSAGES;
-							}
-						};
-					} 
-					else {
+						if (length < MAXIMUM_NON_STREAMING_CONTENT_LENGTH) {
+							return new FixedLengthDecodingState(allocator, length) {
+								@Override
+								protected DecodingState finishDecode(IoBuffer readData, ProtocolDecoderOutput out)
+										throws Exception {
+									HttpContentMessage content = new HttpContentMessage((IoBufferEx) readData, true);
+									httpResponse.setContent(content);
+									out.write(httpResponse);
+									return FLUSH_MESSAGES;
+								}
+							};
+						} else {
+							// down-streaming
+							httpResponse.setContent(new HttpContentMessage(allocator.wrap(allocator.allocate(0)), false));
+							out.write(httpResponse);
+							return new MaximumLengthDecodingState(length);
+						}
+					} else {
 						out.write(httpResponse);
 						return null;
 					}

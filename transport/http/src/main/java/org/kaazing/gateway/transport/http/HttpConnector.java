@@ -513,7 +513,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                         protected void httpContentReceived(NextFilter nextFilter, IoSessionEx session, HttpContentMessage httpContent) throws Exception {
                             // trigger session closed when all content arrived
                             // even if underlying IoSession is kept open
-                            if (session.getReadBytes() >= maximumReadBytes) {
+                            if (httpSession.getReadBytes() >= maximumReadBytes) {
                                 session.close(false);
                             }
 
