@@ -44,9 +44,12 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 
     };
 
-	public SseSession(IoServiceEx service, IoProcessorEx<SseSession> processor, ResourceAddress localAddress, ResourceAddress remoteAddress, IoSessionEx parent,
+    private final IoSessionEx parentSession;
+
+    public SseSession(IoServiceEx service, IoProcessorEx<SseSession> processor, ResourceAddress localAddress, ResourceAddress remoteAddress, IoSessionEx parent,
                       IoBufferAllocatorEx<SseBuffer> allocator) {
     	super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.WRITE, new DefaultSseSessionConfig());
+        this.parentSession = parent;
     }
 
     public SseSession(int ioLayer,
@@ -56,8 +59,10 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
                       IoProcessorEx<SseSession> processor,
                       ResourceAddress localAddress,
                       ResourceAddress remoteAddress,
-                      IoBufferAllocatorEx<SseBuffer> allocator) {
+                      IoBufferAllocatorEx<SseBuffer> allocator,
+                      IoSessionEx parent) {
         super(ioLayer, ioThread, ioExecutor, service, processor, localAddress, remoteAddress, allocator, Direction.WRITE, new DefaultSseSessionConfig());
+        this.parentSession = parent;
     }
 
     @Override
@@ -116,4 +121,8 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 	protected IoSessionEx setParent(IoSessionEx parent) {
 		return super.setParent(parent);
 	}
+
+    public IoSessionEx parent() {
+        return parentSession;
+    }
 }
