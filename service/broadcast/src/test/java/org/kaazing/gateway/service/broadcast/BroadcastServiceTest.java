@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -154,6 +155,7 @@ public class BroadcastServiceTest {
         t.join();
     }
 
+    @Ignore("https://github.com/kaazing/gateway/issues/364")
     @Test
     public void testSlowConsumer() throws Exception {
         final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
