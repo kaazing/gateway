@@ -83,10 +83,6 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
                 httpRequest.setHeader("User-Agent", "Kaazing Gateway");
             }
 
-            if (session.getWriteHeader(HttpHeaders.HEADER_HOST) == null) {
-                // TODO: strip port if default
-                httpRequest.setHeader(HttpHeaders.HEADER_HOST, resource.getAuthority());
-            }
             // override headers
             httpRequest.putHeaders(session.getWriteHeaders());
 
