@@ -44,6 +44,9 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 
     };
 
+    // Setting the 'parent' member variable in the super class results in SSE IT tests to fail. Temporarily use
+    // a different member variable to hold the parent session. This is needed for an extension-service built
+    // for a customer.
     private final IoSessionEx parentSession;
 
     public SseSession(IoServiceEx service, IoProcessorEx<SseSession> processor, ResourceAddress localAddress, ResourceAddress remoteAddress, IoSessionEx parent,
@@ -122,6 +125,9 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 		return super.setParent(parent);
 	}
 
+    // Temporary workaround till issues related to setting the 'parent' member variable
+    // in the super class are addressed. This method is used in an extension-service
+    // built for a customer
     public IoSessionEx parent() {
         return parentSession;
     }
