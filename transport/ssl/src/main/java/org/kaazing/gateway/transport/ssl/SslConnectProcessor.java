@@ -43,12 +43,14 @@ public class SslConnectProcessor extends BridgeConnectProcessor<SslSession> {
                 IoSession parent = session.getParent();
                 IoFilterChain filterChain = parent.getFilterChain();
                 Entry entry = filterChain.getEntry(SslFilter.class);
-                SslFilter sslFilter = (SslFilter)entry.getFilter();
-                if (sslFilter.isSslStarted(parent)) {
-                    // unsecuring the session will trigger
-                    //  parent close from SslConnector
-                    sslFilter.stopSsl(parent);
-                    return;
+                if (entry != null) {
+                    SslFilter sslFilter = (SslFilter) entry.getFilter();
+                    if (sslFilter.isSslStarted(parent)) {
+                        // unsecuring the session will trigger
+                        //  parent close from SslConnector
+                        sslFilter.stopSsl(parent);
+                        return;
+                    }
                 }
             }
         }

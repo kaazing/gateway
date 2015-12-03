@@ -198,6 +198,12 @@
                 <version>[1.0.0.0,1.1.0.0)</version>
                 <type>jar</type>
             </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.http</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
