@@ -52,13 +52,13 @@
     <!--
         Add xsi:type to &lt;service&gt;. The name of the xsi:type is derived
         from the &lt;type&gt; of the &lt;service&gt; so that the stylesheet can
-        be used for any type of service.
+        be used for any type of service. Note that only XSL 1.0 functions can be used.
     -->
     <xsl:template match="*[local-name()='service']">
         <xsl:copy>
             <xsl:attribute name="xsi:type" namespace="http://www.w3.org/2001/XMLSchema-instance">
                 <xsl:choose>
-                    <xsl:when test="starts-with(./*[local-name()='type'],'$')">InternalServiceType</xsl:when>
+                    <xsl:when test="contains(./*[local-name()='type'],'-extension')">ExtensionServiceType</xsl:when>
                     <xsl:otherwise><xsl:value-of select="normalize-space(./*[local-name()='type'])"/>ServiceType
                     </xsl:otherwise>
                 </xsl:choose>
