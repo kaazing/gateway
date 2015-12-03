@@ -346,7 +346,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                                                            getProcessor(),
                                                            sseBindAddress,
                                                            sseRemoteAddress,
-                                                           allocator);
+                                                           allocator,
+                                                           httpSession);
                     sseSession.setHandler(sseHandler);
                     return sseSession;
                 }

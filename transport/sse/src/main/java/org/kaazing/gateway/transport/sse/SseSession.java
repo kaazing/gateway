@@ -44,9 +44,15 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 
     };
 
-	public SseSession(IoServiceEx service, IoProcessorEx<SseSession> processor, ResourceAddress localAddress, ResourceAddress remoteAddress, IoSessionEx parent,
+    // Setting the 'parent' member variable in the super class results in SSE IT tests to fail. Temporarily use
+    // a different member variable to hold the parent session. This is needed for an extension-service built
+    // for a customer.
+    private final IoSessionEx parentSession;
+
+    public SseSession(IoServiceEx service, IoProcessorEx<SseSession> processor, ResourceAddress localAddress, ResourceAddress remoteAddress, IoSessionEx parent,
                       IoBufferAllocatorEx<SseBuffer> allocator) {
     	super(service, processor, localAddress, remoteAddress, parent, allocator, Direction.WRITE, new DefaultSseSessionConfig());
+        this.parentSession = parent;
     }
 
     public SseSession(int ioLayer,
@@ -56,8 +62,10 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
                       IoProcessorEx<SseSession> processor,
                       ResourceAddress localAddress,
                       ResourceAddress remoteAddress,
-                      IoBufferAllocatorEx<SseBuffer> allocator) {
+                      IoBufferAllocatorEx<SseBuffer> allocator,
+                      IoSessionEx parent) {
         super(ioLayer, ioThread, ioExecutor, service, processor, localAddress, remoteAddress, allocator, Direction.WRITE, new DefaultSseSessionConfig());
+        this.parentSession = parent;
     }
 
     @Override
@@ -116,4 +124,11 @@ public class SseSession extends AbstractBridgeSession<SseSession, SseBuffer> {
 	protected IoSessionEx setParent(IoSessionEx parent) {
 		return super.setParent(parent);
 	}
+
+    // Temporary workaround till issues related to setting the 'parent' member variable
+    // in the super class are addressed. This method is used in an extension-service
+    // built for a customer
+    public IoSessionEx parent() {
+        return parentSession;
+    }
 }
