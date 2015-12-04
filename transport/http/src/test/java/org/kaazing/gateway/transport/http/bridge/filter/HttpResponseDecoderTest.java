@@ -15,55 +15,41 @@
  */
 package org.kaazing.gateway.transport.http.bridge.filter;
 
-import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
-import static org.kaazing.mina.core.session.IoSessionEx.IMMEDIATE_EXECUTOR;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.DefaultWriteFuture;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.service.IoProcessor;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.core.write.WriteRequest;
-import org.apache.mina.core.write.WriteRequestQueue;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
-import org.kaazing.gateway.transport.http.HttpAcceptProcessor;
-import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
-import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpVersion;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
+import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.filter.codec.ProtocolCodecSessionEx;
 import org.kaazing.test.util.Mockery;
@@ -135,6 +121,63 @@ public class HttpResponseDecoderTest {
 
         assertTrue(session.getDecoderOutputQueue().isEmpty());
         assertFalse(in.hasRemaining());
+    }
+
+    @Test
+    public void decodeLargeHttpResponseComplete() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+
+        int bodyLength1 = 4096;
+        int bodyLength2 = 4096;
+        int bodyLength3 = 1;
+        int contentLength = bodyLength1 + bodyLength2 + bodyLength3;
+
+        String headers =
+                "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: " + contentLength + "\r\n" +
+                "\r\n";
+
+        HttpResponseMessage httpResponse = (HttpResponseMessage) parse(session, decoder, headers);
+        HttpContentMessage httpContent = httpResponse.getContent();
+        assertFalse(httpContent.isComplete());
+
+        String body1 = getBody(bodyLength1, '1');
+        httpContent = (HttpContentMessage) parse(session, decoder, body1);
+        assertFalse(httpContent.isComplete());
+        assertEquals(body1, httpContent.asText(UTF_8.newDecoder()));
+
+        String body2 = getBody(bodyLength2, '2');
+        httpContent = (HttpContentMessage) parse(session, decoder, body2);
+        assertFalse(httpContent.isComplete());
+        assertEquals(body2, httpContent.asText(UTF_8.newDecoder()));
+
+        String body3 = getBody(bodyLength3, '3');
+        httpContent = (HttpContentMessage) parse(session, decoder, body3);
+        assertTrue(httpContent.isComplete());
+        assertEquals(body3, httpContent.asText(UTF_8.newDecoder()));
+
+        decoder.finishDecode(session, session.getDecoderOutput());
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+    }
+
+    private static String getBody(int size, char ch) {
+        char[] chars = new char[size];
+        Arrays.fill(chars, ch);
+        return new String(chars);
+    }
+
+    private static HttpMessage parse(ProtocolCodecSessionEx session, ProtocolDecoder decoder, String part) throws Exception {
+        ByteBuffer in = ByteBuffer.wrap((part).getBytes(StandardCharsets.UTF_8));
+
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
+
+        assertFalse(in.hasRemaining());
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+
+        return (HttpMessage) session.getDecoderOutputQueue().poll();
     }
 
     @Test

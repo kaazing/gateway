@@ -504,25 +504,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 httpSession.setVersion(httpResponse.getVersion());
                 httpSession.setReadHeaders(httpResponse.getHeaders());
 
-                String contentLength = httpSession.getReadHeader(HEADER_CONTENT_LENGTH);
-                if (contentLength != null) {
-                    final long maximumReadBytes = Long.parseLong(contentLength);
-                    session.getFilterChain().addLast(TRUNCATE_CONTENT_FILTER, new HttpFilterAdapter<IoSessionEx>() {
-
-                        @Override
-                        protected void httpContentReceived(NextFilter nextFilter, IoSessionEx session, HttpContentMessage httpContent) throws Exception {
-                            // trigger session closed when all content arrived
-                            // even if underlying IoSession is kept open
-                            if (session.getReadBytes() >= maximumReadBytes) {
-                                session.close(false);
-                            }
-
-                            super.httpContentReceived(nextFilter, session, httpContent);
-                        }
-
-                    });
-                }
-
                 switch (httpStatus) {
                 case INFO_SWITCHING_PROTOCOLS:
                     // handle upgrade
