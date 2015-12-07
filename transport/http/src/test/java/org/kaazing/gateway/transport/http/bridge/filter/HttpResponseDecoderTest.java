@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Set;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.service.IoHandler;
@@ -36,8 +37,10 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
+import org.kaazing.gateway.transport.http.DefaultHttpCookie;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpConnector;
+import org.kaazing.gateway.transport.http.HttpCookie;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -332,13 +335,38 @@ public class HttpResponseDecoderTest {
         assertTrue(session.getDecoderOutputQueue().isEmpty());
     }
 
+    @Test
+    public void decodeHttpResponseCookiesNoValue() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+
+        ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\n" + 
+                                         "Server: Apache-Coyote/1.1\r\n" + 
+                                         "Set-Cookie: name=; Path=/path/; domain=somedomain.com\r\n" + 
+                                         "Transfer-Encoding: chunked\r\n" +
+                                         "\r\n").getBytes());
+
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpResponseMessage httpResponse = (HttpResponseMessage) session.getDecoderOutputQueue().poll();
+        Set<HttpCookie> cookies = httpResponse.getCookies();
+        assertFalse("Empty cookies", cookies.isEmpty());
+
+        HttpCookie receivedCookie = cookies.iterator().next();
+        HttpCookie expectedCookie = new DefaultHttpCookie("name", "somedomain.com", "/path/", null);
+        assertEquals("Wrong parsing of the received cookies", expectedCookie, receivedCookie);
+    }
+
     @Test(expected = ProtocolDecoderException.class)
     public void decodeIncorrectHttpVersion() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
         ProtocolDecoder decoder = new HttpResponseDecoder();
         IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
 
-        ByteBuffer in = ByteBuffer.wrap(new byte[] { 0x03, 0x00, 0x00, 0x00, 0x00 });
+        ByteBuffer in = ByteBuffer.wrap(new byte[]{0x03, 0x00, 0x00, 0x00, 0x00});
 
         IoBufferEx buf = allocator.wrap(in);
         decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
