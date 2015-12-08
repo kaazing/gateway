@@ -37,20 +37,22 @@ import com.hazelcast.logging.LogEvent;
 import com.hazelcast.logging.LogListener;
 import com.hazelcast.logging.LoggingService;
 import com.hazelcast.nio.Address;
+
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
 import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
 import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
@@ -70,6 +72,7 @@ import org.kaazing.gateway.util.aws.AwsUtils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
 import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
 
@@ -490,7 +493,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                 throw new IllegalStateException("MemberId to BalancerMap is null");
             }
 
-            IMap<URI, Set<URI>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+            IMap<URI, TreeSet<URI>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
             if (sharedBalanceUriMap == null) {
                 throw new IllegalStateException("Shared balanced URIs map is null");
             }
@@ -502,11 +505,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                     for (URI key : memberBalancedUrisMap.keySet()) {
                         GL.debug(CLUSTER_LOGGER_NAME, "URI Key: {}", key);
                         List<URI> memberBalancedUris = memberBalancedUrisMap.get(key);
-                        Set<URI> globalBalancedUris = null;
-                        Set<URI> newGlobalBalancedUris = null;
+                        TreeSet<URI> globalBalancedUris = null;
+                        TreeSet<URI> newGlobalBalancedUris = null;
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
-                            newGlobalBalancedUris = new HashSet<>(globalBalancedUris);
+                            newGlobalBalancedUris = new TreeSet<URI>(globalBalancedUris);
                             for (URI memberBalancedUri : memberBalancedUris) {
                                 GL.debug(CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);
