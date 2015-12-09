@@ -104,4 +104,14 @@ public class SessionMXBeanImpl implements SessionMXBean {
     public String getSessionDirection() {
         return sessionManagementBean.getSessionDirection();
     }
+
+    @Override
+    public long getLastRoundTripLatency() {
+        return sessionManagementBean.getLastRoundTripLatency();
+    }
+
+    @Override
+    public long getLastRoundTripLatencyTimestamp() {
+        return sessionManagementBean.getLastRoundTripLatencyTimestamp();
+    }
 }

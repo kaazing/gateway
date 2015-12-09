@@ -33,6 +33,7 @@ import org.kaazing.gateway.server.spi.security.LoginResult;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.Direction;
+import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -54,6 +55,11 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
 
     // This logger logs websocket logout events, and must be mentioned explicitly to show up to customers.
     protected static final Logger logoutLogger = LoggerFactory.getLogger("session.logout");
+
+    public static final TypedAttributeKey<Long> LAST_ROUND_TRIP_LATENCY =
+            new TypedAttributeKey<>(AbstractWsBridgeSession.class, "lastRoundTripLatency");
+    public static final TypedAttributeKey<Long> LAST_ROUND_TRIP_LATENCY_TIMESTAMP =
+            new TypedAttributeKey<>(AbstractWsBridgeSession.class, "lastRoundTripLatencyTimestamp");
 
     protected BridgeServiceFactory bridgeServiceFactory;
     protected ResourceAddressFactory resourceAddressFactory;
