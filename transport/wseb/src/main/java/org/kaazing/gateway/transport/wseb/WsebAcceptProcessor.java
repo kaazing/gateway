@@ -41,12 +41,13 @@ import java.util.concurrent.ScheduledExecutorService;
 
 
 public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebAcceptProcessor.class);
+    private final Logger logger;
     private static final CheckInitialPadding CHECK_INITIAL_PADDING = new CheckInitialPadding();
     private final ScheduledExecutorService scheduler;
 
-    public WsebAcceptProcessor(ScheduledExecutorService scheduler) {
+    public WsebAcceptProcessor(ScheduledExecutorService scheduler, Logger logger) {
         this.scheduler = scheduler;
+        this.logger = logger;
     }
 
     @Override
@@ -54,19 +55,19 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         HttpSession writer = session.getWriter();
         if (writer != null ) {
             if (!writer.isClosing()) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("CLOSE command is written to writer %d for wseb session %s", writer.getId(), session));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Writing CLOSE command to writer %d for wseb session %s", writer.getId(), session));
                 }
                 writer.write(WsCommandMessage.CLOSE);
             } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("NOT sending CLOSE command as writer %s is closing for wseb session %s", writer, session));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("NOT writing CLOSE command as writer %d is closing for wseb session %s", writer.getId(), session));
                 }
             }
             session.detachWriter(writer);
         } else {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("NOT sending CLOSE command for session = %s as there is no attached writer", session));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("NOT writing CLOSE command for wseb session %s as there is no attached writer", session));
             }
         }
 
@@ -80,9 +81,9 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
         // get parent and check if null (no attached http session)
         final HttpAcceptSession writer = (HttpAcceptSession)session.getWriter();
         if (writer == null || writer.isClosing()) {
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace(String.format("WsebAcceptProcessor.flushInternal: returning because writer (%s) " +
-                                                   "is null or writer is closing(%s)",
+            if (logger.isTraceEnabled()) {
+                logger.trace(String.format("WsebAcceptProcessor.flushInternal: returning because writer (%s) " +
+                                           "is null or writer is closing(%s)",
                         writer, writer==null ? "n/a" : Boolean.valueOf(writer.isClosing()) ));
             }
             return;
@@ -138,8 +139,8 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
             // identity compare for our marker as a command to reconnect the
             // stream
             if (WsebSession.isReconnectRequest(request)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("RECONNECT_REQUEST detected: closing writer %d", writer.getId()));
                 }
                 // detaching the writer nulls the parent reference
                 session.detachWriter(writer);

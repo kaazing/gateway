@@ -17,13 +17,17 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +60,12 @@ import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
+import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
+import org.kaazing.gateway.util.InternalSystemProperty;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
@@ -87,16 +94,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
 
-    private static final String FAULT_LOGGING_FILTER = WsebProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsebProtocol.NAME + "#logging";
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", WsebProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-
     private final Map<ResourceAddress, WsebSession> sessionMap;
 
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
+    private Properties configuration;
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
@@ -125,6 +127,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         this.bridgeServiceFactory = bridgeServiceFactory;
     }
 
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
+    }
 
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory factory) {
@@ -134,17 +140,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebConnectProcessor(bridgeServiceFactory);
-    }
-
-    @Override
-    public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        } else {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        }
+        return new WsebConnectProcessor(bridgeServiceFactory, logger, configuration);
     }
 
     @Override
@@ -246,7 +242,17 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
                 final long sequenceNo = 0;
 
-                final HttpSession httpSession = (HttpSession) parent;
+                final HttpConnectSession httpSession = (HttpConnectSession) parent;
+
+                // WSE specification mandates use of POST method.
+                boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
+                if (specCompliant) {
+                    httpSession.setMethod(HttpMethod.POST);
+                    httpSession.setWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);
+                    // Set content length so the HTTP request can be flushed
+                    httpSession.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                }
+
                 String wsNextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
                 if (wsNextProtocol != null) {
                     httpSession.setWriteHeader("X-WebSocket-Protocol", wsNextProtocol);
@@ -276,7 +282,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                       connectAddressNext.getOption(INACTIVITY_TIMEOUT),
                                                                       false,            /* no sequence validation */
                                                                       sequenceNo,      /* starting sequence no */
-                                                                      null);
+                                                                      configuration);
 
                                 // ability to write will be reactivated when create response returns with write address
                                 wsebSession.suspendWrite();

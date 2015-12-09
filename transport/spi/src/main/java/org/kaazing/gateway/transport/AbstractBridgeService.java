@@ -26,15 +26,20 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSessionInitializer;
 import org.apache.mina.util.ExceptionMonitor;
+import org.slf4j.Logger;
+import org.kaazing.gateway.transport.LoggingFilter;
 
 import org.jboss.netty.channel.socket.nio.NioWorker;
+import org.kaazing.gateway.transport.ExceptionLoggingFilter;
+import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.mina.core.service.AbstractIoServiceEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionConfigEx;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?>> extends AbstractIoServiceEx implements BridgeService {
-
+    private static final String LOGGING_FILTER_NAME_SUFFIX = "#logging";
+   
     public static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private IoProcessorEx<T> processor;
@@ -46,6 +51,8 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
 
         setSessionDataStructureFactory(new DefaultIoSessionDataStructureFactory());
     }
+
+    protected abstract Logger getLogger();
 
     protected void init() {
         processor = initProcessor();
@@ -93,8 +100,17 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
             ExceptionMonitor.getInstance().exceptionCaught(t);
         }
 
+        addLoggerFilter(session, getLogger());
+
         getListeners().fireSessionCreated(session);
         return session;
+    }
+
+    private void addLoggerFilter(T session, Logger logger) {
+        if (logger != null) {
+            // setup logging filters for the new session
+            LoggingFilter.addIfNeeded(logger, session, getTransportMetadata().getName());
+        }
     }
 
     protected IoProcessorEx<T> getProcessor() {

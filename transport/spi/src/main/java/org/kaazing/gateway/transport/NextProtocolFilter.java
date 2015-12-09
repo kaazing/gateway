@@ -23,6 +23,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
+import org.kaazing.gateway.transport.ObjectLoggingFilter;
 
 public class NextProtocolFilter extends AbstractInboundEventFilter {
 
@@ -79,6 +80,8 @@ public class NextProtocolFilter extends AbstractInboundEventFilter {
             // force NEXT_PROTOCOL_KEY -> null if not detected (avoids stall and eventual out-of-memory)
             flushInboundEvents(nextFilter, session);
             session.getFilterChain().remove(this);
+            // If message logging filter is active, allow it to log decoded objects
+            ObjectLoggingFilter.moveAfterCodec(session);
         }
 
         // capture this message if still suspended, or pass through if not

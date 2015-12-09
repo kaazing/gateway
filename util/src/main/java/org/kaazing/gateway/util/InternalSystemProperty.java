@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.kaazing.gateway.util;
 
 import static java.lang.Boolean.parseBoolean;
@@ -35,10 +36,12 @@ public enum InternalSystemProperty {
 
     WSE_IDLE_TIMEOUT
             ("org.kaazing.gateway.server.transport.wse.IDLE_TIMEOUT", "60"),
-
+    // Next property is to allow us to safely introduce changes
+    // to conform with the WSE specification
+    WSE_SPECIFICATION("com.kaazing.gateway.server.transport.wse.SPECIFICATION", "false"),
     // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
-    TCP_PROCESSOR_COUNT
-            ("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT", Integer.toString(getRuntime().availableProcessors())),
+    TCP_PROCESSOR_COUNT("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT",
+                        Integer.toString(getRuntime().availableProcessors())),
 
     // Thread Pool Size for background tasks
     BACKGROUND_TASK_THREADS
@@ -87,8 +90,9 @@ public enum InternalSystemProperty {
     BROADCAST_SERVICE_MAXIMUM_PENDING_BYTES
             ("org.kaazing.gateway.server.service.broadcast.MAXIMUM_PENDING_BYTES"),
 
-    BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT
-            ("org.kaazing.gateway.server.service.broadcast.DISCONNECT_CLIENTS_ON_RECONNECT"), // true or false
+    // true or false
+    BROADCAST_SERVICE_DISCONNECT_CLIENTS_ON_RECONNECT(
+            "org.kaazing.gateway.server.service.broadcast.DISCONNECT_CLIENTS_ON_RECONNECT"),
 
     // management
     MANAGEMENT_SESSION_THRESHOLD
@@ -109,7 +113,6 @@ public enum InternalSystemProperty {
     /**
      * Gateway identifier property. This should be set for each gateway instance in order to
      * uniquely identify each gateway instance based on a business id.
-     *
      * The gateway identifiers should be different for each gateway.
      */
     GATEWAY_IDENTIFIER

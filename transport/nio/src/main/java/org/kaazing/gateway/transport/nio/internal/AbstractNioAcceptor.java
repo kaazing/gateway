@@ -69,6 +69,7 @@ import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.NioBindException;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -88,8 +89,6 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNioAcceptor.class);
 
     private static final String NEXT_PROTOCOL_FILTER = "nio#next-protocol";
-    private static final String FAULT_LOGGING_FILTER = NioProtocol.TCP + "#fault";
-    private static final String TRACE_LOGGING_FILTER = NioProtocol.TCP + "#logging";
 
     private final AtomicBoolean started;
     private final NextProtocolBindings bindings;
@@ -146,11 +145,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     private final BridgeAcceptHandler tcpHandler = new BridgeAcceptHandler(this) {
         @Override
         public void sessionCreated(IoSession session) throws Exception {
-            if (logger.isTraceEnabled()) {
-                session.getFilterChain().addLast(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-            } else if (logger.isDebugEnabled()) {
-                session.getFilterChain().addLast(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-            }
+            LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
             ResourceAddress localAddress = asResourceAddress(session.getLocalAddress());
             NextProtocolBinding nioBinding = bindings.getBinding0(localAddress);
@@ -548,11 +543,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                 @Override
                 protected void doSessionCreated(IoSessionEx session) throws Exception {
-                    if (logger.isTraceEnabled()) {
-                        session.getFilterChain().addLast(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-                    } else if (logger.isDebugEnabled()) {
-                        session.getFilterChain().addLast(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, NioProtocol.TCP.name().toLowerCase() + "#%s"));
-                    }
+                    LoggingFilter.addIfNeeded(logger, session, getTransportName());
 
                     ResourceAddress candidateAddress = getCandidateResourceAddress(session);
                     NextProtocolBinding nextBinding = bindings.getBinding0(candidateAddress);

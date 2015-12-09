@@ -76,9 +76,7 @@ import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -106,11 +104,11 @@ import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // TODO: will need some sort of session cleanup timeout
 public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
+
+    public static final String WSE_VERSION = "wseb-1.0";
 
     public static final AttributeKey CLIENT_BUFFER_KEY = new AttributeKey(WsebAcceptor.class, "clientBuffer");
     public static final AttributeKey CLIENT_PADDING_KEY = new AttributeKey(WsebAcceptor.class, "clientPadding");
@@ -160,12 +158,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final TypedAttributeKey<Integer> CREATE_CONTENT_LENGTH_READ =
             new TypedAttributeKey<>(WsebAcceptor.class, "createContentLengthRead");
 
-    private static final String FAULT_LOGGING_FILTER = WsebProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsebProtocol.NAME + "#logging";
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
-
     private Properties configuration;
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
@@ -192,7 +185,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebAcceptProcessor(scheduler);
+        return new WsebAcceptProcessor(scheduler, logger);
     }
 
     @Resource(name = "configuration")
@@ -223,25 +216,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     @Override
     public TransportMetadata getTransportMetadata() {
         return new DefaultTransportMetadata(WsebProtocol.NAME);
-    }
-
-    @Override
-    public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, WsebProtocol.NAME + "#%s"));
-        }
-    }
-
-    @Override
-    public void removeBridgeFilters(IoFilterChain filterChain) {
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
     }
 
     @Override
@@ -797,7 +771,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
         private boolean validWsebVersion(HttpAcceptSession session) {
             String wsebVersion = session.getReadHeader("X-WebSocket-Version");
-            if (wsebVersion != null && !wsebVersion.equals("wseb-1.0")) {
+            if (wsebVersion != null && !wsebVersion.equals(WSE_VERSION)) {
                 session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
                 session.setReason("WebSocket-Version not supported");
                 session.close(false);
