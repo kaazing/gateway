@@ -765,7 +765,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
     private void logBalancerMap() {
         GL.trace(CLUSTER_LOGGER_NAME, "Current balancer map:");
-        Map<URI, Set<URI>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        Map<URI, TreeSet<URI>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
         for (URI balanceURI : balancerMap.keySet()) {
             Set<URI> balanceTargets = balancerMap.get(balanceURI);
             GL.trace(CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
