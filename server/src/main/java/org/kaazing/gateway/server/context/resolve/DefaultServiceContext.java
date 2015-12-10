@@ -564,8 +564,8 @@ public class DefaultServiceContext implements ServiceContext {
                 if (accepts != null) {
                     acceptUris.addAll(accepts);
                 }
-              // Must use TreeSet when replace(x,y,z) or remove(x,y) is used instead of remove(x) , 
-              // hazelcast map requires a ordered set to hash consistently.
+                // Must use TreeSet when replace(x,y,z) or remove(x,y) is used instead of remove(x) ,
+                // hazelcast map requires a ordered set to hash consistently.
                 IMap<URI, TreeSet<URI>> sharedBalanceUriMap = factory.getMap(BALANCER_MAP_NAME);
                 for (URI balanceURI : balances) {
                     if (accepts != null) {
