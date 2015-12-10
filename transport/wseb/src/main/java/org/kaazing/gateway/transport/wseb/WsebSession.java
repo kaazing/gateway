@@ -152,7 +152,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        long inactivityTimeout,
                        boolean validateSequenceNo,
                        long sequenceNo,
-                       List<WebSocketExtension> extensions) {
+                       List<WebSocketExtension> extensions,
+                       Properties configuration) {
         super(ioLayer,
               ioThread,
               ioExecutor,
@@ -173,7 +174,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.validateSequenceNo = validateSequenceNo;
         this.readerSequenceNo = sequenceNo+1;
         this.writerSequenceNo = sequenceNo+1;
-       // this.configuration = configuration;
+        this.configuration = configuration;
         this.transportSession = new TransportSession(this, processor);
         transportSession.setHandler(transportHandler);
     }

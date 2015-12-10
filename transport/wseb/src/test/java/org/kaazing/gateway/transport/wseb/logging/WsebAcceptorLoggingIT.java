@@ -16,23 +16,21 @@
 
 package org.kaazing.gateway.transport.wseb.logging;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
-import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -41,14 +39,14 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 public class WsebAcceptorLoggingIT {
 
     private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/wse/data/binary");
+            .setScriptRoot("org/kaazing/specification/wse");
 
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
-                        .property(InternalSystemProperty.WSE_SPECIFICATION.getPropertyName(), "true")
+                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
                             .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
@@ -67,37 +65,56 @@ public class WsebAcceptorLoggingIT {
 
     @Test
     @Specification({
-        "echo.payload.length.127/request"
+        "data/binary/echo.payload.length.127/request"
         })
-    public void shouldLogOpenWriteReceivedAndClose() throws Exception {
+    public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-                "tcp#.*OPENED.*",
-                "tcp#.*WRITE.*",
-                "tcp#.*CLOSED.*",
-                "http#.*OPENED",
-                "http#.*RECEIVED",
-                "http#.*CLOSED",
-                "wseb#.*OPENED",
-                "wseb#.*RECEIVED",
-                "wseb#.*CLOSED"
-            }));
 
-            for (LoggingEvent event : MemoryAppender.getEvents()) {
-                String message = event.getMessage().toString();
-                if (message.matches(".*\\[.*#.*].*")) {
-                    System.out.println(message);
-                    Iterator<String> iterator = expectedPatterns.iterator();
-                    while (iterator.hasNext()) {
-                        String pattern = iterator.next();
-                        if (message.matches(".*" + pattern + ".*")) {
-                            iterator.remove();
-                        }
-                    }
-                }
-            }
-            assertTrue("The following patterns of log messages were not logged: " + expectedPatterns,
-                    expectedPatterns.isEmpty());
+        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*WRITE",
+            "http#.*RECEIVED",
+            "http#.*EXCEPTION",
+            "http#.*CLOSED",
+            "wseb#.*OPENED",
+            "wseb#.*WRITE",
+            "wseb#.*RECEIVED",
+            "wseb#.*EXCEPTION",
+            "wseb#.*CLOSED"
+        }));
+        
+        List<String> forbiddenPatterns = Collections.emptyList();
+        
+        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);    
+    }
+
+    @Test
+    @Specification({
+        "closing/client.send.close/request"
+        })
+    public void shouldLogOpenAndCleanClientClose() throws Exception {
+        k3po.finish();
+
+        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*WRITE",
+            "http#.*RECEIVED",
+            "http#.*CLOSED",
+            "wseb#.*OPENED",
+            "wseb#.*CLOSED"
+        }));
+        
+        List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+        
+        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);    
     }
 
 }

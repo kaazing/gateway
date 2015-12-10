@@ -18,6 +18,8 @@ package org.kaazing.gateway.transport.wseb;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_SEQUENCE_NO;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -259,12 +261,12 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     HttpConnectSession writeSession = (HttpConnectSession) session;
                     writeSession.setMethod(HttpMethod.POST);
                     writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
-                    writeSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
+                    writeSession.setWriteHeader(HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
 
                     boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
                     if (specCompliant) {
                         // WSE specification requires Content-type header on upstream requests
-                        writeSession.setWriteHeader(HttpHeaders.HEADER_CONTENT_TYPE, "application/octet-stream");
+                        writeSession.setWriteHeader(HEADER_CONTENT_TYPE, "application/octet-stream");
                     }
 
                     // Note: deferring this to writeHandler.sessionOpened creates a race condition

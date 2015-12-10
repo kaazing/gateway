@@ -34,7 +34,7 @@ import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
@@ -68,7 +68,7 @@ public class WsebConnectorRule implements TestRule {
     
     public ConnectFuture connect(final String connect,
                                   final Long wsInactivityTimeout,
-                                  IoHandlerAdapter<?> connectHandler) throws InterruptedException {
+                                  IoHandler connectHandler) throws InterruptedException {
         Map<String, Object> connectOptions = new HashMap<String, Object>();
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
