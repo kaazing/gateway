@@ -42,6 +42,8 @@ import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
  * after it. The rule can be chained with a K3poRule for use with robot (this causes Robot to be started before the gateway and
@@ -130,6 +132,9 @@ public class WsebConnectorRule implements TestRule {
                 wseConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
+                Properties configuration = new Properties();
+                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
+                wseConnector.setConfiguration(configuration);
                 httpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 httpConnector.setResourceAddressFactory(resourceAddressFactory);
                 
