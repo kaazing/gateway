@@ -476,7 +476,7 @@
                      type="gateway:CollapsedString"/>
 
             <element maxOccurs="unbounded" minOccurs="0" name="accept"
-                     type="anyURI"/>
+                     type="gateway:NetworkInterfaceURI"/>
 
             <element maxOccurs="unbounded" minOccurs="0" name="connect"
                      type="anyURI"/>
@@ -605,7 +605,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="connect"
@@ -669,7 +669,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="1"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="balance"
@@ -725,7 +725,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="1"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <!-- connect is not supported for directory -->
 
@@ -784,7 +784,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="1"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <!-- connect is not supported for echo -->
 
@@ -841,7 +841,7 @@
                              type="gateway:CollapsedString"/>
 
                     <element maxOccurs="unbounded" minOccurs="1" name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0" name="connect"
                              type="anyURI"/>
@@ -905,7 +905,7 @@
                              type="gateway:CollapsedString"/>
 
                     <element maxOccurs="unbounded" minOccurs="1" name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0" name="connect"
                              type="anyURI"/>
@@ -966,7 +966,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="1"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="connect"
@@ -1034,7 +1034,7 @@
 
                     <element maxOccurs="unbounded" minOccurs="1"
                              name="accept"
-                             type="anyURI"/>
+                             type="gateway:NetworkInterfaceURI"/>
 
                     <element maxOccurs="unbounded" minOccurs="0"
                              name="connect"
@@ -1262,16 +1262,16 @@
             <element name="http.keepalive.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString" default="30">
                 <annotation/>
             </element>
-            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="http.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
             <element name="udp.interface" maxOccurs="1" minOccurs="0" type="anyURI">
@@ -1319,16 +1319,16 @@
             <element name="ws.version" maxOccurs="1" minOccurs="0" type="gateway:CollapsedString">
                 <annotation/>
             </element>
-            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="pipe.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="tcp.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="ssl.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
-            <element name="http.transport" maxOccurs="1" minOccurs="0" type="anyURI">
+            <element name="http.transport" maxOccurs="1" minOccurs="0" type="gateway:NetworkInterfaceURI">
                 <annotation/>
             </element>
             <element name="ws.inactivity.timeout" maxOccurs="1" minOccurs="0" type="gateway:TimeIntervalString">
@@ -1550,6 +1550,17 @@
         <restriction base="string">
             <whiteSpace value="collapse"></whiteSpace>
         </restriction>
+    </simpleType>
+	
+	<simpleType name="NetworkInterface">
+		<restriction base="string">
+			<pattern value="(tcp|udp)://(\[)*@?[a-zA-Z]*(\])*:[0-9]+"/>
+			<whiteSpace value="collapse"></whiteSpace>
+		</restriction>
+	</simpleType>
+    
+    <simpleType name="NetworkInterfaceURI">
+        <union memberTypes="anyURI gateway:NetworkInterface"/>
     </simpleType>
 
     <simpleType name="DataSizeString">
