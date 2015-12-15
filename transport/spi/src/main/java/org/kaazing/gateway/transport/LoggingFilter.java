@@ -352,11 +352,10 @@ public class LoggingFilter extends IoFilterAdapter {
         IoService service = session.getService();
         boolean isAcceptor = service instanceof IoAcceptor || service instanceof BridgeAcceptor;
         SocketAddress address = isAcceptor ? session.getRemoteAddress() : session.getLocalAddress();
-        Class<? extends SocketAddress> addressType = session.getTransportMetadata().getAddressType();
-        if (ResourceAddress.class.isAssignableFrom(addressType)) {
+        if (address instanceof ResourceAddress) {
             return getUserIdentifier((ResourceAddress) address);
         }
-        else if (InetSocketAddress.class.isAssignableFrom(addressType)) {
+        else if (address instanceof InetSocketAddress) {
             InetSocketAddress inet = (InetSocketAddress)address;
             // we don't use inet.toString() because it would include a leading /, for example "/127.0.0.1:21345"
             // use getHostString() to avoid a reverse DNS lookup
