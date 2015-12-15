@@ -52,6 +52,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -85,11 +87,9 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -131,8 +131,6 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
@@ -146,8 +144,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 	private static final String UTF8_FILTER = WsnProtocol.NAME + "#utf8";
 	private static final String BASE64_FILTER = WsnProtocol.NAME + "#base64";
 	private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
-    private static final String FAULT_LOGGING_FILTER = WsnProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
 
     private static final AttributeKey LOCAL_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "localAddress");
     private static final AttributeKey REMOTE_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "remoteAddress");
@@ -189,10 +185,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final String HEADER_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
     private static final String HEADER_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
     private static final String WEB_SOCKET_VERSION_KEY = "WebSocketVersion";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsnProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private Properties configuration =  new Properties();
     private ScheduledExecutorService scheduler;
@@ -252,16 +244,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         WsCheckAliveFilter.validateSystemProperties(configuration, logger);
 
         super.init();
-    }
-
-    @Override
-    public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        }
     }
 
     /* for test observalibility only */
@@ -714,8 +696,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
+            boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED); 
             if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                if (isWsx) {
+                    wsnSession.getProcessor().remove(wsnSession);
+                } else {
+                    wsnSession.reset(
+                            new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                }
             }
 
             IoFilterChain filterChain = session.getFilterChain();

@@ -29,7 +29,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class WsebConnectorIT {
 
     private final K3poRule robot = new K3poRule();
-    private final WsebConnectorRule connector = new WsebConnectorRule();
+    private final WsebConnectorRule connector = new WsebConnectorRule(false);
 
     @Rule
     public TestRule chain = createRuleChain(connector, robot);

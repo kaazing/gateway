@@ -15,16 +15,22 @@
  */
 package org.kaazing.gateway.transport;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
+import org.apache.mina.core.service.IoAcceptor;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
 import org.slf4j.Logger;
 
+import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.bridge.Message;
+import org.kaazing.gateway.util.Utils;
 
 public class LoggingFilter extends IoFilterAdapter {
 
@@ -40,6 +46,49 @@ public class LoggingFilter extends IoFilterAdapter {
     private final String closedFormat;
 
     private final String writeFormat;
+
+    private static enum Strategy {
+        DEBUG(LogLevel.DEBUG), 
+        ERROR(LogLevel.ERROR), 
+        INFO(LogLevel.INFO), 
+        NONE(LogLevel.NONE), 
+        TRACE(LogLevel.TRACE), 
+        WARN(LogLevel.WARN);
+
+        final LogLevel level;
+
+        Strategy(LogLevel level) {
+            this.level = level;
+        }
+
+        boolean shouldLog(Logger logger) {
+            return LoggingFilter.shouldLog(logger, level);
+        }
+
+        void log(Logger logger, String message, Throwable cause) {
+            if (shouldLog(logger)) {
+                // Include stack trace except for IOException (to avoid overkill in this common case
+                // which can be caused by abrupt client connection close or inactivity timeout)
+                if (shouldIncludeStackTrace(cause)) {
+                    Utils.log(logger, level, message, cause);
+                } else {
+                    Utils.log(logger, level, message);
+                }
+            }
+        }
+
+        void log(Logger logger, String message, Object param1) {
+            if (shouldLog(logger)) {
+                Utils.log(logger, level, message, param1);
+            }
+        }
+
+        void log(Logger logger, String message, Object param1, Object param2) {
+            if (shouldLog(logger)) {
+                Utils.log(logger, level, message, param1, param2);
+            }
+        }
+    }
 
     public LoggingFilter(Logger logger) {
         this(logger, "%s");
@@ -58,12 +107,31 @@ public class LoggingFilter extends IoFilterAdapter {
         this.format = format;
         this.createdFormat = String.format("[%s] CREATED: {}", String.format(format, "{}"));
         this.openedFormat = String.format("[%s] OPENED: {}", String.format(format, "{}"));
-        this.receivedFormat = String.format("[%s] RECEIVED: {}: {}", String.format(format, "{}", "{}"));
-        this.sentFormat = String.format("[%s] SENT: {}: {}", String.format(format, "{}", "{}"));
-        this.idleFormat = String.format("[%s] IDLE: {}", String.format(format, "{}"));
-        this.exceptionFormat = String.format("[%s] EXCEPTION: {}: {}", String.format(format, "{}", "{}"));
+        this.receivedFormat = String.format("[%s] RECEIVED: {}", String.format(format, "{}", "{}"));
+        this.sentFormat = String.format("[%s] SENT: {}", String.format(format, "{}", "{}"));
+        this.idleFormat = String.format("[%s] IDLE", String.format(format, "{}"));
+        this.exceptionFormat = String.format("[%s] EXCEPTION: %s", String.format(format, "%s"), "%s");
         this.closedFormat = String.format("[%s] CLOSED: {}", String.format(format, "{}"));
-        this.writeFormat = String.format("[%s] WRITE: {}: {}", String.format(format, "{}", "{}"));
+        this.writeFormat = String.format("[%s] WRITE: {}", String.format(format, "{}", "{}"));
+    }
+
+    public static boolean addIfNeeded(Logger logger, IoSession session, String transportName) {
+        if (!logger.isWarnEnabled()) {
+            return false;
+        }
+        String user = getUserIdentifier(session);
+        String loggingFilterName = transportName + "#logging";
+        String format = transportName + "#%s";
+        if (user != null) {
+            format = format + " " + user;
+        }
+        if (logger.isTraceEnabled()) {
+            session.getFilterChain().addLast(loggingFilterName, new ObjectLoggingFilter(logger, format));
+            return true;
+        } else {
+            session.getFilterChain().addLast(loggingFilterName, new ExceptionLoggingFilter(logger, format));
+            return true;
+        }
     }
 
     public LogLevel getLevel() {
@@ -178,98 +246,140 @@ public class LoggingFilter extends IoFilterAdapter {
     }
 
     // log levels can change dynamically, let subclasses determine whether or not
-    // the current log level is appropriate for these events with the default of
-    // logging only on TRACE level
-    protected boolean shouldLogSessionCreated() {
-        return logger.isTraceEnabled();
+    // the current log level is appropriate for these events with sensible
+    // defaults here
+    protected Strategy getSessionCreatedStrategy() {
+        return Strategy.NONE;
     }
 
-    protected boolean shouldLogSessionOpened() {
-        return logger.isTraceEnabled();
+    protected Strategy getSessionOpenedStrategy() {
+        return Strategy.INFO;
     }
 
-    protected boolean shouldLogMessageReceived() {
-        return logger.isTraceEnabled();
+    protected Strategy getMessageReceivedStrategy() {
+        return Strategy.TRACE;
     }
 
-    protected boolean shouldLogMessageSent() {
-        return logger.isTraceEnabled();
+    protected Strategy getMessageSentStrategy() {
+        return Strategy.TRACE;
     }
 
-    protected boolean shouldLogSessionIdle() {
-        return logger.isTraceEnabled();
+    protected Strategy getSessionIdleStrategy() {
+        return Strategy.TRACE;
     }
 
-    protected boolean shouldLogExceptionCaught() {
-        return logger.isTraceEnabled();
+    protected Strategy getExceptionCaughtStrategy(Throwable exception) {
+        // Up to 4.0.9 we were only logging exceptions at debug level.
+        // Ultimately we should treat unexpected exceptions as ERROR level
+        // but we are cautious for now since we don't want customers to suddenly
+        // see lots of exception stacks in the logs
+        return shouldIncludeStackTrace(exception) ? Strategy.INFO : Strategy.INFO;
     }
 
-    protected boolean shouldLogSessionClosed() {
-        return logger.isTraceEnabled();
+    protected Strategy getSessionClosedStrategy() {
+        return Strategy.INFO;
     }
 
-    protected boolean shouldLogFilterWrite() {
-        return logger.isTraceEnabled();
+    protected Strategy getFilterWriteStrategy() {
+        return Strategy.TRACE;
     }
 
     protected void logSessionCreated(IoSession session) {
-        if (shouldLogSessionCreated()) {
-            log(logger, getLevel(), createdFormat, session.getId(), session);
-        }
+        getSessionCreatedStrategy().log(logger, createdFormat, session.getId(), session);
     }
 
     protected void logSessionOpened(IoSession session) {
-        if (shouldLogSessionOpened()) {
-            log(logger, getLevel(), openedFormat, session.getId(), session);
-        }
+        getSessionOpenedStrategy().log(logger, openedFormat, session.getId(), session);
     }
 
     protected void logMessageReceived(IoSession session, Object message) {
-        if (shouldLogMessageReceived()) {
+        if (getMessageReceivedStrategy().shouldLog(logger)) {
             if (message instanceof Message) {
                 message = ((Message) message).toVerboseString();
             }
 
-            log(logger, getLevel(), receivedFormat, session.getId(), session, message);
+            getMessageReceivedStrategy().log(logger, receivedFormat, session.getId(), message);
         }
     }
 
     protected void logMessageSent(IoSession session, Object message) {
-        if (shouldLogMessageSent()) {
+        if (getMessageSentStrategy().shouldLog(logger)) {
             if (message instanceof Message) {
                 message = ((Message) message).toVerboseString();
             }
 
-            log(logger, getLevel(), sentFormat, session.getId(), session, message);
+            getMessageSentStrategy().log(logger, sentFormat, session.getId(), message);
         }
     }
 
     protected void logSessionIdle(IoSession session) {
-        if (shouldLogSessionIdle()) {
-            log(logger, getLevel(), idleFormat, session.getId(), session);
-        }
+        getSessionIdleStrategy().log(logger, idleFormat, session.getId());
     }
 
     protected void logExceptionCaught(IoSession session, Throwable cause) {
-        if (shouldLogExceptionCaught()) {
-            log(logger, getLevel(), exceptionFormat, session.getId(), session, cause);
-        }
+        getExceptionCaughtStrategy(cause).log(logger, String.format(exceptionFormat, session.getId(), cause), cause);
     }
 
     protected void logSessionClosed(IoSession session) {
-        if (shouldLogSessionClosed()) {
-            log(logger, getLevel(), closedFormat, session.getId(), session);
-        }
+        getSessionClosedStrategy().log(logger, closedFormat, session.getId(), session);
     }
 
     protected void logFilterWrite(IoSession session, Object message) {
-        if (shouldLogFilterWrite()) {
+        if (getFilterWriteStrategy().shouldLog(logger)) {
             if (message instanceof Message) {
                 message = ((Message) message).toVerboseString();
             }
 
-            log(logger, getLevel(), writeFormat, session.getId(), session, message);
+            getFilterWriteStrategy().log(logger, writeFormat, session.getId(), message);
         }
+    }
+    
+    /**
+     * Get a suitable identification for the user. For now this just consists of the TCP endpoint.
+     * @param session
+     * @return
+     */
+    static String getUserIdentifier(IoSession session) {
+        // LATER: use special public credential on Subject on the Session, set it in tcp transport layer (mina.netty)
+        //        and use the logged on subject user principal name if available
+        String userId = null;
+        if (InetSocketAddress.class == session.getTransportMetadata().getAddressType()) {
+            if (session.getService() instanceof IoAcceptor) {
+                userId = session.getRemoteAddress().toString();
+            }
+            else {
+                userId = session.getLocalAddress().toString();
+            }
+        }
+        else if (session instanceof BridgeSession) {
+            IoSession parent = ((BridgeSession)session).getParent();
+            if (parent != null) {
+                return getUserIdentifier(parent);
+            }
+        }
+        return userId;
+    }
+    
+    private static boolean shouldLog(Logger logger, LogLevel level) {
+        switch(level) {
+        case DEBUG:
+            return logger.isDebugEnabled();
+        case ERROR:
+            return logger.isErrorEnabled();
+        case INFO:
+            return logger.isInfoEnabled();
+        case NONE:
+            return false;
+        case TRACE:
+            return logger.isTraceEnabled();
+        case WARN:
+            return logger.isWarnEnabled();
+        }
+        return false;
+    }
+    
+    private static boolean shouldIncludeStackTrace(Throwable throwable) {
+        return !(throwable instanceof IOException);
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {

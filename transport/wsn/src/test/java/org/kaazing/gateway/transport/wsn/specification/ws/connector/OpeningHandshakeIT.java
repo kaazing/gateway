@@ -32,10 +32,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -44,12 +42,10 @@ import org.kaazing.test.util.MethodExecutionTrace;
 public class OpeningHandshakeIT {
     private final WsnConnectorRule connector = new WsnConnectorRule();
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/ws/opening");
-    private final TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
-                .withLookingForStuckThread(true).build());
     private final TestRule trace = new MethodExecutionTrace();
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(connector).around(k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po);
 
     private Mockery context;
 

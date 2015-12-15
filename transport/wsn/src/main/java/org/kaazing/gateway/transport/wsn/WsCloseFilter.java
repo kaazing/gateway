@@ -193,7 +193,7 @@ public class WsCloseFilter
 
                             WsnSession wsnSession = SESSION_KEY.get(session);
                             wsnSession.getCloseFuture().setClosed();
-                            wsnSession.reset();
+                            wsnSession.getProcessor().remove(wsnSession);
                         }
                     }
                 });

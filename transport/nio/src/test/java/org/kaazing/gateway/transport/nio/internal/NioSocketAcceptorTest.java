@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.DefaultIoSessionDataStructureFactory;
 import org.apache.mina.core.session.IoSession;
@@ -622,12 +623,17 @@ public class NioSocketAcceptorTest {
         // Mocking IoAcceptorEx to get hold of "BridgeAcceptHandler tcpHandler"
         final IoAcceptorEx mockAcceptor = context.mock(IoAcceptorEx.class);
         final IoHandler[] tcpHandlerHolder = new IoHandler[1];
-
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        
         context.checking(new Expectations() {
             {
                 allowing(mockSession).getLocalAddress(); will(returnValue(bindAddress));
                 oneOf(mockSession).close(with(any(boolean.class)));
                 allowing(mockSession).getFilterChain(); will(returnValue(mockFilterChain));
+
+                allowing(mockSession).getTransportMetadata();
+                will(returnValue(transportMetadata));
+                allowing(transportMetadata).getAddressType();
 
                 allowing(mockFilterChain).addFirst(with(any(String.class)), with(any(IoFilter.class)));
                 allowing(mockFilterChain).addLast(with(any(String.class)), with(any(IoFilter.class)));

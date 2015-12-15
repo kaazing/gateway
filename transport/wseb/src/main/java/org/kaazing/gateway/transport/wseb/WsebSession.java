@@ -19,7 +19,10 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,6 +47,7 @@ import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.gateway.transport.bridge.MessageEncoder;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.AbstractWsBridgeSession;
@@ -122,6 +126,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
+   private final Properties configuration;
+
     private final Runnable enqueueReconnectAndFlushTask = new Runnable() {
         @Override public void run() {
             enqueueReconnectAndFlush0();
@@ -146,7 +152,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        long inactivityTimeout,
                        boolean validateSequenceNo,
                        long sequenceNo,
-                       List<WebSocketExtension> extensions) {
+                       List<WebSocketExtension> extensions,
+                       Properties configuration) {
         super(ioLayer,
               ioThread,
               ioExecutor,
@@ -167,6 +174,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.validateSequenceNo = validateSequenceNo;
         this.readerSequenceNo = sequenceNo+1;
         this.writerSequenceNo = sequenceNo+1;
+        this.configuration = configuration;
         this.transportSession = new TransportSession(this, processor);
         transportSession.setHandler(transportHandler);
     }
@@ -407,6 +415,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
     private void attachReader0(final IoSessionEx newReader) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("attachReader on WsebSession wseb#%d, newReader=%s", this.getId(), newReader));
+        }
         // TODO: needs improved handling of old value for overlapping downstream
         //       from client perspective to detect buffering proxies
         // TODO: needs re-alignment similar to attachWriter
@@ -588,17 +599,35 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         // attach now or attach after commit if header flush is required
         if (!longpoll(session)) {
-            // currently this is required for Silverlight as it seems to want some data to be
-            // received before it will start to deliver messages
-            // this is also needed to detect that streaming has initialized properly
-            // so we don't fall back to encrypted streaming or long polling
-            session.write(WsCommandMessage.NOOP);
+
+            boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
+            if (specCompliant) {
+                // Conform to WSE specification. Do not write NOOP unless specifically requested by query parameters.
+                // Do not commit if this a WsebConnector session because that prevents the request headers from being
+                // written
+                // in HttpConnectProcessor.flushInternal().
+                if (session.getService() instanceof HttpAcceptor) {
+                    session.commit();
+                }
+            } else {
+                // To be safe do as we did before (in 3.5, 4.0): always write NOOP at start of downstream
+                session.write(WsCommandMessage.NOOP);
+            }
 
             String flushDelay = session.getParameter(".kf");
             if (isClientIE11 && flushDelay == null) {
                 flushDelay = "200";   //KG-10590 add .kf=200 for IE11 client
             }
             if (flushDelay != null) {
+
+                if (specCompliant) {
+                    // currently this is required for Silverlight a+s it seems to want some data to be
+                    // received before it will start to deliver messages
+                    // this is also needed to detect that streaming has initialized properly
+                    // so we don't fall back to encrypted streaming or long polling
+                    session.write(WsCommandMessage.NOOP);
+                }
+
                 final long flushDelayMillis = Integer.parseInt(flushDelay);
                 // commit session and write out headers and any messages already in the queue
                 CommitFuture commitFuture = session.commit();

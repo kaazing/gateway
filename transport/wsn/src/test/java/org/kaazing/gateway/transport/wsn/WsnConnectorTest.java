@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -42,9 +43,12 @@ import org.apache.mina.core.session.IoSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.Timeout;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
@@ -59,22 +63,27 @@ import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBufferAllocator;
-import  org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.buffer.SimpleBufferAllocator;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnConnectorTest {
+    private static final boolean DEBUG = false;
+
     @Rule
-    public TestRule chain = createRuleChain(30, SECONDS);
+    public MethodExecutionTrace testExecutionTrace = DEBUG ? new MethodExecutionTrace(null) : new MethodExecutionTrace();
+
+    @Rule
+    public TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     private SchedulerProvider schedulerProvider;
 
     private static int NETWORK_OPERATION_WAIT_SECS = 10; // was 3, increasing for loaded environments
-
 
     private ResourceAddressFactory addressFactory;
     private BridgeServiceFactory serviceFactory;
@@ -87,6 +96,13 @@ public class WsnConnectorTest {
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
 
+    @BeforeClass
+    public static void initLogging() throws Exception {
+
+        if (DEBUG) {
+            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
+        }
+    }
     @Before
     public void init() {
         schedulerProvider = new SchedulerProvider();

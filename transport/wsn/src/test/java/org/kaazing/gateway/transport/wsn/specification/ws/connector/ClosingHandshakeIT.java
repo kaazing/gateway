@@ -314,4 +314,115 @@ public class ClosingHandshakeIT {
         assertTrue(latch.await(10, SECONDS));
         context.assertIsSatisfied();
     }
+    
+    @Test
+    @Ignore("WsnConnector does not yet offer an API to send an empty close frame (equiv to status 1005: not on wire")
+    @Specification({
+        "client.send.empty.close.frame/handshake.response.and.frame" })
+    public void shouldCompleteCloseHandshakeWhenClientSendEmptyCloseFrame() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch close = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        close.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
+        connectFuture.await(10, SECONDS);
+        connectFuture.getSession().close(false);
+
+        k3po.finish();
+        assertTrue(close.await(10, SECONDS));
+    }
+
+    @Test
+    @Specification({
+        "client.send.close.frame.with.code.1000/handshake.response.and.frame" })
+    public void shouldCompleteCloseHandshakeWhenClientSendCloseFrameWithCode1000() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch close = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(new CustomAction("Latch countdown") {
+                    @Override
+                    public Object invoke(Invocation invocation) throws Throwable {
+                        close.countDown();
+                        return null;
+                    }
+                });
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
+        connectFuture.await(10, SECONDS);
+        connectFuture.getSession().close(false);
+
+        k3po.finish();
+        assertTrue(close.await(10, SECONDS));
+    }
+
+    @Test
+    @Ignore("WsnConnector does not yet offer an API to set close code or reason")
+    @Specification({
+        "client.send.close.frame.with.code.1000.and.reason/handshake.request.and.frame",
+        "client.send.close.frame.with.code.1000.and.reason/handshake.response.and.frame" })
+    public void shouldCompleteCloseHandshakeWhenClientSendCloseFrameWithCode1000AndReason() throws Exception {
+        k3po.finish();
+    }
+
+
+    // The following tests are not relevant for testing the connector since there's no way to make the 
+    // connector send an erroneous close frame
+    //    shouldFailWebSocketConnectionWhenClientSendCloseFrameWithCode1000AndInvalidUTF8Reason()
+
+    @Test 
+    @Ignore("WsnConnector does not yet offer an API to set close code or reason")
+    @Specification({
+        "client.send.close.frame.with.code.1001/handshake.request.and.frame",
+        "client.send.close.frame.with.code.1001/handshake.response.and.frame" })
+    public void shouldCompleteCloseHandshakeWhenClientSendCloseFrameWithCode1001() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Ignore("WsnConnector does not yet offer an API to set close code or reason")
+    @Specification({
+        "client.send.close.frame.with.code.1005/handshake.request.and.frame",
+        "client.send.close.frame.with.code.1005/handshake.response.and.frame" })
+    public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithCode1005() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Ignore("WsnConnector does not yet offer an API to set close code or reason")
+    @Specification({
+        "client.send.close.frame.with.code.1006/handshake.request.and.frame",
+        "client.send.close.frame.with.code.1006/handshake.response.and.frame" })
+    public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithCode1006() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Ignore("WsnConnector does not yet offer an API to set close code or reason")
+    @Specification({
+        "client.send.close.frame.with.code.1015/handshake.request.and.frame",
+        "client.send.close.frame.with.code.1015/handshake.response.and.frame" })
+    public void shouldFailWebSocketConnectionWhenClientSendCloseFrameWithCode1015() throws Exception {
+        k3po.finish();
+    }
 }

@@ -91,14 +91,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     public static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSession");
     private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpConnectFuture");
 
-    
-    private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = HttpProtocol.NAME + "#logging";
     private static final String TRUNCATE_CONTENT_FILTER = HttpProtocol.NAME + "#truncate-content";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", HttpProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol;
     private final Set<HttpConnectFilter> allConnectFilters;
@@ -259,12 +252,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     @Override
     public void addBridgeFilters(IoFilterChain chain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            chain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            chain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        }
 
         IoSession transport = chain.getSession();
 
@@ -301,11 +288,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
             }
         }
 
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
     }
 
     @Override
