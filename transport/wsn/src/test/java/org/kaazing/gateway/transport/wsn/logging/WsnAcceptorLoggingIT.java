@@ -63,7 +63,7 @@ public class WsnAcceptorLoggingIT {
             // @formatter:on
             Properties log4j = new Properties();
             log4j.setProperty("log4j.rootLogger", "TRACE, A1");
-            log4j.setProperty("log4j.appender.A1", "com.kaazing.gateway.server.test.MemoryAppender");
+            log4j.setProperty("log4j.appender.A1", "org.kaazing.test.util.MemoryAppender");
             log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
             log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
             PropertyConfigurator.configure(log4j);
