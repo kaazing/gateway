@@ -71,9 +71,7 @@ public class DefaultTransportContext implements TransportContext<ResourceAddress
 
     @Override
     public void connectInit(ResourceAddress address) {
-        if (acceptor instanceof BridgeConnector) {
-            ((BridgeConnector) acceptor).connectInit(address);
-        } else if (connector != null) {
+        if (connector != null) {
             connector.connectInit(address);
         }
     }
@@ -90,9 +88,7 @@ public class DefaultTransportContext implements TransportContext<ResourceAddress
 
     @Override
     public void connectDestroy(ResourceAddress address) {
-        if (acceptor instanceof BridgeConnector) {
-            ((BridgeConnector) acceptor).connectDestroy(address);
-        } else if (connector != null) {
+        if (connector != null) {
             connector.connectDestroy(address);
         }
     }
