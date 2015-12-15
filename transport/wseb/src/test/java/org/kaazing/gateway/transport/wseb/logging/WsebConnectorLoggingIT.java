@@ -100,19 +100,19 @@ public class WsebConnectorLoggingIT {
         k3po.finish();
 
         List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*CLOSED",
-            "http#.*EXCEPTION.*IOException",
-            "wseb#.*OPENED",
-            "wseb#.*WRITE",
-            "wseb#.*RECEIVED",
-            "wseb#.*CLOSED"
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] WRITE",
+            "http#.* [^/]*:\\d*] RECEIVED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] EXCEPTION.*IOException",
+            "wseb#.* [^/]*:\\d*] OPENED",
+            "wseb#.* [^/]*:\\d*] WRITE",
+            "wseb#.* [^/]*:\\d*] RECEIVED",
+            "wseb#.* [^/]*:\\d*] CLOSED"
         }));
         
         List<String> forbiddenPatterns = null;
@@ -144,16 +144,16 @@ public class WsebConnectorLoggingIT {
         k3po.finish();
 
         List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*CLOSED",
-            "wseb#.*OPENED",
-            "wseb#.*CLOSED"
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] WRITE",
+            "http#.* [^/]*:\\d*] RECEIVED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "wseb#.* [^/]*:\\d*] OPENED",
+            "wseb#.* [^/]*:\\d*] CLOSED"
         }));
         
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
