@@ -2,7 +2,21 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.37...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.38...HEAD)
+
+**Closed issues:**
+
+- Server API Documentation section needs updating [\#219](https://github.com/kaazing/gateway/issues/219)
+
+**Merged pull requests:**
+
+- Forward Port Class Cast Exception fix for Hazel Cast from 4.0 [\#371](https://github.com/kaazing/gateway/pull/371) ([mjolie](https://github.com/mjolie))
+- Fixing local and remote addresses of some transports [\#369](https://github.com/kaazing/gateway/pull/369) ([jitsni](https://github.com/jitsni))
+- Adding round trip latency for websocket sessions\(it gives meaningful values on… [\#368](https://github.com/kaazing/gateway/pull/368) ([jitsni](https://github.com/jitsni))
+- Override host header in http.proxy with hostname from \<connect\> [\#360](https://github.com/kaazing/gateway/pull/360) ([msalavastru](https://github.com/msalavastru))
+
+## [5.0.1.38](https://github.com/kaazing/gateway/tree/5.0.1.38) (2015-12-04)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.37...5.0.1.38)
 
 **Merged pull requests:**
 

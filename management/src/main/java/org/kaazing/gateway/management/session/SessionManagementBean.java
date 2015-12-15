@@ -96,4 +96,9 @@ public interface SessionManagementBean extends ManagementBean {
     void doExceptionCaught(final Throwable cause) throws Exception;
 
     void doExceptionCaughtListeners(final Throwable cause);
+
+    long getLastRoundTripLatency();
+
+    long getLastRoundTripLatencyTimestamp();
+
 }

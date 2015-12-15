@@ -34,6 +34,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY;
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP;
+
 /**
  * Implementation of the management 'data' bean for a session. This just contains the data. Wrappers for different management
  * protocols define the use of those data.
@@ -391,4 +394,39 @@ public class SessionManagementBeanImpl extends AbstractManagementBean implements
             }
         });
     }
+
+    @Override
+    public long getLastRoundTripLatency() {
+        IoSessionEx session = getSession();
+        while (session != null) {
+            Long latency = LAST_ROUND_TRIP_LATENCY.get(session);
+            if (latency != null) {
+                return latency;
+            }
+            if (session instanceof BridgeSession) {
+                session = ((BridgeSession) session).getParent();
+            } else {
+                break;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public long getLastRoundTripLatencyTimestamp() {
+        IoSessionEx session = getSession();
+        while (session != null) {
+            Long latency = LAST_ROUND_TRIP_LATENCY_TIMESTAMP.get(session);
+            if (latency != null) {
+                return latency;
+            }
+            if (session instanceof BridgeSession) {
+                session = ((BridgeSession) session).getParent();
+            } else {
+                break;
+            }
+        }
+        return -1;
+    }
+
 }
