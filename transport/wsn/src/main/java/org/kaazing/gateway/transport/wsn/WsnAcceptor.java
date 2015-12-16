@@ -146,6 +146,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 	private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
 
     private static final AttributeKey LOCAL_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "localAddress");
+    private static final AttributeKey REMOTE_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "remoteAddress");
+
     private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsnAcceptor.class, "httpRequestURI");
 
     private static final TypedAttributeKey<ResourceAddress> WEBSOCKET_LOCAL_ADDRESS
@@ -512,7 +514,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // Construct remote address from transport session's remote address.
             //
 
-            ResourceAddress transportAddress = BridgeSession.REMOTE_ADDRESS.get(session);
+            ResourceAddress transportAddress = (ResourceAddress) session.getAttribute(REMOTE_ADDRESS_KEY);
+            assert transportAddress != null;
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(TRANSPORT, transportAddress);
             options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
@@ -1129,6 +1132,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                             parent.setAttribute(WEB_SOCKET_VERSION_KEY, wsVersion);
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                            parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                             parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                             parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
@@ -1364,6 +1368,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                 DRAFT76_KEY3_BUFFER_KEY.set(parent, key3Duplicate);
                                 parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_76);
                                 parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                                parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                                 parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                                         .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                                 parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
@@ -1521,6 +1526,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                            parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                            ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                            parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                           parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                            WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                            parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
                            parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
