@@ -133,7 +133,8 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 URI candidateURI = boundAddress.getExternalURI();
 
                 ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
-                candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
+                String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
+                candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
                 candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
                 ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
@@ -155,7 +156,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 LOCAL_ADDRESS.set(session, localAddress);
 
                 SocketAddress remoteSocketAddress = session.getRemoteAddress();
-                ResourceAddress remoteAddress = asResourceAddress(remoteSocketAddress);
+                ResourceAddress remoteAddress = asResourceAddress(remoteSocketAddress, nextProtocol);
                 REMOTE_ADDRESS.set(session, remoteAddress);
 
                 BridgeSessionInitializer<? extends IoFuture> initializer = binding.initializer();
@@ -176,50 +177,54 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 super.sessionClosed(session);
             }
 
-            private ResourceAddress asResourceAddress(SocketAddress socketAddress) {
+            private ResourceAddress asResourceAddress(SocketAddress socketAddress, String nextProtocol) {
 
                 if (socketAddress instanceof InetSocketAddress) {
                     InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                    return createResourceAddress(inetSocketAddress);
+                    return createResourceAddress(inetSocketAddress, nextProtocol);
                 }
                 else if (socketAddress instanceof NamedPipeAddress) {
                     NamedPipeAddress pipeAddress = (NamedPipeAddress) socketAddress;
-                    return createResourceAddress(pipeAddress);
+                    return createResourceAddress(pipeAddress, nextProtocol);
                 }
                 else if (socketAddress instanceof MulticastAddress) {
                     MulticastAddress multicastAddress = (MulticastAddress) socketAddress;
-                    return createResourceAddress(multicastAddress);
+                    return createResourceAddress(multicastAddress, nextProtocol);
                 }
 
                 return (ResourceAddress) socketAddress;
             }
 
-            private ResourceAddress createResourceAddress(MulticastAddress multicastAddress) {
+            private ResourceAddress asResourceAddress(SocketAddress socketAddress) {
+                return asResourceAddress(socketAddress, null);
+            }
+
+            private ResourceAddress createResourceAddress(MulticastAddress multicastAddress, String nextProtocol) {
                 String transportName = getTransportName();
                 InetAddress inetAddress = multicastAddress.getGroupAddress();
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = multicastAddress.getBindPort();
                 URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-                return resourceAddressFactory.newResourceAddress(transport);
+                return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
-            private ResourceAddress createResourceAddress(NamedPipeAddress namedPipeAddress) {
+            private ResourceAddress createResourceAddress(NamedPipeAddress namedPipeAddress, String nextProtocol) {
                 String transportName = getTransportName();
                 String addressFormat = "%s://%s";
                 String pipeName = namedPipeAddress.getPipeName();
                 URI transport = URI.create(format(addressFormat, transportName, pipeName));
-                return resourceAddressFactory.newResourceAddress(transport);
+                return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
-            private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
+            private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress, String nextProtocol) {
                 String transportName = getTransportName();
                 InetAddress inetAddress = inetSocketAddress.getAddress();
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = inetSocketAddress.getPort();
                 URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-                return resourceAddressFactory.newResourceAddress(transport);
+                return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
         });
     }

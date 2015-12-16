@@ -341,12 +341,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         return new Callable<DefaultHttpSession>() {
             @Override
             public DefaultHttpSession call() throws Exception {
-
-                //TODO: Using instanceof is brittle.
-                // support connecting http over pipes / socket addresses
-                setLocalAddressFromSocketAddress(parent,
-                        parent instanceof NioSocketChannelIoSession ? "tcp" : "udp");
-
                 ResourceAddress transportAddress = LOCAL_ADDRESS.get(parent);
                 final ResourceAddress localAddress =
                         addressFactory.newResourceAddress(connectAddress, transportAddress);
@@ -369,43 +363,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
                 return newSession(httpSessionInitializer, connectFuture, httpSessionFactory);
             }
-
-            private void setLocalAddressFromSocketAddress(final IoSession session,
-                                                          final String transportName) {
-                SocketAddress socketAddress = session.getLocalAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(inetSocketAddress,
-                            transportName);
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                }
-                else if (socketAddress instanceof NamedPipeAddress) {
-                    NamedPipeAddress namedPipeAddress = (NamedPipeAddress) socketAddress;
-                    ResourceAddress resourceAddress = newResourceAddress(namedPipeAddress,
-                            "pipe");
-                    LOCAL_ADDRESS.set(session, resourceAddress);
-                }
-            }
-
-
-            public  ResourceAddress newResourceAddress(NamedPipeAddress namedPipeAddress,
-                                                       final String transportName) {
-                String addressFormat = "%s://%s";
-                String pipeName = namedPipeAddress.getPipeName();
-                URI transport = URI.create(format(addressFormat, transportName, pipeName));
-                return addressFactory.newResourceAddress(transport);
-            }
-
-            public  ResourceAddress newResourceAddress(InetSocketAddress inetSocketAddress,
-                                                       final String transportName) {
-                InetAddress inetAddress = inetSocketAddress.getAddress();
-                String hostAddress = inetAddress.getHostAddress();
-                String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
-                int port = inetSocketAddress.getPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
-                return addressFactory.newResourceAddress(transport);
-            }
-
         };
     }
 
