@@ -15,6 +15,9 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
@@ -48,6 +51,8 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
+import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
+import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.pipe.NamedPipeAcceptor;
 import org.kaazing.gateway.transport.pipe.NamedPipeConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
@@ -70,9 +75,11 @@ public class HttpTransportTest {
     ResourceAddressFactory resourceAddressFactory = newResourceAddressFactory();
     BridgeServiceFactory bridgeServiceFactory;
     SchedulerProvider schedulerProvider = new SchedulerProvider();
-    
+
+    NioSocketAcceptor tcpAcceptor;
     HttpAcceptor httpAcceptor;
     NamedPipeAcceptor pipeAcceptor;
+    NioSocketConnector tcpConnector;
     HttpConnector httpConnector;
     NamedPipeConnector pipeConnector;
     
@@ -85,6 +92,18 @@ public class HttpTransportTest {
         bridgeServiceFactory = new BridgeServiceFactory(transportFactory);
 
         schedulerProvider = new SchedulerProvider();
+
+        tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+
+        tcpAcceptor.setResourceAddressFactory(resourceAddressFactory);
+        tcpAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
+        tcpAcceptor.setSchedulerProvider(schedulerProvider);
+
+        tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
+        tcpConnector.setResourceAddressFactory(resourceAddressFactory);
+        tcpConnector.setBridgeServiceFactory(bridgeServiceFactory);
+        tcpConnector.setTcpAcceptor(tcpAcceptor);
+
         pipeAcceptor = (NamedPipeAcceptor)transportFactory.getTransport("pipe").getAcceptor();
         httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
         pipeConnector = (NamedPipeConnector)transportFactory.getTransport("pipe").getConnector();
@@ -97,6 +116,7 @@ public class HttpTransportTest {
 
     @After
     public void after() {
+        tcpAcceptor.dispose(); tcpConnector.dispose();
         pipeAcceptor.dispose(); httpAcceptor.dispose();
         httpConnector.dispose(); pipeConnector.dispose();
     }
@@ -120,20 +140,62 @@ public class HttpTransportTest {
 
     @Test
     public void sampleTest() {
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(4);
 
         final IoHandlerAdapter connectHandler = new IoHandlerAdapter<IoSessionEx>() {
             @Override
             protected void doSessionCreated(IoSessionEx session) throws Exception {
-                System.out.println("Client Http Session created");
-            }
-            @Override
-            protected void doSessionOpened(IoSessionEx session) throws Exception {
-                System.out.println("Client Http Session opened");
+                /*
+                   local and remote addresses for connect session should be
+
+                   [http://localhost:8000/path]
+                       [pipe://transport http/1.1]
+                */
+                ResourceAddress localHttpAddress = ((HttpSession) session).getLocalAddress();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertEquals(localTcpAddress.getResource(), URI.create("pipe://transport"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                ResourceAddress remoteHttpAddress = ((HttpSession) session).getRemoteAddress();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertEquals(localTcpAddress.getResource(), URI.create("pipe://transport"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                latch.countDown();
             }
         };
 
         final IoHandlerAdapter acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
+
+            @Override
+            public void doSessionCreated(final IoSessionEx session) throws Exception {
+                /*
+                   local and remote addresses for accept session should be
+
+                   [http://localhost:8000/path]
+                       [pipe://transport http/1.1]
+                */
+                ResourceAddress localHttpAddress = ((HttpSession) session).getLocalAddress();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertEquals(localTcpAddress.getResource(), URI.create("pipe://transport"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                ResourceAddress remoteHttpAddress = ((HttpSession) session).getRemoteAddress();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertEquals(localTcpAddress.getResource(), URI.create("pipe://transport"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                latch.countDown();
+            }
+
             @Override
             protected void doMessageReceived(final IoSessionEx session, Object message) throws Exception {
                 System.out.println("Server Http Session message received: "+message);
@@ -162,15 +224,101 @@ public class HttpTransportTest {
         httpConnectorToAcceptor("http://localhost:8000/path",
                 acceptHandler, connectHandler,
                 bindOptions, connectOptions, latch);
+    }
 
-        if ( failures.size() > 0 ) {
-            StringBuilder b = new StringBuilder();
-            for (Exception e: failures) {
-                b.append(e.getMessage());
-                b.append("\n");
+    @Test
+    public void shouldHaveCorrectAddressesForHttpOverTcp() {
+
+        final CountDownLatch latch = new CountDownLatch(4);
+
+        final IoHandlerAdapter connectHandler = new IoHandlerAdapter<IoSessionEx>() {
+
+            @Override
+            protected void doSessionCreated(IoSessionEx session) throws Exception {
+                /*
+                   local address for connect session should be
+
+                   [http://localhost:8000/path]
+                       [tcp://127.0.0.1:54227 http/1.1]
+                */
+                ResourceAddress localHttpAddress = ((HttpSession) session).getLocalAddress();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertFalse(localTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                /*
+                   remote address for connect session should be
+
+                  [http://localhost:8000/path]
+                      [tcp://127.0.0.1:8000 (tcp://localhost:8000) http/1.1]
+                */
+                ResourceAddress remoteHttpAddress = ((HttpSession) session).getRemoteAddress();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertTrue(remoteTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                latch.countDown();
             }
-            fail("Detected "+failures.size()+" failures: "+b.toString());
-        }
+        };
+
+        final IoHandlerAdapter acceptHandler = new IoHandlerAdapter<IoSessionEx>() {
+
+            @Override
+            public void doSessionCreated(final IoSessionEx session) throws Exception {
+                /*
+                   local address for accept session should be
+
+                  [http://localhost:8000/path]
+                      [tcp://127.0.0.1:8000 (tcp://localhost:8000) http/1.1]
+                */
+                ResourceAddress localHttpAddress = ((HttpSession) session).getLocalAddress();
+                ResourceAddress localTcpAddress = localHttpAddress.getTransport();
+                assertEquals(localHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(localHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertTrue(localTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(localTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                /*
+                   remote address for accept session should be
+
+                   [http://localhost:8000/path]
+                       [tcp://127.0.0.1:54227 http/1.1]
+                */
+                ResourceAddress remoteHttpAddress = ((HttpSession) session).getRemoteAddress();
+                ResourceAddress remoteTcpAddress = remoteHttpAddress.getTransport();
+                assertEquals(remoteHttpAddress.getResource(), URI.create("http://localhost:8000/path"));
+                assertEquals(remoteHttpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), null);
+                assertFalse(remoteTcpAddress.getResource().getAuthority().contains("8000"));
+                assertEquals(remoteTcpAddress.getOption(ResourceAddress.NEXT_PROTOCOL), "http/1.1");
+
+                latch.countDown();
+            }
+
+            @Override
+            protected void doMessageReceived(final IoSessionEx session, Object message) throws Exception {
+                CommitFuture commitFuture = ((DefaultHttpSession) session).commit();
+                commitFuture.addListener(new IoFutureListener<CommitFuture>() {
+                    @Override
+                    public void operationComplete(CommitFuture future) {
+                        session.close(false).addListener(new IoFutureListener<CloseFuture>() {
+                            @Override
+                            public void operationComplete(CloseFuture future) {
+                                latch.countDown();
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        Map<String, Object> bindOptions = Collections.emptyMap();
+        Map<String, Object> connectOptions = Collections.emptyMap();
+        httpConnectorToAcceptor("http://localhost:8000/path", acceptHandler, connectHandler,
+                bindOptions, connectOptions, latch);
     }
 
     @Test
