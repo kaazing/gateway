@@ -1,7 +1,18 @@
 /**
- * Copyright (c) 2007-2012, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package org.kaazing.gateway.server.context.resolve.utils;
 
 import java.net.Inet6Address;
@@ -19,8 +30,8 @@ import org.kaazing.gateway.util.GL;
  * Utils class providing needed methods for performing network interface resolution
  *
  */
-public class ResolutionUtils {
-    private static Enumeration<NetworkInterface> networkInterfaces = null;
+public final class ResolutionUtils {
+    private static Enumeration<NetworkInterface> networkInterfaces;
     // static block resolving the network interfaces
     static {
         try {
@@ -29,6 +40,10 @@ public class ResolutionUtils {
             GL.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
         }
     }
+
+    private ResolutionUtils() {
+        //not called
+     }
 
     /**
      * Method performing String to URI resolution

@@ -826,13 +826,14 @@ public class GatewayContextResolver {
                         GL.error("ha", "Unrecognized {} url {} resulted in exception {}", processing, member, ex);
                         throw new IllegalArgumentException("Invalid URL in the cluster configuration:" + member, ex);
                     }
-    
+
                     String scheme = uri.getScheme();
                     if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
                         int port = uri.getPort();
                         if (port == -1) {
                             GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
-                            throw new IllegalArgumentException("Invalid port number specified for " + processing + ": " + member);
+                            throw new IllegalArgumentException("Invalid port number specified for " + processing +
+                                    ": " + member);
                         }
                         String host = uri.getHost();
                         if (scheme.equals("aws")) {
@@ -841,7 +842,7 @@ public class GatewayContextResolver {
                             // AWS auto-discovery.
                             validateAwsClusterDiscovery(uri, connectOptions, processing, clusterPort, collection.length);
                         }
-    
+
                         memberIds.add(new MemberId(scheme, host, port, uri.getPath()));
                     } else {
                         GL.error("ha", "Unrecognized scheme {} for {} in {}", uri.getScheme(), processing, member);
