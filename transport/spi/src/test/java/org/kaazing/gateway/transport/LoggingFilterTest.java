@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactories;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.LoggingFilter;
@@ -208,7 +207,6 @@ public class LoggingFilterTest {
                 oneOf(session).getRemoteAddress(); will(returnValue(address));
                 oneOf(address).getTransport(); will(returnValue(transport));
                 oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
-                oneOf(transportMetadata).getAddressType(); will(returnValue(WsResourceAddress.class));
             }
         });
         assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(session));
