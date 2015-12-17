@@ -618,7 +618,7 @@ public class NioSocketAcceptorTest {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
 
-        final IoSession mockSession = context.mock(IoSession.class);
+        final IoSessionEx  mockSession = context.mock(IoSessionEx .class);
         final IoFilterChain mockFilterChain = context.mock(IoFilterChain.class);
         // Mocking IoAcceptorEx to get hold of "BridgeAcceptHandler tcpHandler"
         final IoAcceptorEx mockAcceptor = context.mock(IoAcceptorEx.class);

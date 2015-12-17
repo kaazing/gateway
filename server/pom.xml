@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport</artifactId>
             <version>${project.version}</version>
         </dependency>

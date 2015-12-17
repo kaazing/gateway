@@ -93,11 +93,10 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] WRITE",
             "wsn#.* [^/]*:\\d*] RECEIVED",
-            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
-            "wsn#.* [^/]*:\\d*] CLOSED"
+            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException"
         }));
         List<String> forbiddenPatterns = null;
-    
+
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 
@@ -118,7 +117,7 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] CLOSED"
         }));
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
-    
+
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 

@@ -17,12 +17,15 @@ package org.kaazing.gateway.resource.address.http;
 
 import java.io.File;
 import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
@@ -59,6 +62,13 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<String> ENCRYPTION_KEY_ALIAS = new EncryptionKeyAliasOption();
     public static final ResourceOption<String> SERVICE_DOMAIN = new ServiceDomainOption();
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
+    public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
+
+    private static final int REALM_USER_PRINCIPAL_CLASSES_IDENTITY = 17;
+
+    static {
+        assert REALM_USER_PRINCIPAL_CLASSES.identity() == REALM_USER_PRINCIPAL_CLASSES_IDENTITY;
+    }
 
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
@@ -83,7 +93,9 @@ public final class HttpResourceAddress extends ResourceAddress {
     private String authenticationIdentifier;
     private String encryptionKeyAlias;
     private String serviceDomain;
-    
+
+    private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
+
 	HttpResourceAddress(URI original, URI resource) {
 		super(original, resource);
 	}
@@ -138,6 +150,8 @@ public final class HttpResourceAddress extends ResourceAddress {
                     return (V) serviceDomain;
                 case SERVER_HEADER:
                     return (V) serverHeaderEnabled;
+                case REALM_USER_PRINCIPAL_CLASSES:
+                    return (V) realmUserPrincipalClasses;
             }
         }
 
@@ -216,35 +230,49 @@ public final class HttpResourceAddress extends ResourceAddress {
                 case SERVER_HEADER:
                     serverHeaderEnabled = (Boolean) value;
                     return;
+                case REALM_USER_PRINCIPAL_CLASSES:
+                    realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) value;
+                    return;
             }
         }
 
         super.setOption0(option, value);
     }
-	
-	static class HttpResourceOption<T> extends ResourceOption<T> {
-		
+
+    /**
+     * Default access method allowing to set an identity resolver (should allow usage from within the same package)
+     * @param identityResolverOption
+     * @param identityResolver
+     */
+    void setIdentityResolver(DefaultResourceOption<IdentityResolver> identityResolverOption,
+                             IdentityResolver identityResolver) {
+        super.setOption0(identityResolverOption, identityResolver);
+    }
+
+    public static class HttpResourceOption<T> extends ResourceOption<T> {
+
 	    protected enum Kind { KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, KEEP_ALIVE_CONNECTIONS, REQUIRED_ROLES, REALM_NAME,
             REALM_AUTHORIZATION_MODE, REALM_CHALLENGE_SCHEME, REALM_DESCRIPTION,
             REALM_AUTHENTICATION_HEADER_NAMES, REALM_AUTHENTICATION_PARAMETER_NAMES, REALM_AUTHENTICATION_COOKIE_NAMES,
             LOGIN_CONTEXT_FACTORY, INJECTABLE_HEADERS,
             ORIGIN_SECURITY, TEMP_DIRECTORY, GATEWAY_ORIGIN_SECURITY, BALANCE_ORIGINS,
-            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER
+            AUTHENTICATION_CONNECT, AUTHENTICATION_IDENTIFIER, ENCRYPTION_KEY_ALIAS, SERVICE_DOMAIN, SERVER_HEADER, 
+            REALM_USER_PRINCIPAL_CLASSES
         }
-	    
-		private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
 
-		private final Kind kind;
-		
-		private HttpResourceOption(Kind kind, String name) {
-		    this(kind, name, null);
-		}
-		
+        private static final Map<String, ResourceOption<?>> OPTION_NAMES = new HashMap<>();
+
+        private final Kind kind;
+
+        private HttpResourceOption(Kind kind, String name) {
+            this(kind, name, null);
+        }
+
         private HttpResourceOption(Kind kind, String name, T defaultValue) {
-			super(OPTION_NAMES, name, defaultValue);
-			this.kind = kind;
-		}
-	}
+            super(OPTION_NAMES, name, defaultValue);
+            this.kind = kind;
+        }
+    }
 
     private static final class HttpKeepAliveTimeoutOption extends HttpResourceOption<Integer> {
         private HttpKeepAliveTimeoutOption() {
@@ -377,6 +405,12 @@ public final class HttpResourceAddress extends ResourceAddress {
     private static final class HttpServerHeaderOption extends HttpResourceOption<Boolean> {
         private HttpServerHeaderOption() {
             super(Kind.SERVER_HEADER, "serverHeaderEnabled", Boolean.TRUE);
+        }
+    }
+
+    private static final class HttpRealmAuthenticationUserPrincipalClassesOption extends HttpResourceOption<Collection<Class<? extends Principal>>> {
+        private HttpRealmAuthenticationUserPrincipalClassesOption() {
+            super(Kind.REALM_USER_PRINCIPAL_CLASSES, "realmAuthenticationUserPrincipalClasses", new ArrayList<Class<? extends Principal>>());
         }
     }
 

@@ -16,18 +16,23 @@
 
 package org.kaazing.gateway.transport;
 
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.service.IoAcceptor;
-import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.legacy.ClassImposteriser;
@@ -35,21 +40,31 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactories;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.http.HttpIdentityResolver;
+import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.ExceptionLoggingFilter;
+import org.kaazing.mina.core.service.IoAcceptorEx;
+import org.kaazing.mina.core.service.IoConnectorEx;
+import org.kaazing.mina.core.service.IoServiceEx;
+import org.kaazing.mina.core.session.IoSessionEx;
 
 public class LoggingFilterTest {
     
     @Rule
     public JUnitRuleMockery context = new  JUnitRuleMockery();
-    
+
     final IoSession session = context.mock(IoSession.class, "session");
+    final IoSessionEx sessionEx = context.mock(IoSessionEx.class, "sessionEx");
+
     final NextFilter nextFilter = context.mock(NextFilter.class);
     final Logger logger = context.mock(Logger.class);
     
@@ -58,7 +73,7 @@ public class LoggingFilterTest {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
         final Exception exception = new NullPointerException();
         exception.fillInStackTrace();
-        
+
         context.checking(new Expectations() {
             {
                 oneOf(logger).isInfoEnabled(); will(returnValue(true));
@@ -67,16 +82,16 @@ public class LoggingFilterTest {
                 oneOf(nextFilter).exceptionCaught(session, exception);
             }
         });
-        
+
         filter.exceptionCaught(nextFilter, session, exception);
     }
-    
+
     @Test
     public void shouldLogIOExceptionAsInfoWithoutStack() throws Exception {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
         final Exception exception = new IOException();
         exception.fillInStackTrace();
-        
+
         context.checking(new Expectations() {
             {
                 oneOf(logger).isInfoEnabled(); will(returnValue(true));
@@ -85,46 +100,48 @@ public class LoggingFilterTest {
                 oneOf(nextFilter).exceptionCaught(session, exception);
             }
         });
-        
+
         filter.exceptionCaught(nextFilter, session, exception);
     }
     
     @Test
     public void getUserIdentifierShouldReturnLocalAddress() throws Exception {
-        
-        final IoConnector connector = context.mock(IoConnector.class, "connector");
-        
+
+        final IoConnectorEx  connector = context.mock(IoConnectorEx .class, "connector");
+
         final InetSocketAddress address = new InetSocketAddress(InetAddress.getByName("localhost"), 2121);
-        
+
         context.checking(new Expectations() {
             {
-                oneOf(session).getService(); will(returnValue(connector));
-                oneOf(session).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getService(); will(returnValue(connector));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
             }
         });
-        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
-    
+
     @Test
     public void getUserIdentifierShouldReturnRemoteIpv4AddressForIoAcceptor() throws Exception {
 
-        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+        final IoAcceptorEx  service = context.mock(IoAcceptorEx .class, "service");
 
         final InetSocketAddress address = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), 2121);
-        
+
         context.checking(new Expectations() {
             {
-                oneOf(session).getService(); will(returnValue(service));
-                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
             }
         });
-        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
     
     @Test
     public void getUserIdentifierShouldReturnIpv6AddressForIoAcceptor() throws Exception {
 
-        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+        final IoAcceptorEx  service = context.mock(IoAcceptorEx .class, "service");
 
         final InetSocketAddress address = new InetSocketAddress(InetAddress.getByAddress(
                 new byte[]{(byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0x90,
@@ -133,17 +150,18 @@ public class LoggingFilterTest {
         context.checking(new Expectations() {
             {
 
-                oneOf(session).getService(); will(returnValue(service));
-                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
             }
         });
-        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
-    
+
     @Test
     public void getUserIdentifierShouldReturnScopedIpv6AddressForIoAcceptor() throws Exception {
 
-        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+        final IoAcceptorEx  service = context.mock(IoAcceptorEx .class, "service");
 
         final InetSocketAddress address = new InetSocketAddress(Inet6Address.getByAddress(
                 null,
@@ -151,16 +169,17 @@ public class LoggingFilterTest {
                            (byte) 0xe4, 0x77, (byte) 0xad, 0x77, (byte) 0xec},
                 15),
                 2121);
-        
+
         context.checking(new Expectations() {
             {
-                oneOf(session).getService(); will(returnValue(service));
-                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
             }
         });
-        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec%15:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec%15:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
-    
+
     @Test
     public void getUserIdentifierShouldReturnRemoteAddressForBridgeAcceptor() throws Exception {
         context.setImposteriser(ClassImposteriser.INSTANCE);
@@ -171,32 +190,33 @@ public class LoggingFilterTest {
 
         context.checking(new Expectations() {
             {
-                oneOf(session).getService(); will(returnValue(service));
-                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
             }
         });
-        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
-    
+
     @Test
     public void getUserIdentifierShouldReturnTcpEndpointFromTransport() throws Exception {
-        context.setImposteriser(ClassImposteriser.INSTANCE);
-        final ResourceAddress address = context.mock(ResourceAddress.class, "address");
 
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
         URI transportURI = URI.create("tcp://localhost:2121");
         final ResourceAddress transport = addressFactory.newResourceAddress(transportURI);
 
-        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+        final IoAcceptorEx  service = context.mock(IoAcceptorEx .class, "service");
+        final Subject subject = new Subject();
 
         context.checking(new Expectations() {
             {
-                oneOf(session).getService(); will(returnValue(service));
-                oneOf(session).getRemoteAddress(); will(returnValue(address));
-                oneOf(address).getTransport(); will(returnValue(transport));
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(transport));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(transport));
             }
         });
-        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(session));
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
 
     @Test
@@ -204,23 +224,85 @@ public class LoggingFilterTest {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
         URI addressURI = URI.create("http://localhost:2121/jms");
         final ResourceAddress address = addressFactory.newResourceAddress(addressURI);
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        final Subject subject = new Subject();
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+            }
+        });
 
-        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(address));
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
+    }
+
+    @Test
+    public void getUserIdentifierShouldReturnPrincipalFromHttpAddressIdentifierSet() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
+        URI addressURI = URI.create("http://localhost:2121/jms");
+        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+        buildIdentityResolverOption(options);
+
+        final ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        final Subject subject = buildSubject();
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+            }
+        });
+        assertEquals("test 127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
 
     @Test
     public void getUserIdentifierShouldReturnTcpEndpointFromWsAddress() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
         URI addressURI = URI.create("ws://localhost:2121/jms");
-        final ResourceAddress address = addressFactory.newResourceAddress(addressURI);
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI);
 
-        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(address));
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        final Subject subject = new Subject();
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+            }
+        });
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
+    }
+
+    @Test
+    public void getUserIdentifierShouldReturnPrincipalFromWsAddressIdentifierSet() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
+        URI addressURI = URI.create("ws://localhost:2121/jms");
+        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+        buildIdentityResolverOption(options);
+
+        final SocketAddress address = addressFactory.newResourceAddress(addressURI, options);
+        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        final Subject subject = buildSubject();
+        context.checking(new Expectations() {
+            {
+                oneOf(sessionEx).getService(); will(returnValue(service));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getSubject(); will(returnValue(subject));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+            }
+        });
+        assertEquals("test 127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
 
     @Test
     public void shouldAddLoggingFilterWhenUserIdIsScopedIpv6Address() throws Exception {
 
-        final IoConnector connector = context.mock(IoConnector.class, "connector");
+        final IoConnectorEx  connector = context.mock(IoConnectorEx .class, "connector");
         final IoFilterChain filterChain = context.mock(IoFilterChain.class, "filterChain");
         
         final InetSocketAddress address = new InetSocketAddress(Inet6Address.getByAddress(
@@ -234,13 +316,39 @@ public class LoggingFilterTest {
             {
                 oneOf(logger).isInfoEnabled(); will(returnValue(true));
                 oneOf(logger).isTraceEnabled(); will(returnValue(false));
-                oneOf(session).getService(); will(returnValue(connector));
-                oneOf(session).getLocalAddress(); will(returnValue(address));
-                oneOf(session).getFilterChain(); will(returnValue(filterChain));
+                oneOf(sessionEx).getService(); will(returnValue(connector));
+                oneOf(sessionEx).getLocalAddress(); will(returnValue(address));
+                oneOf(sessionEx).getRemoteAddress(); will(returnValue(address));
+                oneOf(sessionEx).getFilterChain(); will(returnValue(filterChain));
+
                 oneOf(filterChain).addLast(with("tcp#logging"), with(any(ExceptionLoggingFilter.class)));
             }
         });
-        LoggingFilter.addIfNeeded(logger, session, "tcp");
+        LoggingFilter.addIfNeeded(logger, sessionEx, "tcp");
     }
-    
+
+    /**
+     * Method building identity resolver option
+     * @param options
+     */
+    private void buildIdentityResolverOption(ResourceOptions options) {
+        Collection<Class<? extends Principal>> realmUserPrincipalClasses = new ArrayList<Class<? extends Principal>>();
+        realmUserPrincipalClasses.add(DefaultUserConfig.class);
+        IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses );
+        options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
+    }
+
+    /**
+     * Method building subject set with default principal
+     * @return
+     */
+    private Subject buildSubject() {
+        final Subject subject = new Subject();
+        DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
+        defaultPrincipal.setName("test");
+        defaultPrincipal.setPassword("test");
+        subject.getPrincipals().add(defaultPrincipal);
+        return subject;
+    }
+
 }

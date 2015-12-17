@@ -28,9 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -104,6 +102,11 @@ public class WsebConnectorLoggingIT {
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
             "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION.*IOException",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] WRITE",
             "http#.* [^/]*:\\d*] RECEIVED",
@@ -148,6 +151,10 @@ public class WsebConnectorLoggingIT {
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
             "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] WRITE",
             "http#.* [^/]*:\\d*] RECEIVED",

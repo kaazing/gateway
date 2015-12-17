@@ -27,6 +27,11 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.security</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -56,6 +61,12 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.tcp</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.ws</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

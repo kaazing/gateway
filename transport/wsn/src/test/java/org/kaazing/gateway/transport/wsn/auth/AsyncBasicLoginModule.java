@@ -34,7 +34,7 @@ public class AsyncBasicLoginModule implements LoginModule {
     private static final int LOGIN_MODULE_TIME = 200;     // In ms
 
     // initial state
-    private Subject subject;
+    protected Subject subject;
     private Map<String, ?> sharedState;
 
     // the authentication status
