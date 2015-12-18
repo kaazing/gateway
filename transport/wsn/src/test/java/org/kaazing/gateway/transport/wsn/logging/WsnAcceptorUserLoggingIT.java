@@ -52,7 +52,7 @@ public class WsnAcceptorUserLoggingIT {
     private static final String DEMO_REALM = "demo";
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
     private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/gateway/tansport/wsn/auth");
+    private final K3poRule k3po = new K3poRule();
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
