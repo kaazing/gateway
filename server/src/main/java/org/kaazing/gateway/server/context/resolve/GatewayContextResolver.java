@@ -722,6 +722,12 @@ public class GatewayContextResolver {
         }
     }
 
+    /**
+     * Method used for connect/balancer URIs resolving and also for accept resolving once reolution was done
+     * @param acceptURIs
+     * @return
+     * @throws URISyntaxException
+     */
     private Collection<URI> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<URI> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
@@ -731,16 +737,35 @@ public class GatewayContextResolver {
         return urisWithPort;
     }
 
+    /**
+     * Method used for accepts resolution
+     * @param acceptURIs
+     * @return
+     * @throws URISyntaxException
+     */
     private Collection<URI> resolveURIWithInterfaces(String[] acceptURIs) throws URISyntaxException {
-        String[] resolvedURIs = new String[acceptURIs.length];
-        int i = 0;
+        List<String> resolvedURIs = new ArrayList<>();
         for (String uri : acceptURIs) {
             List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri, true);
             for (URI resolvedURI : resolvedURIStrings) {
-                resolvedURIs[i++] = resolvedURI.toString();
+                resolvedURIs.add(resolvedURI.toString());
             }
         }
-        return resolveURIs(resolvedURIs);
+        return resolveURIs(convertArrayListToArray(resolvedURIs));
+    }
+
+    /**
+     * Method converting string array to ArrayList
+     * @param resolvedURIs
+     * @return
+     */
+    private String[] convertArrayListToArray(List<String> resolvedURIs) {
+        String[] arrResolvedURIs = new String[resolvedURIs.size()];
+        int i = 0;
+        for (String resolvedURI : resolvedURIs) {
+            arrResolvedURIs[i++] = resolvedURI;
+        }
+        return arrResolvedURIs;
     }
 
     private URI resolveURI(URI uri) throws URISyntaxException {
