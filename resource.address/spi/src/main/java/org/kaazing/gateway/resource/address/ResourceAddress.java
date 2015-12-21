@@ -53,11 +53,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     public static final ResourceOption<URI> TRANSPORTED_URI = new TransportedURIOption();
 
     public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
-    private static final int IDENTITY_RESOLVER_IDENTITY = 9;
 
-    static {
-        assert IDENTITY_RESOLVER.identity() == IDENTITY_RESOLVER_IDENTITY;
-    }
     private final URI externalURI;
     private final URI resourceURI;
     private String nextProtocol;

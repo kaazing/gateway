@@ -64,12 +64,6 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final HttpResourceOption<Boolean> SERVER_HEADER_ENABLED = new HttpServerHeaderOption();
     public static final HttpResourceOption<Collection<Class<? extends Principal>>> REALM_USER_PRINCIPAL_CLASSES = new HttpRealmAuthenticationUserPrincipalClassesOption();
 
-    private static final int REALM_USER_PRINCIPAL_CLASSES_IDENTITY = 17;
-
-    static {
-        assert REALM_USER_PRINCIPAL_CLASSES.identity() == REALM_USER_PRINCIPAL_CLASSES_IDENTITY;
-    }
-
     private Boolean serverHeaderEnabled = SERVER_HEADER_ENABLED.defaultValue();
     private Boolean keepAlive = KEEP_ALIVE.defaultValue();
     private Integer keepAliveTimeout = KEEP_ALIVE_TIMEOUT.defaultValue();

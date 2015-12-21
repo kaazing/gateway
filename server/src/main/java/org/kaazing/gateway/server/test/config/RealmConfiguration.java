@@ -40,6 +40,7 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
     private final List<Suppressible<String>> httpCookies = new ArrayList<>();
     private final List<Suppressible<String>> userPrincipalClasses = new ArrayList<Suppressible<String>>();
+    private final List<String> unsuppressibleUserPrincipalClasses = Suppressibles.unsuppressibleList(userPrincipalClasses);
     private final List<LoginModuleConfiguration> loginModules = new LinkedList<>();
     private final List<String> unsuppressibleHttpHeaders = Suppressibles.unsuppressibleList(httpHeaders);
     private final List<String> unsuppressibleHttpQueryParameters = Suppressibles
@@ -174,6 +175,15 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
 
     public void setExtendedProperty(String name, String value) {
         _extendedProperties.put(name, new Suppressible<>(value));
+    }
+
+    //user principal classes
+    public List<String> getUserPrincipalClasses() {
+        return Collections.unmodifiableList(unsuppressibleUserPrincipalClasses);
+    }
+
+    public void addUserPrincipalClass(String userPrincipalClass) {
+        unsuppressibleUserPrincipalClasses.add(userPrincipalClass);
     }
 
     private class SuppressibleRealmConfigurationImpl extends SuppressibleRealmConfiguration {
