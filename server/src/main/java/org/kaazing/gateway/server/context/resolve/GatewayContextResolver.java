@@ -96,7 +96,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class GatewayContextResolver {
-    private static final Boolean ALLOW_IPv6 = false;
+    private static final Boolean ALLOW_IPv6 = true;
 
     public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
