@@ -28,9 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -100,19 +98,24 @@ public class WsebConnectorLoggingIT {
         k3po.finish();
 
         List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*CLOSED",
-            "http#.*EXCEPTION.*IOException",
-            "wseb#.*OPENED",
-            "wseb#.*WRITE",
-            "wseb#.*RECEIVED",
-            "wseb#.*CLOSED"
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION.*IOException",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] WRITE",
+            "http#.* [^/]*:\\d*] RECEIVED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] EXCEPTION.*IOException",
+            "wseb#.* [^/]*:\\d*] OPENED",
+            "wseb#.* [^/]*:\\d*] WRITE",
+            "wseb#.* [^/]*:\\d*] RECEIVED",
+            "wseb#.* [^/]*:\\d*] CLOSED"
         }));
         
         List<String> forbiddenPatterns = null;
@@ -144,16 +147,20 @@ public class WsebConnectorLoggingIT {
         k3po.finish();
 
         List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*CLOSED",
-            "wseb#.*OPENED",
-            "wseb#.*CLOSED"
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] WRITE",
+            "http#.* [^/]*:\\d*] RECEIVED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "wseb#.* [^/]*:\\d*] OPENED",
+            "wseb#.* [^/]*:\\d*] CLOSED"
         }));
         
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");

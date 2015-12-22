@@ -51,7 +51,9 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     @Deprecated // Move separately to WSEB, PROXY, etc (different types)
     public static final ResourceOption<Object> QUALIFIER = new QualifierOption();
     public static final ResourceOption<URI> TRANSPORTED_URI = new TransportedURIOption();
-    
+
+    public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
+
     private final URI externalURI;
     private final URI resourceURI;
     private String nextProtocol;
@@ -62,6 +64,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private Object qualifier;
     private Boolean bindAlternate;
     private Boolean connectRequiresInit;
+    private IdentityResolver identityResolver;
 
     public ResourceAddress(URI externalURI, URI resourceURI) {
         if (externalURI == null) {
@@ -161,6 +164,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return getTransportedURI() != null;
                 case CONNECT_REQUIRES_INIT:
                     return connectRequiresInit != null;
+                case IDENTITY_RESOLVER:
+                    return (identityResolver != null);
             }
         }
 
@@ -263,6 +268,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     return (V) getTransportedURI();
                 case CONNECT_REQUIRES_INIT:
                     return (V) connectRequiresInit;
+                case IDENTITY_RESOLVER:
+                    return (V) identityResolver;
             }
         }
 
@@ -300,6 +307,9 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                 case CONNECT_REQUIRES_INIT:
                     connectRequiresInit = (Boolean) value;
                     return;
+                case IDENTITY_RESOLVER:
+                    identityResolver = (IdentityResolver) value;
+                    return;
             }
         }
 
@@ -308,16 +318,16 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     
     @Override
     public int hashCode() {
-    	int result = resourceURI.hashCode();
-    	result = 31 * result + (nextProtocol != null ? nextProtocol.hashCode() : 0);
+        int result = resourceURI.hashCode();
+        result = 31 * result + (nextProtocol != null ? nextProtocol.hashCode() : 0);
         result = 31 * result + (transport != null ? transport.hashCode() : 0);
         result = 31 * result + (transportURI != null ? transportURI.hashCode() : 0);
         result = 31 * result + (alternate != null ? alternate.hashCode() : 0);
         result = 31 * result + (resolver != null ? resolver.hashCode() : 0);
-    	result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
+        result = 31 * result + (qualifier != null ? qualifier.hashCode() : 0);
         result = 31 * result + (getTransportedURI() != null ? getTransportedURI().hashCode() : 0);
 
-    	return result;
+        return result;
     }
     
     @Override
@@ -366,8 +376,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             builder.append(' ');
         }
         if (nextProtocol != null) {
-	        builder.append(nextProtocol);
-	        builder.append(' ');
+            builder.append(nextProtocol);
+            builder.append(' ');
         }
         builder.setCharAt(builder.length() - 1, ']');
         if (qualifier != null) {
@@ -384,8 +394,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
     }
 
-
-    static class DefaultResourceOption<T> extends ResourceOption<T> {
+    public static class DefaultResourceOption<T> extends ResourceOption<T> {
 
         enum Kind { NEXT_PROTOCOL,
                            TRANSPORT,
@@ -395,7 +404,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                            BIND_ALTERNATE,
                            QUALIFIER,
                            TRANSPORTED_URI,
-                           CONNECT_REQUIRES_INIT }
+                           CONNECT_REQUIRES_INIT,
+                           IDENTITY_RESOLVER}
         
         static final Map<String, ResourceOption<?>> OPTIONS = new HashMap<>();
 
@@ -544,5 +554,10 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
             super(Kind.CONNECT_REQUIRES_INIT, "connectRequiresInit", Boolean.FALSE);
         }
     }
-    
+
+    private static final class IdentityResolverOption extends DefaultResourceOption<IdentityResolver> {
+        private IdentityResolverOption() {
+            super(Kind.IDENTITY_RESOLVER, "identityResolver");
+        }
+    }
 }

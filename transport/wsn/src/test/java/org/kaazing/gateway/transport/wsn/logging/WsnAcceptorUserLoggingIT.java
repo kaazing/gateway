@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,12 +43,20 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
 /**
- * RFC-6455, section 5.2 "Base Framing Protocol"
+ * WsnAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
+ * Logging on different layers:
+ * - TCP: hostname:port
+ * - HTTP: principal hostname:port
+ * - WSN: principal hostname:port 
  */
-public class WsnAcceptorLoggingIT {
+public class WsnAcceptorUserLoggingIT {
+    private static final String ROLE = "USER";
+    private static final String DEMO_REALM = "demo";
+    private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
+    private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
+    private final K3poRule k3po = new K3poRule();
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
     private TestRule checkLogMessageRule = new TestRule() {
         @Override
         public Statement apply(final Statement base, Description description) {
@@ -61,19 +69,32 @@ public class WsnAcceptorLoggingIT {
             };
         }
     };
-    private GatewayRule gateway = new GatewayRule() {
+    public GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .service()
-                            .accept(URI.create("ws://localhost:8080/echo"))
-                            .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
+            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
+                .service()
+                    .accept(URI.create("ws://localhost:8001/echoAuth"))
+                    .type("echo")
+                    .realmName(DEMO_REALM)
+                        .authorization()
+                        .requireRole(ROLE)
+                    .done()
+                .done()
+                .security()
+                    .realm()
+                        .name(DEMO_REALM)
+                        .description("Kaazing WebSocket Gateway Demo")
+                        .httpChallengeScheme("Basic")
+                        .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
+                        .loginModule()
+                            .type("class:org.kaazing.gateway.transport.wsn.auth.AsyncBasicLoginModuleWithDefaultUserConfig")
+                            .success("requisite")
+                            .option("roles", ROLE)
                         .done()
-                    .done();
+                    .done()
+                .done()
+            .done();
+
             // @formatter:on
             Properties log4j = new Properties();
             log4j.setProperty("log4j.rootLogger", "TRACE, A1");
@@ -81,54 +102,35 @@ public class WsnAcceptorLoggingIT {
             log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
             log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
             PropertyConfigurator.configure(log4j);
-
             init(configuration);
         }
     };
-    
+
     private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     @Rule
     public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
 
+    @Specification("asyncBasicLoginModuleSuccess")
     @Test
-    @Specification({
-        "ws/framing/echo.binary.payload.length.125/handshake.request.and.frame"
-        })
-    public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
+    public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
-            "tcp#.* [^/]*:\\d*] CLOSED",
-            "http#.* [^/]*:\\d*] OPENED",
-            "http#.* [^/]*:\\d*] CLOSED",
-            "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] WRITE",
-            "wsn#.* [^/]*:\\d*] RECEIVED",
-            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException"
-        }));
-        forbiddenPatterns = null;
-    }
-
-    @Test
-    @Specification({
-        "ws/closing/client.send.empty.close.frame/handshake.request.and.frame"
-        })
-    public void shouldLogOpenAndCleanClose() throws Exception {
-        k3po.finish();
-        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.* [^/]*:\\d*] OPENED",
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
-            "tcp#.* [^/]*:\\d*] CLOSED",
-            "http#.* [^/]*:\\d*] OPENED",
-            "http#.* [^/]*:\\d*] CLOSED",
-            "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] CLOSED"
-        }));
-        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+                "tcp#.* [^/]*:\\d*] OPENED",
+                "tcp#.* [^/]*:\\d*] WRITE",
+                "tcp#.* [^/]*:\\d*] RECEIVED",
+                "tcp#.* [^/]*:\\d*] CLOSED",
+                "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
+                "http#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
+                "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
+            }));
+        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+                TEST_PRINCIPAL_PASS
+            }));
     }
 
 }

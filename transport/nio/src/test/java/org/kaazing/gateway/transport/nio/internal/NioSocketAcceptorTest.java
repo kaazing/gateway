@@ -618,7 +618,7 @@ public class NioSocketAcceptorTest {
         Mockery context = new Mockery();
         context.setThreadingPolicy(new Synchroniser());
 
-        final IoSession mockSession = context.mock(IoSession.class);
+        final IoSessionEx  mockSession = context.mock(IoSessionEx .class);
         final IoFilterChain mockFilterChain = context.mock(IoFilterChain.class);
         // Mocking IoAcceptorEx to get hold of "BridgeAcceptHandler tcpHandler"
         final IoAcceptorEx mockAcceptor = context.mock(IoAcceptorEx.class);
@@ -630,10 +630,13 @@ public class NioSocketAcceptorTest {
                 allowing(mockSession).getLocalAddress(); will(returnValue(bindAddress));
                 oneOf(mockSession).close(with(any(boolean.class)));
                 allowing(mockSession).getFilterChain(); will(returnValue(mockFilterChain));
+                allowing(mockSession).getRemoteAddress(); will(returnValue(bindAddress));
+                allowing(mockSession).getService(); will(returnValue(mockAcceptor));
 
                 allowing(mockSession).getTransportMetadata();
                 will(returnValue(transportMetadata));
-                allowing(transportMetadata).getAddressType();
+                allowing(mockSession).getSubject();
+                allowing(transportMetadata).getAddressType(); will(returnValue(SocketAddress.class));
 
                 allowing(mockFilterChain).addFirst(with(any(String.class)), with(any(IoFilter.class)));
                 allowing(mockFilterChain).addLast(with(any(String.class)), with(any(IoFilter.class)));
@@ -641,7 +644,7 @@ public class NioSocketAcceptorTest {
                 allowing(mockAcceptor).setHandler(with(aNonNull(IoHandler.class))); will(saveParameter(tcpHandlerHolder, 0));
                 allowing(mockAcceptor).setSessionDataStructureFactory(with(aNonNull(DefaultIoSessionDataStructureFactory.class)));
                 allowing(mockAcceptor).bindAsync(with(aNonNull(SocketAddress.class)));
-                allowing(mockAcceptor).unbind(with(aNonNull(SocketAddress.class)));
+                allowing(mockAcceptor).unbind(with(aNonNull(SocketAddress.class))); 
             }
             public Action saveParameter(final Object[] parameterStorage, final int parameterIndex) {
                 return new CustomAction("save parameter") {

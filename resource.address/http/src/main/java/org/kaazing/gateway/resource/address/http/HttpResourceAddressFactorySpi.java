@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.resource.address.http;
 
-
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
@@ -39,12 +39,15 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRANSPORT_NAME;
 
 import java.io.File;
 import java.net.URI;
+import java.security.Principal;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -226,6 +229,22 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         if (serverHeaderEnabled != null) {
             options.setOption(SERVER_HEADER_ENABLED, serverHeaderEnabled);
         }
+
+        Collection<Class<? extends Principal>> realmUserPrincipalClasses = (Collection<Class<? extends Principal>>) optionsByName.remove(REALM_USER_PRINCIPAL_CLASSES.name());
+        if (realmUserPrincipalClasses != null) {
+            options.setOption(REALM_USER_PRINCIPAL_CLASSES, realmUserPrincipalClasses);
+        }
+
+        IdentityResolver httpIdentityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
+        if (httpIdentityResolver != null) {
+            options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
+        }
+        else {
+            if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+                httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
+                options.setOption(IDENTITY_RESOLVER, httpIdentityResolver);
+            }
+        }
     }
 
     protected void setAlternateOption(final URI location,
@@ -309,6 +328,14 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         address.setOption0(ENCRYPTION_KEY_ALIAS, options.getOption(ENCRYPTION_KEY_ALIAS));
         address.setOption0(SERVICE_DOMAIN, options.getOption(SERVICE_DOMAIN));
         address.setOption0(SERVER_HEADER_ENABLED, options.getOption(SERVER_HEADER_ENABLED));
+        address.setOption0(REALM_USER_PRINCIPAL_CLASSES, options.getOption(REALM_USER_PRINCIPAL_CLASSES));
+        if (address.getOption(IDENTITY_RESOLVER) == null) {
+             Collection<Class<? extends Principal>> realmUserPrincipalClasses = address.getOption(REALM_USER_PRINCIPAL_CLASSES);
+             if (realmUserPrincipalClasses != null && realmUserPrincipalClasses.size() > 0) {
+                 IdentityResolver httpIdentityResolver = new HttpIdentityResolver(realmUserPrincipalClasses);
+                 address.setIdentityResolver(IDENTITY_RESOLVER, httpIdentityResolver);
+             }
+        }
     }
 
 }
