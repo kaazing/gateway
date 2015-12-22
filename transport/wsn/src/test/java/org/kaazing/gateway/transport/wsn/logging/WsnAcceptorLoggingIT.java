@@ -31,6 +31,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -44,9 +46,21 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
  * RFC-6455, section 5.2 "Base Framing Protocol"
  */
 public class WsnAcceptorLoggingIT {
-
+    private List<String> expectedPatterns;
+    private List<String> forbiddenPatterns;
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
-
+    private TestRule checkLogMessageRule = new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+                }
+            };
+        }
+    };
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
@@ -75,7 +89,7 @@ public class WsnAcceptorLoggingIT {
     private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(gateway);
+    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
 
     @Test
     @Specification({
@@ -83,7 +97,7 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -95,9 +109,7 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] RECEIVED",
             "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException"
         }));
-        List<String> forbiddenPatterns = null;
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+        forbiddenPatterns = null;
     }
 
     @Test
@@ -106,7 +118,7 @@ public class WsnAcceptorLoggingIT {
         })
     public void shouldLogOpenAndCleanClose() throws Exception {
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -116,9 +128,7 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] CLOSED"
         }));
-        List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
     }
 
 }
