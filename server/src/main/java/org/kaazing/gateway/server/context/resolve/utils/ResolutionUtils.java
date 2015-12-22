@@ -31,15 +31,6 @@ import org.kaazing.gateway.util.GL;
  *
  */
 public final class ResolutionUtils {
-    private static Enumeration<NetworkInterface> networkInterfaces;
-    // static block resolving the network interfaces
-    static {
-        try {
-            networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException socketEx) {
-            GL.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
-        }
-    }
 
     private ResolutionUtils() {
         //not called
@@ -52,6 +43,12 @@ public final class ResolutionUtils {
      * @return
      */
    public static List<URI> resolveStringUriToURIList(String uri, boolean includeIPv6) {
+       Enumeration<NetworkInterface> networkInterfaces = null;
+       try {
+           networkInterfaces = NetworkInterface.getNetworkInterfaces();
+       } catch (SocketException socketEx) {
+           GL.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
+       }
         // The URI might be a device name/port, e.g. @eth0:5942 or [@eth0:1]:5942, so make sure to
         // resolve device names before continuing.
         List<URI> resolvedDeviceURIs = new ArrayList<URI>();
@@ -61,7 +58,7 @@ public final class ResolutionUtils {
                 if (schemeAndHost.length == 2) {
                     String host = schemeAndHost[1].substring(0, schemeAndHost[1].lastIndexOf(':'));
                     String port = schemeAndHost[1].substring(schemeAndHost[1].lastIndexOf(':') + 1);
-                    List<String> resolvedAddresses = resolveDeviceAddress(host, includeIPv6);
+                    List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, includeIPv6);
                     for (String resolvedAddress : resolvedAddresses) {
                         resolvedDeviceURIs.add(URI.create(schemeAndHost[0] + "://" + resolvedAddress + ":" + port));
                     }
@@ -76,12 +73,14 @@ public final class ResolutionUtils {
     }
 
    /**
-    * Methos performing device address resolution
+    * Method performing device address resolution
     * @param deviceName
+    * @param networkInterfaces
     * @param includeIPv6
     * @return
     */
-   private static List<String> resolveDeviceAddress(String deviceName, boolean includeIPv6) {
+   private static List<String> resolveDeviceAddress(String deviceName,
+           Enumeration<NetworkInterface> networkInterfaces, boolean includeIPv6) {
         List<String> resolvedAddresses = new ArrayList<String>();
         if (deviceName.startsWith("[@") && deviceName.endsWith("]")) {
             deviceName = deviceName.substring(2, deviceName.lastIndexOf(']'));
@@ -110,7 +109,7 @@ public final class ResolutionUtils {
             // add an internal URI for any sub interfaces that match the hostAddress
             Enumeration<NetworkInterface> subInterfaces = networkInterface.getSubInterfaces();
             if ((subInterfaces != null) && subInterfaces.hasMoreElements()) {
-                resolvedAddresses.addAll(resolveDeviceAddress(deviceName, includeIPv6));
+                resolvedAddresses.addAll(resolveDeviceAddress(deviceName, networkInterfaces, includeIPv6));
             }
         }
 
