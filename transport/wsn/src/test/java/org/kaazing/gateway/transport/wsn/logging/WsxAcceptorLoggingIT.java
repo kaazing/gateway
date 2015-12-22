@@ -54,7 +54,7 @@ public class WsxAcceptorLoggingIT {
                         .service()
                             .accept(URI.create("ws://localhost:8001/echo"))
                             .type("echo")
-                            .acceptOption("ws.inactivityTimeout", "1sec")
+                            .acceptOption("ws.inactivity.timeout", "1sec")
                         .done()
                     .done();
             // @formatter:on
