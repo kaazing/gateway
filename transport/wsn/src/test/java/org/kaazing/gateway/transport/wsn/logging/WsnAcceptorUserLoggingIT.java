@@ -31,6 +31,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -53,6 +55,20 @@ public class WsnAcceptorUserLoggingIT {
     private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
     private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
     private final K3poRule k3po = new K3poRule();
+    private List<String> expectedPatterns;
+    private List<String> forbiddenPatterns;
+    private TestRule checkLogMessageRule = new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+                }
+            };
+        }
+    };
     public GatewayRule gateway = new GatewayRule() {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
@@ -93,13 +109,13 @@ public class WsnAcceptorUserLoggingIT {
     private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(gateway);
+    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
 
     @Specification("asyncBasicLoginModuleSuccess")
     @Test
     public void verifyPrincipalNameLoggedInLayersAboveHttp() throws Exception {
         k3po.finish();
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 "tcp#.* [^/]*:\\d*] OPENED",
                 "tcp#.* [^/]*:\\d*] WRITE",
                 "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -112,11 +128,9 @@ public class WsnAcceptorUserLoggingIT {
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
                 "wsn#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
             }));
-        List<String> forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {
                 TEST_PRINCIPAL_PASS
             }));
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 
 }
