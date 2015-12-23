@@ -13,35 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.tcp;
+package org.kaazing.gateway.transport.tcp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
-import org.apache.mina.core.future.IoFuture;
-import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -55,43 +42,16 @@ public class TcpConnectorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
-    private NioSocketConnector connector;
+    private TcpConnectorRule connector = new TcpConnectorRule();
 
     @Rule
-    public TestRule chain = createRuleChain(k3po, 10, SECONDS);
-
-    @Before
-    public void before() throws Exception {
-        NioSocketAcceptor acceptor = new NioSocketAcceptor(new Properties());
-
-        connector = new NioSocketConnector(new Properties());
-        connector.setResourceAddressFactory(newResourceAddressFactory());
-        connector.setTcpAcceptor(acceptor);
-    }
+    public TestRule chain = createRuleChain(connector, k3po);
 
     private void connectTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
-        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-
-        Map<String, Object> acceptOptions = new HashMap<>();
-
         final String connectURIString = "tcp://127.0.0.1:8080";
-        final ResourceAddress bindAddress =
-                addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
-                        acceptOptions);
-
-        CountDownLatch latch = new CountDownLatch(1);
-        ConnectFuture x = connector.connect(bindAddress, handler, null);
-        x.addListener(new IoFutureListener<IoFuture>(){
-
-            @Override
-            public void operationComplete(IoFuture arg0) {
-                latch.countDown();
-            }
-
-        });
-        boolean didConnect = latch.await(1, SECONDS);
-        Assert.assertTrue("Fail to connect", didConnect);
+        ConnectFuture x = connector.connect(connectURIString, handler, null);
+        x.await(1, SECONDS);
+        Assert.assertTrue("Failed to connect, exception " + x.getException(), x.isConnected());
     }
 
     private void writeStringMessageToSession(String message, IoSession session) {
@@ -105,29 +65,20 @@ public class TcpConnectorIT {
         session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
     }
 
-    @After
-    public void after() throws Exception {
-        // Make sure we always stop all I/O worker threads
-        if (connector != null) {
-            //schedulerProvider.shutdownNow();
-            connector.dispose();
-        }
-    }
-
     @Test
     @Specification({
-        "establish.connection/tcp.server"
+        "establish.connection/server"
         })
-    public void establishConnection() throws Exception {
+    public void shouldEstablishConnection() throws Exception {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "server.sent.data/tcp.server"
+        "server.sent.data/server"
         })
-    public void serverSentData() throws Exception {
+    public void shouldReceiveServerSentData() throws Exception {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>());
 
         k3po.finish();
@@ -135,9 +86,9 @@ public class TcpConnectorIT {
 
     @Test
     @Specification({
-        "client.sent.data/tcp.server"
+        "client.sent.data/server"
         })
-    public void clientSentData() throws Exception {
+    public void shouldReceiveClientSentData() throws Exception {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -158,9 +109,9 @@ public class TcpConnectorIT {
 
     @Test
     @Specification({
-        "bidirectional.data/tcp.server"
+        "echo.data/server"
         })
-    public void bidirectionalData() throws Exception {
+    public void shouldEchoData() throws Exception {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             private int counter = 1;
             private DataMatcher dataMatch = new DataMatcher("server data " + counter);
@@ -188,19 +139,28 @@ public class TcpConnectorIT {
 
     @Test
     @Specification({
-        "server.close/tcp.server"
+        "server.close/server"
         })
-    public void serverClose() throws Exception {
-        connectTo8080(new IoHandlerAdapter<IoSessionEx>());
+    public void shouldHandleServerClose() throws Exception {
+        CountDownLatch closed = new CountDownLatch(1);
+        connectTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doSessionClosed(IoSessionEx session) throws Exception {
+                closed.countDown();
+            }
+        });
+        
+        k3po.notifyBarrier("CLOSEABLE");
+        closed.await(5,  SECONDS);
 
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "client.close/tcp.server"
+        "client.close/server"
         })
-    public void clientClose() throws Exception {
+    public void shouldIssueClientClose() throws Exception {
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -212,9 +172,9 @@ public class TcpConnectorIT {
 
     @Test
     @Specification({
-        "concurrent.connections/tcp.server"
+        "concurrent.connections/server"
         })
-    public void concurrentConnections() throws Exception {
+    public void shouldEstablishConcurrentConnections() throws Exception {
         IoHandlerAdapter<IoSessionEx> adapter = new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {

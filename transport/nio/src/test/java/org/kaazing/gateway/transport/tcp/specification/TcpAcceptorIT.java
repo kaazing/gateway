@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.tcp;
+package org.kaazing.gateway.transport.tcp.specification;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
@@ -101,7 +101,7 @@ public class TcpAcceptorIT {
     @Ignore("https://github.com/kaazing/gateway/issues/357")
     @Test
     @Specification({
-        "establish.connection/tcp.client"
+        "establish.connection/client"
         })
     public void establishConnection() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>());
@@ -110,7 +110,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "server.sent.data/tcp.client"
+        "server.sent.data/client"
         })
     public void serverSentData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -125,7 +125,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "client.sent.data/tcp.client"
+        "client.sent.data/client"
         })
     public void clientSentData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>());
@@ -134,7 +134,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "bidirectional.data/tcp.client"
+        "echo.data/client"
         })
     public void bidirectionalData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -158,7 +158,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "server.close/tcp.client"
+        "server.close/client"
         })
     public void serverClose() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -173,7 +173,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "client.close/tcp.client"
+        "client.close/client"
         })
     public void clientClose() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>());
@@ -182,7 +182,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "concurrent.connections/tcp.client"
+        "concurrent.connections/client"
         })
     public void concurrentConnections() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
