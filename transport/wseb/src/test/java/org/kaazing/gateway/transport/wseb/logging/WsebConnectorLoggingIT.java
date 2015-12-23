@@ -28,14 +28,15 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.gateway.transport.test.Expectations;
@@ -58,9 +59,27 @@ public class WsebConnectorLoggingIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse");
+    
+    private List<String> expectedPatterns;
+    private List<String> forbiddenPatterns;
+    private TestRule checkLogMessageRule = new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    MemoryAppender.assertMessagesLogged(expectedPatterns,
+                            forbiddenPatterns, ".*\\[.*#.*].*", true);
+                }
+            };
+        }
+    };
+    
+    private final TestRule connectorAndLogCheck = RuleChain.outerRule(checkLogMessageRule).around(connector);
 
     @Rule
-    public final TestRule chain = createRuleChain(connector, k3po);
+    public final TestRule chain = createRuleChain(connectorAndLogCheck, k3po);
 
     @Test
     @Specification({
@@ -99,7 +118,7 @@ public class WsebConnectorLoggingIT {
 
         k3po.finish();
 
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -115,9 +134,7 @@ public class WsebConnectorLoggingIT {
             "wseb#.*CLOSED"
         }));
         
-        List<String> forbiddenPatterns = null;
-
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+        forbiddenPatterns = null;
     }
 
     @Test
@@ -143,7 +160,7 @@ public class WsebConnectorLoggingIT {
         connectSession.close(false).await();
         k3po.finish();
 
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.*OPENED",
             "tcp#.*WRITE",
             "tcp#.*RECEIVED",
@@ -156,9 +173,7 @@ public class WsebConnectorLoggingIT {
             "wseb#.*CLOSED"
         }));
         
-        List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
-        
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);    
+        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");    
     }
     
 }
