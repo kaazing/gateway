@@ -31,7 +31,6 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -76,8 +75,6 @@ public class TcpAcceptorRule implements TestRule {
 
         private final Statement base;
 
-        private NioSocketConnector tcpConnector;
-        private NioSocketAcceptor tcpAcceptor;
         private SchedulerProvider schedulerProvider;
 
         public AcceptorStatement(Statement base) {
@@ -105,20 +102,14 @@ public class TcpAcceptorRule implements TestRule {
                 TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
-                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
-                tcpAcceptor.setResourceAddressFactory(addressFactory);
-                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
-                tcpAcceptor.setSchedulerProvider(schedulerProvider);
-
-                tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
-                tcpConnector.setResourceAddressFactory(addressFactory);
-                tcpConnector.setBridgeServiceFactory(serviceFactory);
-                tcpConnector.setTcpAcceptor(tcpAcceptor);
+                acceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                acceptor.setResourceAddressFactory(addressFactory);
+                acceptor.setBridgeServiceFactory(serviceFactory);
+                acceptor.setSchedulerProvider(schedulerProvider);
 
                 base.evaluate();
             } finally {
-                tcpConnector.dispose();
-                tcpAcceptor.dispose();
+                acceptor.dispose();
                 schedulerProvider.shutdownNow();
             }
         }
