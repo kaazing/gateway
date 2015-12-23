@@ -70,6 +70,8 @@ public class TcpConnectorIT {
         "establish.connection/server"
         })
     public void shouldEstablishConnection() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>());
         k3po.finish();
     }
@@ -79,6 +81,8 @@ public class TcpConnectorIT {
         "server.sent.data/server"
         })
     public void shouldReceiveServerSentData() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>());
 
         k3po.finish();
@@ -89,6 +93,8 @@ public class TcpConnectorIT {
         "client.sent.data/server"
         })
     public void shouldReceiveClientSentData() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -112,6 +118,8 @@ public class TcpConnectorIT {
         "echo.data/server"
         })
     public void shouldEchoData() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             private int counter = 1;
             private DataMatcher dataMatch = new DataMatcher("server data " + counter);
@@ -133,7 +141,6 @@ public class TcpConnectorIT {
             }
         });
 
-
         k3po.finish();
     }
 
@@ -142,6 +149,8 @@ public class TcpConnectorIT {
         "server.close/server"
         })
     public void shouldHandleServerClose() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         CountDownLatch closed = new CountDownLatch(1);
         connectTo8080(new IoHandlerAdapter<IoSessionEx>() {
             @Override
@@ -161,6 +170,8 @@ public class TcpConnectorIT {
         "client.close/server"
         })
     public void shouldIssueClientClose() throws Exception {
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(new IoHandlerAdapter<IoSessionEx>(){
             @Override
             protected void doSessionOpened(IoSessionEx session) throws Exception {
@@ -200,12 +211,13 @@ public class TcpConnectorIT {
 
             }
         };
+        k3po.start();
+        k3po.awaitBarrier("BOUND");
         connectTo8080(adapter);
         connectTo8080(adapter);
         connectTo8080(adapter);
 
         k3po.finish();
-
     }
 
 }
