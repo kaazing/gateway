@@ -71,7 +71,8 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             // create HttpRequestMessage
             HttpRequestMessage httpRequest = new HttpRequestMessage();
             httpRequest.setMethod(session.getMethod());
-            httpRequest.setRequestURI(session.getRequestURI());
+            URI pathFromResource = URI.create(resource.getPath());
+            httpRequest.setRequestURI(pathFromResource);
             httpRequest.setVersion(session.getVersion());
             Map<String, List<String>> parameters = session.getParameters();
             if (!parameters.isEmpty()) {
