@@ -56,7 +56,7 @@ public class ServiceContextRealmInvalidUserPrincipalClassTest {
                     .httpChallengeScheme("Basic")
                     .userPrincipalClass(PRINCIPAL)
                     .loginModule()
-                        .type("class:org.kaazing.gateway.security.auth.BasicLoginModuleWithDefaultUserConfig")
+                        .type("class:org.kaazing.gateway.server.context.resolve.BasicLoginModuleWithDefaultUserConfig")
                         .success("requisite")
                         .option("roles", ROLE)
                     .done()
