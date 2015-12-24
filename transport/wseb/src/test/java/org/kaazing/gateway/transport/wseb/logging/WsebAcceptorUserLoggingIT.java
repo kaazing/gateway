@@ -57,7 +57,7 @@ public class WsebAcceptorUserLoggingIT {
     private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/gateway/transport/wseb");
+    private final K3poRule k3po = new K3poRule();
     private TestRule checkLogMessageRule = new TestRule() {
         @Override
         public Statement apply(final Statement base, Description description) {
@@ -93,7 +93,7 @@ public class WsebAcceptorUserLoggingIT {
                         .httpChallengeScheme("Basic")
                         .userPrincipalClass("org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig")
                         .loginModule()
-                            .type("class:org.kaazing.gateway.security.auth.BasicLoginModuleWithDefaultUserConfig")
+                            .type("class:org.kaazing.gateway.transport.wseb.logging.BasicLoginModuleWithDefaultUserConfig")
                             .success("requisite")
                             .option("roles", ROLE)
                         .done()
@@ -133,7 +133,7 @@ public class WsebAcceptorUserLoggingIT {
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] OPENED",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] WRITE",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] RECEIVED",
-                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*IOException",
+                "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] EXCEPTION.*Exception",
                 "wseb#[^" + TEST_PRINCIPAL_NAME + "]*" + TEST_PRINCIPAL_NAME + " [^/]*:\\d*] CLOSED"
             }));
         forbiddenPatterns = new ArrayList<String>(Arrays.asList(new String[] {

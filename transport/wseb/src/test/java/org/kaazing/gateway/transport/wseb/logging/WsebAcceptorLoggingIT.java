@@ -94,7 +94,7 @@ public class WsebAcceptorLoggingIT {
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();
 
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
              "tcp#.* [^/]*:\\d*] OPENED",
              "tcp#.* [^/]*:\\d*] WRITE",
              "tcp#.* [^/]*:\\d*] RECEIVED",
