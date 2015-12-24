@@ -147,7 +147,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
-        return addresses.get(0);
+        if (addresses.size() > 0) {
+            return addresses.get(0);
+        }
+        return null;
     }
 
     protected void setAlternateOption(URI location,

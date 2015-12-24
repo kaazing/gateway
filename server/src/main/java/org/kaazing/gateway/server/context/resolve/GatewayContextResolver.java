@@ -96,7 +96,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class GatewayContextResolver {
-    private static final Boolean ALLOW_IPv6 = true;
 
     public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
@@ -748,7 +747,7 @@ public class GatewayContextResolver {
     private Collection<URI> resolveURIWithInterfaces(String[] acceptURIs) throws URISyntaxException {
         List<String> resolvedURIs = new ArrayList<>();
         for (String uri : acceptURIs) {
-            List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri, ALLOW_IPv6);
+            List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri);
             for (URI resolvedURI : resolvedURIStrings) {
                 resolvedURIs.add(resolvedURI.toString());
             }
@@ -844,7 +843,7 @@ public class GatewayContextResolver {
         List<MemberId> memberIds = new ArrayList<>();
         if (collection != null) {
             for (String member : collection) {
-                List<URI> resolvedURIs = ResolutionUtils.resolveStringUriToURIList(member, ALLOW_IPv6);
+                List<URI> resolvedURIs = ResolutionUtils.resolveStringUriToURIList(member);
                 for (URI resolvedURI : resolvedURIs) {
                     URI uri;
                     try {
