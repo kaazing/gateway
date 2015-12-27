@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.context.resolve.utils;
+package org.kaazing.gateway.resource.address;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -21,10 +21,14 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import org.kaazing.gateway.util.GL;
+import javax.management.RuntimeErrorException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utils class providing needed methods for performing network interface resolution
@@ -32,10 +36,46 @@ import org.kaazing.gateway.util.GL;
  */
 public final class ResolutionUtils {
     private static final Boolean ALLOW_IPv6 = true;
+    private static List<NetworkInterface> networkInterfaces = new ArrayList<NetworkInterface>();
+    private static final Logger LOG = LoggerFactory.getLogger(ResolutionUtils.class);
+    static {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                networkInterfaces.add(interfaces.nextElement());
+            }
+        } catch (SocketException socketEx) {
+            LOG.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
+        }
+    }
 
     private ResolutionUtils() {
         //not called
      }
+
+    /**
+     * Method performing authority resolution
+     * @param authority
+     * @return
+     */
+    public static List<String> resolveInterfaceAuthorityToAuthorityList(String authority) {
+        Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
+
+        List<String> resolvedAuthorityValues = new ArrayList<String>();
+        if (authority.lastIndexOf(':') > 0) {
+            String host = authority.substring(0, authority.lastIndexOf(':'));
+            String port = authority.substring(authority.lastIndexOf(':') + 1);
+            List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces);
+            for (String resolvedAddress : resolvedAddresses) {
+                resolvedAuthorityValues.add(resolvedAddress + ":" + port);
+            }
+        }
+
+        if (resolvedAuthorityValues.isEmpty()) {
+            resolvedAuthorityValues.add(authority);
+        }
+        return resolvedAuthorityValues;
+    }
 
     /**
      * Method performing String to URI resolution
@@ -44,12 +84,8 @@ public final class ResolutionUtils {
      * @return
      */
    public static List<URI> resolveStringUriToURIList(String uri) {
-       Enumeration<NetworkInterface> networkInterfaces = null;
-       try {
-           networkInterfaces = NetworkInterface.getNetworkInterfaces();
-       } catch (SocketException socketEx) {
-           GL.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
-       }
+       Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
+
         // The URI might be a device name/port, e.g. @eth0:5942 or [@eth0:1]:5942, so make sure to
         // resolve device names before continuing.
         List<URI> resolvedDeviceURIs = new ArrayList<URI>();
@@ -61,6 +97,10 @@ public final class ResolutionUtils {
                     String port = schemeAndHost[1].substring(schemeAndHost[1].lastIndexOf(':') + 1);
                     List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces);
                     for (String resolvedAddress : resolvedAddresses) {
+                        if (!schemeAndHost[0].equalsIgnoreCase("tcp") && !schemeAndHost[0].equalsIgnoreCase("udp")) {
+                            throw new RuntimeErrorException(null, "Resolution scheme not tcp or udp for resolved address " +
+                                        resolvedAddress);
+                        }
                         resolvedDeviceURIs.add(URI.create(schemeAndHost[0] + "://" + resolvedAddress + ":" + port));
                     }
                 }
@@ -115,4 +155,17 @@ public final class ResolutionUtils {
 
         return resolvedAddresses;
     }
+
+   /**
+    * Method cloning list of strings (used for network interfaces)
+    * @param interfaces
+    * @return
+    */
+   private static Enumeration<NetworkInterface> cloneInterfaces(List<NetworkInterface> interfaces) {
+       List<NetworkInterface> clone = new ArrayList<NetworkInterface>();
+       for (NetworkInterface interf : interfaces) {
+           clone.add(interf);
+       }
+       return Collections.enumeration(clone);
+   }
 }

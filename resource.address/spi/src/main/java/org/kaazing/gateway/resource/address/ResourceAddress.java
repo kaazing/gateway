@@ -28,6 +28,7 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private static final long serialVersionUID = 1L;
 
     public static final ResourceOption<String> NEXT_PROTOCOL = new NextProtocolOption();
-    public static final ResourceOption<URI> TRANSPORT_URI = new TransportURIOption();
+    public static final ResourceOption<List<URI>> TRANSPORT_URI = new TransportURIOption();
     public static final ResourceOption<ResourceAddress> TRANSPORT = new TransportOption();
     public static final ResourceOption<ResourceAddress> ALTERNATE = new AlternateOption();
     public static final ResourceOption<NameResolver> RESOLVER = new ResolverOption(); // consider moving to TcpResourceAddress, ...
@@ -56,7 +57,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private final URI resourceURI;
     private String nextProtocol;
     private ResourceAddress transport;
-    private URI transportURI;
+    private List<URI> transportURI = new ArrayList<URI>();
     private ResourceAddress alternate;
     private NameResolver resolver;
     private Object qualifier;
@@ -277,7 +278,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     nextProtocol = (String) value;
                     return;
                 case TRANSPORT_URI:
-                    transportURI = (URI) value;
+                    transportURI = (List<URI>) value;
                     return;
                 case TRANSPORT:
                     transport = (ResourceAddress) value;
@@ -417,7 +418,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
     }
     
-    private static class TransportURIOption extends DefaultResourceOption<URI> {
+    private static class TransportURIOption extends DefaultResourceOption<List<URI>> {
         private TransportURIOption() {
             super(Kind.TRANSPORT_URI, "transportURI");
         }

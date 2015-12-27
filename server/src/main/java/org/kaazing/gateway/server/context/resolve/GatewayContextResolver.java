@@ -41,6 +41,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -71,7 +72,6 @@ import org.kaazing.gateway.server.config.sep2014.ServicePropertiesType;
 import org.kaazing.gateway.server.config.sep2014.ServiceType;
 import org.kaazing.gateway.server.context.DependencyContext;
 import org.kaazing.gateway.server.context.GatewayContext;
-import org.kaazing.gateway.server.context.resolve.utils.ResolutionUtils;
 import org.kaazing.gateway.server.service.ServiceRegistry;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ConnectOptionsContext;
