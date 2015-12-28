@@ -26,12 +26,8 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.api.Invocation;
-import org.jmock.lib.action.CustomAction;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,6 +35,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -47,6 +44,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class BaseFramingIT {
@@ -56,19 +54,20 @@ public class BaseFramingIT {
                 .withLookingForStuckThread(true).build());
     private final TestRule trace = new MethodExecutionTrace();
 
-    @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeoutRule).around(connector).around(k3po);
-
     private static String TEXT_FILTER_NAME = WsnProtocol.NAME + "#text";
     private static Charset UTF_8 = Charset.forName("UTF-8");
 
-    private Mockery context;
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setThreadingPolicy(new Synchroniser());
+        }
+    };
 
-    @Before
-    public void initialize() {
-        context = new Mockery();
-        context.setThreadingPolicy(new Synchroniser());
-    }
+    private TestRule contextRule = ITUtil.toTestRule(context);
+
+    @Rule
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(timeoutRule)
+            .around(contextRule);
 
     @Test
     @Ignore("Issue# 306: IllegalArgumentException: message is empty. Forgot to call flip")
@@ -83,16 +82,8 @@ public class BaseFramingIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(hasRemaining(0)));
+                will(countDown(latch));
             }
         });
 
@@ -118,7 +109,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -128,21 +118,16 @@ public class BaseFramingIT {
     public void shouldEchoBinaryFrameWithPayloadLength125() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
+        byte[] bytes = new byte[125];
+        Random random = new Random();
+        random.nextBytes(bytes);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -160,10 +145,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[125];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -171,7 +152,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -182,20 +162,16 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        Random random = new Random();
+        byte[] bytes = new byte[126];
+        random.nextBytes(bytes);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -213,10 +189,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[126];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -224,7 +196,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -235,20 +206,16 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        Random random = new Random();
+        byte[] bytes = new byte[127];
+        random.nextBytes(bytes);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -266,10 +233,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[127];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -277,7 +240,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -288,20 +250,17 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        Random random = new Random();
+        byte[] bytes = new byte[128];
+        random.nextBytes(bytes);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
+
             }
         });
 
@@ -319,10 +278,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[128];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -330,7 +285,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -341,20 +295,16 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        Random random = new Random();
+        byte[] bytes = new byte[65535];
+        random.nextBytes(bytes);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -372,10 +322,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[65535];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -383,7 +329,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -394,20 +339,16 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        Random random = new Random();
+        byte[] bytes = new byte[65536];
+        random.nextBytes(bytes);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -425,10 +366,6 @@ public class BaseFramingIT {
             }
         }
 
-        Random random = new Random();
-        byte[] bytes = new byte[65536];
-        random.nextBytes(bytes);
-
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.BINARY);
@@ -436,7 +373,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -452,16 +388,8 @@ public class BaseFramingIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(hasRemaining(0)));
+                will(countDown(latch));
             }
         });
 
@@ -480,7 +408,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -491,20 +418,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(125).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -513,8 +435,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(125).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -523,7 +443,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -534,20 +453,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(126).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -556,8 +470,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(126).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -566,7 +478,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -577,20 +488,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(127).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -599,8 +505,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(127).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -609,7 +513,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -620,20 +523,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(128).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -642,8 +540,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(128).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -652,7 +548,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -663,20 +558,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(65535).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -685,8 +575,6 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(65535).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator = wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
@@ -695,7 +583,6 @@ public class BaseFramingIT {
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     @Test
@@ -706,20 +593,15 @@ public class BaseFramingIT {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch latch = new CountDownLatch(1);
 
+        String str = new RandomString(65536).nextString();
+        byte[] bytes = str.getBytes(UTF_8);
+
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(new CustomAction("Latch countdown") {
-                    @Override
-                    public Object invoke(Invocation invocation) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                });
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
+                will(countDown(latch));
             }
         });
 
@@ -728,18 +610,15 @@ public class BaseFramingIT {
         assertTrue(connectFuture.isConnected());
 
         WsnSession wsnConnectSession = (WsnSession) connectFuture.getSession();
-        String str = new RandomString(65536).nextString();
-        byte[] bytes = str.getBytes(UTF_8);
 
         IoBufferAllocatorEx<? extends WsBuffer> allocator =
-               (IoBufferAllocatorEx<? extends WsBuffer>) wsnConnectSession.getBufferAllocator();
+               wsnConnectSession.getBufferAllocator();
         WsBuffer wsBuffer = allocator.wrap(ByteBuffer.wrap(bytes), IoBufferEx.FLAG_SHARED);
         wsBuffer.setKind(WsBuffer.Kind.TEXT);
         wsnConnectSession.write(wsBuffer);
 
         k3po.finish();
         assertTrue(latch.await(10, SECONDS));
-        context.assertIsSatisfied();
     }
 
     private static class RandomString {

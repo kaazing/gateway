@@ -53,7 +53,7 @@ public class WsxAcceptorLoggingIT {
                         .service()
                             .accept(URI.create("ws://localhost:8001/echo"))
                             .type("echo")
-                            .acceptOption("ws.inactivityTimeout", "1sec")
+                            .acceptOption("ws.inactivity.timeout", "1sec")
                         .done()
                     .done();
             // @formatter:on
@@ -82,7 +82,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*RECEIVED",
             "wsn#.*CLOSED"
         }));
-        
+
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
 
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
@@ -108,7 +108,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*CLOSED"
         }));
         List<String> forbiddenPatterns = null;
-    
+
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 }
