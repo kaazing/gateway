@@ -16,7 +16,6 @@
 
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
