@@ -17,6 +17,7 @@
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.nio.ByteBuffer;
@@ -30,32 +31,38 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class BinaryIT {
     private final WsebConnectorRule connector = new WsebConnectorRule();
 
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery() {
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
             setThreadingPolicy(new Synchroniser());
         }
     };
 
+    private TestRule contextRule = ITUtil.toTestRule(context);
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(10, SECONDS);
+
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse/data/binary");
 
     @Rule
-    public final TestRule chain = createRuleChain(connector, k3po);
-    
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
+            .around(timeoutRule)            ;
+
     // This latch is only needed to work around gateway#345
     // TODO: remove this latch and all of its usage in the methods below once that issue is resolved
     private CountDownLatch received = new CountDownLatch(1);
@@ -88,9 +95,9 @@ public class BinaryIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
 
@@ -124,9 +131,9 @@ public class BinaryIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
         k3po.finish();
@@ -159,9 +166,9 @@ public class BinaryIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
 
@@ -195,9 +202,9 @@ public class BinaryIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
 
@@ -231,9 +238,9 @@ public class BinaryIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
 
