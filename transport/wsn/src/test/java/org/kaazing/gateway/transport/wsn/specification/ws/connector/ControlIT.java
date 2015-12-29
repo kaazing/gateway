@@ -114,6 +114,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -174,6 +176,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -195,7 +199,6 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(countDown(latch));
             }
@@ -220,7 +223,6 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
                 will(countDown(latch));
             }
@@ -244,6 +246,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -264,6 +268,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -279,15 +285,13 @@ public class ControlIT {
         "server.send.opcode.0x0c/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendOpcode12Frame() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-                will(countDown(latch));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -296,7 +300,6 @@ public class ControlIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
-        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -309,6 +312,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -329,6 +334,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -349,6 +356,8 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
