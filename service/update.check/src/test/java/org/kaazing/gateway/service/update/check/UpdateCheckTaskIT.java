@@ -15,42 +15,54 @@
  */
 package org.kaazing.gateway.service.update.check;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.jmock.lib.legacy.ClassImposteriser.INSTANCE;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import org.apache.log4j.BasicConfigurator;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class UpdateCheckTaskIT {
 
-    private Mockery context;
     private UpdateCheckService updateCheckService;
     private UpdateCheckTask task;
 
+    private K3poRule k3po = new K3poRule();
+
+
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setImposteriser(INSTANCE);
+            setThreadingPolicy(new Synchroniser());
+        }
+    };
+
+    private TestRule contextRule = ITUtil.toTestRule(context);
+
     @Rule
-    public K3poRule robot = new K3poRule();
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(contextRule).around(k3po)
+            .around(timeoutRule(5, SECONDS));
 
     @Before
     public void init() {
         BasicConfigurator.configure();
-        context = new Mockery() {
-            {
-                setImposteriser(INSTANCE);
-                setThreadingPolicy(new Synchroniser());
-            }
-        };
         updateCheckService = context.mock(UpdateCheckService.class);
         task = new UpdateCheckTask(updateCheckService, "http://localhost:8080", "notARealProduct");
     }
 
     @Specification("testUpdateCheckTask")
-    @Test(timeout = 3000)
+    @Test
     public void testRequestInCorrectFormat() throws Exception {
         context.checking(new Expectations() {
             {
@@ -58,23 +70,21 @@ public class UpdateCheckTaskIT {
             }
         });
         task.run();
-        robot.finish();
-        context.assertIsSatisfied();
+        k3po.finish();
     }
 
     @Specification("testUpdateCheckTaskWithFailedRequests")
-    @Test(timeout = 3000)
+    @Test
     public void testTaskFunctioningEvenAfterFailedRequests() throws Exception {
-        task.run();
-        robot.finish();
-        context.assertIsSatisfied();
+        Thread t = new Thread(task, "task");
+        t.start();
+        k3po.finish();
     }
 
     @Specification("testUpdateCheckTaskWithFailedRequestsResponseCode")
-    @Test(timeout = 3000)
+    @Test
     public void testUpdateCheckTaskWithFailedRequestsResponseCode() throws Exception {
         task.run();
-        robot.finish();
-        context.assertIsSatisfied();
+        k3po.finish();
     }
 }
