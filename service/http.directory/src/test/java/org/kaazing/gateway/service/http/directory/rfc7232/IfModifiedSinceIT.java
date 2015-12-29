@@ -30,7 +30,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -65,12 +64,14 @@ public class IfModifiedSinceIT {
     @Rule
     public final TestRule chain = outerRule(timeout).around(k3po).around(gateway);
 
+    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.get.status.304/request")
     public void shouldResultInNotModifiedResponseWithGetAndConditionFailed() throws Exception {
         k3po.finish();
     }
 
+    @Ignore("https://github.com/kaazing/gateway/issues/383")
     @Test
     @Specification("condition.failed.head.status.304/request")
     public void shouldResultInNotModifiedResponseWithHeadAndConditionFailed() throws Exception {
