@@ -22,11 +22,11 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.Expectations;
 import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.action.CustomAction;
@@ -36,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wsn.WsnProtocol;
 import org.kaazing.gateway.transport.wsn.WsnSession;
@@ -663,12 +664,16 @@ public class FragmentationIT {
         "server.send.binary.payload.length.125.fragmented.but.not.continued/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendBinaryFrameWithPayloadFragmentedButNotContinued() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -677,6 +682,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -684,12 +690,15 @@ public class FragmentationIT {
         "server.send.close.payload.length.2.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendCloseFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -698,6 +707,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -705,12 +715,15 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -719,6 +732,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -726,12 +740,15 @@ public class FragmentationIT {
         "server.send.continuation.payload.length.125.not.fragmented/handshake.response.and.frame" })
     public void shouldFailWebSocketConnectionWhenServerSendContinuationFrameWithPayloadNotFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -740,6 +757,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -747,12 +765,15 @@ public class FragmentationIT {
         "server.send.ping.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPingFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -761,6 +782,7 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 
     @Test
@@ -768,12 +790,15 @@ public class FragmentationIT {
         "server.send.pong.payload.length.0.fragmented/handshake.response.and.frames" })
     public void shouldFailWebSocketConnectionWhenServerSendPongFrameWithPayloadFragmented() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch latch = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                allowing(handler).messageReceived(with(any(IoSessionEx.class)), with(any(Object.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Exception.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(latch));
             }
         });
 
@@ -782,5 +807,6 @@ public class FragmentationIT {
         assertTrue(connectFuture.isConnected());
 
         k3po.finish();
+        assertTrue(latch.await(10, SECONDS));
     }
 }
