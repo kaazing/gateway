@@ -559,7 +559,7 @@ public class NioSocketAcceptorTest {
                                 try {
                                     //System.out.println("sessionOpened executing in thread " + Thread.currentThread());
                                     workerThreadsUsed.add(Thread.currentThread());
-                                    workersUsed.add(AbstractBridgeService.CURRENT_WORKER.get());
+                                    workersUsed.add(NioSocketAcceptor.CURRENT_WORKER.get());
                                     clientsConnected.countDown();
                                 }
                                 catch(RuntimeException e) {

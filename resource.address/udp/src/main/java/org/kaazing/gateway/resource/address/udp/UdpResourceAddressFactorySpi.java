@@ -187,7 +187,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new UdpResourceAddress(original, location);
+        return new UdpResourceAddress(this, original, location);
     }
     
     @Override

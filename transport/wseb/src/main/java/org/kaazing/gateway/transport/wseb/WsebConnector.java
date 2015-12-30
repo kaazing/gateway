@@ -17,6 +17,8 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
+import static org.kaazing.gateway.resource.address.URLUtils.*;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -50,6 +52,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -170,15 +173,13 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                                         wseConnectFuture);
 
         ResourceAddress httpxeAddress = connectAddress.getTransport();
-
-        URI createURI = appendURI(httpxeAddress.getExternalURI(), CREATE_SUFFIX);
-
-        // default options but clear the transports so they get rebuilt by default
-        ResourceOptions createOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeAddress);
-        createOptions.setOption(ResourceAddress.TRANSPORT, null);
-        createOptions.setOption(ResourceAddress.TRANSPORT_URI, null);
-
-        ResourceAddress createAddress = resourceAddressFactory.newResourceAddress(createURI, createOptions);
+        URI uri = appendURI(ensureTrailingSlash(httpxeAddress.getExternalURI()), CREATE_SUFFIX);
+        String query = uri.getQuery();
+        String pathAndQuery = uri.getPath();
+        if (query != null) {
+            pathAndQuery += "?"+uri.getQuery();
+        }
+        ResourceAddress createAddress = httpxeAddress.resolve(pathAndQuery);
         BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(createAddress);
 
         // TODO: proxy detection, append ?.ki=p on timeout
@@ -379,8 +380,8 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             URI writeURI = URI.create(locations[0]);
             URI readURI = URI.create(locations[1]);
 
-            ResourceAddress writeAddress = resourceAddressFactory.newResourceAddress(writeURI);
-            ResourceAddress readAddress = resourceAddressFactory.newResourceAddress(readURI);
+            ResourceAddress writeAddress = createWriteAddress(writeURI, createSession, wsebSession);
+            ResourceAddress readAddress = createReadAddress(readURI, createSession, wsebSession);
 
             if (!wsebSession.isClosing()) {
                 wsebSession.setWriteAddress(writeAddress);
@@ -408,7 +409,29 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             }
         }
 
+        private ResourceAddress createWriteAddress(URI writeUri, HttpSession transport, WsebSession wsebSession) {
+            ResourceAddress httpxeAddress = REMOTE_ADDRESS.get(transport);
+            ResourceAddress writeAddress =  httpxeAddress.resolve(writeUri.getPath());
 
+            String writeSessionIdentity = format("%s#%su", getTransportMetadata().getName(), wsebSession.getId());
+            //IdentityResolver resolver = new FixedIdentityResolver(writeSessionIdentity);
+
+            ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(writeAddress);
+            //options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            return resourceAddressFactory.newResourceAddress(writeAddress.getResource(), options);
+        }
+
+        private ResourceAddress createReadAddress(URI readUri, HttpSession transport, WsebSession wsebSession) {
+            ResourceAddress httpxeAddress = REMOTE_ADDRESS.get(transport);
+            ResourceAddress readAddress =  httpxeAddress.resolve(readUri.getPath());
+
+            String readSessionIdentity = format("%s#%sd", getTransportMetadata().getName(), wsebSession.getId());
+            //IdentityResolver resolver = new FixedIdentityResolver(readSessionIdentity);
+
+            ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(readAddress);
+            //options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            return resourceAddressFactory.newResourceAddress(readAddress.getResource(), options);
+        }
 
         @Override
         protected void doExceptionCaught(HttpSession createSession, Throwable cause) throws Exception {
@@ -468,7 +491,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doMessageReceived(HttpSession readSession, Object message) throws Exception {
-            ResourceAddress readAddress = BridgeSession.REMOTE_ADDRESS.get(readSession);
+            ResourceAddress readAddress = REMOTE_ADDRESS.get(readSession);
             WsebSession wsebSession = sessionMap.get(readAddress);
 
             // handle parallel closure of WSE session during streaming read

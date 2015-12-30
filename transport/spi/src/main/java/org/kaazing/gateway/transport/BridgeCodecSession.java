@@ -37,15 +37,6 @@ public class BridgeCodecSession extends ProtocolCodecSessionEx implements Bridge
 
     private final IoBufferAllocatorEx<?> allocator;
     private final CachingMessageEncoder encoder;
-    
-    private static final ResourceAddress ANONYMOUS_ADDRESS = new ResourceAddress(URI.create("test://anonymous")) {
-        private static final long serialVersionUID = -496112902353454179L;
-
-        @Override
-        public String toString() {
-            return "?";
-        }
-    };
 
     private Direction direction;
     private IoSessionEx parent;
@@ -94,12 +85,12 @@ public class BridgeCodecSession extends ProtocolCodecSessionEx implements Bridge
 
     @Override
     public ResourceAddress getLocalAddress() {
-        return ANONYMOUS_ADDRESS;
+        return null;
     }
 
     @Override
     public ResourceAddress getRemoteAddress() {
-        return ANONYMOUS_ADDRESS;
+        return null;
     }
 
     private static final class CachingMessageEncoderImpl extends CachingMessageEncoder {

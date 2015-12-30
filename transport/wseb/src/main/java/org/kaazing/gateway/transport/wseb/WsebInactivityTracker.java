@@ -81,7 +81,7 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
 
     @Override
     public void removeSession(IoSessionEx wsebSession) {
-        if (ALREADY_TRACKED.get(wsebSession)) {
+        if (ALREADY_TRACKED.get(wsebSession, false)) {
             // may not be set if wseb connection failed
             idleTracker.removeSession(((WsebSession)wsebSession).getTransportSession());
         }
