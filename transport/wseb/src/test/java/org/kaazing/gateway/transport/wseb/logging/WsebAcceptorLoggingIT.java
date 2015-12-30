@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.wseb.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -80,8 +81,8 @@ public class WsebAcceptorLoggingIT {
     };
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po)
-            .around(ITUtil.timeoutRule(10, SECONDS)).around(checkLogMessageRule).around(gateway);
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+            .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({
