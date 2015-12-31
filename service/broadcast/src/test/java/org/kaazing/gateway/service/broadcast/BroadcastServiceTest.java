@@ -221,9 +221,8 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            try {
-                Socket socket = s.accept();
-                OutputStream os = socket.getOutputStream();
+            try(Socket socket = s.accept();
+                OutputStream os = socket.getOutputStream()) {
 
                 latch.countDown(); // someone connected, count down
                 while (isRunning()) {
@@ -235,7 +234,6 @@ public class BroadcastServiceTest {
                         // ignore
                     }
                 }
-                socket.close();
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendService.run()", ex);
             }
@@ -261,20 +259,16 @@ public class BroadcastServiceTest {
 
     private class TestBackendProducer implements Runnable {
         private CountDownLatch latch = new CountDownLatch(1);
-        private boolean running = true;
+        private volatile boolean running = true;
 
         @Override
         public void run() {
-            ServerSocket socket = null;
-            Socket acceptSockect = null;
-            try {
-                socket = new ServerSocket();
-                socket.bind(new InetSocketAddress("localhost", 9090));
-                acceptSockect = socket.accept();
-                OutputStream os = acceptSockect.getOutputStream();
+            try(ServerSocket socket = new ServerSocket(9090);
+                Socket acceptSocket = socket.accept();
+                OutputStream os = acceptSocket.getOutputStream()) {
 
                 latch.countDown(); // someone connected, count down
-                while (running == true) {
+                while(running) {
                     // The bytes for ">|<"
                     os.write(new byte[] { 0x3E, 0x7C, 0x3C});
                     try {
@@ -286,14 +280,6 @@ public class BroadcastServiceTest {
                 
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
-            }
-            finally{
-                try {
-                    acceptSockect.close();
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
 
@@ -317,8 +303,7 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            Socket socket = new Socket();
-            try {
+            try(Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 InputStream in = socket.getInputStream();
 
@@ -333,10 +318,10 @@ public class BroadcastServiceTest {
                     System.out.println(format("Failure in TestClient %d:  read returned %d", clientNumber, numBytes));
                 }
 
-                while (running == true) {
+                while (running) {
                     numBytes = in.read(b);
                     if (numBytes < 0) {
-                        System.out.println(format("TestClient %d:  EOF, done reading, quitting client"));
+                        System.out.println("TestClient %d:  EOF, done reading, quitting client");
                         break;
                     }
 
@@ -350,13 +335,6 @@ public class BroadcastServiceTest {
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestClient.run()", ex);
             }
-            finally{
-                try {
-                     socket.close();
-                } catch (IOException e) {
-                     e.printStackTrace();
-                }
-            }
         }
 
         private void stop() {
@@ -368,7 +346,7 @@ public class BroadcastServiceTest {
         }
     }
 
-    private class FastTestBackendProducer implements Runnable {
+    private static class FastTestBackendProducer implements Runnable {
         private final CountDownLatch latch = new CountDownLatch(1);
         private final int maxPendingBytes;
         private volatile boolean running = true;
@@ -380,13 +358,10 @@ public class BroadcastServiceTest {
         
         @Override
         public void run() {
-            ServerSocket socket = null;
-            Socket acceptSocket = null;
-            try {
-                socket = new ServerSocket();
-                socket.bind(new InetSocketAddress("localhost", 9090));
-                acceptSocket = socket.accept();
-                OutputStream os = acceptSocket.getOutputStream();
+            try(ServerSocket socket = new ServerSocket(9090);
+                Socket acceptSocket = socket.accept();
+                OutputStream os = acceptSocket.getOutputStream()) {
+
                 int sendBufferSize = acceptSocket.getSendBufferSize();
                 // Some diagnostics for the test
                 System.out.println(format("FastTestBackendProducer send buffer size: %d", sendBufferSize));
@@ -400,10 +375,10 @@ public class BroadcastServiceTest {
                 }
 
                 int messagesPerSecond = 5;
-                
-                // Twice the send buffer size should be ample to saturate the buffers and make socket unwritable
-                long targetBytes = (2 * sendBufferSize) + maxPendingBytes;
-                
+
+                // 10 times send buffer size should be ample to saturate the buffers and make socket unwritable
+                long targetBytes = (10 * sendBufferSize) + maxPendingBytes;
+
                 // Send half sendBufferSize every second
                 long batchSize = (sendBufferSize/2) / messagesPerSecond;
                 
@@ -437,19 +412,12 @@ public class BroadcastServiceTest {
                         // ignore
                     }
                 }
-                
+
             } catch (IOException ex) {
                 throw new RuntimeException("Issue in TestBackendProducer.run()", ex);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-            } finally {
-                try {
-                    acceptSocket.close();
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
         
@@ -483,8 +451,7 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            Socket socket = new Socket();
-            try {
+            try(Socket socket = new Socket()) {
                 socket.setReceiveBufferSize(receiveBufferSize);
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
@@ -510,7 +477,7 @@ public class BroadcastServiceTest {
                     // take little naps, mmmmmmmmm naps....
                     try {
                         Thread.sleep(1000);
-                        int available = 0;
+                        int available;
                         try {
                             available = in.available();
                             System.out.println(format("SlowTestClient %d: iteration #%d has %d bytes available", clientNumber, iteration++, available));
@@ -552,13 +519,6 @@ public class BroadcastServiceTest {
             } catch (IOException ex) {
                 throw new RuntimeException(format("Issue in TestClient.run() %d millis after contruction", 
                         System.currentTimeMillis() - startTime), ex);
-            }
-            finally{
-                try {
-                     socket.close();
-                } catch (IOException e) {
-                     e.printStackTrace();
-                }
             }
         }
 
