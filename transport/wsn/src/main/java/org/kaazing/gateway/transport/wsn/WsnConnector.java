@@ -423,7 +423,7 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         @Override
         protected void doExceptionCaught(IoSessionEx session, Throwable cause) throws Exception {
             if (logger.isDebugEnabled()) {
-                String message = format("Error on WebSocket connection attempt: %s", cause);
+                String message = format("Error on WebSocket connection: %s", cause);
                 if (logger.isTraceEnabled()) {
                     // note: still debug level, but with extra detail about the exception
                     logger.debug(message, cause);
@@ -455,8 +455,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
-                // TODO: require WebSocket controlled close handshake
-                wsnSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
+                wsnSession.reset(new IOException("Early termination of IO session",
+                        wsnSession.getCloseException()).fillInStackTrace());
             }
         }
 

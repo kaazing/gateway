@@ -124,7 +124,6 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     @Override
     public void reset(final Throwable cause) {
-        this.closeException = cause;
         super.reset(cause);
     }
 

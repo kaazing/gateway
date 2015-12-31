@@ -93,6 +93,43 @@ public class WsnConnectorLoggingIT {
 
     @Test
     @Specification({
+        "extensibility/server.send.text.frame.with.rsv.1/handshake.response.and.frame"
+        })
+    public void shouldLogProtocolException() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+        k3po.finish();
+
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
+            "wsn#.*CLOSED"
+        }));
+
+        forbiddenPatterns = null;
+    }
+
+    @Test
+    @Specification({
         "framing/echo.binary.payload.length.125/handshake.response.and.frame"
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {

@@ -48,11 +48,11 @@ public class LoggingFilter extends IoFilterAdapter {
     private final String writeFormat;
 
     private static enum Strategy {
-        DEBUG(LogLevel.DEBUG), 
-        ERROR(LogLevel.ERROR), 
-        INFO(LogLevel.INFO), 
-        NONE(LogLevel.NONE), 
-        TRACE(LogLevel.TRACE), 
+        DEBUG(LogLevel.DEBUG),
+        ERROR(LogLevel.ERROR),
+        INFO(LogLevel.INFO),
+        NONE(LogLevel.NONE),
+        TRACE(LogLevel.TRACE),
         WARN(LogLevel.WARN);
 
         final LogLevel level;
@@ -317,7 +317,11 @@ public class LoggingFilter extends IoFilterAdapter {
     }
 
     protected void logExceptionCaught(IoSession session, Throwable cause) {
-        getExceptionCaughtStrategy(cause).log(logger, String.format(exceptionFormat, session.getId(), cause), cause);
+        String causeMessage = cause.toString();
+        if (cause.getCause() != null) {
+            causeMessage += ", caused by " + cause.getCause().toString();
+        }
+        getExceptionCaughtStrategy(cause).log(logger, String.format(exceptionFormat, session.getId(), causeMessage), cause);
     }
 
     protected void logSessionClosed(IoSession session) {
@@ -333,7 +337,7 @@ public class LoggingFilter extends IoFilterAdapter {
             getFilterWriteStrategy().log(logger, writeFormat, session.getId(), message);
         }
     }
-    
+
     /**
      * Get a suitable identification for the user. For now this just consists of the TCP endpoint.
      * @param session
@@ -359,7 +363,7 @@ public class LoggingFilter extends IoFilterAdapter {
         }
         return userId;
     }
-    
+
     private static boolean shouldLog(Logger logger, LogLevel level) {
         switch(level) {
         case DEBUG:
@@ -377,9 +381,9 @@ public class LoggingFilter extends IoFilterAdapter {
         }
         return false;
     }
-    
+
     private static boolean shouldIncludeStackTrace(Throwable throwable) {
-        return !(throwable instanceof IOException);
+        return !(throwable instanceof IOException && throwable.getCause() == null);
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
