@@ -203,7 +203,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
         @Override
         public void closeWebSocketConnection(IoSession session) {
-            ((WsnSession)session).close(false);
+            WsnSession wsnSession = SESSION_KEY.get(session);
+            assert wsnSession !=  null;
+            wsnSession.close(false);
         }
 
     };
