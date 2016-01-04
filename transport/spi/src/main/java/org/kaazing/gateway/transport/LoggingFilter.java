@@ -65,12 +65,14 @@ public class LoggingFilter extends IoFilterAdapter {
             return LoggingFilter.shouldLog(logger, level);
         }
 
-        void log(Logger logger, String message, Throwable cause) {
+        void log(Logger logger, String message, Throwable t) {
             if (shouldLog(logger)) {
-                // Include stack trace except for IOException (to avoid overkill in this common case
-                // which can be caused by abrupt client connection close or inactivity timeout)
-                if (shouldIncludeStackTrace(cause)) {
-                    Utils.log(logger, level, message, cause);
+                // Include stack trace except for IOException, where we only log stack trace of the cause,
+                // if there is one, to avoid overkill in this common case which can be caused by abrupt
+                // client connection close or inactivity timeout.
+                Throwable stack = t instanceof IOException ? t.getCause() : t;
+                if (stack != null) {
+                    Utils.log(logger, level, message, stack);
                 } else {
                     Utils.log(logger, level, message);
                 }
@@ -273,7 +275,7 @@ public class LoggingFilter extends IoFilterAdapter {
         // Ultimately we should treat unexpected exceptions as ERROR level
         // but we are cautious for now since we don't want customers to suddenly
         // see lots of exception stacks in the logs
-        return shouldIncludeStackTrace(exception) ? Strategy.INFO : Strategy.INFO;
+        return Strategy.INFO;
     }
 
     protected Strategy getSessionClosedStrategy() {
@@ -380,10 +382,6 @@ public class LoggingFilter extends IoFilterAdapter {
             return logger.isWarnEnabled();
         }
         return false;
-    }
-
-    private static boolean shouldIncludeStackTrace(Throwable throwable) {
-        return !(throwable instanceof IOException && throwable.getCause() == null);
     }
 
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {

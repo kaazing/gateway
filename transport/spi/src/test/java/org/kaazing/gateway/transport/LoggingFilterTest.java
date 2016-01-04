@@ -67,7 +67,7 @@ public class LoggingFilterTest {
     }
 
     @Test
-    public void shouldLogIOExceptionWithoutStack() throws Exception {
+    public void shouldLogIOExceptionWithoutStackWhenThereIsNoCause() throws Exception {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
         final Exception exception = new IOException();
         exception.fillInStackTrace();
@@ -85,16 +85,17 @@ public class LoggingFilterTest {
     }
 
     @Test
-    public void shouldLogIOExceptionWithCauseMessageWithStack() throws Exception {
+    public void shouldLogIOExceptionWithMessageIncludingCauseAndCauseExceptionStack() throws Exception {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
-        final Exception exception = new IOException("Oops", new Exception("Cause exception"));
+        Exception cause = new Exception("Cause exception");
+        final Exception exception = new IOException("Oops", cause);
         exception.fillInStackTrace();
 
         context.checking(new Expectations() {
             {
                 oneOf(logger).isInfoEnabled(); will(returnValue(true));
                 oneOf(session).getId(); will(returnValue(123L));
-                oneOf(logger).info(with(stringMatching(".*IOException.*")), with(exception));
+                oneOf(logger).info(with(stringMatching(".*IOException.*Oops.*Cause exception")), with(cause));
                 oneOf(nextFilter).exceptionCaught(session, exception);
             }
         });

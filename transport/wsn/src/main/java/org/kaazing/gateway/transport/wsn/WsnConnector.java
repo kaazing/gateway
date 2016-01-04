@@ -455,8 +455,8 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
             if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(new IOException("Early termination of IO session",
-                        wsnSession.getCloseException()).fillInStackTrace());
+                wsnSession.reset(new IOException("Early termination of IO session", wsnSession.getCloseException())
+                                 .fillInStackTrace());
             }
         }
 
