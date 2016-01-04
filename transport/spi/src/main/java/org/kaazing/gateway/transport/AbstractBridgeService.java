@@ -40,7 +40,6 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?>> extends AbstractIoServiceEx implements BridgeService {
     private static final String LOGGING_FILTER_NAME_SUFFIX = "#logging";
    
-    public static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private IoProcessorEx<T> processor;
 
@@ -133,10 +132,6 @@ public abstract class AbstractBridgeService<T extends AbstractBridgeSession<?, ?
         if (filterChain.contains(filter)) {
             filterChain.remove(filter);
         }
-    }
-
-    protected boolean isIoAligned() {
-        return CURRENT_WORKER.get() != null;
     }
 
 }

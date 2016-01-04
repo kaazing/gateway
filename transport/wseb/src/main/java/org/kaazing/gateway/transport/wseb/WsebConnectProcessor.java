@@ -77,6 +77,9 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     @Override
     protected void removeInternal(WsebSession session) {
         IoSessionEx transportSession = session.getTransportSession();
+        if (logger.isTraceEnabled()) {
+            logger.trace(format("Adding CLOSE_REQUEST to write on wseb session %s", session));
+        }
         WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
         writeRequestQueue.offer(transportSession, CLOSE_REQUEST);
         flushInternal(session);
@@ -136,6 +139,9 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
                 assert (writer != null);
                 assert (!writer.isWriteSuspended());
+                if (logger.isTraceEnabled()) {
+                    logger.trace(format("Writing CLOSE command to writer %s for wseb session %s", writer, session));
+                }
                 writer.write(WsCommandMessage.CLOSE);
                 finishWrite(session, writer);
                 break;
@@ -237,9 +243,10 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     private void initWriter(final WsebSession session) {
         if (session.compareAndSetAttachingWrite(false, true)) {
-
-
             final ResourceAddress writeAddress = session.getWriteAddress();
+            if (writeAddress == null) {     // session is closed
+                return;
+            }
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(writeAddress);
             ConnectFuture connectFuture =
                     connector.connect(writeAddress, writeHandler,

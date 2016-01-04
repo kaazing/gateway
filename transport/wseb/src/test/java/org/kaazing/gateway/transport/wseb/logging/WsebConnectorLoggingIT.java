@@ -16,8 +16,8 @@
 
 package org.kaazing.gateway.transport.wseb.logging;
 
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -28,23 +28,26 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.gateway.transport.wseb.WsebSession;
+import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.gateway.transport.test.Expectations;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
-import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebConnectorLoggingIT {
     private final WsebConnectorRule connector = new WsebConnectorRule();
@@ -59,8 +62,30 @@ public class WsebConnectorLoggingIT {
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse");
 
+    private List<String> expectedPatterns;
+    private List<String> forbiddenPatterns;
+    private TestRule checkLogMessageRule = new TestRule() {
+        @Override
+        public Statement apply(final Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+                    MemoryAppender.assertMessagesLogged(expectedPatterns,
+                            forbiddenPatterns, ".*\\[.*#.*].*", true);
+                }
+            };
+        }
+    };
+
+    private TestRule contextRule = ITUtil.toTestRule(context);
+
     @Rule
-    public final TestRule chain = createRuleChain(connector, k3po);
+    // Special ordering: connector around k3po allows connector to detect k3po closing any still open connections
+    // to make sure we get the log messages for the abrupt close. Context rule allows jmock context checking to
+    // be done last to ensure all events have occurred (especially session closed).
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+            .around(contextRule).around(connector).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({
@@ -91,15 +116,15 @@ public class WsebConnectorLoggingIT {
         IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
-        
+
         // This is a workaround for the fact that WsebConnector does not do close properly
         received.await(10, SECONDS);
-        
+
         connectSession.close(false).await();
 
         k3po.finish();
 
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -114,17 +139,15 @@ public class WsebConnectorLoggingIT {
             "wseb#.* [^/]*:\\d*] RECEIVED",
             "wseb#.* [^/]*:\\d*] CLOSED"
         }));
-        
-        List<String> forbiddenPatterns = null;
 
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+        forbiddenPatterns = null;
     }
 
     @Test
     @Specification({
         "closing/client.send.close/response"
         })
-    @Ignore("gateway#: WsebConnector does not write a close command on the writer when session is closed")
+    @Ignore("gateway#345: WsebConnector does not write a close command on the writer when session is closed")
     public void shouldLogOpenAndCleanClientClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -139,11 +162,11 @@ public class WsebConnectorLoggingIT {
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
 
         WsebSession connectSession = (WsebSession) connectFuture.getSession();
-        
+
         connectSession.close(false).await();
         k3po.finish();
 
-        List<String> expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED",
             "tcp#.* [^/]*:\\d*] WRITE",
             "tcp#.* [^/]*:\\d*] RECEIVED",
@@ -155,10 +178,8 @@ public class WsebConnectorLoggingIT {
             "wseb#.* [^/]*:\\d*] OPENED",
             "wseb#.* [^/]*:\\d*] CLOSED"
         }));
-        
-        List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
-        
-        MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);    
+
+        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
     }
-    
+
 }
