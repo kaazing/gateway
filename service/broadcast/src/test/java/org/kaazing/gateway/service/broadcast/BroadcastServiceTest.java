@@ -221,7 +221,7 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            try(Socket socket = s.accept();
+            try (Socket socket = s.accept();
                 OutputStream os = socket.getOutputStream()) {
 
                 latch.countDown(); // someone connected, count down
@@ -263,12 +263,12 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            try(ServerSocket socket = new ServerSocket(9090);
+            try (ServerSocket socket = new ServerSocket(9090);
                 Socket acceptSocket = socket.accept();
                 OutputStream os = acceptSocket.getOutputStream()) {
 
                 latch.countDown(); // someone connected, count down
-                while(running) {
+                while (running) {
                     // The bytes for ">|<"
                     os.write(new byte[] { 0x3E, 0x7C, 0x3C});
                     try {
@@ -303,7 +303,7 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            try(Socket socket = new Socket()) {
+            try (Socket socket = new Socket()) {
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 InputStream in = socket.getInputStream();
 
@@ -321,7 +321,7 @@ public class BroadcastServiceTest {
                 while (running) {
                     numBytes = in.read(b);
                     if (numBytes < 0) {
-                        System.out.println("TestClient %d:  EOF, done reading, quitting client");
+                        System.out.println(format("TestClient %d:  EOF, done reading, quitting client", numBytes));
                         break;
                     }
 
@@ -358,7 +358,7 @@ public class BroadcastServiceTest {
         
         @Override
         public void run() {
-            try(ServerSocket socket = new ServerSocket(9090);
+            try (ServerSocket socket = new ServerSocket(9090);
                 Socket acceptSocket = socket.accept();
                 OutputStream os = acceptSocket.getOutputStream()) {
 
@@ -451,7 +451,7 @@ public class BroadcastServiceTest {
 
         @Override
         public void run() {
-            try(Socket socket = new Socket()) {
+            try (Socket socket = new Socket()) {
                 socket.setReceiveBufferSize(receiveBufferSize);
                 socket.connect(new InetSocketAddress("localhost", 9880));
                 System.out.println(format("SlowTestClient %d: socket is %s", clientNumber, socket.toString()));
