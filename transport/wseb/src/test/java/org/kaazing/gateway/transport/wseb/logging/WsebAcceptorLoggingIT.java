@@ -16,8 +16,9 @@
 
 package org.kaazing.gateway.transport.wseb.logging;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -33,20 +34,19 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+//import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebAcceptorLoggingIT {
 
     private final K3poRule k3po = new K3poRule()
             .setScriptRoot("org/kaazing/specification/wse");
-
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
     private TestRule checkLogMessageRule = new TestRule() {
@@ -85,7 +85,8 @@ public class WsebAcceptorLoggingIT {
     private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+            .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({

@@ -84,7 +84,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*RECEIVED",
             "wsn#.*CLOSED"
         }));
-        
+
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
 
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
@@ -110,7 +110,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*CLOSED"
         }));
         List<String> forbiddenPatterns = null;
-    
+
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 }

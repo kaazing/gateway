@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.LoginContextFactory;
 
@@ -90,8 +91,8 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
-	HttpResourceAddress(URI original, URI resource) {
-		super(original, resource);
+	HttpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+		super(factory, original, resource);
 	}
 
 	@Override

@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.tcp;
+package org.kaazing.gateway.transport.tcp.specification;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.kaazing.gateway.resource.address.ResourceAddressFactory.newResourceAddressFactory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -50,32 +38,16 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
-
-    private NioSocketAcceptor acceptor;
-    private SchedulerProvider schedulerProvider;
+    
+    private TcpAcceptorRule acceptor = new TcpAcceptorRule();
 
     @Rule
-    public TestRule chain = createRuleChain(k3po, 5, SECONDS);
+    public TestRule chain = createRuleChain(acceptor, k3po);
 
-    @Before
-    public void before() throws Exception {
-        acceptor = new NioSocketAcceptor(new Properties());
-        acceptor.setSchedulerProvider(schedulerProvider = new SchedulerProvider());
-        acceptor.setResourceAddressFactory(newResourceAddressFactory());
-    }
-
-    private void bindTo8080(IoHandlerAdapter<IoSessionEx> handler) {
-        ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-
-        Map<String, Object> acceptOptions = new HashMap<>();
-
-        final String connectURIString = "tcp://127.0.0.1:8080";
-        final ResourceAddress bindAddress =
-                addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
-                        acceptOptions);
-
-        acceptor.bind(bindAddress, handler, null);
+    private void bindTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
+        acceptor.bind("tcp://127.0.0.1:8080", handler);
+        k3po.start();
+        k3po.notifyBarrier("BOUND");
     }
 
     private void writeStringMessageToSession(String message, IoSession session) {
@@ -89,19 +61,10 @@ public class TcpAcceptorIT {
         session.write(allocator.wrap(data.duplicate(), IoBufferEx.FLAG_SHARED));
     }
 
-    @After
-    public void after() throws Exception {
-        // Make sure we always stop all I/O worker threads
-        if (acceptor != null) {
-            schedulerProvider.shutdownNow();
-            acceptor.dispose();
-        }
-    }
-
     @Ignore("https://github.com/kaazing/gateway/issues/357")
     @Test
     @Specification({
-        "establish.connection/tcp.client"
+        "establish.connection/client"
         })
     public void establishConnection() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>());
@@ -110,7 +73,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "server.sent.data/tcp.client"
+        "server.sent.data/client"
         })
     public void serverSentData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -125,7 +88,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "client.sent.data/tcp.client"
+        "client.sent.data/client"
         })
     public void clientSentData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>());
@@ -134,7 +97,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "bidirectional.data/tcp.client"
+        "echo.data/client"
         })
     public void bidirectionalData() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -158,7 +121,7 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "server.close/tcp.client"
+        "server.close/client"
         })
     public void serverClose() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
@@ -173,16 +136,21 @@ public class TcpAcceptorIT {
 
     @Test
     @Specification({
-        "client.close/tcp.client"
+        "client.close/client"
         })
     public void clientClose() throws Exception {
-        bindTo8080(new IoHandlerAdapter<IoSessionEx>());
+        bindTo8080(new IoHandlerAdapter<IoSessionEx>() {
+            @Override
+            protected void doSessionOpened(IoSessionEx session) throws Exception {
+                k3po.notifyBarrier("CLOSEABLE");
+            }
+        });
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "concurrent.connections/tcp.client"
+        "concurrent.connections/client"
         })
     public void concurrentConnections() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){

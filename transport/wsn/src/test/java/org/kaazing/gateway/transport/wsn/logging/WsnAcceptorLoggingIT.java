@@ -17,6 +17,7 @@
 package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -27,20 +28,19 @@ import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+import org.kaazing.gateway.server.test.GatewayRule;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
 /**
  * RFC-6455, section 5.2 "Base Framing Protocol"
@@ -61,6 +61,7 @@ public class WsnAcceptorLoggingIT {
             };
         }
     };
+
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
@@ -86,10 +87,11 @@ public class WsnAcceptorLoggingIT {
         }
     };
     
-    private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
-
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(gateway);
+    // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
+    // to make sure we get the log messages for the abrupt close
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+            .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({
@@ -107,7 +109,8 @@ public class WsnAcceptorLoggingIT {
             "wsn#.* [^/]*:\\d*] OPENED",
             "wsn#.* [^/]*:\\d*] WRITE",
             "wsn#.* [^/]*:\\d*] RECEIVED",
-            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException"
+            "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
+            "wsn#.* [^/]*:\\d*] CLOSED"
         }));
         forbiddenPatterns = null;
     }

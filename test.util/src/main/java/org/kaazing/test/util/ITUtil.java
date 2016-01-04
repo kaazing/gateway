@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.kaazing.test.util;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -20,9 +21,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.rules.DisableOnDebug;
+import org.junit.rules.MethodRule;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
 public final class ITUtil {
@@ -89,12 +93,26 @@ public final class ITUtil {
      * @return
      */
     public static RuleChain createRuleChain(long timeout, TimeUnit timeUnit) {
-        TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
-                .withLookingForStuckThread(true).build());
+        TestRule timeoutRule = timeoutRule(timeout, timeUnit);
         TestRule trace = new MethodExecutionTrace();
         return RuleChain.outerRule(trace).around(timeoutRule);
     }
 
+    public static TestRule timeoutRule(long timeout, TimeUnit timeUnit) {
+        return new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
+            .withLookingForStuckThread(true).build());
+    }
+
+    public static TestRule toTestRule(MethodRule in) {
+        return new TestRule() {
+
+            @Override
+            public Statement apply(Statement base, Description description) {
+                return in.apply(base, null, description);
+            }
+
+        };
+    }
 
     private ITUtil() {
 

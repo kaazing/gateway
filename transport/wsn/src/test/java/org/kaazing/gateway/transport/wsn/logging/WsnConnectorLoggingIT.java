@@ -16,6 +16,7 @@
 
 package org.kaazing.gateway.transport.wsn.logging;
 
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 
@@ -36,15 +37,15 @@ import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.junit.runner.Description;
+import org.junit.rules.Timeout;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
+import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
@@ -63,7 +64,6 @@ public class WsnConnectorLoggingIT {
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
 
-    private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
     private TestRule checkLogMessageRule = new TestRule() {
         @Override
         public Statement apply(final Statement base, Description description) {
@@ -71,21 +71,27 @@ public class WsnConnectorLoggingIT {
                 @Override
                 public void evaluate() throws Throwable {
                     base.evaluate();
-                    MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
+                    MemoryAppender.assertMessagesLogged(expectedPatterns,
+                            forbiddenPatterns, ".*\\[.*#.*].*", true);
                 }
             };
         }
     };
 
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery() {
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
             setThreadingPolicy(new Synchroniser());
         }
     };
 
+    private TestRule contextRule = ITUtil.toTestRule(context);
+
     @Rule
-    public TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(k3po).around(timeoutRule).around(checkLogMessageRule).around(connector);
+    // Special ordering: connector around k3po allows connector to detect k3po closing any still open connections
+    // to make sure we get the log messages for the abrupt close. Context rule allows jmock context checking to
+    // be done last to ensure all events have occurred (especially session closed).
+    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+            .around(contextRule).around(connector).around(k3po).around(timeoutRule(5, SECONDS));
 
     @Test
     @Specification({
@@ -152,7 +158,6 @@ public class WsnConnectorLoggingIT {
         }));
 
         forbiddenPatterns = null;
-
     }
 
     @Test
