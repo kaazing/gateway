@@ -40,7 +40,7 @@
             <artifactId>gateway.util</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+ 
         <!-- for shared test utility classes used by transports -->
         <dependency>
             <groupId>org.jmock</groupId>
@@ -60,11 +60,27 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.http</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.ws</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-junit4</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.jmock</groupId>
+            <artifactId>jmock-legacy</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

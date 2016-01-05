@@ -17,27 +17,32 @@
 package org.kaazing.gateway.transport;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
+import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactories;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.LoggingFilter;
-import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.ExceptionLoggingFilter;
-import org.kaazing.mina.core.service.IoServiceEx;
-import org.kaazing.mina.core.session.IoSessionEx;
 
 public class LoggingFilterTest {
     
@@ -85,59 +90,172 @@ public class LoggingFilterTest {
     }
     
     @Test
-    public void getUserIdentifierShouldReturnNull() throws Exception {
+    public void getUserIdentifierShouldReturnLocalAddress() throws Exception {
         final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
-        final BridgeSession bridgeSession = context.mock(BridgeSession.class, "bridgeSession");
+        final IoConnector connector = context.mock(IoConnector.class, "connector");
+        
+        final InetSocketAddress address = new InetSocketAddress(InetAddress.getByName("localhost"), 2121);
         
         context.checking(new Expectations() {
             {
-                oneOf(bridgeSession).getTransportMetadata(); will(returnValue(transportMetadata));
+                oneOf(session).getService(); will(returnValue(connector));
+                oneOf(session).getLocalAddress(); will(returnValue(address));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
                 oneOf(transportMetadata).getAddressType(); will(returnValue(Object.class));
-                oneOf(bridgeSession).getParent();
+                
             }
         });
-        assertNull(LoggingFilter.getUserIdentifier(bridgeSession));
+        assertEquals(address.toString(), LoggingFilter.getUserIdentifier(session));
     }
     
     @Test
-    public void getUserIdentifierShouldReturnTcpEndpoint() throws Exception {
+    public void getUserIdentifierShouldReturnRemoteIpv4AddressForIoAcceptor() throws Exception {
         final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
         final IoAcceptor service = context.mock(IoAcceptor.class, "service");
 
-        final InetSocketAddress remoteAddress = new InetSocketAddress(InetAddress.getByName("localhost"), 2121);
+        final InetSocketAddress address = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), 2121);
         
         context.checking(new Expectations() {
             {
                 oneOf(session).getService(); will(returnValue(service));
+                oneOf(session).getRemoteAddress(); will(returnValue(address));
                 oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
                 oneOf(transportMetadata).getAddressType(); will(returnValue(InetSocketAddress.class));
-                oneOf(session).getRemoteAddress(); will(returnValue(remoteAddress));
             }
         });
-        assertEquals(remoteAddress.toString(), LoggingFilter.getUserIdentifier(session));
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(session));
     }
     
     @Test
-    public void getUserIdentifierShouldReturnTcpEndpointFromParent() throws Exception {
+    public void getUserIdentifierShouldReturnIpv6AddressForIoAcceptor() throws Exception {
         final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
-        final BridgeSession bridgeSession = context.mock(BridgeSession.class, "bridgeSession");
-        final IoSessionEx parent = context.mock(IoSessionEx.class, "parent");
-        final IoServiceEx service = context.mock(IoServiceEx.class, "service");
+        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
 
-        final InetSocketAddress localAddress = new InetSocketAddress(InetAddress.getByName("localhost"), 2121);
+        final InetSocketAddress address = new InetSocketAddress(InetAddress.getByAddress(
+                new byte[]{(byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0x90,
+                        (byte) 0xea, 0x3e, (byte) 0xe4, 0x77, (byte) 0xad, 0x77, (byte) 0xec}), 2121);
+
+        context.checking(new Expectations() {
+            {
+
+                oneOf(session).getService(); will(returnValue(service));
+                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
+                oneOf(transportMetadata).getAddressType(); will(returnValue(InetSocketAddress.class));
+            }
+        });
+        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec:2121", LoggingFilter.getUserIdentifier(session));
+    }
+    
+    @Test
+    public void getUserIdentifierShouldReturnScopedIpv6AddressForIoAcceptor() throws Exception {
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+
+        final InetSocketAddress address = new InetSocketAddress(Inet6Address.getByAddress(
+                null,
+                new byte[]{(byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0x90, (byte) 0xea, 0x3e,
+                           (byte) 0xe4, 0x77, (byte) 0xad, 0x77, (byte) 0xec},
+                15),
+                2121);
         
         context.checking(new Expectations() {
             {
-                oneOf(bridgeSession).getTransportMetadata(); will(returnValue(transportMetadata));
-                oneOf(transportMetadata).getAddressType(); will(returnValue(Object.class));
-                oneOf(bridgeSession).getParent(); will(returnValue(parent));
-                oneOf(parent).getService(); will(returnValue(service));
-                oneOf(parent).getTransportMetadata(); will(returnValue(transportMetadata));
+                oneOf(session).getService(); will(returnValue(service));
+                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
                 oneOf(transportMetadata).getAddressType(); will(returnValue(InetSocketAddress.class));
-                oneOf(parent).getLocalAddress(); will(returnValue(localAddress));
             }
         });
-        assertEquals(localAddress.toString(), LoggingFilter.getUserIdentifier(bridgeSession));
+        assertEquals("fe80:0:0:0:90ea:3ee4:77ad:77ec%15:2121", LoggingFilter.getUserIdentifier(session));
+    }
+    
+    @Test
+    public void getUserIdentifierShouldReturnRemoteAddressForBridgeAcceptor() throws Exception {
+        context.setImposteriser(ClassImposteriser.INSTANCE);
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        final AbstractBridgeAcceptor<?, ?> service = context.mock(AbstractBridgeAcceptor.class, "service");
+
+        final InetSocketAddress address = new InetSocketAddress(InetAddress.getByAddress(new byte[]{127,0,0,1}), 2121);
+        
+        context.checking(new Expectations() {
+            {
+                oneOf(session).getService(); will(returnValue(service));
+                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
+                oneOf(transportMetadata).getAddressType(); will(returnValue(InetSocketAddress.class));
+            }
+        });
+        assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(session));
+    }
+    
+    @Test
+    public void getUserIdentifierShouldReturnTcpEndpointFromTransport() throws Exception {
+        context.setImposteriser(ClassImposteriser.INSTANCE);
+        final ResourceAddress address = context.mock(ResourceAddress.class, "address");
+
+        ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
+        URI transportURI = URI.create("tcp://localhost:2121");
+        final ResourceAddress transport = addressFactory.newResourceAddress(transportURI);
+
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        final IoAcceptor service = context.mock(IoAcceptor.class, "service");
+
+        context.checking(new Expectations() {
+            {
+                oneOf(session).getService(); will(returnValue(service));
+                oneOf(session).getRemoteAddress(); will(returnValue(address));
+                oneOf(address).getTransport(); will(returnValue(transport));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
+            }
+        });
+        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(session));
+    }
+
+    @Test
+    public void getUserIdentifierShouldReturnTcpEndpointFromHttpAddress() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
+        URI addressURI = URI.create("http://localhost:2121/jms");
+        final ResourceAddress address = addressFactory.newResourceAddress(addressURI);
+
+        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(address));
+    }
+
+    @Test
+    public void getUserIdentifierShouldReturnTcpEndpointFromWsAddress() throws Exception {
+        ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
+        URI addressURI = URI.create("ws://localhost:2121/jms");
+        final ResourceAddress address = addressFactory.newResourceAddress(addressURI);
+
+        assertEquals("localhost:2121", LoggingFilter.getUserIdentifier(address));
+    }
+
+    @Test
+    public void shouldAddLoggingFilterWhenUserIdIsScopedIpv6Address() throws Exception {
+        final TransportMetadata transportMetadata = context.mock(TransportMetadata.class);
+        final IoConnector connector = context.mock(IoConnector.class, "connector");
+        final IoFilterChain filterChain = context.mock(IoFilterChain.class, "filterChain");
+        
+        final InetSocketAddress address = new InetSocketAddress(Inet6Address.getByAddress(
+                null,
+                new byte[]{(byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, (byte) 0x90, (byte) 0xea, 0x3e,
+                           (byte) 0xe4, 0x77, (byte) 0xad, 0x77, (byte) 0xec},
+                15),
+                2121);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(logger).isTraceEnabled(); will(returnValue(false));
+                oneOf(session).getService(); will(returnValue(connector));
+                oneOf(session).getLocalAddress(); will(returnValue(address));
+                oneOf(session).getTransportMetadata(); will(returnValue(transportMetadata));
+                oneOf(transportMetadata).getAddressType(); will(returnValue(Object.class));
+                oneOf(session).getFilterChain(); will(returnValue(filterChain));
+                oneOf(filterChain).addLast(with("tcp#logging"), with(any(ExceptionLoggingFilter.class)));
+            }
+        });
+        LoggingFilter.addIfNeeded(logger, session, "tcp");
     }
     
 }
