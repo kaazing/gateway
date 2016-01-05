@@ -552,10 +552,15 @@ public class Gateway {
         }
         ClusterType newCluster = gatewayConfig.addNewCluster();
         Collection<URI> accepts = cluster.getAccepts();
+        Collection<String> stringAccepts = cluster.getStringAccepts();
         Collection<URI> connects = cluster.getConnects();
 
         for (URI accept : accepts) {
             newCluster.addAccept(accept.toASCIIString());
+        }
+
+        for (String accept : stringAccepts) {
+            newCluster.addAccept(accept);
         }
 
         for (URI connect : connects) {

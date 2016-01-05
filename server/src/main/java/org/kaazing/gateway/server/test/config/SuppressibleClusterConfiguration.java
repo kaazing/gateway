@@ -38,6 +38,10 @@ public abstract class SuppressibleClusterConfiguration implements SuppressibleCo
 
     public abstract Set<Suppressible<URI>> getAccepts();
 
+    public abstract Set<Suppressible<String>> getStringAccepts();
+
     public abstract void addAccept(Suppressible<URI> accept);
+
+    public abstract void addStringAccept(Suppressible<String> accept);
 
 }

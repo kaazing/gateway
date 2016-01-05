@@ -37,7 +37,7 @@ public class NetworkInterfaceResolutionIT {
                     new GatewayConfigurationBuilder()
                         .cluster()
                         	//TODO: Add support for strings in cluster accepts
-                            .accept(URI.create("tcp://localhost:2345"))
+                            .accept("tcp://[@Software Loopback Interface 1]:2345")
                             .connect(URI.create("tcp://localhost:5432"))
                             .name("clusterName")
                         .done()
