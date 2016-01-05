@@ -106,13 +106,6 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
     private static final String ENCRYPTION_DISABLED_FILTER = SslProtocol.NAME + "#encryption_disabled";
 
-    private static final String FAULT_LOGGING_FILTER = SslProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = SslProtocol.NAME + "#logging";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", SslProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-
     private SSLContext sslContext;
     private SslContextFactory sslContextFactory;
     private SslCertificateSelectionFilter certificateSelection;
@@ -206,15 +199,6 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, SslProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            // If the logger is not configured for TRACE logging but is
-            // configured for DEBUG logging, then we at least want to log
-            // any exceptions (e.g. SSL exceptions) that occur.
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, SslProtocol.NAME + "#%s"));
-        }
 
         // These must be in front of the dispatch filter
         //

@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.nio.internal;
 
 import static java.util.concurrent.Executors.newCachedThreadPool;
-import static org.kaazing.gateway.transport.AbstractBridgeService.CURRENT_WORKER;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.DEBUG_NIOWORKER_POOL;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_BACKLOG;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IP_TOS;
@@ -65,7 +64,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.NioBindException;
 import org.kaazing.gateway.transport.nio.TcpExtension;
-import org.kaazing.gateway.transport.nio.TcpExtensionFactorySpi;
 import org.kaazing.mina.core.service.IoAcceptorEx;
 import org.kaazing.mina.netty.socket.nio.DefaultNioSocketChannelIoSessionConfig;
 import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoAcceptor;
@@ -105,7 +103,7 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         }
     }
 
-    private static final ThreadLocal<Executor> CURRENT_EXECUTOR = new VicariousThreadLocal<>();
+    static final ThreadLocal<NioWorker> CURRENT_WORKER = new VicariousThreadLocal<>();
 
     private static final class SetCurrentWorkerTask implements Callable<NioWorker> {
 
@@ -118,13 +116,6 @@ public class NioSocketAcceptor extends AbstractNioAcceptor {
         @Override
         public NioWorker call() throws Exception {
             CURRENT_WORKER.set(worker);
-            CURRENT_EXECUTOR.set(new Executor() {
-                @Override
-                public void execute(Runnable task) {
-                    worker.executeInIoThread(task);
-                }
-            });
-
             return worker;
         }
 

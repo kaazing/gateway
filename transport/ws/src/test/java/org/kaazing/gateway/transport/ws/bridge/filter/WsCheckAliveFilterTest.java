@@ -225,6 +225,7 @@ public class WsCheckAliveFilterTest {
                 allowing(session).getBufferAllocator(); will(returnValue(SimpleBufferAllocator.BUFFER_ALLOCATOR));
                 oneOf(session).getConfig(); will(returnValue(config));
                 oneOf(config).setIdleTimeInMillis(IdleStatus.READER_IDLE, inactivityTimeout / 2);
+                allowing(session).setAttribute(with(any(Object.class)), with(any(Long.class)));
             }
         });
 
@@ -249,6 +250,7 @@ public class WsCheckAliveFilterTest {
                 allowing(logger).isTraceEnabled();
                 oneOf(session).getConfig(); will(returnValue(config));
                 oneOf(config).setIdleTimeInMillis(IdleStatus.READER_IDLE, 1L);
+                allowing(session).setAttribute(with(any(Object.class)), with(any(Long.class)));
             }
         });
 
@@ -277,6 +279,7 @@ public class WsCheckAliveFilterTest {
                 allowing(logger).isTraceEnabled();
                 allowing(session).getConfig(); will(returnValue(config));
                 oneOf(config).setIdleTimeInMillis(IdleStatus.READER_IDLE, inactivityTimeout / 2);
+                allowing(session).setAttribute(with(any(Object.class)), with(any(Long.class)));
             }
         });
 

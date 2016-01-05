@@ -76,12 +76,12 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
         ALREADY_TRACKED.set(wsebSession, true);
         idleTracker.addSession(transportSession);
         WsCheckAliveFilter.addIfFeatureEnabled(transportSession.getFilterChain(), CHECK_ALIVE_FILTER, 
-                ((WsebSession)wsebSession).getLocalAddress().getOption(INACTIVITY_TIMEOUT), logger);
+                ((WsebSession) wsebSession).getLocalAddress().getOption(INACTIVITY_TIMEOUT), wsebSession, logger);
     }
 
     @Override
     public void removeSession(IoSessionEx wsebSession) {
-        if (ALREADY_TRACKED.get(wsebSession)) {
+        if (ALREADY_TRACKED.get(wsebSession, false)) {
             // may not be set if wseb connection failed
             idleTracker.removeSession(((WsebSession)wsebSession).getTransportSession());
         }

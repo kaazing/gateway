@@ -66,7 +66,7 @@ public class WsCloseMessage extends WsMessage {
                 "status=" + status + ", reason=" + Utils.asString(reason);
     }
 
-    public static void validateCloseCode(int statusCode) {
+    public static void validateCloseCode(int statusCode) throws IllegalArgumentException {
         if (statusCode < 1000 || (statusCode > 1011 && statusCode <= 2999) || statusCode == 1004) {
             throw new IllegalArgumentException("Invalid close code: " + statusCode);
         }

@@ -55,7 +55,6 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
@@ -83,8 +82,6 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
@@ -93,18 +90,12 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
     private static final String BASE64_FILTER = WsnProtocol.NAME + "#base64";
 
     private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
-    private static final String FAULT_LOGGING_FILTER = WsnProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
 
     private static final TypedAttributeKey<Callable<WsnSession>> WSN_SESSION_FACTORY_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionFactory");
     private static final AttributeKey ENCODING_KEY = new AttributeKey(WsnConnector.class, "encoding");
     private static final TypedAttributeKey<IoSessionInitializer<?>> WSN_SESSION_INITIALIZER_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnSessionInitializer");
     private static final TypedAttributeKey<ConnectFuture> WSN_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectFuture");
     private static final TypedAttributeKey<ResourceAddress> WSN_CONNECT_ADDRESS_KEY = new TypedAttributeKey<>(WsnConnector.class, "wsnConnectAddress");
-
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", WsnProtocol.NAME);
-
-	private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final HttpPostUpgradeFilter postUpgrade;
     private final WsCodecFilter codec;
@@ -154,13 +145,6 @@ public class WsnConnector extends AbstractBridgeConnector<WsnSession> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        }
-
         IoSession session = filterChain.getSession();
         Encoding encoding = (Encoding) session.getAttribute(ENCODING_KEY);
 

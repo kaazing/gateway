@@ -18,6 +18,7 @@ package org.kaazing.gateway.resource.address.sse;
 import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 
 public class SseResourceAddress extends ResourceAddress {
 
@@ -25,8 +26,8 @@ public class SseResourceAddress extends ResourceAddress {
     
     private static final long serialVersionUID = 1L;
 
-    SseResourceAddress(URI original, URI resource) {
-        super(original, resource);
+    SseResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+        super(factory, original, resource);
     }
 
 }

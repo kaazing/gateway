@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.AttributeKey;
@@ -115,6 +116,30 @@ public class Expectations extends org.jmock.Expectations {
         return new HasMessage(message);
     }
 
+    public Matcher<IoBuffer> ioBufferMatching(final byte[] bytes) {
+        return new BaseMatcher<IoBuffer>() {
+
+            @Override
+            public boolean matches(Object item) {
+                IoBuffer buf = (IoBuffer) item;
+                if (buf.remaining() != bytes.length) {
+                    return false;
+                }
+                for (int i = 0; i < bytes.length; i++) {
+                    if (buf.get(i) != bytes[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("buffer contains bytes");
+            }
+        };
+    }
+
     public Matcher<IoBuffer> hasRemaining(final int remaining) {
         return new BaseMatcher<IoBuffer>() {
 
@@ -141,6 +166,17 @@ public class Expectations extends org.jmock.Expectations {
             @Override
             public void describeTo(Description arg0) {
                 arg0.appendText("write request containing a message equal to " + message);
+            }
+        };
+    }
+
+    public Action countDown(final CountDownLatch latch) {
+        return new CustomAction("count down latch") {
+
+            @Override
+            public Object invoke(Invocation invocation) throws Throwable {
+                latch.countDown();
+                return null;
             }
         };
     }

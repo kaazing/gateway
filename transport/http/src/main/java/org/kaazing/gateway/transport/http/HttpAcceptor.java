@@ -75,9 +75,7 @@ import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
@@ -111,11 +109,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     public static final AttributeKey SERVICE_REGISTRATION_KEY = new AttributeKey(HttpAcceptor.class, "serviceRegistration");
 
     static final TypedAttributeKey<DefaultHttpSession> SESSION_KEY = new TypedAttributeKey<>(HttpAcceptor.class, "session");
-
-    private static final String FAULT_LOGGING_FILTER = HttpProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = HttpProtocol.NAME + "#logging";
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final Map<String, Set<HttpAcceptFilter>> acceptFiltersByProtocol;
     private final Set<HttpAcceptFilter> allAcceptFilters;
@@ -525,14 +518,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     };
 
     @Override
-    public void addBridgeFilters(IoFilterChain chain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            chain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            chain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, HttpProtocol.NAME + "#%s"));
-        }
-
+    public void addBridgeFilters(IoFilterChain chain) { 
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
@@ -579,11 +565,6 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
             removeFilter(filterChain, filter.filterName());
         }
 
-        if (filterChain.contains(TRACE_LOGGING_FILTER)) {
-            filterChain.remove(TRACE_LOGGING_FILTER);
-        } else if (filterChain.contains(FAULT_LOGGING_FILTER)) {
-            filterChain.remove(FAULT_LOGGING_FILTER);
-        }
     }
 
     private static  URI getHostPortPathURI(URI resource) {

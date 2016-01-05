@@ -52,6 +52,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -85,11 +87,9 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.UpgradeFuture;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -131,8 +131,6 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
@@ -146,10 +144,10 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 	private static final String UTF8_FILTER = WsnProtocol.NAME + "#utf8";
 	private static final String BASE64_FILTER = WsnProtocol.NAME + "#base64";
 	private static final String TEXT_FILTER = WsnProtocol.NAME + "#text";
-    private static final String FAULT_LOGGING_FILTER = WsnProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = WsnProtocol.NAME + "#logging";
 
     private static final AttributeKey LOCAL_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "localAddress");
+    private static final AttributeKey REMOTE_ADDRESS_KEY = new AttributeKey(WsnAcceptor.class, "remoteAddress");
+
     private static final AttributeKey HTTP_REQUEST_URI_KEY = new AttributeKey(WsnAcceptor.class, "httpRequestURI");
 
     private static final TypedAttributeKey<ResourceAddress> WEBSOCKET_LOCAL_ADDRESS
@@ -187,10 +185,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
     private static final String HEADER_WEBSOCKET_ACCEPT = "Sec-WebSocket-Accept";
     private static final String HEADER_WEBSOCKET_VERSION = "Sec-WebSocket-Version";
     private static final String WEB_SOCKET_VERSION_KEY = "WebSocketVersion";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsnProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private Properties configuration =  new Properties();
     private ScheduledExecutorService scheduler;
@@ -250,16 +244,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         WsCheckAliveFilter.validateSystemProperties(configuration, logger);
 
         super.init();
-    }
-
-    @Override
-    public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, WsnProtocol.NAME + "#%s"));
-        }
     }
 
     /* for test observalibility only */
@@ -530,7 +514,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             // Construct remote address from transport session's remote address.
             //
 
-            ResourceAddress transportAddress = BridgeSession.REMOTE_ADDRESS.get(session);
+            ResourceAddress transportAddress = (ResourceAddress) session.getAttribute(REMOTE_ADDRESS_KEY);
+            assert transportAddress != null;
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(TRANSPORT, transportAddress);
             options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
@@ -711,8 +696,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
+            boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED); 
             if (wsnSession != null && !wsnSession.isClosing()) {
-                wsnSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                if (isWsx) {
+                    wsnSession.getProcessor().remove(wsnSession);
+                } else {
+                    wsnSession.reset(
+                            new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                }
             }
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -1141,6 +1132,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                             WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                             parent.setAttribute(WEB_SOCKET_VERSION_KEY, wsVersion);
                             parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                            parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                             parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session.getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                             parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
                             parent.setAttribute(LOGIN_CONTEXT_TRANSFER_KEY, session.getLoginContext());
@@ -1376,6 +1368,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                                 DRAFT76_KEY3_BUFFER_KEY.set(parent, key3Duplicate);
                                 parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_76);
                                 parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                                parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                                 parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session
                                         .getAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY));
                                 parent.setAttribute(SUBJECT_TRANSFER_KEY, session.getSubject());
@@ -1533,6 +1526,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                            parent.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                            ACTIVE_EXTENSIONS_KEY.set(parent, negotiated);
                            parent.setAttribute(LOCAL_ADDRESS_KEY, session.getLocalAddress());
+                           parent.setAttribute(REMOTE_ADDRESS_KEY, session.getRemoteAddress());
                            WEBSOCKET_LOCAL_ADDRESS.set(parent, wsLocalAddress);
                            parent.setAttribute(WEB_SOCKET_VERSION_KEY, WebSocketWireProtocol.HIXIE_75);
                            parent.setAttribute(HttpAcceptor.SERVICE_REGISTRATION_KEY, session

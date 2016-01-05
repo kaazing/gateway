@@ -38,9 +38,9 @@ public class BroadcastServiceIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("tcp://localhost:8000"))
+                            .accept(URI.create("tcp://localhost:8090"))
+                            .connect(URI.create("tcp://localhost:7788"))
                             .type("broadcast")
-                            .property("accept", "tcp://localhost:7788")
                         .done()
                     .done();
             // @formatter:on

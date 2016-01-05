@@ -74,8 +74,6 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
@@ -92,17 +90,11 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
              new TypedAttributeKey<>(SseAcceptor.class, "nextProtocolResourceAddress");
 
     private static final String CODEC_FILTER = SseProtocol.NAME + "#codec";
-    private static final String FAULT_LOGGING_FILTER = SseProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = SseProtocol.NAME + "#logging";
 
     // TODO: make these settings available via configuration, with a reasonable default
     private static final long TIME_TO_FIRST_WRITE_MILLIS = SECONDS.toMillis(5);
     private static final long TIME_TO_PULSE_MILLIS = SECONDS.toMillis(30L);
     private static final long TIME_TO_TIMEOUT_RECONNECT_MILLIS = SECONDS.toMillis(60L);
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", SseProtocol.NAME);
-
-	private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private ScheduledExecutorService scheduler;
 
@@ -145,13 +137,6 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, SseProtocol.NAME + "#%s"));
-        }
-
         filterChain.addLast(CODEC_FILTER, sseCodec);
     }
 
@@ -346,7 +331,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                                                            getProcessor(),
                                                            sseBindAddress,
                                                            sseRemoteAddress,
-                                                           allocator);
+                                                           allocator,
+                                                           httpSession);
                     sseSession.setHandler(sseHandler);
                     return sseSession;
                 }

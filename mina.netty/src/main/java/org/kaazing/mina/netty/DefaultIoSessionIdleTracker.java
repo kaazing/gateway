@@ -119,14 +119,12 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
     private abstract class NotifyIdleTask implements TimerTask {
 
         protected final IoSessionEx session;
-        protected final IoFilterChain filterChain;
 
         private volatile long idleTimeMillis;
         private volatile Timeout timeout = NULL_TIMEOUT;
 
         public NotifyIdleTask(IoSessionEx session) {
             this.session = session;
-            this.filterChain = session.getFilterChain();
         }
 
         public final void reschedule(long idleTime, TimeUnit unit)  {
@@ -165,7 +163,9 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             // after t0 + configured idleTime. Even if an I/O event occurred after t0, we may still need to fire sessionIdle.
             long timeUntilSessionIdle = startPoint + idleTimeMillis - currentTimeMillis();
             if (timeUntilSessionIdle <= 0 && idleTimeMillis != 0) {
-                fireSessionIdle(filterChain);
+                if (session.getIoThread() != IoSessionEx.NO_THREAD) {
+                    fireSessionIdle(session);
+                }
                 reschedule(idleTimeMillis);
             }
             else {
@@ -175,7 +175,9 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             }
         }
 
-        protected abstract void fireSessionIdle(IoFilterChain filterChain);
+        // Passing session as parameter as filter chain needs to be re-accessed
+        // (due to potential re-alignement and session gets a new filter chain)
+        protected abstract void fireSessionIdle(IoSessionEx session);
 
         protected abstract long getLastIoTimeMillis();
 
@@ -190,8 +192,8 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
 
         @Override
-        protected void fireSessionIdle(IoFilterChain filterChain) {
-            filterChain.fireSessionIdle(IdleStatus.BOTH_IDLE);
+        protected void fireSessionIdle(IoSessionEx session) {
+            session.getFilterChain().fireSessionIdle(IdleStatus.BOTH_IDLE);
         }
 
         @Override
@@ -213,8 +215,8 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
 
         @Override
-        protected void fireSessionIdle(IoFilterChain filterChain) {
-            filterChain.fireSessionIdle(IdleStatus.READER_IDLE);
+        protected void fireSessionIdle(IoSessionEx session) {
+            session.getFilterChain().fireSessionIdle(IdleStatus.READER_IDLE);
         }
 
         @Override
@@ -236,8 +238,8 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
         }
 
         @Override
-        protected void fireSessionIdle(IoFilterChain filterChain) {
-            filterChain.fireSessionIdle(IdleStatus.WRITER_IDLE);
+        protected void fireSessionIdle(IoSessionEx session) {
+            session.getFilterChain().fireSessionIdle(IdleStatus.WRITER_IDLE);
         }
 
         @Override

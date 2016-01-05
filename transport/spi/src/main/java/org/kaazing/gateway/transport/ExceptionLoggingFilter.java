@@ -15,13 +15,13 @@
  */
 package org.kaazing.gateway.transport;
 
+import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
 public class ExceptionLoggingFilter
     extends LoggingFilter {
 
-    public ExceptionLoggingFilter(Logger logger,
-                                  String format) {
+    public ExceptionLoggingFilter(Logger logger, String format) {
         super(logger, format);
     }
 
@@ -30,42 +30,22 @@ public class ExceptionLoggingFilter
     }
 
     @Override
-    protected boolean shouldLogSessionCreated() {
-        return false;
+    protected void logSessionCreated(IoSession session) {
+        // Do not log
     }
 
     @Override
-    protected boolean shouldLogSessionOpened() {
-        return getLogger().isDebugEnabled();
+    protected void logMessageReceived(IoSession session, Object message) {
+        // Do not log
     }
 
     @Override
-    protected boolean shouldLogMessageReceived() {
-        return false;
+    protected void logSessionIdle(IoSession session) {
+        // Do not log
     }
 
     @Override
-    protected boolean shouldLogMessageSent() {
-        return false;
-    }
-
-    @Override
-    protected boolean shouldLogSessionIdle() {
-        return false;
-    }
-
-    @Override
-    protected boolean shouldLogExceptionCaught() {
-        return getLogger().isDebugEnabled();
-    }
-
-    @Override
-    protected boolean shouldLogSessionClosed() {
-        return getLogger().isDebugEnabled();
-    }
-
-    @Override
-    protected boolean shouldLogFilterWrite() {
-        return false;
+    protected void logFilterWrite(IoSession session, Object message) {
+        // Do not log
     }
 }
