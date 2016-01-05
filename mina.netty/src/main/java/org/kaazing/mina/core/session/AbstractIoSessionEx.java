@@ -31,12 +31,16 @@ import org.kaazing.mina.core.filterchain.DefaultIoFilterChain;
 import org.kaazing.mina.core.filterchain.DefaultIoFilterChainEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
+import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 /**
  * This class extends the functionality of AbstractIoSession to add support for thread alignment: the guarantee
  * that all operations on the session's filter chain take place in the same IO worker thread.
 */
 public abstract class AbstractIoSessionEx extends AbstractIoSession implements IoSessionEx {
+
+    // TODO: move to non-static on NioSocketChannelIoAcceptor / NioSocketChannelIoConnector
+    public static final ThreadLocal<Executor> CURRENT_WORKER = new VicariousThreadLocal<Executor>();
 
     private final boolean ioAligned;
     private final int ioLayer;

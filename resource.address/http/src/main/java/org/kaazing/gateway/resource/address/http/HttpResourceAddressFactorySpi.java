@@ -298,7 +298,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new HttpResourceAddress(original, location);
+        return new HttpResourceAddress(this, original, location);
     }
 
     @Override

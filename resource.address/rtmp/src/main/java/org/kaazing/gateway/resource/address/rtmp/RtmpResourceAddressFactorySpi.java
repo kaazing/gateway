@@ -77,7 +77,7 @@ public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Rtm
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new RtmpResourceAddress(original, location);
+        return new RtmpResourceAddress(this, original, location);
     }
 
 }

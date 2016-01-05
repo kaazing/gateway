@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class ResourceAddress extends SocketAddress implements ResourceOptions {
@@ -52,10 +53,11 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     public static final ResourceOption<Object> QUALIFIER = new QualifierOption();
     public static final ResourceOption<URI> TRANSPORTED_URI = new TransportedURIOption();
 
+    private final ResourceAddressFactorySpi factory;
     public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
-
     private final URI externalURI;
     private final URI resourceURI;
+
     private String nextProtocol;
     private ResourceAddress transport;
     private URI transportURI;
@@ -66,20 +68,15 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private Boolean connectRequiresInit;
     private IdentityResolver identityResolver;
 
-    public ResourceAddress(URI externalURI, URI resourceURI) {
-        if (externalURI == null) {
-            throw new NullPointerException("externalURI");
-        }
-        if (resourceURI == null) {
-            throw new NullPointerException("resourceURI");
-        }
-        this.externalURI = externalURI;
-        this.resourceURI = resourceURI;
+    public ResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
+        this.factory = Objects.requireNonNull(factory, "factory");
+        this.externalURI = Objects.requireNonNull(externalURI, "externalURI");
+        this.resourceURI = Objects.requireNonNull(resourceURI, "resourceURI");
     }
 
     // note: used by pipe://
-    protected ResourceAddress(URI resourceURI) {
-        this(resourceURI, resourceURI);
+    protected ResourceAddress(ResourceAddressFactorySpi factory, URI resourceURI) {
+        this(factory, resourceURI, resourceURI);
     }
     
     public URI getResource() {
@@ -192,7 +189,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     }
 
 
-    public ResourceAddress resolve(String newPath) {
+    public final ResourceAddress resolve(String newPath) {
         if ( newPath == null ) {
             throw new NullPointerException(newPath);
         }
@@ -200,9 +197,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         return resolve(addressURI.getPath(), newPath);
     }
 
-    protected ResourceAddress resolve(String oldPath, String newPath) {
-        ResourceAddress result;
-
+    protected final ResourceAddress resolve(String oldPath, String newPath) {
         URI addressURI = getResource();
         URI externalURI = getExternalURI();
 
@@ -218,31 +213,22 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
         URI newResourceURI = addressURI.resolve(newPath);
         URI newExternalURI = externalURI.resolve(newPath);
+        ResourceOptions newOptions = FACTORY.newResourceOptions(this);
+        resolve(oldPath, newPath, newOptions);
 
-        final ResourceOptions newOptions =
-                ResourceOptions.FACTORY.newResourceOptions(ResourceAddress.this);
+        return factory.newResourceAddress0(newExternalURI, newResourceURI, newOptions);
+    }
+
+    protected void resolve(String oldPath, String newPath, ResourceOptions newOptions) {
         ResourceAddress transport = getOption(TRANSPORT);
+        if (transport != null) {
+            newOptions.setOption(TRANSPORT, transport.resolve(oldPath, newPath));
+        }
+
         ResourceAddress alternate = getOption(ALTERNATE);
-        transport = (transport == null?transport:transport.resolve(oldPath, newPath));
-        alternate = (alternate == null?alternate:alternate.resolve(oldPath,newPath));
-        newOptions.setOption(TRANSPORT, transport);
-        newOptions.setOption(ALTERNATE, alternate);
-
-        result = new ResourceAddress(newExternalURI, newResourceURI) {
-            @Override
-            protected <V> V getOption0(ResourceOption<V> option) {
-                return newOptions.getOption(option);
-            }
-        };
-        result.transport = newOptions.getOption(TRANSPORT);
-        result.alternate = newOptions.getOption(ALTERNATE);
-        result.qualifier = newOptions.getOption(QUALIFIER);
-        result.resolver = newOptions.getOption(RESOLVER);
-        result.nextProtocol = newOptions.getOption(NEXT_PROTOCOL);
-        result.bindAlternate = newOptions.getOption(BIND_ALTERNATE);
-        result.transportURI = newOptions.getOption(TRANSPORT_URI);
-
-        return result;
+        if (alternate != null) {
+            newOptions.setOption(ALTERNATE, alternate.resolve(oldPath, newPath));
+        }
     }
 
     @SuppressWarnings("unchecked")
