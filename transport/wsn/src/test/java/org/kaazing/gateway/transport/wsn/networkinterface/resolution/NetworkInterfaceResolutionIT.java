@@ -35,25 +35,24 @@ public class NetworkInterfaceResolutionIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
-                        /*.cluster()
+                        .cluster()
+                        	//TODO: Add support for strings in cluster accepts
                             .accept(URI.create("tcp://localhost:2345"))
                             .connect(URI.create("tcp://localhost:5432"))
                             .name("clusterName")
                         .done()
                         .service()
-                            .accept("tcp://[@Software Loopback Interface 1]:7080")
+                            .accept("tcp://localhost:8003")
                                 .acceptOption("tcp.bind", "[@Software Loopback Interface 1]:7082")
-                                .acceptOption("http.transport", "tcp//[@Software Loopback Interface 1]:7081")
-                            .connect(URI.create("tcp://localhost:7083"))
+                            .connect(URI.create("tcp://localhost:8004"))
                             .type("proxy")
                         .done()
-                        .service()
-                            .accept(URI.create("ws://localhost:8555/echo"))
-                            .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
-                        .done()*/
+//                        .service()
+//                            .accept("http://localhost:8110")
+//                                .acceptOption("http.transport", "tcp//[@Software Loopback Interface 1]:7081")
+//                            .connect(URI.create("http://localhost:8080"))
+//                            .type("proxy")
+//                        .done()
                         .service()
                             .accept("tcp://[@Software Loopback Interface 1]:8001")
                             .connect(URI.create("tcp://localhost:8002"))
@@ -81,21 +80,19 @@ public class NetworkInterfaceResolutionIT {
 
     @Specification("network.interface.cluster")
     @Test
-    @Ignore
     public void networkInterfaceCluster() throws Exception {
         robot.finish();
     }
 
     @Specification("network.interface.accept.option.tcp.bind")
     @Test
-    @Ignore
     public void networkInterfaceAcceptOptionTcpBind() throws Exception {
         robot.finish();
     }
 
     @Specification("network.interface.accept.option.http.transport")
     @Test
-    @Ignore
+    @Ignore("TODO")
     public void networkInterfaceAcceptOptionHttpTransport() throws Exception {
         robot.finish();
     }
