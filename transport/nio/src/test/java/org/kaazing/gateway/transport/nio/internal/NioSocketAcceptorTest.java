@@ -630,10 +630,12 @@ public class NioSocketAcceptorTest {
                 allowing(mockSession).getLocalAddress(); will(returnValue(bindAddress));
                 oneOf(mockSession).close(with(any(boolean.class)));
                 allowing(mockSession).getFilterChain(); will(returnValue(mockFilterChain));
+                allowing(mockSession).getRemoteAddress(); will(returnValue(bindAddress));
+                allowing(mockSession).getService(); will(returnValue(mockAcceptor));
 
                 allowing(mockSession).getTransportMetadata();
                 will(returnValue(transportMetadata));
-                allowing(transportMetadata).getAddressType();
+                allowing(transportMetadata).getAddressType(); will(returnValue(SocketAddress.class));
 
                 allowing(mockFilterChain).addFirst(with(any(String.class)), with(any(IoFilter.class)));
                 allowing(mockFilterChain).addLast(with(any(String.class)), with(any(IoFilter.class)));
