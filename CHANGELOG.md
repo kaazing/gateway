@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.39...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.40...HEAD)
+
+**Merged pull requests:**
+
+- Fix InvalidateCastException, this function is used by Kaazing Revalidate Extension [\#389](https://github.com/kaazing/gateway/pull/389) ([chao-sun-kaazing](https://github.com/chao-sun-kaazing))
+- Fixing the BroadcasttestSlowConsumer by increasing the target bytes [\#388](https://github.com/kaazing/gateway/pull/388) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.40](https://github.com/kaazing/gateway/tree/5.0.1.40) (2016-01-05)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.39...5.0.1.40)
 
 **Merged pull requests:**
 
