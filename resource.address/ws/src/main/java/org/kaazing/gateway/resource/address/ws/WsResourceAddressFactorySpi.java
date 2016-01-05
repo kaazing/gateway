@@ -194,7 +194,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new WsResourceAddress(original, location);
+        return new WsResourceAddress(this, original, location);
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 
 public class WsResourceAddress extends ResourceAddress {
@@ -55,8 +56,8 @@ public class WsResourceAddress extends ResourceAddress {
     private String[] supportedProtocols;
     private String[] requiredProtocols = REQUIRED_PROTOCOLS.defaultValue();
 
-    WsResourceAddress(URI original, URI resource) {
-        super(original, resource);
+    WsResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+        super(factory, original, resource);
     }
 
     @Override
