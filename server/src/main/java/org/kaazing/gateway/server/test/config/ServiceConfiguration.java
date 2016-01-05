@@ -36,6 +36,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     private final Set<Suppressible<URI>> balances;
     private final Set<Suppressible<URI>> accepts;
+    private final Set<Suppressible<String>> stringAccepts;
     private final Map<String, Suppressible<String>> acceptOptions;
     private final Set<Suppressible<URI>> connects;
     private final Map<String, Suppressible<String>> connectOptions;
@@ -59,6 +60,8 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
         accepts = new HashSet<>();
         unsuppressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
+
+        stringAccepts = new HashSet<>();
 
         acceptOptions = new HashMap<>();
         unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
@@ -239,6 +242,11 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         @Override
         public void addAccept(Suppressible<URI> acceptURI) {
             accepts.add(acceptURI);
+        }
+
+        @Override
+        public void addStringAccept(Suppressible<String> acceptURI) {
+            stringAccepts.add(acceptURI);
         }
 
         @Override
