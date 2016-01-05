@@ -23,6 +23,7 @@ public abstract class SuppressibleServiceConfiguration implements SuppressibleCo
 
     // accepts
     public abstract Set<Suppressible<URI>> getAccepts();
+    public abstract Set<Suppressible<String>> getStringAccepts();
 
     public abstract void addAccept(Suppressible<URI> acceptURI);
     public abstract void addStringAccept(Suppressible<String> acceptURI);

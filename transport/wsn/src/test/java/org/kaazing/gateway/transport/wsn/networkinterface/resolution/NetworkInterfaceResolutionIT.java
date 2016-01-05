@@ -35,7 +35,7 @@ public class NetworkInterfaceResolutionIT {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
-                        .cluster()
+                        /*.cluster()
                             .accept(URI.create("tcp://localhost:2345"))
                             .connect(URI.create("tcp://localhost:5432"))
                             .name("clusterName")
@@ -53,23 +53,15 @@ public class NetworkInterfaceResolutionIT {
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")
                             .done()
-                        .done()
+                        .done()*/
                         .service()
-                            .accept(URI.create("tcp://localhost:8001"))
+                            .accept("tcp://[@Software Loopback Interface 1]:8001")
                             .connect(URI.create("tcp://localhost:8002"))
                             .type("proxy")
                             .crossOrigin()
                                 .allowOrigin("*")
                             .done()
                         .done()
-//                        .service()
-//                            .accept("tcp://[@Software Loopback Interface 1]:8001")
-//                            .connect(URI.create("tcp://localhost:8002"))
-//                            .type("proxy")
-//                            .crossOrigin()
-//                                .allowOrigin("*")
-//                            .done()
-//                        .done()
                     .done();
             // @formatter:on
             init(configuration);

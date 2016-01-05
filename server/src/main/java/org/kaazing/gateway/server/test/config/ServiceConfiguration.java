@@ -50,6 +50,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private final Map<String, Suppressible<String>> properties;
     private final Map<String, String> unsuppressibleProperties;
     private final List<NestedServicePropertiesConfiguration> nestedProperties;
+	private final Set<String> unsuppressibleStringAccepts;
 
     public ServiceConfiguration() {
         _configuration = new SuppressibleServiceConfigurationImpl();
@@ -62,6 +63,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         unsuppressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
 
         stringAccepts = new HashSet<>();
+        unsuppressibleStringAccepts = Suppressibles.unsuppressibleSet(stringAccepts);
 
         acceptOptions = new HashMap<>();
         unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
@@ -108,6 +110,10 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     public Set<URI> getAccepts() {
         return unsuppressibleAccepts;
+    }
+
+    public Set<String> getStringAccepts() {
+        return unsuppressibleStringAccepts;
     }
 
     // balance
@@ -237,6 +243,11 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         @Override
         public Set<Suppressible<URI>> getAccepts() {
             return accepts;
+        }
+
+        @Override
+        public Set<Suppressible<String>> getStringAccepts() {
+            return stringAccepts;
         }
 
         @Override
