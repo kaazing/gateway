@@ -28,6 +28,9 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.mina.core.future.DefaultUnbindFuture;
@@ -39,13 +42,14 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
         BridgeAcceptor {
 
     protected final Bindings<B> bindings;
-
+    protected final Logger logger;
     protected final AtomicBoolean started;
 
     public AbstractBridgeAcceptor(IoSessionConfigEx sessionConfig) {
         super(sessionConfig);
 
         this.bindings = initBindings();
+        this.logger = LoggerFactory.getLogger(String.format("transport.%s.accept", getTransportMetadata().getName()));
         this.started = new AtomicBoolean(false);
     }
 
@@ -177,4 +181,10 @@ public abstract class AbstractBridgeAcceptor<T extends AbstractBridgeSession<?,?
             initializer.initializeSession(session, future);
         }
     }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
+
 }

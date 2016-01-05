@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.security.KeySelector;
 
@@ -47,8 +48,8 @@ public final class SslResourceAddress extends ResourceAddress {
     private boolean needClientAuth;
     private KeySelector keySelector;
 
-	SslResourceAddress(URI original, URI resource) {
-		super(original, resource);
+	SslResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+		super(factory, original, resource);
 	}
 
     @Override

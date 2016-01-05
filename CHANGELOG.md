@@ -2,7 +2,19 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.38...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.39...HEAD)
+
+**Merged pull requests:**
+
+- Wseb over socks [\#386](https://github.com/kaazing/gateway/pull/386) ([jitsni](https://github.com/jitsni))
+- Uptake latest k3po version \(3.0.0-alpha-6\) [\#385](https://github.com/kaazing/gateway/pull/385) ([cmebarrow](https://github.com/cmebarrow))
+- If a session is migrated, need to fire idle event on the migrated session [\#378](https://github.com/kaazing/gateway/pull/378) ([jitsni](https://github.com/jitsni))
+- Removed Warnings at end of build by coming into compliance with maven… [\#374](https://github.com/kaazing/gateway/pull/374) ([dpwspoon](https://github.com/dpwspoon))
+- Acceptor is not BridgeConnector [\#373](https://github.com/kaazing/gateway/pull/373) ([jitsni](https://github.com/jitsni))
+- Forward Port to 5.x: Log when users disconnect [\#370](https://github.com/kaazing/gateway/pull/370) ([msalavastru](https://github.com/msalavastru))
+
+## [5.0.1.39](https://github.com/kaazing/gateway/tree/5.0.1.39) (2015-12-15)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.38...5.0.1.39)
 
 **Closed issues:**
 

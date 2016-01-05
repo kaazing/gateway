@@ -34,13 +34,15 @@ import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
@@ -49,26 +51,26 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  */
 public class WsebConnectorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
     private ResourceAddressFactory resourceAddressFactory;
     private WsebConnector wseConnector;
-
+    private boolean wseSpecCompliant;
 
     @Override
     public Statement apply(Statement base, Description description) {
         return new ConnectorStatement(base);
     }
+
     public WsebConnectorRule() {
-        this(null);
+        this(true);
     }
 
-    public WsebConnectorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
+    public WsebConnectorRule(boolean wseSpecCompliant) {
+        this.wseSpecCompliant = wseSpecCompliant;
     }
-    
+
     public ConnectFuture connect(final String connect,
                                   final Long wsInactivityTimeout,
-                                  IoHandlerAdapter<?> connectHandler) throws InterruptedException {
+                                  IoHandler connectHandler) throws InterruptedException {
         Map<String, Object> connectOptions = new HashMap<String, Object>();
         if (wsInactivityTimeout != null) {
             connectOptions.put("inactivityTimeout", wsInactivityTimeout);
@@ -106,16 +108,6 @@ public class WsebConnectorRule implements TestRule {
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                PropertyConfigurator.configure(log4j);
-            }
             try {
                 // Connector setup
                 resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -124,15 +116,20 @@ public class WsebConnectorRule implements TestRule {
                 httpConnector = (HttpConnector)transportFactory.getTransport("http").getConnector();
                 wseConnector = (WsebConnector)transportFactory.getTransport("wseb").getConnector();
                 schedulerProvider = new SchedulerProvider();
-        
+
                 tcpConnector.setResourceAddressFactory(resourceAddressFactory);
                 wseConnector.setResourceAddressFactory(resourceAddressFactory);
                 wseConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
+
+                Properties configuration = new Properties();
+                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), wseSpecCompliant ? "true" : "false");
+                wseConnector.setConfiguration(configuration);
+
                 httpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 httpConnector.setResourceAddressFactory(resourceAddressFactory);
-                
+
                 base.evaluate();
             } finally {
                 tcpConnector.dispose();

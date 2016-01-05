@@ -82,12 +82,6 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
     private static final String CODEC_FILTER = SslProtocol.NAME + "#codec";
     private static final String CERTIFICATE_SELECTION_FILTER = SslProtocol.NAME + "#certificate_selection";
-    private static final String FAULT_LOGGING_FILTER = SslProtocol.NAME + "#fault";
-    private static final String TRACE_LOGGING_FILTER = SslProtocol.NAME + "#logging";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.connect", SslProtocol.NAME);
-
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private BridgeServiceFactory bridgeServiceFactory;
     private SslContextFactory sslContextFactory;
@@ -168,13 +162,6 @@ public class SslConnector extends AbstractBridgeConnector<SslSession> {
 
     @Override
     public void addBridgeFilters(IoFilterChain filterChain) {
-        // setup logging filters for bridge session
-        if (logger.isTraceEnabled()) {
-            filterChain.addFirst(TRACE_LOGGING_FILTER, new ObjectLoggingFilter(logger, SslProtocol.NAME + "#%s"));
-        } else if (logger.isDebugEnabled()) {
-            filterChain.addFirst(FAULT_LOGGING_FILTER, new ExceptionLoggingFilter(logger, SslProtocol.NAME + "#%s"));
-        }
-
         IoSession session = filterChain.getSession();
         ResourceAddress address = SslAcceptor.SSL_RESOURCE_ADDRESS.remove(session);
         if (address != null) {

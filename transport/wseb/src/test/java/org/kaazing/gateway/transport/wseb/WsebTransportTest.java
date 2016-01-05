@@ -120,6 +120,7 @@ public class WsebTransportTest {
 		wsebConnector = new WsebConnector();
 		wsebConnector.setBridgeServiceFactory(serviceFactory);
         wsebConnector.setResourceAddressFactory(addressFactory);
+        wsebConnector.setConfiguration(new Properties());
 
 	}
 

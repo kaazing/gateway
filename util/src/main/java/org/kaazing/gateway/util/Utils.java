@@ -811,6 +811,17 @@ public final class Utils {
         return rand.nextInt();
     }
 
+    public static void log(Logger logger, LogLevel eventLevel, String message) {
+        switch (eventLevel) {
+            case TRACE : logger.trace(message); return;
+            case DEBUG : logger.debug(message); return;
+            case INFO  : logger.info(message); return;
+            case WARN  : logger.warn(message); return;
+            case ERROR : logger.error(message); return;
+            default    : return;
+        }
+    }
+
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, cause); return;

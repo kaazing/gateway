@@ -92,11 +92,13 @@ public class MethodExecutionTrace extends TestWatcher {
             MemoryAppender.printAllMessages();
             System.out.println("=================== END STORED LOG MESSAGES ===========================");
         }
+        MemoryAppender.initialize();
     }
 
     @Override
     public void succeeded(Description description) {
             System.out.println(getFullMethodName(description) + " " + "success");
+            MemoryAppender.initialize();
     }
 
     private String getFullMethodName(Description description) {

@@ -15,9 +15,13 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_SEQUENCE_NO;
 
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -51,10 +55,11 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebConnectProcessor.class);
+    private final Logger logger;
+
+    private final Properties configuration;
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     protected static final WriteRequest CLOSE_REQUEST = new DefaultWriteRequestEx(new Object());
@@ -62,14 +67,19 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private final WsebFrameCodecFilter wsebFraming = new WsebFrameCodecFilter(0);
     private final BridgeServiceFactory bridgeServiceFactory;
 
-    public WsebConnectProcessor(BridgeServiceFactory bridgeServiceFactory) {
+    public WsebConnectProcessor(BridgeServiceFactory bridgeServiceFactory, Logger logger, Properties configuration) {
         super();
         this.bridgeServiceFactory = bridgeServiceFactory;
+        this.logger = logger;
+        this.configuration = configuration;
     }
 
     @Override
     protected void removeInternal(WsebSession session) {
         IoSessionEx transportSession = session.getTransportSession();
+        if (logger.isTraceEnabled()) {
+            logger.trace(format("Adding CLOSE_REQUEST to write on wseb session %s", session));
+        }
         WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
         writeRequestQueue.offer(transportSession, CLOSE_REQUEST);
         flushInternal(session);
@@ -129,6 +139,9 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
                 assert (writer != null);
                 assert (!writer.isWriteSuspended());
+                if (logger.isTraceEnabled()) {
+                    logger.trace(format("Writing CLOSE command to writer %s for wseb session %s", writer, session));
+                }
                 writer.write(WsCommandMessage.CLOSE);
                 finishWrite(session, writer);
                 break;
@@ -230,9 +243,10 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     private void initWriter(final WsebSession session) {
         if (session.compareAndSetAttachingWrite(false, true)) {
-
-
             final ResourceAddress writeAddress = session.getWriteAddress();
+            if (writeAddress == null) {     // session is closed
+                return;
+            }
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(writeAddress);
             ConnectFuture connectFuture =
                     connector.connect(writeAddress, writeHandler,
@@ -254,7 +268,13 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     HttpConnectSession writeSession = (HttpConnectSession) session;
                     writeSession.setMethod(HttpMethod.POST);
                     writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
-                    writeSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
+                    writeSession.setWriteHeader(HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
+
+                    boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
+                    if (specCompliant) {
+                        // WSE specification requires Content-type header on upstream requests
+                        writeSession.setWriteHeader(HEADER_CONTENT_TYPE, "application/octet-stream");
+                    }
 
                     // Note: deferring this to writeHandler.sessionOpened creates a race condition
                     IoFilterChain filterChain = writeSession.getFilterChain();
@@ -269,20 +289,27 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(address.getResource());
         if ( protocol instanceof HttpProtocol ) {
             return new IoFutureListener<ConnectFuture>() {
-                        @Override
-                        public void operationComplete(ConnectFuture future) {
-                            // attaching the write auto-flushes the processor
-                            try {
-                                HttpSession writeSession = (HttpSession) future.getSession();
-                                session.attachWriter(writeSession);
-                                // implicit call to flush may be gated by semaphore
-                                // so force call to flushInternal directly instead
-                                flushInternal(session);
-                            } catch (Exception e) {
-                                session.close(true);
+                @Override
+                public void operationComplete(ConnectFuture future) {
+                    // attaching the write auto-flushes the processor
+                    try {
+                        HttpSession writeSession = (HttpSession) future.getSession();
+                        session.attachWriter(writeSession);
+                        // implicit call to flush may be gated by semaphore
+                        // so force call to flushInternal directly instead
+                        flushInternal(session);
+                    } catch (Exception e) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Caught exception {} on session {} while attaching writer or flushing", e,
+                                    session);
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("Exception stack trace: ", e);
                             }
                         }
-                    };
+                        session.close(true);
+                    }
+                }
+            };
         }
         throw new RuntimeException("No connect listener available for address "+address);
 
@@ -327,14 +354,14 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         protected void doExceptionCaught(HttpSession session, Throwable cause) throws Exception {
             // Does not appear to be an easy way to access the wsebSession and it might not be the upstream's
             // job anyhow.  If we get an exception fired here we will log one line unless trace is enabled.
-            if (LOGGER.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 String message = format("Exception while handling HTTP upstream for WseConnectProcessor: %s", cause);
-                if (LOGGER.isTraceEnabled()) {
+                if (logger.isTraceEnabled()) {
                     // note: still debug level, but with extra detail about the exception
-                    LOGGER.debug(message, cause);
+                    logger.debug(message, cause);
                 }
                 else {
-                    LOGGER.debug(message);
+                    logger.debug(message);
                 }
             }
             session.close(true);

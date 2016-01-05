@@ -36,15 +36,12 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.SocketAddressFactory;
 import org.slf4j.Logger;
 
 public abstract class AbstractBioConnector<T extends SocketAddress> implements BridgeConnector {
-    private static final String FAULT_LOGGING_FILTER = "#fault";
-    private static final String TRACE_LOGGING_FILTER = "#logging";
 
     private IoConnector connector;
     private SocketAddressFactory<T> socketAddressFactory;
@@ -64,14 +61,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         connector.setHandler(new BridgeConnectHandler() {
             @Override
             public void sessionCreated(IoSession session) throws Exception {
-                if (logger.isTraceEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + TRACE_LOGGING_FILTER,
-                            new ObjectLoggingFilter(logger, getTransportName() + "#%s"));
-                } else if (logger.isDebugEnabled()) {
-                    session.getFilterChain().addLast(getTransportName() + FAULT_LOGGING_FILTER,
-                            new ExceptionLoggingFilter(logger, getTransportName() + "#%s"));
-                }
-
+                LoggingFilter.addIfNeeded(logger, session, getTransportName());
                 super.sessionCreated(session);
             }
         });

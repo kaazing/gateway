@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>mina-parent</artifactId>
-        <version>5.0.1.39</version>
+        <version>5.0.1.40</version>
     </parent>
 
     <scm>
@@ -22,12 +22,12 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mina-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>mina-integration-beans</artifactId>
             <version>${project.version}</version>
         </dependency>

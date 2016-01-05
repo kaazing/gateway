@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.39</version>
+        <version>5.0.1.40</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.transport.wseb</artifactId>
@@ -108,6 +108,12 @@
             <artifactId>gateway.test.ca</artifactId>
             <version>[1.0.0.0,1.1.0.0)</version>
             <classifier>keystore</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>gateway.transport.wsn</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

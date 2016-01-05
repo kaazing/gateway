@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.0.1.39</version>
+    <version>5.0.1.40</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -28,7 +28,7 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-3</k3po.version>
+        <k3po.version>3.0.0-alpha-8</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
@@ -39,7 +39,7 @@
     <modules>
         <module>bridge</module>
         <module>bom</module>
-        <!--<module>docker</module>-->
+        <!--<module>docker</module> -->
         <module>distribution</module>
         <module>management</module>
         <module>resource.address/spi</module>
@@ -211,7 +211,8 @@
         <pluginManagement>
             <plugins>
 
-                <!-- Adds properties to manifest which are used for finding duplicate jars on classpath -->
+                <!-- Adds properties to manifest which are used for finding 
+                    duplicate jars on classpath -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -220,10 +221,16 @@
                             <manifestEntries>
                                 <Implementation-Title>${project.name}</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
-                                <Artifact-Name>${groupId}:${artifactId}</Artifact-Name>
+                                <Artifact-Name>${project.groupId}:${project.artifactId}</Artifact-Name>
                             </manifestEntries>
                         </archive>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19</version>
                 </plugin>
 
                 <!-- Ignore/Execute plugin execution by m2e in Eclipse -->
@@ -453,10 +460,9 @@
                     </instrumentation>
                 </configuration>
             </plugin>
-            <!--
-                Here only to turn off linting in Java Doc as for Java 8, this should
-                be removed when https://github.com/kaazing/gateway/issues/157 is fixed
-            -->
+            <!-- Here only to turn off linting in Java Doc as for Java 8, 
+                this should be removed when https://github.com/kaazing/gateway/issues/157 
+                is fixed -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

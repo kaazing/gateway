@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.service.IoProcessorEx;
@@ -30,11 +32,14 @@ import org.kaazing.mina.core.session.IoSessionConfigEx;
 
 public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?, ?>> extends AbstractBridgeService<S> implements BridgeConnector {
 
+    protected final Logger logger;
     private final AtomicBoolean started;
     
     protected AbstractBridgeConnector(IoSessionConfigEx sessionConfig) {
         super(sessionConfig);
-        
+
+        this.logger = LoggerFactory.getLogger(String.format("transport.%s.connect", getTransportMetadata().getName()));
+
         started = new AtomicBoolean(false);
     }
 
@@ -83,4 +88,10 @@ public abstract class AbstractBridgeConnector<S extends AbstractBridgeSession<?,
     }
 
     protected abstract <T extends ConnectFuture> ConnectFuture connectInternal(ResourceAddress address, IoHandler handler, IoSessionInitializer<T> initializer);
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
+
 }
