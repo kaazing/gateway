@@ -321,7 +321,7 @@ public class BroadcastServiceTest {
                 while (running) {
                     numBytes = in.read(b);
                     if (numBytes < 0) {
-                        System.out.println(format("TestClient %d:  EOF, done reading, quitting client", numBytes));
+                        System.out.println(format("TestClient %d:  EOF, done reading, quitting client", clientNumber));
                         break;
                     }
 
