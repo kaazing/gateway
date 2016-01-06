@@ -237,6 +237,8 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
         IoSessionEx parent = this.parent.get();
         if (parent != null) {
+            System.out.println("JITU ***** " + this + " AbstractBridgeSession#setIoAlignment0 from" +  getIoThread() + " to = " + ioThread);
+
             parent.setIoAlignment(ioThread, ioExecutor);
         }
     }
