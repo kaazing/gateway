@@ -37,6 +37,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -59,15 +60,13 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
@@ -82,8 +81,6 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
@@ -414,10 +411,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             ResourceAddress writeAddress =  httpxeAddress.resolve(writeUri.getPath());
 
             String writeSessionIdentity = format("%s#%su", getTransportMetadata().getName(), wsebSession.getId());
-            //IdentityResolver resolver = new FixedIdentityResolver(writeSessionIdentity);
+            IdentityResolver resolver = new FixedIdentityResolver(writeSessionIdentity);
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(writeAddress);
-            //options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             return resourceAddressFactory.newResourceAddress(writeAddress.getResource(), options);
         }
 
@@ -426,10 +423,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             ResourceAddress readAddress =  httpxeAddress.resolve(readUri.getPath());
 
             String readSessionIdentity = format("%s#%sd", getTransportMetadata().getName(), wsebSession.getId());
-            //IdentityResolver resolver = new FixedIdentityResolver(readSessionIdentity);
+            IdentityResolver resolver = new FixedIdentityResolver(readSessionIdentity);
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(readAddress);
-            //options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             return resourceAddressFactory.newResourceAddress(readAddress.getResource(), options);
         }
 
@@ -450,6 +447,19 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         }
 
     };
+
+    /**
+     * Method setting resolver options for upstream/downstream resource addresses
+     * @param wsebSessionIdentity
+     * @param suffix
+     * @return
+     */
+    private ResourceOptions createResolverOptions(String wsebSessionIdentity, String suffix) {
+        final IdentityResolver resolver = new FixedIdentityResolver(wsebSessionIdentity + suffix);
+        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+        options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+        return options;
+    }
 
      private IoHandler selectReadHandler(ResourceAddress readAddress) {
             Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(readAddress.getResource());
@@ -558,4 +568,18 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             }
         }
     };
+
+    private static class FixedIdentityResolver extends IdentityResolver {
+        final String identity;
+
+        private FixedIdentityResolver(String identity) {
+            this.identity = identity;
+        }
+
+        @Override
+        public String resolve(Subject subject) {
+            return identity;
+        }
+
+    }
 }

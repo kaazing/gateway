@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.40...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.41...HEAD)
+
+**Merged pull requests:**
+
+- Forward port to 5.x: Minor test fix for ITest failing intermittently \#103 [\#380](https://github.com/kaazing/gateway/pull/380) ([msalavastru](https://github.com/msalavastru))
+- Removed redundant itests and added a new spec test. [\#359](https://github.com/kaazing/gateway/pull/359) ([NicoletaOita](https://github.com/NicoletaOita))
+
+## [5.0.1.41](https://github.com/kaazing/gateway/tree/5.0.1.41) (2016-01-05)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.40...5.0.1.41)
 
 **Merged pull requests:**
 

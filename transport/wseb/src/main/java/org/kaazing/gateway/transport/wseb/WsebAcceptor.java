@@ -46,6 +46,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
+import javax.security.auth.Subject;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -77,6 +78,7 @@ import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -414,7 +416,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
         @Override
         protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
-        	// validate WebSocket version
+            // validate WebSocket version
             if (! validWsebVersion(session)) return;
 
             String contentLengthStr = session.getReadHeader("Content-Length");
@@ -684,14 +686,22 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             // upstream and downstream requests shouldn't go through authentication/authorization
             // as the create request already went through it and established wseb session
+         // But for logging purposes we do want to set an IdentityResolver
+            String wsebSessionIdentity = format("%s#%d", getTransportMetadata().getName(), wsebSession.getId());
+            final IdentityResolver downstreamResolver = new FixedIdentityResolver(wsebSessionIdentity + "d");
             // tcp | http | httpxe | wse - apply no security to http layer
-            ResourceAddress httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress);
+            ResourceAddress httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress, downstreamResolver);
 
             // tcp | http | wse - apply no security to http layer, also sets the httpxe alternate
-            ResourceAddress httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress);
+            ResourceAddress httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress, downstreamResolver);
 
             ResourceAddress localDownstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), downstreamSuffix + sessionIdSuffix));
             logger.trace("Binding "+localDownstream.getTransport()+" to downstreamHandler");
+
+            // Now repeat for upstream
+            final IdentityResolver upstreamResolver = new FixedIdentityResolver(wsebSessionIdentity + "u");
+            httpxeBaseAddress = httpxeAddressNoSecurity(httpxeAddress, upstreamResolver);
+            httpBaseAddress = httpAddressNoSecurity(httpAddress, httpxeBaseAddress, upstreamResolver);
 
             ResourceAddress localUpstream = httpBaseAddress.resolve(createResolvePath(httpBaseAddress.getResource(), upstreamSuffix + sessionIdSuffix));
             logger.trace("Binding "+localUpstream.getTransport()+" to upstreamHandler");
@@ -745,18 +755,25 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             wsebSession.scheduleTimeout(scheduler);
         }
 
-        private ResourceAddress httpAddressNoSecurity(ResourceAddress httpAddress, ResourceAddress httpxeAddressNoSecurity) {
+        private ResourceAddress httpAddressNoSecurity(ResourceAddress httpAddress, ResourceAddress httpxeAddressNoSecurity, IdentityResolver resolver) {
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
             noSecurityOptions.setOption(ALTERNATE, httpxeAddressNoSecurity);
+
+            noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+            noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
+
             return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
 
-        private ResourceAddress httpxeAddressNoSecurity(ResourceAddress httpxeAddress) {
+        private ResourceAddress httpxeAddressNoSecurity(ResourceAddress httpxeAddress, IdentityResolver resolver) {
             // Remove REALM_NAME option at http layer (upstream and downstream requests shouldn't have to
             // go through authentication/authorization)
             ResourceAddress httpAddress = httpxeAddress.getTransport();
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
+
+            noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+
             ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
                     httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
 
@@ -765,6 +782,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // to different origin security constraints. Then finally add http as transport to httpxe
             ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeAddress);
             httpxeOptions.setOption(TRANSPORT, httpAddressNoSecurity);
+
+            httpxeOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
+
             httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
 
             return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
@@ -1028,5 +1048,19 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
         }
     };
+
+    private static class FixedIdentityResolver extends IdentityResolver {
+        final String identity;
+
+        private FixedIdentityResolver(String identity) {
+            this.identity = identity;
+        }
+
+        @Override
+        public String resolve(Subject subject) {
+            return identity;
+        }
+
+    }
 
 }

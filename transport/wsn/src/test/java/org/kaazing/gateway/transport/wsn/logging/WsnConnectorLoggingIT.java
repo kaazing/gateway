@@ -38,8 +38,10 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
+import org.junit.rules.Timeout;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -111,8 +113,8 @@ public class WsnConnectorLoggingIT {
                         return null;
                     }
                 });
-                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -188,14 +190,14 @@ public class WsnConnectorLoggingIT {
         assertTrue(close.await(10, SECONDS));
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*CLOSED",
-            "wsn#.*OPENED",
-            "wsn#.*CLOSED"
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "wsn#.* [^/]*:\\d*] OPENED",
+            "wsn#.* [^/]*:\\d*] CLOSED"
         }));
 
         forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
