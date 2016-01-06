@@ -212,7 +212,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new TcpResourceAddress(original, location);
+        return new TcpResourceAddress(this, original, location);
     }
 
     @Override

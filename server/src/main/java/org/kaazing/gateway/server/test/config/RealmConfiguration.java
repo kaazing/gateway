@@ -19,6 +19,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +39,8 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
     private final List<Suppressible<String>> httpHeaders = new ArrayList<>();
     private final List<Suppressible<String>> httpQueryParameters = new ArrayList<>();
     private final List<Suppressible<String>> httpCookies = new ArrayList<>();
+    private final List<Suppressible<String>> userPrincipalClasses = new ArrayList<Suppressible<String>>();
+    private final List<String> unsuppressibleUserPrincipalClasses = Suppressibles.unsuppressibleList(userPrincipalClasses);
     private final List<LoginModuleConfiguration> loginModules = new LinkedList<>();
     private final List<String> unsuppressibleHttpHeaders = Suppressibles.unsuppressibleList(httpHeaders);
     private final List<String> unsuppressibleHttpQueryParameters = Suppressibles
@@ -174,6 +177,15 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
         _extendedProperties.put(name, new Suppressible<>(value));
     }
 
+    //user principal classes
+    public List<String> getUserPrincipalClasses() {
+        return Collections.unmodifiableList(unsuppressibleUserPrincipalClasses);
+    }
+
+    public void addUserPrincipalClass(String userPrincipalClass) {
+        unsuppressibleUserPrincipalClasses.add(userPrincipalClass);
+    }
+
     private class SuppressibleRealmConfigurationImpl extends SuppressibleRealmConfiguration {
         private Set<Suppression> _suppressions;
 
@@ -276,6 +288,16 @@ public class RealmConfiguration implements Configuration<SuppressibleRealmConfig
         @Override
         public void setExtendedProperty(String name, Suppressible<String> value) {
             _extendedProperties.put(name, value);
+        }
+
+        @Override
+        public List<Suppressible<String>> getUserPrincipalClasses() {
+            return Collections.unmodifiableList(userPrincipalClasses);
+        }
+
+        @Override
+        public void addUserPrincipalClass(Suppressible<String> userPrincipalClass) {
+            userPrincipalClasses.add(userPrincipalClass);
         }
     }
 }

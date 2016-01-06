@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Copyright (c) 2007-2013, Kaazing Corporation. All rights reserved.
-
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-       <parent>
+    <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
         <version>develop-SNAPSHOT</version>
     </parent>
+
     <artifactId>test.util</artifactId>
     <name>Test Utils</name>
     <description>Miscellaneous test utilities for a variety of projects</description>
@@ -60,8 +57,8 @@
                         <phase>validate</phase>
                         <configuration>
                             <encoding>UTF-8</encoding>
-                            <!-- checkstyle doesn't like lambdas and·
-                                 exceptions and bails -->
+                            <!-- checkstyle doesn't like lambdas and· exceptions 
+                                and bails -->
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
                             <failOnViolation>true</failOnViolation>

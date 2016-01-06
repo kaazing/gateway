@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -53,7 +54,7 @@ public class WsxAcceptorLoggingIT {
                         .service()
                             .accept(URI.create("ws://localhost:8001/echo"))
                             .type("echo")
-                            .acceptOption("ws.inactivityTimeout", "1sec")
+                            .acceptOption("ws.inactivity.timeout", "1sec")
                         .done()
                     .done();
             // @formatter:on
@@ -65,6 +66,7 @@ public class WsxAcceptorLoggingIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
+    @Ignore("https://github.com/kaazing-private/gateway.server/issues/93")
     @Specification({
         "httpx/extended/connection.established.data.exchanged.close/request"
         })
@@ -82,7 +84,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*RECEIVED",
             "wsn#.*CLOSED"
         }));
-        
+
         List<String> forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
 
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
@@ -108,7 +110,7 @@ public class WsxAcceptorLoggingIT {
             "wsn#.*CLOSED"
         }));
         List<String> forbiddenPatterns = null;
-    
+
         MemoryAppender.assertMessagesLogged(expectedPatterns, forbiddenPatterns, ".*\\[.*#.*].*", true);
     }
 }

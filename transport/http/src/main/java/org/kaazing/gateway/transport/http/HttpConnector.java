@@ -98,7 +98,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
-    private final ConcurrentHashSet<Executor> ioExecutors;
     private Properties configuration;
 
     public HttpConnector() {
@@ -111,7 +110,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         this.connectFiltersByProtocol = unmodifiableMap(connectFiltersByProtocol);
         this.allConnectFilters = allOf(HttpConnectFilter.class);
         this.persistentConnectionsStore = new PersistentConnectionPool(logger);
-        this.ioExecutors = new ConcurrentHashSet<>();
     }
     
     @Resource(name = "bridgeServiceFactory")
@@ -152,13 +150,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         final ResourceAddress transportAddress = address.getTransport();
 
         if (transportAddress != null) {
-            Executor ioExecutor = null;
-            boolean ioAligned = isIoAligned();
-            if (!ioAligned) {
-                ioExecutor = getIoExecutor();
-            }
-
-            if (ioAligned || ioExecutor == null) {
+            Executor ioExecutor = org.kaazing.mina.core.session.AbstractIoSessionEx.CURRENT_WORKER.get();
+            if (ioExecutor == null) {
                 connectInternal0(connectFuture, address, handler, initializer);
             } else {
                 ioExecutor.execute(new Runnable() {
@@ -171,28 +164,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         }
 
         return connectFuture;
-    }
-
-    // Returns a random Executor from the available ones
-    // @return a random executor
-    //         otherwise null
-    private Executor getIoExecutor() {
-        Integer workerCount = null;
-        if (configuration != null) {
-            workerCount = InternalSystemProperty.TCP_PROCESSOR_COUNT.getIntProperty(configuration);
-        }
-
-        if (workerCount != null && !ioExecutors.isEmpty()) {
-            int index = ThreadLocalRandom.current().nextInt(workerCount);
-            int i = 0;
-            for (Executor ioExecutor : ioExecutors) {
-                if (i == index) {
-                    return ioExecutor;
-                }
-                i = i + 1;
-            }
-        }
-        return null;
     }
 
     private <T extends ConnectFuture> void connectInternal0(ConnectFuture connectFuture,
@@ -235,9 +206,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 // fail bridge connect future if parent connect fails
                 if (!future.isConnected()) {
                     connectFuture.setException(future.getException());
-                } else {
-                    IoSessionEx session = (IoSessionEx)future.getSession();
-                    ioExecutors.add(session.getIoExecutor());
                 }
             }
         };
