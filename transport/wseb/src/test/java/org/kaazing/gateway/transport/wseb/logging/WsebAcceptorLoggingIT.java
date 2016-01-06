@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -37,7 +40,6 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
@@ -76,6 +78,14 @@ public class WsebAcceptorLoggingIT {
                         .done()
                     .done();
             // @formatter:on
+
+            Properties log4j = new Properties();
+            log4j.setProperty("log4j.rootLogger", "INFO, A1");
+            log4j.setProperty("log4j.appender.A1", "org.kaazing.test.util.MemoryAppender");
+            log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
+            log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
+            PropertyConfigurator.configure(log4j);
+
             init(configuration);
         }
     };
@@ -83,6 +93,32 @@ public class WsebAcceptorLoggingIT {
     @Rule
     public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
             .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
+
+    @Test
+    @Specification({
+        "control/client.send.invalid.ping/request"
+        })
+    //@Ignore("gateway#390 + k3po#282: WSE specification does not specify the behavior for invalid upstream command frames")
+    public void shouldLogProtocolException() throws Exception {
+        k3po.finish();
+
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*WRITE",
+            "http#.*RECEIVED",
+            "http#.*EXCEPTION",
+            "http#.*CLOSED",
+            "wseb#.*OPENED",
+            "wseb#.*IOException.*caused by.*Protocol.*Exception",
+            "wseb#.*CLOSED"
+        }));
+
+        forbiddenPatterns = Collections.emptyList();
+    }
 
     @Test
     @Specification({

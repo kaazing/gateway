@@ -18,6 +18,8 @@ package org.kaazing.gateway.transport.wseb;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 
+import java.io.IOException;
+
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -55,7 +57,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         this(nextProtocolAddress, wsebSession, null, wsMaxMessageSize);
     }
 
-    public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding, 
+    public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding,
                                int wsMaxMessageSize) {
         this.wsebSession = wsebSession;
         this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize);
@@ -122,7 +124,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         WsebSession wsebSession = getSession(session);
         WsMessage wsebMessage = (WsMessage)message;
         IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
-        
+
         switch (wsebMessage.getKind()) {
         case COMMAND:
             for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {
@@ -148,15 +150,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-        if (logger.isDebugEnabled()) {
-            String message = format("Exception while handling HTTP upstream for WsebSession: %s", getSession(session));
-            if (logger.isTraceEnabled()) {
-                // note: still debug level, but with extra detail about the exception
-                logger.debug(message, cause);
-            } else {
-                logger.debug(message);
-            }
-        }
+        wsebSession.setCloseException(cause);
         session.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
         session.close(true);
     }
@@ -167,7 +161,8 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         WsebSession wsebSession = getSession(session);
         if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK) {
-            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+                    wsebSession.getCloseException()).fillInStackTrace());
         }
     }
 

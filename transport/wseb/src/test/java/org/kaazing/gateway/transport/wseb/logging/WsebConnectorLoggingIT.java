@@ -89,6 +89,46 @@ public class WsebConnectorLoggingIT {
 
     @Test
     @Specification({
+        "control/server.send.invalid.ping/response" })
+    @Ignore("gateway#387: WSE connector (WsebConnector) goes into infinite loop if a protocol error is detected on the reader")
+    public void shouldLogProtocolException() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        connectFuture.awaitUninterruptibly();
+
+        k3po.finish();
+
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*WRITE",
+            "http#.*RECEIVED",
+            "http#.*CLOSED",
+            "http#.*EXCEPTION.*IOException",
+            "wseb#.*OPENED",
+            "wseb#.*WRITE",
+            "wseb#.*RECEIVED",
+            "wseb#.*CLOSED"
+        }));
+
+        forbiddenPatterns = null;
+    }
+
+    @Test
+    @Specification({
         "data/binary/echo.payload.length.127/response" })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);

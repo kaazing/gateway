@@ -19,6 +19,7 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BINARY;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -108,7 +109,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         WsebSession wsebSession = getSession(session);
-        wsebSession.writerException = cause;
+        wsebSession.setCloseException(cause);
 
         session.close(true);
     }
@@ -116,8 +117,9 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
         WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.writerException != null)) {
-            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
+            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+                    wsebSession.getCloseException()).fillInStackTrace());
         }
 
         IoFilterChain filterChain = session.getFilterChain();

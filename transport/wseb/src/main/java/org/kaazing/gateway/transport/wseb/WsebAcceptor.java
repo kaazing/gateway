@@ -34,6 +34,7 @@ import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -871,7 +872,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         protected void doSessionClosed(HttpAcceptSession session) throws Exception {
             WsebSession wsebSession = SESSION_KEY.remove(session);
             if (wsebSession != null && !wsebSession.isClosing()) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
             }
 
             IoFilterChain filterChain = session.getFilterChain();

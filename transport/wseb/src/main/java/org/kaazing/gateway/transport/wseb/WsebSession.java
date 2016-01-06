@@ -137,8 +137,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private TransportSession transportSession;
 
-    volatile Throwable writerException;
-
     public WsebSession(int ioLayer,
                        Thread ioThread,
                        Executor ioExecutor,
