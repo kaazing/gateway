@@ -28,8 +28,10 @@ import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.server.test.GatewayRule;
@@ -37,7 +39,7 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.ITUtil;
+//import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
@@ -80,6 +82,8 @@ public class WsebAcceptorLoggingIT {
         }
     };
 
+    private TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
+
     @Rule
     public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
             .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
@@ -92,20 +96,25 @@ public class WsebAcceptorLoggingIT {
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*EXCEPTION",
-            "http#.*CLOSED",
-            "wseb#.*OPENED",
-            "wseb#.*WRITE",
-            "wseb#.*RECEIVED",
-            "wseb#.*EXCEPTION",
-            "wseb#.*CLOSED"
+             "tcp#.* [^/]*:\\d*] OPENED",
+             "tcp#.* [^/]*:\\d*] WRITE",
+             "tcp#.* [^/]*:\\d*] RECEIVED",
+             "tcp#.* [^/]*:\\d*] CLOSED",
+             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION",
+             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+             "http#.* [^/]*:\\d*] OPENED",
+             "http#.* [^/]*:\\d*] WRITE",
+             "http#.* [^/]*:\\d*] RECEIVED",
+             "http#.* [^/]*:\\d*] EXCEPTION",
+             "http#.* [^/]*:\\d*] CLOSED",
+             "wseb#.* [^/]*:\\d*] OPENED",
+             "wseb#.* [^/]*:\\d*] WRITE",
+             "wseb#.* [^/]*:\\d*] RECEIVED",
+             "wseb#.* [^/]*:\\d*] EXCEPTION",
+             "wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
         forbiddenPatterns = Collections.emptyList();
@@ -119,16 +128,16 @@ public class WsebAcceptorLoggingIT {
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*CLOSED",
-            "wseb#.*OPENED",
-            "wseb#.*CLOSED"
+             "\\[tcp#.* [^/]*:\\d*] OPENED",
+             "\\[tcp#.* [^/]*:\\d*] WRITE",
+             "\\[tcp#.* [^/]*:\\d*] RECEIVED",
+             "\\[tcp#.* [^/]*:\\d*] CLOSED",
+             "\\[http#.* [^/]*:\\d*] OPENED",
+             "\\[http#.* [^/]*:\\d*] WRITE",
+             "\\[http#.* [^/]*:\\d*] RECEIVED",
+             "\\[http#.* [^/]*:\\d*] CLOSED",
+             "\\[wseb#.* [^/]*:\\d*] OPENED",
+             "\\[wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
         forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
