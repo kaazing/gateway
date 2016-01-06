@@ -29,6 +29,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPort;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 
 import java.net.URI;
 import java.util.Collection;
@@ -311,7 +312,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (options.hasOption(TRANSPORTED_URI)) {
             address.setOption0(TRANSPORTED_URI, options.getOption(TRANSPORTED_URI));
         }
-        
+
+        if (options.hasOption(IDENTITY_RESOLVER)) {
+            address.setOption0(IDENTITY_RESOLVER, options.getOption(IDENTITY_RESOLVER));
+        }
+
         if (qualifier != null || options.hasOption(QUALIFIER)) {
             address.setOption0(QUALIFIER, newQualifier);
         }
@@ -379,7 +384,12 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (transportedURI != null) {
             options.setOption(TRANSPORTED_URI, transportedURI);
         }
-        
+
+        IdentityResolver identityResolver = (IdentityResolver) optionsByName.remove(IDENTITY_RESOLVER.name());
+        if (identityResolver != null) {
+            options.setOption(IDENTITY_RESOLVER, identityResolver);
+        }
+
         // scheme-specific options
         parseNamedOptions0(location, options, optionsByName);
 

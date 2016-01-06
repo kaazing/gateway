@@ -32,6 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>gateway.resource.address.http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>gateway.transport</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -53,12 +58,6 @@
         </dependency>
 
         <!-- temporary dependencies for testing -->
-        <dependency>
-            <groupId>org.kaazing</groupId>
-            <artifactId>gateway.resource.address.http</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>gateway.resource.address.httpxe</artifactId>

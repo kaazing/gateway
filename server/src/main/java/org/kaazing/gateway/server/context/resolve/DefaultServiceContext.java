@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
 
 import java.io.ByteArrayOutputStream;
@@ -31,11 +32,11 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.Key;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -700,7 +701,8 @@ public class DefaultServiceContext implements ServiceContext {
                                 authenticationContext.getHttpCookieNames());
                         options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
                                 serviceRealmContext.getLoginContextFactory());
-
+                        options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+                                getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                         // We need this to support reading legacy service properties during authentication.
                         // authentication-connect, authentication-identifier, encryption.key.alias, service.domain
                         // The negotiate properties are replaced with client-side capabilities to use different
@@ -739,7 +741,8 @@ public class DefaultServiceContext implements ServiceContext {
                             authenticationContext.getHttpCookieNames());
                     options.put(format(optionPattern, LOGIN_CONTEXT_FACTORY),
                             serviceRealmContext.getLoginContextFactory());
-
+                    options.put(format(optionPattern, REALM_USER_PRINCIPAL_CLASSES.name()),
+                            getUserPrincipalClasses(serviceRealmContext.getUserPrincipalClasses()));
                     // see note above for why this is needed
                     options.put(format(optionPattern, AUTHENTICATION_CONNECT),
                             getProperties().get("authentication.connect"));
@@ -753,6 +756,27 @@ public class DefaultServiceContext implements ServiceContext {
                 }
             }
         }
+    }
+
+    /**
+     * Method converting String[] userPrincipalClasses to Class[]
+     * @param userPrincipalClasses
+     * @return
+     */
+   private Collection<Class<? extends Principal>> getUserPrincipalClasses(String[] userPrincipalClasses) {
+       Collection<Class<? extends Principal>> userPrincipals = new ArrayList<Class<? extends Principal>>();
+       for (String item : serviceRealmContext.getUserPrincipalClasses()) {
+           try {
+               userPrincipals.add(Class.forName(item).asSubclass(Principal.class));
+           } catch (ClassNotFoundException e) {
+               throw new RuntimeException(
+                     format("%s%s%s", "Class ", item,
+                            " could not be loaded. Please check the gateway configuration xml and confirm that"
+                            + " user-principal-class value(s) are spelled correctly for realm "
+                            + serviceRealmContext.getName() + "."), new ClassNotFoundException(e.getMessage()));
+           }
+       }
+   return userPrincipals;
     }
 
     private Collection<URI> toHttpBalanceOriginURIs(Collection<URI> balances) {

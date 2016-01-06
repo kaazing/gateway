@@ -55,4 +55,8 @@ public abstract class SuppressibleRealmConfiguration implements SuppressibleConf
     public abstract Map<String, Suppressible<String>> getExtendedProperties();
 
     public abstract void setExtendedProperty(String name, Suppressible<String> value);
+
+    public abstract List<Suppressible<String>> getUserPrincipalClasses();
+
+    public abstract void addUserPrincipalClass(Suppressible<String> userPrincipalClass);
 }
