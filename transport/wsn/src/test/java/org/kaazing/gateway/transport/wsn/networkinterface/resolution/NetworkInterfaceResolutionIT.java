@@ -24,17 +24,13 @@ import java.util.Enumeration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NetworkInterfaceResolutionIT {
-    private static final Logger LOG = LoggerFactory.getLogger(ResolutionUtils.class);
     private static String networkInterface = "";
     static {
         try {
@@ -46,10 +42,12 @@ public class NetworkInterfaceResolutionIT {
                     break;
                 }
             }
+            if (networkInterface.equals("")) {
+            	throw new RuntimeException("No loopback interfaces could be found");
+            }
         } catch (SocketException socketEx) {
-            LOG.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
+            throw new RuntimeException("No interfaces could be found");
         }
-        LOG.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
     }
 
     private GatewayRule gateway = new GatewayRule() {
