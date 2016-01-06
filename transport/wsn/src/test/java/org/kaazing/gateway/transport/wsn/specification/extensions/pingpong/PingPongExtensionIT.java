@@ -64,8 +64,14 @@ public class PingPongExtensionIT {
     }
 
     @Test
-    @Specification({"should.escape.data.frame.starting.with.control.bytes/request" })
-    public void shouldEscapeDataFrameStartingWithControlBytes() throws Exception {
+    @Specification({"should.escape.text.frame.starting.with.control.bytes/request" })
+    public void shouldEscapeTextFrameStartingWithControlBytes() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({"should.not.escape.binary.frame/request" })
+    public void shouldNotEscapeBinaryFrame() throws Exception {
         k3po.finish();
     }
 
