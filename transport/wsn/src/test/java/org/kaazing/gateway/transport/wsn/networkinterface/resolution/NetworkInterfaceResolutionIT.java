@@ -16,45 +16,66 @@
 package org.kaazing.gateway.transport.wsn.networkinterface.resolution;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
+import java.util.Enumeration;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkInterfaceResolutionIT {
-    
+    private static final Logger LOG = LoggerFactory.getLogger(ResolutionUtils.class);
+    private static String networkInterface = "";
+    static {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
+                if (resolvedNetworkInterface.isLoopback()) {
+                    networkInterface = resolvedNetworkInterface.getDisplayName();
+                    break;
+                }
+            }
+        } catch (SocketException socketEx) {
+            LOG.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
+        }
+        LOG.debug("server", "Unable to resolve device URIs, processing URIs without device resolution.");
+    }
+
     private GatewayRule gateway = new GatewayRule() {
         {
             // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .cluster()
-                        	//TODO: Add support for strings in cluster accepts
-                            .accept("tcp://[@Software Loopback Interface 1]:2345")
+                            .accept("tcp://[@" + networkInterface + "]:2345")
                             .connect(URI.create("tcp://localhost:5432"))
                             .name("clusterName")
                         .done()
                         .service()
                             .accept("tcp://localhost:8003")
-                                .acceptOption("tcp.bind", "[@Software Loopback Interface 1]:7082")
+                                .acceptOption("tcp.bind", "[@" + networkInterface + "]:7082")
                             .connect(URI.create("tcp://localhost:8004"))
                             .type("proxy")
                         .done()
-//                        .service()
-//                            .accept("http://localhost:8110")
-//                                .acceptOption("http.transport", "tcp//[@Software Loopback Interface 1]:7081")
-//                            .connect(URI.create("http://localhost:8080"))
-//                            .type("proxy")
-//                        .done()
                         .service()
-                            .accept("tcp://[@Software Loopback Interface 1]:8001")
+                            .accept(URI.create("http://localhost:8110"))
+                                .acceptOption("http.transport", "tcp://[@" + networkInterface + "]:8111")
+                            .connect(URI.create("http://localhost:8080"))
+                            .type("proxy")
+                        .done()
+                        .service()
+                            .accept("tcp://[@" + networkInterface + "]:8001")
                             .connect(URI.create("tcp://localhost:8002"))
                             .type("proxy")
                             .crossOrigin()
@@ -92,7 +113,6 @@ public class NetworkInterfaceResolutionIT {
 
     @Specification("network.interface.accept.option.http.transport")
     @Test
-    @Ignore("TODO")
     public void networkInterfaceAcceptOptionHttpTransport() throws Exception {
         robot.finish();
     }

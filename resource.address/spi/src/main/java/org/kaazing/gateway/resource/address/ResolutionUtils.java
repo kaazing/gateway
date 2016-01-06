@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public final class ResolutionUtils {
-    private static final Boolean ALLOW_IPv6 = true;
     private static List<NetworkInterface> networkInterfaces = new ArrayList<NetworkInterface>();
     private static final Logger LOG = LoggerFactory.getLogger(ResolutionUtils.class);
     static {
@@ -56,16 +55,17 @@ public final class ResolutionUtils {
     /**
      * Method performing authority resolution
      * @param authority
+     * @param allowIPv6
      * @return
      */
-    public static List<String> resolveInterfaceAuthorityToAuthorityList(String authority) {
+    public static List<String> resolveInterfaceAuthorityToAuthorityList(String authority, boolean allowIPv6) {
         Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
 
         List<String> resolvedAuthorityValues = new ArrayList<String>();
         if (authority.lastIndexOf(':') > 0) {
             String host = authority.substring(0, authority.lastIndexOf(':'));
             String port = authority.substring(authority.lastIndexOf(':') + 1);
-            List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces);
+            List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
             for (String resolvedAddress : resolvedAddresses) {
                 resolvedAuthorityValues.add(resolvedAddress + ":" + port);
             }
@@ -80,10 +80,10 @@ public final class ResolutionUtils {
     /**
      * Method performing String to URI resolution
      * @param uri
-     * @param includeIPv6
+     * @param allowIPv6
      * @return
      */
-   public static List<URI> resolveStringUriToURIList(String uri) {
+   public static List<URI> resolveStringUriToURIList(String uri, boolean allowIPv6) {
        Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
 
         // The URI might be a device name/port, e.g. @eth0:5942 or [@eth0:1]:5942, so make sure to
@@ -95,7 +95,7 @@ public final class ResolutionUtils {
                 if (schemeAndHost.length == 2) {
                     String host = schemeAndHost[1].substring(0, schemeAndHost[1].lastIndexOf(':'));
                     String port = schemeAndHost[1].substring(schemeAndHost[1].lastIndexOf(':') + 1);
-                    List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces);
+                    List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
                     for (String resolvedAddress : resolvedAddresses) {
                         if (!schemeAndHost[0].equalsIgnoreCase("tcp") && !schemeAndHost[0].equalsIgnoreCase("udp")) {
                             throw new RuntimeErrorException(null, "Resolution scheme not tcp or udp for resolved address " +
@@ -117,10 +117,11 @@ public final class ResolutionUtils {
     * Method performing device address resolution
     * @param deviceName
     * @param networkInterfaces
+    * @param allowIPv6
     * @return
     */
    private static List<String> resolveDeviceAddress(String deviceName,
-           Enumeration<NetworkInterface> networkInterfaces) {
+           Enumeration<NetworkInterface> networkInterfaces, boolean allowIPv6) {
         List<String> resolvedAddresses = new ArrayList<String>();
         if (deviceName.startsWith("[@") && deviceName.endsWith("]")) {
             deviceName = deviceName.substring(2, deviceName.lastIndexOf(']'));
@@ -135,7 +136,7 @@ public final class ResolutionUtils {
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     if (inetAddress instanceof Inet6Address) {
-                        if (!ALLOW_IPv6) {
+                        if (!allowIPv6) {
                             continue;
                         }
                         String inet6HostAddress = inetAddress.getHostAddress();
@@ -149,7 +150,7 @@ public final class ResolutionUtils {
             // add an internal URI for any sub interfaces that match the hostAddress
             Enumeration<NetworkInterface> subInterfaces = networkInterface.getSubInterfaces();
             if ((subInterfaces != null) && subInterfaces.hasMoreElements()) {
-                resolvedAddresses.addAll(resolveDeviceAddress(deviceName, networkInterfaces));
+                resolvedAddresses.addAll(resolveDeviceAddress(deviceName, networkInterfaces, allowIPv6));
             }
         }
 

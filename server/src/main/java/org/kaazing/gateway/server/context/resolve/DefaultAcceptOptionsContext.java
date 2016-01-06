@@ -311,7 +311,7 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         List<URI> transportURIs = new ArrayList<>();
         String transport = options.get(transportKey);
         if (transport != null) {
-            transportURIs = ResolutionUtils.resolveStringUriToURIList(transport);
+            transportURIs = ResolutionUtils.resolveStringUriToURIList(transport, true);
             for (URI transportURI : transportURIs) {
                 if (!transportURI.isAbsolute()) {
                     throw new IllegalArgumentException(format(

@@ -747,7 +747,7 @@ public class GatewayContextResolver {
     private Collection<URI> resolveURIWithInterfaces(String[] acceptURIs) throws URISyntaxException {
         List<String> resolvedURIs = new ArrayList<>();
         for (String uri : acceptURIs) {
-            List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri);
+            List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri, true);
             for (URI resolvedURI : resolvedURIStrings) {
                 resolvedURIs.add(resolvedURI.toString());
             }
@@ -843,7 +843,7 @@ public class GatewayContextResolver {
         List<MemberId> memberIds = new ArrayList<>();
         if (collection != null) {
             for (String member : collection) {
-                List<URI> resolvedURIs = ResolutionUtils.resolveStringUriToURIList(member);
+                List<URI> resolvedURIs = ResolutionUtils.resolveStringUriToURIList(member, false);
                 for (URI resolvedURI : resolvedURIs) {
                     URI uri;
                     try {

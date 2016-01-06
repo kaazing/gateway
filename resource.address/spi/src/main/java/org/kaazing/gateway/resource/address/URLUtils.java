@@ -53,7 +53,7 @@ public class URLUtils {
         String path = uri.getPath();
         String query = uri.getQuery();
         String fragment = uri.getFragment();
-        List<String> authorities = ResolutionUtils.resolveInterfaceAuthorityToAuthorityList(newAuthority);
+        List<String> authorities = ResolutionUtils.resolveInterfaceAuthorityToAuthorityList(newAuthority, true);
         newAuthority = authorities.get(0);
         try {
             return new URI(scheme, newAuthority, path, query, fragment);
