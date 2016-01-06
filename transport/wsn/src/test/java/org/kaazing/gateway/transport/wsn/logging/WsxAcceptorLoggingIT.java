@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -65,6 +66,7 @@ public class WsxAcceptorLoggingIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
+    @Ignore("https://github.com/kaazing-private/gateway.server/issues/93")
     @Specification({
         "httpx/extended/connection.established.data.exchanged.close/request"
         })

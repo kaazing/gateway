@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wsn.auth;
+package org.kaazing.gateway.transport.wseb.logging;
 
 import java.security.Principal;
 import java.util.Map;
@@ -24,17 +24,19 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-/**
- *
- * A simple basic authentication login module. It also checks
- * execution thread and filter suspend/resume
- */
-public class AsyncBasicLoginModule implements LoginModule {
+import org.kaazing.gateway.security.auth.config.parse.DefaultUserConfig;
 
-    private static final int LOGIN_MODULE_TIME = 200;     // In ms
+/**
+ * A simple basic authentication login module.
+ */
+public class BasicLoginModuleWithDefaultUserConfig implements LoginModule {
+
+    private static final String TEST_PRINCIPAL_PASS = "testPrincipalPass";
+    private static final String TEST_PRINCIPAL_NAME = "testPrincipalName";
+    private DefaultUserConfig defaultPrincipal = new DefaultUserConfig();
 
     // initial state
-    protected Subject subject;
+    private Subject subject;
     private Map<String, ?> sharedState;
 
     // the authentication status
@@ -44,39 +46,25 @@ public class AsyncBasicLoginModule implements LoginModule {
     // testUser's RolePrincipal
     private RolePrincipal userPrincipal;
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler,
-            Map<String, ?> sharedState, Map<String, ?> options) {
+    public void initialize(Subject subject,
+                           CallbackHandler callbackHandler,
+                           Map<String, ?> sharedState,
+                           Map<String, ?> options) {
         this.subject = subject;
         this.sharedState = sharedState;
     }
 
     @Override
     public boolean login() throws LoginException {
-        // Verify the execution thread
-        String expectedThread = "gtwy_bg_tasks";
-        String gotThread = Thread.currentThread().getName();
-
-        if (!gotThread.startsWith(expectedThread)) {
-            throw new FailedLoginException("Wrong LoginContext task's execution thread, Expected="+
-                    expectedThread+", but Got="+gotThread);
-        }
-
-        // Add some sleep to test filter suspend/resume
-        try {
-            Thread.sleep(LOGIN_MODULE_TIME);
-        } catch (InterruptedException ie) {
-            throw new FailedLoginException("LoginContext task thread is interrupted");
-        }
-
         // verify the username/password
-        String username = (String)sharedState.get("javax.security.auth.login.name");
-        char[] password = (char[])sharedState.get("javax.security.auth.login.password");
-        if (username == null && password == null) {
+        String username = (String) sharedState.get("javax.security.auth.login.name");
+        char[] password = (char[]) sharedState.get("javax.security.auth.login.password");
+        if (username == null || password == null) {
             throw new FailedLoginException("No UserName/Password to authenticate");
         }
-        if (username.equals("joe") && password.length == 7 && password[0] == 'w' &&
-                password[1] == 'e' && password[2] == 'l' && password[3] == 'c' &&
-                password[4] == 'o' && password[5] == 'm' && password[6] == 'e') {
+        if (username.equals("joe") && password.length == 7 && password[0] == 'w' && password[1] == 'e'
+                && password[2] == 'l' && password[3] == 'c' && password[4] == 'o' && password[5] == 'm'
+                && password[6] == 'e') {
             // authentication succeeded!!!
             succeeded = true;
             return true;
@@ -96,6 +84,11 @@ public class AsyncBasicLoginModule implements LoginModule {
             userPrincipal = new RolePrincipal("USER");
             subject.getPrincipals().add(userPrincipal);
             commitSucceeded = true;
+
+            defaultPrincipal.setName(TEST_PRINCIPAL_NAME);
+            defaultPrincipal.setPassword(TEST_PRINCIPAL_PASS);
+            subject.getPrincipals().add(defaultPrincipal);
+
             return true;
         }
     }
@@ -122,6 +115,9 @@ public class AsyncBasicLoginModule implements LoginModule {
         succeeded = false;
         commitSucceeded = false;
         userPrincipal = null;
+
+        subject.getPrincipals().remove(defaultPrincipal);
+
         return true;
     }
 
@@ -140,20 +136,21 @@ public class AsyncBasicLoginModule implements LoginModule {
 
         @Override
         public String toString() {
-            return("Role:  " + name);
+            return "Role:  " + name;
         }
 
         @Override
         public boolean equals(Object o) {
-            if (o == null)
+            if (o == null) {
                 return false;
-
-            if (this == o)
+            }
+            if (this == o) {
                 return true;
-
-            if (!(o instanceof RolePrincipal))
+            }
+            if (!(o instanceof RolePrincipal)) {
                 return false;
-            RolePrincipal that = (RolePrincipal)o;
+            }
+            RolePrincipal that = (RolePrincipal) o;
 
             return this.getName().equals(that.getName());
         }
@@ -163,6 +160,5 @@ public class AsyncBasicLoginModule implements LoginModule {
             return name.hashCode();
         }
     }
-
 
 }

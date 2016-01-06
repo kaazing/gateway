@@ -161,6 +161,9 @@ public class Gateway {
             if (realm.getDescription() != null) {
                 newRealm.setDescription(realm.getDescription());
             }
+            for (String userPrincipalClass : realm.getUserPrincipalClasses()) {
+                newRealm.addUserPrincipalClass(userPrincipalClass);
+            }
 
             AuthenticationType authenticationType = newRealm.addNewAuthentication();
             if (realm.getHttpChallengeScheme() != null) {

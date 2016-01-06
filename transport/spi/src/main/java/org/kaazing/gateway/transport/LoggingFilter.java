@@ -15,25 +15,37 @@
  */
 package org.kaazing.gateway.transport;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URI;
 
+import javax.security.auth.Subject;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.service.IoAcceptor;
+import org.apache.mina.core.service.IoService;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
 import org.slf4j.Logger;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 
-import org.kaazing.gateway.transport.BridgeSession;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.transport.BridgeAcceptor;
+
 import org.kaazing.gateway.transport.bridge.Message;
+import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.gateway.util.Utils;
 
 public class LoggingFilter extends IoFilterAdapter {
 
+    private static final String HOST_PORT_FORMAT = "%s:%d";
     private final Logger logger;
     private final String format;
 
@@ -118,14 +130,16 @@ public class LoggingFilter extends IoFilterAdapter {
     }
 
     public static boolean addIfNeeded(Logger logger, IoSession session, String transportName) {
-        if (!logger.isWarnEnabled()) {
+        if (!logger.isInfoEnabled()) {
             return false;
         }
         String user = getUserIdentifier(session);
         String loggingFilterName = transportName + "#logging";
         String format = transportName + "#%s";
         if (user != null) {
-            format = format + " " + user;
+            // Escape % in user in case it contains a scoped ipv6 address like "fe80:0:0:0:90ea:3ee4:77ad:77ec%15:61641"
+            // so we have a valid format string
+            format = format + " " + user.replace("%", "%%");
         }
         if (logger.isTraceEnabled()) {
             session.getFilterChain().addLast(loggingFilterName, new ObjectLoggingFilter(logger, format));
@@ -342,28 +356,86 @@ public class LoggingFilter extends IoFilterAdapter {
 
     /**
      * Get a suitable identification for the user. For now this just consists of the TCP endpoint.
+     * the HTTP-layer auth principal, etc.
      * @param session
      * @return
      */
     static String getUserIdentifier(IoSession session) {
-        // LATER: use special public credential on Subject on the Session, set it in tcp transport layer (mina.netty)
-        //        and use the logged on subject user principal name if available
-        String userId = null;
-        if (InetSocketAddress.class == session.getTransportMetadata().getAddressType()) {
-            if (session.getService() instanceof IoAcceptor) {
-                userId = session.getRemoteAddress().toString();
+        IoService service = session.getService();
+        boolean isAcceptor = service instanceof IoAcceptor || service instanceof BridgeAcceptor;
+        SocketAddress hostPortAddress = isAcceptor ? session.getRemoteAddress() : session.getLocalAddress();
+        SocketAddress identityAddress = isAcceptor ? session.getLocalAddress() : session.getRemoteAddress();
+        String identity = resolveIdentity(identityAddress, (IoSessionEx)session);
+        String hostPort = getHostPort(hostPortAddress);
+        return identity == null ? hostPort : format("%s %s", identity, hostPort);
+    }
+
+    /**
+     * Method performing identity resolution - attempts to extract a subject from the current
+     * IoSessionEx session
+     * @param address
+     * @param session
+     * @return
+     */
+    private static String resolveIdentity(SocketAddress address, IoSessionEx session) {
+        if (address instanceof ResourceAddress) {
+            Subject subject = ((IoSessionEx)session).getSubject();
+            if (subject == null) {
+                subject = new Subject();
             }
-            else {
-                userId = session.getLocalAddress().toString();
-            }
+            return resolveIdentity((ResourceAddress) address, subject);
         }
-        else if (session instanceof BridgeSession) {
-            IoSession parent = ((BridgeSession)session).getParent();
-            if (parent != null) {
-                return getUserIdentifier(parent);
-            }
+        return null;
+    }
+
+    /**
+     * Method attempting to perform identity resolution based on the provided subject parameter and transport
+     * It is attempted to perform the resolution from the highest to the lowest layer, recursively.
+     * @param address
+     * @param subject
+     * @return
+     */
+    private static String resolveIdentity(ResourceAddress address, Subject subject) {
+        IdentityResolver resolver = address.getOption(IDENTITY_RESOLVER);
+        ResourceAddress transport = address.getTransport();
+        if (resolver != null) {
+            return resolver.resolve(subject);
         }
-        return userId;
+        if (transport != null) {
+            return resolveIdentity(transport, subject);
+        }
+        return null;
+    }
+
+    /**
+     * Method attempting to retrieve host port identifier
+     * @param address
+     * @return
+     */
+    private static String getHostPort(SocketAddress address) {
+        if (address instanceof ResourceAddress) {
+            ResourceAddress lowest = getLowestTransportLayer((ResourceAddress)address);
+            return format(HOST_PORT_FORMAT, lowest.getResource().getHost(), lowest.getResource().getPort());
+        }
+        if (address instanceof InetSocketAddress) {
+            InetSocketAddress inet = (InetSocketAddress)address;
+            // we don't use inet.toString() because it would include a leading /, for example "/127.0.0.1:21345"
+            // use getHostString() to avoid a reverse DNS lookup
+            return format(HOST_PORT_FORMAT, inet.getHostString(), inet.getPort());
+        }
+        return null;
+    }
+
+    /**
+     * Method returning lowest transport layer
+     * @param transport
+     * @return
+     */
+    private static ResourceAddress getLowestTransportLayer(ResourceAddress transport) {
+        if (transport.getTransport() != null) {
+            return getLowestTransportLayer(transport.getTransport());
+        }
+        return transport;
     }
 
     private static boolean shouldLog(Logger logger, LogLevel level) {
