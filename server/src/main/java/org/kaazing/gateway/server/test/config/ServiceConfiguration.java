@@ -50,7 +50,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private final Map<String, Suppressible<String>> properties;
     private final Map<String, String> unsuppressibleProperties;
     private final List<NestedServicePropertiesConfiguration> nestedProperties;
-	private final Set<String> unsuppressibleStringAccepts;
+    private final Set<String> unsuppressibleStringAccepts;
 
     public ServiceConfiguration() {
         _configuration = new SuppressibleServiceConfigurationImpl();

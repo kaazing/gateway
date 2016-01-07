@@ -116,7 +116,7 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
     }
 
     private class SuppressibleClusterConfigurationImpl extends SuppressibleClusterConfiguration {
-        private Set<Suppression> _suppressions;        
+        private Set<Suppression> _suppressions;
 
         @Override
         public Set<Suppression> getSuppressions() {
