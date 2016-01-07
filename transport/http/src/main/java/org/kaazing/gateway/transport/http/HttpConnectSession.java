@@ -21,14 +21,16 @@ import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.transport.UpgradeFuture;
 
 public interface HttpConnectSession extends HttpSession {
-	
+
     // TODO: add helper methods for setting parameters
     
 	void setRequestURI(URI requestURI);
 	
     void setMethod(HttpMethod method);
-    
+
     // setContentLength(int length);
-    
+
+    void setPathInfo(URI pathInfo);
+
     UpgradeFuture upgrade(IoHandler handler);
 }

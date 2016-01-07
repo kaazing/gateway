@@ -72,8 +72,11 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             HttpRequestMessage httpRequest = new HttpRequestMessage();
             httpRequest.setMethod(session.getMethod());
             String connectPath = resource.getPath();
-            String requestURI = connectPath + session.getRequestURI().toString();
-
+            String clientRequestPathInfo = "";
+            if (session.getPathInfo() != null) {
+                clientRequestPathInfo = session.getPathInfo().toString();
+            }
+            String requestURI = connectPath + clientRequestPathInfo;
             // if both paths are empty
             if (requestURI.equals("//")) {
                 requestURI = requestURI.replace("//", "/");

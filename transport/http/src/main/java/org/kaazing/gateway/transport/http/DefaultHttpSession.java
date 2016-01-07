@@ -474,6 +474,11 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     }
 
     @Override
+    public void setPathInfo(URI pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+
+    @Override
     public URI getRequestURL() {
         return requestURL;
     }

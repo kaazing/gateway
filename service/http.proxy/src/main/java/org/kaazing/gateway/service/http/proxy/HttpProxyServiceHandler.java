@@ -95,6 +95,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
             connectSession.setRequestURI(acceptSession.getRequestURI());
+            connectSession.setPathInfo(acceptSession.getPathInfo());
             processRequestHeaders(acceptSession, connectSession);
         }
 
