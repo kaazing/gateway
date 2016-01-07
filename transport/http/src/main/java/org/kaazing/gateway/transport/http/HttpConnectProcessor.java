@@ -71,17 +71,8 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
             // create HttpRequestMessage
             HttpRequestMessage httpRequest = new HttpRequestMessage();
             httpRequest.setMethod(session.getMethod());
-            String connectPath = resource.getPath();
-            String clientRequestPathInfo = "";
-            if (session.getPathInfo() != null) {
-                clientRequestPathInfo = session.getPathInfo().toString();
-            }
-            String requestURI = connectPath + clientRequestPathInfo;
-            // if both paths are empty
-            if (requestURI.equals("//")) {
-                requestURI = requestURI.replace("//", "/");
-            }
-            httpRequest.setRequestURI(URI.create(requestURI));
+ 
+            httpRequest.setRequestURI(constructRequestURI(resource, session));
             httpRequest.setVersion(session.getVersion());
             Map<String, List<String>> parameters = session.getParameters();
             if (!parameters.isEmpty()) {
@@ -114,6 +105,29 @@ public class HttpConnectProcessor extends BridgeConnectProcessor<DefaultHttpSess
         }
     }
 
+    /**
+     * Constructs the requestURI by appending the path from the client request to the path in the connect
+     * 
+     * @param resource  the URI from the ResourceAddress constructed from connect, containing the path info
+     * @param session  used to get the extra path info from the client request 
+     * 
+     * @return  the constructed request URI
+     */
+    private URI constructRequestURI(URI resource, DefaultHttpSession session) {
+        String connectPath = resource.getPath();
+        String clientRequestPathInfo = "";
+        if (session.getPathInfo() != null) {
+            clientRequestPathInfo = session.getPathInfo().toString();
+        }
+        String requestURI = connectPath + clientRequestPathInfo;
+        // if any of the paths are empty
+        if (requestURI.indexOf("//") != -1) {
+            requestURI = requestURI.replace("//", "/");
+        }
+
+        return  URI.create(requestURI);
+    }
+    
     @Override
     protected void flushInternal(final DefaultHttpSession session) {
         IoFilterChain filterChain = session.getFilterChain();
