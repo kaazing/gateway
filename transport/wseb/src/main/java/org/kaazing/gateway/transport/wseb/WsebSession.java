@@ -180,8 +180,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
     protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
-        System.out.println("JITU ********** wsebSession#setIoAlignment0 from" +  getIoThread() + " to = " + ioThread);
+        transportSession.setIoAlignment(ioThread, ioExecutor);
         super.setIoAlignment0(ioThread, ioExecutor);
+
+        // TODO shoud we detachWriter() too so that newly attached writer gets aligned by default ?
+        // TODO writer gets aligned now since it is parent. what about reader alignment ?
     }
 
     @Override
@@ -230,14 +233,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (ALIGN_DOWNSTREAM) {
                 final Thread ioThread = getIoThread();
                 final Executor ioExecutor = getIoExecutor();
-                System.out.println("JITU ***** " + newWriter + " attachWriter.1 from" +  newWriter.getIoThread() + " to = " + NO_THREAD);
-
                 newWriter.setIoAlignment(NO_THREAD, NO_EXECUTOR);
                 ioExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("JITU ***** " + newWriter + " attachWriter.2 from" +  newWriter.getIoThread() + " to = " + ioThread);
-
                         newWriter.setIoAlignment(ioThread, ioExecutor);
                         attachWriter0(newWriter);
                     }
@@ -402,14 +401,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (ALIGN_UPSTREAM) {
                 final Thread ioThread = getIoThread();
                 final Executor ioExecutor = getIoExecutor();
-                System.out.println("JITU ***** " + newReader + " attachReader.1 from" +  newReader.getIoThread() + " to = " + NO_THREAD);
-
                 newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
                 ioExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("JITU ***** " + newReader + " attachReader.2 from" +  newReader.getIoThread() + " to = " + ioThread);
-
                         newReader.setIoAlignment(ioThread, ioExecutor);
                         attachReader0(newReader);
                     }
@@ -969,7 +964,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         public void flush(TransportSession session) {
-            System.out.println("JITU ***** flush() wseb session thread = " + session.getWsebSession().getIoThread()+ " transport session thread "+session.getIoThread());
             processor.flush(session.getWsebSession());
 
         }
