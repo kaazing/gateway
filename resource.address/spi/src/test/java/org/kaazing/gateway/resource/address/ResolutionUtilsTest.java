@@ -27,7 +27,7 @@ import java.util.List;
 import org.junit.Test;
 
 public class ResolutionUtilsTest {
-	private static String networkInterface = "";
+    private static String networkInterface = "";
     static {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -39,27 +39,27 @@ public class ResolutionUtilsTest {
                 }
             }
             if (networkInterface.equals("")) {
-            	throw new RuntimeException("No loopback interfaces could be found");
+                throw new RuntimeException("No loopback interfaces could be found");
             }
         } catch (SocketException socketEx) {
             throw new RuntimeException("No interfaces could be found");
         }
     }
 
-	@Test
-	public void resolveInterfaceAuthorityToAuthorityList() {
-		String uri = "tcp://[@" + networkInterface + "]:2345";
-		List<URI> resolveStringUriToURIList = ResolutionUtils.resolveStringUriToURIList(uri, true);
-		assertNotNull(resolveStringUriToURIList);
-		assertTrue(resolveStringUriToURIList.size() > 0);
-	}
+    @Test
+    public void resolveInterfaceAuthorityToAuthorityList() {
+        String uri = "tcp://[@" + networkInterface + "]:2345";
+        List<URI> resolveStringUriToURIList = ResolutionUtils.resolveStringUriToURIList(uri, true);
+        assertNotNull(resolveStringUriToURIList);
+        assertTrue(resolveStringUriToURIList.size() > 0);
+    }
 
-	@Test
-	public void resolveStringUriToURIList() {
-		String uri = "tcp://[@" + networkInterface + "]:2345";
-		List<URI> resolveStringUriToURIList = ResolutionUtils.resolveStringUriToURIList(uri, true);
-		assertNotNull(resolveStringUriToURIList);
-		assertTrue(resolveStringUriToURIList.size() > 0);
-	}
+    @Test
+    public void resolveStringUriToURIList() {
+        String uri = "tcp://[@" + networkInterface + "]:2345";
+        List<URI> resolveStringUriToURIList = ResolutionUtils.resolveStringUriToURIList(uri, true);
+        assertNotNull(resolveStringUriToURIList);
+        assertTrue(resolveStringUriToURIList.size() > 0);
+    }
 
 }
