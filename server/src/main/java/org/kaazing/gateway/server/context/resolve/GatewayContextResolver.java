@@ -670,6 +670,13 @@ public class GatewayContextResolver {
                 }
                 serviceRegistry.register(acceptURI, serviceContext);
             }
+
+            // check for query in each connectURI
+            for (URI connectURI : connectURIs) {
+                if (connectURI.getQuery() != null) {
+                    throw new IllegalArgumentException("Query parameters are not allowed in connect");
+                }
+            }
         }
 
         for (ServiceContext ctxt : serviceContexts) {
