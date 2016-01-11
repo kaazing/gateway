@@ -107,13 +107,13 @@ public class ResourceAddressFactory {
         this.alternateAddressFactories = alternateAddressFactories;
     }
 
-    public ResourceAddress newResourceAddress(URI location) {
+    public ResourceAddress newResourceAddress(String location) {
         Map<String, Object> EMPTY_OPTIONS = Collections.emptyMap();
         return newResourceAddress(location, EMPTY_OPTIONS);
     }
 
     // convenience method only, consider removing from API
-    public ResourceAddress newResourceAddress(URI location, String nextProtocol) {
+    public ResourceAddress newResourceAddress(String location, String nextProtocol) {
         if (nextProtocol != null) {
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(NEXT_PROTOCOL, nextProtocol);
@@ -130,7 +130,7 @@ public class ResourceAddressFactory {
      * @param options cannot be null, otherwise NullPointerException is thrown
      * @return resource address
      */
-    public ResourceAddress newResourceAddress(URI location, ResourceOptions options) {
+    public ResourceAddress newResourceAddress(String location, ResourceOptions options) {
         return newResourceAddress(location, options, null /* qualifier */);
     }
 
@@ -140,24 +140,24 @@ public class ResourceAddressFactory {
      * @param options cannot be null, otherwise NullPointerException is thrown
      * @return resource address
      */
-    public ResourceAddress newResourceAddress(URI location,
+    public ResourceAddress newResourceAddress(String location,
                                               ResourceOptions options,
                                               Object qualifier) {
         Objects.requireNonNull(options, "options cannot be null");
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, qualifier);
     }
 
 
-    public ResourceAddress newResourceAddress(URI location, Map<String, Object> options) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+    public ResourceAddress newResourceAddress(String location, Map<String, Object> options) {
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, ResourceOptions.FACTORY);
     }
 
-    public ResourceAddress newResourceAddress(final URI location,
+    public ResourceAddress newResourceAddress(final String location,
                                               final Map<String, Object> options,
                                               final String nextProtocol) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(location.getScheme());
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
         if (nextProtocol != null) {
             return resourceAddressFactory.newResourceAddress(location, options, new ResourceOptions.Factory() {
 
@@ -186,7 +186,7 @@ public class ResourceAddressFactory {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(TRANSPORT, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
-        return newResourceAddress(uriAddress.getResource(),options);
+        return newResourceAddress(uriAddress.getResource().toString(),options);
     }
 
     private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {

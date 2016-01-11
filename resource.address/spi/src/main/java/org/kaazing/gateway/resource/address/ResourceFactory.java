@@ -19,5 +19,5 @@ import java.net.URI;
 
 public abstract class ResourceFactory {
     
-    public abstract URI createURI(URI location);
+    public abstract URI createURI(String location);
 }

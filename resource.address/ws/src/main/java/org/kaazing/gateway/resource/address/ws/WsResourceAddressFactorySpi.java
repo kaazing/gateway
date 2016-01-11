@@ -28,7 +28,6 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.TRANSPORT_NAME;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +40,7 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 
 public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsResourceAddress> {
 
@@ -82,7 +82,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseNamedOptions0(URI location,
+    protected void parseNamedOptions0(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
@@ -150,7 +150,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
         return this.alternateResourceFactories;
     }
 
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
@@ -163,12 +163,13 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             // create alternate addresses
 
             WsResourceAddress alternateAddress = null;
-            for (ResourceFactory resourceFactory: resourceFactories) {
+            // TODO: No URI here
+//            for (ResourceFactory resourceFactory: resourceFactories) {
                 alternateAddress = newResourceAddressWithAlternate(
-                        resourceFactory.createURI(location),
+                        location,//resourceFactory.createURI(location),
                         getNewOptionsByName(options, optionsByName),
                         alternateAddress);
-            }
+//            }
 
             // save the alternate chain into this address.
             options.setOption(ALTERNATE, alternateAddress);
@@ -176,11 +177,11 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
     }
 
     @Override
-    protected WsResourceAddress newResourceAddress0(URI original, URI location) {
+    protected WsResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
 
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));

@@ -33,12 +33,12 @@ import org.junit.Test;
 
 public class ResourceAddressFactoryTest {
 
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void setup() throws Exception {
-        addressURI = URI.create("test://opaque");
+        addressURI = "test://opaque";
         options = new HashMap<>();
         options.put(TRANSPORT.name(), URI.create("test://transport"));
     }
@@ -46,7 +46,7 @@ public class ResourceAddressFactoryTest {
     @Test (expected = IllegalArgumentException.class)
     public void shouldNotFindFactorySpiForUnregisteredScheme() {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
-        URI addressURI = URI.create("unregistered://opaque");
+        String addressURI = "unregistered://opaque";
         addressFactory.newResourceAddress(addressURI);
     }
 

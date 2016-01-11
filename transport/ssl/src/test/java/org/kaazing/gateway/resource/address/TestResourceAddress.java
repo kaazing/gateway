@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.resource.address;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ final class TestResourceAddress extends ResourceAddress {
 
     private String option;
 
-    TestResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
+    TestResourceAddress(ResourceAddressFactorySpi factory, String externalURI, String resourceURI) {
         super(factory, externalURI, resourceURI);
     }
 

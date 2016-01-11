@@ -55,8 +55,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     private final ResourceAddressFactorySpi factory;
     public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
-    private final URI externalURI;
-    private final URI resourceURI;
+    private final String externalURI;
+    private final String resourceURI;
 
     private String nextProtocol;
     private ResourceAddress transport;
@@ -68,23 +68,25 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private Boolean connectRequiresInit;
     private IdentityResolver identityResolver;
 
-    public ResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
+    public ResourceAddress(ResourceAddressFactorySpi factory, String externalURI, String resourceURI) {
         this.factory = Objects.requireNonNull(factory, "factory");
         this.externalURI = Objects.requireNonNull(externalURI, "externalURI");
         this.resourceURI = Objects.requireNonNull(resourceURI, "resourceURI");
     }
 
     // note: used by pipe://
-    protected ResourceAddress(ResourceAddressFactorySpi factory, URI resourceURI) {
+    protected ResourceAddress(ResourceAddressFactorySpi factory, String resourceURI) {
         this(factory, resourceURI, resourceURI);
     }
     
     public URI getResource() {
-        return resourceURI;
+    	//TODO
+        return URI.create(resourceURI);
     }
     
     public URI getExternalURI() {
-        return externalURI;
+    	//TODO
+        return URI.create(externalURI);
     }
     
     public ResourceAddress getTransport() {
@@ -216,7 +218,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         ResourceOptions newOptions = FACTORY.newResourceOptions(this);
         resolve(oldPath, newPath, newOptions);
 
-        return factory.newResourceAddress0(newExternalURI, newResourceURI, newOptions);
+        return factory.newResourceAddress0(newExternalURI.toString(), newResourceURI.toString(), newOptions);
     }
 
     protected void resolve(String oldPath, String newPath, ResourceOptions newOptions) {

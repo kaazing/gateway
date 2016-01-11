@@ -19,7 +19,6 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.sse.SseResourceAddress.TRANSPORT_NAME;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +26,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 
 public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseResourceAddress> {
 
@@ -62,11 +62,11 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
     }
     
     @Override
-	protected SseResourceAddress newResourceAddress0(URI original, URI location) {
+	protected SseResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
 
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
@@ -84,12 +84,13 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
 	}
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
         // Creating alternate SseResourceAddres with httpxe tranport
-        location = SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
+    	// TODO: No URI here?
+//        location = SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
         // copying optionsByName to so that the alternate address has its own to work with
         optionsByName = new HashMap<>(optionsByName);
         ResourceAddress alternateAddress = getResourceAddressFactory().newResourceAddress(location, optionsByName);

@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address.sse;
 
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,12 +46,13 @@ public class SseSslResourceAddressFactorySpi extends SseResourceAddressFactorySp
     }
 
     @Override
-    protected void setAlternateOption(URI location,
+    protected void setAlternateOption(String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
         // Creating alternate SseResourceAddres with httpxe+ssl tranport
-        location = SseHttpxeSslResourceAddressFactorySpi.SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
+    	// TODO: No URI here?
+//        location = SseHttpxeSslResourceAddressFactorySpi.SSE_HTTPXE_RESOURCE_FACTORY.createURI(location);
         // copying optionsByName to so that the alternate address has its own to work with
         optionsByName = new HashMap<>(optionsByName);
         ResourceAddress alternateAddress = getResourceAddressFactory().newResourceAddress(location, optionsByName);

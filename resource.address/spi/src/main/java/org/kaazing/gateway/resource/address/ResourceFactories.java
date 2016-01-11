@@ -43,8 +43,8 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
-            return URI.create(format("%s://%s", newScheme, location.getAuthority()));
+        public URI createURI(String location) {
+            return URI.create(format("%s://%s", newScheme, URIUtils.getAuthority(location)));
         }
     }
     
@@ -57,7 +57,7 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
+        public URI createURI(String location) {
             return modifyURIScheme(location, newScheme);
         }
     }

@@ -20,10 +20,9 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.rtmp.RtmpResourceAddress.TRANSPORT_NAME;
 
-import java.net.URI;
-
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
+import org.kaazing.gateway.resource.address.URIUtils;
 
 public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<RtmpResourceAddress> {
 
@@ -59,11 +58,11 @@ public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Rtm
     }
     
     @Override
-    protected RtmpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected RtmpResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
 
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));

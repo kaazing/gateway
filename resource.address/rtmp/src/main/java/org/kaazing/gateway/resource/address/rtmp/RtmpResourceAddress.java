@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.rtmp;
 
-import java.net.URI;
-
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 
@@ -26,7 +24,7 @@ public class RtmpResourceAddress extends ResourceAddress {
     
     private static final long serialVersionUID = 1L;
 
-    RtmpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+    RtmpResourceAddress(ResourceAddressFactorySpi factory, String original, String resource) {
         super(factory, original, resource);
     }
 

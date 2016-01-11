@@ -47,7 +47,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 import java.io.File;
 import java.net.URI;
 import java.security.Principal;
+
 import org.kaazing.gateway.resource.address.IdentityResolver;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.LoginContextFactory;
 
@@ -117,7 +120,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
     
     @SuppressWarnings("unchecked")
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
 
         Boolean keepAlive = (Boolean) optionsByName.remove(KEEP_ALIVE.name());
@@ -247,11 +250,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         }
     }
 
-    protected void setAlternateOption(final URI location,
+    protected void setAlternateOption(final String location,
                                       ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         String key = options.getOption(HttpResourceAddress.NEXT_PROTOCOL);
-        String scheme = location.getScheme();
+        String scheme = URIUtils.getScheme(location);
         final boolean secureScheme = "https".equals(scheme) || scheme.contains("+ssl");
         if (key != null && secureScheme) {
             key = key + " secure";
@@ -267,12 +270,13 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             // create alternate addresses
 
             HttpResourceAddress alternateAddress = null;
-            for (ResourceFactory resourceFactory: resourceFactories) {
+            // TODO: No resource factories iteration here 
+//            for (ResourceFactory resourceFactory: resourceFactories) {
                 alternateAddress = newResourceAddressWithAlternate(
-                        resourceFactory.createURI(location),
+                        location,
                         getNewOptionsByName(options, optionsByName),
                         alternateAddress);
-            }
+//            }
 
             // save the alternate chain into this address.
             options.setOption(ResourceAddress.ALTERNATE, alternateAddress);
@@ -280,11 +284,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
     }
 
     @Override
-    protected HttpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected HttpResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
 
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));

@@ -43,6 +43,7 @@ import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 
 public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpResourceAddress> {
 
@@ -74,9 +75,10 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     }
 
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String locationString, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         
+        URI location = URI.create(locationString);
         Object bindAddress = optionsByName.remove(BIND_ADDRESS.name());
         if (bindAddress != null) {
             InetSocketAddress bindAddress0 = parseBindAddress(bindAddress);
@@ -112,8 +114,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     }
 
     @Override
-    protected List<TcpResourceAddress> newResourceAddresses0(URI original,
-                                                             URI location,  ResourceOptions options) {
+    protected List<TcpResourceAddress> newResourceAddresses0(String original,
+            String location,  ResourceOptions options) {
 
         InetSocketAddress bindSocketAddress = options.getOption(BIND_ADDRESS);
         if (bindSocketAddress != null) {
@@ -123,7 +125,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             InetAddress bindAddress = bindSocketAddress.getAddress();
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
-            location = modifyURIAuthority(location, newAuthority);
+            location = (modifyURIAuthority(location, newAuthority)).toString();
         }
 
         // if tcp has a transport, do not resolve the authority.
@@ -136,7 +138,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
         assert (resolver != null);
         List<TcpResourceAddress> tcpAddresses = new LinkedList<>();
         try {
-            String host = location.getHost();
+            String host = URIUtils.getHost(location);
             Matcher matcher = PATTERN_IPV6_HOST.matcher(host);
             if (matcher.matches()) {
                 host = matcher.group(1);
@@ -178,8 +180,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             for (InetAddress inetAddress : sortedInetAddresses) {
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
-                String newAuthority = format(addressFormat, ipAddress, location.getPort());
-                location = modifyURIAuthority(location, newAuthority);
+                String newAuthority = format(addressFormat, ipAddress, URIUtils.getPort(location));
+                location = (modifyURIAuthority(location, newAuthority)).toString();
                 TcpResourceAddress tcpAddress = super.newResourceAddress0(original, location, options);
 
 
@@ -187,18 +189,18 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", location.getHost()), e);
+            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", URIUtils.getHost(location)), e);
         }
  
         return tcpAddresses;
     }
 
     @Override
-    protected TcpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected TcpResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
         
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));

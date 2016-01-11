@@ -31,6 +31,7 @@ import java.util.Map;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.KeySelector;
 
 public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslResourceAddress> {
@@ -62,7 +63,7 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     }
     
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         
         String[] ciphers = (String[]) optionsByName.remove(CIPHERS.name());
@@ -98,10 +99,10 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     }
     
     @Override
-    protected SslResourceAddress newResourceAddress0(URI original, URI location) {
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
+    protected SslResourceAddress newResourceAddress0(String original, String location) {
+        String host = URIUtils.getHost(location);
+        int port = URIUtils.getPort(location);
+        String path = URIUtils.getPath(location);
         
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));

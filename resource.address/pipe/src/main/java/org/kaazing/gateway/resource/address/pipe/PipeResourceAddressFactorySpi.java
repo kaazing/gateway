@@ -21,6 +21,7 @@ import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
+import org.kaazing.gateway.resource.address.URIUtils;
 
 public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<PipeResourceAddress> {
 
@@ -52,14 +53,14 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     }
 
     @Override
-    protected PipeResourceAddress newResourceAddress0(URI original, URI location) {
+    protected PipeResourceAddress newResourceAddress0(String original, String location) {
 
         // Unlike a normal-looking URI, our custom "pipe://" does not have
         // host/port/path components. Instead, the authority component
         // suffices.
 
-        String pipeName = location.getAuthority();
-        String pathName = location.getPath();
+        String pipeName = URIUtils.getAuthority(location);
+        String pathName = URIUtils.getPath(location);
         if (pipeName == null) {
             throw new IllegalArgumentException(String.format("URI %s missing pipe name", location));
         }
