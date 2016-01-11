@@ -16,9 +16,11 @@
 package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -41,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = "text/plain; charset=utf-8";
+    private static final Pattern CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = Pattern.compile("text/plain;\\s*charset=utf-8", CASE_INSENSITIVE);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String UTF8_FILTER = WsebProtocol.NAME + "#utf8";
@@ -85,7 +87,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (utf8 != null) {
             // Note: encoding filter needs to be closer to the network than the codec filter
             String contentType = session.getReadHeader(HEADER_CONTENT_TYPE);
-            if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.equalsIgnoreCase(contentType)) {
+            if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.matcher((contentType)).matches()) {
                 filterChain.addBefore(CODEC_FILTER, UTF8_FILTER, utf8);
             }
         }
