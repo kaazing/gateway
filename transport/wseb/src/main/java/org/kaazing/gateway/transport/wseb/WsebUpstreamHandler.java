@@ -154,7 +154,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
         wsebSession.setCloseException(cause);
         session.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
-        session.close(true);
+        wsebSession.close(true);
     }
 
     @Override
@@ -162,7 +162,8 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // session is long lived so we do not want to close it when the http session is closed
 
         WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK) {
+        if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK
+                && !wsebSession.isClosing()) {
             wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
                     wsebSession.getCloseException()).fillInStackTrace());
         }
