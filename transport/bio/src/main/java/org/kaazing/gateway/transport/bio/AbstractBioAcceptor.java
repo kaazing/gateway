@@ -205,7 +205,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = multicastAddress.getBindPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -213,7 +213,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String transportName = getTransportName();
                 String addressFormat = "%s://%s";
                 String pipeName = namedPipeAddress.getPipeName();
-                URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                String transport = format(addressFormat, transportName, pipeName);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -223,7 +223,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = inetSocketAddress.getPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
         });

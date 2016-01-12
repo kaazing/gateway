@@ -17,7 +17,6 @@ package org.kaazing.gateway.resource.address.udp;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -27,7 +26,6 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -106,7 +104,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             InetAddress bindAddress = bindSocketAddress.getAddress();
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
-            location = (modifyURIAuthority(location, newAuthority)).toString();
+            location = URIUtils.modifyURIAuthority(location, newAuthority);
         }
         
         // ensure that DNS name is resolved in transport address
@@ -157,7 +155,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
                 String newAuthority = format(addressFormat, ipAddress, URIUtils.getPort(location));
-                location = (modifyURIAuthority(location, newAuthority)).toString();
+                location = (URIUtils.modifyURIAuthority(location, newAuthority)).toString();
                 UdpResourceAddress udpAddress = super.newResourceAddress0(original, location, options);
                 udpAddresses.add(udpAddress);
             }

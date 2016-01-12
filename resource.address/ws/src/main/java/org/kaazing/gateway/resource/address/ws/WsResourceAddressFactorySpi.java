@@ -163,13 +163,12 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             // create alternate addresses
 
             WsResourceAddress alternateAddress = null;
-            // TODO: No URI here
-//            for (ResourceFactory resourceFactory: resourceFactories) {
+            for (ResourceFactory resourceFactory: resourceFactories) {
                 alternateAddress = newResourceAddressWithAlternate(
-                        location,//resourceFactory.createURI(location),
+                        resourceFactory.createURI(location),
                         getNewOptionsByName(options, optionsByName),
                         alternateAddress);
-//            }
+            }
 
             // save the alternate chain into this address.
             options.setOption(ALTERNATE, alternateAddress);

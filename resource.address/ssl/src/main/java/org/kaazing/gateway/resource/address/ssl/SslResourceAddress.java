@@ -19,7 +19,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Boolean.valueOf;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 

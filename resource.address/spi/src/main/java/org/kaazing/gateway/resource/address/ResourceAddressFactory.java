@@ -134,6 +134,10 @@ public class ResourceAddressFactory {
         return newResourceAddress(location, options, null /* qualifier */);
     }
 
+    public ResourceAddress newResourceAddress(URI location, ResourceOptions options) {
+        return newResourceAddress(location.toString(), options, null /* qualifier */);
+    }
+
     /**
      * Creates a new resource address for the given location and options
      *
@@ -186,7 +190,8 @@ public class ResourceAddressFactory {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(TRANSPORT, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
-        return newResourceAddress(uriAddress.getResource().toString(),options);
+        // TODO: Verify this implementation (toString)
+        return newResourceAddress(uriAddress.getResource().toString(), options);
     }
 
     private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {

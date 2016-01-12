@@ -270,13 +270,12 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             // create alternate addresses
 
             HttpResourceAddress alternateAddress = null;
-            // TODO: No resource factories iteration here 
-//            for (ResourceFactory resourceFactory: resourceFactories) {
+            for (ResourceFactory resourceFactory: resourceFactories) {
                 alternateAddress = newResourceAddressWithAlternate(
-                        location,
+                		resourceFactory.createURI(location),
                         getNewOptionsByName(options, optionsByName),
                         alternateAddress);
-//            }
+            }
 
             // save the alternate chain into this address.
             options.setOption(ResourceAddress.ALTERNATE, alternateAddress);

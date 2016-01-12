@@ -28,8 +28,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPort;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 
 import java.net.URI;
 import java.util.Collection;
@@ -107,17 +105,17 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
         // make the external port implicit
         if (URIUtils.getPort(external) == getSchemePort()) {
-            location = (modifyURIPort(location, -1)).toString();
+            location = URIUtils.modifyURIPort(location, -1);
         }
         
         // make the internal port explicit
         if (URIUtils.getPort(location) == -1) {
-            location = (modifyURIPort(location, getSchemePort())).toString();
+            location = URIUtils.modifyURIPort(location, getSchemePort());
         }
 
         // convert the scheme to transport
         if (!transportName.equals(getSchemeName())) {
-            location = (modifyURIScheme(location, transportName)).toString();
+            location = URIUtils.modifyURIScheme(location, transportName);
         }
 
         parseNamedOptions(location, options, optionsByName);
@@ -197,13 +195,13 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         
         // make the port explicit
         if (URIUtils.getPort(location) == -1) {
-            location = (modifyURIPort(location, getSchemePort())).toString();
+            location = URIUtils.modifyURIPort(location, getSchemePort());
         }
         
         // convert the scheme to transport
         String transportName = getTransportName();
         if (!transportName.equals(getSchemeName())) {
-            location = (modifyURIScheme(location, transportName)).toString();
+            location = URIUtils.modifyURIScheme(location, transportName);
         }
 
         // create a list of alternate addresses for this location
@@ -258,7 +256,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             if (transportURI == null) {
                 ResourceFactory factory = getTransportFactory();
                 if (factory != null) {
-                    transportURI = factory.createURI(location);
+                    transportURI = URI.create(factory.createURI(location));
                     newOptions.setOption(TRANSPORT_URI, transportURI);
                 }
             }
@@ -359,7 +357,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (transportURI == null) {
             ResourceFactory factory = getTransportFactory();
             if (factory != null) {
-                transportURI = factory.createURI(location);
+                transportURI = URI.create(factory.createURI(location));
             }
         }
         if (transportURI != null) {

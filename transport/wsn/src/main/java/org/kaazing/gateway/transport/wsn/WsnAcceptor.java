@@ -52,8 +52,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -131,6 +129,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 

@@ -43,10 +43,6 @@ public class URLUtils {
         }
     }
 
-    public static URI modifyURIScheme(String uri, String newScheme) {
-    	return modifyURIScheme(URI.create(uri), newScheme);
-    }
-
     public static URI modifyURIAuthority(URI uri, String newAuthority) {
         String authority = uri.getAuthority();
         if (newAuthority.equals(authority)) {
@@ -64,10 +60,6 @@ public class URLUtils {
             y.initCause(x);
             throw y;
         }
-    }
-
-    public static URI modifyURIAuthority(String uri, String newAuthority) {
-    	return modifyURIAuthority(URI.create(uri), newAuthority);
     }
 
     public static URI modifyURIPort(URI uri, int newPort) {
@@ -91,10 +83,6 @@ public class URLUtils {
         }
     }
 
-    public static URI modifyURIPort(String uri, int newPort) {
-    	return modifyURIPort(URI.create(uri), newPort);
-    }
-
     public static URI modifyURIPath(URI uri, String newPath) {
         String path = uri.getPath();
         if (newPath.equals(path)) {
@@ -112,10 +100,6 @@ public class URLUtils {
             y.initCause(x);
             throw y;
         }
-    }
-
-    public static URI modifyURIPath(String uri, String newPath) {
-    	return modifyURIPath(URI.create(uri), newPath);
     }
 
     public static URI ensureTrailingSlash(URI uri) {

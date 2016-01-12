@@ -80,12 +80,10 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     }
     
     public URI getResource() {
-    	//TODO
         return URI.create(resourceURI);
     }
     
     public URI getExternalURI() {
-    	//TODO
         return URI.create(externalURI);
     }
     
@@ -217,7 +215,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         URI newExternalURI = externalURI.resolve(newPath);
         ResourceOptions newOptions = FACTORY.newResourceOptions(this);
         resolve(oldPath, newPath, newOptions);
-
+        // TODO: Verify implementation below
         return factory.newResourceAddress0(newExternalURI.toString(), newResourceURI.toString(), newOptions);
     }
 

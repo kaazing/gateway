@@ -58,6 +58,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
@@ -78,7 +79,6 @@ import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -310,7 +310,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
         httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
         httpOptions.setOption(ALTERNATE, null);
-        return resourceAddressFactory.newResourceAddress(httpLocation, httpOptions);
+        // TODO: Check correctness 
+        return resourceAddressFactory.newResourceAddress(httpLocation.toString(), httpOptions);
     }
 
     private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
@@ -320,7 +321,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
         ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
         httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
-        return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
+        return resourceAddressFactory.newResourceAddress(httpxeLocation.toString(), httpxeOptions);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -346,7 +347,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         cookieOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         URI cookiesLocation = appendURI(httpAddress.getResource(), COOKIES_SUFFIX);
-        return resourceAddressFactory.newResourceAddress(cookiesLocation, cookieOptions);
+        // TODO: Check correctness
+        return resourceAddressFactory.newResourceAddress(cookiesLocation.toString(), cookieOptions);
     }
 
     @Override
@@ -584,7 +586,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             URI remoteLocation = ensureTrailingSlash(modifyURIScheme(remoteBridgeAddress.getResource(), "wse"));
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(TRANSPORT, remoteBridgeAddress);
-            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(remoteLocation, options, sessionId);
+           // TODO: Check correctness
+            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(remoteLocation.toString(), options, sessionId);
 
 
             final URI httpUri = session.getRequestURL();
@@ -761,8 +764,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
-
-            return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
+            //TODO: Check correctness
+            return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI().toString(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
 
@@ -773,9 +776,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-
+            // TODO: Check correctness
             ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
-                    httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
+                    httpAddress.getExternalURI().toString(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
 
             // Remove REALM_NAME  option at httpxe layer but preserve all other options like
             // ORIGIN_SECURITY etc. Otherwise, upstream and downstream requests will be subjected
@@ -786,8 +789,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             httpxeOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
 
             httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
-
-            return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
+            //TODO: Check correctness
+            return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource().toString(), httpxeOptions);
         }
 
         private boolean validWsebVersion(HttpAcceptSession session) {
@@ -927,9 +930,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             options.setOption(NEXT_PROTOCOL, nextProtocol);
 
             URI wseLocalAddressLocation = modifyURIScheme(resource, "ws");
-
+            // TODO: Check correctness
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(
-                    wseLocalAddressLocation, options);
+                    wseLocalAddressLocation.toString(), options);
 
             Binding binding = bindings.getBinding(candidate);
 

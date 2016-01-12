@@ -18,7 +18,6 @@ package org.kaazing.gateway.resource.address.tcp;
 import static java.lang.Long.valueOf;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 

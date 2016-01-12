@@ -62,15 +62,13 @@ import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.LoggingFilter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -213,7 +211,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             LOCAL_ADDRESS.set(session, localAddress);
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
-            URI remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
+            String remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
             ResourceAddress remoteAddress = resourceAddressFactory.newResourceAddress(remoteExternalURI, nextProtocol);
             REMOTE_ADDRESS.set(session, remoteAddress);
 
@@ -248,17 +246,17 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
-        URI transport = asResourceURI(inetSocketAddress);
+        String transport = asResourceURI(inetSocketAddress);
         return resourceAddressFactory.newResourceAddress(transport);
     }
 
-    private URI asResourceURI(InetSocketAddress inetSocketAddress) {
+    private String asResourceURI(InetSocketAddress inetSocketAddress) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        return URI.create(format(addressFormat, transportName, hostAddress, port));
+        return format(addressFormat, transportName, hostAddress, port);
     }
 
     protected final void init() {

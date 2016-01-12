@@ -19,7 +19,6 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
@@ -28,7 +27,6 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,10 +73,9 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     }
 
     @Override
-    protected void parseNamedOptions0(String locationString, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         
-        URI location = URI.create(locationString);
         Object bindAddress = optionsByName.remove(BIND_ADDRESS.name());
         if (bindAddress != null) {
             InetSocketAddress bindAddress0 = parseBindAddress(bindAddress);
@@ -125,7 +122,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             InetAddress bindAddress = bindSocketAddress.getAddress();
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
-            location = (modifyURIAuthority(location, newAuthority)).toString();
+            location = URIUtils.modifyURIAuthority(location, newAuthority);
         }
 
         // if tcp has a transport, do not resolve the authority.
@@ -181,7 +178,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
                 String newAuthority = format(addressFormat, ipAddress, URIUtils.getPort(location));
-                location = (modifyURIAuthority(location, newAuthority)).toString();
+                location = URIUtils.modifyURIAuthority(location, newAuthority);
                 TcpResourceAddress tcpAddress = super.newResourceAddress0(original, location, options);
 
 

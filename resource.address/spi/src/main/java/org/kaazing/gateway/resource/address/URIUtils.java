@@ -56,4 +56,28 @@ public class URIUtils {
     public static URI resolve(URI uriInitial, String uriString) {
     	return uriInitial.resolve(uriString);
     }
+
+	public static String modifyURIScheme(String uri, String newScheme) {
+	  	return (URLUtils.modifyURIScheme(URI.create(uri), newScheme)).toString();
+	}
+
+	public static String modifyURIAuthority(String uri, String newAuthority) {
+		return (URLUtils.modifyURIAuthority(URI.create(uri), newAuthority)).toString();
+	}
+
+	public static String modifyURIPort(String uri, int newPort) {
+		return (URLUtils.modifyURIPort(URI.create(uri), newPort)).toString();
+	}
+
+	public static String modifyURIPath(String uri, String newPath) {
+		return (URLUtils.modifyURIPath(URI.create(uri), newPath)).toString();
+	}
+
+	public static String appendURI(String uri, String postfix) {
+		return (URLUtils.appendURI(URI.create(uri), postfix)).toString();
+	}
+
+	public static String ensureTrailingSlash(String uri) {
+		return ensureTrailingSlash(uri);
+	}
 }

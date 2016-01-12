@@ -18,14 +18,13 @@ package org.kaazing.gateway.resource.address.ssl;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
-import java.net.URI;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
