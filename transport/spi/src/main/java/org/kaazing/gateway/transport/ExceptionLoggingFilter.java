@@ -18,6 +18,9 @@ package org.kaazing.gateway.transport;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
+/**
+ * This filter only logs exceptionCaught, sessionOpened and sessionClosed events.
+ */
 public class ExceptionLoggingFilter
     extends LoggingFilter {
 

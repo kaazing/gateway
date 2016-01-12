@@ -20,9 +20,9 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 
 import javax.security.auth.Subject;
+
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
@@ -33,14 +33,15 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
 import org.slf4j.Logger;
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
-import org.kaazing.gateway.resource.address.IdentityResolver;
 
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
+
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
-
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.kaazing.gateway.util.Utils;
 
 public class LoggingFilter extends IoFilterAdapter {
@@ -200,6 +201,16 @@ public class LoggingFilter extends IoFilterAdapter {
 
         logSessionOpened(session);
         super.sessionOpened(nextFilter, session);
+
+        // Move after codec to log codec exceptions (should they occur) and decoded messages
+        IoFilterChain filterChain = session.getFilterChain();
+        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
+        if (codecEntry != null) {
+            Entry loggingEntry = filterChain.getEntry(this);
+            assert (loggingEntry != null);
+            loggingEntry.remove();
+            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
+        }
     }
 
     @Override
@@ -379,7 +390,7 @@ public class LoggingFilter extends IoFilterAdapter {
      */
     private static String resolveIdentity(SocketAddress address, IoSessionEx session) {
         if (address instanceof ResourceAddress) {
-            Subject subject = ((IoSessionEx)session).getSubject();
+            Subject subject = session.getSubject();
             if (subject == null) {
                 subject = new Subject();
             }
@@ -497,6 +508,20 @@ public class LoggingFilter extends IoFilterAdapter {
             case WARN  : logger.warn(message, param1, param2, param3); return;
             case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
+        }
+    }
+
+    public static void moveAfterCodec(IoSession session) {
+        // move logging filter after codec to log readable objects instead of buffers
+        IoFilterChain filterChain = session.getFilterChain();
+        Entry loggingEntry = filterChain.getEntry(LoggingFilter.class);
+        if (loggingEntry == null) {
+            return; // fail fast when tracing not active
+        }
+        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
+        if (codecEntry != null) {
+            loggingEntry.remove();
+            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
         }
     }
 }
