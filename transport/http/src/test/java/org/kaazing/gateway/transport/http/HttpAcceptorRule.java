@@ -1,44 +1,36 @@
 /**
- * Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.kaazing.gateway.transport.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Properties;
-
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+
+import java.net.URI;
+import java.util.Collections;
 
 
 /**
@@ -47,9 +39,8 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  * can be chained with a K3poRule for use with robot (this causes Robot to be
  * started before the gateway and stopped after it).
  */
-public class HttpxeAcceptorRule implements TestRule {
+public class HttpAcceptorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
     private HttpAcceptor httpAcceptor;
 
@@ -58,19 +49,12 @@ public class HttpxeAcceptorRule implements TestRule {
         return new AcceptorStatement(base);
     }
 
-    public HttpxeAcceptorRule() {
-        this(null);
+    public void bind(String address, IoHandler acceptHandler) {
+        ResourceAddress resourceAddress = addressFactory.newResourceAddress(URI.create(address));
+        bind(resourceAddress, acceptHandler);
     }
 
-    public HttpxeAcceptorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
-    }
-
-    public void bind(String accept, IoHandler acceptHandler) {
-
-        final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
-
+    public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
         httpAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
@@ -88,19 +72,7 @@ public class HttpxeAcceptorRule implements TestRule {
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                in.close();
-                PropertyConfigurator.configure(log4j);
-            }
             try {
-                // Connector setup
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -132,6 +104,5 @@ public class HttpxeAcceptorRule implements TestRule {
         }
 
     }
-
 
 }
