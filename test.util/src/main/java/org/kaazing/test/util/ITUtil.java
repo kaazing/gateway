@@ -58,10 +58,10 @@ public final class ITUtil {
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
     public static RuleChain createRuleChain(TestRule gateway, K3poRule robot, long timeout, TimeUnit timeUnit) {
-                TestRule trace = new MethodExecutionTrace();
+                //TestRule trace = new MethodExecutionTrace();
                 TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
                         .withLookingForStuckThread(true).build());
-                return RuleChain.outerRule(trace).around(robot).around(timeoutRule).around(gateway);
+                return RuleChain.outerRule(robot).around(timeoutRule).around(gateway);
     }
 
     /**
