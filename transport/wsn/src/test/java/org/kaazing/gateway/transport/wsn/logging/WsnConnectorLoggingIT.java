@@ -38,10 +38,8 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.rules.Timeout;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -123,6 +121,7 @@ public class WsnConnectorLoggingIT {
             "http#.*OPENED",
             "http#.*CLOSED",
             "wsn#.*OPENED",
+            "tcp#.*EXCEPTION.*Protocol.*Exception",
             "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
             "wsn#.*CLOSED"
         }));

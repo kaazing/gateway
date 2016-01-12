@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.transport.LoggingFilter;
 
 public class HttpPostUpgradeFilter extends IoFilterAdapter {
 
@@ -29,10 +30,13 @@ public class HttpPostUpgradeFilter extends IoFilterAdapter {
 		// a WebSocket frame in the same packet.
 		IoFilterChain filterChain = session.getFilterChain();
 		filterChain.remove(HttpCodecFilter.class);
-		
+
+		// Give logging filter a chance to move after any remaining codec
+		LoggingFilter.moveAfterCodec(session);
+
 		// Fire message down the pipeline
 		super.messageReceived(nextFilter, session, message);
-		
+
 		// We've done our job, so remove ourselves from the filter chain
 		if (filterChain.contains(this)) {
 		    filterChain.remove(this);

@@ -23,7 +23,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -41,7 +43,7 @@ import org.kaazing.test.util.MethodExecutionTrace;
 /**
  * RFC-6455, section 5.2 "Base Framing Protocol"
  */
-public class WsnAcceptorLoggingIT {
+public class WsnAcceptorInfoLoggingIT {
     private List<String> expectedPatterns;
     private List<String> forbiddenPatterns;
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification");
@@ -76,7 +78,15 @@ public class WsnAcceptorLoggingIT {
         }
     };
 
-    private TestRule trace = new MethodExecutionTrace(); // trace level logging
+    Properties log4j;
+    { log4j = new Properties();
+        log4j.setProperty("log4j.rootLogger", "INFO, A1");
+        log4j.setProperty("log4j.appender.A1", "org.kaazing.test.util.MemoryAppender");
+        log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
+        log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
+    }
+
+    private TestRule trace = new MethodExecutionTrace(log4j); // info level logging
 
     @Rule
     // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
@@ -92,8 +102,6 @@ public class WsnAcceptorLoggingIT {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
             "tcp#.*CLOSED",
             "http#.*OPENED",
             "http#.*CLOSED",
@@ -113,14 +121,10 @@ public class WsnAcceptorLoggingIT {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED", // example: [tcp#34 192.168.4.126:49966] OPENED: (...
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
             "tcp#.* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] CLOSED",
             "wsn#.* [^/]*:\\d*] OPENED",
-            "wsn#.* [^/]*:\\d*] WRITE",
-            "wsn#.* [^/]*:\\d*] RECEIVED",
             "wsn#.* [^/]*:\\d*] EXCEPTION.*IOException",
             "wsn#.* [^/]*:\\d*] CLOSED"
         }));
@@ -135,8 +139,6 @@ public class WsnAcceptorLoggingIT {
         k3po.finish();
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
             "tcp#.* [^/]*:\\d*] OPENED",
-            "tcp#.* [^/]*:\\d*] WRITE",
-            "tcp#.* [^/]*:\\d*] RECEIVED",
             "tcp#.* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] CLOSED",

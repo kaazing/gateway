@@ -513,6 +513,7 @@ public class LoggingFilter extends IoFilterAdapter {
 
     public static void moveAfterCodec(IoSession session) {
         // move logging filter after codec to log readable objects instead of buffers
+        // and make sure it catches and logs any protocol decoder or encoder exceptions
         IoFilterChain filterChain = session.getFilterChain();
         Entry loggingEntry = filterChain.getEntry(LoggingFilter.class);
         if (loggingEntry == null) {
