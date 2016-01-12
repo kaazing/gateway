@@ -16,33 +16,28 @@
 package org.kaazing.gateway.transport.wseb.test;
 
 import static org.junit.Assert.fail;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
@@ -77,7 +72,7 @@ public class WsebConnectorRule implements TestRule {
         }
         final ResourceAddress connectAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connect),
+                        connect,
                         connectOptions);
 
         ConnectFuture future = wseConnector.connect(connectAddress, connectHandler, null);

@@ -330,7 +330,7 @@ public class HttpTransportTest {
         final String connectURIString = "http://localhost:8000/path";
         final ResourceAddress bindAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -356,12 +356,12 @@ public class HttpTransportTest {
 
         final ResourceAddress bindAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURI),
+                        connectURI,
                         acceptOptions);
 
         final ResourceAddress connectAddress =
                 resourceAddressFactory.newResourceAddress(
-                        URI.create(connectURI),
+                        connectURI,
                         connectOptions);
         httpAcceptor.bind(bindAddress, acceptHandler, null);
 

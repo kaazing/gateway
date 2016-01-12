@@ -52,7 +52,7 @@ public class WsxSslResourceAddressFactorySpiTest {
     private ResourceAddressFactory resourceAddressFactory;
 
     private WsxSslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
@@ -60,7 +60,7 @@ public class WsxSslResourceAddressFactorySpiTest {
         resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
         addressFactorySpi = new WsxSslResourceAddressFactorySpi();
-        addressURI = URI.create("wsx+ssl://localhost:2020/");
+        addressURI = "wsx+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -81,17 +81,17 @@ public class WsxSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsxSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("wsx+ssl://localhost:443"));
+        addressFactorySpi.newResourceAddress("wsx+ssl://localhost:443");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("wsx+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("wsx+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }

@@ -58,7 +58,7 @@ public class PingPongExtensionFactoryTest {
 
     @Before
     public void setUp() {
-        URI addressURI = URI.create("ws://localhost:2020/");
+        String addressURI = "ws://localhost:2020/";
         Map<String, Object> options = new HashMap<>();
         options.put("ws.inactivityTimeout", 2500L);
         address = (WsResourceAddress) ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(addressURI, options);

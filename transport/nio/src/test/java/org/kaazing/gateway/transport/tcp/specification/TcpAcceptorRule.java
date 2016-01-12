@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.tcp.specification;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -62,7 +61,7 @@ public class TcpAcceptorRule implements TestRule {
     public void bind(String accept, IoHandler acceptHandler) {
 
         final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
+                addressFactory.newResourceAddress(accept);
 
         acceptor.bind(acceptAddress, acceptHandler, null);
     }

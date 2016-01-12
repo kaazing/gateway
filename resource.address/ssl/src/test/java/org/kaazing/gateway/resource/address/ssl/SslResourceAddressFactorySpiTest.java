@@ -26,10 +26,10 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.CIPHERS;
-import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.ENCRYPTION_ENABLED;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.KEY_SELECTOR;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_CLIENT_AUTH;
+import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
 import java.net.URI;
@@ -43,13 +43,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class SslResourceAddressFactorySpiTest {
 
     private SslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new SslResourceAddressFactorySpi();
-        addressURI = URI.create("ssl://localhost:2020");
+        addressURI = "ssl://localhost:2020";
         options = new HashMap<>();
         options.put("ssl.nextProtocol", "custom");
         options.put("ssl.qualifier", "random");
@@ -65,12 +65,12 @@ public class SslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("ssl://localhost"));
+        addressFactorySpi.newResourceAddress("ssl://localhost");
     }
 
     @Test

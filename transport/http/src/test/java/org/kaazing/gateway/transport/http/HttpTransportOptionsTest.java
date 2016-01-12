@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,10 +43,10 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.test.TransportTestConnectSessionInitializer;
-import org.kaazing.gateway.transport.test.TransportTestIoHandlerAdapter;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.transport.test.TransportTestConnectSessionInitializer;
+import org.kaazing.gateway.transport.test.TransportTestIoHandlerAdapter;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -212,7 +211,7 @@ public class HttpTransportOptionsTest {
         final Map<String, Object> connectOptions = Collections.emptyMap();
 
 
-        httpConnectorToAcceptor(URI.create("http://localhost:8000/path"),
+        httpConnectorToAcceptor("http://localhost:8000/path",
                 connectHandler, acceptHandler, STANDARD_REQUEST_INITIALIZER,
                 bindOptions, connectOptions);
     }
@@ -220,7 +219,7 @@ public class HttpTransportOptionsTest {
     @Test
     public void shouldConstructCorrectLocalAndRemoteAddressesForHttpAcceptAndConnectSessions() {
 
-        final URI connectURI = URI.create("http://localhost:8000/path");
+        final String connectURI = "http://localhost:8000/path";
 
         final TransportTestIoHandlerAdapter connectHandler = new TransportTestIoHandlerAdapter(1) {
 
@@ -297,7 +296,7 @@ public class HttpTransportOptionsTest {
     @Test @Ignore("This test's sole purpose is to validate that a filter (SUBJECT_SECURITY) is not on the filter chain despite the fact that the filter is *always* on the filter chain.../facepalm")
     public void shouldNotConstructSecurityFiltersOnServerSideHttpBridgeFilterChain() {
 
-        final URI uri = URI.create("http://localhost:8000/path");
+        final String uri = "http://localhost:8000/path";
 
         final TransportTestIoHandlerAdapter connectHandler = new TransportTestIoHandlerAdapter(0) {
             @Override
@@ -345,7 +344,7 @@ public class HttpTransportOptionsTest {
     }
 
 
-    private void httpConnectorToAcceptor(final URI connectURI,
+    private void httpConnectorToAcceptor(final String connectURI,
                                          TransportTestIoHandlerAdapter connectHandler,
                                          TransportTestIoHandlerAdapter acceptHandler,
                                          final TransportTestConnectSessionInitializer connectSessionInitializer,

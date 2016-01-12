@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.transport.wseb.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -28,16 +34,8 @@ import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
@@ -65,7 +63,7 @@ public class WsebAcceptorRule implements TestRule {
     
     public void bind(final String accept,
                                   IoHandlerAdapter<?> acceptHandler) throws InterruptedException {
-        ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(URI.create(accept));
+        ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(accept);
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 

@@ -49,13 +49,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class WsnSslResourceAddressFactorySpiTest {
 
     private WsnSslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WsnSslResourceAddressFactorySpi();
-        addressURI = URI.create("wsn+ssl://localhost:2020/");
+        addressURI = "wsn+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -76,17 +76,17 @@ public class WsnSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsnSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("wsn+ssl://localhost:80"));
+        addressFactorySpi.newResourceAddress("wsn+ssl://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("wsn+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("wsn+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }

@@ -49,13 +49,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class WsDraftSslResourceAddressFactorySpiTest {
 
     private WsDraftSslResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WsDraftSslResourceAddressFactorySpi();
-        addressURI = URI.create("ws-draft+ssl://localhost:2020/");
+        addressURI = "ws-draft+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -76,17 +76,17 @@ public class WsDraftSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsDraft75SchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("ws-draft+ssl://localhost:443"));
+        addressFactorySpi.newResourceAddress("ws-draft+ssl://localhost:443");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("ws-draft+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("ws-draft+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }
