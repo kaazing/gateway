@@ -20,6 +20,8 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.rtmp.RtmpResourceAddress.TRANSPORT_NAME;
 
+import java.net.URI;
+
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.URIUtils;
@@ -76,7 +78,7 @@ public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Rtm
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new RtmpResourceAddress(this, original, location);
+        return new RtmpResourceAddress(this, URI.create(original), URI.create(location));
     }
 
 }

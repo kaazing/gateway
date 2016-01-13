@@ -27,6 +27,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
@@ -211,7 +212,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new TcpResourceAddress(this, original, location);
+        return new TcpResourceAddress(this, URI.create(original), URI.create(location));
     }
 
     @Override

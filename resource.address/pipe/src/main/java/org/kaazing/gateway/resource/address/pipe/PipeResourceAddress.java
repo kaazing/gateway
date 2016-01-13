@@ -26,7 +26,7 @@ public class PipeResourceAddress extends ResourceAddress {
     
     private static final long serialVersionUID = 1L;
 
-    PipeResourceAddress(ResourceAddressFactorySpi factory, String original, String resource) {
+    PipeResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
         super(factory, original, resource);
     }
 

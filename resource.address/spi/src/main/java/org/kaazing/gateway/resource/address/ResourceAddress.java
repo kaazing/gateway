@@ -55,8 +55,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     private final ResourceAddressFactorySpi factory;
     public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
-    private final String externalURI;
-    private final String resourceURI;
+    private final URI externalURI;
+    private final URI resourceURI;
 
     private String nextProtocol;
     private ResourceAddress transport;
@@ -68,23 +68,23 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private Boolean connectRequiresInit;
     private IdentityResolver identityResolver;
 
-    public ResourceAddress(ResourceAddressFactorySpi factory, String externalURI, String resourceURI) {
+    public ResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
         this.factory = Objects.requireNonNull(factory, "factory");
         this.externalURI = Objects.requireNonNull(externalURI, "externalURI");
         this.resourceURI = Objects.requireNonNull(resourceURI, "resourceURI");
     }
 
     // note: used by pipe://
-    protected ResourceAddress(ResourceAddressFactorySpi factory, String resourceURI) {
+    protected ResourceAddress(ResourceAddressFactorySpi factory, URI resourceURI) {
         this(factory, resourceURI, resourceURI);
     }
     
     public URI getResource() {
-        return URI.create(resourceURI);
+        return resourceURI;
     }
     
     public URI getExternalURI() {
-        return URI.create(externalURI);
+        return externalURI;
     }
     
     public ResourceAddress getTransport() {

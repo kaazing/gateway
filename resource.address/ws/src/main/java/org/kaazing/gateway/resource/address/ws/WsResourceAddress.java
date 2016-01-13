@@ -56,7 +56,7 @@ public class WsResourceAddress extends ResourceAddress {
     private String[] supportedProtocols;
     private String[] requiredProtocols = REQUIRED_PROTOCOLS.defaultValue();
 
-    WsResourceAddress(ResourceAddressFactorySpi factory, String original, String resource) {
+    WsResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
         super(factory, original, resource);
     }
 

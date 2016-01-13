@@ -15,8 +15,8 @@
  */
 package org.kaazing.gateway.resource.address.http;
 
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.ResourceFactories.keepAuthorityOnly;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.AUTHENTICATION_CONNECT;
@@ -26,9 +26,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ENCR
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_COOKIE_NAMES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_AUTHENTICATION_HEADER_NAMES;
@@ -37,9 +37,9 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REAL
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_DESCRIPTION;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_NAME;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REQUIRED_ROLES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVER_HEADER_ENABLED;
-import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.SERVICE_DOMAIN;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TEMP_DIRECTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRANSPORT_NAME;
@@ -47,9 +47,6 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.TRAN
 import java.io.File;
 import java.net.URI;
 import java.security.Principal;
-
-import org.kaazing.gateway.resource.address.IdentityResolver;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
@@ -301,7 +299,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new HttpResourceAddress(this, original, location);
+        return new HttpResourceAddress(this, URI.create(original), URI.create(location));
     }
 
     @Override

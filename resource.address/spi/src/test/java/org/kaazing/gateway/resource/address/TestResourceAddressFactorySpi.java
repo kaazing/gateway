@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.resource.address;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
 
     @Override
     protected TestResourceAddress newResourceAddress0(String original, String location) {
-        return new TestResourceAddress(this, original, location);
+        return new TestResourceAddress(this, URI.create(original), URI.create(location));
     }
 
     @Override

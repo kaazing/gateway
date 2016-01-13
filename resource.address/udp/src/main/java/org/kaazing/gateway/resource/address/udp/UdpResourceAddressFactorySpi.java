@@ -26,6 +26,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -186,7 +187,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new UdpResourceAddress(this, original, location);
+        return new UdpResourceAddress(this, URI.create(original), URI.create(location));
     }
     
     @Override

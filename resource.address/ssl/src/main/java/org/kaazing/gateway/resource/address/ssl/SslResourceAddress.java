@@ -19,6 +19,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.lang.Boolean.valueOf;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public final class SslResourceAddress extends ResourceAddress {
     private boolean needClientAuth;
     private KeySelector keySelector;
 
-	SslResourceAddress(ResourceAddressFactorySpi factory, String original, String resource) {
+	SslResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
 		super(factory, original, resource);
 	}
 

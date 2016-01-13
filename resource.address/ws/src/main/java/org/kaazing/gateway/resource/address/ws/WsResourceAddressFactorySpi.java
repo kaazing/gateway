@@ -28,6 +28,7 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.REQUIRED
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.TRANSPORT_NAME;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -194,7 +195,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new WsResourceAddress(this, original, location);
+        return new WsResourceAddress(this, URI.create(original), URI.create(location));
     }
 
     @Override

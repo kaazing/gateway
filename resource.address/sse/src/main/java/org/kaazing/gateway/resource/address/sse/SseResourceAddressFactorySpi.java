@@ -19,6 +19,7 @@ import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceFactories.changeSchemeOnly;
 import static org.kaazing.gateway.resource.address.sse.SseResourceAddress.TRANSPORT_NAME;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,7 +81,7 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-		return new SseResourceAddress(this, original, location);
+		return new SseResourceAddress(this, URI.create(original), URI.create(location));
 	}
 
     @Override

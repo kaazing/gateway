@@ -18,6 +18,7 @@ package org.kaazing.gateway.resource.address.tcp;
 import static java.lang.Long.valueOf;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public final class TcpResourceAddress extends ResourceAddress {
 	private InetSocketAddress bindAddress;
 	private long maximumOutboundRate = MAXIMUM_OUTBOUND_RATE.defaultValue();
 
-	TcpResourceAddress(ResourceAddressFactorySpi factory, String original, String resource) {
+	TcpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
 		super(factory, original, resource);
 	}
 

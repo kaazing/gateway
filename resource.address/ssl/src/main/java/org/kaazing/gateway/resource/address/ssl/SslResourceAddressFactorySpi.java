@@ -25,6 +25,7 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOC
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.TRANSPORT_NAME;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
+import java.net.URI;
 import java.util.Map;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
@@ -115,7 +116,7 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
         
-        return new SslResourceAddress(this, original, location);
+        return new SslResourceAddress(this, URI.create(original), URI.create(location));
     }
 
     @Override
