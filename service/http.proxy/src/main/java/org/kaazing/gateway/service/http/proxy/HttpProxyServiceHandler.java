@@ -46,6 +46,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
@@ -94,9 +95,35 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
-            connectSession.setRequestURI(acceptSession.getRequestURI());
-            connectSession.setPathInfo(acceptSession.getPathInfo());
+            String acceptPathInfo = acceptSession.getPathInfo().toString();
+            String connectPath = connectSession.getRequestURI().getPath();
+            String computedPath = composePath(acceptPathInfo, connectPath);
+            if ( !validateComputedPath(computedPath, connectPath) ) {
+                acceptSession.setStatus(CLIENT_NOT_FOUND);
+                acceptSession.close(false);
+                return;
+            }
+            connectSession.setRequestURI(URI.create(computedPath) );
             processRequestHeaders(acceptSession, connectSession);
+        }
+
+        private String composePath(String acceptPath, String connectPath) {
+            boolean connectPathEndsInSlash = ( connectPath.lastIndexOf("/") == (connectPath.length()-1) ) ? true : false;
+            boolean acceptPathStartsWithSlash = acceptPath.indexOf("/") == 0 ? true : false;
+            if (connectPathEndsInSlash && acceptPathStartsWithSlash) {
+                acceptPath = acceptPath.substring(1);
+            }
+            return connectPath + acceptPath;
+        }
+
+        private boolean validateComputedPath(String path, String connectPath) {
+
+            path = URI.create(path).normalize().toString();
+            if (path.indexOf("/\\.\\./") == 0 || path.indexOf(connectPath) != 0) {
+                return false;
+            }
+
+            return true;
         }
 
     }
