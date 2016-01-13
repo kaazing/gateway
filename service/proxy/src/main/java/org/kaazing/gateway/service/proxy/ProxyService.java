@@ -53,7 +53,7 @@ public class ProxyService extends AbstractProxyService<ProxyServiceHandler> {
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }

@@ -15,11 +15,10 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import java.util.Collection;
+
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
-
-import java.net.URI;
-import java.util.Collection;
 
 /**
  * Http proxy service
@@ -34,7 +33,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }

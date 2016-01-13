@@ -134,7 +134,8 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         options.setOption(NEXT_PROTOCOL, nextProtocol);
         options.setOption(TRANSPORT, transport);
 
-        return addressFactory.newResourceAddress(candidateURI, options);
+        // TODO: Verify this
+        return addressFactory.newResourceAddress(candidateURI.toString(), options);
     }
 
 }

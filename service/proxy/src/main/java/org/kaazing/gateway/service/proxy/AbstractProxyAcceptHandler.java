@@ -29,7 +29,7 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
 
     private AbstractProxyHandler connectHandler;
-    private Collection<URI> connectURIs;
+    private Collection<String> connectURIs;
     private ServiceConnectManager serviceConnectManager = null;
 
     protected AbstractProxyAcceptHandler() {
@@ -42,11 +42,11 @@ public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
         return connectHandler;
     }
 
-    protected Collection<URI> getConnectURIs() {
+    protected Collection<String> getConnectURIs() {
         return connectURIs;
     }
 
-    public void setConnectURIs(Collection<URI> connectURIs) {
+    public void setConnectURIs(Collection<String> connectURIs) {
         this.connectURIs = connectURIs;
     }
 
@@ -57,7 +57,7 @@ public abstract class AbstractProxyAcceptHandler extends AbstractProxyHandler {
     }
 
     public void initServiceConnectManager(BridgeServiceFactory bridgeServiceFactory) {
-        URI connectURI = connectURIs.iterator().next();
+        String connectURI = connectURIs.iterator().next();
         serviceConnectManager = new ServiceConnectManager(getServiceContext(), getConnectHandler(),
                 bridgeServiceFactory, connectURI, getMaximumRecoveryInterval(), getPreparedConnectionCount());
     }

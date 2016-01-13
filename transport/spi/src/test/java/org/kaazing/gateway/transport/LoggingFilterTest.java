@@ -236,7 +236,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnPrincipalFromHttpAddressIdentifierSet() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("http://localhost:2121/jms");
+        String addressURI = "http://localhost:2121/jms";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         buildIdentityResolverOption(options);
 
@@ -276,7 +276,7 @@ public class LoggingFilterTest {
     @Test
     public void getUserIdentifierShouldReturnPrincipalFromWsAddressIdentifierSet() throws Exception {
         ResourceAddressFactory addressFactory = ResourceAddressFactories.newResourceAddressFactory();
-        URI addressURI = URI.create("ws://localhost:2121/jms");
+        String addressURI = "ws://localhost:2121/jms";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         buildIdentityResolverOption(options);
 

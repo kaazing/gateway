@@ -89,7 +89,7 @@ public class HttpAcceptorIT {
         tcpAcceptor.setResourceAddressFactory(addressFactory);
         tcpAcceptor.setBridgeServiceFactory(serviceFactory);
 
-        URI location = URI.create("http://localhost:8000/path");
+        String location = "http://localhost:8000/path";
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(INJECTABLE_HEADERS, Collections.<HttpInjectableHeader>emptySet());
         ResourceAddress httpAddress = addressFactory.newResourceAddress(location, options);

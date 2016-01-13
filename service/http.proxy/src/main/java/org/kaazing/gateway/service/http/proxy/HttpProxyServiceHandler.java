@@ -53,7 +53,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
 
-    private URI connectURI;
+    private String connectURI;
 
     @Override
     protected AbstractProxyHandler createConnectHandler() {

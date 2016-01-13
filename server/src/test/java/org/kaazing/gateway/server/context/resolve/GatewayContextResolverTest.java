@@ -44,14 +44,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.server.Gateway;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.transport.TestTransportExtension;
 import org.kaazing.gateway.transport.TestAcceptor;
+import org.kaazing.gateway.transport.TestTransportExtension;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.test.util.MethodExecutionTrace;
 
@@ -153,15 +154,15 @@ public class GatewayContextResolverTest {
         Collection<? extends ServiceContext> services = ctx.getServices();
         for (ServiceContext service : services) {
             // validate that the accepts have lower-case host names
-            Collection<URI> acceptURIs = service.getAccepts();
-            for (URI acceptURI : acceptURIs) {
-                Assert.assertTrue(acceptURI.getHost().equals(acceptURI.getHost().toLowerCase()));
+            Collection<String> acceptURIs = service.getAccepts();
+            for (String acceptURI : acceptURIs) {
+                Assert.assertTrue(URIUtils.getHost(acceptURI).equals(URIUtils.getHost(acceptURI).toLowerCase()));
             }
 
             // validate that the cross-site-constraints have lower-case host names
-            Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+            Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
                     service.getCrossSiteConstraints();
-            for (URI key : crossSiteConstraints.keySet()) {
+            for (String key : crossSiteConstraints.keySet()) {
                 Map<String, ? extends CrossSiteConstraintContext> crossSiteConstraintsByURI = crossSiteConstraints.get(key);
                 for (CrossSiteConstraintContext crossSiteConstraint : crossSiteConstraintsByURI.values()) {
                     String allowOrigin = crossSiteConstraint.getAllowOrigin();

@@ -33,18 +33,18 @@ import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.util.GL;
 
 class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
-    private Collection<URI> accepts;
+    private Collection<String> accepts;
     private ClusterContext clusterContext;
     private TransportFactory transportFactory;
 
     WsebBalancerServiceHandler() {
     }
 
-    Collection<URI> getAccepts() {
+    Collection<String> getAccepts() {
         return accepts;
     }
 
-    void setAccepts(Collection<URI> accepts) {
+    void setAccepts(Collection<String> accepts) {
         this.accepts = new ArrayList<>(accepts);
     }
 
@@ -126,7 +126,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 Map<URI, Collection<URI>> balancers = collectionsFactory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
 
                 // For my accept URIs, look up the map to get the balancee URIs for which I am balancing.
-                for (URI balancerAccept : accepts) {
+                for (String balancerAccept : accepts) {
                     Collection<URI> balanceesForAccept = balancers.get(balancerAccept);
                     GL.debug("ha", String.format("Found balancee URIs %s for accept URI %s", balanceesForAccept, balancerAccept));
 

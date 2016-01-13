@@ -65,7 +65,7 @@ public class BroadcastService implements Service {
     private ServiceContext serviceContext;
     private Properties configuration;
 
-    private URI connectURI;
+    private String connectURI;
     private int reconnectDelay;
 
     private final ConnectTask connectTask;
@@ -114,7 +114,7 @@ public class BroadcastService implements Service {
         this.handler = new BroadcastServiceHandler(disconnectClientsOnReconnect, maximumScheduledWriteBytes,
                 serviceContext.getLogger());
 
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         ServiceProperties properties = serviceContext.getProperties();
         String reconnectDelay = properties.get("reconnect.delay");
         if ((connectURIs == null || connectURIs.isEmpty())) {

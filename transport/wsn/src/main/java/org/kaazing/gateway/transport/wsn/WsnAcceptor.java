@@ -70,6 +70,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
@@ -462,7 +463,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
-        URI apiLocation = modifyURIPath(transport.getResource(), path);
+        //TODO: Verify this
+        String apiLocation = URIUtils.modifyURIPath(transport.getResource().toString(), path);
         return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }
 
@@ -522,8 +524,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             options.setOption(TRANSPORT, transportAddress);
             options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
+            // TODO: Verify this
             final ResourceAddress remoteAddress =
-                    resourceAddressFactory.newResourceAddress(localAddress.getResource(),options);
+                    resourceAddressFactory.newResourceAddress(localAddress.getResource().toString(), options);
 
             //
             // We remember the http uri from the session below us.
@@ -921,7 +924,8 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             URI resource = session.getLocalAddress().getResource();
 
-            URI wsLocalAddressLocation = URLUtils.modifyURIScheme(resource,
+            //TODO: Verify this
+            String wsLocalAddressLocation = URIUtils.modifyURIScheme(resource.toString(),
                     schemeName);
 
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(

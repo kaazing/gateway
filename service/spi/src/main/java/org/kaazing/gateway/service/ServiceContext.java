@@ -48,11 +48,11 @@ public interface ServiceContext {
 
     String getServiceDescription();
 
-    Collection<URI> getAccepts();
+    Collection<String> getAccepts();
 
-    Collection<URI> getBalances();
+    Collection<String> getBalances();
 
-    Collection<URI> getConnects();
+    Collection<String> getConnects();
     
     Map<String, String> getMimeMappings();
 
@@ -70,7 +70,7 @@ public interface ServiceContext {
      */
     String getContentType(String fileExtension);
 
-    Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints();
+    Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> getCrossSiteConstraints();
 
     File getWebDirectory();
 
@@ -80,26 +80,26 @@ public interface ServiceContext {
 
     void start() throws Exception;
 
-    void bind(Collection<URI> acceptURIs, IoHandler handler);
+    void bind(Collection<String> acceptURIs, IoHandler handler);
 
-	void bind(Collection<URI> acceptURIs, IoHandler handler,
+	void bind(Collection<String> acceptURIs, IoHandler handler,
               AcceptOptionsContext acceptOptionsContext);
 	
-	void bind(Collection<URI> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+	void bind(Collection<String> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
     
-	void bind(Collection<URI> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+	void bind(Collection<String> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
 
-    void bindConnectsIfNecessary(Collection<URI> connectURIs);
+    void bindConnectsIfNecessary(Collection<String> connectURIs);
 
-    void unbind(Collection<URI> acceptURIs, IoHandler handler);
+    void unbind(Collection<String> acceptURIs, IoHandler handler);
 
-    void unbindConnectsIfNecessary(Collection<URI> connectURIs);
+    void unbindConnectsIfNecessary(Collection<String> connectURIs);
 
     void stop() throws Exception;
 
     void destroy() throws Exception;
     
-    ConnectFuture connect(URI connectURI, IoHandler connectHandler,
+    ConnectFuture connect(String connectURI, IoHandler connectHandler,
                           IoSessionInitializer<ConnectFuture> ioSessionInitializer);
 
     ConnectFuture connect(ResourceAddress address, IoHandler connectHandler,
@@ -147,7 +147,7 @@ public interface ServiceContext {
 
     int getProcessorCount();
 
-    void setListsOfAcceptConstraintsByURI(List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI);
+    void setListsOfAcceptConstraintsByURI(List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI);
 
     // Used by the update.check.service, could be used by other services
     Map<String, Object> getServiceSpecificObjects();

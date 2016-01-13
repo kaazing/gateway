@@ -191,7 +191,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
             candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
             candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+            // TODO: Verify this
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
 
             Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -620,7 +621,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
-                    return resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+                    // TODO: Verify this
+                    return resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
                 }
 
                 private IoSession getTcpBridgeSession(IoSession session) {

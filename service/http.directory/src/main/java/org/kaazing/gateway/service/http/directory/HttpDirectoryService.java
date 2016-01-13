@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.mina.core.session.IoSession;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;
@@ -51,10 +52,10 @@ public class HttpDirectoryService implements Service {
         File webDir = serviceContext.getWebDirectory();
         ServiceProperties properties = serviceContext.getProperties();
 
-        Collection<URI> accepts = serviceContext.getAccepts();
-        Collection<URI> failedAccepts = new HashSet<>();
-        for (URI accept : accepts) {
-            String path = accept.getPath();
+        Collection<String> accepts = serviceContext.getAccepts();
+        Collection<String> failedAccepts = new HashSet<>();
+        for (String accept : accepts) {
+            String path = URIUtils.getPath(accept);
             if (path == null || path.isEmpty()) {
                 failedAccepts.add(accept);
             }
@@ -85,7 +86,7 @@ public class HttpDirectoryService implements Service {
         // Notify that custom clientaccesspolicy.xml is ignored
         File clientAccessPolicyXml = new File(directoryFile, "/clientaccesspolicy.xml");
         if (clientAccessPolicyXml.exists()) {
-            for (URI accept : accepts) {
+            for (String accept : accepts) {
                 logger.warn(
                         "Ignoring user-defined file contents for {}clientaccesspolicy.xml, please modify configuration instead",
                         accept);

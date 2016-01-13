@@ -286,7 +286,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions();
             candidateOptions.setOption(TRANSPORT, httpLocalAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+            // TODO: Verify this
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
 
             final Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -307,7 +308,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             sseRemoteOptions.setOption(TRANSPORT, newHttpBindAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
             URI sseBindURI = sseBindAddress.getExternalURI();
-            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI, sseRemoteOptions);
+            // TODO: Verify this
+            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI.toString(), sseRemoteOptions);
 
             // create the session
             final SseSession sseSession = newSession(new IoSessionInitializer<IoFuture>() {

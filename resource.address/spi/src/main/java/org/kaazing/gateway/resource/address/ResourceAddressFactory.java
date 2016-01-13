@@ -134,10 +134,6 @@ public class ResourceAddressFactory {
         return newResourceAddress(location, options, null /* qualifier */);
     }
 
-    public ResourceAddress newResourceAddress(URI location, ResourceOptions options) {
-        return newResourceAddress(location.toString(), options, null /* qualifier */);
-    }
-
     /**
      * Creates a new resource address for the given location and options
      *

@@ -16,6 +16,7 @@
 package org.kaazing.gateway.resource.address;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Utils class over URI methods  
@@ -48,13 +49,22 @@ public class URIUtils {
     	return uri.getPath();
     }
 
+    public static String getQuery(String uriString) {
+    	URI uri = URI.create(uriString);
+    	return uri.getPath();
+    }
+
     public static int getPort(String uriString) {
     	URI uri = URI.create(uriString);
     	return uri.getPort();
     }
 
-    public static URI resolve(URI uriInitial, String uriString) {
-    	return uriInitial.resolve(uriString);
+    public static String buildURIAsString(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
+    	return (new URI(scheme, authority, path, query, fragment)).toString();
+    }
+
+    public static String resolve(String uriInitial, String uriString) {
+    	return ((URI.create(uriInitial)).resolve(uriString)).toString();
     }
 
 	public static String modifyURIScheme(String uri, String newScheme) {

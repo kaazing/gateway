@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
@@ -132,14 +133,15 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     @Override
-    public URI getInternalURI(URI externalURI) {
-        String authority = externalURI.getAuthority();
-        String internalAuthority = binds.get(externalURI.getScheme());
+    public String getInternalURI(String externalURI) {
+        String authority = URIUtils.getAuthority(externalURI);
+        String internalAuthority = binds.get(URIUtils.getScheme(externalURI));
         if (internalAuthority != null) {
             if (!internalAuthority.equals(authority)) {
                 try {
-                    return new URI(externalURI.getScheme(), internalAuthority, externalURI.getPath(),
-                            externalURI.getQuery(), externalURI.getFragment());
+                    // TODO: Verify this
+                    return URIUtils.buildURIAsString(URIUtils.getScheme(externalURI), internalAuthority, URIUtils.getPath(externalURI),
+                            URIUtils.getQuery(externalURI), URIUtils.getFragment(externalURI));
                 } catch (URISyntaxException e) {
                     // ignore
                 }

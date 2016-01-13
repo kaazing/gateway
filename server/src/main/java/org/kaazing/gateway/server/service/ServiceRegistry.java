@@ -19,6 +19,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceRegistration;
 
@@ -42,15 +44,15 @@ public class ServiceRegistry {
         return entries.get(authority);
     }
 
-    public ServiceContext register(URI serviceURI, ServiceContext serviceContext) {
-        if (serviceURI.getQuery() != null || serviceURI.getFragment() != null) {
+    public ServiceContext register(String serviceURI, ServiceContext serviceContext) {
+        if (URIUtils.getQuery(serviceURI) != null || URIUtils.getFragment(serviceURI) != null) {
             throw new IllegalArgumentException("Service URI query and fragment must be null");
         }
 
-        ServiceAuthority serviceAuthority = entries.get(serviceURI.getAuthority());
+        ServiceAuthority serviceAuthority = entries.get(URIUtils.getAuthority(serviceURI));
         if (serviceAuthority == null) {
             serviceAuthority = new ServiceAuthority();
-            entries.put(serviceURI.getAuthority(), serviceAuthority);
+            entries.put(URIUtils.getAuthority(serviceURI), serviceAuthority);
         }
 
         ServiceRegistration serviceRegistration = serviceAuthority.register(serviceURI, serviceContext);
