@@ -631,7 +631,8 @@ public class DefaultServiceContext implements ServiceContext {
         if (acceptConstraints == null && "balancer".equals(serviceType)) {
             if (URIUtils.getPath(transportURI) != null && URIUtils.getPath(transportURI).endsWith("/;e")) {
                 transportURI = URIUtils
-                        .resolve(transportURI, URIUtils.getPath(transportURI).substring(0, URIUtils.getPath(transportURI).length() - "/;e".length()));
+                        .resolve(transportURI, URIUtils.getPath(transportURI).
+                                substring(0, URIUtils.getPath(transportURI).length() - "/;e".length()));
             }
             acceptConstraints = acceptConstraintsByURI.get(URIUtils.modifyURIScheme(transportURI, "ws"));
             if (acceptConstraints == null && transportFactory.getProtocol(transportURI).isSecure()) {
@@ -790,9 +791,11 @@ public class DefaultServiceContext implements ServiceContext {
                 try {
                     final String scheme = URIUtils.getScheme(uri);
                     if ("ws".equals(scheme)) {
-                        result.add(URIUtils.buildURIAsString("http", URIUtils.getAuthority(uri), URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
+                        result.add(URIUtils.buildURIAsString("http", URIUtils.getAuthority(uri),
+                                  URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
                     } else if ("wss".equals(scheme)) {
-                        result.add(URIUtils.buildURIAsString("https", URIUtils.getAuthority(uri), URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
+                        result.add(URIUtils.buildURIAsString("https", URIUtils.getAuthority(uri),
+                                  URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
                     } else {
                         result.add(uri);
                     }

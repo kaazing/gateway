@@ -725,8 +725,8 @@ public class GatewayContextResolver {
     private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-        	// TODO: Add initial version of this to TcpResourceAddressSpi
-            String resolvedURI = uri;//resolveURI(getCanonicalURI(uri, true));
+            // TODO: Add initial version of this to TcpResourceAddressSpi
+            String resolvedURI = uri; //resolveURI(getCanonicalURI(uri, true));
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
