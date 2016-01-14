@@ -95,31 +95,25 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
-            String acceptPathInfo = acceptSession.getPathInfo().toString();
-            String connectPath = connectSession.getRequestURI().getPath();
-            String computedPath = composePath(acceptPathInfo, connectPath);
-            if ( !validateComputedPath(computedPath, connectPath) ) {
+            if (!validateRequestPath()) {
                 acceptSession.setStatus(CLIENT_NOT_FOUND);
                 acceptSession.close(false);
                 return;
             }
-            connectSession.setRequestURI(URI.create(computedPath) );
+            String acceptPathInfo = acceptSession.getPathInfo().toString();
+            if (acceptPathInfo.indexOf("/") == 0) {
+                acceptPathInfo = acceptPathInfo.substring(1);
+            }
+            URI connectRequestURI = connectSession.getRequestURI().resolve(acceptPathInfo);
+            connectSession.setRequestURI(connectRequestURI);
             processRequestHeaders(acceptSession, connectSession);
         }
 
-        private String composePath(String acceptPath, String connectPath) {
-            boolean connectPathEndsInSlash = ( connectPath.lastIndexOf("/") == (connectPath.length()-1) ) ? true : false;
-            boolean acceptPathStartsWithSlash = acceptPath.indexOf("/") == 0 ? true : false;
-            if (connectPathEndsInSlash && acceptPathStartsWithSlash) {
-                acceptPath = acceptPath.substring(1);
-            }
-            return connectPath + acceptPath;
-        }
-
-        private boolean validateComputedPath(String path, String connectPath) {
-
-            path = URI.create(path).normalize().toString();
-            if (path.indexOf("/\\.\\./") == 0 || path.indexOf(connectPath) != 0) {
+        private boolean validateRequestPath() {
+            URI requestURI = acceptSession.getRequestURI();
+            String acceptPath = acceptSession.getServicePath().getPath();
+            String requestPath = requestURI.normalize().getPath();
+            if (requestPath.indexOf("/\\.\\./") == 0 || requestPath.indexOf(acceptPath) != 0) {
                 return false;
             }
 

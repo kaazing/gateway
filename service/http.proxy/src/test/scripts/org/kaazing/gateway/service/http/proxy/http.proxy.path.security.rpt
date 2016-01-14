@@ -35,8 +35,4 @@ read header "Content-Type" "text/html"
 close
 closed
 
-accept http://localhost:8080/connectConfigPath/example/jsp/num/file.html?name=value
-accepted
-connected
-
-closed
+accept http://localhost:8080/

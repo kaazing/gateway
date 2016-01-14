@@ -30,7 +30,5 @@ public interface HttpConnectSession extends HttpSession {
 
     // setContentLength(int length);
 
-    void setPathInfo(URI pathInfo);
-
     UpgradeFuture upgrade(IoHandler handler);
 }
