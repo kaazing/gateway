@@ -128,7 +128,7 @@ public class HttpsResourceAddressFactorySpiTest {
         Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ssl.wantClientAuth", false);
 
-        ResourceAddress address = addressFactory.newResourceAddress(String.format("https://localhost:4949/path"), inputOptions);
+        ResourceAddress address = addressFactory.newResourceAddress("https://localhost:4949/path", inputOptions);
         verifyTransport(address,  "ssl://localhost:4949");
         verifyTransportOptionValue(address.getTransport(), SslResourceAddress.WANT_CLIENT_AUTH, false);
     }

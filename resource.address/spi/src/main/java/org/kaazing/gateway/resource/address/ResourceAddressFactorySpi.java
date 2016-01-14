@@ -399,7 +399,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             if (optionsByName == Collections.<String,Object>emptyMap()) {
                 optionsByName = new HashMap<>();
             }
-            optionsByName.put(TRANSPORTED_URI.name(), location);
+            optionsByName.put(TRANSPORTED_URI.name(), URI.create(location));
             //TODO: URI to string??
             transport = addressFactory.newResourceAddress(transportURI.toString(), optionsByName, protocolName);
         }
