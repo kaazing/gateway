@@ -145,7 +145,7 @@ public class HttpsResourceAddressFactorySpiTest {
             Assert.assertNull(address.getTransport());
         } else {
             Assert.assertEquals(URIUtils.getScheme(expectedTransportURI), address.getTransport().getResource().getScheme());
-            Assert.assertEquals(expectedTransportURI, address.getTransport().getResource());
+            Assert.assertEquals(URI.create(expectedTransportURI), address.getTransport().getResource());
         }
     }
 

@@ -154,7 +154,7 @@ public class WsResourceAddressFactorySpiTest {
         addressFactorySpi.setResourceAddressFactory(addressFactory);
 
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         // bind alternate should be false for all ws resource addresses... only while WsAcceptor
         // delegates the binds explicitly.  If we ever remove WsAcceptor this will change.
         assertFalse(address.getOption(BIND_ALTERNATE));
