@@ -23,7 +23,7 @@ write parameter "name" "value"
 write version "HTTP/1.1"
 
 write header "User-Agent" "curl/7.37.1"
-write header "Host" "localhost:8110"
+write header host
 write header "Accept" "*/*"
 write close
 
