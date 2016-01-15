@@ -15,14 +15,12 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.io.File;
 import java.net.URI;
 
 import org.junit.Test;
-
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;

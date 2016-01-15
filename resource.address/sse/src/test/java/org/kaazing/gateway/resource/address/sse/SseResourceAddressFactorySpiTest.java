@@ -64,7 +64,7 @@ public class SseResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("sse.nextProtocol", "custom");
         options.put("sse.qualifier", "random");
-        options.put("sse.transport", OPTIONS_ADDRESS_URI);
+        options.put("sse.transport", URI.create(OPTIONS_ADDRESS_URI));
     }
 
     @Test
@@ -111,14 +111,14 @@ public class SseResourceAddressFactorySpiTest {
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        assertEquals(URI.create(OPTIONS_ADDRESS_URI), address.getOption(TRANSPORT_URI));
 
         // Test alternate address with Httpxe transport
         address = address.getOption(ResourceAddress.ALTERNATE);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        assertEquals(URI.create(OPTIONS_ADDRESS_URI), address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class SseResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(ADDRESS_URI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        assertEquals(URI.create(OPTIONS_ADDRESS_URI), address.getOption(TRANSPORT_URI));
     }
     
 }

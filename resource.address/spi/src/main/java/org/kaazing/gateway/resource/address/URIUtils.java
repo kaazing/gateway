@@ -51,7 +51,7 @@ public class URIUtils {
 
     public static String getQuery(String uriString) {
     	URI uri = URI.create(uriString);
-    	return uri.getPath();
+    	return uri.getQuery();
     }
 
     public static int getPort(String uriString) {

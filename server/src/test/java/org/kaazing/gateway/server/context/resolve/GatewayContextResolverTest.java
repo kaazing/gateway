@@ -40,6 +40,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -146,6 +147,7 @@ public class GatewayContextResolverTest {
     }
 
     @Test
+    @Ignore("Resolution no longer performed in GatewayContextResolver; TBD: To add this in TCPResourceAddressFactorySpi?")
     public void testLowerCaseOfResolvedServices() throws Exception {
         configFile = createTempFileFromResource("org/kaazing/gateway/server/context/parse/data/gateway-config-mixedcase.xml");
         org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument doc = parser.parse(configFile);
