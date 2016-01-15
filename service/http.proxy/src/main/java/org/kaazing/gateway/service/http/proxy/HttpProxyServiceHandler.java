@@ -113,11 +113,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             URI requestURI = acceptSession.getRequestURI();
             String acceptPath = acceptSession.getServicePath().getPath();
             String requestPath = requestURI.normalize().getPath();
-            if (requestPath.indexOf("/\\.\\./") == 0 || requestPath.indexOf(acceptPath) != 0) {
-                return false;
-            }
-
-            return true;
+            return requestPath.startsWith(acceptPath);
         }
 
     }

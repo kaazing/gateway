@@ -670,7 +670,6 @@ public class GatewayContextResolver {
                 }
                 serviceRegistry.register(acceptURI, serviceContext);
             }
-
         }
 
         for (ServiceContext ctxt : serviceContexts) {
