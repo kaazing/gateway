@@ -1,5 +1,5 @@
-/*
- * Copyright 2014, Kaazing Corporation. All rights reserved.
+/**
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,62 +14,61 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-import org.kaazing.test.util.MethodExecutionTrace;
 
-public class ProxiesIT {
+public class BinaryAsEscapedTextIT {
 
-    private TestRule trace = new MethodExecutionTrace();
-    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/proxies");
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/data/binary.as.escaped.text");
 
     private GatewayRule gateway = new GatewayRule() {
         {
-         // @formatter:off
+            // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
+                            .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
+                            .crossOrigin()
+                                .allowOrigin("http://localhost:8001")
+                            .done()
                         .done()
                     .done();
             // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            init(configuration);
         }
     };
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeout).around(k3po).around(gateway);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore("Server is not spec compliant")
+    @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
     @Test
-    @Specification("client.send.overlapping.downstream.request/request")
-    public void shouldFlushAndCloseDownstreamUponReceivingOverlappingLongpollingRequest()
-            throws Exception {
+    @Specification({"echo.payload.length.0/request", "echo.payload.length.0/response"})
+    public void shouldEchoFrameWithPayloadLength0() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.request.heartbeat.interval/request")
-    public void shouldSendHeartbeatToClient() throws Exception {
+    @Specification({"echo.payload.length.127/request"})
+    public void shouldEchoFrameWithPayloadLength127() throws Exception {
         k3po.finish();
     }
+
 }

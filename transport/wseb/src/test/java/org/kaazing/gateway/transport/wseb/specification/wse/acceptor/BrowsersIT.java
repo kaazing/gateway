@@ -1,5 +1,5 @@
-/**
- * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+/*
+ * Copyright 2014, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.server.transport.wseb.specification.wse.acceptor.data;
-
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -32,43 +30,53 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class BinaryAsEscapedTextIT {
+public class BrowsersIT {
 
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/data/binary.as.escaped.text");
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/browsers");
 
     private GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
+         // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept(URI.create("wse://localhost:8080/path"))
+                            .acceptOption("ws.inactivity.timeout", "1200sec") //TODO: remove this
                             .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
                         .done()
                     .done();
             // @formatter:on
-            init(configuration);
+            init(configuration, "log4j-trace.properties");
         }
     };
 
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
     @Test
-    @Specification({"echo.payload.length.0/request", "echo.payload.length.0/response"})
-    public void shouldEchoFrameWithPayloadLength0() throws Exception {
+    @Specification("client.reconnect.downstream/request")
+    public void serverShouldSendReconnectFrameAfterDetectingNewDownstreamRequestFromClient()
+            throws Exception {
         k3po.finish();
     }
 
     @Test
-    @Specification({"echo.payload.length.127/request"})
-    public void shouldEchoFrameWithPayloadLength127() throws Exception {
+    @Specification("client.send.kb.parameter.in.downstream.request/request")
+    public void serverShouldSendReconnectFrameAfterRequestedClientBufferSizeIsExceeded()
+            throws Exception {
         k3po.finish();
     }
 
+    @Test
+    @Specification("client.request.padded.response/request")
+    public void serverShouldSendPaddingInDownstream() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("client.send.ksn.parameter/request")
+    public void serverShouldReadRequestSequenceNumberFromQueryParameter() throws Exception {
+        k3po.finish();
+    }
 }

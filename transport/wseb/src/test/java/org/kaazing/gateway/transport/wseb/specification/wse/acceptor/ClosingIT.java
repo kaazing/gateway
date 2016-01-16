@@ -1,16 +1,13 @@
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.DisableOnDebug;
-import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -32,19 +29,16 @@ import org.kaazing.k3po.junit.rules.K3poRule;
  * limitations under the License.
  */
 
-import org.kaazing.test.util.MethodExecutionTrace;
-
 public class ClosingIT {
 
-    private TestRule trace = new MethodExecutionTrace();
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/closing");
-    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     private GatewayRule gateway = new GatewayRule() {
         {
          // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
+                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
                             .accept(URI.create("wse://localhost:8080/path"))
                             .type("echo")
@@ -56,12 +50,30 @@ public class ClosingIT {
     };
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeout).around(k3po).around(gateway);
+    public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore
     @Test
     @Specification("client.send.close/request")
     public void shouldEchoClientCloseFrame() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("server.send.close/request")
+    public void shouldEchoServerCloseFrame() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("server.send.data.after.close/request")
+    public void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("server.send.data.after.reconnect/request")
+    public void shouldIgnoreDataFromServerAfterReconnectFrame()
+            throws Exception {
         k3po.finish();
     }
 }

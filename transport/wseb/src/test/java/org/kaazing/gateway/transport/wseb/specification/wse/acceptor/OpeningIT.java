@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -39,10 +39,10 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class DownstreamIT {
+public class OpeningIT {
 
     private TestRule trace = new MethodExecutionTrace();
-    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/downstream");
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/opening");
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private GatewayRule gateway = new GatewayRule() {
@@ -65,23 +65,72 @@ public class DownstreamIT {
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("binary/request.method.not.get/downstream.request")
-    public void shouldRespondWithBadRequestWhenBinaryDownstreamRequestMethodNotGet() throws Exception {
+    @Specification("connection.established/handshake.request")
+    public void shouldEstablishConnection() throws Exception {
         k3po.finish();
     }
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("binary/request.out.of.order/downstream.request")
-    public void shouldCloseConnectionWhenBinaryDownstreamRequestIsOutOfOrder() throws Exception {
+    @Specification("request.with.body/handshake.request")
+    public void shouldEstablishConnectionWithNonEmptyRequestBody() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.method.not.post/handshake.request")
+    public void shouldFailHandshakeWhenRequestMethodNotPost() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.sequence.number.missing/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsMissing() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.sequence.number.negative/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNegative() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.sequence.number.non.integer/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNotInteger() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.sequence.number.out.of.range/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsOutOfRange() throws Exception {
+        k3po.finish();
+    }
+    
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.websocket.version.missing/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionMissing() throws Exception {
         k3po.finish();
     }
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("binary/subsequent.request.out.of.order/request")
-    public void shouldCloseConnectionWhenSubsequentBinaryDownstreamRequestIsOutOfOrder() throws Exception {
+    @Specification("request.header.x.websocket.version.not.wseb-1.0/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionNotWseb10()
+            throws Exception {
         k3po.finish();
     }
 
+    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.x.accept.commands.not.ping/handshake.request")
+    public void shouldFailHandshakeWhenHeaderXAcceptCommandsNotPing() throws Exception {
+        k3po.finish();
+    }
 }

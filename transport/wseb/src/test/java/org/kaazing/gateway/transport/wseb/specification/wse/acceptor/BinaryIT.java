@@ -46,9 +46,6 @@ public class BinaryIT {
                         .service()
                             .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
                         .done()
                     .done();
             // @formatter:on

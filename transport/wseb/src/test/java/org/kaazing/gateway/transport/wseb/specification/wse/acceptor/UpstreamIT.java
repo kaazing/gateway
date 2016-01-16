@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

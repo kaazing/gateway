@@ -619,7 +619,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (flushDelay != null) {
 
                 if (specCompliant) {
-                    // currently this is required for Silverlight a+s it seems to want some data to be
+                    // currently this is required for Silverlight as it seems to want some data to be
                     // received before it will start to deliver messages
                     // this is also needed to detect that streaming has initialized properly
                     // so we don't fall back to encrypted streaming or long polling

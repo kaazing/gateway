@@ -19,7 +19,7 @@
  * under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -39,10 +39,10 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class ControlIT {
+public class DownstreamIT {
 
     private TestRule trace = new MethodExecutionTrace();
-    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/control");
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/downstream");
     private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
 
     private GatewayRule gateway = new GatewayRule() {
@@ -65,36 +65,22 @@ public class ControlIT {
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.send.ping/request")
-    public void shouldReplyClientPingWithPong() throws Exception {
+    @Specification("binary/request.method.not.get/downstream.request")
+    public void shouldRespondWithBadRequestWhenBinaryDownstreamRequestMethodNotGet() throws Exception {
         k3po.finish();
     }
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.send.invalid.ping/request")
-    public void shouldCloseConnectionOnReceivingInvalidPingFromClient() throws Exception {
+    @Specification("binary/request.out.of.order/downstream.request")
+    public void shouldCloseConnectionWhenBinaryDownstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
 
     @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.send.unexpected.ping/request")
-    public void shouldCloseConnectionOnReceivingUnexpectedPingFromClient() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("client.send.pong/request")
-    public void shouldReceivePongFromClient() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("client.send.invalid.pong/request")
-    public void shouldCloseConnectionOnReceivingInvalidPongFromClient() throws Exception {
+    @Specification("binary/subsequent.request.out.of.order/request")
+    public void shouldCloseConnectionWhenSubsequentBinaryDownstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
 

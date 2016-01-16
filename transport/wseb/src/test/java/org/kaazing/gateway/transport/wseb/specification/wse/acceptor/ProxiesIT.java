@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.transport.wseb.specification;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -34,11 +34,11 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class BrowsersIT {
+public class ProxiesIT {
 
     private TestRule trace = new MethodExecutionTrace();
-    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/browsers");
-    private final TestRule timeout = new DisableOnDebug(new Timeout(5, SECONDS));
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/proxies");
+    private final TestRule timeout = new DisableOnDebug(new Timeout(15, SECONDS));
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -58,33 +58,18 @@ public class BrowsersIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(timeout).around(k3po).around(gateway);
 
-    @Ignore
+    @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.reconnect.downstream/request")
-    public void serverShouldSendReconnectFrameAfterDetectingNewDownstreamRequestFromClient()
+    @Specification("client.send.overlapping.downstream.request/request")
+    public void shouldFlushAndCloseDownstreamUponReceivingOverlappingLongpollingRequest()
             throws Exception {
         k3po.finish();
     }
 
-    @Ignore
+    @Ignore("Server is not spec compliant")
     @Test
-    @Specification("client.send.kb.parameter.in.downstream.request/request")
-    public void serverShouldSendReconnectFrameAfterRequestedClientBufferSizeIsExceeded()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore
-    @Test
-    @Specification("client.request.padded.response/request")
-    public void serverShouldSendPaddingInDownstream() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore
-    @Test
-    @Specification("client.send.ksn.parameter/request")
-    public void serverShouldReadRequestSequenceNumberFromQueryParameter() throws Exception {
+    @Specification("client.request.heartbeat.interval/request")
+    public void shouldSendHeartbeatToClient() throws Exception {
         k3po.finish();
     }
 }
