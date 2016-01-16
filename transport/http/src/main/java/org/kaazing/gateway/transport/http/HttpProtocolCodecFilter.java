@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.http;
 
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -58,8 +60,23 @@ public class HttpProtocolCodecFilter extends ProtocolCodecFilter {
                 IoBufferEx cachedProtocolBuffer = message.getCache().get(nextProtocol);
                 if (cachedProtocolBuffer != null) {
                     if(cachedProtocolBuffer.capacity()==0) {
-                        writeRequest.getFuture().setWritten();
-                        nextFilter.messageSent(session, writeRequest);
+                        // We must commit this http session if the child is committing, to ensure
+                        // the http headers get written
+                        HttpSession child = HttpAcceptor.SESSION_KEY.get(session);
+                        if (child != null && child.isCommitting() && session instanceof DefaultHttpSession) {
+                            ((DefaultHttpSession)session).commit().addListener(
+                                    new IoFutureListener<IoFuture>() {
+                                        @Override
+                                        public void operationComplete(IoFuture future) {
+                                            writeRequest.getFuture().setWritten();
+                                            nextFilter.messageSent(session, writeRequest);
+                                        }
+                                    });
+                        }
+                        else {
+                            writeRequest.getFuture().setWritten();
+                            nextFilter.messageSent(session, writeRequest);
+                        }
                         return;
                     }
                  }
