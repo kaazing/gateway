@@ -15,17 +15,14 @@
  */
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
+import org.apache.mina.core.session.IoSession;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -33,47 +30,41 @@ public class ClosingIT {
 
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/closing");
 
-    private GatewayRule gateway = new GatewayRule() {
-        {
-         // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
-                        .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
-                            .type("echo")
-                        .done()
-                    .done();
-            // @formatter:on
-            init(configuration, "log4j-trace.properties");
-        }
-    };
+    private WsebAcceptorRule acceptor = new WsebAcceptorRule();
 
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    public TestRule chain = createRuleChain(acceptor, k3po);
 
     @Test
     @Specification("client.send.close/request")
     public void shouldEchoClientCloseFrame() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>());
         k3po.finish();
     }
 
     @Test
     @Specification("server.send.close/request")
-    public void shouldEchoServerCloseFrame() throws Exception {
+    public void shouldPerformServerInitiatedClose() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
+            @Override
+            protected void doSessionOpened(IoSession session) throws Exception {
+                session.close(false);
+            }
+
+        });
         k3po.finish();
     }
 
-    @Test
-    @Specification("server.send.data.after.close/request")
-    public void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
-        k3po.finish();
-    }
+    // This test is only applicable for clients
+    // @Specification("server.send.data.after.close/request")
+    //public void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
+    //    k3po.finish();
+    //}
 
-    @Test
-    @Specification("server.send.data.after.reconnect/request")
-    public void shouldIgnoreDataFromServerAfterReconnectFrame()
-            throws Exception {
-        k3po.finish();
-    }
+    // This test is oonly applicable for clients
+    // @Specification("server.send.data.after.reconnect/request")
+    // public void shouldIgnoreDataFromServerAfterReconnectFrame()
+    //        throws Exception {
+    //    k3po.finish();
+    //}
 }

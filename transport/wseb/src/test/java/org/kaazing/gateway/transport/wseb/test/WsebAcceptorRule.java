@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.wseb.test;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -28,7 +30,6 @@ import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
@@ -53,7 +54,7 @@ public class WsebAcceptorRule implements TestRule {
 
     @Override
     public Statement apply(Statement base, Description description) {
-        return new ConnectorStatement(base);
+        return new AcceptorStatement(base);
     }
     public WsebAcceptorRule() {
         this(null);
@@ -62,14 +63,14 @@ public class WsebAcceptorRule implements TestRule {
     public WsebAcceptorRule(String log4jPropertiesResourceName) {
         this.log4jPropertiesResourceName = log4jPropertiesResourceName;
     }
-    
+
     public void bind(final String accept,
-                                  IoHandlerAdapter<?> acceptHandler) throws InterruptedException {
+                     IoHandlerAdapter<?> acceptHandler) throws InterruptedException {
         ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(URI.create(accept));
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
-    private final class ConnectorStatement extends Statement {
+    private final class AcceptorStatement extends Statement {
 
         private final Statement base;
         private Map<String, ?> config = Collections.emptyMap();
@@ -84,7 +85,7 @@ public class WsebAcceptorRule implements TestRule {
 
         private SchedulerProvider schedulerProvider;
 
-        public ConnectorStatement(Statement base) {
+        public AcceptorStatement(Statement base) {
             this.base = base;
         }
 
@@ -110,7 +111,7 @@ public class WsebAcceptorRule implements TestRule {
                 wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
 
                 schedulerProvider = new SchedulerProvider();
-        
+
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
                 tcpAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpAcceptor.setResourceAddressFactory(resourceAddressFactory);
@@ -124,6 +125,9 @@ public class WsebAcceptorRule implements TestRule {
                 wsebAcceptor.setResourceAddressFactory(resourceAddressFactory);
                 wsebAcceptor.setSchedulerProvider(schedulerProvider);
                 wsebAcceptor.setWsAcceptor(wsAcceptor);
+                Properties configuration = new Properties();
+                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
+                wsebAcceptor.setConfiguration(configuration);
 
                 base.evaluate();
             } finally {
