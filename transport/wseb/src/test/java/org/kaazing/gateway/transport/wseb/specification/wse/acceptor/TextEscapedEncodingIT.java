@@ -32,7 +32,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-public class BinaryAsEscapedTextIT {
+public class TextEscapedEncodingIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/data/binary.as.escaped.text");
 
