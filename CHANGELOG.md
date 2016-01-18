@@ -2,7 +2,26 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.41...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.42...HEAD)
+
+**Fixed bugs:**
+
+- gateway.bridge.jar does not contain both JS and Java bridge [\#337](https://github.com/kaazing/gateway/issues/337)
+
+**Closed issues:**
+
+- HTTP response without Content-Length or chunked encoding causes parsing loop [\#146](https://github.com/kaazing/gateway/issues/146)
+
+**Merged pull requests:**
+
+- Modified xsd file in order to support only one \<connect\> for http.proxy [\#401](https://github.com/kaazing/gateway/pull/401) ([mgherghe](https://github.com/mgherghe))
+- clarified logging [\#398](https://github.com/kaazing/gateway/pull/398) ([dpwspoon](https://github.com/dpwspoon))
+- Allow 0 or more spaces in parsing of wse accept content-type header [\#393](https://github.com/kaazing/gateway/pull/393) ([dpwspoon](https://github.com/dpwspoon))
+- Fixed bridge build to include javascript and java bridge [\#391](https://github.com/kaazing/gateway/pull/391) ([dpwspoon](https://github.com/dpwspoon))
+- Http.proxy does not append path in connect \#183 [\#382](https://github.com/kaazing/gateway/pull/382) ([msalavastru](https://github.com/msalavastru))
+
+## [5.0.1.42](https://github.com/kaazing/gateway/tree/5.0.1.42) (2016-01-06)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.41...5.0.1.42)
 
 **Merged pull requests:**
 
