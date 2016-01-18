@@ -171,11 +171,11 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     private final List<IoSessionIdleTracker> sessionInactivityTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
-    private final ThreadLocal<IoSessionIdleTracker> currentSessionInactivityTracker
+    private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
             @Override
             protected IoSessionIdleTracker initialValue() {
-                IoSessionIdleTracker result = new WsebInactivityTracker(logger);
+                IoSessionIdleTracker result = new WsebTransportSessionIdleTracker(logger);
                 sessionInactivityTrackers.add(result);
                 return result;
             }
@@ -402,9 +402,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             return new IoFutureListener<CloseFuture>() {
                 @Override
                 public void operationComplete(CloseFuture future) {
-                    if (wsebSession.getInactivityTimeout() > 0) {
-                        currentSessionInactivityTracker.get().removeSession(wsebSession);
-                    }
+                    currentSessionIdleTracker.get().removeSession(wsebSession);
 
                     downstreamAcceptor.unbind(downstreamAddress);
                     upstreamAcceptor.unbind(upstreamAddress);
@@ -839,32 +837,32 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             ResourceAddress transportAddress = address.getTransport();
             final Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource());
             if (protocol instanceof HttpProtocol) {
-                IoSessionIdleTracker inactivityTracker =
-                             wsebSession.getInactivityTimeout() > 0 ?  currentSessionInactivityTracker.get() : null;
+                // We need a session idle tracker to handle ws close handshake, even if ws.inactivity.timeout is not set
+                IoSessionIdleTracker sesionIdleTracker = currentSessionIdleTracker.get();
                 if ( DOWNSTREAM_SUFFIX.equals(downstreamSuffix) ) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler,
-                                                     WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                                     WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_TEXT_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                  WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_TEXT_ESCAPED_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.TEXT_AS_BINARY, inactivityTracker, bridgeServiceFactory);
+                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.TEXT_AS_BINARY, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if ( DOWNSTREAM_MIXED_SUFFIX.equals(downstreamSuffix) ) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler,
-                                                     WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                                     WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_MIXED_TEXT_SUFFIX.equals(downstreamSuffix)) {
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                  WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
 
                 } else if (DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX.equals(downstreamSuffix)) {
                     wsebSession.setEncodeEscapeType(EscapeTypes.ESCAPE_ZERO_AND_NEWLINES);  //cache key
                     return new WsebDownstreamHandler(address, wsebSession, scheduler, "text/plain; charset=windows-1252",
-                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.DEFAULT, inactivityTracker, bridgeServiceFactory);
+                                  Encoding.ESCAPE_ZERO_AND_NEWLINE, WsebEncodingStrategy.DEFAULT, sesionIdleTracker, bridgeServiceFactory);
                 }
             }
 

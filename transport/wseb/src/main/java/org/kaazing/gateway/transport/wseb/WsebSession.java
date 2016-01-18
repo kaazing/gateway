@@ -18,8 +18,8 @@ package org.kaazing.gateway.transport.wseb;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
-
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
 import java.util.List;
 import java.util.Properties;
@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
+import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
@@ -61,6 +62,7 @@ import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeTypes;
+import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
@@ -126,7 +128,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
-   private final Properties configuration;
+    private final Properties configuration;
 
     private final Runnable enqueueReconnectAndFlushTask = new Runnable() {
         @Override public void run() {
@@ -136,6 +138,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     private ScheduledFuture<?> timeoutFuture;
 
     private TransportSession transportSession;
+
+    private boolean closeReceived = false;
+    private final long closeTimeout;
 
     public WsebSession(int ioLayer,
                        Thread ioThread,
@@ -175,6 +180,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.configuration = configuration;
         this.transportSession = new TransportSession(this, processor);
         transportSession.setHandler(transportHandler);
+        closeTimeout = Utils.parseTimeInterval(WS_CLOSE_TIMEOUT.getProperty(configuration), TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -588,6 +594,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return false;
     }
 
+    boolean isCloseReceived() {
+        return closeReceived;
+    }
+
+    private void setCloseReceived() {
+        closeReceived = true;
+    }
+
     private void writeNoop(final HttpAcceptSession session) {
         String userAgent = session.getReadHeader("User-Agent");
         boolean isClientIE11 = false;
@@ -725,7 +739,47 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void removeInternal(WsebSession session) {
-            session.getTransportSession().close(false);
+            // TODO: write a regular WsClose frame on the transport session filter chain and convert it
+            // to WsCommandMessage.CLOSE in WsebAcceptProcessor.flushInternal
+            HttpSession writer = session.getWriter();
+            if (writer != null ) {
+                if (!writer.isClosing()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("Writing CLOSE command to writer %d for wseb session %s", writer.getId(), session));
+                    }
+                    writer.write(WsCommandMessage.CLOSE);
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("NOT writing CLOSE command as writer %d is closing for wseb session %s", writer.getId(), session));
+                    }
+                }
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("NOT writing CLOSE command for wseb session %s as there is no attached writer", session));
+                }
+            }
+
+            if (session.isCloseReceived()) {
+                session.getTransportSession().close(false);
+            }
+            else {
+                // Wait for close handshake completion from client on upstream
+                session.getTransportSession().getConfig().setIdleTimeInMillis(
+                        IdleStatus.READER_IDLE, session.closeTimeout);
+            }
+        }
+
+        @Override
+        protected void doFireSessionDestroyed(WsebSession session) {
+            // We must fire session destroyed on the wsebSession only when the close handshake is complete
+            // (which is when the transport session gets closed)
+//            IoSession transport = session.getTransportSession();
+//            transport.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+//                @Override
+//                public void operationComplete(IoFuture future) {
+//                    session.getService().getListeners().fireSessionDestroyed(session);
+//                }
+//            });
         }
 
         @Override
@@ -882,7 +936,13 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 session.write(emptyPong);
                 break;
             case CLOSE:
-                wsebSession.close(false);
+                wsebSession.setCloseReceived();
+                if (!wsebSession.isClosing()) {
+                    wsebSession.close(false);
+                }
+                else {
+                    wsebSession.getTransportSession().close(false);
+                }
                 break;
             case CONTINUATION:
                 break;
@@ -916,6 +976,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             WsebSession wsebSession = session.getWsebSession();
             if (wsebSession != null && !wsebSession.isClosing()) {
                 wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+            }
+        }
+
+        @Override
+        protected void doSessionIdle(TransportSession session, IdleStatus status) throws Exception {
+            WsebSession wsebSession = session.getWsebSession();
+            if (wsebSession.isClosing() && !wsebSession.isCloseReceived()) {
+                session.close(true);
             }
         }
 

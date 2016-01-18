@@ -74,7 +74,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
         WsebSession wsebSession = getSession(session);
-        if (wsebSession == null || wsebSession.isClosing()) {
+        if (wsebSession == null || wsebSession.isClosing() && wsebSession.isCloseReceived()) {
             session.close(false);
             return;
         }

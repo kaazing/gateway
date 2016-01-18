@@ -104,7 +104,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
         @Override
         protected IoSessionIdleTracker initialValue() {
-            IoSessionIdleTracker result = new WsebInactivityTracker(logger);
+            IoSessionIdleTracker result = new WsebTransportSessionIdleTracker(logger);
             sessionInactivityTrackers.add(result);
             return result;
         }

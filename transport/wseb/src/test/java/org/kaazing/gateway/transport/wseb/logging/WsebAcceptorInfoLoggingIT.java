@@ -122,7 +122,7 @@ public class WsebAcceptorInfoLoggingIT {
 
     @Test
     @Specification({
-        "data/binary/echo.payload.length.127/request"
+        "data/echo.binary.payload.length.127/request"
         })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         k3po.finish();

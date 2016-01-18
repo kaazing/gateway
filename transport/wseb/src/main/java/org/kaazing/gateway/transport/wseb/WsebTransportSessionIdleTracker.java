@@ -33,15 +33,15 @@ import org.slf4j.Logger;
  * we will just set the WsCheckAliveFilter filter on the parent's filter chain, as we do for WSN, and use
  * DefaultIoSessionIdleTracker to support idleTimeout on the TCPE session.
  */
-class WsebInactivityTracker implements IoSessionIdleTracker {
+class WsebTransportSessionIdleTracker implements IoSessionIdleTracker {
     private static final String CHECK_ALIVE_FILTER = WsebProtocol.NAME + "#checkalive";
     private static final TypedAttributeKey<Boolean> ALREADY_TRACKED = new TypedAttributeKey<>(
-            WsebInactivityTracker.class, "tracked");
+            WsebTransportSessionIdleTracker.class, "tracked");
 
     private final Logger logger;
     private final IoSessionIdleTracker idleTracker = new DefaultIoSessionIdleTracker();
 
-    public WsebInactivityTracker(Logger logger) {
+    public WsebTransportSessionIdleTracker(Logger logger) {
         this.logger = logger;
     }
 

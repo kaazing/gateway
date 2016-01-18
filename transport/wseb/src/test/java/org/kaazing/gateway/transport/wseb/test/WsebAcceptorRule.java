@@ -17,7 +17,11 @@ package org.kaazing.gateway.transport.wseb.test;
 
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import org.apache.log4j.PropertyConfigurator;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Properties;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -33,13 +37,6 @@ import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
  * after it. The rule can be chained with a K3poRule for use with robot (this causes Robot to be started before the gateway and
@@ -47,7 +44,7 @@ import java.util.Properties;
  */
 public class WsebAcceptorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
+    private final Properties configuration;
     private ResourceAddressFactory resourceAddressFactory;
     private WsebAcceptor wsebAcceptor;
 
@@ -57,11 +54,11 @@ public class WsebAcceptorRule implements TestRule {
         return new AcceptorStatement(base);
     }
     public WsebAcceptorRule() {
-        this(null);
+        this(new Properties());
     }
 
-    public WsebAcceptorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
+    public WsebAcceptorRule(Properties configuration) {
+        this.configuration = configuration;
     }
 
     public void bind(final String accept,
@@ -91,16 +88,6 @@ public class WsebAcceptorRule implements TestRule {
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                PropertyConfigurator.configure(log4j);
-            }
             try {
                 // Connector setup
                 resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -125,7 +112,6 @@ public class WsebAcceptorRule implements TestRule {
                 wsebAcceptor.setResourceAddressFactory(resourceAddressFactory);
                 wsebAcceptor.setSchedulerProvider(schedulerProvider);
                 wsebAcceptor.setWsAcceptor(wsAcceptor);
-                Properties configuration = new Properties();
                 configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
                 wsebAcceptor.setConfiguration(configuration);
 
