@@ -25,9 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -100,18 +98,18 @@ public class WsebAcceptorLoggingIT {
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-            "tcp#.*OPENED",
-            "tcp#.*WRITE",
-            "tcp#.*RECEIVED",
-            "tcp#.*CLOSED",
-            "http#.*OPENED",
-            "http#.*WRITE",
-            "http#.*RECEIVED",
-            "http#.*EXCEPTION.*Protocol.*Exception",
-            "http#.*CLOSED",
-            "wseb#.*OPENED",
-            "wseb#.*IOException.*caused by.*Protocol.*Exception",
-            "wseb#.*CLOSED"
+            "\\[tcp#.*OPENED",
+            "\\[tcp#.*WRITE",
+            "\\[tcp#.*RECEIVED",
+            "\\[tcp#.*CLOSED",
+            "\\[http#.*OPENED",
+            "\\[http#.*WRITE",
+            "\\[http#.*RECEIVED",
+            "\\[http#.*EXCEPTION.*Protocol.*Exception",
+            "\\[http#.*CLOSED",
+            "\\[wseb#.*OPENED",
+            "\\[wseb#.*IOException.*caused by.*Protocol.*Exception",
+            "\\[wseb#.*CLOSED"
         }));
 
         forbiddenPatterns = Collections.emptyList();
@@ -125,25 +123,25 @@ public class WsebAcceptorLoggingIT {
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
-             "tcp#.* [^/]*:\\d*] OPENED",
-             "tcp#.* [^/]*:\\d*] WRITE",
-             "tcp#.* [^/]*:\\d*] RECEIVED",
-             "tcp#.* [^/]*:\\d*] CLOSED",
-             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
-             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
-             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
-             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION",
-             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
-             "http#.* [^/]*:\\d*] OPENED",
-             "http#.* [^/]*:\\d*] WRITE",
-             "http#.* [^/]*:\\d*] RECEIVED",
-             "http#.* [^/]*:\\d*] EXCEPTION",
-             "http#.* [^/]*:\\d*] CLOSED",
-             "wseb#.* [^/]*:\\d*] OPENED",
-             "wseb#.* [^/]*:\\d*] WRITE",
-             "wseb#.* [^/]*:\\d*] RECEIVED",
-             "wseb#.* [^/]*:\\d*] EXCEPTION",
-             "wseb#.* [^/]*:\\d*] CLOSED"
+             "\\[tcp#.* [^/]*:\\d*] OPENED",
+             "\\[tcp#.* [^/]*:\\d*] WRITE",
+             "\\[tcp#.* [^/]*:\\d*] RECEIVED",
+             "\\[tcp#.* [^/]*:\\d*] CLOSED",
+             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] EXCEPTION",
+             "\\[http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+             "\\[http#.* [^/]*:\\d*] OPENED",
+             "\\[http#.* [^/]*:\\d*] WRITE",
+             "\\[http#.* [^/]*:\\d*] RECEIVED",
+             "\\[http#.* [^/]*:\\d*] EXCEPTION",
+             "\\[http#.* [^/]*:\\d*] CLOSED",
+             "\\[wseb#.* [^/]*:\\d*] OPENED",
+             "\\[wseb#.* [^/]*:\\d*] WRITE",
+             "\\[wseb#.* [^/]*:\\d*] RECEIVED",
+             "\\[wseb#.* [^/]*:\\d*] EXCEPTION",
+             "\\[wseb#.* [^/]*:\\d*] CLOSED"
         }));
 
         forbiddenPatterns = Collections.emptyList();

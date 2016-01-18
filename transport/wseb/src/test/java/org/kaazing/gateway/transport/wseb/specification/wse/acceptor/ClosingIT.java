@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -66,6 +67,35 @@ public class ClosingIT {
     //public void clientShouldCloseIfServerDoesNotEchoCloseFrame() throws Exception {
     //    k3po.finish();
     //}
+
+    @Test
+    @Specification("client.abruptly.closes.downstream/request")
+    @Ignore("This will not work until k3po #132 is resolved (allow http script to force tcp close)")
+    public void shouldFireCorrectEventsIfClientAbruptlyClosesDownstream() throws Exception {
+        final AtomicLong timeToClose = new AtomicLong(0);
+        CountDownLatch closed = new CountDownLatch(1);
+        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
+            @Override
+            protected void doSessionOpened(IoSession session) throws Exception {
+                final long start = currentTimeMillis();
+                session.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+
+                    @Override
+                    public void operationComplete(IoFuture future) {
+                        timeToClose.set(currentTimeMillis() - start);
+                        closed.countDown();
+                    }
+                });
+            }
+
+        });
+        k3po.finish();
+        assertTrue("wsebSession was not closed after 4 seconds", closed.await(4, SECONDS));
+        // Timing is not exact but should be close
+        assertTrue(format("Closed should be immediate, but took %d millisecs, longer than ws close timeout of 2000 millisecs",
+                timeToClose.get()),
+                timeToClose.get() < 2000);
+    }
 
     @Test
     @Specification("server.send.close/request")

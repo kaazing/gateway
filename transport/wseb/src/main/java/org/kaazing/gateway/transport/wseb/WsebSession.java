@@ -74,6 +74,21 @@ import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Explanation of TransportSession, etc
+ *
+ * TransportSession in an IoSession encapsulated within the WsebSession which is used to expose all incoming
+ * and outgoing WS frames to WebSocket extension filters. It is also used for inactivity timeout (WsCheckAliveFilter
+ * is added to its filter chain). Incoming events (like messageReceived, sessionClosed) transit as follows:<p>
+ *
+ * WsebUpstreamHandler -> TransportSession's filter chain -> TransportHandler -> WsebSession's filter chain -> service handler
+ *
+ * <p>Outgoing events (like filterWrite, filterClose) flow as follows:<br><br>
+ *
+ * WsebSession's filter chain -> WsebSessionProcessor -> TransportSessions' filter chain -> TransportProcessor
+ * -> WsebAcceptProcessor -> downstream http session
+ *
+ */
 public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> {
 
     private static final boolean ALIGN_DOWNSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_DOWNSTREAM", "true"));
@@ -759,8 +774,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 }
             }
 
-            if (session.isCloseReceived()) {
-                session.getTransportSession().close(false);
+            if (session.isCloseReceived() || session.getCloseException() != null) {
+                // if writer is unusable closeOnFlush will not work so pass in true
+                session.getTransportSession().close(writer == null || writer.isClosing() ? true : false);
             }
             else {
                 // Wait for close handshake completion from client on upstream
