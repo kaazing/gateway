@@ -360,6 +360,57 @@ public class HttpResponseDecoderTest {
         assertEquals("Wrong parsing of the received cookies", expectedCookie, receivedCookie);
     }
 
+    @Test
+    public void decodeHttpResponseCookiesPropertiesNoValues() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+
+        ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\n" + 
+                                         "Server: Apache-Coyote/1.1\r\n" + 
+                                         "Set-Cookie: cookieName=testCookie; comment=; domain=; max-age=; path=; version=\r\n" +
+                                         "Transfer-Encoding: chunked\r\n" +
+                                         "\r\n").getBytes());
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpResponseMessage httpResponse = (HttpResponseMessage) session.getDecoderOutputQueue().poll();
+        Set<HttpCookie> cookies = httpResponse.getCookies();
+        assertFalse("Empty cookies", cookies.isEmpty());
+
+        HttpCookie receivedCookie = cookies.iterator().next();
+        HttpCookie expectedCookie = new DefaultHttpCookie("cookieName", null, null, "testCookie");
+        assertEquals("Wrong parsing of the received cookies", expectedCookie, receivedCookie);
+    }
+
+    @Test
+    public void decodeHttpResponseCookiesPropertiesWithValues() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        ProtocolDecoder decoder = new HttpResponseDecoder();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+
+        ByteBuffer in = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\n" + 
+                                         "Server: Apache-Coyote/1.1\r\n" + 
+                                         "Set-Cookie: cookieName=cookieValue; comment=c; domain=somedomain.com; max-age=2; path=/path/; version=1\r\n" + 
+                                         "Transfer-Encoding: chunked\r\n" +
+                                         "\r\n").getBytes());
+        IoBufferEx buf = allocator.wrap(in);
+        decoder.decode(session, (IoBuffer) buf, session.getDecoderOutput());
+
+        assertFalse(session.getDecoderOutputQueue().isEmpty());
+        HttpResponseMessage httpResponse = (HttpResponseMessage) session.getDecoderOutputQueue().poll();
+        Set<HttpCookie> cookies = httpResponse.getCookies();
+        assertFalse("Empty cookies", cookies.isEmpty());
+
+        DefaultHttpCookie receivedCookie = (DefaultHttpCookie) cookies.iterator().next();
+        DefaultHttpCookie expectedCookie = new DefaultHttpCookie("cookieName", "somedomain.com", "/path/", "cookieValue");
+        expectedCookie.setComment("c");
+        expectedCookie.setMaxAge(2);
+        expectedCookie.setVersion(1);
+        assertEquals("Wrong parsing of the received cookies", expectedCookie, receivedCookie);
+    }
+
     @Test(expected = ProtocolDecoderException.class)
     public void decodeIncorrectHttpVersion() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();

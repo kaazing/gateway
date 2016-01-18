@@ -269,31 +269,32 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 						// read the cookie properties
 						for (int i = 1; i < nvPairCount; i++) {
 							nvPair = nvPairs[i].split("=");
+                            boolean hasValue = nvPair.length > 1 ? true : false;
 							String avName = nvPair[0].trim();
 							if (avName.length() > 0) {
 								switch (avName.charAt(0)) {
 								case 'c':
 								case 'C':
-									if ("Comment".equalsIgnoreCase(avName)) {
+									if ("Comment".equalsIgnoreCase(avName) && hasValue) {
 										cookie.setComment(nvPair[1].trim());
 									}
 									break;
 								case 'd':
 								case 'D':
-									if ("Domain".equalsIgnoreCase(avName)) {
+									if ("Domain".equalsIgnoreCase(avName) && hasValue) {
 										cookie.setDomain(nvPair[1].trim());
 									}
 									break;
 								case 'm':
 								case 'M':
-									if ("Max-Age".equalsIgnoreCase(avName)) {
+									if ("Max-Age".equalsIgnoreCase(avName) && hasValue) {
 										cookie.setMaxAge(Integer
 												.parseInt(nvPair[1].trim()));
 									}
 									break;
 								case 'p':
 								case 'P':
-									if ("Path".equalsIgnoreCase(avName)) {
+									if ("Path".equalsIgnoreCase(avName) && hasValue) {
 										cookie.setPath(nvPair[1].trim());
 									}
 									break;
@@ -305,7 +306,7 @@ public class HttpResponseDecodingState extends DecodingStateMachine {
 									break;
 								case 'v':
 								case 'V':
-									if ("Version".equalsIgnoreCase(avName)) {
+									if ("Version".equalsIgnoreCase(avName) && hasValue) {
 										cookie.setVersion(Integer
 												.parseInt(nvPair[1].trim()));
 									}
