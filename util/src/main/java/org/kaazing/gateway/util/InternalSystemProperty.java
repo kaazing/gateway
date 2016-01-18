@@ -34,6 +34,9 @@ public enum InternalSystemProperty {
     WS_ENABLED_TRANSPORTS
             ("org.kaazing.gateway.server.transport.ws.ENABLED_TRANSPORTS"),
 
+    WS_CLOSE_TIMEOUT
+            ("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT", "5sec"),
+
     WSE_IDLE_TIMEOUT
             ("org.kaazing.gateway.server.transport.wse.IDLE_TIMEOUT", "60"),
     // Next property is to allow us to safely introduce changes

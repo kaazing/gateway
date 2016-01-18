@@ -48,12 +48,9 @@ import org.slf4j.LoggerFactory;
 
 class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebDownstreamHandler.class);
-
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String ENCODING_FILTER = WsebProtocol.NAME + "#escape";
     private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
-    private static final String RECONNECT_FILTER = WsebProtocol.NAME + "#reconnect";
 
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     // TODO: make this setting available via configuration, with a reasonable default
@@ -63,7 +60,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private final WsebSession wsebSession;
     private final WsebEncodingCodecFilter codec;
     private final IoFilter encoding;
-    private final ScheduledExecutorService scheduler;
     private IoSessionIdleTracker inactivityTracker = null;
     private final BridgeServiceFactory bridgeServiceFactory;
 
@@ -91,7 +87,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             this.codec = escapeEncoding != null ? new WsebEncodingCodecFilter(EscapeTypes.ESCAPE_ZERO_AND_NEWLINES) : new WsebEncodingCodecFilter();
             this.encoding = null;
         }
-        this.scheduler = scheduler;
         this.inactivityTracker = inactivityTracker;
         this.bridgeServiceFactory = bridgeServiceFactory;
     }
