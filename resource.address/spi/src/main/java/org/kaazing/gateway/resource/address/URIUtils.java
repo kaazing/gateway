@@ -60,31 +60,39 @@ public class URIUtils {
     }
 
     public static String buildURIAsString(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
-        return (new URI(scheme, authority, path, query, fragment)).toString();
+        URI uri = new URI(scheme, authority, path, query, fragment);
+        return uri.toString();
     }
 
     public static String resolve(String uriInitial, String uriString) {
-        return ((URI.create(uriInitial)).resolve(uriString)).toString();
+        URI baseURI = URI.create(uriInitial);
+        URI resolvedURI = baseURI.resolve(uriString);
+        return resolvedURI.toString();
     }
 
     public static String modifyURIScheme(String uri, String newScheme) {
-          return (URLUtils.modifyURIScheme(URI.create(uri), newScheme)).toString();
+        URI modifiedURI = URLUtils.modifyURIScheme(URI.create(uri), newScheme);
+        return modifiedURI.toString();
     }
 
     public static String modifyURIAuthority(String uri, String newAuthority) {
-        return (URLUtils.modifyURIAuthority(URI.create(uri), newAuthority)).toString();
+        URI modifiedURI = URLUtils.modifyURIAuthority(URI.create(uri), newAuthority);
+        return modifiedURI.toString();
     }
 
     public static String modifyURIPort(String uri, int newPort) {
-        return (URLUtils.modifyURIPort(URI.create(uri), newPort)).toString();
+        URI modifiedURI = URLUtils.modifyURIPort(URI.create(uri), newPort);
+        return modifiedURI.toString();
     }
 
     public static String modifyURIPath(String uri, String newPath) {
-        return (URLUtils.modifyURIPath(URI.create(uri), newPath)).toString();
+        URI modifiedURI = URLUtils.modifyURIPath(URI.create(uri), newPath);
+        return modifiedURI.toString();
     }
 
     public static String appendURI(String uri, String postfix) {
-        return (URLUtils.appendURI(URI.create(uri), postfix)).toString();
+        URI modifiedURI = URLUtils.appendURI(URI.create(uri), postfix);
+        return modifiedURI.toString();
     }
 
     public static String ensureTrailingSlash(String uri) {
