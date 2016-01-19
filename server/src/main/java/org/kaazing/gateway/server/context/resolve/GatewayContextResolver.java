@@ -726,7 +726,7 @@ public class GatewayContextResolver {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
             // TODO: Add initial version of this to TcpResourceAddressSpi
-            String resolvedURI = uri; //resolveURI(getCanonicalURI(uri, true));
+            String resolvedURI = /*resolveURI(*/(getCanonicalURI(uri, true)).toString();
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;

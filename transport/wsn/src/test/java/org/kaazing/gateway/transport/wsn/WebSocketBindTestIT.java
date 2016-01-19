@@ -30,7 +30,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class WebSocketBindTestIT {
 
-	private final K3poRule robot = new K3poRule();
+    private final K3poRule robot = new K3poRule();
 
     private final GatewayRule gateway = new GatewayRule() {
         {

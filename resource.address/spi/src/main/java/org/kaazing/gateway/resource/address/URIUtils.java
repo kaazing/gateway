@@ -25,69 +25,69 @@ import java.net.URISyntaxException;
 public class URIUtils {
 
     public static String getHost(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getHost();
+        URI uri = URI.create(uriString);
+        return uri.getHost();
     }
 
     public static String getScheme(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getScheme();
+        URI uri = URI.create(uriString);
+        return uri.getScheme();
     }
 
     public static String getAuthority(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getAuthority();
+        URI uri = URI.create(uriString);
+        return uri.getAuthority();
     }
 
     public static String getFragment(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getFragment();
+        URI uri = URI.create(uriString);
+        return uri.getFragment();
     }
 
     public static String getPath(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getPath();
+        URI uri = URI.create(uriString);
+        return uri.getPath();
     }
 
     public static String getQuery(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getQuery();
+        URI uri = URI.create(uriString);
+        return uri.getQuery();
     }
 
     public static int getPort(String uriString) {
-    	URI uri = URI.create(uriString);
-    	return uri.getPort();
+        URI uri = URI.create(uriString);
+        return uri.getPort();
     }
 
     public static String buildURIAsString(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException {
-    	return (new URI(scheme, authority, path, query, fragment)).toString();
+        return (new URI(scheme, authority, path, query, fragment)).toString();
     }
 
     public static String resolve(String uriInitial, String uriString) {
-    	return ((URI.create(uriInitial)).resolve(uriString)).toString();
+        return ((URI.create(uriInitial)).resolve(uriString)).toString();
     }
 
-	public static String modifyURIScheme(String uri, String newScheme) {
-	  	return (URLUtils.modifyURIScheme(URI.create(uri), newScheme)).toString();
-	}
+    public static String modifyURIScheme(String uri, String newScheme) {
+          return (URLUtils.modifyURIScheme(URI.create(uri), newScheme)).toString();
+    }
 
-	public static String modifyURIAuthority(String uri, String newAuthority) {
-		return (URLUtils.modifyURIAuthority(URI.create(uri), newAuthority)).toString();
-	}
+    public static String modifyURIAuthority(String uri, String newAuthority) {
+        return (URLUtils.modifyURIAuthority(URI.create(uri), newAuthority)).toString();
+    }
 
-	public static String modifyURIPort(String uri, int newPort) {
-		return (URLUtils.modifyURIPort(URI.create(uri), newPort)).toString();
-	}
+    public static String modifyURIPort(String uri, int newPort) {
+        return (URLUtils.modifyURIPort(URI.create(uri), newPort)).toString();
+    }
 
-	public static String modifyURIPath(String uri, String newPath) {
-		return (URLUtils.modifyURIPath(URI.create(uri), newPath)).toString();
-	}
+    public static String modifyURIPath(String uri, String newPath) {
+        return (URLUtils.modifyURIPath(URI.create(uri), newPath)).toString();
+    }
 
-	public static String appendURI(String uri, String postfix) {
-		return (URLUtils.appendURI(URI.create(uri), postfix)).toString();
-	}
+    public static String appendURI(String uri, String postfix) {
+        return (URLUtils.appendURI(URI.create(uri), postfix)).toString();
+    }
 
-	public static String ensureTrailingSlash(String uri) {
-		return ensureTrailingSlash(uri);
-	}
+    public static String ensureTrailingSlash(String uri) {
+        return ensureTrailingSlash(uri);
+    }
 }

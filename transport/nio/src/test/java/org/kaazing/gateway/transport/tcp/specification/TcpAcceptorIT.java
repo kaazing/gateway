@@ -152,6 +152,7 @@ public class TcpAcceptorIT {
     @Specification({
         "concurrent.connections/client"
         })
+    @Ignore("TODO: Clarify this")
     public void concurrentConnections() throws Exception {
         bindTo8080(new IoHandlerAdapter<IoSessionEx>(){
 
