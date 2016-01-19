@@ -2057,7 +2057,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         @Override
-        public void managementServicesChanged(String changeType, String instanceKey, Collection<URI> managementServiceAccepts) {
+        public void managementServicesChanged(String changeType, String instanceKey, Collection<String>
+            managementServiceAccepts) {
             OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterManagementServiceEvent;
@@ -2070,7 +2071,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             StringBuffer sb = new StringBuffer();
             String managementServiceAcceptsValue = "";
             if (managementServiceAccepts != null) {
-                for (URI managementServiceAccept : managementServiceAccepts) {
+                for (String managementServiceAccept : managementServiceAccepts) {
                     sb.append(managementServiceAccept.toString() + '\n');
                 }
                 if (sb.length() > 1) {

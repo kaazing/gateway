@@ -635,7 +635,7 @@ public class DefaultServiceContext implements ServiceContext {
                                 substring(0, URIUtils.getPath(transportURI).length() - "/;e".length()));
             }
             acceptConstraints = acceptConstraintsByURI.get(URIUtils.modifyURIScheme(transportURI, "ws"));
-            if (acceptConstraints == null && transportFactory.getProtocol(transportURI).isSecure()) {
+            if (acceptConstraints == null && transportFactory.getProtocol(URIUtils.getScheme(transportURI)).isSecure()) {
                 acceptConstraints = acceptConstraintsByURI.get(URIUtils.modifyURIScheme(transportURI, "wss"));
             }
         }

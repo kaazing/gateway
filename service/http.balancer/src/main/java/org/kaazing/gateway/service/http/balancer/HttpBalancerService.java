@@ -98,12 +98,12 @@ public class HttpBalancerService implements Service {
                 @Override
                 public void initializeSession(IoSession session, ConnectFuture future) {
                     HttpAcceptSession httpSession = (HttpAcceptSession) session;
-                    List<URI> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
-                    List<URI> selectedBalanceeURIs = null;
+                    List<String> availableBalanceeURIs = wsebHandler.getBalanceeURIs(httpSession.isSecure());
+                    List<String> selectedBalanceeURIs = null;
                     if (availableBalanceeURIs.isEmpty()) {
                         selectedBalanceeURIs = Collections.emptyList();
                     } else {
-                        URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+                        String selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
                         selectedBalanceeURIs = new ArrayList<>(1);
                         selectedBalanceeURIs.add(selectedBalanceeURI);
                     }
@@ -209,7 +209,7 @@ public class HttpBalancerService implements Service {
                                                       TransportFactory transportFactory) throws Exception {
         List<String> httpURIs = new ArrayList<>(uris.size());
         for (String uri : uris) {
-            Protocol protocol = transportFactory.getProtocol(uri);
+            Protocol protocol = transportFactory.getProtocol(URIUtils.getScheme(uri));
             boolean secure = protocol.isSecure();
 
             for ( int i = 0; i < HTTP_TRANSPORTS.size(); i+=2) {

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.kaazing.gateway.resource.address.Protocol;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
@@ -68,7 +69,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-        List<URI> availableBalanceeURIs = getBalanceeURIs(session.isSecure());
+        List<String> availableBalanceeURIs = getBalanceeURIs(session.isSecure());
 
         if (availableBalanceeURIs.isEmpty()) {
             GL.debug("ha", "Rejected {} request for URI \"{}\" on session {}: no available balancee URI was found",
@@ -76,11 +77,11 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
         } else {
 
-            URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
+            String selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
             GL.info("ha", "Selected Balancee URI: {}", selectedBalanceeURI);
 
             URI requestURI = session.getRequestURI();
-            String balanceeScheme = selectedBalanceeURI.getScheme();
+            String balanceeScheme = URIUtils.getScheme(selectedBalanceeURI);
             if (balanceeScheme.equals("sse")) {
             	balanceeScheme = "http";
             }
@@ -88,9 +89,9 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             	balanceeScheme = "https";
             }
             else {
-            	balanceeScheme = selectedBalanceeURI.getScheme().replaceFirst("^ws", "http");
+            	balanceeScheme = URIUtils.getScheme(selectedBalanceeURI).replaceFirst("^ws", "http");
             }
-            String balanceePath = selectedBalanceeURI.getPath();
+            String balanceePath = URIUtils.getPath(selectedBalanceeURI);
             String requestPath = requestURI.getPath();
             int emIndex = (requestPath != null) ? requestPath.indexOf(WsebAcceptor.EMULATED_SUFFIX) : -1;
             if ((emIndex != -1) && (!requestPath.contains(WsebAcceptor.EMULATED_SUFFIX + "/cookies"))) {
@@ -100,7 +101,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
             // GL.warn("ha", "Selected Balancee Query String: {}", balanceeQuery);
 
-            selectedBalanceeURI = new URI(balanceeScheme, selectedBalanceeURI.getAuthority(), balanceePath, balanceeQuery, null);
+            selectedBalanceeURI = URIUtils.buildURIAsString(balanceeScheme, URIUtils.getAuthority(selectedBalanceeURI), balanceePath, balanceeQuery, null);
 
             session.setStatus(HttpStatus.REDIRECT_FOUND /* 302 */);
             session.setWriteHeader("Location", selectedBalanceeURI.toString());
@@ -108,8 +109,8 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
         session.close(false);
     }
 
-    List<URI> getBalanceeURIs(boolean secure) {
-        List<URI> balanceeURIs = new ArrayList<>();
+    List<String> getBalanceeURIs(boolean secure) {
+        List<String> balanceeURIs = new ArrayList<>();
 
         CollectionsFactory collectionsFactory = null;
         if (clusterContext != null) {
@@ -123,17 +124,17 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             try {
                 mapLock.lock();
                 // Get the map of balance URIs to accept URIs from the cluster.
-                Map<URI, Collection<URI>> balancers = collectionsFactory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
+                Map<String, Collection<String>> balancers = collectionsFactory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
 
                 // For my accept URIs, look up the map to get the balancee URIs for which I am balancing.
                 for (String balancerAccept : accepts) {
-                    Collection<URI> balanceesForAccept = balancers.get(balancerAccept);
+                    Collection<String> balanceesForAccept = balancers.get(balancerAccept);
                     GL.debug("ha", String.format("Found balancee URIs %s for accept URI %s", balanceesForAccept, balancerAccept));
 
                     if (balanceesForAccept != null) {
-                        for (URI balanceeURI : balanceesForAccept) {
+                        for (String balanceeURI : balanceesForAccept) {
                             // Pick only clear or secure balancees as appropriate.
-                            Protocol protocol = transportFactory.getProtocol(balanceeURI);
+                            Protocol protocol = transportFactory.getProtocol(URIUtils.getScheme(balanceeURI));
                             if (secure == protocol.isSecure()) {
                                 balanceeURIs.add(balanceeURI);
                             }

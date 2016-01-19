@@ -216,7 +216,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(TEMP_DIRECTORY, tempDirectory);
         }
 
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI = (List<Map<URI, Map<String, CrossSiteConstraintContext>>>) optionsByName.remove(GATEWAY_ORIGIN_SECURITY.name());
+        List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI = (List<Map<String, Map<String, CrossSiteConstraintContext>>>) optionsByName.remove(GATEWAY_ORIGIN_SECURITY.name());
         if (authorityToSetOfAcceptConstraintsByURI != null) {
             options.setOption(GATEWAY_ORIGIN_SECURITY, new GatewayHttpOriginSecurity(authorityToSetOfAcceptConstraintsByURI));
         }

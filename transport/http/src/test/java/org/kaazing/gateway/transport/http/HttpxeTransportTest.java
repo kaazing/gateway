@@ -110,7 +110,7 @@ public class HttpxeTransportTest {
         String location = "httpxe://localhost:8000/";
         Map<String, Object> options = new HashMap<>();
         options.put("http[http/1.1].injectableHeaders", noneOf(HttpInjectableHeader.class));
-        options.put("http[http/1.1].transport", transportURI);
+        options.put("http[http/1.1].transport", URI.create(transportURI));
 
         httpxeAddress = addressFactory.newResourceAddress(location, options);
         pipeAddress = addressFactory.newResourceAddress(transportURI);

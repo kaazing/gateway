@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
@@ -267,8 +268,8 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(WriteFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of accept session was not "+location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of accept session was not "+location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("remote address of accept session was not "+location, URI.create(location), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of accept session was not "+location, URI.create(location), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });
@@ -291,8 +292,8 @@ public class WsnConnectorTest {
                     @Override
                     public void operationComplete(IoFuture future) {
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of connect session was not " + location, location, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of connect session was not " + location, location, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("remote address of connect session was not " + location, URI.create(location), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of connect session was not " + location, URI.create(location), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         checkpoint();
                     }
                 });

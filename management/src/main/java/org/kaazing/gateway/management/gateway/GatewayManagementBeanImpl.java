@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.management.gateway;
 
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -24,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.util.CopyOnWriteMap;
@@ -50,13 +49,16 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+
 /**
  * Implementation of the management 'data' bean for a session. This just contains the data. Wrappers for different management
  * protocols define the use of those data.
  */
 public class GatewayManagementBeanImpl extends AbstractManagementBean
         implements GatewayManagementBean, MembershipEventListener, InstanceKeyListener, BalancerMapListener,
-        EntryListener<MemberId, Collection<URI>> {
+        EntryListener<MemberId, Collection<String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayManagementBeanImpl.class);
 
@@ -428,7 +430,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     }
 
     @Override
-    public void entryAdded(EntryEvent<MemberId, Collection<URI>> event) {
+    public void entryAdded(EntryEvent<MemberId, Collection<String>> event) {
         MemberId memberId = event.getKey();
         String instanceKey = clusterContext.getInstanceKey(memberId);
         for (ClusterManagementListener listener : clusterManagementListeners) {
@@ -436,15 +438,15 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
     }
 
-    public void entryEvicted(EntryEvent<MemberId, Collection<URI>> event) {
+    public void entryEvicted(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
-    public void entryRemoved(EntryEvent<MemberId, Collection<URI>> event) {
+    public void entryRemoved(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 
-    public void entryUpdated(EntryEvent<MemberId, Collection<URI>> event) {
+    public void entryUpdated(EntryEvent<MemberId, Collection<String>> event) {
         // this listener is here to track when new management services are added, so we can ignore this
     }
 

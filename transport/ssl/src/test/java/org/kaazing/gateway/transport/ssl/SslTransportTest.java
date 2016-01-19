@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.KeyStore;
 import java.util.Collections;
@@ -234,8 +235,8 @@ public class SslTransportTest {
                 System.out.println("SSL server: doSessionOpened");
 
                 BridgeSession bridgeSession = (BridgeSession) session;
-                Assert.assertEquals("remote address of accept session was not "+uri, uri, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                Assert.assertEquals("local  address of accept session was not "+uri, uri, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("remote address of accept session was not "+uri, URI.create(uri), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("local  address of accept session was not "+uri, URI.create(uri), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                 Assert.assertEquals("ephemeral port of remote address' transport != ephemeral port of parent session's remote address",
                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
@@ -282,8 +283,8 @@ public class SslTransportTest {
                 System.out.println("SSL client: doSessionOpened");
                 BridgeSession bridgeSession = (BridgeSession) session;
 
-                Assert.assertEquals("remote address of connect session was not "+uri, uri, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                Assert.assertEquals("local  address of connect session was not "+uri, uri, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("remote address of connect session was not "+uri, URI.create(uri), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("local  address of connect session was not "+uri, URI.create(uri), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                 Assert.assertEquals("ephemeral port of local address' transport != ephemeral port of parent session's local address",
                                     BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                                     BridgeSession.LOCAL_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
