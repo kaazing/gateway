@@ -109,14 +109,17 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
             String acceptPathInfo = acceptSession.getPathInfo().toString();
-            if (acceptPathInfo.startsWith("/")) {
-                acceptPathInfo = acceptPathInfo.substring(1);
+            boolean acceptRequestHasPath = acceptPathInfo.length() > 0;
+            if (acceptRequestHasPath) {
+                if (acceptPathInfo.startsWith("/")) {
+                    acceptPathInfo = acceptPathInfo.substring(1);
+                }
+                String connectPath = connectSession.getRequestURI().getPath();
+                if (!connectPath.endsWith("/")) {
+                    connectPath += "/";
+                }
+                connectSession.setRequestURI(URI.create(connectPath).resolve(acceptPathInfo));
             }
-            String connectPath = connectSession.getRequestURI().getPath();
-            if (!connectPath.endsWith("/")) {
-                connectPath += "/";
-            }
-            connectSession.setRequestURI(URI.create(connectPath).resolve(acceptPathInfo));
             processRequestHeaders(acceptSession, connectSession);
         }
 
