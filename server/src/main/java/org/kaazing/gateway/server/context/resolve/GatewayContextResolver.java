@@ -725,14 +725,12 @@ public class GatewayContextResolver {
     private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-            // TODO: Add initial version of this to TcpResourceAddressSpi
-            String resolvedURI = /*resolveURI(*/(getCanonicalURI(uri, true)).toString();
+            String resolvedURI = resolveURI(getCanonicalURI(uri, true)).toString();
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
     }
 
-    // TODO: Add this to TcpResourceAddressSpi
     private URI resolveURI(URI uri) throws URISyntaxException {
         String schemeName = uri.getScheme();
         SchemeConfig schemeConfig = supplySchemeConfig(schemeName);
