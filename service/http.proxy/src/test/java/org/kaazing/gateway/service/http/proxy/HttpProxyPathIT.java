@@ -39,7 +39,7 @@ public class HttpProxyPathIT {
                     new GatewayConfigurationBuilder()
                         .service()
                             .accept(URI.create("http://localhost:8110/acceptConfigPath/")) 
-                            .connect(URI.create("http://localhost:8080/connectConfigPath/")) 
+                            .connect(URI.create("http://localhost:8080/connectConfigPath")) 
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                         .done()
@@ -61,6 +61,12 @@ public class HttpProxyPathIT {
     @Specification("http.proxy.path.security")
     @Test
     public void httpProxyPathSecurity() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.no.slash.appended")
+    @Test
+    public void httpProxyShouldNotAppendSlashToConnectIfAcceptRequestHasNoPath() throws Exception {
         robot.finish();
     }
 
