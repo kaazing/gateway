@@ -24,8 +24,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
-
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
@@ -45,6 +43,7 @@ import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.transport.wsn.WsnSession;
 import org.kaazing.gateway.util.GL;
+
 
 /**
  * Gateway service of type "balancer".
@@ -90,7 +89,7 @@ public class HttpBalancerService implements Service {
 
         // Register the Gateway's connection capabilities with the handlers so that session counts are tracked
         wsebHandler.setTransportFactory(transportFactory);
-        GL.info(CLUSTER_LOGGER_NAME,"Finished  HttpBalancerService.init()");
+        GL.info(GL.CLUSTER_LOGGER_NAME,"Finished  HttpBalancerService.init()");
         clusterContext.logClusterStateAtInfoLevel();
     }
 
@@ -110,7 +109,7 @@ public class HttpBalancerService implements Service {
                         URI selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
                         selectedBalanceeURIs = new ArrayList<>(1);
                         selectedBalanceeURIs.add(selectedBalanceeURI);
-                        GL.debug(CLUSTER_LOGGER_NAME, "HttpBalancerService initializeSession Selected Balancee URI: {}", selectedBalanceeURI);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "HttpBalancerService initializeSession Selected Balancee URI: {}", selectedBalanceeURI);
                     }
                     IoSession parent = httpSession.getParent();
                     parent.setAttribute(BALANCEES_KEY, selectedBalanceeURIs);

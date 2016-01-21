@@ -98,6 +98,24 @@
             <groupId>org.kaazing</groupId>
             <artifactId>k3po.junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.http</artifactId>
+            <version>${k3po.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.kaazing</groupId>
+             <artifactId>specification.httpx</artifactId>
+             <version>${k3po.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.kaazing</groupId>
+             <artifactId>specification.ws</artifactId>
+             <version>${k3po.version}</version>
+            <scope>test</scope>
+         </dependency>
     </dependencies>
 
     <build>
