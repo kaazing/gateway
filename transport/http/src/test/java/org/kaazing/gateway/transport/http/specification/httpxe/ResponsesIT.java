@@ -47,42 +47,54 @@ public class ResponsesIT {
     public final TestRule chain = createRuleChain(acceptor, k3po);
 
     @Test
-    @Specification("wrapped.101.response.in.200/request")
-    public void shouldPassWithWrapped101ResponseIn200() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
+    @Specification("unwrapped.101.response/request")
+    public void shouldPassWithUnwrapped101Response() throws Exception {
+        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
     }
 
     @Test
     @Specification("wrapped.201.response.in.200/request")
     public void shouldPassWithWrapped201ResponseIn200() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.SUCCESS_CREATED);
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.SUCCESS_CREATED);
     }
 
     @Test
     @Specification("wrapped.302.response.in.200/request")
     public void shouldPassWithWrapped302ResponseIn200() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.REDIRECT_FOUND);
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.REDIRECT_FOUND);
+    }
+
+    @Test
+    @Specification("unwrapped.304.response/request")
+    public void shouldPassWithUnwrapped304Response() throws Exception {
+        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.REDIRECT_NOT_MODIFIED);
     }
 
     @Test
     @Specification("wrapped.400.response.in.200/request")
     public void shouldPassWithWrapped400ResponseIn200() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
     }
 
     @Test
-    @Specification("wrapped.501.response.in.200/request")
-    public void shouldPassWithWrapped501ResponseIn200() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.SERVER_NOT_IMPLEMENTED);
+    @Specification("unwrapped.404.response/request")
+    public void shouldPassWithUnwrapped404Response() throws Exception {
+        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
+    }
+
+    @Test
+    @Specification("unwrapped.501.response/request")
+    public void shouldPassWithUnwrapped501ResponseIn200() throws Exception {
+        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.SERVER_NOT_IMPLEMENTED);
     }
 
     @Test
     @Specification("connection.header.not.enveloped.in.response.body/request")
     public void shouldPassWhenConnectionHeaderInHeaderNotBody() throws Exception {
-        test(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
     }
 
-    private void test(ResourceAddress address, HttpStatus status) throws Exception {
+    private void testWrappedResponse(ResourceAddress address, HttpStatus status) throws Exception {
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
@@ -95,6 +107,19 @@ public class ResponsesIT {
                 session.setStatus(status);
                 session.setWriteHeader("Content-Type", "text/html");
                 session.setWriteHeader("Connection", "keep-alive");
+                session.close(false);
+            }
+        };
+        acceptor.bind(address, acceptHandler);
+
+        k3po.finish();
+    }
+
+    private void testUnwrappedResponse(ResourceAddress address, HttpStatus status) throws Exception {
+        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
+            @Override
+            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                session.setStatus(status);
                 session.close(false);
             }
         };
