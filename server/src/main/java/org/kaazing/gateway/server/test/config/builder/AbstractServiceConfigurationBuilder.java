@@ -27,9 +27,9 @@ import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppress
 public abstract class AbstractServiceConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<ServiceConfiguration, R> {
 
-    public AbstractServiceConfigurationBuilder<R> balance(String balancerURI1) {
+    public AbstractServiceConfigurationBuilder<R> balance(String balance) {
         configuration.getSuppressibleConfiguration().addBalance(
-                new Suppressible<>(balancerURI1, getCurrentSuppressions()));
+                new Suppressible<>(balance, getCurrentSuppressions()));
         return this;
     }
 
