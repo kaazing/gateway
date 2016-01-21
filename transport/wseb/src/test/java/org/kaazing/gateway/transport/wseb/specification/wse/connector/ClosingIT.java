@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.nio.ByteBuffer;
 import java.util.Properties;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -34,23 +32,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
-import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
-import org.kaazing.mina.core.buffer.IoBufferEx;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
-public class BinaryIT {
+public class ClosingIT {
+
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/closing");
+
     private final WsebConnectorRule connector;
 
     {
         Properties configuration = new Properties();
-        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "1s");
+        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s");
         connector = new WsebConnectorRule(configuration);
     }
 
@@ -64,193 +63,151 @@ public class BinaryIT {
     private final TestRule trace = new MethodExecutionTrace();
     private final TestRule timeoutRule = timeoutRule(15, SECONDS);
 
-    private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/wse/data");
-
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
             .around(timeoutRule);
 
-    // This latch is only needed to work around gateway#345
-    // TODO: remove this latch and all of its usage in the methods below once that issue is resolved
-    private CountDownLatch received = new CountDownLatch(1);
-
+    @Ignore("#345: WsebConnector does not do clean close")
     @Test
-    @Ignore("Issue gateway#306: IllegalArgumentException: message is empty. Forgot to call flip")
-    @Specification({
-        "echo.binary.payload.length.0/response" })
-    public void shouldEchoFrameWithPayloadLength0() throws Exception {
+    @Specification("client.send.close/response")
+    public void shouldPerformClientInitiatedClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-
-        Random random = new Random();
-        final byte[] bytes = new byte[0];
-        random.nextBytes(bytes);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
-            }
-        });
-
-        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
-        IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
-
-        IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
-        IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
-        connectSession.write(buffer);
-
-        received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "echo.binary.payload.length.127/response" })
-    public void shouldEchoFrameWithPayloadLength127() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
-
-        Random random = new Random();
-        final byte[] bytes = new byte[127];
-        random.nextBytes(bytes);
-
-        context.checking(new Expectations() {
-            {
-                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
-
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
-
-        IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
-        IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
-        connectSession.write(buffer);
-
-        assertTrue("Echoed data not received", received.await(10, SECONDS));
-
-        assertTrue("WsebSession close did not complete", connectSession.close(false).await(10, SECONDS));
+        connectSession.close(false);
+        assertTrue(closed.await(4, SECONDS));
 
         k3po.finish();
     }
 
-    @Test
-    @Specification({
-        "echo.binary.payload.length.128/response" })
-    public void shouldEchoFrameWithPayloadLength128() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
 
-        Random random = new Random();
-        final byte[] bytes = new byte[128];
-        random.nextBytes(bytes);
+    @Ignore("#345: WsebConnector does not do close handshake")
+    @Test
+    @Specification("client.send.close.no.reply.from.server/response")
+    public void clientShouldCloseIfServerDoesNotEchoCloseFrame() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
+        assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
-
-        IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
-        IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
-        connectSession.write(buffer);
-
-        received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
-
+        connectSession.close(false);
+        assertTrue(closed.await(4, SECONDS));
         k3po.finish();
     }
 
-    @Test
-    @Specification({
-        "echo.binary.payload.length.65535/response" })
-    public void shouldEchoFrameWithPayloadLength65535() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
+    // Server only test, not applicable to clients
+    //@Test
+    //@Specification({
+    //    "client.abruptly.closes.downstream/request",
+    //    "client.abruptly.closes.downstream/response" })
+    //public void clientAbruptlyClosesDownstream() throws Exception {
+    //    k3po.finish();
+    //}
 
-        Random random = new Random();
-        final byte[] bytes = new byte[65535];
-        random.nextBytes(bytes);
+    //@Ignore("#345: WsebConnector does not do close handshake")
+    // When run this test fails with k3po script ComparisonFailure because WsebConnector
+    // does not currently do the close handshake (and close happens before the reader(downstream)
+    // even gets connected). However the correct events do get fired (sessionClosed, closeFuture).
+    @Test
+    @Specification("server.send.close/response")
+    public void shouldPerformServerInitiatedClose() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
-
-        IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
-        IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
-        connectSession.write(buffer);
-
-        received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
+        CloseFuture closeFuture = connectSession.close(false);
+        assertTrue(closed.await(4, SECONDS));
+        assertTrue(closeFuture.isClosed());
 
         k3po.finish();
     }
 
-    @Test
-    @Specification({
-        "echo.binary.payload.length.65536/response" })
-    public void shouldEchoFrameWithPayloadLength65536() throws Exception {
-        final IoHandler handler = context.mock(IoHandler.class);
+    // Server only test, not applicable to clients
+    //@Test
+    //@Specification({
+    //    "server.send.close.no.reply.from.client/request",
+    //    "server.send.close.no.reply.from.client/response" })
+    //public void serverShouldCloseIfClientDoesNotEchoCloseFrame() throws Exception {
+    //    k3po.finish();
+    //}
 
-        Random random = new Random();
-        final byte[] bytes = new byte[65536];
-        random.nextBytes(bytes);
+    //@Ignore("#345: WsebConnector does not do close handshake")
+    @Test
+    @Specification("server.send.data.after.close/response")
+    public void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
+        CloseFuture closeFuture = connectSession.close(false);
+        assertTrue(closed.await(4, SECONDS));
+        assertTrue(closeFuture.isClosed());
+        k3po.finish();
+    }
 
-        IoBufferAllocatorEx<?> allocator = connectSession.getBufferAllocator();
-        IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
-        connectSession.write(buffer);
+    //@Ignore("#345: WsebConnector does not do close handshake")
+    @Test
+    @Specification("server.send.data.after.reconnect/response")
+    public void shouldIgnoreDataFromServerAfterReconnectFrame() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
-        received.await(10, SECONDS);
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
+            }
+        });
 
-        connectSession.close(false).await();
-
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
+        CloseFuture closeFuture = connectSession.close(false);
+        assertTrue(closed.await(4, SECONDS));
+        assertTrue(closeFuture.isClosed());
         k3po.finish();
     }
 }
