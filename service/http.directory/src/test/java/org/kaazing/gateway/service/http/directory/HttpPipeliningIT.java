@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.http.directory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +43,7 @@ public class HttpPipeliningIT {
 			GatewayConfiguration configuration = new GatewayConfigurationBuilder()
 					.webRootDirectory(new File("src/test/webapp"))
 					.service()
-					.accept(URI.create(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT))
+					.accept(KEEPALIVE_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					// We have to use this name (which is from
@@ -55,13 +54,13 @@ public class HttpPipeliningIT {
 					// seconds
 					.done()
 					.service()
-					.accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+					.accept(DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					.property("welcome-file", "index.html")
 					.done()
 					.service()
-					.accept(URI.create(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+					.accept(CROSS_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory")
 					.property("directory", "/public")
 					.crossOrigin()
@@ -71,7 +70,7 @@ public class HttpPipeliningIT {
 					.done()
 					.done()
 					.service()
-					.accept(URI.create(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT))
+					.accept(ASTRISK_ORIGIN_DIRECTORY_SERVICE_ACCEPT)
 					.type("directory").property("directory", "/public")
 					.crossOrigin().allowOrigin("*").done().done().done();
 			// @formatter:on

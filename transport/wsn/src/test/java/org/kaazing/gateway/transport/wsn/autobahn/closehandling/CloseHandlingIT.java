@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.wsn.autobahn.closehandling;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class CloseHandlingIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8555/echo"))
+                            .accept("ws://localhost:8555/echo")
                             .type("echo")
                         .done()
                     .done();

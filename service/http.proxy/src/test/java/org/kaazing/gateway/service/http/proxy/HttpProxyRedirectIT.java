@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -23,10 +25,6 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import java.net.URI;
-
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class HttpProxyRedirectIT {
 
@@ -38,8 +36,8 @@ public class HttpProxyRedirectIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("http://localhost:8110"))
-                            .connect(URI.create("http://localhost:8080"))
+                            .accept("http://localhost:8110")
+                            .connect("http://localhost:8080")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                             .done()

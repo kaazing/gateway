@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class WsebTransportIT {
                         .done()
                         */
                         .service()
-                            .accept(URI.create("wse://localhost:8000/echo"))
+                            .accept("wse://localhost:8000/echo")
                             .type("echo")
                         .done()
                     .done();

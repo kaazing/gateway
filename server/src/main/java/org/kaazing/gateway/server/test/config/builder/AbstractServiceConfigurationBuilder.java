@@ -17,6 +17,7 @@ package org.kaazing.gateway.server.test.config.builder;
 
 import java.net.URI;
 import java.util.Set;
+
 import org.kaazing.gateway.server.test.config.AuthorizationConstraintConfiguration;
 import org.kaazing.gateway.server.test.config.CrossOriginConstraintConfiguration;
 import org.kaazing.gateway.server.test.config.NestedServicePropertiesConfiguration;
@@ -33,8 +34,8 @@ public abstract class AbstractServiceConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractServiceConfigurationBuilder<R> accept(URI accept) {
-        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(accept, getCurrentSuppressions()));
+    public AbstractServiceConfigurationBuilder<R> accept(String string) {
+        configuration.getSuppressibleConfiguration().addAccept(new Suppressible<>(string, getCurrentSuppressions()));
         return this;
     }
 
@@ -44,9 +45,9 @@ public abstract class AbstractServiceConfigurationBuilder<R> extends
         return this;
     }
 
-    public AbstractServiceConfigurationBuilder<R> connect(URI connect) {
+    public AbstractServiceConfigurationBuilder<R> connect(String string) {
         configuration.getSuppressibleConfiguration().addConnect(
-                new Suppressible<>(connect, getCurrentSuppressions()));
+                new Suppressible<>(string, getCurrentSuppressions()));
         return this;
     }
 

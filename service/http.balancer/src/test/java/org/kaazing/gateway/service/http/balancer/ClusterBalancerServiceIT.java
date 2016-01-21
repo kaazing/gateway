@@ -31,9 +31,9 @@ public class ClusterBalancerServiceIT {
 
     private GatewayClusterRule rule = new GatewayClusterRule() {
         {
-            URI balancerURI1 = URI.create("ws://gateway.example.com:8001");
-            URI clusterMember1URI =URI.create("tcp://localhost:8555");
-            URI clusterMember2URI =URI.create("tcp://localhost:8556");
+            String balancerURI1 = "ws://gateway.example.com:8001";
+            URI clusterMember1URI = URI.create("tcp://localhost:8555");
+            URI clusterMember2URI = URI.create("tcp://localhost:8556");
             
             GatewayConfiguration config1 = new GatewayConfigurationBuilder()
                     .cluster()
@@ -48,8 +48,8 @@ public class ClusterBalancerServiceIT {
                     .done()
                     .service()
                         .type("echo")
-                        .accept(URI.create("tcp://localhost:8000"))
-                        .balance(balancerURI1)
+                        .accept("tcp://localhost:8000")
+                        .balance(URI.create(balancerURI1))
                     .done()
                 .done();
             GatewayConfiguration config2= new GatewayConfigurationBuilder()
@@ -65,8 +65,8 @@ public class ClusterBalancerServiceIT {
                 .done()
                 .service()
                     .type("echo")
-                    .accept(URI.create("tcp://localhost:8001"))
-                    .balance(balancerURI1)
+                    .accept("tcp://localhost:8001")
+                    .balance(URI.create(balancerURI1))
                 .done()
             .done();
             init(config1, config2);

@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wseb;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class WsebInactivityTimeoutIT {
                         .webRootDirectory(new File("src/test/webapp"))
                         .tempDirectory(new File("src/test/temp"))
                         .service()
-                            .accept(URI.create("wse://localhost:8123/echo"))
+                            .accept("wse://localhost:8123/echo")
                             .acceptOption("ws.inactivity.timeout", "2sec")
                             .type("echo")
                         .done()

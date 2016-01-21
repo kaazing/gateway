@@ -20,8 +20,6 @@ package org.kaazing.gateway.server.transport.wseb.specification.wse.acceptor.dat
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,7 +41,7 @@ public class BinaryAsEscapedTextIT {
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")

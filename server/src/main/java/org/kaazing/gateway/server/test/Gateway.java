@@ -374,12 +374,12 @@ public class Gateway {
 
     private void appendAccepts(ServiceType newService, ServiceConfiguration service) {
         // accepts
-        Set<URI> accepts = service.getAccepts();
+        Set<String> accepts = service.getAccepts();
         if (!accepts.isEmpty()) {
             String[] newAccepts = new String[accepts.size()];
             int i = 0;
-            for (URI accept : accepts) {
-                newAccepts[i++] = accept.toASCIIString();
+            for (String accept : accepts) {
+                newAccepts[i++] = accept;
             }
             newService.setAcceptArray(newAccepts);
         }
@@ -409,12 +409,12 @@ public class Gateway {
 
     private void appendConnects(ServiceType newService, ServiceConfiguration service) {
         // connects
-        Set<URI> connects = service.getConnects();
+        Set<String> connects = service.getConnects();
         if (!connects.isEmpty()) {
             String[] newConnects = new String[connects.size()];
             int i = 0;
-            for (URI connect : connects) {
-                newConnects[i++] = connect.toASCIIString();
+            for (String connect : connects) {
+                newConnects[i++] = connect;
             }
             newService.setConnectArray(newConnects);
         }

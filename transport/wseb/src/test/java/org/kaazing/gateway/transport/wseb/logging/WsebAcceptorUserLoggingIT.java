@@ -15,11 +15,9 @@
  */
 package org.kaazing.gateway.transport.wseb.logging;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,14 +32,13 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * WsebAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
@@ -76,7 +73,7 @@ public class WsebAcceptorUserLoggingIT {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .property(WSE_SPECIFICATION.getPropertyName(), "true")
                 .service()
-                    .accept(URI.create("ws://localhost:8080/path"))
+                    .accept("ws://localhost:8080/path")
                     .type("echo")
                     .crossOrigin()
                         .allowOrigin("http://localhost:8001")
