@@ -20,7 +20,6 @@ import static org.kaazing.gateway.util.Utils.initCaps;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Iterator;
@@ -363,11 +362,11 @@ public class Gateway {
 
     private void appendBalances(ServiceType newService, ServiceConfiguration service) {
         // balances
-        Set<URI> balances = service.getBalances();
+        Set<String> balances = service.getBalances();
         String[] newBalances = new String[balances.size()];
         int i = 0;
-        for (URI balance : balances) {
-            newBalances[i++] = balance.toASCIIString();
+        for (String balance : balances) {
+            newBalances[i++] = balance;
         }
         newService.setBalanceArray(newBalances);
     }

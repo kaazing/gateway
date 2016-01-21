@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.http.balancer;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -49,7 +47,7 @@ public class ClusterBalancerServiceIT {
                     .service()
                         .type("echo")
                         .accept("tcp://localhost:8000")
-                        .balance(URI.create(balancerURI1))
+                        .balance(balancerURI1)
                     .done()
                 .done();
             GatewayConfiguration config2= new GatewayConfigurationBuilder()
@@ -66,7 +64,7 @@ public class ClusterBalancerServiceIT {
                 .service()
                     .type("echo")
                     .accept("tcp://localhost:8001")
-                    .balance(URI.create(balancerURI1))
+                    .balance(balancerURI1)
                 .done()
             .done();
             init(config1, config2);

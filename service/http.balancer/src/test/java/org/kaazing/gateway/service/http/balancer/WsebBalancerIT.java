@@ -18,8 +18,6 @@ package org.kaazing.gateway.service.http.balancer;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -49,7 +47,7 @@ public class WsebBalancerIT {
                     .service()
                         .type("echo")
                         .accept("ws://node.example.com:8001/echo")
-                        .balance(URI.create("ws://gateway.example.com:8001/echo"))
+                        .balance("ws://gateway.example.com:8001/echo")
                         .acceptOption("tcp.bind", "localhost:8001")
                         .crossOrigin()
                             .allowOrigin("*")

@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,9 +51,9 @@ public abstract class SuppressibleServiceConfiguration implements SuppressibleCo
     public abstract void addAcceptOption(String key, Suppressible<String> value);
 
     // balance
-    public abstract Set<Suppressible<URI>> getBalances();
+    public abstract Set<Suppressible<String>> getBalances();
 
-    public abstract void addBalance(Suppressible<URI> balanceURI);
+    public abstract void addBalance(Suppressible<String> balanceURI);
 
     // connects
     public abstract Set<Suppressible<String>> getConnects();

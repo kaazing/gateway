@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,14 +33,14 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private Suppressible<String> _realmName;
     private Suppressible<String> _description;
 
-    private final Set<Suppressible<URI>> balances;
+    private final Set<Suppressible<String>> balances;
     private final Set<Suppressible<String>> accepts;
     private final Map<String, Suppressible<String>> acceptOptions;
     private final Set<Suppressible<String>> connects;
     private final Map<String, Suppressible<String>> connectOptions;
     private final Map<String, Suppressible<String>> mimeMappings;
     private final Set<String> unsuppressibleAccepts;
-    private final Set<URI> unsuppressibleBalances;
+    private final Set<String> unsuppressibleBalances;
     private final Map<String, String> unsuppressibleAcceptOptions;
     private final Set<String> unsuppressibleConnects;
     private final Map<String, String> unsuppressibleConnectOptions;
@@ -99,7 +98,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     }
 
     // accept
-    public void addAccept(URI acceptURI) {
+    public void addAccept(String acceptURI) {
         unsuppressibleBalances.add(acceptURI);
     }
 
@@ -108,11 +107,11 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     }
 
     // balance
-    public void addBalance(URI balanceURI) {
+    public void addBalance(String balanceURI) {
         unsuppressibleBalances.add(balanceURI);
     }
 
-    public Set<URI> getBalances() {
+    public Set<String> getBalances() {
         return unsuppressibleBalances;
     }
 
@@ -302,12 +301,12 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         }
 
         @Override
-        public Set<Suppressible<URI>> getBalances() {
+        public Set<Suppressible<String>> getBalances() {
             return balances;
         }
 
         @Override
-        public void addBalance(Suppressible<URI> balanceURI) {
+        public void addBalance(Suppressible<String> balanceURI) {
             balances.add(balanceURI);
         }
 

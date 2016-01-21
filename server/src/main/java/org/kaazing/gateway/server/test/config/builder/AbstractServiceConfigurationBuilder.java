@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.server.test.config.builder;
 
-import java.net.URI;
 import java.util.Set;
 
 import org.kaazing.gateway.server.test.config.AuthorizationConstraintConfiguration;
@@ -28,9 +27,9 @@ import org.kaazing.gateway.server.test.config.SuppressibleConfiguration.Suppress
 public abstract class AbstractServiceConfigurationBuilder<R> extends
         AbstractConfigurationBuilder<ServiceConfiguration, R> {
 
-    public AbstractServiceConfigurationBuilder<R> balance(URI balance) {
+    public AbstractServiceConfigurationBuilder<R> balance(String balancerURI1) {
         configuration.getSuppressibleConfiguration().addBalance(
-                new Suppressible<>(balance, getCurrentSuppressions()));
+                new Suppressible<>(balancerURI1, getCurrentSuppressions()));
         return this;
     }
 
