@@ -98,14 +98,14 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     private ResourceAddressFactory resourceAddressFactory;
     private Properties configuration;
 
-    private final List<IoSessionIdleTracker> sessionInactivityTrackers
+    private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
-    private final ThreadLocal<IoSessionIdleTracker> currentSessionInactivityTracker
+    private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
         @Override
         protected IoSessionIdleTracker initialValue() {
             IoSessionIdleTracker result = new WsebTransportSessionIdleTracker(logger);
-            sessionInactivityTrackers.add(result);
+            sessionIdleTrackers.add(result);
             return result;
         }
     };
@@ -185,7 +185,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     @Override
     protected IoFuture dispose0() throws Exception {
-        for (IoSessionIdleTracker tracker : sessionInactivityTrackers) {
+        for (IoSessionIdleTracker tracker : sessionIdleTrackers) {
             tracker.dispose();
         }
         return super.dispose0();
@@ -322,9 +322,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                         sessionMap.remove(writeAddress);
                     }
 
-                    if (wsebSession.getInactivityTimeout() > 0) {
-                        currentSessionInactivityTracker.get().removeSession(wsebSession);
-                    }
+                    currentSessionIdleTracker.get().removeSession(wsebSession);
 
                     // handle exception during create response
                     createSession.close(false);
@@ -484,10 +482,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             assert (wsebSession != null);
             wsebSession.attachReader(readSession);
 
-            if (wsebSession.getInactivityTimeout() > 0) {
-                // Activate inactivity timeout only once read session is established
-                currentSessionInactivityTracker.get().addSession(wsebSession);
-            }
+            // Activate inactivity timeout only once read session is established
+            // We need a session idle tracker to handle ws close handshake, even if ws.inactivity.timeout is not set
+            currentSessionIdleTracker.get().addSession(wsebSession);
 
             readSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
                 @Override

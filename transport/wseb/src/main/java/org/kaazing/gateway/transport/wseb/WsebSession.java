@@ -269,7 +269,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             LOGGER.debug(String.format("attachWriter on WsebSession wseb#%d, newWriter=%s", this.getId(), newWriter));
         }
         reconnecting.set(false);
-        if (!isClosing()) {
+        if (!getTransportSession().isClosing()) {
             if (!compareAndSetParent(null, newWriter)) {
                 cancelTimeout();
 
@@ -788,14 +788,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         protected void doFireSessionDestroyed(WsebSession session) {
             // We must fire session destroyed on the wsebSession only when the close handshake is complete
-            // (which is when the transport session gets closed)
-//            IoSession transport = session.getTransportSession();
-//            transport.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
-//                @Override
-//                public void operationComplete(IoFuture future) {
-//                    session.getService().getListeners().fireSessionDestroyed(session);
-//                }
-//            });
+            // (which is when the transport session gets closed). This is done when
+            // TransportSessionProcessor.remove calls WsebAccept(Connect)Processor.remove
         }
 
         @Override

@@ -126,8 +126,8 @@ public class ClosingIT {
     //    k3po.finish();
     //}
 
-    //@Ignore("#345: WsebConnector does not do close handshake")
-    // When run this test fails with k3po script ComparisonFailure because WsebConnector
+    @Ignore("#345: WsebConnector does not do close handshake")
+    // When un-ignored this test fails with k3po script ComparisonFailure because WsebConnector
     // does not currently do the close handshake (and close happens before the reader(downstream)
     // even gets connected). However the correct events do get fired (sessionClosed, closeFuture).
     @Test
