@@ -24,6 +24,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.BridgeSession.NEXT_PROTOCOL_KEY;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
+import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -62,15 +63,13 @@ import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.IoSessionAdapterEx;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.NextProtocolBindings;
 import org.kaazing.gateway.transport.NextProtocolBindings.NextProtocolBinding;
 import org.kaazing.gateway.transport.NextProtocolFilter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.LoggingFilter;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.dispatch.ProtocolDispatcher;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -104,6 +103,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     protected final Properties configuration;
     protected final Logger logger;
 
+    private final Integer idleTimeout;
+
     public AbstractNioAcceptor(Properties configuration, Logger logger) {
         if (configuration == null) {
             throw new NullPointerException("configuration");
@@ -121,6 +122,8 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
         if ("true".equalsIgnoreCase(preferIPv4NetworkStack)) {
             skipIPv6Addresses = true;
         }
+
+        idleTimeout = TCP_IDLE_TIMEOUT.getIntProperty(configuration);
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -153,6 +156,10 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
                 // Not currently bound (A concurrent unbind may have removed the binding)
                 session.close(true);
                 return;
+            }
+
+            if (idleTimeout != null && idleTimeout > 0) {
+                session.getFilterChain().addLast("idle", new NioIdleFilter(logger, idleTimeout, session));
             }
 
             // note: defer sessionCreated until sessionOpened to support (optional) protocol dispatch
