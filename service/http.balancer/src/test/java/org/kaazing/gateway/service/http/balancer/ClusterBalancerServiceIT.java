@@ -32,8 +32,8 @@ public class ClusterBalancerServiceIT {
     private GatewayClusterRule rule = new GatewayClusterRule() {
         {
             String balancerURI1 = "ws://gateway.example.com:8001";
-            URI clusterMember1URI = URI.create("tcp://localhost:8555");
-            URI clusterMember2URI = URI.create("tcp://localhost:8556");
+            String clusterMember1URI = "tcp://localhost:8555";
+            String clusterMember2URI = "tcp://localhost:8556";
             
             GatewayConfiguration config1 = new GatewayConfigurationBuilder()
                     .cluster()
