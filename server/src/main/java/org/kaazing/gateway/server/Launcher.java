@@ -24,7 +24,8 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
-
+import org.kaazing.gateway.util.GL;
+import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,8 @@ public class Launcher {
 
         if (cluster != null) {
             // now that the Gateway has started, log what it knows about the cluster
-            cluster.logClusterState();
+            GL.debug(CLUSTER_LOGGER_NAME, "Exit Gateway launcher initInternal");
+            cluster.logClusterStateAtInfoLevel();
         }
     }
 

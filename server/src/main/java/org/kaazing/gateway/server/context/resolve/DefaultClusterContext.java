@@ -89,7 +89,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private static final String INSTANCE_KEY_MAP = "instanceKeyMap";
 
     // This is also used in DefaultServiceContext
-    static final String CLUSTER_LOGGER_NAME = "ha";
+    public static final String CLUSTER_LOGGER_NAME = "ha";
     private final Logger logger = LoggerFactory.getLogger(CLUSTER_LOGGER_NAME);
 
     private final String localInstanceKey = Utils.randomHexString(16);
@@ -474,7 +474,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             MemberId newMemberId = getMemberId(membershipEvent.getMember());
             GL.info(CLUSTER_LOGGER_NAME, "Cluster member {} is now online", newMemberId.getId());
             fireMemberAdded(newMemberId);
-            logClusterMembers();
+            GL.info(CLUSTER_LOGGER_NAME, "Member Added");
+            logClusterStateAtInfoLevel();
         }
 
         @Override
@@ -516,8 +517,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                             }
                         } while (!sharedBalanceUriMap.replace(key, globalBalancedUris, newGlobalBalancedUris));
 
-                        GL.debug(CLUSTER_LOGGER_NAME, "Removed balanced URIs for cluster member {}, new global list: {}",
-                                removedMember, newGlobalBalancedUris);
+                        GL.debug(CLUSTER_LOGGER_NAME,
+                                "Removed balanced URIs for cluster member {}, new global list: {}", removedMember,
+                                newGlobalBalancedUris);
                     }
                 } catch (Exception e) {
                     throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from " +
@@ -526,7 +528,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             }
 
             fireMemberRemoved(removedMember);
-            logClusterMembers();
+            GL.info(CLUSTER_LOGGER_NAME, "Member Removed");
+            logClusterStateAtInfoLevel();
         }
     };
 
@@ -679,6 +682,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     public void addMembershipEventListener(MembershipEventListener eventListener) {
         if (eventListener != null) {
             membershipEventListeners.add(eventListener);
+            GL.debug(CLUSTER_LOGGER_NAME, "MemberShipEventListener Added");
         }
     }
 
@@ -707,14 +711,18 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     public void addBalancerMapListener(BalancerMapListener balancerMapListener) {
         if (balancerMapListener != null) {
             balancerMapListeners.add(balancerMapListener);
+            GL.debug(CLUSTER_LOGGER_NAME, "Add balancerMapListener");
         }
+        GL.debug(CLUSTER_LOGGER_NAME, "Exit Add balancerMapListener");
     }
 
     @Override
     public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
         if (balancerMapListener != null) {
             balancerMapListeners.remove(balancerMapListener);
+            GL.debug(CLUSTER_LOGGER_NAME, "Remove balancerMapListener");
         }
+        GL.debug(CLUSTER_LOGGER_NAME, "Exit Remove balancerMapListener");
     }
 
     @Override
@@ -743,11 +751,39 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     @Override
+    /*
+     * Logs cluster state and balancer service maps contents when ha logging is enabled at trace level !
+     */
     public void logClusterState() {
         logClusterMembers();
         logBalancerMap();
     }
 
+    @Override
+    /*
+     * Logs cluster state at Info Level, recommended use only for startup or methods that are called only one time when
+     * cluster state changes !
+     */
+    public void logClusterStateAtInfoLevel() {
+        if (clusterInstance != null) {
+            Cluster cluster = clusterInstance.getCluster();
+            if (cluster != null) {
+                GL.info(CLUSTER_LOGGER_NAME, "Current cluster members:");
+                Set<Member> currentMembers = clusterInstance.getCluster().getMembers();
+                for (Member currentMember : currentMembers) {
+                    MemberId memberId = getMemberId(currentMember);
+                    GL.info(CLUSTER_LOGGER_NAME, "      member: {}", memberId);
+                }
+            }
+        }
+        GL.info(CLUSTER_LOGGER_NAME, "Current shared balancer map:");
+        Map<URI, Set<URI>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        for (URI balanceURI : balancerMap.keySet()) {
+            Set<URI> balanceTargets = balancerMap.get(balanceURI);
+            GL.info(CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+        }
+
+    }
     private void logClusterMembers() {
         // log current cluster state on TRACE level
         if (clusterInstance != null) {
@@ -764,10 +800,21 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     private void logBalancerMap() {
-        GL.trace(CLUSTER_LOGGER_NAME, "Current balancer map:");
-        Map<URI, TreeSet<URI>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        GL.trace(CLUSTER_LOGGER_NAME, "Current members of balancer map:");
+        Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
+        for (MemberId memberID : memberIdBalancerUriMap.keySet()) {
+            GL.trace(CLUSTER_LOGGER_NAME, " MemberID {}", memberID);
+            Map<URI, List<URI>> balanceURIMap = memberIdBalancerUriMap.get(memberID);
+            for (URI balanceURI : balanceURIMap.keySet()) {
+                List<URI> balanceTargets = balanceURIMap.get(balanceURI);
+                GL.trace(CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+            }
+
+        }
+        GL.trace(CLUSTER_LOGGER_NAME, "Current shared balancer map::");
+        Map<URI, Set<URI>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
         for (URI balanceURI : balancerMap.keySet()) {
-            TreeSet<URI> balanceTargets = balancerMap.get(balanceURI);
+            Set<URI> balanceTargets = balancerMap.get(balanceURI);
             GL.trace(CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
         }
     }

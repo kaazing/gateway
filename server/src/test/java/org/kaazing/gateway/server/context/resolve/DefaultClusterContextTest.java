@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,20 +33,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-@Ignore("KG-8712: When we sweep skipped tests, move this out of the unit tests.")
 public class DefaultClusterContextTest {
 
     public static final String BALANCER_MAP_NAME = "balancerMap";
