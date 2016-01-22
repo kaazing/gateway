@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.service.cluster.ClusterContext;
@@ -120,6 +121,10 @@ public class DefaultClusterContextTest {
 
     @Before
     public void setUp() throws Exception {
+        if (System.getProperty("os.name").toLowerCase().contains("aws"))
+        {
+            Assume.assumeTrue(false);
+        }
         schedulerProvider = new SchedulerProvider();
         memberTracker1 = new ClusterMemberTracker();
         memberTracker2 = new ClusterMemberTracker();
