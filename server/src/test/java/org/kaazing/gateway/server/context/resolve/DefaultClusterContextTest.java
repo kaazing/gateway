@@ -121,10 +121,6 @@ public class DefaultClusterContextTest {
 
     @Before
     public void setUp() throws Exception {
-        if (System.getProperty("os.name").toLowerCase().contains("aws"))
-        {
-            Assume.assumeTrue(false);
-        }
         schedulerProvider = new SchedulerProvider();
         memberTracker1 = new ClusterMemberTracker();
         memberTracker2 = new ClusterMemberTracker();
@@ -233,6 +229,7 @@ public class DefaultClusterContextTest {
             // the exception.
             if (!message.contains("not supported on AWS")) {
                 System.out.println("expected on Travis build" +  e.getMessage());
+                Assume.assumeTrue(false);
             }
 
         } finally {
@@ -379,9 +376,26 @@ public class DefaultClusterContextTest {
         try {
             t.get(30, TimeUnit.SECONDS); // increased from 15, because sometimes get timeout on heavily loaded machine
             // (see note in KG-6045)
-        } catch (TimeoutException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            fail("Could not start cluster context : " + e);
+        }catch(ExecutionException ex){
+           if(ex.getCause().getMessage().contains("not supported on AWS")) {
+               System.out.println("expected on Travis build" +  ex.getMessage());
+               Assume.assumeTrue(false);
+            } 
+           else{
+               ex.printStackTrace();
+               fail("Could not start cluster context : " + ex);
+           }
+            
+            
+        }catch (TimeoutException |InterruptedException e) {
+            if(e.getMessage().contains("not supported on AWS")) {
+                System.out.println("expected on Travis build" +  e.getMessage());
+                Assume.assumeTrue(false);
+             } 
+            else{
+               e.printStackTrace();
+               fail("Could not start cluster context : " + e);
+            }
         }
     }
 
