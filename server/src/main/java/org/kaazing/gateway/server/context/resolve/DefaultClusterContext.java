@@ -571,7 +571,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     };
 
     private EntryListener<String, Collection<String>> balancerMapEntryListener = new
-    		EntryListener<String, Collection<String>>() {
+            EntryListener<String, Collection<String>>() {
         @Override
         public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
             GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent

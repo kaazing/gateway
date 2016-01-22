@@ -16,7 +16,6 @@
 package org.kaazing.gateway.management.snmp;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -2087,7 +2086,7 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
         }
 
         @Override
-        public void balancerMapChanged(String changeType, URI balancerURI, Collection<URI> balanceeURIs) {
+        public void balancerMapChanged(String changeType, String balancerURI, Collection<String> balanceeURIs) {
             OID gatewayOID = new OID(new int[]{1}); // hardcoded to 1 for now
 
             OID notificationOID = MIBConstants.oidClusterBalancerMapEvent;
@@ -2098,8 +2097,8 @@ class SnmpManagementServiceHandler extends IoHandlerAdapter<IoSessionEx> impleme
             StringBuffer sb = new StringBuffer();
             String balanceeURIsValue = "";
             if (balanceeURIs != null) {
-                for (URI balanceeURI : balanceeURIs) {
-                    sb.append(balanceeURI.toString() + '\n');
+                for (String balanceeURI : balanceeURIs) {
+                    sb.append(balanceeURI + '\n');
                 }
                 if (sb.length() > 1) {
                     balanceeURIsValue = sb.substring(0, sb.length() - 1); // trim final \n char

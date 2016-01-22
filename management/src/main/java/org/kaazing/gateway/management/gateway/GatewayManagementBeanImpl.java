@@ -409,21 +409,21 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
 
     @Override
-    public void balancerEntryAdded(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryAdded(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("add", balancerURI, balanceeURIs);
         }
     }
 
     @Override
-    public void balancerEntryRemoved(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryRemoved(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("remove", balancerURI, balanceeURIs);
         }
     }
 
     @Override
-    public void balancerEntryUpdated(URI balancerURI, Collection<URI> balanceeURIs) {
+    public void balancerEntryUpdated(String balancerURI, Collection<String> balanceeURIs) {
         for (ClusterManagementListener listener : clusterManagementListeners) {
             listener.balancerMapChanged("update", balancerURI, balanceeURIs);
         }
