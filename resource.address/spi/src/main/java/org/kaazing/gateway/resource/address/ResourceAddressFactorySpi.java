@@ -265,8 +265,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 ResourceOptions transportOptions = ResourceOptions.FACTORY.newResourceOptions();
                 transportOptions.setOption(NEXT_PROTOCOL, getProtocolName());
                 transportOptions.setOption(TRANSPORTED_URI, URI.create(location));
-                //TODO: URI to string?? 
-                transport = addressFactory.newResourceAddress(transportURI.toString(), transportOptions);
+                transport = addressFactory.newResourceAddress(URIUtils.uriToString(transportURI), transportOptions);
             }
 
             newOptions.setOption(TRANSPORT, transport);
@@ -400,8 +399,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 optionsByName = new HashMap<>();
             }
             optionsByName.put(TRANSPORTED_URI.name(), URI.create(location));
-            //TODO: URI to string??
-            transport = addressFactory.newResourceAddress(transportURI.toString(), optionsByName, protocolName);
+            transport = addressFactory.newResourceAddress(URIUtils.uriToString(transportURI), optionsByName, protocolName);
         }
         if (transport != null) {
             options.setOption(TRANSPORT, transport);

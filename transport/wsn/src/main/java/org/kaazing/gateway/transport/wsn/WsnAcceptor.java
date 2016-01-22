@@ -22,7 +22,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -71,7 +70,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.URIUtils;
-import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
@@ -463,8 +461,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
-        //TODO: Verify this
-        String apiLocation = URIUtils.modifyURIPath(transport.getResource().toString(), path);
+        String apiLocation = URIUtils.modifyURIPath(URIUtils.uriToString(transport.getResource()), path);
         return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }
 
@@ -526,7 +523,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             // TODO: Verify this
             final ResourceAddress remoteAddress =
-                    resourceAddressFactory.newResourceAddress(localAddress.getResource().toString(), options);
+                    resourceAddressFactory.newResourceAddress(URIUtils.uriToString(localAddress.getResource()), options);
 
             //
             // We remember the http uri from the session below us.
@@ -924,8 +921,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             URI resource = session.getLocalAddress().getResource();
 
-            //TODO: Verify this
-            String wsLocalAddressLocation = URIUtils.modifyURIScheme(resource.toString(),
+            String wsLocalAddressLocation = URIUtils.modifyURIScheme(URIUtils.uriToString(resource),
                     schemeName);
 
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(

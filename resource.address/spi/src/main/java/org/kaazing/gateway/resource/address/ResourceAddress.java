@@ -215,8 +215,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         URI newExternalURI = externalURI.resolve(newPath);
         ResourceOptions newOptions = FACTORY.newResourceOptions(this);
         resolve(oldPath, newPath, newOptions);
-        // TODO: Verify implementation below
-        return factory.newResourceAddress0(newExternalURI.toString(), newResourceURI.toString(), newOptions);
+        return factory.newResourceAddress0(URIUtils.uriToString(newExternalURI), URIUtils.uriToString(newResourceURI), newOptions);
     }
 
     protected void resolve(String oldPath, String newPath, ResourceOptions newOptions) {

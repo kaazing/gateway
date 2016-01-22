@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.proxy;
 
 import static java.lang.String.format;
 
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;

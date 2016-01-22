@@ -29,7 +29,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-@Ignore("TODO: Clarify this")
 public class HttpDirectoryServiceIT {
 
     private static final String DIRECTORY_SERVICE_ACCEPT = "http://localhost:8000/";
@@ -100,6 +99,7 @@ public class HttpDirectoryServiceIT {
 
     @Specification("no.server.header")
     @Test
+    @Ignore("TODO: Clarify this")
     public void testNoServerHeader() throws Exception {
         robot.finish();
     }
@@ -135,6 +135,7 @@ public class HttpDirectoryServiceIT {
 
     @Specification("get.index.check.whole.response")
     @Test
+    @Ignore("TODO: Clarify this")
     public void testGetIndexCheckWholeResponse() throws Exception {
         robot.finish();
     }
@@ -234,6 +235,7 @@ public class HttpDirectoryServiceIT {
     // //////////////// URI ////////////////////////
     @Specification("uri.hex.encoded")
     @Test
+    @Ignore("TODO: Clarify this")
     public void testHexEncodedUri() throws Exception {
         robot.finish();
     }

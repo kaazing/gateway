@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.proxy;
 
 import static java.util.ServiceLoader.load;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.ServiceLoader;
 

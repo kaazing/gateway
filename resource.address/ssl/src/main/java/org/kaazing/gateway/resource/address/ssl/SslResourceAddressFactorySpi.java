@@ -43,9 +43,9 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     private static final String PROTOCOL_NAME = "ssl";
 
     @Override
-	public String getSchemeName() {
-		return SCHEME_NAME;
-	}
+    public String getSchemeName() {
+        return SCHEME_NAME;
+    }
     
     @Override
     protected String getTransportName() {

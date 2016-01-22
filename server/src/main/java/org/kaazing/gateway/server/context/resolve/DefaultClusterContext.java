@@ -15,33 +15,12 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
-import com.hazelcast.config.AwsConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.Join;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.MulticastConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.TcpIpConfig;
-import com.hazelcast.core.Cluster;
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IdGenerator;
-import com.hazelcast.core.Member;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
-import com.hazelcast.impl.GroupProperties;
-import com.hazelcast.logging.LogEvent;
-import com.hazelcast.logging.LogListener;
-import com.hazelcast.logging.LoggingService;
-import com.hazelcast.nio.Address;
+import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
+import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -73,8 +52,28 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.BALANCER_MAP_NAME;
-import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.MEMBERID_BALANCER_MAP_NAME;
+import com.hazelcast.config.AwsConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.Join;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.MulticastConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.TcpIpConfig;
+import com.hazelcast.core.Cluster;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryListener;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.Member;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
+import com.hazelcast.impl.GroupProperties;
+import com.hazelcast.logging.LogEvent;
+import com.hazelcast.logging.LogListener;
+import com.hazelcast.logging.LoggingService;
+import com.hazelcast.nio.Address;
 
 /**
  * ClusterContext for KEG
@@ -487,30 +486,30 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             instanceKeyMap.remove(removedMember);
 
             // cleanup balancer URIs for the member that went down
-            Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap =
+            Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap =
                     getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
             if (memberIdBalancerUriMap == null) {
                 throw new IllegalStateException("MemberId to BalancerMap is null");
             }
 
-            IMap<URI, TreeSet<URI>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+            IMap<String, TreeSet<String>> sharedBalanceUriMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
             if (sharedBalanceUriMap == null) {
                 throw new IllegalStateException("Shared balanced URIs map is null");
             }
 
-            Map<URI, List<URI>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
+            Map<String, List<String>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
             if (memberBalancedUrisMap != null) {
                 GL.debug(CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
                 try {
-                    for (URI key : memberBalancedUrisMap.keySet()) {
+                    for (String key : memberBalancedUrisMap.keySet()) {
                         GL.debug(CLUSTER_LOGGER_NAME, "URI Key: {}", key);
-                        List<URI> memberBalancedUris = memberBalancedUrisMap.get(key);
-                        TreeSet<URI> globalBalancedUris = null;
-                        TreeSet<URI> newGlobalBalancedUris = null;
+                        List<String> memberBalancedUris = memberBalancedUrisMap.get(key);
+                        TreeSet<String> globalBalancedUris = null;
+                        TreeSet<String> newGlobalBalancedUris = null;
                         do {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
-                            newGlobalBalancedUris = new TreeSet<URI>(globalBalancedUris);
-                            for (URI memberBalancedUri : memberBalancedUris) {
+                            newGlobalBalancedUris = new TreeSet<String>(globalBalancedUris);
+                            for (String memberBalancedUri : memberBalancedUris) {
                                 GL.debug(CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);
                             }
@@ -571,28 +570,28 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
     };
 
-    private EntryListener<URI, Collection<URI>> balancerMapEntryListener = new EntryListener<URI, Collection<URI>>() {
+    private EntryListener<String, Collection<String>> balancerMapEntryListener = new EntryListener<String, Collection<String>>() {
         @Override
-        public void entryAdded(EntryEvent<URI, Collection<URI>> newEntryEvent) {
+        public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
             GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
                     .getValue());
             fireBalancerEntryAdded(newEntryEvent);
         }
 
         @Override
-        public void entryEvicted(EntryEvent<URI, Collection<URI>> evictedEntryEvent) {
+        public void entryEvicted(EntryEvent<String, Collection<String>> evictedEntryEvent) {
             throw new RuntimeException("Balancer map entries should not be evicted, only added or removed.");
         }
 
         @Override
-        public void entryRemoved(EntryEvent<URI, Collection<URI>> removedEntryEvent) {
+        public void entryRemoved(EntryEvent<String, Collection<String>> removedEntryEvent) {
             GL.trace(CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
                     .getKey(), removedEntryEvent.getValue());
             fireBalancerEntryRemoved(removedEntryEvent);
         }
 
         @Override
-        public void entryUpdated(EntryEvent<URI, Collection<URI>> updatedEntryEvent) {
+        public void entryUpdated(EntryEvent<String, Collection<String>> updatedEntryEvent) {
             GL.trace(CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
                     .getKey(), updatedEntryEvent.getValue());
             fireBalancerEntryUpdated(updatedEntryEvent);
@@ -831,8 +830,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     /**
      * Fire balancerEntryAdded event
      */
-    private void fireBalancerEntryAdded(EntryEvent<URI, Collection<URI>> entryEvent) {
-        URI balancerURI = entryEvent.getKey();
+    private void fireBalancerEntryAdded(EntryEvent<String, Collection<String>> entryEvent) {
+    	String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
@@ -846,8 +845,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     /**
      * Fire balancerEntryRemoved event
      */
-    private void fireBalancerEntryRemoved(EntryEvent<URI, Collection<URI>> entryEvent) {
-        URI balancerURI = entryEvent.getKey();
+    private void fireBalancerEntryRemoved(EntryEvent<String, Collection<String>> entryEvent) {
+    	String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryRemoved for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
@@ -861,8 +860,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     /**
      * Fire balancerEntryUpdated event
      */
-    private void fireBalancerEntryUpdated(EntryEvent<URI, Collection<URI>> entryEvent) {
-        URI balancerURI = entryEvent.getKey();
+    private void fireBalancerEntryUpdated(EntryEvent<String, Collection<String>> entryEvent) {
+    	String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryUpdated for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
@@ -901,7 +900,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             instanceKeyMap.put(localNodeId, localInstanceKey);
             instanceKeyMap.addEntryListener(instanceKeyEntryListener, true);
 
-            IMap<URI, Collection<URI>> balancerMap = collectionsFactory.getMap(BALANCER_MAP_NAME);
+            IMap<String, Collection<String>> balancerMap = collectionsFactory.getMap(BALANCER_MAP_NAME);
             balancerMap.addEntryListener(balancerMapEntryListener, true);
         }
     }

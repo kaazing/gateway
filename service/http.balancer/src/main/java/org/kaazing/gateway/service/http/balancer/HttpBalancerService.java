@@ -178,7 +178,6 @@ public class HttpBalancerService implements Service {
                     String httpAuthority = URIUtils.getAuthority(uri);
                     String httpPath = URIUtils.getPath(uri);
                     String httpQuery = URIUtils.getQuery(uri);
-                    // TODO: Verify this
                     httpURIs.add(URIUtils.buildURIAsString(wsBalancerUriScheme, httpAuthority, httpPath, httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
@@ -218,8 +217,8 @@ public class HttpBalancerService implements Service {
                 String httpPath = URIUtils.getPath(uri);
                 String httpQuery = URIUtils.getQuery(uri);
                 if (WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
-                	// TODO: Verify this
-                	httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority, URLUtils.replaceMultipleSlashesWithSingleSlash(httpPath + WsebAcceptor.EMULATED_SUFFIX), httpQuery, null));
+                    httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority,
+                    URLUtils.replaceMultipleSlashesWithSingleSlash(httpPath + WsebAcceptor.EMULATED_SUFFIX), httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
                     // so that the Gateway binds to the correct host:port as per the service configuration.
@@ -231,8 +230,7 @@ public class HttpBalancerService implements Service {
                 }
                 else if (SseProtocol.SSE.equals(protocol) || SseProtocol.SSE_SSL.equals(protocol) ||
                          HttpProtocol.HTTP.equals(protocol) || HttpProtocol.HTTPS.equals(protocol)) {
-                	// TODO: Verify this
-                	httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority, httpPath, httpQuery, null));
+                    httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority, httpPath, httpQuery, null));
                 }
                 else {
                     // we do not balance anything other than http, ws and sse

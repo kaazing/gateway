@@ -76,9 +76,9 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
 
     @Override
     public void dispose() {
-    	if (connector != null) {
-    		connector.dispose();
-    	}
+        if (connector != null) {
+            connector.dispose();
+        }
     }
 
     @Override

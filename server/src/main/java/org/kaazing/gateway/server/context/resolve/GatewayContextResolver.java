@@ -504,7 +504,7 @@ public class GatewayContextResolver {
             if (connectProperty != null) {
                 connectProperty = connectProperty.trim();
                 properties.remove("connect");
-                connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)).toString());
+                connectURIs.add(URIUtils.uriToString(resolveURI(getCanonicalURI(connectProperty, true))));
             }
 
             Collection<String> requireRolesCollection = new LinkedList<>();
@@ -725,7 +725,7 @@ public class GatewayContextResolver {
     private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-            String resolvedURI = resolveURI(getCanonicalURI(uri, true)).toString();
+            String resolvedURI = URIUtils.uriToString(resolveURI(getCanonicalURI(uri, true)));
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;

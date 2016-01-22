@@ -892,7 +892,7 @@ public class DefaultServiceContext implements ServiceContext {
         if (balances != null && balances.size() > 0) {
             CollectionsFactory factory = clusterContext.getCollectionsFactory();
             if (factory != null) {
-                Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = factory
+                Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap = factory
                         .getMap(MEMBERID_BALANCER_MAP_NAME);
                 if (memberIdBalancerUriMap == null) {
                     throw new IllegalStateException("MemberId to BalancerMap is null");
@@ -900,7 +900,7 @@ public class DefaultServiceContext implements ServiceContext {
 
                 MemberId localMember = clusterContext.getLocalMember();
 
-                Map<URI, List<URI>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
+                Map<String, List<String>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
                 if (memberBalanceUriMap == null) {
                     throw new IllegalStateException("Member balancerMap is null for member " + localMember);
                 }

@@ -45,6 +45,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -56,10 +57,8 @@ import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.BridgeSessionInitializerAdapter;
 import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.NioBindException;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpProtocol;
@@ -142,7 +141,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
 
     @Override
     public void removeBridgeFilters(IoFilterChain filterChain) {
-    	removeFilter(filterChain, CODEC_FILTER);
+        removeFilter(filterChain, CODEC_FILTER);
     }
 
     @Override
@@ -286,8 +285,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions();
             candidateOptions.setOption(TRANSPORT, httpLocalAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
-            // TODO: Verify this
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
             final Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -308,8 +306,7 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             sseRemoteOptions.setOption(TRANSPORT, newHttpBindAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
             URI sseBindURI = sseBindAddress.getExternalURI();
-            // TODO: Verify this
-            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI.toString(), sseRemoteOptions);
+            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(sseBindURI), sseRemoteOptions);
 
             // create the session
             final SseSession sseSession = newSession(new IoSessionInitializer<IoFuture>() {
@@ -404,18 +401,18 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                     URI pathInfo = httpSession.getPathInfo();
                     String secureAuthority = secureAcceptURI.getAuthority();
                     String secureAcceptPath = secureAcceptURI.getPath();
-                    URI request = URI.create("https://" + secureAuthority + secureAcceptPath + pathInfo.toString());
+                    String request = "https://" + secureAuthority + secureAcceptPath + pathInfo.toString();
 
                     // determine how to send the response
                     if (supportsRedirect(httpSession)) {
                         // send redirect response
                         httpSession.setStatus(HttpStatus.REDIRECT_MOVED_PERMANENTLY);
-                        httpSession.setWriteHeader("Location", request.toString());
+                        httpSession.setWriteHeader("Location", request);
                         httpSession.close(false);
                     }
                     else {
                         SseMessage sseMessage = new SseMessage();
-                        sseMessage.setLocation(request.toString());
+                        sseMessage.setLocation(request);
                         sseMessage.setReconnect(true);
                         httpSession.write(sseMessage);
                         httpSession.close(false);

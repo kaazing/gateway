@@ -15,6 +15,17 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -28,24 +39,11 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
-import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 

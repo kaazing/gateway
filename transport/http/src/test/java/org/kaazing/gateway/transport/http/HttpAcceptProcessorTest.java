@@ -376,10 +376,10 @@ public class HttpAcceptProcessorTest {
         buf.mark();
         buf.putMessage("KEY", message);
         final Executor executor = new Executor() {
-			@Override
-			public void execute(Runnable command) {
-				command.run();
-			}
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
         };
 
         context.checking(new Expectations() {
@@ -456,10 +456,10 @@ public class HttpAcceptProcessorTest {
         buf.mark();
         buf.putMessage("KEY", message);
         final Executor executor = new Executor() {
-			@Override
-			public void execute(Runnable command) {
-				command.run();
-			}
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
         };
 
         context.checking(new Expectations() {

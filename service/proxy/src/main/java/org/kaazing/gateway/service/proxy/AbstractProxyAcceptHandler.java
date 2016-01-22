@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service.proxy;
 
-import java.net.URI;
 import java.util.Collection;
 
 import org.apache.mina.core.filterchain.IoFilterChain;

@@ -16,7 +16,6 @@
 package org.kaazing.gateway.service;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +81,12 @@ public interface ServiceContext {
 
     void bind(Collection<String> acceptURIs, IoHandler handler);
 
-	void bind(Collection<String> acceptURIs, IoHandler handler,
+    void bind(Collection<String> acceptURIs, IoHandler handler,
               AcceptOptionsContext acceptOptionsContext);
-	
-	void bind(Collection<String> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
     
-	void bind(Collection<String> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+    void bind(Collection<String> acceptURIs, IoHandler handler, AcceptOptionsContext acceptOptionsContext, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
+    
+    void bind(Collection<String> acceptURIs, IoHandler handler, BridgeSessionInitializer<ConnectFuture> bridgeSessionInitializer);
 
     void bindConnectsIfNecessary(Collection<String> connectURIs);
 
@@ -106,11 +105,11 @@ public interface ServiceContext {
                           IoSessionInitializer<ConnectFuture> connectSessionInitializer);
 
     Collection<IoSessionEx> getActiveSessions();
-	
+    
     IoSessionEx getActiveSession(Long sessionId);
-	
+    
     void addActiveSession(IoSessionEx session);
-	
+    
     void removeActiveSession(IoSessionEx session);
 
 //    public ClusterContext getClusterContext();

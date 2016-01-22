@@ -156,7 +156,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
                 String newAuthority = format(addressFormat, ipAddress, URIUtils.getPort(location));
-                location = (URIUtils.modifyURIAuthority(location, newAuthority)).toString();
+                location = URIUtils.modifyURIAuthority(location, newAuthority);
                 UdpResourceAddress udpAddress = super.newResourceAddress0(original, location, options);
                 udpAddresses.add(udpAddress);
             }

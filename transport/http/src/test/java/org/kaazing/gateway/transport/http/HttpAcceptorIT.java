@@ -25,7 +25,6 @@ import static org.kaazing.gateway.transport.http.HttpMatchers.hasReadHeader;
 import static org.kaazing.gateway.transport.http.HttpMethod.POST;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 

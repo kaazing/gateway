@@ -20,7 +20,6 @@ import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -186,8 +185,7 @@ public class ResourceAddressFactory {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(TRANSPORT, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
-        // TODO: Verify this implementation (toString)
-        return newResourceAddress(uriAddress.getResource().toString(), options);
+        return newResourceAddress(URIUtils.uriToString(uriAddress.getResource()), options);
     }
 
     private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {

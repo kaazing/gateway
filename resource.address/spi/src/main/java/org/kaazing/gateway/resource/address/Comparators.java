@@ -266,8 +266,7 @@ public final class Comparators {
                     for (ResourceAddress transportAddress: asResourceAddressList(transport)) {
                         ResourceOptions newResultOptions = ResourceOptions.FACTORY.newResourceOptions(resourceAddress);
                         newResultOptions.setOption(TRANSPORT, transportAddress);
-                        //TODO: Clarify whether this can be implemented in a better manner
-                        ResourceAddress newResult = addressFactory.newResourceAddress(resourceAddress.getExternalURI().toString(), newResultOptions);
+                        ResourceAddress newResult = addressFactory.newResourceAddress(URIUtils.uriToString(resourceAddress.getExternalURI()), newResultOptions);
                         result.add(newResult);
                     }
                 } else {

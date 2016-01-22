@@ -59,8 +59,7 @@ public class ManagementUdpTransport extends ManagementTransport {
             String connectURI = "udp://" + udpAddress.getInetAddress().getHostAddress() + ":" + udpAddress.getPort();
 
             // FIXME:  IoSessionInitializer is null, but should set up security info, especially for SNMPv3...
-            // TODO: Verify this
-            ConnectFuture future = serviceContext.connect(connectURI.toString(), connectHandler, null);
+            ConnectFuture future = serviceContext.connect(connectURI, connectHandler, null);
             future.addListener(new IoFutureListener<ConnectFuture>() {
                 @Override
                 public void operationComplete(ConnectFuture future) {

@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.ws.bridge.extensions.pingpong;
 
 import static org.junit.Assert.assertEquals;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 

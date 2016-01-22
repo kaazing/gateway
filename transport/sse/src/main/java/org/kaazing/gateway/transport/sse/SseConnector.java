@@ -194,7 +194,7 @@ public class SseConnector extends AbstractBridgeConnector<SseSession> {
                         Callable<SseSession> sseSessionFactory = new Callable<SseSession>() {
                             @Override
                             public SseSession call() throws Exception {
-								return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
+                                return new SseSession(SseConnector.this, getProcessor(), connectAddress, connectAddress, httpSession, allocator);
                             }
                         };
 

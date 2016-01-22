@@ -56,6 +56,7 @@ import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
@@ -191,8 +192,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
             candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
             candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-            // TODO: Verify this
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
             Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -621,8 +621,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
-                    // TODO: Verify this
-                    return resourceAddressFactory.newResourceAddress(candidateURI.toString(), candidateOptions);
+                    return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
                 }
 
                 private IoSession getTcpBridgeSession(IoSession session) {

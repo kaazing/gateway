@@ -139,7 +139,6 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         if (internalAuthority != null) {
             if (!internalAuthority.equals(authority)) {
                 try {
-                    // TODO: Verify this
                     return URIUtils.buildURIAsString(URIUtils.getScheme(externalURI), internalAuthority,
                            URIUtils.getPath(externalURI), URIUtils.getQuery(externalURI), URIUtils.getFragment(externalURI));
                 } catch (URISyntaxException e) {

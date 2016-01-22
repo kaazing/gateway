@@ -33,6 +33,7 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.http.HttpBindings.HttpBinding;
@@ -134,8 +135,7 @@ public class HttpNextAddressFilter extends HttpFilterAdapter<IoSession> {
         options.setOption(NEXT_PROTOCOL, nextProtocol);
         options.setOption(TRANSPORT, transport);
 
-        // TODO: Verify this
-        return addressFactory.newResourceAddress(candidateURI.toString(), options);
+        return addressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), options);
     }
 
 }

@@ -63,7 +63,7 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
     }
     
     @Override
-	protected SseResourceAddress newResourceAddress0(String original, String location) {
+    protected SseResourceAddress newResourceAddress0(String original, String location) {
 
         String host = URIUtils.getHost(location);
         int port = URIUtils.getPort(location);
@@ -81,8 +81,8 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-		return new SseResourceAddress(this, URI.create(original), URI.create(location));
-	}
+        return new SseResourceAddress(this, URI.create(original), URI.create(location));
+    }
 
     @Override
     protected void setAlternateOption(String location,

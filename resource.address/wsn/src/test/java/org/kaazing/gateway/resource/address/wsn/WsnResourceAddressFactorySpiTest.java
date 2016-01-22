@@ -60,7 +60,7 @@ public class WsnResourceAddressFactorySpiTest {
     @Before
     public void before() {
         addressFactorySpi = new WsnResourceAddressFactorySpi();
-        addressURI = "wsn://localhost:2020/"	;
+        addressURI = "wsn://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -148,7 +148,7 @@ public class WsnResourceAddressFactorySpiTest {
         Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ws.keepAliveTimeout", 25);
 
-        String location = String.format("wsn://localhost:4949/path");
+        String location = "wsn://localhost:4949/path";
         ResourceAddress address = addressFactory.newResourceAddress(location, inputOptions);
         verifyTransport(address, URI.create("http://localhost:4949/path"));
         verifyTransport(address.getTransport(), URI.create("tcp://127.0.0.1:4949"));

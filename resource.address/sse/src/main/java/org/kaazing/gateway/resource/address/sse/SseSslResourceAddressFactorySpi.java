@@ -31,14 +31,14 @@ public class SseSslResourceAddressFactorySpi extends SseResourceAddressFactorySp
     private static final ResourceFactory TRANSPORT_FACTORY = changeSchemeOnly("https");
 
     @Override
-	public String getSchemeName() {
-		return SCHEME_NAME;
-	}
+    public String getSchemeName() {
+        return SCHEME_NAME;
+    }
 
-	@Override
-	protected int getSchemePort() {
-		return SCHEME_PORT;
-	}
+    @Override
+    protected int getSchemePort() {
+        return SCHEME_PORT;
+    }
 
     @Override
     protected ResourceFactory getTransportFactory() {

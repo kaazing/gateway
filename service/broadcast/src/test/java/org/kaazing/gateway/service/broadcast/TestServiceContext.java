@@ -237,8 +237,7 @@ public class TestServiceContext implements ServiceContext {
     public ConnectFuture connect(ResourceAddress address,
                                  IoHandler connectHandler,
                                  IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-    	// TODO: Verify correctnesss
-        return connect(address.getExternalURI().toString(), connectHandler, ioSessionInitializer);
+        return connect(URIUtils.uriToString(address.getExternalURI()), connectHandler, ioSessionInitializer);
     }
 
     @Override
