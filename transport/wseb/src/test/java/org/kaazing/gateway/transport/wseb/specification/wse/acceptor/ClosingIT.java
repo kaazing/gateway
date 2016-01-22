@@ -55,7 +55,7 @@ public class ClosingIT {
 
     @Test
     @Specification("client.send.close/request")
-    public void shouldEchoClientCloseFrame() throws Exception {
+    public void shouldPerformClientInitiatedClose() throws Exception {
         acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>());
         k3po.finish();
     }
@@ -130,11 +130,12 @@ public class ClosingIT {
             }
 
         });
-        k3po.finish();
+        k3po.start();
         assertTrue("wsebSession was not closed after 4 seconds", closed.await(4, SECONDS));
         // Timing is not exact but should be close
         assertTrue(format("Time taken for ws close handshake timeout %d should be close to 2000 millisecs", timeToClose.get()),
                 timeToClose.get() > 1500 && timeToClose.get() < 4000);
+        k3po.finish();
     }
 
     // This test is only applicable for clients

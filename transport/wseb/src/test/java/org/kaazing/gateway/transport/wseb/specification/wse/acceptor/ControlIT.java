@@ -21,7 +21,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -47,46 +46,46 @@ public class ControlIT {
                         .done()
                     .done();
             // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            init(configuration);
         }
     };
 
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("client.send.ping/request")
     public void shouldReplyClientPingWithPong() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("client.send.invalid.ping/request")
-    public void shouldCloseConnectionOnReceivingInvalidPingFromClient() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("client.send.unexpected.ping/request")
-    public void shouldCloseConnectionOnReceivingUnexpectedPingFromClient() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("client.send.pong/request")
     public void shouldReceivePongFromClient() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("client.send.invalid.ping/request")
+    public void shouldCloseConnectionOnReceivingInvalidPingFromClient() throws Exception {
+        k3po.finish();
+    }
+
     @Test
     @Specification("client.send.invalid.pong/request")
     public void shouldCloseConnectionOnReceivingInvalidPongFromClient() throws Exception {
         k3po.finish();
     }
 
+    @Test
+    @Specification("client.send.unexpected.ping/request")
+    public void shouldCloseConnectionOnReceivingUnexpectedPingFromClient() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("client.send.unexpected.pong/request")
+    public void shouldCloseConnectionOnReceivingUnexpectedPongFromClient() throws Exception {
+        k3po.finish();
+    }
 }

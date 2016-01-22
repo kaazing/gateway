@@ -26,6 +26,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COM
 import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -376,7 +377,8 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             ResourceAddress writeAddress = createWriteAddress(writeURI, createSession, wsebSession);
             ResourceAddress readAddress = createReadAddress(readURI, createSession, wsebSession);
 
-            if (!wsebSession.isClosing()) {
+            // Continue even if wsebSession.isClosing() so close handshake can complete
+            if (!wsebSession.getTransportSession().isClosing()) {
                 wsebSession.setWriteAddress(writeAddress);
                 wsebSession.setReadAddress(readAddress);
 
@@ -539,14 +541,19 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doExceptionCaught(HttpSession readSession, Throwable cause) throws Exception {
-            if (logger.isDebugEnabled()) {
-                String message = format("Error on WebSocket WSE connection: %s", cause);
-                if (logger.isTraceEnabled()) {
-                    // note: still debug level, but with extra detail about the exception
-                    logger.debug(message, cause);
-                }
-                else {
-                    logger.debug(message);
+            ResourceAddress readAddress = REMOTE_ADDRESS.get(readSession);
+            WsebSession wsebSession = sessionMap.get(readAddress);
+            if (wsebSession != null) {
+                wsebSession.setCloseException(cause);
+                if (logger.isDebugEnabled()) {
+                    String message = format("Error on WebSocket WSE connection: %s", cause);
+                    if (logger.isTraceEnabled()) {
+                        // note: still debug level, but with extra detail about the exception
+                        logger.debug(message, cause);
+                    }
+                    else {
+                        logger.debug(message);
+                    }
                 }
             }
             readSession.close(true);
@@ -559,7 +566,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             WsebSession wsebSession = sessionMap.get(readAddress);
 
             if (wsebSession != null && readSession.getStatus() != HttpStatus.SUCCESS_OK) {
-                wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                wsebSession.reset(
+                        new IOException("Network connectivity has been lost or transport was closed at other end",
+                                wsebSession.getCloseException()).fillInStackTrace());
             }
         }
     };

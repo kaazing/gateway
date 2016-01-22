@@ -21,6 +21,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_SEQUENCE_NO;
 
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -41,12 +42,12 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
+import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.DefaultWriteFutureEx;
@@ -62,7 +63,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private final Properties configuration;
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
-    protected static final WriteRequest CLOSE_REQUEST = new DefaultWriteRequestEx(new Object());
 
     private final WsebFrameCodecFilter wsebFraming = new WsebFrameCodecFilter(0);
     private final BridgeServiceFactory bridgeServiceFactory;
@@ -76,13 +76,10 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     @Override
     protected void removeInternal(WsebSession session) {
-        IoSessionEx transportSession = session.getTransportSession();
-        if (logger.isTraceEnabled()) {
-            logger.trace(format("Adding CLOSE_REQUEST to write on wseb session %s", session));
+        HttpSession writer = session.getWriter();
+        if (writer != null) {
+            finishWrite(session, writer);
         }
-        WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
-        writeRequestQueue.offer(transportSession, CLOSE_REQUEST);
-        flushInternal(session);
     }
 
     @Override
@@ -105,7 +102,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         if (currentWriteRequest != null) {
             session.setCurrentWriteRequest(null);
         }
-        
+
         // get write request queue and process it
         final WriteRequestQueue writeRequestQueue = transportSession.getWriteRequestQueue();
         do {
@@ -125,28 +122,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 currentWriteRequest = null;
             }
 
-            if (request == CLOSE_REQUEST) {
-                // TODO: resolve infinite loop problem
-                if (transportSession.getCloseFuture().isClosed()) {
-                    break;
-                }
-
-                if (writer == null) {
-                    session.setCurrentWriteRequest(request);
-                    initWriter(session);
-                    break;
-                }
-
-                assert (writer != null);
-                assert (!writer.isWriteSuspended());
-                if (logger.isTraceEnabled()) {
-                    logger.trace(format("Writing CLOSE command to writer %s for wseb session %s", writer, session));
-                }
-                writer.write(WsCommandMessage.CLOSE);
-                finishWrite(session, writer);
-                break;
-            }
-
             // identity compare for our marker as a command to reconnect the
             // stream
             if (WsebSession.isReconnectRequest(request)) {
@@ -156,7 +131,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     break;
                 }
 
-                assert (writer != null);
                 assert (!writer.isWriteSuspended());
                 writer.write(WsCommandMessage.RECONNECT);
                 finishWrite(session, writer);
@@ -169,24 +143,30 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 WsMessage frame = (WsMessage) message;
                 IoBufferEx buffer = frame.getBytes();
 
-
                 try {
-                    // hold current remaining bytes so we know how much was
-                    // written
-                    int remaining = buffer.remaining();
-
                     if (writer == null) {
                         session.setCurrentWriteRequest(request);
                         initWriter(session);
                         break;
                     }
 
-                    assert (writer != null);
-
                     // stop if parent already closing
                     if (writer.isClosing()) {
+                        request.getFuture().setException(new IOException("Writer is closing"));
                         break;
                     }
+
+                    if (frame.getKind() == Kind.CLOSE) {
+                        writer.write(WsCommandMessage.CLOSE);
+                        // Detach writer to send RECONNECT and because no more data can now be written to the client.
+                        session.detachWriter(writer);
+                        request.getFuture().setWritten();
+                        break;
+                    }
+
+                    // hold current remaining bytes so we know how much was
+                    // written
+                    int remaining = buffer.remaining();
 
                     // flush the buffer out to the session
                     lastWrite = flushNowInternal(writer, frame, buffer, filterChain, request);
@@ -242,11 +222,11 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
 
     private void initWriter(final WsebSession session) {
+        final ResourceAddress writeAddress = session.getWriteAddress();
+        if (writeAddress == null) {     // create sessionClosed not yet completed
+            return;
+        }
         if (session.compareAndSetAttachingWrite(false, true)) {
-            final ResourceAddress writeAddress = session.getWriteAddress();
-            if (writeAddress == null) {     // session is closed
-                return;
-            }
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(writeAddress);
             ConnectFuture connectFuture =
                     connector.connect(writeAddress, writeHandler,

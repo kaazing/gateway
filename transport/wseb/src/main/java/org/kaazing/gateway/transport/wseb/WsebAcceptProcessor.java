@@ -28,6 +28,7 @@ import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
+import org.kaazing.gateway.transport.ws.WsMessage.Kind;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameEncoder;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.slf4j.Logger;
@@ -41,6 +42,15 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
     public WsebAcceptProcessor(ScheduledExecutorService scheduler, Logger logger) {
         this.scheduler = scheduler;
         this.logger = logger;
+    }
+
+    @Override
+    protected void doFireSessionDestroyed(WsebSession session) {
+        // We must fire session destroyed on the wsebSession only when the close handshake is complete,
+        // which is when the transport session gets closed.
+        if (session.getTransportSession().isClosing()) {
+            super.doFireSessionDestroyed(session);
+        }
     }
 
     @Override
@@ -142,6 +152,14 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                         break;
                     }
 
+                    if (frame.getKind() == Kind.CLOSE) {
+                        writer.write(WsCommandMessage.CLOSE);
+                        // Detach writer to send RECONNECT and because no more data can now be written to the client.
+                        session.detachWriter(writer);
+                        request.getFuture().setWritten();
+                        break;
+                    }
+
                     // hold current remaining bytes so we know how much was
                     // written
                     int remaining = buf.remaining();
@@ -154,6 +172,7 @@ public class WsebAcceptProcessor extends BridgeAcceptProcessor<WsebSession> {
                     // or closing, there is a race condition that would permit
                     // writing data to the parent during this interim state
                     // resulting in a WriteToClosedSessionException and losing data
+
 
                     // flush the message out to the session
                     lastWrite = flushNowInternal(writer, frame, buf, filterChain, request);

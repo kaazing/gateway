@@ -92,7 +92,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -105,8 +105,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         received.await(10, SECONDS);
-
-        connectSession.close(false).await();
 
         k3po.finish();
     }
@@ -127,7 +125,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -141,8 +139,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         assertTrue("Echoed data not received", received.await(10, SECONDS));
-
-        assertTrue("WsebSession close did not complete", connectSession.close(false).await(10, SECONDS));
 
         k3po.finish();
     }
@@ -163,7 +159,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -176,9 +172,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
 
         k3po.finish();
     }
@@ -199,7 +192,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -212,9 +205,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
 
         k3po.finish();
     }
@@ -235,7 +225,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -248,8 +238,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         received.await(10, SECONDS);
-
-        connectSession.close(false).await();
 
         k3po.finish();
     }
