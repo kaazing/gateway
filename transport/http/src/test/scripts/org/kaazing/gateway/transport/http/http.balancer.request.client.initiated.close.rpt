@@ -61,4 +61,4 @@ write header "Sec-WebSocket-Key" "dGhlIHNhbXBsZSBub25jZQ=="
 write header "Sec-WebSocket-Version" "13"
 write flush
 
-close
+
