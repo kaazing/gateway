@@ -18,8 +18,10 @@ package org.kaazing.gateway.service.http.proxy;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

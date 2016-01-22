@@ -15,7 +15,9 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.Collections;
 import java.util.HashMap;
