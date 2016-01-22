@@ -27,7 +27,9 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -42,6 +44,9 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.future.UnbindFuture;
 
 public class WsnAcceptorTest {
+
+    @Rule
+    public final TestRule timeoutRule = timeoutRule(10, SECONDS);
 
     private SchedulerProvider schedulerProvider;
     

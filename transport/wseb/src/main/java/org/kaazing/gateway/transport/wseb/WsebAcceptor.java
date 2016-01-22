@@ -486,7 +486,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 downstreamSuffix = DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
                 upstreamSuffix = UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
             } else {
-                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse request", path));
+                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse create request", path));
                 session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
                 session.close(false);
                 return;

@@ -23,7 +23,8 @@ import java.util.Properties;
 public enum InternalSystemProperty {
 
     // Thread Pool Size for background tasks (see SchedulerProvider)
-    BACKGROUND_TASK_THREADS("org.kaazing.gateway.server.util.scheduler.BACKGROUND_TASK_THREADS", Integer.toString(getRuntime().availableProcessors()));
+    BACKGROUND_TASK_THREADS("org.kaazing.gateway.server.util.scheduler.BACKGROUND_TASK_THREADS",
+            Integer.toString(getRuntime().availableProcessors()));
 
     private final String name;
     private final String defaultValue;

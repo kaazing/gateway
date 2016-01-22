@@ -68,12 +68,25 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             final DefaultHttpSession acceptSession = (DefaultHttpSession) session;
             //final Subject subject = ((IoSessionEx) acceptSession).getSubject();
 
+            if (!validateRequestPath(acceptSession)) {
+                acceptSession.setStatus(CLIENT_NOT_FOUND);
+                acceptSession.close(false);
+                return;
+            }
+
             ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
-
             super.sessionOpened(acceptSession);
         }
+    }
+
+    private boolean validateRequestPath(DefaultHttpSession acceptSession) {
+        URI requestURI = acceptSession.getRequestURI();
+        String acceptPath = acceptSession.getServicePath().getPath();
+        String requestPath = requestURI.normalize().getPath();
+
+        return requestPath.startsWith(acceptPath);
     }
 
     /*
@@ -92,7 +105,15 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
-            connectSession.setRequestURI(acceptSession.getRequestURI());
+            String acceptPathInfo = acceptSession.getPathInfo().toString();
+            if (acceptPathInfo.startsWith("/")) {
+                acceptPathInfo = acceptPathInfo.substring(1);
+            }
+            String connectPath = connectSession.getRequestURI().getPath();
+            if (!connectPath.endsWith("/")) {
+                connectPath += "/";
+            }
+            connectSession.setRequestURI(URI.create(connectPath).resolve(acceptPathInfo));
             processRequestHeaders(acceptSession, connectSession);
         }
 
