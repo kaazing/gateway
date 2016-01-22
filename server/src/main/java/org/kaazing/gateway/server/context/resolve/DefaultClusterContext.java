@@ -570,7 +570,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         }
     };
 
-    private EntryListener<String, Collection<String>> balancerMapEntryListener = new EntryListener<String, Collection<String>>() {
+    private EntryListener<String, Collection<String>> balancerMapEntryListener = new
+    		EntryListener<String, Collection<String>>() {
         @Override
         public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
             GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
@@ -831,7 +832,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire balancerEntryAdded event
      */
     private void fireBalancerEntryAdded(EntryEvent<String, Collection<String>> entryEvent) {
-    	String balancerURI = entryEvent.getKey();
+        String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
@@ -846,7 +847,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire balancerEntryRemoved event
      */
     private void fireBalancerEntryRemoved(EntryEvent<String, Collection<String>> entryEvent) {
-    	String balancerURI = entryEvent.getKey();
+        String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryRemoved for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
@@ -861,7 +862,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire balancerEntryUpdated event
      */
     private void fireBalancerEntryUpdated(EntryEvent<String, Collection<String>> entryEvent) {
-    	String balancerURI = entryEvent.getKey();
+        String balancerURI = entryEvent.getKey();
         GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryUpdated for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
