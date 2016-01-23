@@ -25,7 +25,6 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -186,7 +185,6 @@ public class TcpConnectorIT {
     @Specification({
         "concurrent.connections/server"
         })
-    @Ignore("TODO: Clarify this")
     public void shouldEstablishConcurrentConnections() throws Exception {
         IoHandlerAdapter<IoSessionEx> adapter = new IoHandlerAdapter<IoSessionEx>(){
             @Override

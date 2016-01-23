@@ -99,7 +99,6 @@ public class HttpDirectoryServiceIT {
 
     @Specification("no.server.header")
     @Test
-    @Ignore("TODO: Clarify this")
     public void testNoServerHeader() throws Exception {
         robot.finish();
     }
@@ -135,7 +134,6 @@ public class HttpDirectoryServiceIT {
 
     @Specification("get.index.check.whole.response")
     @Test
-    @Ignore("TODO: Clarify this")
     public void testGetIndexCheckWholeResponse() throws Exception {
         robot.finish();
     }
@@ -235,7 +233,6 @@ public class HttpDirectoryServiceIT {
     // //////////////// URI ////////////////////////
     @Specification("uri.hex.encoded")
     @Test
-    @Ignore("TODO: Clarify this")
     public void testHexEncodedUri() throws Exception {
         robot.finish();
     }

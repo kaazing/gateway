@@ -15,15 +15,13 @@
  */
 package org.kaazing.gateway.transport.nio.internal;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.rules.RuleChain.outerRule;
 import static org.kaazing.gateway.transport.nio.NioSystemProperty.TCP_IDLE_TIMEOUT;
 
 import java.util.concurrent.CountDownLatch;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.rules.RuleChain.outerRule;
-
 import org.apache.mina.core.service.IoHandler;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -60,7 +58,6 @@ public class TcpIdleTimeoutIT {
 
     @Test
     @Specification({"additions/idle.timeout/does.not.close.when.data"})
-    @Ignore("TODO: Clarify this")
     public void serverDoesNotCloseWithData() throws Exception {
         CountDownLatch writeAfterOpen = new CountDownLatch(1);
         CountDownLatch writeAfterRecv = new CountDownLatch(1);
