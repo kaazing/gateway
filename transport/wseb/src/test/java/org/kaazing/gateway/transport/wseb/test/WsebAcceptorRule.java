@@ -22,13 +22,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
@@ -62,7 +62,7 @@ public class WsebAcceptorRule implements TestRule {
     }
 
     public void bind(final String accept,
-                     IoHandlerAdapter<?> acceptHandler) throws InterruptedException {
+                     IoHandler acceptHandler) throws InterruptedException {
         ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(URI.create(accept));
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }

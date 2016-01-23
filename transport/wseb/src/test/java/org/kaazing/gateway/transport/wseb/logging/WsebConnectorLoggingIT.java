@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
@@ -40,6 +41,7 @@ import org.junit.runners.model.Statement;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.WsebSession;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
@@ -50,7 +52,13 @@ import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsebConnectorLoggingIT {
-    private final WsebConnectorRule connector = new WsebConnectorRule();
+    private final WsebConnectorRule connector;
+
+    {
+        Properties configuration = new Properties();
+        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s");
+        connector = new WsebConnectorRule(configuration);
+    }
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {
@@ -129,7 +137,7 @@ public class WsebConnectorLoggingIT {
 
     @Test
     @Specification({
-        "data/binary/echo.payload.length.127/response" })
+        "data/echo.binary.payload.length.127/response" })
     public void shouldLogOpenWriteReceivedAndAbruptClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
         final CountDownLatch received = new CountDownLatch(1);

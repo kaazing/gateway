@@ -170,6 +170,17 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
+    public Action closeSession(final int parameterIndex) {
+        return new CustomAction("close session") {
+
+            @Override
+            public Object invoke(Invocation invocation) throws Throwable {
+                ((IoSession)invocation.getParameter(parameterIndex)).close(false);
+                return null;
+            }
+        };
+    }
+
     public Action countDown(final CountDownLatch latch) {
         return new CustomAction("count down latch") {
 

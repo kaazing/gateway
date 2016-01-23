@@ -20,23 +20,35 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
+import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
+import org.jmock.api.Invocation;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.action.CustomAction;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ClosingIT {
 
@@ -50,14 +62,38 @@ public class ClosingIT {
         acceptor = new WsebAcceptorRule(configuration);
     }
 
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
+        {
+            setThreadingPolicy(new Synchroniser());
+        }
+    };
+
+    private TestRule contextRule = ITUtil.toTestRule(context);
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
+
     @Rule
-    public TestRule chain = createRuleChain(acceptor, k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).
+             around(k3po).around(timeoutRule);
 
     @Test
     @Specification("client.send.close/request")
     public void shouldPerformClientInitiatedClose() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>());
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
+            }
+        });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
+        assertTrue(closed.await(4, SECONDS));
     }
 
     // This test is only applicable for clients
@@ -100,14 +136,22 @@ public class ClosingIT {
     @Test
     @Specification("server.send.close/request")
     public void shouldPerformServerInitiatedClose() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
-            @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
-                session.close(false);
-            }
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                will(closeSession(0));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
+            }
         });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
+        assertTrue(closed.await(4, SECONDS));
     }
 
     @Test
@@ -133,7 +177,8 @@ public class ClosingIT {
         k3po.start();
         assertTrue("wsebSession was not closed after 4 seconds", closed.await(4, SECONDS));
         // Timing is not exact but should be close
-        assertTrue(format("Time taken for ws close handshake timeout %d should be close to 2000 millisecs", timeToClose.get()),
+        assertTrue(format("Time taken for ws close handshake %d should be close to ws close timeout of 2000 millisecs",
+                timeToClose.get()),
                 timeToClose.get() > 1500 && timeToClose.get() < 4000);
         k3po.finish();
     }

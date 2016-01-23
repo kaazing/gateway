@@ -759,27 +759,25 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void removeInternal(WsebSession session) {
-            Throwable closeException = session.getCloseException();
-            WsCloseMessage closeMessage;
-            if (closeException != null && closeException instanceof ProtocolDecoderException) {
-                closeMessage = WsCloseMessage.PROTOCOL_ERROR;
-            } else {
-                closeMessage = WsCloseMessage.NORMAL_CLOSE;
+            if (session.getCloseException() != null || cannotWrite(session)) {
+                // can't do close handshake
+                session.getTransportSession().close(true);
             }
+            WsCloseMessage closeMessage = WsCloseMessage.NORMAL_CLOSE;
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Writing CLOSE command to transport session of for wseb session %s", session));
+                logger.debug(String.format("Writing WS CLOSE frame to transport of wseb session %s", session));
             }
             // Write may not be immediate, especially for WsebConnector case where writer is not immediately attached
             session.getTransportSession().write(closeMessage).addListener(new IoFutureListener<WriteFuture>() {
 
                 @Override
                 public void operationComplete(WriteFuture future) {
-                    if (closeException != null || !future.isWritten()) {
-                        // can't do clean close handshake
+                    if (!future.isWritten()) {
+                        // can't do close handshake
                         session.getTransportSession().close(true);
                     }
                     else if (session.isCloseReceived()) {
-                        session.getTransportSession().close(false);
+                        session.getTransportSession().close(true);
                     }
                     else {
                         // Wait for close handshake completion from client on upstream
@@ -801,14 +799,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void flushInternal(final WsebSession session) {
-            // get parent and check if null (no attached http session)
-            final HttpSession writer = session.getWriter();
-            if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
-                    && (writer == null || writer.isClosing()) ) {
+            if (cannotWrite(session)) {
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because writer (%s) " +
-                                                       "is null or writer is closing(%s)",
-                            writer, writer==null ? "n/a" : Boolean.valueOf(writer.isClosing()) ));
+                                                       "is null or writer is closing",
+                            session.getWriter()));
                 }
                 return;
             }
@@ -912,6 +907,16 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 }
             }
             while (true);
+        }
+
+        private boolean cannotWrite(WsebSession session) {
+            // get parent and check if null (no attached http session)
+            final HttpSession writer = session.getWriter();
+            if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
+                    && (writer == null || writer.isClosing()) ) {
+                return true;
+            }
+            return false;
         }
     };
 
