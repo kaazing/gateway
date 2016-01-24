@@ -17,27 +17,17 @@
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.net.URI;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
@@ -67,14 +57,14 @@ public class ControlIT {
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
-    private final TestRule timeoutRule = timeoutRule(15, SECONDS);
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
             .around(timeoutRule);
 
     @Test
-    @Specification("server.send.ping/request")
+    @Specification("server.send.ping/response")
     public void shouldReplyServerPingWithPong() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -82,44 +72,90 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
     @Test
-    @Specification("server.send.pong/request")
+    @Specification("server.send.pong/response")
     public void shouldReceivePongFromServer() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
     @Test
-    @Specification("server.send.invalid.ping/request")
-    public void shouldCloseConnectionOnReceivingInvalidPingFromServer()
-            throws Exception {
+    @Specification("server.send.invalid.ping/response")
+    public void shouldCloseConnectionOnReceivingInvalidPingFromServer() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
     @Test
-    @Specification("server.send.invalid.pong/request")
-    public void shouldCloseConnectionOnReceivingInvalidPongFromServer()
-            throws Exception {
+    @Specification("server.send.invalid.pong/response")
+    public void shouldCloseConnectionOnReceivingInvalidPongFromServer() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
     @Test
-    @Specification("server.send.unexpected.ping/request")
-    public void shouldCloseConnectionOnReceivingUnexpectedPingFromServer()
-            throws Exception {
+    @Specification("server.send.unexpected.ping/response")
+    public void shouldCloseConnectionOnReceivingUnexpectedPingFromServer() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 
     @Test
-    @Specification("server.send.unexpected.pong/request")
-    public void shouldCloseConnectionOnReceivingUnexpectedPongFromServer()
-            throws Exception {
+    @Specification("server.send.unexpected.pong/response")
+    public void shouldCloseConnectionOnReceivingUnexpectedPongFromServer() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+        connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
     }
 

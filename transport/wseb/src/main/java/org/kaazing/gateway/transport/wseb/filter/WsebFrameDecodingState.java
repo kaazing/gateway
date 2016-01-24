@@ -41,7 +41,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
     private static final byte COMMAND_TYPE_BYTE = (byte)0x01;
     private static final byte BINARY_TYPE_BYTE = (byte)0x80;
     private static final byte SPECIFIED_LENGTH_TEXT_TYPE_BYTE = (byte)0x81;
-    
+
     private static final byte PING_TYPE_BYTE = (byte)0x89;
     private static final byte PONG_TYPE_BYTE = (byte)0x8A;
 
@@ -187,7 +187,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         @Override
         protected DecodingState finishDecode(byte lengthByte1, ProtocolDecoderOutput out) throws Exception {
             if ( lengthByte1 != (byte)0 ) {
-                throw new ProtocolDecoderException("Ping frame length must be 0, but got: " + Integer.toHexString((lengthByte1 & 0xff)));
+                throw new ProtocolDecoderException("Pong frame length must be 0, but got: " + Integer.toHexString((lengthByte1 & 0xff)));
             }
             out.write(new WsPongMessage(allocator.wrap(allocator.allocate(0))));
             return READ_FRAME_TYPE;

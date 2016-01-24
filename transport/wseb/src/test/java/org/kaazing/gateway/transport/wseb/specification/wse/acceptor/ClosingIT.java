@@ -106,7 +106,7 @@ public class ClosingIT {
 
     @Test
     @Specification("client.abruptly.closes.downstream/request")
-    @Ignore("This will not work until k3po #132 is resolved (allow http script to force tcp close)")
+    @Ignore("This will not work until k3po#132 is resolved (allow http script to force tcp close)")
     public void shouldFireCorrectEventsIfClientAbruptlyClosesDownstream() throws Exception {
         final AtomicLong timeToClose = new AtomicLong(0);
         CountDownLatch closed = new CountDownLatch(1);

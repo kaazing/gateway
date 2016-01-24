@@ -759,7 +759,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void removeInternal(WsebSession session) {
-            if (session.getCloseException() != null || cannotWrite(session)) {
+            if (cannotWrite(session)) {
                 // can't do close handshake
                 session.getTransportSession().close(true);
             }

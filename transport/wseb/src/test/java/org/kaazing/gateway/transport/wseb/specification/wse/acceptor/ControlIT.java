@@ -16,19 +16,22 @@
 
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ControlIT {
 
@@ -50,8 +53,12 @@ public class ControlIT {
         }
     };
 
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po)
+            .around(timeoutRule);
 
     @Test
     @Specification("client.send.ping/request")

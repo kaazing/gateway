@@ -27,6 +27,7 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -153,8 +154,11 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
         wsebSession.setCloseException(cause);
-        session.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
-        wsebSession.close(true);
+        HttpStatus status = cause instanceof ProtocolDecoderException ? HttpStatus.CLIENT_BAD_REQUEST
+                : HttpStatus.SERVER_INTERNAL_ERROR;
+        session.setStatus(status);
+        session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+        session.close(true);
     }
 
     @Override
