@@ -2,7 +2,22 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.42...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.43...HEAD)
+
+**Closed issues:**
+
+- WsebConnector should set Content-Type header on the upstream request [\#136](https://github.com/kaazing/gateway/issues/136)
+
+**Merged pull requests:**
+
+- Added input area for choosing which URL to connect to [\#406](https://github.com/kaazing/gateway/pull/406) ([mgherghe](https://github.com/mgherghe))
+- Modified xsd file in order to support exactly one \<connect\> for http.proxy [\#404](https://github.com/kaazing/gateway/pull/404) ([mgherghe](https://github.com/mgherghe))
+- Adding timeout to WsnAcceptorTest [\#402](https://github.com/kaazing/gateway/pull/402) ([jitsni](https://github.com/jitsni))
+- Decoding the “Set-cookie” response header bug fix [\#400](https://github.com/kaazing/gateway/pull/400) ([msalavastru](https://github.com/msalavastru))
+- Added NioSystemProperty that will kill session if idle at tcp level  [\#397](https://github.com/kaazing/gateway/pull/397) ([dpwspoon](https://github.com/dpwspoon))
+
+## [5.0.1.43](https://github.com/kaazing/gateway/tree/5.0.1.43) (2016-01-18)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.42...5.0.1.43)
 
 **Fixed bugs:**
 
