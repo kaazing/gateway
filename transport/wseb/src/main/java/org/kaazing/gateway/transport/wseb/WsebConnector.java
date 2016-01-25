@@ -477,7 +477,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         @Override
         protected void doSessionOpened(HttpSession readSession) throws Exception {
             IoFilterChain filterChain = readSession.getFilterChain();
-            filterChain.addLast(CODEC_FILTER, new WsebFrameCodecFilter(0));
+            filterChain.addLast(CODEC_FILTER, new WsebFrameCodecFilter(0, true));
 
             ResourceAddress readAddress = readSession.getRemoteAddress();
             final WsebSession wsebSession = sessionMap.get(readAddress);

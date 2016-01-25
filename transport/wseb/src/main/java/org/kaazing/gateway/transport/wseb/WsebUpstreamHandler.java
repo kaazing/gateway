@@ -63,7 +63,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding,
                                int wsMaxMessageSize) {
         this.wsebSession = wsebSession;
-        this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize);
+        this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize, wsebSession.isPingEnabled());
         this.utf8 = (utf8Encoding != null) ? new EncodingFilter(utf8Encoding) : null;
     }
 

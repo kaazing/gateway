@@ -50,6 +50,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
     private static final byte TWO_BYTE =  (byte)'2';
 
     private final int maxDataSize;
+    private final boolean pingEnabled;
 
     private final DecodingState READ_FRAME_TYPE = new SingleByteDecodingState() {
 
@@ -65,8 +66,14 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
             case SPECIFIED_LENGTH_TEXT_TYPE_BYTE:
                 return READ_SPECIFIED_LENGTH_TEXT_FRAME_LENGTH;
             case PING_TYPE_BYTE:
+                if (!pingEnabled) {
+                    throw new ProtocolDecoderException("ping and pong commands are not enabled");
+                }
                 return READ_PING_FRAME;
             case PONG_TYPE_BYTE:
+                if (!pingEnabled) {
+                    throw new ProtocolDecoderException("ping and pong commands are not enabled");
+                }
                 return READ_PONG_FRAME;
             default:
                 throw new ProtocolDecoderException("Unexpected frame type: " + Integer.toHexString((frameType & 0xff)));
@@ -241,9 +248,10 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         }
     };
 
-    WsebFrameDecodingState(IoBufferAllocatorEx<?> allocator, int maxDataSize) {
+    WsebFrameDecodingState(IoBufferAllocatorEx<?> allocator, int maxDataSize, boolean pingEnabled) {
         super(allocator);
         this.maxDataSize = maxDataSize;
+        this.pingEnabled = pingEnabled;
     }
 
     @Override

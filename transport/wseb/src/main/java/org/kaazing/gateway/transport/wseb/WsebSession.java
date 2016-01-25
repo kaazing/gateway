@@ -161,6 +161,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private boolean closeReceived = false;
     private final long closeTimeout;
+    private boolean pingEnabled = false;
 
     public WsebSession(int ioLayer,
                        Thread ioThread,
@@ -620,6 +621,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private void setCloseReceived() {
         closeReceived = true;
+    }
+
+    boolean isPingEnabled() {
+        return pingEnabled;
+    }
+
+    void setPingEnabled(boolean enabled) {
+        pingEnabled = enabled;
     }
 
     private void writeNoop(final HttpAcceptSession session) {

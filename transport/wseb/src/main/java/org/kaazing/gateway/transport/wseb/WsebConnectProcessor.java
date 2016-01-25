@@ -64,7 +64,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
 
-    private final WsebFrameCodecFilter wsebFraming = new WsebFrameCodecFilter(0);
+    private final WsebFrameCodecFilter wsebFraming = new WsebFrameCodecFilter(0, true);
     private final BridgeServiceFactory bridgeServiceFactory;
 
     public WsebConnectProcessor(BridgeServiceFactory bridgeServiceFactory, Logger logger, Properties configuration) {

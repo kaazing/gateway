@@ -592,11 +592,11 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
 
             // We can only honor inactivity timeout if the client supports PING
-            String acceptCommands = session.getReadHeader(HEADER_X_ACCEPT_COMMANDS);
+            String acceptCommands = session.getReadHeader(HttpHeaders.HEADER_X_ACCEPT_COMMANDS);
+            boolean pingEnabled = acceptCommands != null && acceptCommands.equals("ping");
             long configuredInactivityTimeout = localAddress.getOption(INACTIVITY_TIMEOUT);
             final long inactivityTimeout =
-                    // TODO: parse acceptCommands properly in case we need to support multiple commands (comma separated)
-                    (acceptCommands != null && acceptCommands.equals("ping")) ? configuredInactivityTimeout : DISABLE_INACTIVITY_TIMEOUT;
+                    pingEnabled ? configuredInactivityTimeout : DISABLE_INACTIVITY_TIMEOUT;
 
             // Default IDLE_TIMEOUT to the value of ws inactivity timeout if set, but don't let it be less than 5 secs
             final int clientIdleTimeout;
@@ -617,6 +617,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     WsebSession wsebSession = (WsebSession)wsSession;
                     wsSession.setAttribute(BridgeSession.NEXT_PROTOCOL_KEY, wsProtocol0);
                     wsebSession.setLoginContext(session.getLoginContext());
+                    wsebSession.setPingEnabled(pingEnabled);
                     IoSessionEx extensionsSession = wsebSession.getTransportSession();
                     IoFilterChain extensionsFilterChain = extensionsSession.getFilterChain();
                     WsUtils.addExtensionFilters(negotiated, extensionHelper, extensionsFilterChain, false);
