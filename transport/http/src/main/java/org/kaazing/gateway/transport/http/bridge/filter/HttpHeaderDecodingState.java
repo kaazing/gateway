@@ -59,6 +59,9 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("Sec-WebSocket-Extensions");
         COMMA_SEPARATED_HEADERS.add("Sec-WebSocket-Version");
 
+        COMMA_SEPARATED_HEADERS.add("X-WebSocket-Protocol");
+        COMMA_SEPARATED_HEADERS.add("X-WebSocket-Extensions");
+
         COMMA_SEPARATED_HEADERS.add("TE");
         COMMA_SEPARATED_HEADERS.add("Transfer-Encoding");
         COMMA_SEPARATED_HEADERS.add("Upgrade");
@@ -67,7 +70,7 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("Warning");
         COMMA_SEPARATED_HEADERS.add("WWW-Authenticate");
     }
-    
+
 	private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");

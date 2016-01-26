@@ -16,112 +16,267 @@
 
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import org.junit.Ignore;
+import org.apache.mina.core.service.IoHandler;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class OpeningIT {
 
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/opening");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private WsebAcceptorRule acceptor;
+
+    {
+        Properties configuration = new Properties();
+        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s");
+        acceptor = new WsebAcceptorRule(configuration);
+    }
+
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
-         // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
-                        .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
-                            .type("echo")
-                        .done()
-                    .done();
-            // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            setThreadingPolicy(new Synchroniser());
         }
     };
 
-    @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    private TestRule contextRule = ITUtil.toTestRule(context);
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
-    @Ignore("Server is not spec compliant")
+    @Rule
+    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).
+             around(k3po).around(timeoutRule);
+
+    ResourceAddressFactory resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
+
     @Test
     @Specification("connection.established/handshake.request")
     public void shouldEstablishConnection() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("request.header.origin/handshake.request")
+    public void shouldEstablishConnectionWithRequestHeaderOrigin() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.websocket.protocol/handshake.request")
+    public void shouldEstablishConnectionWithRequestHeaderXWebSocketProtocol() throws Exception {
+        //ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
+        //options.setOption(WsResourceAddress.SUPPORTED_PROTOCOLS, new String[]{"httpxe/1.1"});
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put(SUPPORTED_PROTOCOLS.name(), new String[]{"primary"});
+        ResourceAddress address = resourceAddressFactory.newResourceAddress(URI.create("wse://localhost:8080/path"),
+                options);
+//        ,
+//                options);
+        acceptor.bind(address, mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.websocket.extensions/handshake.request")
+    public void shouldEstablishConnectionWithRequestHeaderXWebSocketExtensions() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
     @Test
     @Specification("request.with.body/handshake.request")
     public void shouldEstablishConnectionWithNonEmptyRequestBody() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.method.not.post/handshake.request")
-    public void shouldFailHandshakeWhenRequestMethodNotPost() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.sequence.number.missing/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.sequence.number.negative/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNegative() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.sequence.number.non.integer/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNotInteger() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.sequence.number.out.of.range/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsOutOfRange() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.websocket.version.missing/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Ignore("Server is not spec compliant")
-    @Test
-    @Specification("request.header.x.websocket.version.not.wseb-1.0/handshake.request")
-    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionNotWseb10()
+    // Client test only
+    @Specification("response.body.has.upstream.with.different.port/handshake.request")
+    void shouldEstablishConnectionWhenResponseBodyHasUpstreamWithDifferentPort()
             throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
+    // Client test only
+    @Specification("response.body.has.downstream.with.different.port/handshake.request")
+    void shouldEstablishConnectionWhenResponseBodyHasDownstreamWithDifferentPort()
+            throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.method.not.post/handshake.request")
+    public void shouldFailHandshakeWhenRequestMethodNotPost() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.sequence.number.missing/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsMissing() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.sequence.number.negative/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNegative() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.sequence.number.non.integer/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNotInteger() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.sequence.number.out.of.range/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsOutOfRange() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.websocket.version.missing/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionMissing() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.header.x.websocket.version.not.wseb-1.0/handshake.request")
+    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionNotWseb10() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
     @Test
     @Specification("request.header.x.accept.commands.not.ping/handshake.request")
     public void shouldFailHandshakeWhenHeaderXAcceptCommandsNotPing() throws Exception {
+        acceptor.bind("wse://localhost:8080/path", mockHandler());
         k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.status.code.not.201/handshake.request")
+    void shouldFailConnectionWhenResponseStatusCodeNot201()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.header.content.type.missing/handshake.request")
+    void shouldFailConnectionWhenResponseHeaderContentTypeIsMissing()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.header.content.type.not.text.plain.charset.utf-8/handshake.request")
+    void shouldFailConnectionWhenResponseHeaderContentTypeNotTextPlainCharsetUTF8()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.header.x.websocket.protocol.not.negotiated/handshake.request")
+    void shouldFailConnectionWhenXWebSocketProtocolNotNegotiated()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.header.x.websocket.extensions.not.negotiated/handshake.request")
+    void shouldFailConnectionWhenXWebSocketExtensionsNotNegotiated()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.with.no.downstream/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasNoDownstream()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.upstream.with.scheme.not.http.or.https/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasUpstreamWithSchemeNotHttpOrHttps()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.upstream.with.different.host/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasUpstreamWithDifferentHost()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.upstream.with.different.path.prefix/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasUpstreamWithDifferentPathPrefix()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.downstream.with.scheme.not.http.or.https/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasDownstreamWithSchemeNotHttpOrHttps()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.downstream.with.different.host/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasDownstreamWithDifferentHost()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("response.body.has.downstream.with.different.path.prefix/handshake.request")
+    void shouldFailConnectionWhenResponseBodyHasDownstreamWithDifferentPathPrefix()
+            throws Exception {
+        k3po.finish();
+    }
+
+    private IoHandler mockHandler() throws Exception {
+        IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+            }
+        });
+        return handler;
     }
 }

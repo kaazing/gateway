@@ -67,6 +67,11 @@ public class WsebAcceptorRule implements TestRule {
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
+    public void bind(ResourceAddress acceptAddress,
+                     IoHandler acceptHandler) throws InterruptedException {
+        wsebAcceptor.bind(acceptAddress, acceptHandler, null);
+    }
+
     private final class AcceptorStatement extends Statement {
 
         private final Statement base;
