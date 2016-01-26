@@ -163,7 +163,7 @@ public final class DefaultIoSessionIdleTracker implements IoSessionIdleTracker {
             // after t0 + configured idleTime. Even if an I/O event occurred after t0, we may still need to fire sessionIdle.
             long timeUntilSessionIdle = startPoint + idleTimeMillis - currentTimeMillis();
             if (timeUntilSessionIdle <= 0 && idleTimeMillis != 0) {
-                if (session.getIoThread() != IoSessionEx.NO_THREAD) {
+                if (session.getIoThread() != IoSessionEx.NO_THREAD && !session.isClosing()) {
                     fireSessionIdle(session);
                 }
                 reschedule(idleTimeMillis);

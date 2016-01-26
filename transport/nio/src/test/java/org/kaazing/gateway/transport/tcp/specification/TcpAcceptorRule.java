@@ -18,7 +18,7 @@ package org.kaazing.gateway.transport.tcp.specification;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -33,7 +33,6 @@ import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
-
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be
  * started in process before each test method and stopped after it. The rule
@@ -45,10 +44,11 @@ public class TcpAcceptorRule implements TestRule {
     private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
     private NioSocketAcceptor acceptor;
+    private Properties configuration = new Properties();
 
     @Override
     public Statement apply(Statement base, Description description) {
-        return new AcceptorStatement(base);
+        return new AcceptorStatement(base, configuration);
     }
 
     public TcpAcceptorRule() {
@@ -61,24 +61,30 @@ public class TcpAcceptorRule implements TestRule {
 
     public void bind(String accept, IoHandler acceptHandler) {
 
-        final ResourceAddress acceptAddress =
-                addressFactory.newResourceAddress(URI.create(accept));
+        final ResourceAddress acceptAddress = addressFactory.newResourceAddress(URI.create(accept));
 
         acceptor.bind(acceptAddress, acceptHandler, null);
     }
-   
-   public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
-       acceptor.bind(acceptAddress, acceptHandler, null);
-   }
 
-   private final class AcceptorStatement extends Statement {
+    public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
+        acceptor.bind(acceptAddress, acceptHandler, null);
+    }
+
+    public TcpAcceptorRule configuration(Properties configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    private final class AcceptorStatement extends Statement {
 
         private final Statement base;
 
         private SchedulerProvider schedulerProvider;
+        private final Properties configuration;
 
-        public AcceptorStatement(Statement base) {
+        public AcceptorStatement(Statement base, Properties configuration) {
             this.base = base;
+            this.configuration = configuration;
         }
 
         @Override
@@ -99,10 +105,10 @@ public class TcpAcceptorRule implements TestRule {
                 schedulerProvider = new SchedulerProvider();
 
                 addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+                TransportFactory transportFactory = TransportFactory.newTransportFactory((Map) configuration);
                 BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
 
-                acceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
+                acceptor = (NioSocketAcceptor) transportFactory.getTransport("tcp").getAcceptor();
                 acceptor.setResourceAddressFactory(addressFactory);
                 acceptor.setBridgeServiceFactory(serviceFactory);
                 acceptor.setSchedulerProvider(schedulerProvider);
@@ -116,5 +122,9 @@ public class TcpAcceptorRule implements TestRule {
 
     }
 
+    public TcpAcceptorRule addConfigurationProperty(String propertyName, String propertyValue) {
+        configuration.setProperty(propertyName, propertyValue);
+        return this;
+    }
 
 }
