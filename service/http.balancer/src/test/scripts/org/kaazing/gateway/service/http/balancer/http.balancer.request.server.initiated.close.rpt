@@ -46,7 +46,7 @@ write option mask [0x00 0x00 0x00 0x00]
 
 read notify FIRST_CONNECTION_CLOSED
 closed
-# k3po  bug https://github.com/k3po/k3po/issues/297
+# k3po bug https://github.com/k3po/k3po/issues/297
 
 connect await FIRST_CONNECTION_CLOSED
 connect http://localhost:8001/echo1
