@@ -59,6 +59,7 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
@@ -79,7 +80,6 @@ import org.kaazing.gateway.transport.CommitFuture;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
@@ -484,7 +484,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 downstreamSuffix = DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
                 upstreamSuffix = UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX;
             } else {
-                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse request", path));
+                logger.info(String.format("Sending HTTP status 404 as the request=%s is not wse create request", path));
                 session.setStatus(HttpStatus.CLIENT_NOT_FOUND);
                 session.close(false);
                 return;

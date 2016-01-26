@@ -113,9 +113,28 @@
       }
 
       function detectWebSocketSupport() {
+
+        var clear = document.getElementById("clearMessages");
+        var wsurl = document.getElementById("wsurl");
+        var message = document.getElementById("sendMessage");
+        var connectButton = document.getElementById("connect");
+        var closeButton = document.getElementById("close");
+        var sendButton = document.getElementById("send");
+
+        // Enable or disable controls based on whether or not we are connected.
+        // For example, disable the Connect button if we're connected.
+        var setFormState = function(connected) {
+            wsurl.disabled = connected;
+            connectButton.disabled = connected;
+            closeButton.disabled = !connected;
+            message.disabled = !connected;
+            sendButton.disabled = !connected;
+        }
+
+        setFormState(false);
         if (window.WebSocket) {
           var wsPort = (window.location.port.toString() === "" ? "" : ":"+window.location.port);
-          var wsUri = "ws://" + hostname + wsPort + "/echo";
+          wsurl.value = "ws://" + hostname + wsPort + "/echo";
 
           consoleLog = document.getElementById("consoleLog");
           var sendMessage = document.getElementById("sendMessage");
@@ -133,13 +152,29 @@
             }
           }
 
+          var doConnect = function() {
+            var wsUri = wsurl.value;
+            websocket = new WebSocket(wsUri);
+            websocket.onopen = function(evt) { 
+                doLog("CONNECTED to " + wsUri);
+                setFormState(true);
+                message.focus();
+            };
+            websocket.onclose = function(evt) { 
+                doLog("CLOSED: ("+evt.code+") "+evt.reason);
+                setFormState(false);
+            };
+            websocket.onmessage = function(evt) { doLog("RECEIVED: " + evt.data, 1) };
+            websocket.onerror = function(evt) { doLog("ERROR: " + evt.data) };
+          };
+
           document.getElementById("webSocketSupp").className = "blockText";
 
-          websocket = new WebSocket(wsUri);
-          websocket.onopen = function(evt) { doLog("CONNECTED to " + wsUri) };
-          websocket.onclose = function(evt) { doLog("DISCONNECTED") };
-          websocket.onmessage = function(evt) { doLog("RECEIVED: " + evt.data, 1) };
-          websocket.onerror = function(evt) { doLog("ERROR: " + evt.data) };
+          connectButton.onclick = doConnect;
+
+          closeButton.onclick = function() {
+            websocket.close();
+          };
         } else {
           document.getElementById("noWebSocketSupp").className = "blockText";
         }
@@ -183,6 +218,12 @@
       <h4 class="header">Try out WebSockets</h4>
 
       <div>
+        <strong>Location:</strong><br>
+        <div class="form-fields">
+          <input id="wsurl" size="35">
+          <button id="connect">Connect</button>
+          <button id="close">Close</button>
+        </div>
         <div style="float:left;">
           <strong>Message:</strong><br>
           <input id="sendMessage" size="35" value="It works!">

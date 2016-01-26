@@ -71,51 +71,51 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("WWW-Authenticate");
     }
 
-	private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
+    private static final String HEADER_WEBSOCKET_KEY_PREFIX = "Sec-WebSocket-Key";
 
-	private static final Charset US_ASCII = Charset.forName("US-ASCII");
-	private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
-	private final CharsetDecoder asciiDecoder = US_ASCII.newDecoder();
-	private final CharsetDecoder utf8Decoder = UTF_8.newDecoder();
+    private final CharsetDecoder asciiDecoder = US_ASCII.newDecoder();
+    private final CharsetDecoder utf8Decoder = UTF_8.newDecoder();
 
-	// use list to preserve header value ordering
-	private Map<String, List<String>> headers;
-	private String lastHeaderName;
+    // use list to preserve header value ordering
+    private Map<String, List<String>> headers;
+    private String lastHeaderName;
 
-	private final DecodingState FIND_EMPTY_LINE = new CrLfDecodingState() {
-		@Override
-		protected DecodingState finishDecode(boolean foundCRLF,
-				ProtocolDecoderOutput out) throws Exception {
-			if (foundCRLF) {
-			    out.write(headers);
-				initHeaders();
-				return null;
-			} else {
-				return READ_HEADER_NAME;
-			}
-		}
-	};
+    private final DecodingState FIND_EMPTY_LINE = new CrLfDecodingState() {
+        @Override
+        protected DecodingState finishDecode(boolean foundCRLF,
+                ProtocolDecoderOutput out) throws Exception {
+            if (foundCRLF) {
+                out.write(headers);
+                initHeaders();
+                return null;
+            } else {
+                return READ_HEADER_NAME;
+            }
+        }
+    };
 
-	private final DecodingState READ_HEADER_NAME = new ConsumeToTerminatorDecodingState(allocator,
-			(byte) ':') {
-		@Override
-		protected DecodingState finishDecode(IoBuffer buffer,
-				ProtocolDecoderOutput out) throws Exception {
-		    if (buffer == null || !buffer.hasRemaining()) {
-		        throw new ProtocolDecoderException("Invalid header name in the request");
-		    }
-			lastHeaderName = buffer.getString(asciiDecoder);
-			return AFTER_READ_HEADER_NAME;
-		}
-	};
+    private final DecodingState READ_HEADER_NAME = new ConsumeToTerminatorDecodingState(allocator,
+            (byte) ':') {
+        @Override
+        protected DecodingState finishDecode(IoBuffer buffer,
+                ProtocolDecoderOutput out) throws Exception {
+            if (buffer == null || !buffer.hasRemaining()) {
+                throw new ProtocolDecoderException("Invalid header name in the request");
+            }
+            lastHeaderName = buffer.getString(asciiDecoder);
+            return AFTER_READ_HEADER_NAME;
+        }
+    };
 
-	private final DecodingState AFTER_READ_HEADER_NAME = new LinearWhitespaceSkippingState() {
-		@Override
-		protected DecodingState finishDecode(int skippedBytes) throws Exception {
-			return READ_HEADER_VALUE;
-		}
-	};
+    private final DecodingState AFTER_READ_HEADER_NAME = new LinearWhitespaceSkippingState() {
+        @Override
+        protected DecodingState finishDecode(int skippedBytes) throws Exception {
+            return READ_HEADER_VALUE;
+        }
+    };
 
     private final DecodingState READ_HEADER_VALUE = new ConsumeToCrLfDecodingState(allocator) {
         @Override
@@ -142,30 +142,30 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         }
     };
 
-	private final DecodingState AFTER_READ_HEADER_VALUE = new LinearWhitespaceSkippingState() {
-		@Override
-		protected DecodingState finishDecode(int skippedBytes) throws Exception {
-			if (skippedBytes == 0) {
-				return FIND_EMPTY_LINE;
-			} else {
-				return READ_HEADER_VALUE;
-			}
-		}
-	};
+    private final DecodingState AFTER_READ_HEADER_VALUE = new LinearWhitespaceSkippingState() {
+        @Override
+        protected DecodingState finishDecode(int skippedBytes) throws Exception {
+            if (skippedBytes == 0) {
+                return FIND_EMPTY_LINE;
+            } else {
+                return READ_HEADER_VALUE;
+            }
+        }
+    };
 
-	public HttpHeaderDecodingState(IoBufferAllocatorEx<?> allocator) {
+    public HttpHeaderDecodingState(IoBufferAllocatorEx<?> allocator) {
         super(allocator);
     }
 
     @Override
-	protected DecodingState init() throws Exception {
-	    initHeaders();
-		return FIND_EMPTY_LINE;
-	}
+    protected DecodingState init() throws Exception {
+        initHeaders();
+        return FIND_EMPTY_LINE;
+    }
 
-	@Override
-	protected void destroy() throws Exception {
-	}
+    @Override
+    protected void destroy() throws Exception {
+    }
 
     private void initHeaders() {
         headers = new TreeMap<>(HttpHeaderNameComparator.INSTANCE);
