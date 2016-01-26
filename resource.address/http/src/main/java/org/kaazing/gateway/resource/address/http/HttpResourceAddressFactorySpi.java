@@ -299,7 +299,9 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new HttpResourceAddress(this, URI.create(original), URI.create(location));
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        return new HttpResourceAddress(this, uriOriginal, uriLocation);
     }
 
     @Override

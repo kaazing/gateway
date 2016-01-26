@@ -15,12 +15,15 @@
  */
 package org.kaazing.gateway.server.service;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
+
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceRegistration;
 
@@ -45,14 +48,14 @@ public class ServiceRegistry {
     }
 
     public ServiceContext register(String serviceURI, ServiceContext serviceContext) {
-        if (URIUtils.getQuery(serviceURI) != null || URIUtils.getFragment(serviceURI) != null) {
+        if (getQuery(serviceURI) != null || getFragment(serviceURI) != null) {
             throw new IllegalArgumentException("Service URI query and fragment must be null");
         }
 
-        ServiceAuthority serviceAuthority = entries.get(URIUtils.getAuthority(serviceURI));
+        ServiceAuthority serviceAuthority = entries.get(getAuthority(serviceURI));
         if (serviceAuthority == null) {
             serviceAuthority = new ServiceAuthority();
-            entries.put(URIUtils.getAuthority(serviceURI), serviceAuthority);
+            entries.put(getAuthority(serviceURI), serviceAuthority);
         }
 
         ServiceRegistration serviceRegistration = serviceAuthority.register(serviceURI, serviceContext);

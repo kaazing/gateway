@@ -19,6 +19,8 @@ import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -143,20 +145,20 @@ public class ResourceAddressFactory {
                                               ResourceOptions options,
                                               Object qualifier) {
         Objects.requireNonNull(options, "options cannot be null");
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, qualifier);
     }
 
 
     public ResourceAddress newResourceAddress(String location, Map<String, Object> options) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         return resourceAddressFactory.newResourceAddress(location, options, ResourceOptions.FACTORY);
     }
 
     public ResourceAddress newResourceAddress(final String location,
                                               final Map<String, Object> options,
                                               final String nextProtocol) {
-        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(URIUtils.getScheme(location));
+        ResourceAddressFactorySpi<?> resourceAddressFactory = findResourceAddressFactory(getScheme(location));
         if (nextProtocol != null) {
             return resourceAddressFactory.newResourceAddress(location, options, new ResourceOptions.Factory() {
 
@@ -185,7 +187,7 @@ public class ResourceAddressFactory {
         ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
         options.setOption(TRANSPORT, transportAddress);
         options.setOption(NEXT_PROTOCOL, uriAddress.getOption(NEXT_PROTOCOL));
-        return newResourceAddress(URIUtils.uriToString(uriAddress.getResource()), options);
+        return newResourceAddress(uriToString(uriAddress.getResource()), options);
     }
 
     private ResourceAddressFactorySpi<?> findResourceAddressFactory(String schemeName) throws IllegalArgumentException {

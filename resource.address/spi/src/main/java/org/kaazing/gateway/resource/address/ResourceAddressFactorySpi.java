@@ -28,6 +28,11 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
+import static org.kaazing.gateway.resource.address.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIPort;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
 
 import java.net.URI;
 import java.util.Collection;
@@ -91,7 +96,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             throw new NullPointerException("transportName");
         }
 
-        if (!schemeName.equals(URIUtils.getScheme(location))) {
+        if (!schemeName.equals(getScheme(location))) {
             throw new IllegalArgumentException(format("Expected scheme \"%s\" for URI: %s", schemeName, location));
         }
 
@@ -104,18 +109,18 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         String external = location;
 
         // make the external port implicit
-        if (URIUtils.getPort(external) == getSchemePort()) {
-            location = URIUtils.modifyURIPort(location, -1);
+        if (getPort(external) == getSchemePort()) {
+            location = modifyURIPort(location, -1);
         }
         
         // make the internal port explicit
-        if (URIUtils.getPort(location) == -1) {
-            location = URIUtils.modifyURIPort(location, getSchemePort());
+        if (getPort(location) == -1) {
+            location = modifyURIPort(location, getSchemePort());
         }
 
         // convert the scheme to transport
         if (!transportName.equals(getSchemeName())) {
-            location = URIUtils.modifyURIScheme(location, transportName);
+            location = modifyURIScheme(location, transportName);
         }
 
         parseNamedOptions(location, options, optionsByName);
@@ -194,14 +199,14 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         String external = location;
         
         // make the port explicit
-        if (URIUtils.getPort(location) == -1) {
-            location = URIUtils.modifyURIPort(location, getSchemePort());
+        if (getPort(location) == -1) {
+            location = modifyURIPort(location, getSchemePort());
         }
         
         // convert the scheme to transport
         String transportName = getTransportName();
         if (!transportName.equals(getSchemeName())) {
-            location = URIUtils.modifyURIScheme(location, transportName);
+            location = modifyURIScheme(location, transportName);
         }
 
         // create a list of alternate addresses for this location
@@ -264,8 +269,9 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 // TODO: make ResourceOptions hierarchical to provide options here?
                 ResourceOptions transportOptions = ResourceOptions.FACTORY.newResourceOptions();
                 transportOptions.setOption(NEXT_PROTOCOL, getProtocolName());
-                transportOptions.setOption(TRANSPORTED_URI, URI.create(location));
-                transport = addressFactory.newResourceAddress(URIUtils.uriToString(transportURI), transportOptions);
+                URI locationURI = URI.create(location);
+                transportOptions.setOption(TRANSPORTED_URI, locationURI);
+                transport = addressFactory.newResourceAddress(uriToString(transportURI), transportOptions);
             }
 
             newOptions.setOption(TRANSPORT, transport);
@@ -398,8 +404,9 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             if (optionsByName == Collections.<String,Object>emptyMap()) {
                 optionsByName = new HashMap<>();
             }
-            optionsByName.put(TRANSPORTED_URI.name(), URI.create(location));
-            transport = addressFactory.newResourceAddress(URIUtils.uriToString(transportURI), optionsByName, protocolName);
+            URI locationURI = URI.create(location);
+            optionsByName.put(TRANSPORTED_URI.name(), locationURI);
+            transport = addressFactory.newResourceAddress(uriToString(transportURI), optionsByName, protocolName);
         }
         if (transport != null) {
             options.setOption(TRANSPORT, transport);

@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.service.broadcast;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -38,7 +42,6 @@ import org.jboss.netty.channel.socket.nio.NioWorker;
 import org.jboss.netty.channel.socket.nio.NioWorkerPool;
 import org.jboss.netty.channel.socket.nio.WorkerPool;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
@@ -237,7 +240,7 @@ public class TestServiceContext implements ServiceContext {
     public ConnectFuture connect(ResourceAddress address,
                                  IoHandler connectHandler,
                                  IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-        return connect(URIUtils.uriToString(address.getExternalURI()), connectHandler, ioSessionInitializer);
+        return connect(uriToString(address.getExternalURI()), connectHandler, ioSessionInitializer);
     }
 
     @Override
@@ -389,7 +392,7 @@ public class TestServiceContext implements ServiceContext {
         private void bind(Collection<String> bindURIs, IoHandler handler) throws IOException {
             for (String bindURI : bindURIs) {
                 // should be only one since this is a test class
-                InetSocketAddress address = new InetSocketAddress(URIUtils.getHost(bindURI), URIUtils.getPort(bindURI));
+                InetSocketAddress address = new InetSocketAddress(getHost(bindURI), getPort(bindURI));
                 bindings.put(address, handler);
                 ioAcceptor.bind(address);
             }
@@ -398,7 +401,7 @@ public class TestServiceContext implements ServiceContext {
         private void unbind(Collection<String> bindURIs) {
             for (String bindURI : bindURIs) {
                 // should be only one since this is a test class
-                InetSocketAddress address = new InetSocketAddress(URIUtils.getHost(bindURI), URIUtils.getPort(bindURI));
+                InetSocketAddress address = new InetSocketAddress(getHost(bindURI), getPort(bindURI));
                 ioAcceptor.unbind(address);
             }
         }
@@ -412,7 +415,7 @@ public class TestServiceContext implements ServiceContext {
         }
 
         private ConnectFuture connect(String connectURI, IoHandler connectHandler, final IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-            InetSocketAddress address = new InetSocketAddress(URIUtils.getHost(connectURI), URIUtils.getPort(connectURI));
+            InetSocketAddress address = new InetSocketAddress(getHost(connectURI), getPort(connectURI));
             ioConnector.setHandler(connectHandler);
             return ioConnector.connect(address, new IoSessionInitializer<ConnectFuture>() {
                 @Override

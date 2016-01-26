@@ -19,6 +19,14 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
+import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.resolve;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
 import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
 
@@ -58,7 +66,6 @@ import org.apache.mina.core.session.IoSessionInitializer;
 import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
@@ -629,14 +636,13 @@ public class DefaultServiceContext implements ServiceContext {
 
         Map<String, ? extends CrossSiteConstraintContext> acceptConstraints = acceptConstraintsByURI.get(transportURI);
         if (acceptConstraints == null && "balancer".equals(serviceType)) {
-            if (URIUtils.getPath(transportURI) != null && URIUtils.getPath(transportURI).endsWith("/;e")) {
-                transportURI = URIUtils
-                        .resolve(transportURI, URIUtils.getPath(transportURI).
-                                substring(0, URIUtils.getPath(transportURI).length() - "/;e".length()));
+            if (getPath(transportURI) != null && getPath(transportURI).endsWith("/;e")) {
+                transportURI = resolve(transportURI, getPath(transportURI).
+                                substring(0, getPath(transportURI).length() - "/;e".length()));
             }
-            acceptConstraints = acceptConstraintsByURI.get(URIUtils.modifyURIScheme(transportURI, "ws"));
-            if (acceptConstraints == null && transportFactory.getProtocol(URIUtils.getScheme(transportURI)).isSecure()) {
-                acceptConstraints = acceptConstraintsByURI.get(URIUtils.modifyURIScheme(transportURI, "wss"));
+            acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "ws"));
+            if (acceptConstraints == null && transportFactory.getProtocol(getScheme(transportURI)).isSecure()) {
+                acceptConstraints = acceptConstraintsByURI.get(modifyURIScheme(transportURI, "wss"));
             }
         }
         if (acceptConstraints != null) {
@@ -789,13 +795,13 @@ public class DefaultServiceContext implements ServiceContext {
         for (String uri : balances) {
             if (uri != null) {
                 try {
-                    final String scheme = URIUtils.getScheme(uri);
+                    final String scheme = getScheme(uri);
                     if ("ws".equals(scheme)) {
-                        result.add(URIUtils.buildURIAsString("http", URIUtils.getAuthority(uri),
-                                  URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
+                        result.add(buildURIAsString("http", getAuthority(uri),
+                                  getPath(uri), getQuery(uri), getFragment(uri)));
                     } else if ("wss".equals(scheme)) {
-                        result.add(URIUtils.buildURIAsString("https", URIUtils.getAuthority(uri),
-                                  URIUtils.getPath(uri), URIUtils.getQuery(uri), URIUtils.getFragment(uri)));
+                        result.add(buildURIAsString("https", getAuthority(uri),
+                                  getPath(uri), getQuery(uri), getFragment(uri)));
                     } else {
                         result.add(uri);
                     }
@@ -853,7 +859,7 @@ public class DefaultServiceContext implements ServiceContext {
 
         // iterate over URIs and group them by transport
         for (String uri : uris) {
-            String uriScheme = URIUtils.getScheme(uri);
+            String uriScheme = getScheme(uri);
             Transport transport = transportFactory.getTransportForScheme(uriScheme);
             List<String> list = urisByTransport.get(transport);
             if (list == null) {
@@ -947,7 +953,7 @@ public class DefaultServiceContext implements ServiceContext {
         }
 
         for (String uri : bindURIs) {
-            String uriScheme = URIUtils.getScheme(uri);
+            String uriScheme = getScheme(uri);
             Transport transport = transportFactory.getTransportForScheme(uriScheme);
             ResourceAddress address = bindings.remove(uri);
             if (address != null) {

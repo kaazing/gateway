@@ -236,8 +236,9 @@ public class HttpTransportOptionsTest {
                 if ( logger.isDebugEnabled() ) { logger.debug("Client Http Session received OK"); }
 
                 BridgeSession bridgeSession = (BridgeSession) session;
-                assertEquals("remote address of connect session was not " + connectURI, URI.create(connectURI), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                assertEquals("local  address of connect session was not " + connectURI, URI.create(connectURI), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                URI uriConnectURI = URI.create(connectURI);
+                assertEquals("remote address of connect session was not " + connectURI, uriConnectURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                assertEquals("local  address of connect session was not " + connectURI, uriConnectURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                 assertEquals("ephemeral port of local address' transport != ephemeral port of parent session's local address",
                              BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                              BridgeSession.LOCAL_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
@@ -265,8 +266,9 @@ public class HttpTransportOptionsTest {
                     public void operationComplete(IoFuture future) {
 
                         BridgeSession bridgeSession = (BridgeSession) session;
-                        assertEquals("remote address of accept session was not " + connectURI, URI.create(connectURI), BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                        assertEquals("local  address of accept session was not " + connectURI, URI.create(connectURI), BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                        URI uriConnectURI = URI.create(connectURI);
+                        assertEquals("remote address of accept session was not " + connectURI, uriConnectURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                        assertEquals("local  address of accept session was not " + connectURI, uriConnectURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                         assertEquals("ephemeral port of remote address' transport != ephemeral port of parent session's remote address",
                                      BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                                      BridgeSession.REMOTE_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());

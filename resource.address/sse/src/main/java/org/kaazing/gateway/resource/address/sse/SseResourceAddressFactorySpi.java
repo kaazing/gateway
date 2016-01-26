@@ -81,7 +81,9 @@ public class SseResourceAddressFactorySpi extends ResourceAddressFactorySpi<SseR
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
         
-        return new SseResourceAddress(this, URI.create(original), URI.create(location));
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        return new SseResourceAddress(this, uriOriginal, uriLocation);
     }
 
     @Override

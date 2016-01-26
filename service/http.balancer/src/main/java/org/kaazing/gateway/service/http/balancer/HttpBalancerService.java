@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
+import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +34,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.AttributeKey;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.Protocol;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.URLUtils;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.Service;
@@ -175,16 +180,16 @@ public class HttpBalancerService implements Service {
                 for (String scheme: Arrays.asList("wsn", "wsx")) {
                     boolean secure = protocol.isSecure();
                     String wsBalancerUriScheme = secure ? scheme+"+ssl" : scheme;
-                    String httpAuthority = URIUtils.getAuthority(uri);
-                    String httpPath = URIUtils.getPath(uri);
-                    String httpQuery = URIUtils.getQuery(uri);
-                    httpURIs.add(URIUtils.buildURIAsString(wsBalancerUriScheme, httpAuthority, httpPath, httpQuery, null));
+                    String httpAuthority = getAuthority(uri);
+                    String httpPath = getPath(uri);
+                    String httpQuery = getQuery(uri);
+                    httpURIs.add(buildURIAsString(wsBalancerUriScheme, httpAuthority, httpPath, httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
                     // so that the Gateway binds to the correct host:port as per the service configuration.
                     String internalURI = acceptOptionsCtx.getInternalURI(uri);
                     if ((internalURI != null) && !internalURI.equals(uri)) {
-                        String authority = URIUtils.getAuthority(internalURI);
+                        String authority = getAuthority(internalURI);
                         acceptOptionsCtx.addBind(wsBalancerUriScheme, authority);
                     }
                 }
@@ -208,29 +213,29 @@ public class HttpBalancerService implements Service {
                                                       TransportFactory transportFactory) throws Exception {
         List<String> httpURIs = new ArrayList<>(uris.size());
         for (String uri : uris) {
-            Protocol protocol = transportFactory.getProtocol(URIUtils.getScheme(uri));
+            Protocol protocol = transportFactory.getProtocol(getScheme(uri));
             boolean secure = protocol.isSecure();
 
             for ( int i = 0; i < HTTP_TRANSPORTS.size(); i+=2) {
                 String httpScheme = secure ? HTTP_TRANSPORTS.get(i) : HTTP_TRANSPORTS.get(i+1); // "httpxe+ssl" : "httpxe";
-                String httpAuthority = URIUtils.getAuthority(uri);
-                String httpPath = URIUtils.getPath(uri);
-                String httpQuery = URIUtils.getQuery(uri);
+                String httpAuthority = getAuthority(uri);
+                String httpPath = getPath(uri);
+                String httpQuery = getQuery(uri);
                 if (WsProtocol.WS.equals(protocol) || WsProtocol.WSS.equals(protocol)) {
-                    httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority,
+                    httpURIs.add(buildURIAsString(httpScheme, httpAuthority,
                     URLUtils.replaceMultipleSlashesWithSingleSlash(httpPath + WsebAcceptor.EMULATED_SUFFIX), httpQuery, null));
 
                     // ensure that the accept-options is updated with bindings if they exist for ws and/or wss
                     // so that the Gateway binds to the correct host:port as per the service configuration.
                     String internalURI = acceptOptionsCtx.getInternalURI(uri);
                     if ((internalURI != null) && !internalURI.equals(uri)) {
-                        String authority = URIUtils.getAuthority(internalURI);
+                        String authority = getAuthority(internalURI);
                         acceptOptionsCtx.addBind(httpScheme, authority);
                     }
                 }
                 else if (SseProtocol.SSE.equals(protocol) || SseProtocol.SSE_SSL.equals(protocol) ||
                          HttpProtocol.HTTP.equals(protocol) || HttpProtocol.HTTPS.equals(protocol)) {
-                    httpURIs.add(URIUtils.buildURIAsString(httpScheme, httpAuthority, httpPath, httpQuery, null));
+                    httpURIs.add(buildURIAsString(httpScheme, httpAuthority, httpPath, httpQuery, null));
                 }
                 else {
                     // we do not balance anything other than http, ws and sse

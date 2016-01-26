@@ -17,6 +17,10 @@ package org.kaazing.gateway.resource.address.udp;
 
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
+import static org.kaazing.gateway.resource.address.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.INTERFACE;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMUM_OUTBOUND_RATE;
@@ -40,7 +44,6 @@ import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.URIUtils;
 
 public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpResourceAddress> {
 
@@ -105,7 +108,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             InetAddress bindAddress = bindSocketAddress.getAddress();
             String authorityFormat = (bindAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
             String newAuthority = format(authorityFormat, newHost, newPort);
-            location = URIUtils.modifyURIAuthority(location, newAuthority);
+            location = modifyURIAuthority(location, newAuthority);
         }
         
         // ensure that DNS name is resolved in transport address
@@ -113,7 +116,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         assert (resolver != null);
         List<UdpResourceAddress> udpAddresses = new LinkedList<>();
         try {
-            String host = URIUtils.getHost(location);
+            String host = getHost(location);
             Matcher matcher = PATTERN_IPV6_HOST.matcher(host);
             if (matcher.matches()) {
                 host = matcher.group(1);
@@ -155,14 +158,14 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             for (InetAddress inetAddress : sortedInetAddresses) {
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
-                String newAuthority = format(addressFormat, ipAddress, URIUtils.getPort(location));
-                location = URIUtils.modifyURIAuthority(location, newAuthority);
+                String newAuthority = format(addressFormat, ipAddress, getPort(location));
+                location = modifyURIAuthority(location, newAuthority);
                 UdpResourceAddress udpAddress = super.newResourceAddress0(original, location, options);
                 udpAddresses.add(udpAddress);
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", URIUtils.getHost(location)), e);
+            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
         }
         
         return udpAddresses;
@@ -171,9 +174,9 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
     @Override
     protected UdpResourceAddress newResourceAddress0(String original, String location) {
         
-        String host = URIUtils.getHost(location);
-        int port = URIUtils.getPort(location);
-        String path = URIUtils.getPath(location);
+        String host = getHost(location);
+        int port = getPort(location);
+        String path = getPath(location);
         
         if (host == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
@@ -187,7 +190,9 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new UdpResourceAddress(this, URI.create(original), URI.create(location));
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        return new UdpResourceAddress(this, uriOriginal, uriLocation);
     }
     
     @Override

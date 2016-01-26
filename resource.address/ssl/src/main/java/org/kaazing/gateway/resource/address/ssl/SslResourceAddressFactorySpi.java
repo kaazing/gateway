@@ -116,7 +116,9 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
         
-        return new SslResourceAddress(this, URI.create(original), URI.create(location));
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        return new SslResourceAddress(this, uriOriginal, uriLocation);
     }
 
     @Override

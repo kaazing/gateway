@@ -15,6 +15,11 @@
  */
 package org.kaazing.gateway.resource.address;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIPath;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +35,9 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
 
     @Override
     protected TestResourceAddress newResourceAddress0(String original, String location) {
-        return new TestResourceAddress(this, URI.create(original), URI.create(location));
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        return new TestResourceAddress(this, uriOriginal, uriLocation);
     }
 
     @Override
@@ -95,14 +102,14 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
 
             List<TestResourceAddress> addresses = new ArrayList<>();
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
-            String path = URIUtils.getPath(location);
+            String path = getPath(location);
             if (path == null || "".equals(path)) {
                 path = "/";
             }
 
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        URIUtils.modifyURIPath(location, path + String.valueOf(i)),
+                        modifyURIPath(location, path + String.valueOf(i)),
                         options));
             }
 
@@ -142,7 +149,7 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
             addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original, location, options));
             for (int i = 0; i < 3; i++) {
                 addresses.add(TestResourceAddressFactorySpi.super.newResourceAddress0(original,
-                        URIUtils.modifyURIAuthority(location, URIUtils.getAuthority(location) + String.valueOf(i)),
+                        modifyURIAuthority(location, getAuthority(location) + String.valueOf(i)),
                         options));
             }
 

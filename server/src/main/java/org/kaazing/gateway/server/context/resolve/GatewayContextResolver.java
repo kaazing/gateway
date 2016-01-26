@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -42,7 +48,6 @@ import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.security.RealmContext;
@@ -293,11 +298,11 @@ public class GatewayContextResolver {
         Set<String> schemeNames = new HashSet<>();
         for (ServiceContext serviceContext : serviceContexts) {
             for (String acceptURI : serviceContext.getAccepts()) {
-                String schemeName = URIUtils.getScheme(acceptURI);
+                String schemeName = getScheme(acceptURI);
                 schemeNames.add(schemeName);
             }
             for (String connectURI : serviceContext.getConnects()) {
-                String schemeName = URIUtils.getScheme(connectURI);
+                String schemeName = getScheme(connectURI);
                 schemeNames.add(schemeName);
             }
             ServiceProperties properties = serviceContext.getProperties();
@@ -504,7 +509,7 @@ public class GatewayContextResolver {
             if (connectProperty != null) {
                 connectProperty = connectProperty.trim();
                 properties.remove("connect");
-                connectURIs.add(URIUtils.uriToString(resolveURI(getCanonicalURI(connectProperty, true))));
+                connectURIs.add(uriToString(resolveURI(getCanonicalURI(connectProperty, true))));
             }
 
             Collection<String> requireRolesCollection = new LinkedList<>();
@@ -601,7 +606,7 @@ public class GatewayContextResolver {
                             + "\". Remove the wildcard to specify more restrictive cross site constraints");
                 }
 
-                String host = URIUtils.getHost(acceptURI);
+                String host = getHost(acceptURI);
                 if (host == null || host.isEmpty()) {
                     throw new IllegalArgumentException("Host is required for service \"" + acceptURI + "\".");
                 }
@@ -663,11 +668,11 @@ public class GatewayContextResolver {
             // register service for each acceptURI
             for (String acceptURI : acceptURIs) {
                 // verify we have a port set, otherwise set to default for scheme
-                String authority = URIUtils.getAuthority(acceptURI);
+                String authority = getAuthority(acceptURI);
                 if (authority.indexOf(':') == -1) {
-                    SchemeConfig schemeConfig = supplySchemeConfig(URIUtils.getScheme(acceptURI));
+                    SchemeConfig schemeConfig = supplySchemeConfig(getScheme(acceptURI));
                     authority += ":" + schemeConfig.getDefaultPort();
-                    acceptURI = URIUtils.getScheme(acceptURI) + "://" + authority + URIUtils.getPath(acceptURI);
+                    acceptURI = getScheme(acceptURI) + "://" + authority + getPath(acceptURI);
                 }
                 serviceRegistry.register(acceptURI, serviceContext);
             }
@@ -725,7 +730,7 @@ public class GatewayContextResolver {
     private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-            String resolvedURI = URIUtils.uriToString(resolveURI(getCanonicalURI(uri, true)));
+            String resolvedURI = uriToString(resolveURI(getCanonicalURI(uri, true)));
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;

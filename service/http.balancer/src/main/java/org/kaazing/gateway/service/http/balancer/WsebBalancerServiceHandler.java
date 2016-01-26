@@ -15,6 +15,11 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
+import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.kaazing.gateway.resource.address.Protocol;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.cluster.ClusterContext;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
@@ -81,7 +85,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
             GL.info("ha", "Selected Balancee URI: {}", selectedBalanceeURI);
 
             URI requestURI = session.getRequestURI();
-            String balanceeScheme = URIUtils.getScheme(selectedBalanceeURI);
+            String balanceeScheme = getScheme(selectedBalanceeURI);
             if (balanceeScheme.equals("sse")) {
                 balanceeScheme = "http";
             }
@@ -89,9 +93,9 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                 balanceeScheme = "https";
             }
             else {
-                balanceeScheme = URIUtils.getScheme(selectedBalanceeURI).replaceFirst("^ws", "http");
+                balanceeScheme = getScheme(selectedBalanceeURI).replaceFirst("^ws", "http");
             }
-            String balanceePath = URIUtils.getPath(selectedBalanceeURI);
+            String balanceePath = getPath(selectedBalanceeURI);
             String requestPath = requestURI.getPath();
             int emIndex = (requestPath != null) ? requestPath.indexOf(WsebAcceptor.EMULATED_SUFFIX) : -1;
             if ((emIndex != -1) && (!requestPath.contains(WsebAcceptor.EMULATED_SUFFIX + "/cookies"))) {
@@ -101,7 +105,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
             // GL.warn("ha", "Selected Balancee Query String: {}", balanceeQuery);
 
-            selectedBalanceeURI = URIUtils.buildURIAsString(balanceeScheme, URIUtils.getAuthority(selectedBalanceeURI), balanceePath, balanceeQuery, null);
+            selectedBalanceeURI = buildURIAsString(balanceeScheme, getAuthority(selectedBalanceeURI), balanceePath, balanceeQuery, null);
 
             session.setStatus(HttpStatus.REDIRECT_FOUND /* 302 */);
             session.setWriteHeader("Location", selectedBalanceeURI.toString());
@@ -134,7 +138,7 @@ class WsebBalancerServiceHandler extends IoHandlerAdapter<HttpAcceptSession> {
                     if (balanceesForAccept != null) {
                         for (String balanceeURI : balanceesForAccept) {
                             // Pick only clear or secure balancees as appropriate.
-                            Protocol protocol = transportFactory.getProtocol(URIUtils.getScheme(balanceeURI));
+                            Protocol protocol = transportFactory.getProtocol(getScheme(balanceeURI));
                             if (secure == protocol.isSecure()) {
                                 balanceeURIs.add(balanceeURI);
                             }
