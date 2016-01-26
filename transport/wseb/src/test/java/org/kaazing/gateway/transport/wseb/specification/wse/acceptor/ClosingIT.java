@@ -19,21 +19,17 @@ import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
-import org.jmock.api.Invocation;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.jmock.lib.action.CustomAction;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -96,13 +92,11 @@ public class ClosingIT {
         assertTrue(closed.await(4, SECONDS));
     }
 
-    // This test is only applicable for clients
-    //@Specification({
-    //    "client.send.close.no.reply.from.server/request",
-    //    "client.send.close.no.reply.from.server/response" })
-    //public void clientShouldCloseIfServerDoesNotEchoCloseFrame() throws Exception {
-    //    k3po.finish();
-    //}
+    // Client test only
+    @Specification("client.send.close.no.reply.from.server/request")
+    void clientShouldCloseIfServerDoesNotEchoCloseFrame() throws Exception {
+        k3po.finish();
+    }
 
     @Test
     @Specification("client.abruptly.closes.downstream/request")
@@ -183,16 +177,15 @@ public class ClosingIT {
         k3po.finish();
     }
 
-    // This test is only applicable for clients
-    // @Specification("server.send.data.after.close/request")
-    //public void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
-    //    k3po.finish();
-    //}
+    // Client test only
+    @Specification("server.send.data.after.close/request")
+    void shouldIgnoreDataFromServerAfterCloseFrame() throws Exception {
+        k3po.finish();
+    }
 
-    // This test is oonly applicable for clients
-    // @Specification("server.send.data.after.reconnect/request")
-    // public void shouldIgnoreDataFromServerAfterReconnectFrame()
-    //        throws Exception {
-    //    k3po.finish();
-    //}
+    // Client test only
+    @Specification("server.send.data.after.reconnect/request")
+    void shouldIgnoreDataFromServerAfterReconnectFrame() throws Exception {
+        k3po.finish();
+    }
 }

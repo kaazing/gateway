@@ -59,20 +59,20 @@ public class CommandIT {
     public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po)
             .around(timeoutRule);
 
-    // Test is only relevant for clients
+    // Client test only
     @Specification("server.send.nop/request")
-    public void shouldReceiveNop() throws Exception {
+    void shouldReceiveNop() throws Exception {
         k3po.finish();
     }
 
-    // Test is only relevant for clients
+    // Client test only
     @Specification("server.send.reconnect/request")
-    public void shouldReceiveReconnect() throws Exception {
+    void shouldReceiveReconnect() throws Exception {
         k3po.finish();
     }
 
-    // Test is only relevant for clients
+    // Client test only
     @Specification("server.send.close/request")
-    public void shouldReceiveClose() throws Exception {
+    void shouldReceiveClose() throws Exception {
         k3po.finish();
     }}

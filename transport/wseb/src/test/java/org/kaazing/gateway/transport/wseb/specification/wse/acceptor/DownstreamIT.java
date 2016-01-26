@@ -54,24 +54,64 @@ public class DownstreamIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore("Server is not spec compliant")
+    // Client test only
+    @Specification("binary/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenBinaryDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("binary/response.status.code.not.200/downstream.response")
+    void shouldCloseConnectionWhenBinaryDownstreamResponseStatusCodeNot200()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("binary/server.send.frame.after.reconnect/downstream.response")
+    void shouldCloseConnectionWhenBinaryDownstreamResponseContainsFrameAfterReconnectFrame()
+            throws Exception {
+        k3po.finish();
+    }
+
     @Test
+    @Ignore("k3po#298: WSE specification mandates downstream request should be a GET but some clients need to use POST")
     @Specification("binary/request.method.not.get/downstream.request")
     public void shouldRespondWithBadRequestWhenBinaryDownstreamRequestMethodNotGet() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("binary/request.out.of.order/downstream.request")
     public void shouldCloseConnectionWhenBinaryDownstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("binary/subsequent.request.out.of.order/request")
     public void shouldCloseConnectionWhenSubsequentBinaryDownstreamRequestIsOutOfOrder() throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("binary.as.escaped.text/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenEscapedTextDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("binary.as.mixed.text/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenMixedTextDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Client test only
+    @Specification("binary.as.text/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenTextDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
         k3po.finish();
     }
 
