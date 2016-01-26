@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTED_PROTOCOLS;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.net.ProtocolException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,12 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeader;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
+import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactorySpi;
 import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
 import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
@@ -88,14 +94,10 @@ public class OpeningIT {
     @Test
     @Specification("request.header.x.websocket.protocol/handshake.request")
     public void shouldEstablishConnectionWithRequestHeaderXWebSocketProtocol() throws Exception {
-        //ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        //options.setOption(WsResourceAddress.SUPPORTED_PROTOCOLS, new String[]{"httpxe/1.1"});
         Map<String, Object> options = new HashMap<String, Object>();
         options.put(SUPPORTED_PROTOCOLS.name(), new String[]{"primary"});
         ResourceAddress address = resourceAddressFactory.newResourceAddress(URI.create("wse://localhost:8080/path"),
                 options);
-//        ,
-//                options);
         acceptor.bind(address, mockHandler());
         k3po.finish();
     }
@@ -266,6 +268,26 @@ public class OpeningIT {
     void shouldFailConnectionWhenResponseBodyHasDownstreamWithDifferentPathPrefix()
             throws Exception {
         k3po.finish();
+    }
+
+    public static class ExtensionFactory extends WebSocketExtensionFactorySpi {
+
+        @Override
+        public String getExtensionName() {
+            return "secondary";
+        }
+
+        @Override
+        public WebSocketExtension negotiate(ExtensionHeader header, ExtensionHelper extensionHelper, WsResourceAddress address) throws ProtocolException {
+            return new WebSocketExtension(extensionHelper) {
+
+                @Override
+                public ExtensionHeader getExtensionHeader() {
+                    return header;
+                }
+
+            };
+        }
     }
 
     private IoHandler mockHandler() throws Exception {
