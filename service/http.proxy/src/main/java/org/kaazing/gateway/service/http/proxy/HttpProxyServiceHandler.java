@@ -108,19 +108,41 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             HttpConnectSession connectSession = (HttpConnectSession) session;
             connectSession.setVersion(acceptSession.getVersion());
             connectSession.setMethod(acceptSession.getMethod());
-            String acceptPathInfo = acceptSession.getPathInfo().toString();
-            boolean acceptRequestHasPath = acceptPathInfo.length() > 0;
-            if (acceptRequestHasPath) {
-                if (acceptPathInfo.startsWith("/")) {
-                    acceptPathInfo = acceptPathInfo.substring(1);
-                }
-                String connectPath = connectSession.getRequestURI().getPath();
-                if (!connectPath.endsWith("/")) {
-                    connectPath += "/";
-                }
-                connectSession.setRequestURI(URI.create(connectPath).resolve(acceptPathInfo));
-            }
+            URI connectURI = computeConnectPath(connectSession.getRequestURI());
+            connectSession.setRequestURI(connectURI);
             processRequestHeaders(acceptSession, connectSession);
+        }
+
+        private URI computeConnectPath(URI connectURI) {
+            URI acceptURI = acceptSession.getServicePath();
+            URI requestURI = acceptSession.getRequestURI();
+            URI relativeURI = acceptURI.relativize(requestURI);
+
+            boolean hasExtraPath = relativeURI.getPath().length() > 0;
+            boolean requestEndsInSlash = requestURI.getPath().endsWith("/");
+            String connectPath = connectURI.getPath();
+            if (hasExtraPath || requestEndsInSlash) {
+                connectURI = URI.create(connectPath.endsWith("/") ? connectPath : connectPath.concat("/"));
+                connectURI = connectURI.resolve(relativeURI);
+            } else if (hasQueryOrFragment(relativeURI)) {
+                connectURI = URI.create(connectPath + relativeURI.toString());
+            }
+            return connectURI;
+        }
+
+        private boolean hasQueryOrFragment(URI uri) {
+            String query = uri.getQuery();
+            String fragment = uri.getFragment();
+
+            if (query != null) {
+                return true;
+            }
+
+            if (fragment != null) {
+                return true;
+            }
+
+            return false;
         }
 
     }
