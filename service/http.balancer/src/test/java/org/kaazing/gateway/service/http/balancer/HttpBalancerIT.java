@@ -35,7 +35,7 @@ import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-@Ignore
+@Ignore // https://github.com/k3po/k3po/issues/297
 public class HttpBalancerIT {
 
     private final K3poRule robot = new K3poRule();
