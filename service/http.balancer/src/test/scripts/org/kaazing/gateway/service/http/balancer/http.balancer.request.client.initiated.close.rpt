@@ -45,7 +45,6 @@ write option mask [0x00 0x00 0x00 0x00]
 
 read [0x88 0x02 0x03 0xe8]
 
-
 read notify FIRST_CONNECTION_CLOSED
 closed
 # k3po bug https://github.com/k3po/k3po/issues/297

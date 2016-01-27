@@ -23,6 +23,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -30,12 +31,11 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-
+@Ignore
 public class HttpBalancerIT {
 
     private final K3poRule robot = new K3poRule();
