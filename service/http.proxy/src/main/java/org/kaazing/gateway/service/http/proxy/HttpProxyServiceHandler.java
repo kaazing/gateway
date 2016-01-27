@@ -114,35 +114,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
 
         private URI computeConnectPath(URI connectURI) {
-            URI acceptURI = acceptSession.getServicePath();
-            URI requestURI = acceptSession.getRequestURI();
-            URI relativeURI = acceptURI.relativize(requestURI);
-
-            boolean hasExtraPath = relativeURI.getPath().length() > 0;
-            boolean requestEndsInSlash = requestURI.getPath().endsWith("/");
+            String acceptPath = acceptSession.getServicePath().getPath();
+            String requestUri = acceptSession.getRequestURI().toString();
             String connectPath = connectURI.getPath();
-            if (hasExtraPath || requestEndsInSlash) {
-                connectURI = URI.create(connectPath.endsWith("/") ? connectPath : connectPath.concat("/"));
-                connectURI = connectURI.resolve(relativeURI);
-            } else if (hasQueryOrFragment(relativeURI)) {
-                connectURI = URI.create(connectPath + relativeURI.toString());
-            }
-            return connectURI;
-        }
-
-        private boolean hasQueryOrFragment(URI uri) {
-            String query = uri.getQuery();
-            String fragment = uri.getFragment();
-
-            if (query != null) {
-                return true;
-            }
-
-            if (fragment != null) {
-                return true;
-            }
-
-            return false;
+            return URI.create(connectPath + requestUri.substring(acceptPath.length()));
         }
 
     }

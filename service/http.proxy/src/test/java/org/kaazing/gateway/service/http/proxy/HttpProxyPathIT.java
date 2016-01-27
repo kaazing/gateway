@@ -109,4 +109,10 @@ public class HttpProxyPathIT {
         robot.finish();
     }
 
+    @Specification("http.proxy.path.security")
+    @Test
+    public void httpProxyPathSecurity() throws Exception {
+        robot.finish();
+    }
+   
 }
