@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-connect http://localhost:8110/acceptConfigPath/example/jsp/num/file.html
+connect http://localhost:8110/a/foo/
 connected
 
 write method "GET"
@@ -37,7 +37,7 @@ close
 closed
 
 
-accept http://localhost:8080/connectConfigPath/example/jsp/num/file.html
+accept http://localhost:8080/b/c/foo/
 accepted
 connected
 
