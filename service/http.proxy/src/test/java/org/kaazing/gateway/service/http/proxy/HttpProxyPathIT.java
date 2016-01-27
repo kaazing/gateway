@@ -78,7 +78,7 @@ public class HttpProxyPathIT {
     public void httpProxyPathNoTrailingSlashesInConfigNoSlashInRequestPath() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("http.proxy.path.no.trailing.slashes.in.config.slash.in.request.path")
     @Test
     public void httpProxyPathNoTrailingSlashesInConfigSlashInRequestPath() throws Exception {
@@ -90,19 +90,19 @@ public class HttpProxyPathIT {
     public void httpProxyPathWithTrailingSlashesInConfigNoSlashInRequest() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("http.proxy.path.with.trailing.slashes.in.config.slash.in.request")
     @Test
     public void httpProxyPathWithTrailingSlashesInConfigSlashInRequest() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("http.proxy.path.with.trailing.slashes.in.config.no.slash.in.request.path")
     @Test
     public void httpProxyPathWithTrailingSlashesInConfigNoSlashInRequestPath() throws Exception {
         robot.finish();
     }
-    
+
     @Specification("http.proxy.path.with.trailing.slashes.in.config.slash.in.request.path")
     @Test
     public void httpProxyPathWithTrailingSlashesInConfigSlashInRequestPath() throws Exception {
@@ -114,5 +114,5 @@ public class HttpProxyPathIT {
     public void httpProxyPathSecurity() throws Exception {
         robot.finish();
     }
-   
+
 }
