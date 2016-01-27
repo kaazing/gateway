@@ -41,7 +41,6 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.URIUtils;
 
 public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsResourceAddress> {
 
@@ -179,24 +178,22 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
     @Override
     protected WsResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = URIUtils.getHost(location);
-        int port = URIUtils.getPort(location);
-        String path = URIUtils.getPath(location);
+        URI uriOrigial = URI.create(original);
+        URI uriLocation = URI.create(location);
+        String path = uriLocation.getPath();
 
-        if (host == null) {
+        if (uriLocation.getHost() == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
         }
 
-        if (port == -1) {
+        if (uriLocation.getPort() == -1) {
             throw new IllegalArgumentException(format("Missing port in URI: %s", location));
         }
-        
+
         if (path == null || path.length() == 0) {
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
-        
-        URI uriOrigial = URI.create(original);
-        URI uriLocation = URI.create(location);
+
         return new WsResourceAddress(this, uriOrigial, uriLocation);
     }
 

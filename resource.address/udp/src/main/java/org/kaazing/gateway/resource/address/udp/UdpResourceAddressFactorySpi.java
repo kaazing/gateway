@@ -18,7 +18,6 @@ package org.kaazing.gateway.resource.address.udp;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.URIUtils.getHost;
-import static org.kaazing.gateway.resource.address.URIUtils.getPath;
 import static org.kaazing.gateway.resource.address.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
@@ -173,25 +172,23 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
 
     @Override
     protected UdpResourceAddress newResourceAddress0(String original, String location) {
-        
-        String host = getHost(location);
-        int port = getPort(location);
-        String path = getPath(location);
-        
-        if (host == null) {
+
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        String path = uriLocation.getPath();
+
+        if (uriLocation.getHost() == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
         }
-        
-        if (port == -1) {
+
+        if (uriLocation.getPort() == -1) {
             throw new IllegalArgumentException(format("Missing port in URI: %s", location));
         }
-        
+
         if (path != null && !path.isEmpty()) {
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        URI uriOriginal = URI.create(original);
-        URI uriLocation = URI.create(location);
         return new UdpResourceAddress(this, uriOriginal, uriLocation);
     }
     
