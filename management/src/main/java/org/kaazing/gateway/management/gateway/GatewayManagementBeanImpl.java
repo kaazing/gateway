@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.management.gateway;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -237,23 +236,24 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
         Collection<MemberId> memberIds = clusterContext.getMemberIds();
-        Map<MemberId, Map<URI, List<URI>>> memberIdBalancerMap = factory.getMap(HttpBalancerService.MEMBERID_BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory
+                .getMap(HttpBalancerService.MEMBERID_BALANCER_MAP_NAME);
 
         JSONObject jsonObj = new JSONObject();
 
         try {
             for (MemberId memberId : memberIds) {
                 String instanceKey = clusterContext.getInstanceKey(memberId);
-                Map<URI, List<URI>> balancerURIMap = memberIdBalancerMap.get(memberId);
+                Map<String, List<String>> balancerURIMap = memberIdBalancerMap.get(memberId);
 
                 if (balancerURIMap != null) {
                     JSONObject uriMap = new JSONObject();
 
-                    for (URI balancerURI : balancerURIMap.keySet()) {
-                        List<URI> balanceeURIs = balancerURIMap.get(balancerURI);
+                    for (String balancerURI : balancerURIMap.keySet()) {
+                        List<String> balanceeURIs = balancerURIMap.get(balancerURI);
                         JSONArray jsonArray = new JSONArray();
-                        for (URI balanceeURI : balanceeURIs) {
-                            jsonArray.put(balanceeURI.toString());
+                        for (String balanceeURI : balanceeURIs) {
+                            jsonArray.put(balanceeURI);
                         }
                         uriMap.put(balancerURI.toString(), jsonArray);
                     }
@@ -278,7 +278,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<MemberId, Collection<URI>> managementServices = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
+        Map<MemberId, Collection<String>> managementServices = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
         if ((managementServices == null) || managementServices.isEmpty()) {
             return "";
         }
@@ -291,11 +291,11 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
 
                 JSONArray jsonArray = new JSONArray();
 
-                Collection<URI> acceptURIs = managementServices.get(member);
+                Collection<String> acceptURIs = managementServices.get(member);
 
                 if (acceptURIs != null) {
-                    for (URI acceptURI : acceptURIs) {
-                        jsonArray.put(acceptURI.toString());
+                    for (String acceptURI : acceptURIs) {
+                        jsonArray.put(acceptURI);
                     }
                 }
 
@@ -316,7 +316,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         }
 
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<URI, Collection<URI>> balancers = factory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
+        Map<String, Collection<String>> balancers = factory.getMap(HttpBalancerService.BALANCER_MAP_NAME);
         if ((balancers == null) || balancers.isEmpty()) {
             return "";
         }
@@ -324,13 +324,13 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
         JSONObject jsonObj = new JSONObject();
 
         try {
-            for (URI uri : balancers.keySet()) {
+            for (String uri : balancers.keySet()) {
 
-                Collection<URI> balancees = balancers.get(uri);
+                Collection<String> balancees = balancers.get(uri);
                 if (balancees != null && balancees.size() > 0) {
                     JSONArray jsonArray = new JSONArray();
 
-                    for (URI balanceeURI : balancees) {
+                    for (String balanceeURI : balancees) {
                         jsonArray.put(balanceeURI.toString());
                     }
 
@@ -389,7 +389,8 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
     @Override
     public void memberRemoved(MemberId removedMember) {
         CollectionsFactory factory = clusterContext.getCollectionsFactory();
-        Map<MemberId, Collection<URI>> managementServiceUriMap = factory.getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
+        Map<MemberId, Collection<String>> managementServiceUriMap = factory.
+                getMap(ManagementService.MANAGEMENT_SERVICE_MAP_NAME);
         managementServiceUriMap.remove(removedMember);
     }
 
