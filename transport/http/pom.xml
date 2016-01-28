@@ -162,8 +162,6 @@
         <dependency>
             <groupId>org.kaazing</groupId>
             <artifactId>specification.httpxe</artifactId>
-            <version>develop-SNAPSHOT</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
