@@ -16,7 +16,9 @@
 package org.kaazing.gateway.service.http.proxy;
 
 import java.util.Collection;
+import java.util.Iterator;
 
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
@@ -37,9 +39,33 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }
+
+        checkForTrailingSlashes(serviceContext);
+
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
         handler.initServiceConnectManager();
+    }
+
+    private void checkForTrailingSlashes(ServiceContext serviceContext) {
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        Collection<String> connectURIs = serviceContext.getConnects();
+        Iterator<String> acceptIterator = acceptURIs.iterator();
+        Iterator<String> connectIterator = connectURIs.iterator();
+
+        while (acceptIterator.hasNext() && connectIterator.hasNext()) {
+            String acceptPath = URIUtils.getPath(acceptIterator.next());
+            String connectPath = URIUtils.getPath(connectIterator.next());
+            boolean acceptPathEndsInSlash = acceptPath.endsWith("/");
+            boolean connectPathEndsInSlash = connectPath.endsWith("/");
+
+            if (acceptPathEndsInSlash != connectPathEndsInSlash) {
+                throw new IllegalArgumentException(
+                        "Please fix the gateway configuration file for service '" + serviceContext.getServiceName()
+                                + "'. Accept and connect must both either have trailing slashes,"
+                                + " or both must not end in slashes.");
+            }
+        }
     }
 
     @Override

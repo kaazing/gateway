@@ -36,8 +36,16 @@ public class HttpProxyPathIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept("http://localhost:8110/acceptConfigPath/") 
-                            .connect("http://localhost:8080/connectConfigPath/") 
+                            .accept("http://localhost:8110/a")
+                            .connect("http://localhost:8080/b/c")
+                            .name("Proxy Service 1")
+                            .type("http.proxy")
+                            .connectOption("http.keepalive", "disabled")
+                        .done()
+                        .service()
+                            .accept("http://localhost:8111/a/")
+                            .connect("http://localhost:8081/b/c/")
+                            .name("Proxy Service 2")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
                         .done()
@@ -50,9 +58,51 @@ public class HttpProxyPathIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.path")
+    @Specification("http.proxy.path.no.trailing.slashes.in.config.no.slash.in.request")
     @Test
-    public void httpProxyPath() throws Exception {
+    public void httpProxyPathNoTrailingSlashesInConfigNoSlashInRequest() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.no.trailing.slashes.in.config.slash.in.request")
+    @Test
+    public void httpProxyPathNoTrailingSlashesInConfigSlashInRequest() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.no.trailing.slashes.in.config.no.slash.in.request.path")
+    @Test
+    public void httpProxyPathNoTrailingSlashesInConfigNoSlashInRequestPath() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.no.trailing.slashes.in.config.slash.in.request.path")
+    @Test
+    public void httpProxyPathNoTrailingSlashesInConfigSlashInRequestPath() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.with.trailing.slashes.in.config.no.slash.in.request")
+    @Test
+    public void httpProxyPathWithTrailingSlashesInConfigNoSlashInRequest() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.with.trailing.slashes.in.config.slash.in.request")
+    @Test
+    public void httpProxyPathWithTrailingSlashesInConfigSlashInRequest() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.with.trailing.slashes.in.config.no.slash.in.request.path")
+    @Test
+    public void httpProxyPathWithTrailingSlashesInConfigNoSlashInRequestPath() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("http.proxy.path.with.trailing.slashes.in.config.slash.in.request.path")
+    @Test
+    public void httpProxyPathWithTrailingSlashesInConfigSlashInRequestPath() throws Exception {
         robot.finish();
     }
 
