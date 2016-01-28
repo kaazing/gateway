@@ -21,7 +21,6 @@ import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -76,9 +75,29 @@ public class DownstreamIT {
     }
 
     @Test
-    @Ignore("k3po#298: WSE specification mandates downstream request should be a GET but some clients need to use POST")
-    @Specification("binary/request.method.not.get/downstream.request")
-    public void shouldRespondWithBadRequestWhenBinaryDownstreamRequestMethodNotGet() throws Exception {
+    @Specification("binary/request.header.origin/downstream.request")
+    public void shouldConnectWithDownstreamRequestOriginHeaderSet()
+            throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("binary/request.method.post/downstream.request")
+    public void shouldConnectWithDownstreamRequestMethodPost()
+            throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("binary/request.method.post.with.body/downstream.request")
+    public void shouldConnectWithDownstreamRequestMethodPostWithBody()
+            throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("binary/request.method.not.get.or.post/downstream.request")
+    public void shouldRespondWithBadRequestWhenDownstreamRequestMethodNotGetOrPost() throws Exception {
         k3po.finish();
     }
 

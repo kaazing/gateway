@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
-import static java.lang.String.format;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 

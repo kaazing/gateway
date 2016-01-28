@@ -17,10 +17,12 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BINARY;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -46,11 +49,13 @@ import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String ENCODING_FILTER = WsebProtocol.NAME + "#escape";
     private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
+    private static final EnumSet<HttpMethod> PERMITTED_REQUEST_METHODS = EnumSet.of(HttpMethod.GET, HttpMethod.POST);
 
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     // TODO: make this setting available via configuration, with a reasonable default
@@ -130,6 +135,15 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (wsebSession == null || wsebSession.isClosing()) {
             session.close(false);
             return;
+        }
+
+        if (!PERMITTED_REQUEST_METHODS.contains(session.getMethod())) {
+            wsebSession.setCloseException(
+                    new IOException("Unsupported downstream request method: " + session.getMethod()));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
         }
 
         IoFilterChain bridgeFilterChain = session.getFilterChain();
