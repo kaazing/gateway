@@ -2,7 +2,16 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.43...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.44...HEAD)
+
+**Merged pull requests:**
+
+- \(\#410\) Fixed HttpHeaderDecodingState so it will treat http request he… [\#411](https://github.com/kaazing/gateway/pull/411) ([cmebarrow](https://github.com/cmebarrow))
+- A minor fix for issue 183 [\#405](https://github.com/kaazing/gateway/pull/405) ([msalavastru](https://github.com/msalavastru))
+- Not firing session idle after the session is closed [\#403](https://github.com/kaazing/gateway/pull/403) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.44](https://github.com/kaazing/gateway/tree/5.0.1.44) (2016-01-25)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.43...5.0.1.44)
 
 **Closed issues:**
 
