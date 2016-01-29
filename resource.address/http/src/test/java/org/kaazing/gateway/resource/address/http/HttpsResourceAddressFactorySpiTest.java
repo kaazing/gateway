@@ -39,18 +39,19 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.ssl.SslResourceAddress;
 
 public class HttpsResourceAddressFactorySpiTest {
 
     private HttpsResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
 
     @Before
     public void before() {
         addressFactorySpi = new HttpsResourceAddressFactorySpi();
-        addressURI = URI.create("https://localhost:2020/");
+        addressURI = "https://localhost:2020/";
         options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
@@ -67,17 +68,17 @@ public class HttpsResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireHttpsSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("https://localhost:443"));
+        addressFactorySpi.newResourceAddress("https://localhost:443");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        HttpResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("https://localhost/"));
+        HttpResourceAddress address = addressFactorySpi.newResourceAddress("https://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }
@@ -127,8 +128,8 @@ public class HttpsResourceAddressFactorySpiTest {
         Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ssl.wantClientAuth", false);
 
-        ResourceAddress address = addressFactory.newResourceAddress(URI.create(String.format("https://localhost:4949/path")), inputOptions);
-        verifyTransport(address,  URI.create("ssl://localhost:4949"));
+        ResourceAddress address = addressFactory.newResourceAddress("https://localhost:4949/path", inputOptions);
+        verifyTransport(address,  "ssl://localhost:4949");
         verifyTransportOptionValue(address.getTransport(), SslResourceAddress.WANT_CLIENT_AUTH, false);
     }
 
@@ -139,12 +140,14 @@ public class HttpsResourceAddressFactorySpiTest {
     }
 
     private void verifyTransport(ResourceAddress address,
-                                 final URI expectedTransportURI) {
+                                 final String expectedTransportURI) {
         if (expectedTransportURI == null) {
             Assert.assertNull(address.getTransport());
         } else {
-            Assert.assertEquals(expectedTransportURI.getScheme(), address.getTransport().getResource().getScheme());
-            Assert.assertEquals(expectedTransportURI, address.getTransport().getResource());
+            String scheme = URIUtils.getScheme(expectedTransportURI);
+            Assert.assertEquals(scheme, address.getTransport().getResource().getScheme());
+            URI uriExpectedTransportURI = URI.create(expectedTransportURI);
+            Assert.assertEquals(uriExpectedTransportURI, address.getTransport().getResource());
         }
     }
 

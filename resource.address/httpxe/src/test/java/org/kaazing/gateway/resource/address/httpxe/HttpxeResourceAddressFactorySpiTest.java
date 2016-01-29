@@ -39,13 +39,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class HttpxeResourceAddressFactorySpiTest {
 
     private HttpxeResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
 
     @Before
     public void before() {
         addressFactorySpi = new HttpxeResourceAddressFactorySpi();
-        addressURI = URI.create("httpxe://localhost:2020/");
+        addressURI = "httpxe://localhost:2020/";
         options = new HashMap<>();
         options.put("http.nextProtocol", "custom");
         options.put("http.qualifier", "random");
@@ -62,17 +62,17 @@ public class HttpxeResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireHttpxeSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("httpxe://localhost:80"));
+        addressFactorySpi.newResourceAddress("httpxe://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("httpxe://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("httpxe://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 80);
     }

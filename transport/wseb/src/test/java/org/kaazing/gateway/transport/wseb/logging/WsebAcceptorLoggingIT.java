@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,7 +69,7 @@ public class WsebAcceptorLoggingIT {
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("http://localhost:8001")

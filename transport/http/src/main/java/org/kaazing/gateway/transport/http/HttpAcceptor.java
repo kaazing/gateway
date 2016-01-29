@@ -66,6 +66,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
 import org.kaazing.gateway.transport.Bindings;
@@ -84,7 +85,6 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpNextAddressFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolDecoderException;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFilter;
@@ -196,7 +196,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 options.setOption(ORIGIN_SECURITY, bindAddress.getOption(ORIGIN_SECURITY));
                 options.setOption(GATEWAY_ORIGIN_SECURITY, bindAddress.getOption(GATEWAY_ORIGIN_SECURITY));
                 options.setOption(BALANCE_ORIGINS, bindAddress.getOption(BALANCE_ORIGINS));
-                return addressFactory.newResourceAddress(resourcesURI, options);
+                return addressFactory.newResourceAddress(URIUtils.uriToString(resourcesURI), options);
             }
 
         };
@@ -413,7 +413,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 options.setOption(TRANSPORT, transportAddress);
                 options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
-                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(httpRequest.getExternalURI(), options);
+                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(URIUtils.uriToString(httpRequest.getExternalURI()), options);
 
                 // percolate subject
                 final Subject subject = httpRequest.getSubject();
@@ -566,8 +566,5 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     }
 
-    private static  URI getHostPortPathURI(URI resource) {
-        return URI.create("//" + resource.getAuthority() + resource.getPath());
-    }
 }
 

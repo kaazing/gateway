@@ -19,7 +19,9 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
@@ -74,7 +76,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     }
 
     @Override
-    protected void parseNamedOptions0(URI location, ResourceOptions options,
+    protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
         
         Object bindAddress = optionsByName.remove(BIND_ADDRESS.name());
@@ -112,8 +114,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     }
 
     @Override
-    protected List<TcpResourceAddress> newResourceAddresses0(URI original,
-                                                             URI location,  ResourceOptions options) {
+    protected List<TcpResourceAddress> newResourceAddresses0(String original,
+            String location,  ResourceOptions options) {
 
         InetSocketAddress bindSocketAddress = options.getOption(BIND_ADDRESS);
         if (bindSocketAddress != null) {
@@ -136,7 +138,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
         assert (resolver != null);
         List<TcpResourceAddress> tcpAddresses = new LinkedList<>();
         try {
-            String host = location.getHost();
+            String host = getHost(location);
             Matcher matcher = PATTERN_IPV6_HOST.matcher(host);
             if (matcher.matches()) {
                 host = matcher.group(1);
@@ -178,7 +180,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             for (InetAddress inetAddress : sortedInetAddresses) {
                 String ipAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? FORMAT_IPV6_AUTHORITY : FORMAT_IPV4_AUTHORITY;
-                String newAuthority = format(addressFormat, ipAddress, location.getPort());
+                String newAuthority = format(addressFormat, ipAddress, getPort(location));
                 location = modifyURIAuthority(location, newAuthority);
                 TcpResourceAddress tcpAddress = super.newResourceAddress0(original, location, options);
 
@@ -187,32 +189,32 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             }
         }
         catch (UnknownHostException e) {
-            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", location.getHost()), e);
+            throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
         }
  
         return tcpAddresses;
     }
 
     @Override
-    protected TcpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected TcpResourceAddress newResourceAddress0(String original, String location) {
 
-        String host = location.getHost();
-        int port = location.getPort();
-        String path = location.getPath();
-        
-        if (host == null) {
+        URI uriOriginal = URI.create(original);
+        URI uriLocation = URI.create(location);
+        String path = uriLocation.getPath();
+
+        if (uriLocation.getHost() == null) {
             throw new IllegalArgumentException(format("Missing host in URI: %s", location));
         }
-        
-        if (port == -1) {
+
+        if (uriLocation.getPort() == -1) {
             throw new IllegalArgumentException(format("Missing port in URI: %s", location));
         }
-        
+
         if (path != null && !path.isEmpty()) {
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new TcpResourceAddress(this, original, location);
+        return new TcpResourceAddress(this, uriOriginal, uriLocation);
     }
 
     @Override

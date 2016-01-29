@@ -17,22 +17,21 @@ package org.kaazing.gateway.resource.address.http;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 
 public class GatewayHttpOriginSecurity {
-    private final List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI;
+    private final List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI;
 
     public GatewayHttpOriginSecurity(
-            List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI) {
+            List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI) {
         super();
         this.authorityToSetOfAcceptConstraintsByURI = authorityToSetOfAcceptConstraintsByURI;
     }
 
-    public List<Map<URI, Map<String, CrossSiteConstraintContext>>> getAuthorityToSetOfAcceptConstraintsByURI() {
+    public List<Map<String, Map<String, CrossSiteConstraintContext>>> getAuthorityToSetOfAcceptConstraintsByURI() {
         return unmodifiableList(authorityToSetOfAcceptConstraintsByURI);
     }
 

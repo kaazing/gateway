@@ -49,13 +49,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class WsDraftResourceAddressFactorySpiTest {
 
     private WsDraftResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WsDraftResourceAddressFactorySpi();
-        addressURI = URI.create("ws-draft://localhost:2020/");
+        addressURI = "ws-draft://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -76,17 +76,17 @@ public class WsDraftResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsDraft75SchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("ws-draft://localhost:80"));
+        addressFactorySpi.newResourceAddress("ws-draft://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("ws-draft://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("ws-draft://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 80);
     }

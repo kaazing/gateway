@@ -86,7 +86,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
     @Override
     public String getAccepts() {
         if (serviceContext.supportsAccepts()) {
-            Collection<URI> accepts = serviceContext.getAccepts();
+            Collection<String> accepts = serviceContext.getAccepts();
             return accepts == null ? "" : new JSONArray(accepts).toString();
         } else {
             return null;
@@ -224,14 +224,14 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     @Override
     public String getBalances() {
-        Collection<URI> balances = serviceContext.getBalances();
+        Collection<String> balances = serviceContext.getBalances();
         return balances == null ? "" : new JSONArray(balances).toString();
     }
 
     @Override
     public String getConnects() {
         if (serviceContext.supportsConnects()) {
-            Collection<URI> connects = serviceContext.getConnects();
+            Collection<String> connects = serviceContext.getConnects();
             return connects == null ? "" : new JSONArray(connects).toString();
         } else {
             return null;
@@ -351,7 +351,7 @@ public class ServiceConfigurationBeanImpl implements ServiceConfigurationBean {
 
     @Override
     public String getCrossSiteConstraints() {
-        Map<URI, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
+        Map<String, ? extends Map<String, ? extends CrossSiteConstraintContext>> crossSiteConstraints =
                 serviceContext.getCrossSiteConstraints();
 
         JSONArray jsonConstraints = new JSONArray();

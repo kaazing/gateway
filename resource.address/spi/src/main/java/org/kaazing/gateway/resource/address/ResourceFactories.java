@@ -16,9 +16,6 @@
 package org.kaazing.gateway.resource.address;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
-
-import java.net.URI;
 
 public class ResourceFactories {
 
@@ -43,8 +40,8 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
-            return URI.create(format("%s://%s", newScheme, location.getAuthority()));
+        public String createURI(String location) {
+            return format("%s://%s", newScheme, URIUtils.getAuthority(location));
         }
     }
     
@@ -57,8 +54,8 @@ public class ResourceFactories {
         }
         
         @Override
-        public URI createURI(URI location) {
-            return modifyURIScheme(location, newScheme);
+        public String createURI(String location) {
+            return URIUtils.modifyURIScheme(location, newScheme);
         }
     }
 }

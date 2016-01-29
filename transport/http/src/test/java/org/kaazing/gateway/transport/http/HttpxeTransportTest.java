@@ -106,11 +106,11 @@ public class HttpxeTransportTest {
         pipeConnector.setResourceAddressFactory(addressFactory);
         pipeConnector.setNamedPipeAcceptor(pipeAcceptor);
 
-        URI transportURI = URI.create("pipe://integrate");
-        URI location = URI.create("httpxe://localhost:8000/");
+        String transportURI = "pipe://integrate";
+        String location = "httpxe://localhost:8000/";
         Map<String, Object> options = new HashMap<>();
         options.put("http[http/1.1].injectableHeaders", noneOf(HttpInjectableHeader.class));
-        options.put("http[http/1.1].transport", transportURI);
+        options.put("http[http/1.1].transport", URI.create(transportURI));
 
         httpxeAddress = addressFactory.newResourceAddress(location, options);
         pipeAddress = addressFactory.newResourceAddress(transportURI);
@@ -138,7 +138,7 @@ public class HttpxeTransportTest {
         final String connectURIString = "httpxe://localhost:8000/path";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new org.kaazing.gateway.transport.IoHandlerAdapter();

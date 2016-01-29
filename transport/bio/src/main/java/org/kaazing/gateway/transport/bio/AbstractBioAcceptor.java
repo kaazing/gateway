@@ -43,6 +43,7 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -136,7 +137,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
                 candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
                 candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-                ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+                ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
                 Binding binding = bindings.getBinding(candidateAddress);
                 if (binding == null) {
@@ -205,7 +206,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = multicastAddress.getBindPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -213,7 +214,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String transportName = getTransportName();
                 String addressFormat = "%s://%s";
                 String pipeName = namedPipeAddress.getPipeName();
-                URI transport = URI.create(format(addressFormat, transportName, pipeName));
+                String transport = format(addressFormat, transportName, pipeName);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
 
@@ -223,7 +224,7 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
                 String hostAddress = inetAddress.getHostAddress();
                 String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
                 int port = inetSocketAddress.getPort();
-                URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+                String transport = format(addressFormat, transportName, hostAddress, port);
                 return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
             }
         });

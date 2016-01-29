@@ -19,7 +19,14 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.jboss.netty.util.CharsetUtil.UTF_8;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
-import static org.kaazing.gateway.transport.http.HttpHeaders.*;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_AUTHORIZATION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_MAX_AGE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_WEBSOCKET_EXTENSIONS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_WEBSOCKET_VERSION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ORIGIN;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_SEQUENCE_NO;
 import static org.kaazing.mina.core.buffer.IoBufferEx.FLAG_SHARED;
 
 import java.io.IOException;
@@ -37,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.http.GatewayHttpOriginSecurity;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
@@ -97,7 +105,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
 
         GatewayHttpOriginSecurity gatewayHttpOriginSecurity = localAddress.getOption(GATEWAY_ORIGIN_SECURITY);
 
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> listOfAcceptConstraintsByURI = gatewayHttpOriginSecurity
+        List<Map<String, Map<String, CrossSiteConstraintContext>>> listOfAcceptConstraintsByURI = gatewayHttpOriginSecurity
                 .getAuthorityToSetOfAcceptConstraintsByURI();
 
         Integer minimumMaximumAge = null;
@@ -112,13 +120,13 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
 
         HashSet<String> alreadyVisited = new HashSet<>();
         // for all the services
-        for (Map<URI, Map<String, CrossSiteConstraintContext>> servicesAcceptsToCrossSiteConstraints : listOfAcceptConstraintsByURI) {
+        for (Map<String, Map<String, CrossSiteConstraintContext>> servicesAcceptsToCrossSiteConstraints : listOfAcceptConstraintsByURI) {
             // for each accept on the service
-            for (Entry<URI, Map<String, CrossSiteConstraintContext>> acceptToConstraints : servicesAcceptsToCrossSiteConstraints
+            for (Entry<String, Map<String, CrossSiteConstraintContext>> acceptToConstraints : servicesAcceptsToCrossSiteConstraints
                     .entrySet()) {
-                URI acceptURI = acceptToConstraints.getKey();
+                String acceptURI = acceptToConstraints.getKey();
                 // if the accept authority matches the request athority
-                if (acceptURI.getAuthority().equals(requestAuthority)) {
+                if (URIUtils.getAuthority(acceptURI).equals(requestAuthority)) {
                     // for each cross site constraint on the accept
                     for (Entry<String, CrossSiteConstraintContext> urlToConstraint : acceptToConstraints
                             .getValue().entrySet()) {
@@ -139,7 +147,7 @@ public final class HttpClientAccessPolicyXml extends HttpDynamicResource {
                                 }
                             }
 
-                            String acceptURIPath = acceptURI.getPath();
+                            String acceptURIPath = URIUtils.getPath(acceptURI);
                             String sourceOrigin = constraint.getAllowOrigin();
                             String allowHeaders = constraint.getAllowHeaders();
                             String allowOrigin = constraint.getAllowOrigin();

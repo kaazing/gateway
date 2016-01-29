@@ -54,6 +54,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -413,7 +414,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(writeAddress);
             options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            return resourceAddressFactory.newResourceAddress(writeAddress.getResource(), options);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(writeAddress.getResource()), options);
         }
 
         private ResourceAddress createReadAddress(URI readUri, HttpSession transport, WsebSession wsebSession) {
@@ -425,7 +426,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions(readAddress);
             options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-            return resourceAddressFactory.newResourceAddress(readAddress.getResource(), options);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(readAddress.getResource()), options);
         }
 
         @Override

@@ -36,14 +36,14 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 public class WseSslResourceAddressTest {
 
     private ResourceAddressFactory addressFactory;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactory = ResourceAddressFactory.newResourceAddressFactory();
 
-        addressURI = URI.create("wse+ssl://localhost:2020/");
+        addressURI = "wse+ssl://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");

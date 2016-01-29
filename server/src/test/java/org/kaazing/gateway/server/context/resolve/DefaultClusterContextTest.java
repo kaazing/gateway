@@ -15,6 +15,10 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -38,9 +43,6 @@ import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 @Ignore("KG-8712: When we sweep skipped tests, move this out of the unit tests.")
 public class DefaultClusterContextTest {
@@ -381,20 +383,20 @@ public class DefaultClusterContextTest {
     }
 
     private void addToClusterState(CollectionsFactory factory, MemberId memberId, int nodeId) {
-        Map<URI, Set<URI>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
-        Map<MemberId, Map<URI, List<URI>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
-        URI balanceURI = URI.create("ws://www.example.com:8080/path");
-        URI targetURI = URI.create(format("ws://node%d.example.com:8080/path", nodeId));
-        Set<URI> currentTargets = sharedBalancerMap.get(balanceURI);
+        Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+        String balanceURI = "ws://www.example.com:8080/path";
+        String targetURI = format("ws://node%d.example.com:8080/path", nodeId);
+        Set<String> currentTargets = sharedBalancerMap.get(balanceURI);
         if (currentTargets == null) {
             currentTargets = new HashSet<>();
         }
         currentTargets.add(targetURI);
         sharedBalancerMap.put(balanceURI, currentTargets);
 
-        List<URI> myTargets = new ArrayList<>();
+        List<String> myTargets = new ArrayList<>();
         myTargets.add(targetURI);
-        Map<URI, List<URI>> myBalanceTargets = new HashMap<>();
+        Map<String, List<String>> myBalanceTargets = new HashMap<>();
         myBalanceTargets.put(balanceURI, myTargets);
         memberIdBalancerMap.put(memberId, myBalanceTargets);
     }
@@ -456,26 +458,26 @@ public class DefaultClusterContextTest {
     }
 
     private boolean validateSharedBalancer(CollectionsFactory factory, Set<URI> balanceTargets) {
-        Map<URI, Set<URI>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
+        Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
 
-        Set<URI> currentBalanceTargets = sharedBalancerMap.get(URI.create("ws://www.example.com:8080/path"));
+        Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
         return (currentBalanceTargets != null) && currentBalanceTargets.containsAll(balanceTargets);
 
     }
 
     private boolean validateMemberIdBalancerMap(CollectionsFactory factory, MemberId memberId, List<URI> balanceTargets) {
-        Map<MemberId, Map<URI, List<URI>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
         if (memberIdBalancerMap == null) {
             return false;
         }
 
-        Map<URI, List<URI>> balancerMap = memberIdBalancerMap.get(memberId);
+        Map<String, List<String>> balancerMap = memberIdBalancerMap.get(memberId);
         if (balancerMap == null) {
             return false;
         }
 
-        URI balanceURI = URI.create("ws://www.example.com:8080/path");
-        List<URI> memberBalanceTargets = balancerMap.get(balanceURI);
+        String balanceURI = "ws://www.example.com:8080/path";
+        List<String> memberBalanceTargets = balancerMap.get(balanceURI);
         return (memberBalanceTargets != null) && memberBalanceTargets.containsAll(balanceTargets);
 
     }

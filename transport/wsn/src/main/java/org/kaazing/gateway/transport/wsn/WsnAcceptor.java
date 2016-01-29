@@ -22,7 +22,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.URLUtils.appendURI;
 import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
-import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPath;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_CHALLENGE_SCHEME;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.CODEC_REQUIRED;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
@@ -52,8 +51,6 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -72,7 +69,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.URLUtils;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.resource.address.wsn.WsnResourceAddressFactorySpi;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
@@ -131,6 +128,8 @@ import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.WsnBinding> {
 
@@ -462,7 +461,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
-        URI apiLocation = modifyURIPath(transport.getResource(), path);
+        String apiLocation = URIUtils.modifyURIPath(URIUtils.uriToString(transport.getResource()), path);
         return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }
 
@@ -522,8 +521,9 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             options.setOption(TRANSPORT, transportAddress);
             options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
+            // TODO: Verify this
             final ResourceAddress remoteAddress =
-                    resourceAddressFactory.newResourceAddress(localAddress.getResource(),options);
+                    resourceAddressFactory.newResourceAddress(URIUtils.uriToString(localAddress.getResource()), options);
 
             //
             // We remember the http uri from the session below us.
@@ -921,7 +921,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
 
             URI resource = session.getLocalAddress().getResource();
 
-            URI wsLocalAddressLocation = URLUtils.modifyURIScheme(resource,
+            String wsLocalAddressLocation = URIUtils.modifyURIScheme(URIUtils.uriToString(resource),
                     schemeName);
 
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(

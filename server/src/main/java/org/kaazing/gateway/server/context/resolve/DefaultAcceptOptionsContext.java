@@ -16,6 +16,12 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
+import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;
@@ -132,14 +138,14 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
     }
 
     @Override
-    public URI getInternalURI(URI externalURI) {
-        String authority = externalURI.getAuthority();
-        String internalAuthority = binds.get(externalURI.getScheme());
+    public String getInternalURI(String externalURI) {
+        String authority = getAuthority(externalURI);
+        String internalAuthority = binds.get(getScheme(externalURI));
         if (internalAuthority != null) {
             if (!internalAuthority.equals(authority)) {
                 try {
-                    return new URI(externalURI.getScheme(), internalAuthority, externalURI.getPath(),
-                            externalURI.getQuery(), externalURI.getFragment());
+                    return buildURIAsString(getScheme(externalURI), internalAuthority,
+                           getPath(externalURI), getQuery(externalURI), getFragment(externalURI));
                 } catch (URISyntaxException e) {
                     // ignore
                 }

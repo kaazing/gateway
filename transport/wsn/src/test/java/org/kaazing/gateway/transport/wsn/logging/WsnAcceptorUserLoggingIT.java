@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.logging;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,14 +31,13 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MemoryAppender;
-import org.kaazing.test.util.MethodExecutionTrace;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MemoryAppender;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 /**
  * WsnAcceptorUserLoggingIT - verifies that the principal name displayed in the principal class is logged accordingly
@@ -73,7 +70,7 @@ public class WsnAcceptorUserLoggingIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("ws://localhost:8001/echoAuth"))
+                    .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName(DEMO_REALM)
                         .authorization()

@@ -215,7 +215,7 @@ public class SslTransportTest {
         final CountDownLatch serverMessageSent = new CountDownLatch(1);
 
 
-        final URI uri = URI.create("ssl://localhost:4444");
+        final String uri = "ssl://localhost:4444";
         Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);
@@ -235,8 +235,9 @@ public class SslTransportTest {
                 System.out.println("SSL server: doSessionOpened");
 
                 BridgeSession bridgeSession = (BridgeSession) session;
-                Assert.assertEquals("remote address of accept session was not "+uri, uri, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                Assert.assertEquals("local  address of accept session was not "+uri, uri, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                URI uriAsURI = URI.create(uri);
+                Assert.assertEquals("remote address of accept session was not "+uri, uriAsURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("local  address of accept session was not "+uri, uriAsURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                 Assert.assertEquals("ephemeral port of remote address' transport != ephemeral port of parent session's remote address",
                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                                     BridgeSession.REMOTE_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
@@ -283,8 +284,9 @@ public class SslTransportTest {
                 System.out.println("SSL client: doSessionOpened");
                 BridgeSession bridgeSession = (BridgeSession) session;
 
-                Assert.assertEquals("remote address of connect session was not "+uri, uri, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
-                Assert.assertEquals("local  address of connect session was not "+uri, uri, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
+                URI uriAsURI = URI.create(uri);
+                Assert.assertEquals("remote address of connect session was not "+uri, uriAsURI, BridgeSession.REMOTE_ADDRESS.get(bridgeSession).getResource());
+                Assert.assertEquals("local  address of connect session was not "+uri, uriAsURI, BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getResource());
                 Assert.assertEquals("ephemeral port of local address' transport != ephemeral port of parent session's local address",
                                     BridgeSession.LOCAL_ADDRESS.get(bridgeSession).getTransport().getResource().getPort(),
                                     BridgeSession.LOCAL_ADDRESS.get(bridgeSession.getParent()).getResource().getPort());
@@ -441,7 +443,7 @@ public class SslTransportTest {
 //        sslAcceptor.init();
 //        sslConnector.init();
 
-        URI serverURI = URI.create("ssl://localhost:4445");
+        String serverURI = "ssl://localhost:4445";
         Map<String, Object> opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.TRUE);
@@ -452,7 +454,7 @@ public class SslTransportTest {
 
         sslAcceptor.bind(serverAddress, acceptHandler, null);
 
-        URI clientURI = URI.create("ssl://localhost:4445");
+        String clientURI = "ssl://localhost:4445";
         opts = new HashMap<>();
         opts.put(SSL_WANT_CLIENT_AUTH, Boolean.FALSE);
         opts.put(SSL_NEED_CLIENT_AUTH, Boolean.FALSE);

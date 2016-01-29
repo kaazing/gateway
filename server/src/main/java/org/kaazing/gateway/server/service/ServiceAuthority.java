@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.server.service;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceRegistration;
 
@@ -35,12 +38,12 @@ public class ServiceAuthority {
         entries = new TreeMap<>();
     }
 
-    ServiceRegistration register(URI serviceURI, ServiceContext serviceContext) {
-        String servicePath = serviceURI.getPath();
+    ServiceRegistration register(String serviceURI, ServiceContext serviceContext) {
+        String servicePath = getPath(serviceURI);
         ServiceRegistration oldRegistration = entries.put(servicePath, new ServiceRegistration(serviceURI, serviceContext));
         if (oldRegistration != null) {
-            URI oldServiceURI = oldRegistration.getURI();
-            String oldServicePath = oldServiceURI.getPath();
+            String oldServiceURI = oldRegistration.getURI();
+            String oldServicePath = getPath(oldServiceURI);
             index.remove(oldServicePath);
         }
 
@@ -53,8 +56,8 @@ public class ServiceAuthority {
     ServiceRegistration unregister(URI serviceURI) {
         ServiceRegistration oldRegistration = entries.remove(serviceURI.getPath());
         if (oldRegistration != null) {
-            URI oldServiceURI = oldRegistration.getURI();
-            String oldServicePath = oldServiceURI.getPath();
+            String oldServiceURI = oldRegistration.getURI();
+            String oldServicePath = getPath(oldServiceURI);
             index.remove(oldServicePath);
             Collections.sort(index);
         }

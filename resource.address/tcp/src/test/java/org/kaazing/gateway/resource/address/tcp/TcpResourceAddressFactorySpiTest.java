@@ -48,13 +48,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class TcpResourceAddressFactorySpiTest {
 
     private TcpResourceAddressFactorySpi factory;
-    private URI addressURI;
+    private String addressURI;
     private Map<String,Object> options;
 
     @Before
     public void before() {
         factory = new TcpResourceAddressFactorySpi();
-        addressURI = URI.create("tcp://localhost:2020");
+        addressURI = "tcp://localhost:2020";
         options = new HashMap<>();
         options.put("tcp.nextProtocol", "custom");
         options.put("tcp.maximumOutboundRate", 534L);
@@ -70,12 +70,12 @@ public class TcpResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireTcpSchemeName() throws Exception {
-        factory.newResourceAddress(URI.create("test://opaque"));
+        factory.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        factory.newResourceAddress(URI.create("tcp://127.0.0.1"));
+        factory.newResourceAddress("tcp://127.0.0.1");
     }
 
     @Test
@@ -131,7 +131,7 @@ public class TcpResourceAddressFactorySpiTest {
         // Skip the test if IPV6 is not set up or mapped to IPv4
         assumeTrue(!expectedURI.isEmpty());
 
-        URI addressURI = URI.create("tcp://[::1]:2020");
+        String addressURI = "tcp://[::1]:2020";
         ResourceAddress resourceAddress = factory.newResourceAddress(addressURI);
         Set<URI> gotURI = new HashSet<>();
         while(resourceAddress != null) {

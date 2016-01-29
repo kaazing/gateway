@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.wsn;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URI;
-
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
@@ -30,8 +28,8 @@ public class DuplicateBindTest {
     @Test(timeout = 10000)
     public void connectingOnService1ShouldNotGetAccessToService2() throws Exception {
         GatewayConfiguration gc = new GatewayConfigurationBuilder().service().name("echo1").type("echo")
-                .accept(URI.create("ws://localhost:8000/")).done().service().name("echo2").type("echo")
-                .accept(URI.create("ws://localhost:8000/")).done().done();
+                .accept("ws://localhost:8000/").done().service().name("echo2").type("echo")
+                .accept("ws://localhost:8000/").done().done();
 
         Gateway gateway = new Gateway();
         try {

@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URI;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +61,7 @@ public class BroadcastServiceTest {
 
     @Test
     public void testReconnect() throws Exception {
-        final ServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9897"));
+        final ServiceContext serviceContext = new TestServiceContext(service, "test-broadcast", "tcp://localhost:9880", "tcp://localhost:9897");
 
         // set up the configuration -- empty properties so the values just default
         service.setConfiguration(new Properties());
@@ -102,7 +101,7 @@ public class BroadcastServiceTest {
     @Test
     public void testBroadcast() throws Exception {
         final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
-                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
+                "tcp://localhost:9880", "tcp://localhost:9090");
       
         // set up the configuration -- empty properties so the values just default
         service.setConfiguration(new Properties());
@@ -157,7 +156,7 @@ public class BroadcastServiceTest {
     @Test
     public void testSlowConsumer() throws Exception {
         final TestServiceContext serviceContext = new TestServiceContext(service, "test-broadcast",
-                URI.create("tcp://localhost:9880"), URI.create("tcp://localhost:9090"));
+                "tcp://localhost:9880", "tcp://localhost:9090");
 
         // set up the configuration
         Properties slowConsumerProps = new Properties();

@@ -54,13 +54,13 @@ import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 public class WsnResourceAddressFactorySpiTest {
 
     private WsnResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new WsnResourceAddressFactorySpi();
-        addressURI = URI.create("wsn://localhost:2020/");
+        addressURI = "wsn://localhost:2020/";
         options = new HashMap<>();
         options.put("ws.nextProtocol", "custom");
         options.put("ws.qualifier", "random");
@@ -81,17 +81,17 @@ public class WsnResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireWsnSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("wsn://localhost:80"));
+        addressFactorySpi.newResourceAddress("wsn://localhost:80");
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("wsn://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("wsn://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 80);
     }
@@ -148,7 +148,7 @@ public class WsnResourceAddressFactorySpiTest {
         Map<String,Object> inputOptions = new LinkedHashMap<>();
         inputOptions.put("ws.keepAliveTimeout", 25);
 
-        URI location = URI.create(String.format("wsn://localhost:4949/path"));
+        String location = "wsn://localhost:4949/path";
         ResourceAddress address = addressFactory.newResourceAddress(location, inputOptions);
         verifyTransport(address, URI.create("http://localhost:4949/path"));
         verifyTransport(address.getTransport(), URI.create("tcp://127.0.0.1:4949"));

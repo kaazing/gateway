@@ -16,6 +16,10 @@
 
 package org.kaazing.gateway.service.http.directory.specification;
 
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.io.File;
+
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,11 +30,6 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
-import java.io.File;
-import java.net.URI;
-
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
 public class Rfc7235SpecificationIT {
 
     private final K3poRule robot = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7235");
@@ -40,7 +39,7 @@ public class Rfc7235SpecificationIT {
            GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .webRootDirectory(new File("src/test/webapp"))
                     .service()
-                        .accept(URI.create("http://localhost:8000"))
+                        .accept("http://localhost:8000")
                         .type("directory")
                         .property("directory", "/public")
                         .property("welcome-file", "resource")

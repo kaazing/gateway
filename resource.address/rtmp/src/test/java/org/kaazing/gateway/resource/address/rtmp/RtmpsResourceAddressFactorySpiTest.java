@@ -34,13 +34,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class RtmpsResourceAddressFactorySpiTest {
 
     private RtmpsResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void before() {
         addressFactorySpi = new RtmpsResourceAddressFactorySpi();
-        addressURI = URI.create("rtmps://localhost:2020/");
+        addressURI = "rtmps://localhost:2020/";
         options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
@@ -54,17 +54,17 @@ public class RtmpsResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireRtmpsSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("rtmps://localhost:2020"));
+        addressFactorySpi.newResourceAddress("rtmps://localhost:2020");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("rtmps://localhost/"));
+        addressFactorySpi.newResourceAddress("rtmps://localhost/");
     }
 
     @Test

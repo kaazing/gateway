@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wsn;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.InetAddress;
-import java.net.URI;
 
 import org.junit.Assume;
 import org.junit.Ignore;
@@ -41,7 +40,7 @@ public class WsnIPv6IT {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     // proxy service to the below service
                     .service()
-                        .accept(URI.create("ws://[::1]:8001/echo"))
+                        .accept("ws://[::1]:8001/echo")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")

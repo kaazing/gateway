@@ -64,6 +64,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
@@ -310,7 +311,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
         httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
         httpOptions.setOption(ALTERNATE, null);
-        return resourceAddressFactory.newResourceAddress(httpLocation, httpOptions);
+        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpLocation), httpOptions);
     }
 
     private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
@@ -320,7 +321,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
         ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
         httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
-        return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
+        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpxeLocation), httpxeOptions);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -346,7 +347,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         cookieOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
         URI cookiesLocation = appendURI(httpAddress.getResource(), COOKIES_SUFFIX);
-        return resourceAddressFactory.newResourceAddress(cookiesLocation, cookieOptions);
+        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(cookiesLocation), cookieOptions);
     }
 
     @Override
@@ -584,7 +585,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             URI remoteLocation = ensureTrailingSlash(modifyURIScheme(remoteBridgeAddress.getResource(), "wse"));
             ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
             options.setOption(TRANSPORT, remoteBridgeAddress);
-            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(remoteLocation, options, sessionId);
+            final ResourceAddress remoteAddress =  resourceAddressFactory.newResourceAddress(URIUtils.uriToString(remoteLocation), options, sessionId);
 
 
             final URI httpUri = session.getRequestURL();
@@ -761,8 +762,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
-
-            return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpAddress.getExternalURI()),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
 
@@ -773,9 +773,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             ResourceOptions noSecurityOptions = new NoSecurityResourceOptions(httpAddress);
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-
             ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
-                    httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
+                    URIUtils.uriToString(httpAddress.getExternalURI()), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
 
             // Remove REALM_NAME  option at httpxe layer but preserve all other options like
             // ORIGIN_SECURITY etc. Otherwise, upstream and downstream requests will be subjected
@@ -786,8 +785,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             httpxeOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
 
             httpxeOptions = new NoSecurityResourceOptions(httpxeOptions);
-
-            return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
+            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpxeAddress.getResource()), httpxeOptions);
         }
 
         private boolean validWsebVersion(HttpAcceptSession session) {
@@ -927,9 +925,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             options.setOption(NEXT_PROTOCOL, nextProtocol);
 
             URI wseLocalAddressLocation = modifyURIScheme(resource, "ws");
-
             ResourceAddress candidate = resourceAddressFactory.newResourceAddress(
-                    wseLocalAddressLocation, options);
+                    URIUtils.uriToString(wseLocalAddressLocation), options);
 
             Binding binding = bindings.getBinding(candidate);
 

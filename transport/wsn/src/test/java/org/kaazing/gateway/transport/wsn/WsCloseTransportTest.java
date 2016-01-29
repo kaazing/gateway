@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +52,6 @@ import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsConnector;
 import org.kaazing.gateway.transport.ws.WsFilterAdapter;
-import org.kaazing.gateway.transport.ws.extension.WebSocketExtensionFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
@@ -423,8 +421,8 @@ public class WsCloseTransportTest {
             }
         };
 
-        final URI uri = URI.create("wsn://localhost:4444/echo");
-        final List<URI> accepts = new ArrayList<>(1);
+        final String uri = "wsn://localhost:4444/echo";
+        final List<String> accepts = new ArrayList<>(1);
         accepts.add(uri);
 
 //        final Map<URI, ? extends CrossSiteConstraintContext> crossSiteConstraints = new HashMap<URI, DefaultCrossSiteConstraintContext>();

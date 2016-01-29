@@ -15,12 +15,12 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.proxy.AbstractProxyService;
-
-import java.net.URI;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.kaazing.gateway.resource.address.URIUtils;
+import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 /**
  * Http proxy service
@@ -35,7 +35,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }
@@ -48,14 +48,14 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
-        Collection<URI> acceptURIs = serviceContext.getAccepts();
-        Collection<URI> connectURIs = serviceContext.getConnects();
-        Iterator<URI> acceptIterator = acceptURIs.iterator();
-        Iterator<URI> connectIterator = connectURIs.iterator();
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        Collection<String> connectURIs = serviceContext.getConnects();
+        Iterator<String> acceptIterator = acceptURIs.iterator();
+        Iterator<String> connectIterator = connectURIs.iterator();
 
         while (acceptIterator.hasNext() && connectIterator.hasNext()) {
-            String acceptPath = acceptIterator.next().getPath();
-            String connectPath = connectIterator.next().getPath();
+            String acceptPath = URIUtils.getPath(acceptIterator.next());
+            String connectPath = URIUtils.getPath(connectIterator.next());
             boolean acceptPathEndsInSlash = acceptPath.endsWith("/");
             boolean connectPathEndsInSlash = connectPath.endsWith("/");
 

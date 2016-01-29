@@ -57,6 +57,7 @@ import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.transport.Bindings;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
@@ -200,7 +201,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
             candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
             candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+            ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
 
             Binding binding = bindings.getBinding(candidateAddress);
             if (binding == null) {
@@ -220,7 +221,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
             LOCAL_ADDRESS.set(session, localAddress);
 
             SocketAddress remoteSocketAddress = session.getRemoteAddress();
-            URI remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
+            String remoteExternalURI = asResourceURI((InetSocketAddress) remoteSocketAddress);
             ResourceAddress remoteAddress = resourceAddressFactory.newResourceAddress(remoteExternalURI, nextProtocol);
             REMOTE_ADDRESS.set(session, remoteAddress);
 
@@ -255,17 +256,17 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
     };
 
     private ResourceAddress createResourceAddress(InetSocketAddress inetSocketAddress) {
-        URI transport = asResourceURI(inetSocketAddress);
+        String transport = asResourceURI(inetSocketAddress);
         return resourceAddressFactory.newResourceAddress(transport);
     }
 
-    private URI asResourceURI(InetSocketAddress inetSocketAddress) {
+    private String asResourceURI(InetSocketAddress inetSocketAddress) {
         String transportName = getTransportName();
         InetAddress inetAddress = inetSocketAddress.getAddress();
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        return URI.create(format(addressFormat, transportName, hostAddress, port));
+        return format(addressFormat, transportName, hostAddress, port);
     }
 
     protected final void init() {
@@ -629,7 +630,7 @@ public abstract class AbstractNioAcceptor implements BridgeAcceptor {
 
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, candidateTransportAddress);
-                    return resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
+                    return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
                 }
 
                 private IoSession getTcpBridgeSession(IoSession session) {

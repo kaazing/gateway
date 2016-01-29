@@ -15,6 +15,12 @@
  */
 package org.kaazing.gateway.server.context.resolve;
 
+import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -291,12 +297,12 @@ public class GatewayContextResolver {
         // load the default scheme information based on service accepts
         Set<String> schemeNames = new HashSet<>();
         for (ServiceContext serviceContext : serviceContexts) {
-            for (URI acceptURI : serviceContext.getAccepts()) {
-                String schemeName = acceptURI.getScheme();
+            for (String acceptURI : serviceContext.getAccepts()) {
+                String schemeName = getScheme(acceptURI);
                 schemeNames.add(schemeName);
             }
-            for (URI connectURI : serviceContext.getConnects()) {
-                String schemeName = connectURI.getScheme();
+            for (String connectURI : serviceContext.getConnects()) {
+                String schemeName = getScheme(connectURI);
                 schemeNames.add(schemeName);
             }
             ServiceProperties properties = serviceContext.getProperties();
@@ -452,7 +458,7 @@ public class GatewayContextResolver {
         }
 
         // Used by client access policy xml. This parameter is not fully initialized until after the service c
-        List<Map<URI, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
+        List<Map<String, Map<String, CrossSiteConstraintContext>>> authorityToSetOfAcceptConstraintsByURI =
                 new ArrayList<>();
 
         for (ServiceType serviceConfig : serviceConfigs) {
@@ -488,9 +494,9 @@ public class GatewayContextResolver {
             DefaultServiceProperties properties = parsePropertiesType(propertiesType);
 
             // default ports
-            Collection<URI> acceptURIs = resolveURIs(acceptStrings);
-            Collection<URI> balanceURIs = resolveURIs(balanceStrings);
-            Collection<URI> connectURIs = resolveURIs(connectStrings);
+            Collection<String> acceptURIs = resolveURIs(acceptStrings);
+            Collection<String> balanceURIs = resolveURIs(balanceStrings);
+            Collection<String> connectURIs = resolveURIs(connectStrings);
 
             String acceptProperty = properties.get("accept");
             if (acceptProperty != null) {
@@ -503,7 +509,7 @@ public class GatewayContextResolver {
             if (connectProperty != null) {
                 connectProperty = connectProperty.trim();
                 properties.remove("connect");
-                connectURIs.add(resolveURI(getCanonicalURI(connectProperty, true)));
+                connectURIs.add(uriToString(resolveURI(getCanonicalURI(connectProperty, true))));
             }
 
             Collection<String> requireRolesCollection = new LinkedList<>();
@@ -520,9 +526,9 @@ public class GatewayContextResolver {
                 mimeMappings.put(mimeMappingType.getExtension().toLowerCase(), mimeMappingType.getMimeType());
             }
 
-            Map<URI, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
+            Map<String, Map<String, CrossSiteConstraintContext>> acceptConstraintsByURI =
                     new HashMap<>();
-            for (URI acceptURI : acceptURIs) {
+            for (String acceptURI : acceptURIs) {
                 int wildcardOriginCount = 0;
                 CrossSiteConstraintType[] crossSiteConstraints = serviceConfig.getCrossSiteConstraintArray();
                 for (CrossSiteConstraintType crossSiteConstraint : crossSiteConstraints) {
@@ -600,7 +606,7 @@ public class GatewayContextResolver {
                             + "\". Remove the wildcard to specify more restrictive cross site constraints");
                 }
 
-                String host = acceptURI.getHost();
+                String host = getHost(acceptURI);
                 if (host == null || host.isEmpty()) {
                     throw new IllegalArgumentException("Host is required for service \"" + acceptURI + "\".");
                 }
@@ -660,13 +666,13 @@ public class GatewayContextResolver {
             serviceContexts.add(serviceContext);
 
             // register service for each acceptURI
-            for (URI acceptURI : acceptURIs) {
+            for (String acceptURI : acceptURIs) {
                 // verify we have a port set, otherwise set to default for scheme
-                String authority = acceptURI.getAuthority();
+                String authority = getAuthority(acceptURI);
                 if (authority.indexOf(':') == -1) {
-                    SchemeConfig schemeConfig = supplySchemeConfig(acceptURI.getScheme());
+                    SchemeConfig schemeConfig = supplySchemeConfig(getScheme(acceptURI));
                     authority += ":" + schemeConfig.getDefaultPort();
-                    acceptURI = URI.create(acceptURI.getScheme() + "://" + authority + acceptURI.getPath());
+                    acceptURI = getScheme(acceptURI) + "://" + authority + getPath(acceptURI);
                 }
                 serviceRegistry.register(acceptURI, serviceContext);
             }
@@ -721,10 +727,10 @@ public class GatewayContextResolver {
         }
     }
 
-    private Collection<URI> resolveURIs(String[] acceptURIs) throws URISyntaxException {
-        Collection<URI> urisWithPort = new HashSet<>();
+    private Collection<String> resolveURIs(String[] acceptURIs) throws URISyntaxException {
+        Collection<String> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
-            URI resolvedURI = resolveURI(getCanonicalURI(uri, true));
+            String resolvedURI = uriToString(resolveURI(getCanonicalURI(uri, true)));
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;

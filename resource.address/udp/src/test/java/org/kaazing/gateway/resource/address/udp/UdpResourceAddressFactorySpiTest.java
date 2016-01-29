@@ -48,13 +48,13 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class UdpResourceAddressFactorySpiTest {
 
     private UdpResourceAddressFactorySpi factory;
-    private URI addressURI;
+    private String addressURI;
     private Map<String,Object> options;
 
     @Before
     public void before() {
         factory = new UdpResourceAddressFactorySpi();
-        addressURI = URI.create("udp://localhost:2020");
+        addressURI = "udp://localhost:2020";
         options = new HashMap<>();
         options.put("udp.nextProtocol", "custom");
         options.put("udp.maximumOutboundRate", 534L);
@@ -70,12 +70,12 @@ public class UdpResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireUdpSchemeName() throws Exception {
-        factory.newResourceAddress(URI.create("test://opaque"));
+        factory.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        factory.newResourceAddress(URI.create("udp://127.0.0.1"));
+        factory.newResourceAddress("udp://127.0.0.1");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class UdpResourceAddressFactorySpiTest {
         // Skip the test if IPV6 is not set up or mapped to IPv4
         assumeTrue(!expectedURI.isEmpty());
 
-        URI addressURI = URI.create("udp://[::1]:2020");
+        String addressURI = "udp://[::1]:2020";
         ResourceAddress resourceAddress = factory.newResourceAddress(addressURI);
         Set<URI> gotURI = new HashSet<>();
         while(resourceAddress != null) {

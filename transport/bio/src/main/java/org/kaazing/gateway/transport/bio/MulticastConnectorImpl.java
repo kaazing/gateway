@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.bio;
 
 import static java.lang.String.format;
-import static java.net.URI.create;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -192,7 +191,7 @@ public class MulticastConnectorImpl extends AbstractIoConnectorEx {
             MulticastAddress multicastAddress = (MulticastAddress) localAddress;
             String uri = format("udp://%s:%d", multicastAddress.getGroupAddress().getHostAddress(),
                     multicastAddress.getBindPort());
-            ResourceAddress resourceAddress = resourceAddressFactory.newResourceAddress(create(uri));
+            ResourceAddress resourceAddress = resourceAddressFactory.newResourceAddress(uri);
             final MulticastSession newSession = new MulticastSession(MulticastConnectorImpl.this, processor, socket,
                     resourceAddress, remoteAddress);
 

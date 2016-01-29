@@ -40,10 +40,10 @@ public class SseSslResourceAddressFactorySpiTest {
     private static final ResourceFactory HTTPS_RESOURCE_FACTORY = changeSchemeOnly("https");
     private static final ResourceFactory HTTPXE_SSL_RESOURCE_FACTORY = changeSchemeOnly("httpxe+ssl");
 
-    private static final URI ADDRESS_URI = URI.create("sse+ssl://localhost:2020/events");
-    private static final URI HTTPS_ADDRESS_URI = HTTPS_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI HTTPXE_SSL_ADDRESS_URI = HTTPXE_SSL_RESOURCE_FACTORY.createURI(ADDRESS_URI);
-    private static final URI OPTIONS_ADDRESS_URI = URI.create("https://localhost:2121/events");
+    private static final String ADDRESS_URI = "sse+ssl://localhost:2020/events";
+    private static final String HTTPS_ADDRESS_URI = HTTPS_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String HTTPXE_SSL_ADDRESS_URI = HTTPXE_SSL_RESOURCE_FACTORY.createURI(ADDRESS_URI);
+    private static final String OPTIONS_ADDRESS_URI = "https://localhost:2121/events";
 
     private SseSslResourceAddressFactorySpi addressFactorySpi;
     private ResourceAddress httpTransportAddress;
@@ -74,17 +74,17 @@ public class SseSslResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireSseSslSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPath() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("sse+ssl://localhost:2020"));
+        addressFactorySpi.newResourceAddress("sse+ssl://localhost:2020");
     }
 
     @Test
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("sse+ssl://localhost/"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("sse+ssl://localhost/");
         URI location = address.getResource();
         assertEquals(location.getPort(), 443);
     }
@@ -95,14 +95,16 @@ public class SseSslResourceAddressFactorySpiTest {
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
         assertEquals(httpTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(HTTPS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        URI httpsAddressUri = URI.create(HTTPS_ADDRESS_URI);
+        assertEquals(httpsAddressUri, address.getOption(TRANSPORT_URI));
 
         // Test alternate address with Httpxe transport
         address = address.getOption(ResourceAddress.ALTERNATE);
         assertNull(address.getOption(NEXT_PROTOCOL));
         assertNull(address.getOption(QUALIFIER));
         assertEquals(httpxeTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(HTTPXE_SSL_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        URI httpxeSslAddressUri = URI.create(HTTPXE_SSL_ADDRESS_URI);
+        assertEquals(httpxeSslAddressUri, address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -111,28 +113,31 @@ public class SseSslResourceAddressFactorySpiTest {
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        URI optionsAddressUri = URI.create(OPTIONS_ADDRESS_URI);
+        assertEquals(optionsAddressUri, address.getOption(TRANSPORT_URI));
 
         // Test alternate address with Httpxe transport
         address = address.getOption(ResourceAddress.ALTERNATE);
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertEquals(optionsTransportAddress, address.getOption(TRANSPORT));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        assertEquals(optionsAddressUri, address.getOption(TRANSPORT_URI));
     }
 
     @Test
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(ADDRESS_URI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(HTTPS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        URI httpsAddressUri = URI.create(HTTPS_ADDRESS_URI);
+        assertEquals(httpsAddressUri, address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(ADDRESS_URI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(OPTIONS_ADDRESS_URI, address.getOption(TRANSPORT_URI));
+        URI optionsAddressUri = URI.create(OPTIONS_ADDRESS_URI);
+        assertEquals(optionsAddressUri, address.getOption(TRANSPORT_URI));
     }
     
 }
