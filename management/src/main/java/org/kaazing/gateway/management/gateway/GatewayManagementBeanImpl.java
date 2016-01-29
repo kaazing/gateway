@@ -255,7 +255,7 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
                         for (String balanceeURI : balanceeURIs) {
                             jsonArray.put(balanceeURI);
                         }
-                        uriMap.put(balancerURI.toString(), jsonArray);
+                        uriMap.put(balancerURI, jsonArray);
                     }
 
                     jsonObj.put(instanceKey, uriMap);
