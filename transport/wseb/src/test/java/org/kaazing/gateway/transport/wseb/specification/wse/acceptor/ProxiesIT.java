@@ -16,56 +16,113 @@
 
 package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
-import java.net.URI;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.Ignore;
+import org.apache.mina.core.service.IoHandler;
+import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.transport.test.Expectations;
+import org.kaazing.gateway.transport.wseb.test.WsebAcceptorRule;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ProxiesIT {
 
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/proxies");
 
-    private GatewayRule gateway = new GatewayRule() {
+    private WsebAcceptorRule acceptor;
+
+    {
+        Properties configuration = new Properties();
+        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s");
+        acceptor = new WsebAcceptorRule(configuration);
+    }
+
+    private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
-         // @formatter:off
-            GatewayConfiguration configuration =
-                    new GatewayConfigurationBuilder()
-                        .property(WSE_SPECIFICATION.getPropertyName(), "true")
-                        .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
-                            .type("echo")
-                        .done()
-                    .done();
-            // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            setThreadingPolicy(new Synchroniser());
         }
     };
 
-    @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    private TestRule contextRule = ITUtil.toTestRule(context);
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
-    @Ignore("Server is not spec compliant")
+    @Rule
+    public TestRule chain = RuleChain.outerRule(trace).around(acceptor).around(contextRule).
+             around(k3po).around(timeoutRule);
+
     @Test
     @Specification("client.send.overlapping.downstream.request/request")
-    public void shouldFlushAndCloseDownstreamUponReceivingOverlappingLongpollingRequest()
-            throws Exception {
+    public void shouldFlushAndCloseDownstreamUponReceivingOverlappingLongpollingRequest() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // Exception is from abrupt close of second downstream when k3po execution terminates
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification("server.send.data.on.longpolling.request/request")
+    public void shouldReceiveDataFromServerOnLongpollingRequest() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final AtomicReference<IoSessionEx> session = new  AtomicReference<IoSessionEx>();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                will(saveParameter(session, 0));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
+        k3po.start();
+        k3po.awaitBarrier("CREATED");
+        session.get().write(session.get().getBufferAllocator().wrap(ByteBuffer.wrap("data1".getBytes())));
+        k3po.awaitBarrier("FIRST_DOWNSTREAM_RESPONSE_COMPLETE");
+        session.get().write(session.get().getBufferAllocator().wrap(ByteBuffer.wrap("data2".getBytes())));
+        k3po.finish();
+    }
+
     @Test
     @Specification("client.request.heartbeat.interval/request")
     public void shouldSendHeartbeatToClient() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 }

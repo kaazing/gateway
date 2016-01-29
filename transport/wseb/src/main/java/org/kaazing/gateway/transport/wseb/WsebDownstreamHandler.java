@@ -150,13 +150,17 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         addBridgeFilters(bridgeFilterChain, wsebSession); // pass in wseb session in case bridge filters need access to ws session data (e.g. extensions)
 
         // check if this session requests a short or a long keepalive timeout
-        int clientIdleTimeout = ("20".equals(session.getParameter(".kkt"))) ? 20 : wsebSession.getClientIdleTimeout();
+        int clientIdleTimeout = wsebSession.getClientIdleTimeout();
+        String requestedKeepAliveIntervalInSeconds = session.getParameter(".kkt");
+        if (requestedKeepAliveIntervalInSeconds != null) {
+            clientIdleTimeout = Integer.parseInt(requestedKeepAliveIntervalInSeconds);
+        }
 
         // we don't need to send idletimeout keep-alive messages if we're already sending PINGs for inactivity timeout
-        // at high enough frequency
-        int inactivityTimeoutInSeconds = (int) (wsebSession.getInactivityTimeout() / 1000);
-        if (inactivityTimeoutInSeconds == 0 || inactivityTimeoutInSeconds > clientIdleTimeout) {
-            session.getConfig().setWriterIdleTime(clientIdleTimeout / 2);
+        // at high enough frequency (these are send every inactivity timeout / 2)
+        int inactivityPingIntervalInSeconds = (int) (wsebSession.getInactivityTimeout() / 2000);
+        if (inactivityPingIntervalInSeconds == 0 || inactivityPingIntervalInSeconds > clientIdleTimeout) {
+            session.getConfig().setWriterIdleTime(clientIdleTimeout);
         }
 
         // most clients use GET for downstream (empty POST okay too)
