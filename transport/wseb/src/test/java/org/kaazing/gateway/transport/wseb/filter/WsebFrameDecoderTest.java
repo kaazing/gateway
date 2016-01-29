@@ -168,6 +168,64 @@ public class WsebFrameDecoderTest {
 		}
 	}
 
+    @Test(expected=ProtocolDecoderException.class)
+    public void decodeTextFrameContainingInvalidUTF8() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        ProtocolDecoder decoder = new WsebFrameDecoder(allocator, 0, true);
+
+        IoBufferEx in = allocator.wrap(allocator.allocate(14))
+                                 .put((byte)0x00)
+                                 .put("Hello,".getBytes(UTF_8))
+                                 .put((byte)0x80)
+                                 .put("world".getBytes(UTF_8))
+                                 .put((byte)0xff)
+                                 .flip();
+
+        decoder.decode(session, (IoBuffer) in, session.getDecoderOutput());
+    }
+
+    @Test
+    public void decodeTextFrameWithSpecifiedLength() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        ProtocolDecoder decoder = new WsebFrameDecoder(allocator, 0, true);
+
+        IoBufferEx in = allocator.wrap(allocator.allocate(14))
+                                 .put((byte)0x81)
+                                 .put((byte)0x0c)
+                                 .putString("Hello, world", UTF_8.newEncoder())
+                                 .flip();
+
+        decoder.decode(session, (IoBuffer) in, session.getDecoderOutput());
+
+        WsMessage out = (WsMessage) session.getDecoderOutputQueue().poll();
+        assertEquals(new WsTextMessage(allocator.wrap(ByteBuffer.wrap("Hello, world".getBytes(UTF_8)))), out);
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        decoder.finishDecode(session, session.getDecoderOutput());
+
+        assertTrue(session.getDecoderOutputQueue().isEmpty());
+        assertFalse(in.hasRemaining());
+    }
+
+    @Test(expected=ProtocolDecoderException.class)
+    public void decodeTextFrameWithSpecifiedLengthContainingInvalidUTF8() throws Exception {
+        ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
+        IoBufferAllocatorEx<?> allocator = session.getBufferAllocator();
+        ProtocolDecoder decoder = new WsebFrameDecoder(allocator, 0, true);
+
+        IoBufferEx in = allocator.wrap(allocator.allocate(14))
+                                 .put((byte)0x81)
+                                 .put((byte)0x0c)
+                                 .put("Hello,".getBytes(UTF_8))
+                                 .put((byte)0x80)
+                                 .put("world".getBytes(UTF_8))
+                                 .flip();
+
+        decoder.decode(session, (IoBuffer) in, session.getDecoderOutput());
+    }
+
     @Test
     public void decodePingFrame() throws Exception {
         ProtocolCodecSessionEx session = new ProtocolCodecSessionEx();
