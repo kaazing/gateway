@@ -32,6 +32,7 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENG
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.mina.core.future.DefaultUnbindFuture.combineFutures;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
@@ -84,6 +86,7 @@ import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
@@ -161,7 +164,13 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final TypedAttributeKey<Integer> CREATE_CONTENT_LENGTH_READ =
             new TypedAttributeKey<>(WsebAcceptor.class, "createContentLengthRead");
 
+    // GET is tolerated for non-spec compliant clients
+    private static final EnumSet<HttpMethod> PERMITTED_CREATE_METHODS = EnumSet.of(HttpMethod.POST, HttpMethod.GET);
+
+    private static final Long MAX_SEQUENCE_NUMBER = 0x1fffffffffffffL; // 2 ^ 53 - 1
+
     private Properties configuration;
+    private boolean specCompliant;
 
     private ScheduledExecutorService scheduler;
     private BridgeServiceFactory bridgeServiceFactory;
@@ -195,6 +204,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+        this.specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
     }
 
     @Resource(name = "bridgeServiceFactory")
@@ -415,8 +425,23 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
         @Override
         protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
-            // validate WebSocket version
-            if (! validWsebVersion(session)) return;
+            if (!PERMITTED_CREATE_METHODS.contains(session.getMethod())) {
+                HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+                session.setStatus(status);
+                session.setReason("Forbidden wse create request method " + session.getMethod());
+                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                session.close(false);
+                return;
+            }
+            if (specCompliant && !validateSequenceNumber(session)) {
+                return;
+            }
+            if (! validateWsebVersion(session)) {
+                return;
+            }
+            if (!validateAcceptCommands(session)) {
+                return;
+            }
 
             String contentLengthStr = session.getReadHeader("Content-Length");
             if (contentLengthStr == null || "0".equals(contentLengthStr)) {
@@ -790,11 +815,59 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             return resourceAddressFactory.newResourceAddress(httpxeAddress.getResource(), httpxeOptions);
         }
 
-        private boolean validWsebVersion(HttpAcceptSession session) {
+        private boolean validateAcceptCommands(HttpAcceptSession session) {
+            String commands = session.getReadHeader("X-Accept-Commands");
+            if (commands != null && !"ping".equals(commands)) {
+               session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+               session.setReason("X-Accept-Commands header value is invalid: " + commands);
+               session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+               session.close(false);
+               return false;
+            }
+            return true;
+        }
+
+        private boolean validateSequenceNumber(HttpAcceptSession session) {
+            String sequenceHeader = session.getReadHeader("X-Sequence-No");
+            if (!specCompliant) {
+                return true;
+            }
+            boolean valid = sequenceHeader != null;
+            if (valid)
+            {
+                try {
+                    int sequence = Integer.parseInt(sequenceHeader);
+                    if (sequence < 0 || sequence > MAX_SEQUENCE_NUMBER) {
+                        valid = false;
+                    }
+                }
+                catch (NumberFormatException e) {
+                    valid = false;
+                }
+            }
+            if (!valid)
+            {
+               session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+               session.setReason("X-Sequence-Nop header missing or invalid");
+               session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+               session.close(false);
+            }
+            return valid;
+        }
+
+        private boolean validateWsebVersion(HttpAcceptSession session) {
             String wsebVersion = session.getReadHeader("X-WebSocket-Version");
+            if (specCompliant && wsebVersion == null) {
+                   session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
+                   session.setReason("X-WebSocket-Version header missing");
+                   session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                   session.close(false);
+                   return false;
+               }
             if (wsebVersion != null && !wsebVersion.equals(WSE_VERSION)) {
-                session.setStatus(HttpStatus.SERVER_NOT_IMPLEMENTED);
+                session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
                 session.setReason("WebSocket-Version not supported");
+                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
                 session.close(false);
                 return false;
             }

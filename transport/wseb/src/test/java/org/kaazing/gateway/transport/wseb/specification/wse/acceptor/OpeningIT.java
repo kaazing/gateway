@@ -111,7 +111,7 @@ public class OpeningIT {
 
     @Test
     @Specification("request.with.body/handshake.request")
-    public void shouldEstablishConnectionWithNonEmptyRequestBody() throws Exception {
+    public void serverShouldTolerateNonEmptyRequestBody() throws Exception {
         acceptor.bind("wse://localhost:8080/path", mockHandler());
         k3po.finish();
     }
@@ -131,58 +131,73 @@ public class OpeningIT {
     }
 
     @Test
-    @Specification("request.method.not.post/handshake.request")
-    public void shouldFailHandshakeWhenRequestMethodNotPost() throws Exception {
+    @Specification("request.method.get/handshake.request")
+    public void serverShouldTolerateRequestMethodGet() throws Exception {
         acceptor.bind("wse://localhost:8080/path", mockHandler());
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("request.method.not.post.or.get/handshake.request")
+    public void shouldFailHandshakeWhenRequestMethodNotPostOrGet() throws Exception {
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.sequence.number.missing/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsMissing() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.sequence.number.negative/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNegative() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.sequence.number.non.integer/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNotInteger() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.sequence.number.out.of.range/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsOutOfRange() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.websocket.version.missing/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionMissing() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.websocket.version.not.wseb-1.0/handshake.request")
     public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionNotWseb10() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
     @Test
     @Specification("request.header.x.accept.commands.not.ping/handshake.request")
     public void shouldFailHandshakeWhenHeaderXAcceptCommandsNotPing() throws Exception {
-        acceptor.bind("wse://localhost:8080/path", mockHandler());
+        IoHandler handler = context.mock(IoHandler.class);
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 

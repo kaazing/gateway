@@ -37,7 +37,6 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
-import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.BridgeAcceptProcessor;
@@ -67,15 +66,12 @@ import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeT
 import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
-import org.kaazing.mina.core.future.DefaultWriteFutureEx;
-import org.kaazing.mina.core.future.WriteFutureEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.AbstractIoSessionEx;
 import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
-import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +144,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
-    private final Properties configuration;
+    private final boolean specCompliant;
 
     private final Runnable enqueueReconnectAndFlushTask = new Runnable() {
         @Override public void run() {
@@ -189,17 +185,17 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               Direction.BOTH,
               loginContext,
               extensions);
-        this.attachingWrite = new AtomicBoolean(false);
-        this.readSession = new AtomicReference<>();
-        this.pendingNewWriter = new AtomicReference<>();
-        this.timeout = new TimeoutCommand(this);
+        attachingWrite = new AtomicBoolean(false);
+        readSession = new AtomicReference<>();
+        pendingNewWriter = new AtomicReference<>();
+        timeout = new TimeoutCommand(this);
         this.clientIdleTimeout = clientIdleTimeout;
         this.inactivityTimeout = inactivityTimeout;
         this.validateSequenceNo = validateSequenceNo;
-        this.readerSequenceNo = sequenceNo+1;
-        this.writerSequenceNo = sequenceNo+1;
-        this.configuration = configuration;
-        this.transportSession = new TransportSession(this, processor);
+        readerSequenceNo = sequenceNo+1;
+        writerSequenceNo = sequenceNo+1;
+        specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
+        transportSession = new TransportSession(this, processor);
         transportSession.setHandler(transportHandler);
         closeTimeout = Utils.parseTimeInterval(WS_CLOSE_TIMEOUT.getProperty(configuration), TimeUnit.MILLISECONDS);
     }
@@ -641,7 +637,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         // attach now or attach after commit if header flush is required
         if (!longpoll(session)) {
 
-            boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
             if (specCompliant) {
                 // Conform to WSE specification. Do not write NOOP unless specifically requested by query parameters.
                 // Do not commit if this a WsebConnector session because that prevents the request headers from being
@@ -806,6 +801,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             // WsebAccept(Connect)Processor.remove (called from TransportSessionProcessor.remove)
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected void flushInternal(final WsebSession session) {
             if (cannotWrite(session)) {

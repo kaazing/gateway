@@ -98,6 +98,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private Properties configuration;
+    private boolean specCompliant;
 
     private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
@@ -129,6 +130,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     @Resource(name = "configuration")
     public void setConfiguration(Properties configuration) {
         this.configuration = configuration;
+        this.specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
     }
 
     @Resource(name = "resourceAddressFactory")
@@ -139,7 +141,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     @Override
     protected IoProcessorEx<WsebSession> initProcessor() {
-        return new WsebConnectProcessor(bridgeServiceFactory, logger, configuration);
+        return new WsebConnectProcessor(bridgeServiceFactory, logger, specCompliant);
     }
 
     @Override
@@ -242,7 +244,6 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 final HttpConnectSession httpSession = (HttpConnectSession) parent;
 
                 // WSE specification mandates use of POST method.
-                boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
                 if (specCompliant) {
                     httpSession.setMethod(HttpMethod.POST);
                     httpSession.setWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);

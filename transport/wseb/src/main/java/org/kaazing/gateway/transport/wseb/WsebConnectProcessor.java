@@ -60,18 +60,18 @@ import org.slf4j.Logger;
 class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private final Logger logger;
 
-    private final Properties configuration;
+    private final boolean specCompliant;
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
 
     private final WsebFrameCodecFilter wsebFraming = new WsebFrameCodecFilter(0, true);
     private final BridgeServiceFactory bridgeServiceFactory;
 
-    public WsebConnectProcessor(BridgeServiceFactory bridgeServiceFactory, Logger logger, Properties configuration) {
+    public WsebConnectProcessor(BridgeServiceFactory bridgeServiceFactory, Logger logger, boolean specCompliant) {
         super();
         this.bridgeServiceFactory = bridgeServiceFactory;
         this.logger = logger;
-        this.configuration = configuration;
+        this.specCompliant = specCompliant;
     }
 
     @Override
@@ -250,7 +250,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                     writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
                     writeSession.setWriteHeader(HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
 
-                    boolean specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
                     if (specCompliant) {
                         // WSE specification requires Content-type header on upstream requests
                         writeSession.setWriteHeader(HEADER_CONTENT_TYPE, "application/octet-stream");

@@ -83,14 +83,14 @@ public class DownstreamIT {
 
     @Test
     @Specification("binary/request.method.post/downstream.request")
-    public void shouldConnectWithDownstreamRequestMethodPost()
+    public void serverShouldTolerateDownstreamRequestMethodPost()
             throws Exception {
         k3po.finish();
     }
 
     @Test
     @Specification("binary/request.method.post.with.body/downstream.request")
-    public void shouldConnectWithDownstreamRequestMethodPostWithBody()
+    public void serverShouldTolerateDownstreamRequestMethodPostWithBody()
             throws Exception {
         k3po.finish();
     }
