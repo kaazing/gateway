@@ -331,12 +331,12 @@ public class GatewayManagementBeanImpl extends AbstractManagementBean
                     JSONArray jsonArray = new JSONArray();
 
                     for (String balanceeURI : balancees) {
-                        jsonArray.put(balanceeURI.toString());
+                        jsonArray.put(balanceeURI);
                     }
 
-                    jsonObj.put(uri.toString(), jsonArray);
+                    jsonObj.put(uri, jsonArray);
                 } else {
-                    jsonObj.put(uri.toString(), JSONObject.NULL);
+                    jsonObj.put(uri, JSONObject.NULL);
                 }
             }
         } catch (JSONException ex) {
