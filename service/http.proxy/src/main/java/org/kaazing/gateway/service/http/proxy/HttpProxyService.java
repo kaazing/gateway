@@ -26,6 +26,14 @@ import java.util.Iterator;
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
+    private static final String ACCEPT_PATH_IS_SLASH_ERROR_MESSAGE = "Please fix the gateway configuration file for service '"
+            + "%s'. Using accept URL '%s' ( empty path in accept must be a slash ) and connect URL '%s'."
+            + " Accept and connect must both either have trailing slashes," + " or both must not end in slashes.";
+    private static final String CONNECT_PATH_IS_SLASH_ERROR_MESSAGE = "Please fix the gateway configuration file for service '"
+            + "%s'. Using accept URL '%s' and connect URL '%s' ( empty path in connect must be a slash )."
+            + " Accept and connect must both either have trailing slashes," + " or both must not end in slashes.";
+    private static final String ACCEPT_CONNECT_ERROR_MESSAGE = "Please fix the gateway configuration file for service '%s"
+            + "'. Accept and connect must both either have trailing slashes," + " or both must not end in slashes.";
 
     @Override
     public String getType() {
@@ -54,16 +62,24 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         Iterator<URI> connectIterator = connectURIs.iterator();
 
         while (acceptIterator.hasNext() && connectIterator.hasNext()) {
-            String acceptPath = acceptIterator.next().getPath();
-            String connectPath = connectIterator.next().getPath();
-            boolean acceptPathEndsInSlash = acceptPath.endsWith("/");
-            boolean connectPathEndsInSlash = connectPath.endsWith("/");
+            URI acceptURI = acceptIterator.next();
+            URI connectURI = connectIterator.next();
+            String acceptPath = acceptURI.getPath();
+            String connectPath = connectURI.getPath();
+            boolean acceptPathIsSlash = "/".equals(acceptPath);
+            boolean connectPathIsSlash = "/".equals(connectPath);
+            boolean acceptPathNoTrailingSlash = !acceptPath.endsWith("/") && acceptPath.length() > 1;
+            boolean connectPathNoTrailingSlash = !connectPath.endsWith("/") && connectPath.length() > 1;
 
-            if (acceptPathEndsInSlash != connectPathEndsInSlash) {
+            if (acceptPathIsSlash && connectPathNoTrailingSlash) {
+                throw new IllegalArgumentException(String.format(ACCEPT_PATH_IS_SLASH_ERROR_MESSAGE,
+                        serviceContext.getServiceName(), acceptURI, connectURI));
+            } else if (acceptPathNoTrailingSlash && connectPathIsSlash) {
+                throw new IllegalArgumentException(String.format(CONNECT_PATH_IS_SLASH_ERROR_MESSAGE,
+                        serviceContext.getServiceName(), acceptURI, connectURI));
+            } else if (acceptPathNoTrailingSlash != connectPathNoTrailingSlash) {
                 throw new IllegalArgumentException(
-                        "Please fix the gateway configuration file for service '" + serviceContext.getServiceName()
-                                + "'. Accept and connect must both either have trailing slashes,"
-                                + " or both must not end in slashes.");
+                        String.format(ACCEPT_CONNECT_ERROR_MESSAGE, serviceContext.getServiceName()));
             }
         }
     }
