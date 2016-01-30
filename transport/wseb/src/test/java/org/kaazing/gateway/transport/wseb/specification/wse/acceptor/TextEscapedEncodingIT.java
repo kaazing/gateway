@@ -34,7 +34,7 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 
 public class TextEscapedEncodingIT {
 
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/data/binary.as.escaped.text");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/text.escaped.encoding");
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -58,16 +58,42 @@ public class TextEscapedEncodingIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
     @Test
-    @Specification({"echo.payload.length.0/request", "echo.payload.length.0/response"})
-    public void shouldEchoFrameWithPayloadLength0() throws Exception {
+    @Specification("echo.escaped.characters/request")
+    public void shouldEchoEscapedCharacters() throws Exception {
         k3po.finish();
     }
 
     @Test
-    @Specification({"echo.payload.length.127/request"})
-    public void shouldEchoFrameWithPayloadLength127() throws Exception {
+    @Specification("echo.binary.payload.all.byte.values/request")
+    public void shouldEchoBinaryFrameWithAllByteValues() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("echo.binary.with.fragmented.encoded.byte/request")
+    public void shouldEchoBinaryWithFragmentedEncodedByte() throws Exception {
+        k3po.start();
+        Thread.sleep(1000);
+        k3po.notifyBarrier("WRITE_SECOND_FRAGMENT");
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("echo.binary.with.fragmented.escaped.byte/request")
+    public void shouldEchoBinaryWithFragmentedEscapedByte() throws Exception {
+        k3po.start();
+        Thread.sleep(1000);
+        k3po.notifyBarrier("WRITE_SECOND_FRAGMENT");
+        k3po.finish();
+    }
+
+    @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
+    @Test
+    @Specification({
+        "echo.binary.payload.length.0/request",
+        "echo.binary.payload.length.0/response" })
+    public void shouldEchoFrameWithPayloadLength0() throws Exception {
         k3po.finish();
     }
 
