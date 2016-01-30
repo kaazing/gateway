@@ -21,7 +21,6 @@ import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -60,7 +59,6 @@ public class UpstreamIT {
     @Rule
     public TestRule chain = RuleChain.outerRule(trace).around(timeout).around(k3po).around(gateway);
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("request.method.not.post/upstream.request")
     public void shouldCloseConnectionWhenUpstreamRequestMethodNotPost()
@@ -68,21 +66,27 @@ public class UpstreamIT {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
+    @Test
+    @Specification({
+        "response.status.code.not.200/upstream.request",
+        "response.status.code.not.200/upstream.response" })
+    public void shouldCloseConnectionWhenUpstreamStatusCodeNot200()
+            throws Exception {
+        k3po.finish();
+    }
+
     @Test
     @Specification("client.send.overlapping.request/upstream.request")
     public void shouldRejectParallelUpstreamRequest() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("request.out.of.order/upstream.request")
     public void shouldRejectOutOfOrderUpstreamRequest() throws Exception {
         k3po.finish();
     }
 
-    @Ignore("Server is not spec compliant")
     @Test
     @Specification("subsequent.request.out.of.order/request")
     public void shouldCloseConnectionWhenSubsequentUpstreamRequestIsOutOfOrder() throws Exception {

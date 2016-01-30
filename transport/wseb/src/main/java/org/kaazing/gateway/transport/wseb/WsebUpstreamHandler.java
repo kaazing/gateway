@@ -30,6 +30,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
@@ -77,6 +78,15 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (wsebSession == null || wsebSession.isClosing() && wsebSession.isCloseReceived()) {
             session.close(false);
             return;
+        }
+
+        if (!(HttpMethod.POST == session.getMethod())) {
+            wsebSession.setCloseException(
+                    new IOException("Unsupported downstream request method: " + session.getMethod()));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
         }
 
         IoFilterChain filterChain = session.getFilterChain();
@@ -165,8 +175,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // session is long lived so we do not want to close it when the http session is closed
 
         WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK
-                && !wsebSession.isClosing()) {
+        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
             wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
                     wsebSession.getCloseException()).fillInStackTrace());
         }

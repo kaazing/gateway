@@ -110,7 +110,9 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         WsebSession wsebSession = getSession(session);
         wsebSession.setCloseException(cause);
-
+        HttpStatus status = HttpStatus.SERVER_INTERNAL_ERROR;
+        session.setStatus(status);
+        session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
         session.close(true);
     }
 

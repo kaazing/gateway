@@ -17,10 +17,12 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.wseb.WsebDownstreamHandler.TIME_TO_TIMEOUT_RECONNECT_MILLIS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -445,7 +447,12 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         if (newReader instanceof HttpAcceptSession) {
             HttpAcceptSession newAcceptReader = (HttpAcceptSession) newReader;
             if (isReaderOutOfOrder(newAcceptReader)) {
-                closeSession(newAcceptReader);
+                setCloseException(
+                        new IOException("Unsupported downstream request method: " + session.getMethod()));
+                HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+                session.setStatus(status);
+                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                session.close(true);
                 return;
             }
         }
@@ -588,11 +595,11 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return false;
     }
 
-    private boolean isReaderOutOfOrder(HttpAcceptSession session) {
+    private boolean checkReaderOrder(HttpAcceptSession session) {
         if (validateSequenceNo) {
             return isOutOfOrder(session, readerSequenceNo);
         }
-        return false;
+        return true;
     }
 
     private boolean isOutOfOrder(HttpAcceptSession session, long expectedSequenceNo) {
