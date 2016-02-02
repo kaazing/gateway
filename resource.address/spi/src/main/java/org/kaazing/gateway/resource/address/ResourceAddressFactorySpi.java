@@ -28,11 +28,11 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_URI;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
-import static org.kaazing.gateway.resource.address.URIUtils.getPort;
-import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
-import static org.kaazing.gateway.resource.address.URIUtils.modifyURIPort;
-import static org.kaazing.gateway.resource.address.URIUtils.modifyURIScheme;
-import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIPort;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
 import java.net.URI;
 import java.util.Collection;

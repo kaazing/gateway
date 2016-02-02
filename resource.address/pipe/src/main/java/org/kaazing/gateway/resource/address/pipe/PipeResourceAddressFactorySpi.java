@@ -21,7 +21,7 @@ import java.net.URI;
 
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
-import org.kaazing.gateway.resource.address.URIUtils;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<PipeResourceAddress> {
 

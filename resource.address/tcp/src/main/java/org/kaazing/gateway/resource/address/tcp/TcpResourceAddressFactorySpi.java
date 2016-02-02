@@ -19,12 +19,12 @@ import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.URIUtils.getHost;
-import static org.kaazing.gateway.resource.address.URIUtils.getPort;
-import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.BIND_ADDRESS;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.TRANSPORT_NAME;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIAuthority;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;

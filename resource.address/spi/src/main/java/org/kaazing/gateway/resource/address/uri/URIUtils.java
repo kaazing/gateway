@@ -13,23 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.resource.address;
+package org.kaazing.gateway.resource.address.uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.kaazing.gateway.resource.address.uri.networkinterface.NetworkInterfaceURI;
+
 /**
- * Utils class over URI methods  
+ * Utils class over URI methods
  *
  */
-public class URIUtils {
+public final class URIUtils {
 
     /**
-     * Helper method for toString converstion 
+     * Helper method for toString conversion
      * @param uri
      * @return
      */
     public static String uriToString(URI uri) {
+         return uri.toString();
+     }
+
+    /**
+     * Helper method for toString conversion
+     * @param uri
+     * @return
+     */
+    public static String uriToString(NetworkInterfaceURI uri) {
          return uri.toString();
      }
 
@@ -39,7 +50,7 @@ public class URIUtils {
      * @return
      */
     public static String getHost(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getHost();
     }
 
@@ -49,7 +60,7 @@ public class URIUtils {
      * @return
      */
     public static String getScheme(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getScheme();
     }
 
@@ -59,7 +70,7 @@ public class URIUtils {
      * @return
      */
     public static String getAuthority(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getAuthority();
     }
 
@@ -69,7 +80,7 @@ public class URIUtils {
      * @return
      */
     public static String getFragment(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getFragment();
     }
 
@@ -79,7 +90,7 @@ public class URIUtils {
      * @return
      */
     public static String getPath(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getPath();
     }
 
@@ -89,7 +100,7 @@ public class URIUtils {
      * @return
      */
     public static String getQuery(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getQuery();
     }
 
@@ -99,8 +110,18 @@ public class URIUtils {
      * @return
      */
     public static int getPort(String uriString) {
-        URI uri = URI.create(uriString);
+        GenericURI uri = GenericURI.create(uriString);
         return uri.getPort();
+    }
+
+    /**
+     * Helper method for retrieving port
+     * @param uriString
+     * @return
+     */
+    public static String getUserInfo(String uriString) {
+        GenericURI uri = GenericURI.create(uriString);
+        return uri.getUserInfo();
     }
 
     /**
@@ -114,8 +135,26 @@ public class URIUtils {
      * @throws URISyntaxException
      */
     public static String buildURIAsString(String scheme, String authority, String path,
-    		String query, String fragment) throws URISyntaxException {
+            String query, String fragment) throws URISyntaxException {
         URI uri = new URI(scheme, authority, path, query, fragment);
+        return uri.toString();
+    }
+
+    /**
+     * Helper method for building URI as String
+     * @param scheme
+     * @param userInfo
+     * @param host
+     * @param port
+     * @param path
+     * @param query
+     * @param fragment
+     * @return
+     * @throws URISyntaxException
+     */
+    public static String buildURIAsString(String scheme, String userInfo,
+            String host, int port, String path, String query, String fragment) throws URISyntaxException {
+        URI uri = new URI(scheme, userInfo, host, port, path, query, fragment);
         return uri.toString();
     }
 
@@ -126,9 +165,8 @@ public class URIUtils {
      * @return
      */
     public static String resolve(String uriInitial, String uriString) {
-        URI baseURI = URI.create(uriInitial);
-        URI resolvedURI = baseURI.resolve(uriString);
-        return resolvedURI.toString();
+        GenericURI baseURI = GenericURI.create(uriInitial);
+        return baseURI.resolve(uriString);
     }
 
     /**
@@ -138,8 +176,8 @@ public class URIUtils {
      * @return
      */
     public static String modifyURIScheme(String uri, String newScheme) {
-        URI modifiedURI = URLUtils.modifyURIScheme(URI.create(uri), newScheme);
-        return modifiedURI.toString();
+        GenericURI baseURI = GenericURI.create(uri);
+        return baseURI.modifyURIScheme(newScheme);
     }
 
     /**
@@ -149,8 +187,8 @@ public class URIUtils {
      * @return
      */
     public static String modifyURIAuthority(String uri, String newAuthority) {
-        URI modifiedURI = URLUtils.modifyURIAuthority(URI.create(uri), newAuthority);
-        return modifiedURI.toString();
+        GenericURI baseURI = GenericURI.create(uri);
+        return baseURI.modifyURIAuthority(newAuthority);
     }
 
     /**
@@ -160,8 +198,8 @@ public class URIUtils {
      * @return
      */
     public static String modifyURIPort(String uri, int newPort) {
-        URI modifiedURI = URLUtils.modifyURIPort(URI.create(uri), newPort);
-        return modifiedURI.toString();
+        GenericURI baseURI = GenericURI.create(uri);
+        return baseURI.modifyURIPort(newPort);
     }
 
     /**
@@ -171,8 +209,8 @@ public class URIUtils {
      * @return
      */
     public static String modifyURIPath(String uri, String newPath) {
-        URI modifiedURI = URLUtils.modifyURIPath(URI.create(uri), newPath);
-        return modifiedURI.toString();
+        GenericURI baseURI = GenericURI.create(uri);
+        return baseURI.modifyURIPath(newPath);
     }
 
 }

@@ -19,8 +19,8 @@ import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
-import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
-import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
 import java.util.Collections;
 import java.util.HashMap;

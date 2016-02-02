@@ -15,10 +15,10 @@
  */
 package org.kaazing.gateway.resource.address;
 
-import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
-import static org.kaazing.gateway.resource.address.URIUtils.getPath;
-import static org.kaazing.gateway.resource.address.URIUtils.modifyURIAuthority;
-import static org.kaazing.gateway.resource.address.URIUtils.modifyURIPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIPath;
 
 import java.net.URI;
 import java.util.ArrayList;

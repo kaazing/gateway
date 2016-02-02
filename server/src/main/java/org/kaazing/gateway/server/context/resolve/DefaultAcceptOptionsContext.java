@@ -16,12 +16,12 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import static java.lang.String.format;
-import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
-import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
-import static org.kaazing.gateway.resource.address.URIUtils.getFragment;
-import static org.kaazing.gateway.resource.address.URIUtils.getPath;
-import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
-import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.service.TransportOptionNames.HTTP_SERVER_HEADER_ENABLED;
 import static org.kaazing.gateway.service.TransportOptionNames.PIPE_TRANSPORT;
 import static org.kaazing.gateway.service.TransportOptionNames.SSL_CIPHERS;

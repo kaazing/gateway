@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public final class Comparators {
 
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);

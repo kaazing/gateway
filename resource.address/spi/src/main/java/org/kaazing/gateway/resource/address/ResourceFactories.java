@@ -17,6 +17,8 @@ package org.kaazing.gateway.resource.address;
 
 import static java.lang.String.format;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public class ResourceFactories {
 
     private ResourceFactories() {

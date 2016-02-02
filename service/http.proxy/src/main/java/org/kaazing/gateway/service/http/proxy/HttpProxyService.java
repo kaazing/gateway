@@ -18,7 +18,7 @@ package org.kaazing.gateway.service.http.proxy;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.kaazing.gateway.resource.address.URIUtils;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 

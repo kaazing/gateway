@@ -15,9 +15,9 @@
  */
 package org.kaazing.gateway.server.service;
 
-import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
-import static org.kaazing.gateway.resource.address.URIUtils.getFragment;
-import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getFragment;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 
 import java.net.URI;
 import java.util.Collection;

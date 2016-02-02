@@ -15,11 +15,11 @@
  */
 package org.kaazing.gateway.service.http.balancer;
 
-import static org.kaazing.gateway.resource.address.URIUtils.buildURIAsString;
-import static org.kaazing.gateway.resource.address.URIUtils.getAuthority;
-import static org.kaazing.gateway.resource.address.URIUtils.getPath;
-import static org.kaazing.gateway.resource.address.URIUtils.getQuery;
-import static org.kaazing.gateway.resource.address.URIUtils.getScheme;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.buildURIAsString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getAuthority;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 
 import java.net.URI;
 import java.util.ArrayList;

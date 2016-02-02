@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public final class TestResourceAddressFactorySpi extends ResourceAddressFactorySpi<TestResourceAddress> {
 
 

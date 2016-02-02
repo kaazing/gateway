@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.mina.core.session.IoSession;
-import org.kaazing.gateway.resource.address.URIUtils;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.ServiceProperties;

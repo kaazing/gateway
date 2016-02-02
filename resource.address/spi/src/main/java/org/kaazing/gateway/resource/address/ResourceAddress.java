@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+
 public abstract class ResourceAddress extends SocketAddress implements ResourceOptions {
 
     private static final long serialVersionUID = 1L;

@@ -15,7 +15,7 @@
  */
 package org.kaazing.gateway.server.service;
 
-import static org.kaazing.gateway.resource.address.URIUtils.getPath;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
 
 import java.net.URI;
 import java.util.ArrayList;

@@ -15,9 +15,9 @@
  */
 package org.kaazing.gateway.service.broadcast;
 
-import static org.kaazing.gateway.resource.address.URIUtils.getHost;
-import static org.kaazing.gateway.resource.address.URIUtils.getPort;
-import static org.kaazing.gateway.resource.address.URIUtils.uriToString;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
+import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
 import java.io.File;
 import java.io.IOException;

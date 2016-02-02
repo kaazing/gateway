@@ -44,8 +44,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.future.WriteFuture;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.http.GatewayHttpOriginSecurity;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpStatus;

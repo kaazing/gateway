@@ -39,8 +39,8 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOption;
-import org.kaazing.gateway.resource.address.URIUtils;
 import org.kaazing.gateway.resource.address.ssl.SslResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class HttpsResourceAddressFactorySpiTest {
 
