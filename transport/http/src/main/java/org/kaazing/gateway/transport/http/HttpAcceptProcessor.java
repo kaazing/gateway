@@ -48,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSession> {
-    
+
     private static final IoFutureListener<CommitFuture> WRITE_RESUMER = new WriteResumer();
     private static final IoFutureListener<CommitFuture> UPGRADER = new Upgrader();
 
@@ -226,6 +226,9 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
 
     @Override
     protected void consume(DefaultHttpSession session) {
+        if (session.isReadSuspended()) {
+            return;
+        }
         // TODO: this should use a queue in the future
         IoBufferEx buffer = session.getCurrentReadRequest();
         if (buffer != null && buffer.hasRemaining()) {

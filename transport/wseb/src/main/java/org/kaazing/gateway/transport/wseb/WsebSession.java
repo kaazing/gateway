@@ -291,8 +291,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 if (newWriter instanceof HttpAcceptSession) {
                     HttpAcceptSession newAcceptWriter = (HttpAcceptSession) newWriter;
                     // check if the writer is out of order
-                    if (isLongPollingOutOfOrder(newAcceptWriter) || isWriterOutOfOrder(newAcceptWriter)) {
-                        closeSession(newAcceptWriter);
+                    if (!checkLongPollingOrder(newAcceptWriter) || !checkWriterOrder(newAcceptWriter)) {
                         return;
                     }
                     writeNoop((HttpAcceptSession) newWriter);
@@ -416,12 +415,16 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (ALIGN_UPSTREAM) {
                 final Thread ioThread = getIoThread();
                 final Executor ioExecutor = getIoExecutor();
+                // Prevent messageReceived from being fired from setIoAlignment and racing ahead of attachReader0
+                newReader.suspendRead();
                 newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
                 ioExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         newReader.setIoAlignment(ioThread, ioExecutor);
                         attachReader0(newReader);
+                        // now allow messageReceived to fire if data is available
+                        newReader.resumeRead();
                     }
                 });
             }
@@ -446,18 +449,24 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         // TODO: needs re-alignment similar to attachWriter
         if (newReader instanceof HttpAcceptSession) {
             HttpAcceptSession newAcceptReader = (HttpAcceptSession) newReader;
-            if (isReaderOutOfOrder(newAcceptReader)) {
-                setCloseException(
-                        new IOException("Unsupported downstream request method: " + session.getMethod()));
-                HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
-                session.setStatus(status);
-                session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
-                session.close(true);
+            if (!checkReaderOrder(newAcceptReader)) {
                 return;
             }
         }
 
         readerSequenceNo++;
+        IoSessionEx oldReader = readSession.get();
+        if (oldReader != null && !oldReader.isClosing() && oldReader instanceof HttpAcceptSession) {
+            // Overlapping upstream, forbidden
+            String message = String.format("Overlapping upstream request");
+            setCloseException(new IOException(message));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            HttpAcceptSession newAcceptReader = (HttpAcceptSession) newReader;
+            newAcceptReader.setStatus(status);
+            newAcceptReader.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            newAcceptReader.close(true);
+            return;
+        }
         readSession.set(newReader);
         if (this.isReadSuspended()) {
             newReader.suspendRead();
@@ -588,34 +597,35 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     }
 
-    private boolean isWriterOutOfOrder(HttpAcceptSession session) {
+    private boolean checkWriterOrder(HttpAcceptSession session) {
         if (validateSequenceNo) {
-            return isOutOfOrder(session, writerSequenceNo);
-        }
-        return false;
-    }
-
-    private boolean checkReaderOrder(HttpAcceptSession session) {
-        if (validateSequenceNo) {
-            return isOutOfOrder(session, readerSequenceNo);
+            return checkOrder(session, writerSequenceNo);
         }
         return true;
     }
 
-    private boolean isOutOfOrder(HttpAcceptSession session, long expectedSequenceNo) {
+    private boolean checkReaderOrder(HttpAcceptSession session) {
+        if (validateSequenceNo) {
+            return checkOrder(session, readerSequenceNo);
+        }
+        return true;
+    }
+
+    private boolean checkOrder(HttpAcceptSession session, long expectedSequenceNo) {
         String sequenceNo = session.getReadHeader(HttpHeaders.HEADER_X_SEQUENCE_NO);
 
         if (sequenceNo == null || expectedSequenceNo != Long.parseLong(sequenceNo)) {
-            if (LOGGER.isDebugEnabled()) {
-                String logStr = String.format("Closing HTTP session [HTTP#%d], WSEB session [WSEB#%d] as an " +
-                                "out of order request is received (expected seq no=%d, got=%s)", session.getId(),
-                        this.getId(), expectedSequenceNo, sequenceNo);
-                LOGGER.debug(logStr);
-            }
-            return true;
+            String message = String.format("Out of order request: expected seq no=%d, got=%s",
+                    expectedSequenceNo, sequenceNo);
+            setCloseException(new IOException(message));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     boolean isCloseReceived() {
@@ -739,21 +749,17 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     // When sequence no are not used (for e.g old clients) and
     // If the first write request is long-polling, then it is out of order
-    private boolean isLongPollingOutOfOrder(HttpAcceptSession session) {
+    private boolean checkLongPollingOrder(HttpAcceptSession session) {
         if (firstWriter && !validateSequenceNo && longpoll(session)) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("Closing HTTP session [HTTP#%d], WSEB session [WSEB#%d] as " +
-                        "long-polling request is out of order", session.getId(), this.getId()));
-            }
-            return true;
+            String message = String.format("Out of order long-polling request, must not be first");
+            setCloseException(new IOException(message));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
+            return false;
         }
-        return false;
-    }
-
-    private void closeSession(HttpAcceptSession session) {
-        session.setStatus(HttpStatus.CLIENT_BAD_REQUEST);
-        session.close(false);
-        this.reset(new Exception("Out of order HTTP requests in WSEB").fillInStackTrace());
+        return true;
     }
 
     long nextReaderSequenceNo() {

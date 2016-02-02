@@ -82,7 +82,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
         if (!(HttpMethod.POST == session.getMethod())) {
             wsebSession.setCloseException(
-                    new IOException("Unsupported downstream request method: " + session.getMethod()));
+                    new IOException("Unsupported upstream request method: " + session.getMethod()));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);
             session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");

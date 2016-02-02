@@ -57,7 +57,7 @@ public class UpstreamIT {
     };
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(timeout).around(k3po).around(gateway);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(timeout);
 
     @Test
     @Specification("request.method.not.post/upstream.request")
@@ -66,11 +66,9 @@ public class UpstreamIT {
         k3po.finish();
     }
 
-    @Test
-    @Specification({
-        "response.status.code.not.200/upstream.request",
-        "response.status.code.not.200/upstream.response" })
-    public void shouldCloseConnectionWhenUpstreamStatusCodeNot200()
+    // Client test only
+    @Specification("response.status.code.not.200/upstream.request")
+    void shouldCloseConnectionWhenUpstreamStatusCodeNot200()
             throws Exception {
         k3po.finish();
     }
@@ -79,6 +77,7 @@ public class UpstreamIT {
     @Specification("client.send.overlapping.request/upstream.request")
     public void shouldRejectParallelUpstreamRequest() throws Exception {
         k3po.finish();
+        throw new Exception("TODO: fix the script so this is actually testing the right thing");
     }
 
     @Test
