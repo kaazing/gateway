@@ -77,7 +77,6 @@ public class UpstreamIT {
     @Specification("client.send.overlapping.request/upstream.request")
     public void shouldRejectParallelUpstreamRequest() throws Exception {
         k3po.finish();
-        throw new Exception("TODO: fix the script so this is actually testing the right thing");
     }
 
     @Test
