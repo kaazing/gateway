@@ -986,7 +986,7 @@
 
                     <element maxOccurs="1" minOccurs="0"
                              name="properties"
-                             type="gateway:ServicePropertiesType"/>
+                             type="gateway:httpProxyServicePropertiesType"/>
 
                     <element maxOccurs="1" minOccurs="0"
                              name="accept-options"
@@ -1512,6 +1512,114 @@
                         <annotation/>
                     </element>
                 </all>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="httpProxyServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element name="rewrite-location" maxOccurs="1" minOccurs="0" default="enabled">
+                        <annotation>
+                            <documentation>Specifies whether the proxied server's HTTP Location header needs to be
+                                rewritten.
+                            </documentation>
+                        </annotation>
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="disabled"/>
+                                <enumeration value="enabled"/>
+                                <whiteSpace value="collapse"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+
+                    <element name="location-mapping" maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>Specifies the HTTP Location header mapping. If a proxied server returns
+                                a Location header in its response, it will be rewritten as per this mapping.
+                            </documentation>
+                        </annotation>
+                        <complexType>
+                            <complexContent>
+                                <restriction base="gateway:ServicePropertiesType">
+                                    <sequence>
+                                        <element name="from" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                        <element name="to" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                    </sequence>
+                                </restriction>
+                            </complexContent>
+                        </complexType>
+                    </element>
+
+                    <element name="rewrite-cookie-domain" maxOccurs="1" minOccurs="0" default="disabled">
+                        <annotation>
+                            <documentation>Specifies whether the proxied server's domain attribute in Set-Cookie header
+                                needs to be rewritten.
+                            </documentation>
+                        </annotation>
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="disabled"/>
+                                <enumeration value="enabled"/>
+                                <whiteSpace value="collapse"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+
+                    <element name="cookie-domain-mapping" maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>Specifies the mapping for domain attribute in Set-Cookie header. If a
+                                proxied server returns a Set-Cookie header with domain attribute, it will be rewritten
+                                as per this mapping.
+                            </documentation>
+                        </annotation>
+                        <complexType>
+                            <complexContent>
+                                <restriction base="gateway:ServicePropertiesType">
+                                    <sequence>
+                                        <element name="from" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                        <element name="to" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                    </sequence>
+                                </restriction>
+                            </complexContent>
+                        </complexType>
+                    </element>
+
+                    <element name="rewrite-cookie-path" maxOccurs="1" minOccurs="0" default="disabled">
+                        <annotation>
+                            <documentation>Specifies the mapping for path attribute in Set-Cookie header. If a
+                                proxied server returns a Set-Cookie header with path attribute, it will be rewritten
+                                as per this mapping.
+                            </documentation>
+                        </annotation>
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="disabled"/>
+                                <enumeration value="enabled"/>
+                                <whiteSpace value="collapse"/>
+                            </restriction>
+                        </simpleType>
+                    </element>
+
+                    <element name="cookie-path-mapping" maxOccurs="unbounded" minOccurs="0">
+                        <annotation>
+                            <documentation>TODO
+                            </documentation>
+                        </annotation>
+                        <complexType>
+                            <complexContent>
+                                <restriction base="gateway:ServicePropertiesType">
+                                    <sequence>
+                                        <element name="from" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                        <element name="to" maxOccurs="1" minOccurs="1" type="gateway:CollapsedString" />
+                                    </sequence>
+                                </restriction>
+                            </complexContent>
+                        </complexType>
+                    </element>
+                </sequence>
             </restriction>
         </complexContent>
     </complexType>
