@@ -177,7 +177,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         WsebSession wsebSession = getSession(session);
         if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
             wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
-                    wsebSession.getCloseException()).fillInStackTrace());
+                    wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
     }
 

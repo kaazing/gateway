@@ -81,6 +81,7 @@ import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
+@SuppressWarnings("deprecation")
 public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private static final String CREATE_SUFFIX = WsebAcceptor.EMULATED_SUFFIX + "/cb";
@@ -447,20 +448,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     };
 
-    /**
-     * Method setting resolver options for upstream/downstream resource addresses
-     * @param wsebSessionIdentity
-     * @param suffix
-     * @return
-     */
-    private ResourceOptions createResolverOptions(String wsebSessionIdentity, String suffix) {
-        final IdentityResolver resolver = new FixedIdentityResolver(wsebSessionIdentity + suffix);
-        ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
-        options.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
-        return options;
-    }
-
-     private IoHandler selectReadHandler(ResourceAddress readAddress) {
+    private IoHandler selectReadHandler(ResourceAddress readAddress) {
             Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(readAddress.getResource());
             if ( protocol instanceof HttpProtocol ) {
                 return readHandler;
@@ -511,7 +499,6 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             }
 
             WsMessage wsebMessage = (WsMessage) message;
-            IoBufferEx messageBytes = wsebMessage.getBytes();
             IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
 
             switch (wsebMessage.getKind()) {
@@ -569,7 +556,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             if (wsebSession != null && readSession.getStatus() != HttpStatus.SUCCESS_OK) {
                 wsebSession.reset(
                         new IOException("Network connectivity has been lost or transport was closed at other end",
-                                wsebSession.getCloseException()).fillInStackTrace());
+                                wsebSession.getAndClearCloseException()).fillInStackTrace());
             }
         }
     };

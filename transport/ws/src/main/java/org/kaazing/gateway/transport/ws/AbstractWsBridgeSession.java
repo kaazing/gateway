@@ -204,6 +204,13 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
         return closeException;
     }
 
+    // Use this to prevent multiple reporting of the close exception
+    public Throwable getAndClearCloseException() {
+        Throwable result = closeException;
+        closeException = null;
+        return result;
+    }
+
     public void setCloseException(Throwable t) {
         this.closeException = t;
     }
