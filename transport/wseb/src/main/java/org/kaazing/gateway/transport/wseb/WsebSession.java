@@ -779,6 +779,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (cannotWrite(session)) {
                 // can't do close handshake
                 session.getTransportSession().close(true);
+                return;
             }
             WsCloseMessage closeMessage = WsCloseMessage.NORMAL_CLOSE;
             if (logger.isDebugEnabled()) {

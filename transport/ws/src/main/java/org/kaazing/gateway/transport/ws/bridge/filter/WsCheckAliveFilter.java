@@ -213,8 +213,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 if (filterChain.contains(WsAcceptor.CLOSE_FILTER)) {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
-
-                session.close(true);
+                IoSession sessionToClose = wsSession != null ? wsSession : session;
+                sessionToClose.close(true);
                 break;
             case PING:
                 writePing(nextFilter, session);
