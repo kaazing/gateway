@@ -20,21 +20,60 @@ package org.kaazing.gateway.resource.address.uri.networkinterface;
  *
  */
 public class NetworkInterfaceParser {
+    private String host;
+    private String scheme;
+    private int port;
+    private String authority;
+    private String fragment;
+    private String query;
+    private String path;
+    private String userInfo;
 
     /**
      * Constructor for NetworkInterfaceParser
      * @param uri
      */
     public NetworkInterfaceParser(String uri) {
-        // TODO Auto-generated constructor stub
+        parse();
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public String getFragment() {
+        return fragment;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getUserInfo() {
+        return userInfo;
     }
 
     /**
      * Parse method performing NetworkInterfaceURI parsing
      */
-    public void parse() {
+    private final void parse() {
         // TODO Auto-generated method stub
         
     }
-
 }

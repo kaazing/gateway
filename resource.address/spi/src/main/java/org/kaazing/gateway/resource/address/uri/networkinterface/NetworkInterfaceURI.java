@@ -22,9 +22,26 @@ import org.kaazing.gateway.resource.address.uri.URIAccessor;
  *
  */
 public class NetworkInterfaceURI implements URIAccessor {
+    private String host;
+    private String scheme;
+    private int port;
+    private String authority;
+    private String fragment;
+    private String query;
+    private String path;
+    private String userInfo;
+    private NetworkInterfaceParser parser;
 
     public NetworkInterfaceURI(String uri) {
-        new NetworkInterfaceParser(uri).parse();
+        parser = new NetworkInterfaceParser(uri);
+        host = parser.getHost();
+        scheme = parser.getScheme();
+        port = parser.getPort();
+        authority = parser.getAuthority();
+        fragment = parser.getFragment();
+        query = parser.getQuery();
+        path = parser.getPath();
+        userInfo = parser.getUserInfo();
     }
 
     public static NetworkInterfaceURI create(String str) {
@@ -37,50 +54,42 @@ public class NetworkInterfaceURI implements URIAccessor {
 
     @Override
     public String getHost() {
-        // TODO Auto-generated method stub
-        return null;
+        return host;
     }
 
     @Override
     public String getScheme() {
-        // TODO Auto-generated method stub
-        return null;
+        return scheme;
     }
 
     @Override
     public String getAuthority() {
-        // TODO Auto-generated method stub
-        return null;
+        return authority;
     }
 
     @Override
     public String getFragment() {
-        // TODO Auto-generated method stub
-        return null;
+        return fragment;
     }
 
     @Override
     public String getPath() {
-        // TODO Auto-generated method stub
-        return null;
+        return path;
     }
 
     @Override
     public String getQuery() {
-        // TODO Auto-generated method stub
-        return null;
+        return query;
     }
 
     @Override
     public int getPort() {
-        // TODO Auto-generated method stub
-        return 0;
+        return port;
     }
 
     @Override
     public String getUserInfo() {
-        // TODO Auto-generated method stub
-        return null;
+        return userInfo;
     }
 
     @Override
@@ -91,27 +100,37 @@ public class NetworkInterfaceURI implements URIAccessor {
 
     @Override
     public String modifyURIScheme(String newScheme) {
-        // TODO Auto-generated method stub
-        return null;
+        return buildURIFromTokens(newScheme, host, port, path, query, fragment);
     }
 
     @Override
     public String modifyURIAuthority(String newAuthority) {
-        // TODO Auto-generated method stub
-        return null;
+        return buildURIFromTokens(scheme, newAuthority, path, query, fragment);
     }
 
     @Override
     public String modifyURIPort(int newPort) {
-        // TODO Auto-generated method stub
-        return null;
+        return buildURIFromTokens(scheme, host, newPort, path, query, fragment);
     }
 
     @Override
     public String modifyURIPath(String newPath) {
-        // TODO Auto-generated method stub
-        return null;
+        return buildURIFromTokens(scheme, host, port, newPath, query, fragment);
     }
 
+    //TODO: Check whether algorithm is correct with java.net.URI
+    private String buildURIFromTokens(String scheme, String host, int port, String path,
+            String query, String fragment) {
+        return scheme + "://" + host + ":" + port + "/" + path +
+                (query != null ? "?" + query : "") +
+                (fragment != null ? "#" + fragment : "");
+    }
 
+    //TODO: Check whether algorithm is correct with java.net.URI
+    private String buildURIFromTokens(String scheme, String authority, String path,
+            String query, String fragment) {
+        return scheme + "://" + authority + "/" + path +
+                (query != null ? "?" + query : "") +
+                (fragment != null ? "#" + fragment : "");
+    }
 }
