@@ -19,7 +19,7 @@ package org.kaazing.gateway.resource.address.uri;
  * Interface for describing URI accessors API
  *
  */
-public interface URIAccessors {
+public interface URIAccessor {
     /**
      * Method retrieving host
      * @return
@@ -62,7 +62,7 @@ public interface URIAccessors {
      * @return
      */
     int getPort();
-    
+
     /**
      * Method retrieving user info
      * @return

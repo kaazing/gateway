@@ -15,13 +15,13 @@
  */
 package org.kaazing.gateway.resource.address.uri.networkinterface;
 
-import org.kaazing.gateway.resource.address.uri.URIAccessors;
+import org.kaazing.gateway.resource.address.uri.URIAccessor;
 
 /**
  * Class performing logic similar to java.net.URI class which supports network interface syntax
  *
  */
-public class NetworkInterfaceURI implements URIAccessors {
+public class NetworkInterfaceURI implements URIAccessor {
 
     public NetworkInterfaceURI(String uri) {
         new NetworkInterfaceParser(uri).parse();

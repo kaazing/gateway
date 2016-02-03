@@ -15,22 +15,24 @@
  */
 package org.kaazing.gateway.resource.address.uri;
 
+import java.net.URI;
+
+import org.kaazing.gateway.resource.address.URLUtils;
 
 /**
  * Class which is a wrapper either for URI, or for NetworkInterfaceURI
  *
  */
-public class GenericURI implements URIAccessor {
+public class URIWrapper implements URIAccessor {
 
-    private URIAccessor uri;
+    private URI uri;
 
-    public GenericURI(String uriString) {
-        URIAccessorFactory factory = new URIAccessorFactory();
-        uri = factory.makeURIAccessor(uriString);
+    public URIWrapper(String uriString) {
+        uri = URI.create(uriString);
     }
 
-    public static GenericURI create(String uriString) {
-        return new GenericURI(uriString);
+    public static URIWrapper create(String uriString) {
+        return new URIWrapper(uriString);
     }
 
     @Override
@@ -75,26 +77,31 @@ public class GenericURI implements URIAccessor {
 
     @Override
     public String resolve(String uriString) {
-            return uri.resolve(uriString);
+        URI resolvedURI = uri.resolve(uriString);
+        return URIUtils.uriToString(resolvedURI);
     }
 
     @Override
     public String modifyURIScheme(String newScheme) {
-        return uri.modifyURIScheme(newScheme);
+        URI modifiedURIScheme = URLUtils.modifyURIScheme(uri, newScheme);
+        return URIUtils.uriToString(modifiedURIScheme);
     }
 
     @Override
     public String modifyURIAuthority(String newAuthority) {
-        return uri.modifyURIAuthority(newAuthority);
+        URI modifiedURIAuthority = URLUtils.modifyURIAuthority(uri, newAuthority);
+        return URIUtils.uriToString(modifiedURIAuthority);
     }
 
     @Override
     public String modifyURIPort(int newPort) {
-        return uri.modifyURIPort(newPort);
+        URI modifiedURIPort = URLUtils.modifyURIPort(uri, newPort);
+        return URIUtils.uriToString(modifiedURIPort);
     }
 
     @Override
     public String modifyURIPath(String newPath) {
-        return uri.modifyURIPath(newPath);
+        URI modifiedURIPath = URLUtils.modifyURIPath(uri, newPath);
+        return URIUtils.uriToString(modifiedURIPath);
     }
 }
