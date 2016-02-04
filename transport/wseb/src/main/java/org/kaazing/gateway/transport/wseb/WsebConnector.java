@@ -32,10 +32,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 import javax.security.auth.Subject;
@@ -94,8 +92,6 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
 
-    private final Map<ResourceAddress, WsebSession> sessionMap;
-
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory resourceAddressFactory;
     private Properties configuration;
@@ -115,7 +111,6 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     public WsebConnector() {
         super(new DefaultIoSessionConfigEx());
-        sessionMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -258,6 +253,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 }
                 httpSession.setWriteHeader(HEADER_X_ACCEPT_COMMANDS, "ping");
                 httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(sequenceNo));
+
+                // Avoid default to httpxe for efficiency (single http transport layer at other end)
+                httpSession.setWriteHeader(HttpHeaders.HEADER_X_NEXT_PROTOCOL, "wse/1.0");
+
                 final IoBufferAllocatorEx<WsBuffer> allocator = new WsebBufferAllocator(httpSession.getBufferAllocator());
 
                 // factory to create a new bridge session
@@ -315,16 +314,6 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             wsebSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
                 @Override
                 public void operationComplete(CloseFuture future) {
-                    ResourceAddress readAddress = wsebSession.getReadAddress();
-                    if (readAddress != null) {
-                        sessionMap.remove(readAddress);
-                    }
-
-                    ResourceAddress writeAddress = wsebSession.getWriteAddress();
-                    if (writeAddress != null) {
-                        sessionMap.remove(writeAddress);
-                    }
-
                     currentSessionIdleTracker.get().removeSession(wsebSession);
 
                     // handle exception during create response
@@ -384,16 +373,16 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 wsebSession.setWriteAddress(writeAddress);
                 wsebSession.setReadAddress(readAddress);
 
-                sessionMap.put(writeAddress, wsebSession);
-                sessionMap.put(readAddress, wsebSession);
-
                 // attach downstream for read
                 final BridgeConnector bridgeConnector = bridgeServiceFactory.newBridgeConnector(readAddress);
-                bridgeConnector.connect(readAddress, selectReadHandler(readAddress), new IoSessionInitializer<ConnectFuture>() {
+                bridgeConnector.connect(readAddress, selectReadHandler(readAddress, wsebSession), new IoSessionInitializer<ConnectFuture>() {
                     @Override
                     public void initializeSession(IoSession ioSession, ConnectFuture connectFuture) {
                         HttpSession httpSession = (HttpSession) ioSession;
                         httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextReaderSequenceNo()));
+
+                        // Avoid default to httpxe for efficiency (single http transport layer at other end)
+                        httpSession.setWriteHeader(HttpHeaders.HEADER_X_NEXT_PROTOCOL, "wse/1.0");
                     }
                 });
 
@@ -448,15 +437,21 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     };
 
-    private IoHandler selectReadHandler(ResourceAddress readAddress) {
+    private IoHandler selectReadHandler(ResourceAddress readAddress, WsebSession session) {
             Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(readAddress.getResource());
             if ( protocol instanceof HttpProtocol ) {
-                return readHandler;
+                return new ReadHandler(session);
             }
             throw new RuntimeException("Cannot select read handler for address "+readAddress);
         }
 
-    private IoHandler readHandler = new IoHandlerAdapter<HttpSession>() {
+    private final class ReadHandler extends IoHandlerAdapter<HttpSession> {
+        private final WsebSession wsebSession;
+
+        ReadHandler(WsebSession wsebSession) {
+            this.wsebSession = wsebSession;
+        }
+
         @Override
         protected void doSessionCreated(HttpSession readSession) throws Exception {
             addBridgeFilters(readSession.getFilterChain());
@@ -467,29 +462,17 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         protected void doSessionOpened(HttpSession readSession) throws Exception {
             IoFilterChain filterChain = readSession.getFilterChain();
             filterChain.addLast(CODEC_FILTER, new WsebFrameCodecFilter(0, true));
-
-            ResourceAddress readAddress = readSession.getRemoteAddress();
-            final WsebSession wsebSession = sessionMap.get(readAddress);
-            assert (wsebSession != null);
             wsebSession.attachReader(readSession);
 
             // Activate inactivity timeout only once read session is established
             // We need a session idle tracker to handle ws close handshake, even if ws.inactivity.timeout is not set
             currentSessionIdleTracker.get().addSession(wsebSession);
 
-            readSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
-                @Override
-                public void operationComplete(CloseFuture future) {
-                    wsebSession.close(true);
-                }
-            });
         }
 
         @Override
         protected void doMessageReceived(HttpSession readSession, Object message) throws Exception {
             ResourceAddress readAddress = REMOTE_ADDRESS.get(readSession);
-            WsebSession wsebSession = sessionMap.get(readAddress);
-
             // handle parallel closure of WSE session during streaming read
             if (wsebSession == null) {
                 if (logger.isDebugEnabled()) {
@@ -504,12 +487,12 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             switch (wsebMessage.getKind()) {
             case COMMAND:
                 for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {
-                    if (command == Command.reconnect()) {
+                    if (command == Command.reconnect() && !wsebSession.isClosing()) {
                         // received a RECONNECT command
                         wsebSession.detachReader(readSession);
                         // re-attach downstream for read
                         final BridgeConnector bridgeConnector = bridgeServiceFactory.newBridgeConnector(readAddress);
-                        bridgeConnector.connect(readAddress, selectReadHandler(readAddress), null);
+                        bridgeConnector.connect(readAddress, selectReadHandler(readAddress, wsebSession), null);
                         break;
                     }
                     else if (command == Command.close()) {
@@ -529,34 +512,20 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
         @Override
         protected void doExceptionCaught(HttpSession readSession, Throwable cause) throws Exception {
-            ResourceAddress readAddress = REMOTE_ADDRESS.get(readSession);
-            WsebSession wsebSession = sessionMap.get(readAddress);
-            if (wsebSession != null) {
-                wsebSession.setCloseException(cause);
-                if (logger.isDebugEnabled()) {
-                    String message = format("Error on WebSocket WSE connection: %s", cause);
-                    if (logger.isTraceEnabled()) {
-                        // note: still debug level, but with extra detail about the exception
-                        logger.debug(message, cause);
-                    }
-                    else {
-                        logger.debug(message);
-                    }
-                }
-            }
+            wsebSession.setCloseException(cause);
             readSession.close(true);
         }
 
-
         @Override
         protected void doSessionClosed(HttpSession readSession) throws Exception {
-            ResourceAddress readAddress = readSession.getLocalAddress();
-            WsebSession wsebSession = sessionMap.get(readAddress);
-
-            if (wsebSession != null && readSession.getStatus() != HttpStatus.SUCCESS_OK) {
+            if (readSession.getStatus() != HttpStatus.SUCCESS_OK
+                                        || wsebSession.getCloseException() != null) {
                 wsebSession.reset(
                         new IOException("Network connectivity has been lost or transport was closed at other end",
                                 wsebSession.getAndClearCloseException()).fillInStackTrace());
+            }
+            else {
+                wsebSession.close(true);
             }
         }
     };

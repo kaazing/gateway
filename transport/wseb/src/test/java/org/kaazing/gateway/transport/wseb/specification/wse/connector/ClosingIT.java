@@ -19,7 +19,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.future.CloseFuture;
@@ -28,7 +31,6 @@ import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.ComparisonFailure;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -42,9 +44,11 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ClosingIT {
+    private static final Set<String> EMPTY_STRING_SET = Collections.emptySet();
 
     private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/closing");
 
@@ -117,6 +121,9 @@ public class ClosingIT {
         connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
         k3po.finish();
+
+        // Check no exceptions occurred
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
     }
 
 
@@ -170,10 +177,13 @@ public class ClosingIT {
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         CloseFuture closeFuture = connectSession.getCloseFuture();
-        assertTrue(closed.await(4, SECONDS));
+        assertTrue(closed.await(3, SECONDS));
         assertTrue(closeFuture.isClosed());
 
         k3po.finish();
+
+        // Check no exceptions occurred
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
     }
 
     // Server only test, not applicable to clients

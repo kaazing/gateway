@@ -15,14 +15,11 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static java.lang.String.format;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_TRANSFER_ENCODING;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_SEQUENCE_NO;
 
 import java.io.IOException;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
@@ -42,9 +39,11 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpConnectProcessor;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
+import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.WsMessage.Kind;
@@ -57,6 +56,7 @@ import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.kaazing.mina.core.write.WriteRequestEx;
 import org.slf4j.Logger;
 
+@SuppressWarnings("deprecation")
 class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
     private final Logger logger;
 
@@ -229,7 +229,7 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         if (session.compareAndSetAttachingWrite(false, true)) {
             BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(writeAddress);
             ConnectFuture connectFuture =
-                    connector.connect(writeAddress, writeHandler,
+                    connector.connect(writeAddress, new WriteHandler(session),
                             selectTransportSessionInitializer(session, writeAddress)
                     );
 
@@ -247,8 +247,12 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
                 public void initializeSession(IoSession session, ConnectFuture future) {
                     HttpConnectSession writeSession = (HttpConnectSession) session;
                     writeSession.setMethod(HttpMethod.POST);
-                    writeSession.setWriteHeader(HEADER_CONTENT_LENGTH, Long.toString(Long.MAX_VALUE));
+                    writeSession.setWriteHeader(HEADER_TRANSFER_ENCODING, "chunked");
                     writeSession.setWriteHeader(HEADER_X_SEQUENCE_NO, Long.toString(wsebSession.nextWriterSequenceNo()));
+
+                    // Avoid default to httpxe for efficiency (single http transport layer at other end)
+                    // and to allowed chunking to work (does not currently work with httpxe)
+                    writeSession.setWriteHeader(HttpHeaders.HEADER_X_NEXT_PROTOCOL, "wse/1.0");
 
                     if (specCompliant) {
                         // WSE specification requires Content-type header on upstream requests
@@ -328,22 +332,26 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
         }
     }
 
-    private final IoHandlerAdapter<HttpSession> writeHandler = new IoHandlerAdapter<HttpSession>() {
+    private final class WriteHandler extends IoHandlerAdapter<HttpSession> {
+        private final WsebSession wsebSession;
+
+        WriteHandler(WsebSession wsebSession) {
+            this.wsebSession = wsebSession;
+        }
+
         @Override
         protected void doExceptionCaught(HttpSession session, Throwable cause) throws Exception {
-            // Does not appear to be an easy way to access the wsebSession and it might not be the upstream's
-            // job anyhow.  If we get an exception fired here we will log one line unless trace is enabled.
-            if (logger.isDebugEnabled()) {
-                String message = format("Exception while handling HTTP upstream for WseConnectProcessor: %s", cause);
-                if (logger.isTraceEnabled()) {
-                    // note: still debug level, but with extra detail about the exception
-                    logger.debug(message, cause);
-                }
-                else {
-                    logger.debug(message);
-                }
-            }
+            wsebSession.setCloseException(cause);
             session.close(true);
+        }
+
+        @Override
+        protected void doSessionClosed(HttpSession session) throws Exception {
+            if (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null) {
+                wsebSession.reset(
+                        new IOException("Network connectivity has been lost or transport was closed at other end",
+                                wsebSession.getAndClearCloseException()).fillInStackTrace());
+            }
         }
     };
 }

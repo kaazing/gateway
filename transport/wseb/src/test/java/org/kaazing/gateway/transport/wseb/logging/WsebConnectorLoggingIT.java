@@ -239,4 +239,43 @@ public class WsebConnectorLoggingIT {
         forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
     }
 
+    @Test
+    @Specification("closing/server.send.close/response")
+    public void shouldLogOpenAndCleanServerClose() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+
+        WsebSession connectSession = (WsebSession) connectFuture.getSession();
+        connectSession.getCloseFuture().await();
+        k3po.finish();
+
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.* [^/]*:\\d*] OPENED",
+            "tcp#.* [^/]*:\\d*] WRITE",
+            "tcp#.* [^/]*:\\d*] RECEIVED",
+            "tcp#.* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#.* [^/]*:\\d*] OPENED",
+            "http#.* [^/]*:\\d*] WRITE",
+            "http#.* [^/]*:\\d*] RECEIVED",
+            "http#.* [^/]*:\\d*] CLOSED",
+            "wseb#.* [^/]*:\\d*] OPENED",
+            "wseb#.* [^/]*:\\d*] CLOSED"
+        }));
+
+        forbiddenPatterns = Arrays.asList("#.*EXCEPTION");
+    }
+
 }
