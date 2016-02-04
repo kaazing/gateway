@@ -15,7 +15,7 @@
 #
 
 
-connect http://localhost:8110/acceptConfigPath/../../example/../jsp/num/file.html
+connect http://localhost:8110/a/../../example/../jsp/num/file.html
 connected
 
 write method "GET"

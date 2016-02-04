@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static java.lang.String.format;
+
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
@@ -26,6 +28,7 @@ import java.util.Iterator;
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
+    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
 
     @Override
     public String getType() {
@@ -50,21 +53,19 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
         Collection<URI> acceptURIs = serviceContext.getAccepts();
         Collection<URI> connectURIs = serviceContext.getConnects();
-        Iterator<URI> acceptIterator = acceptURIs.iterator();
-        Iterator<URI> connectIterator = connectURIs.iterator();
 
-        while (acceptIterator.hasNext() && connectIterator.hasNext()) {
-            String acceptPath = acceptIterator.next().getPath();
-            String connectPath = connectIterator.next().getPath();
-            boolean acceptPathEndsInSlash = acceptPath.endsWith("/");
-            boolean connectPathEndsInSlash = connectPath.endsWith("/");
+        assert acceptURIs.size() == 1;
+        assert connectURIs.size() == 1;
 
-            if (acceptPathEndsInSlash != connectPathEndsInSlash) {
-                throw new IllegalArgumentException(
-                        "Please fix the gateway configuration file for service '" + serviceContext.getServiceName()
-                                + "'. Accept and connect must both either have trailing slashes,"
-                                + " or both must not end in slashes.");
-            }
+        URI acceptURI = acceptURIs.iterator().next();
+        URI connectURI = connectURIs.iterator().next();
+        String acceptPath = acceptURI.getPath();
+        String connectPath = connectURI.getPath();
+
+        boolean acceptPathIsSlash = acceptPath.endsWith("/");
+        boolean connectPathIsSlash = connectPath.endsWith("/");
+        if (acceptPathIsSlash ^ connectPathIsSlash) {
+            throw new IllegalArgumentException(format(TRAILING_SLASH_ERROR, acceptURI, connectURI));
         }
     }
 
