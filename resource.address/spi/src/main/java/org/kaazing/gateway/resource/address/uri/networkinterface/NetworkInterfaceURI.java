@@ -15,6 +15,11 @@
  */
 package org.kaazing.gateway.resource.address.uri.networkinterface;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.kaazing.gateway.resource.address.uri.URIAccessor;
 
 /**
@@ -22,32 +27,59 @@ import org.kaazing.gateway.resource.address.uri.URIAccessor;
  *
  */
 public class NetworkInterfaceURI implements URIAccessor {
-    private String host;
-    private String scheme;
-    private int port;
-    private String authority;
-    private String fragment;
-    private String query;
-    private String path;
-    private String userInfo;
-    private NetworkInterfaceParser parser;
 
-    public NetworkInterfaceURI(String uri) {
-        parser = new NetworkInterfaceParser(uri);
-        host = parser.getHost();
-        scheme = parser.getScheme();
-        port = parser.getPort();
-        authority = parser.getAuthority();
-        fragment = parser.getFragment();
-        query = parser.getQuery();
-        path = parser.getPath();
-        userInfo = parser.getUserInfo();
+    private static final String HOST_TEMPLATE = "localhost";
+
+    private URI mockNetworkInterfaceURI;
+
+    // -- Properties and components of this instance -- similar to java.net.URI
+
+    // Components of all URIs: [<scheme>:]<scheme-specific-part>[#<fragment>]
+    private String scheme;            // null ==> relative URI
+    private String fragment;
+
+    // Hierarchical URI components: [//<authority>]<path>[?<query>]
+    private String authority;         // Registry or server
+
+    // Server-based authority: [<userInfo>@]<host>[:<port>]
+    private String userInfo;
+    private String host;              // null ==> registry-based
+    private int port = -1;            // -1 ==> undefined
+
+    // Remaining components of hierarchical URIs
+    private String path;              // null ==> opaque
+    private String query;
+
+    public NetworkInterfaceURI(String uri) throws NetworkInterfaceSyntaxException {
+        Parser parser = new Parser(uri);
+        parser.parse();
+    }
+
+    public static String buildURIToString(String scheme, String authority, String path, String query, String fragment) {
+        URI helperURI = null;
+        try {
+            helperURI = new URI(scheme, HOST_TEMPLATE, path, query, fragment);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+        return helperURI.toString().replace(HOST_TEMPLATE, authority);
+    }
+
+    public static String buildURIToString(String scheme, String userInfo, String host, int port, String path, String query,
+            String fragment) {
+        URI helperURI = null;
+        try {
+            helperURI = new URI(scheme, userInfo, HOST_TEMPLATE, port, path, query, fragment);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+        return helperURI.toString().replace(HOST_TEMPLATE, host);
     }
 
     public static NetworkInterfaceURI create(String str) {
         try {
             return new NetworkInterfaceURI(str);
-        } catch (IllegalArgumentException x) {
+        } catch (NetworkInterfaceSyntaxException x) {
             throw new IllegalArgumentException(x.getMessage(), x);
         }
     }
@@ -116,6 +148,48 @@ public class NetworkInterfaceURI implements URIAccessor {
     @Override
     public String modifyURIPath(String newPath) {
         return buildURIFromTokens(scheme, host, port, newPath, query, fragment);
+    }
+
+   /**
+    * Parser performing NetworkInterfaceSyntax validation and String tokens extraction
+    *
+    */
+    private class Parser {
+        private String uri;
+        private String matchedToken;
+
+        public Parser(String uri) {
+            this.uri = uri;
+        }
+
+        /**
+         * Method performing parsing
+         */
+        private void parse() throws NetworkInterfaceSyntaxException {
+            if (!uri.startsWith("tcp://") && !uri.startsWith("udp://")) {
+                throw new NetworkInterfaceSyntaxException("Network interface URI syntax should only"
+                        + "be applicable for tcp and udp schemes");
+            }
+            Pattern pattern = Pattern.compile("(\\[+@[a-zA-Z0-9 ]*\\]+)");
+            Matcher matcher = pattern.matcher(uri);
+            if (!matcher.find()) {
+                throw new NetworkInterfaceSyntaxException("Invalid network interface URI syntax");
+            }
+            matchedToken = matcher.group(0);
+            mockNetworkInterfaceURI = URI.create(uri.replace(matchedToken, HOST_TEMPLATE));
+            populateUriDataFromMockInterfaceURI();
+        }
+
+        private void populateUriDataFromMockInterfaceURI() {
+            scheme = mockNetworkInterfaceURI.getScheme();
+            fragment = mockNetworkInterfaceURI.getFragment();
+            authority = mockNetworkInterfaceURI.getAuthority().replace(HOST_TEMPLATE, matchedToken);
+            userInfo = mockNetworkInterfaceURI.getUserInfo();
+            host = mockNetworkInterfaceURI.getHost().replace(HOST_TEMPLATE, matchedToken);
+            port = mockNetworkInterfaceURI.getPort();
+            path = mockNetworkInterfaceURI.getPath();
+            query = mockNetworkInterfaceURI.getQuery();
+        }
     }
 
     //TODO: Check whether algorithm is correct with java.net.URI

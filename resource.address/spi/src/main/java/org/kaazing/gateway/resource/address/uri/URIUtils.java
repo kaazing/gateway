@@ -136,8 +136,7 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String authority, String path,
             String query, String fragment) throws URISyntaxException {
-        URI uri = new URI(scheme, authority, path, query, fragment);
-        return uri.toString();
+        return GenericURI.buildURIToString(scheme, authority, path, query, fragment);
     }
 
     /**
@@ -154,8 +153,7 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String userInfo,
             String host, int port, String path, String query, String fragment) throws URISyntaxException {
-        URI uri = new URI(scheme, userInfo, host, port, path, query, fragment);
-        return uri.toString();
+        return GenericURI.buildURIToString(scheme, userInfo, host, port, path, query, fragment);
     }
 
     /**
