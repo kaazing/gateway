@@ -16,6 +16,7 @@
 package org.kaazing.gateway.server.context.resolve;
 
 import com.hazelcast.core.IdGenerator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import org.kaazing.gateway.server.messaging.buffer.MemoryMessageBufferFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
 import org.kaazing.gateway.service.cluster.ClusterConnectOptionsContext;
@@ -211,6 +213,11 @@ public class StandaloneClusterContext implements ClusterContext {
 
     @Override
     public void logClusterState() {
+        // no cluster state to log for standalone
+    }
+
+    @Override
+    public void logClusterStateAtInfoLevel() {
         // no cluster state to log for standalone
     }
 

@@ -33,4 +33,9 @@ class WsnBalancerServiceHandler extends IoHandlerAdapter<WsnSession> {
         session.close(true);
     }
 
+    @Override
+    protected void doSessionOpened(WsnSession session) throws Exception {
+        session.close(false);
+    }
+
 }
