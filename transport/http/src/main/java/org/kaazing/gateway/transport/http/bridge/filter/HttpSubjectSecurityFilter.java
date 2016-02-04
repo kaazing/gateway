@@ -74,8 +74,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public static final String AUTH_SCHEME_BASIC = "Basic";
     public static final String AUTH_SCHEME_NEGOTIATE = "Negotiate";
 
-    private static final String HEADER_FORWARDED_REMOTE_IP_ADDRESS = "for=%s";
-
     static final AttributeKey NEW_SESSION_COOKIE_KEY = new AttributeKey(HttpSubjectSecurityFilter.class, "sessionCookie");
 
     private final AuthorizationMap authorizationMap;
@@ -152,12 +150,12 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     private Map<String, String> parseForwardedInfo(String forwarded) {
         Map<String, String> forwardedHeaderInfo = new HashMap<String, String>();
         if (forwarded != null) {
-            String[] components = forwarded.split(";");
-            for (String forwardedComponent : components) {
-                String[] componentNameValuePair = forwardedComponent.split("=");
-                String componentName = componentNameValuePair[0].trim();
-                String componentValue = componentNameValuePair[1].trim();
-                forwardedHeaderInfo.put(componentName, componentValue);
+            String[] forwardedPairLists = forwarded.split(";"); 
+            for (String forwardedPairList : forwardedPairLists) {
+                String[] forwardedPairs = forwardedPairList.split(",");
+                String[] nameValue = forwardedPairs[0].split("=");
+                String name = nameValue[0].trim();
+                forwardedHeaderInfo.put(name, forwardedPairList.trim());
             }
         }
         return forwardedHeaderInfo;
@@ -213,14 +211,19 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
                                     String headerValue,
                                     String xHeaderName,
                                     HttpRequestMessage httpRequest) {
-        String forwarded = headerValue;
+        String forwarded = format("%s=%s", headerKey, headerValue);
         String forwardedReceived = forwardedNameValue.get(headerKey);
         String xForwarded = httpRequest.getHeader(xHeaderName);
         if (forwardedReceived != null) {
-            forwarded = forwardedReceived + ", " + headerValue;
+            forwarded = forwardedReceived + ", " + forwarded;
         } else {
             if (xForwarded != null) {
-                forwarded = xForwarded + ", " + headerValue;
+                String[] values = xForwarded.split(",");
+                String computedXforwarded = format("%s=%s", headerKey, values[0]);
+                for (int i = 1; i < values.length; i++) {
+                    computedXforwarded = computedXforwarded + ", " + format("%s=%s", headerKey, values[i].trim());
+                }
+                forwarded = computedXforwarded + ", " + forwarded;
             }
         }
         forwardedNameValue.put(headerKey, forwarded);
@@ -234,10 +237,11 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     }
 
     private String forwardedHeader(Map<String, String> fwNV) {
-        String fw = "";
+        StringBuilder fw = new StringBuilder();
         for (Map.Entry<String, String> entry : fwNV.entrySet()) {
-            fw += entry.getKey() + "=" + entry.getValue() + "; ";
+            fw.append(entry.getValue() + "; ");
         }
+
         return fw.substring(0, fw.length() - 2);
     }
 
