@@ -375,11 +375,16 @@ public class Gateway {
     private void appendAccepts(ServiceType newService, ServiceConfiguration service) {
         // accepts
         Set<URI> accepts = service.getAccepts();
-        if (!accepts.isEmpty()) {
-            String[] newAccepts = new String[accepts.size()];
+        Set<String> stringAccepts = service.getStringAccepts();
+
+        if (!accepts.isEmpty() || !stringAccepts.isEmpty()) {
+            String[] newAccepts = new String[accepts.size() + stringAccepts.size()];
             int i = 0;
             for (URI accept : accepts) {
                 newAccepts[i++] = accept.toASCIIString();
+            }
+            for (String stringAccept : stringAccepts) {
+                newAccepts[i++] = stringAccept;
             }
             newService.setAcceptArray(newAccepts);
         }
@@ -550,10 +555,15 @@ public class Gateway {
         }
         ClusterType newCluster = gatewayConfig.addNewCluster();
         Collection<URI> accepts = cluster.getAccepts();
+        Collection<String> stringAccepts = cluster.getStringAccepts();
         Collection<URI> connects = cluster.getConnects();
 
         for (URI accept : accepts) {
             newCluster.addAccept(accept.toASCIIString());
+        }
+
+        for (String accept : stringAccepts) {
+            newCluster.addAccept(accept);
         }
 
         for (URI connect : connects) {

@@ -36,6 +36,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     private final Set<Suppressible<URI>> balances;
     private final Set<Suppressible<URI>> accepts;
+    private final Set<Suppressible<String>> stringAccepts;
     private final Map<String, Suppressible<String>> acceptOptions;
     private final Set<Suppressible<URI>> connects;
     private final Map<String, Suppressible<String>> connectOptions;
@@ -49,6 +50,7 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
     private final Map<String, Suppressible<String>> properties;
     private final Map<String, String> unsuppressibleProperties;
     private final List<NestedServicePropertiesConfiguration> nestedProperties;
+    private final Set<String> unsuppressibleStringAccepts;
 
     public ServiceConfiguration() {
         _configuration = new SuppressibleServiceConfigurationImpl();
@@ -59,6 +61,9 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
         accepts = new HashSet<>();
         unsuppressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
+
+        stringAccepts = new HashSet<>();
+        unsuppressibleStringAccepts = Suppressibles.unsuppressibleSet(stringAccepts);
 
         acceptOptions = new HashMap<>();
         unsuppressibleAcceptOptions = Suppressibles.unsuppressibleMap(acceptOptions);
@@ -105,6 +110,10 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
 
     public Set<URI> getAccepts() {
         return unsuppressibleAccepts;
+    }
+
+    public Set<String> getStringAccepts() {
+        return unsuppressibleStringAccepts;
     }
 
     // balance
@@ -237,8 +246,18 @@ public class ServiceConfiguration implements Configuration<SuppressibleServiceCo
         }
 
         @Override
+        public Set<Suppressible<String>> getStringAccepts() {
+            return stringAccepts;
+        }
+
+        @Override
         public void addAccept(Suppressible<URI> acceptURI) {
             accepts.add(acceptURI);
+        }
+
+        @Override
+        public void addStringAccept(Suppressible<String> acceptURI) {
+            stringAccepts.add(acceptURI);
         }
 
         @Override

@@ -17,6 +17,7 @@ package org.kaazing.gateway.resource.address;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class URLUtils {
@@ -52,7 +53,8 @@ public class URLUtils {
         String path = uri.getPath();
         String query = uri.getQuery();
         String fragment = uri.getFragment();
-
+        List<String> authorities = ResolutionUtils.resolveInterfaceAuthorityToAuthorityList(newAuthority, true);
+        newAuthority = authorities.get(0);
         try {
             return new URI(scheme, newAuthority, path, query, fragment);
         } catch (URISyntaxException x) {

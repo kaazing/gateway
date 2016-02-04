@@ -25,6 +25,8 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
 
     private final Set<Suppressible<URI>> accepts;
     private final Set<URI> unsurpressibleAccepts;
+    private Set<Suppressible<String>> stringAccepts;
+    private final Set<String> unsurpressibleStringAccepts;
     private final Set<Suppressible<URI>> connects;
     private final Set<URI> unsurpressibleConnects;
 
@@ -38,6 +40,8 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
 
         accepts = new HashSet<>();
         unsurpressibleAccepts = Suppressibles.unsuppressibleSet(accepts);
+        stringAccepts = new HashSet<>();
+        unsurpressibleStringAccepts = Suppressibles.unsuppressibleSet(stringAccepts);
         connects = new HashSet<>();
         unsurpressibleConnects = Suppressibles.unsuppressibleSet(connects);
     }
@@ -59,6 +63,10 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
 
     public Set<URI> getAccepts() {
         return unsurpressibleAccepts;
+    }
+
+    public Set<String> getStringAccepts() {
+        return unsurpressibleStringAccepts;
     }
 
     // connect
@@ -171,8 +179,19 @@ public class ClusterConfiguration implements Configuration<SuppressibleClusterCo
         }
 
         @Override
+        public Set<Suppressible<String>> getStringAccepts() {
+            return stringAccepts;
+        }
+
+        @Override
         public void addAccept(Suppressible<URI> accept) {
             accepts.add(accept);
         }
+
+        @Override
+        public void addStringAccept(Suppressible<String> accept) {
+            stringAccepts.add(accept);
+        }
+
     }
 }

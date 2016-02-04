@@ -32,6 +32,7 @@ import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -148,7 +149,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
-        return addresses.get(0);
+        if (addresses.size() > 0) {
+            return addresses.get(0);
+        }
+        return null;
     }
 
     protected void setAlternateOption(URI location,
@@ -231,7 +235,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
-        return addresses.get(0);
+        if (addresses.size() > 0) {
+            return addresses.get(0);
+        }
+        return null;
     }
 
     protected List<T> newResourceAddresses0(URI original, URI location, ResourceOptions options) {
@@ -251,23 +258,24 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     private void setOptions(T address, URI location, ResourceOptions options, Object qualifier) {
         // default the transport
         ResourceAddress transport = options.getOption(TRANSPORT);
-        URI transportURI = options.getOption(TRANSPORT_URI);
+        List<URI> transportURIs = options.getOption(TRANSPORT_URI);
 
         if (transport == null && addressFactory != null) {
             ResourceOptions newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
-            if (transportURI == null) {
+            if (transportURIs == null || transportURIs.size() == 0) {
                 ResourceFactory factory = getTransportFactory();
                 if (factory != null) {
-                    transportURI = factory.createURI(location);
-                    newOptions.setOption(TRANSPORT_URI, transportURI);
+                    transportURIs = transportURIs == null ?  new ArrayList<>() : transportURIs;
+                    transportURIs.add(factory.createURI(location));
+                    newOptions.setOption(TRANSPORT_URI, transportURIs);
                 }
             }
-            if (transportURI != null) {
+            else {
                 // TODO: make ResourceOptions hierarchical to provide options here?
                 ResourceOptions transportOptions = ResourceOptions.FACTORY.newResourceOptions();
                 transportOptions.setOption(NEXT_PROTOCOL, getProtocolName());
                 transportOptions.setOption(TRANSPORTED_URI, location);
-                transport = addressFactory.newResourceAddress(transportURI, transportOptions);
+                transport = addressFactory.newResourceAddress(transportURIs.get(0), transportOptions);
             }
 
             newOptions.setOption(TRANSPORT, transport);
@@ -354,15 +362,16 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(QUALIFIER, qualifier);
         }
 
-        URI transportURI = (URI) optionsByName.remove(TRANSPORT.name());
-        if (transportURI == null) {
+        List<URI> transportURIs = (List<URI>) optionsByName.remove(TRANSPORT.name());
+        if (transportURIs == null || transportURIs.size() == 0) {
+            transportURIs = transportURIs == null ?  new ArrayList<>() : transportURIs;
             ResourceFactory factory = getTransportFactory();
             if (factory != null) {
-                transportURI = factory.createURI(location);
+                transportURIs.add(factory.createURI(location));
             }
         }
-        if (transportURI != null) {
-            options.setOption(TRANSPORT_URI, transportURI);
+        if (transportURIs != null) {
+            options.setOption(TRANSPORT_URI, transportURIs);
         }
 
         ResourceAddress alternate = (ResourceAddress) optionsByName.remove(ALTERNATE.name());
@@ -395,13 +404,15 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
         // all address options consumed, now create transport address with options by name
         ResourceAddress transport = null;
-        if (transportURI != null && addressFactory != null) {
+        if (transportURIs != null && addressFactory != null) {
             String protocolName = getProtocolName();
             if (optionsByName == Collections.<String,Object>emptyMap()) {
                 optionsByName = new HashMap<>();
             }
             optionsByName.put(TRANSPORTED_URI.name(), location);
-            transport = addressFactory.newResourceAddress(transportURI, optionsByName, protocolName);
+            if (transportURIs.size() != 0) {
+                transport = addressFactory.newResourceAddress(transportURIs.get(0), optionsByName, protocolName);
+            }
         }
         if (transport != null) {
             options.setOption(TRANSPORT, transport);

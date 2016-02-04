@@ -41,6 +41,7 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.security.AuthenticationContext;
 import org.kaazing.gateway.security.CrossSiteConstraintContext;
@@ -95,6 +96,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class GatewayContextResolver {
+
     public static final String AUTHORIZATION_MODE_CHALLENGE = "challenge";
 
     /**
@@ -488,7 +490,7 @@ public class GatewayContextResolver {
             DefaultServiceProperties properties = parsePropertiesType(propertiesType);
 
             // default ports
-            Collection<URI> acceptURIs = resolveURIs(acceptStrings);
+            Collection<URI> acceptURIs = resolveURIWithInterfaces(acceptStrings);
             Collection<URI> balanceURIs = resolveURIs(balanceStrings);
             Collection<URI> connectURIs = resolveURIs(connectStrings);
 
@@ -721,6 +723,12 @@ public class GatewayContextResolver {
         }
     }
 
+    /**
+     * Method used for connect/balancer URIs resolving and also for accept resolving once reolution was done
+     * @param acceptURIs
+     * @return
+     * @throws URISyntaxException
+     */
     private Collection<URI> resolveURIs(String[] acceptURIs) throws URISyntaxException {
         Collection<URI> urisWithPort = new HashSet<>();
         for (String uri : acceptURIs) {
@@ -728,6 +736,37 @@ public class GatewayContextResolver {
             urisWithPort.add(resolvedURI);
         }
         return urisWithPort;
+    }
+
+    /**
+     * Method used for accepts resolution
+     * @param acceptURIs
+     * @return
+     * @throws URISyntaxException
+     */
+    private Collection<URI> resolveURIWithInterfaces(String[] acceptURIs) throws URISyntaxException {
+        List<String> resolvedURIs = new ArrayList<>();
+        for (String uri : acceptURIs) {
+            List<URI> resolvedURIStrings = ResolutionUtils.resolveStringUriToURIList(uri, true);
+            for (URI resolvedURI : resolvedURIStrings) {
+                resolvedURIs.add(resolvedURI.toString());
+            }
+        }
+        return resolveURIs(convertArrayListToArray(resolvedURIs));
+    }
+
+    /**
+     * Method converting string array to ArrayList
+     * @param resolvedURIs
+     * @return
+     */
+    private String[] convertArrayListToArray(List<String> resolvedURIs) {
+        String[] arrResolvedURIs = new String[resolvedURIs.size()];
+        int i = 0;
+        for (String resolvedURI : resolvedURIs) {
+            arrResolvedURIs[i++] = resolvedURI;
+        }
+        return arrResolvedURIs;
     }
 
     private URI resolveURI(URI uri) throws URISyntaxException {
@@ -804,34 +843,38 @@ public class GatewayContextResolver {
         List<MemberId> memberIds = new ArrayList<>();
         if (collection != null) {
             for (String member : collection) {
-                URI uri;
-                try {
-                    uri = getCanonicalURI(member, true);
-                } catch (IllegalArgumentException ex) {
-                    GL.error("ha", "Unrecognized {} url {} resulted in exception {}", processing, member, ex);
-                    throw new IllegalArgumentException("Invalid URL in the cluster configuration:" + member, ex);
-                }
-
-                String scheme = uri.getScheme();
-                if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
-                    int port = uri.getPort();
-                    if (port == -1) {
-                        GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
-                        throw new IllegalArgumentException("Invalid port number specified for " + processing + ": " + member);
-                    }
-                    String host = uri.getHost();
-                    if (scheme.equals("aws")) {
-                        // There should be ONLY one <connect></connect> tag with
-                        // aws:// scheme in the <cluster></cluster> tag for
-                        // AWS auto-discovery.
-                        validateAwsClusterDiscovery(uri, connectOptions, processing, clusterPort, collection.length);
+                List<URI> resolvedURIs = ResolutionUtils.resolveStringUriToURIList(member, false);
+                for (URI resolvedURI : resolvedURIs) {
+                    URI uri;
+                    try {
+                        uri = getCanonicalURI(resolvedURI, true);
+                    } catch (IllegalArgumentException ex) {
+                        GL.error("ha", "Unrecognized {} url {} resulted in exception {}", processing, member, ex);
+                        throw new IllegalArgumentException("Invalid URL in the cluster configuration:" + member, ex);
                     }
 
-                    memberIds.add(new MemberId(scheme, host, port, uri.getPath()));
-                } else {
-                    GL.error("ha", "Unrecognized scheme {} for {} in {}", uri.getScheme(), processing, member);
-                    throw new IllegalArgumentException("Invalid scheme " + uri.getScheme() + " in the URL for " + processing
-                            + " in " + member);
+                    String scheme = uri.getScheme();
+                    if ((scheme.equals("tcp")) || scheme.equals("udp") || scheme.equals("aws")) {
+                        int port = uri.getPort();
+                        if (port == -1) {
+                            GL.error("ha", "Port number is missing while processing {} for {}", processing, member);
+                            throw new IllegalArgumentException("Invalid port number specified for " + processing +
+                                    ": " + member);
+                        }
+                        String host = uri.getHost();
+                        if (scheme.equals("aws")) {
+                            // There should be ONLY one <connect></connect> tag with
+                            // aws:// scheme in the <cluster></cluster> tag for
+                            // AWS auto-discovery.
+                            validateAwsClusterDiscovery(uri, connectOptions, processing, clusterPort, collection.length);
+                        }
+
+                        memberIds.add(new MemberId(scheme, host, port, uri.getPath()));
+                    } else {
+                        GL.error("ha", "Unrecognized scheme {} for {} in {}", uri.getScheme(), processing, member);
+                        throw new IllegalArgumentException("Invalid scheme " + uri.getScheme() + " in the URL for " + processing
+                                + " in " + member);
+                    }
                 }
             }
         }
