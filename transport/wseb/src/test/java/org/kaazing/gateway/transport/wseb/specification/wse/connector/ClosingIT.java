@@ -169,7 +169,7 @@ public class ClosingIT {
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
-        CloseFuture closeFuture = connectSession.close(false);
+        CloseFuture closeFuture = connectSession.getCloseFuture();
         assertTrue(closed.await(4, SECONDS));
         assertTrue(closeFuture.isClosed());
 
