@@ -15,12 +15,16 @@
  */
 package org.kaazing.gateway.resource.address;
 
+import static java.util.Arrays.asList;
+
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -114,6 +118,27 @@ public final class ResolutionUtils {
     }
 
    /**
+    * Method resolving host to InetAddresses
+    * @param host
+    * @return
+    */
+   public static Collection<InetAddress> getAllByName(String host, boolean allowIPv6) {
+       Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
+       List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
+       List<InetAddress> resolvedDeviceURIs = new ArrayList<InetAddress>();
+       List<InetAddress> resolvedHosts = resolvedDeviceURIs;
+    for (String resolvedAddress : resolvedAddresses) {
+           try {
+            resolvedHosts.addAll(asList(InetAddress.getAllByName(resolvedAddress)));
+        } catch (UnknownHostException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+       }
+       return resolvedHosts;
+   }
+
+   /**
     * Method performing device address resolution
     * @param deviceName
     * @param networkInterfaces
@@ -131,7 +156,7 @@ public final class ResolutionUtils {
 
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
-            if (deviceName.equals(networkInterface.getDisplayName())) {
+            if (deviceName.equals(networkInterface.getDisplayName().toLowerCase())) {
                 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();
@@ -169,4 +194,5 @@ public final class ResolutionUtils {
        }
        return Collections.enumeration(clone);
    }
+
 }
