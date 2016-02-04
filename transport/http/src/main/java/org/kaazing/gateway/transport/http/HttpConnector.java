@@ -26,6 +26,7 @@ import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
@@ -102,7 +103,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
-        
+
         // note: content length adjustment filter is added dynamically for httpxe/1.1, and not needed by http/1.1
         Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol = new HashMap<>();
         connectFiltersByProtocol.put(PROTOCOL_HTTP_1_1, complementOf(of(CONTENT_LENGTH_ADJUSTMENT, PROTOCOL_HTTPXE)));
@@ -111,7 +112,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         this.allConnectFilters = allOf(HttpConnectFilter.class);
         this.persistentConnectionsStore = new PersistentConnectionPool(logger);
     }
-    
+
     @Resource(name = "bridgeServiceFactory")
     public void setBridgeServiceFactory(BridgeServiceFactory bridgeServiceFactory) {
         this.bridgeServiceFactory = bridgeServiceFactory;
@@ -354,7 +355,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
-            if (httpSession != null && !httpSession.isClosing()) {
+            if (httpSession != null && !httpSession.isClosing() &&
+                    !hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION))) {
             	httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 return;

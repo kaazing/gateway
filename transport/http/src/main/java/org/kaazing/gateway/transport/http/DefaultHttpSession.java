@@ -121,7 +121,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         writeHeaders = new LinkedHashMap<>();
         writeCookies = new HashSet<>();
-        status = HttpStatus.SUCCESS_OK;
+        status = direction == Direction.READ ? HttpStatus.SUCCESS_OK : null;
         reason = null;
 
         secure = SslUtils.isSecure(parent);
