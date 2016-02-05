@@ -505,7 +505,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 }
                 break;
             default:
-                filterChain.fireMessageReceived(wsebMessage);
+                // ignore data after CLOSE or RECONNECT commands
+                if (!wsebSession.isCloseReceived() && wsebSession.getReader() == readSession) {
+                    filterChain.fireMessageReceived(wsebMessage);
+                }
                 break;
             }
         }
