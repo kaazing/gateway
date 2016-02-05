@@ -19,6 +19,7 @@ package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.mina.core.service.IoHandler;
@@ -60,8 +61,21 @@ public class ControlIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
+    // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
             .around(timeoutRule);
+
+    // Server only test
+    @Specification("client.send.ping/response")
+    void shouldReplyClientPingWithPong() throws Exception {
+        k3po.finish();
+    }
+
+    // Server only test
+    @Specification("client.send.pong/response")
+    void shouldReceivePongFromClient() throws Exception {
+        k3po.finish();
+    }
 
     @Test
     @Specification("server.send.ping/response")
@@ -95,6 +109,20 @@ public class ControlIT {
         k3po.finish();
     }
 
+    // Server only test
+    @Specification("client.send.invalid.ping/response")
+    void shouldCloseConnectionOnReceivingInvalidPingFromClient()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Server only test
+    @Specification("client.send.invalid.pong/response")
+    void shouldCloseConnectionOnReceivingInvalidPongFromClient()
+            throws Exception {
+        k3po.finish();
+    }
+
     @Test
     @Specification("server.send.invalid.ping/response")
     public void shouldCloseConnectionOnReceivingInvalidPingFromServer() throws Exception {
@@ -104,6 +132,7 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -120,6 +149,7 @@ public class ControlIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -127,9 +157,23 @@ public class ControlIT {
         k3po.finish();
     }
 
-    @Test
+    // Server only test
+    @Specification("client.send.unexpected.ping/response")
+    void shouldCloseConnectionOnReceivingUnexpectedPingFromClient()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Server only Test
+    @Specification("client.send.unexpected.pong/response")
+    void shouldCloseConnectionOnReceivingUnexpectedPongFromClient()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Not relevant, WsebConnector always sets the  "X-Accept-Commands: ping" header
     @Specification("server.send.unexpected.ping/response")
-    public void shouldCloseConnectionOnReceivingUnexpectedPingFromServer() throws Exception {
+    void shouldCloseConnectionOnReceivingUnexpectedPingFromServer() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
@@ -143,9 +187,9 @@ public class ControlIT {
         k3po.finish();
     }
 
-    @Test
+    // Not relevant, WsebConnector always sets the  "X-Accept-Commands: ping" header
     @Specification("server.send.unexpected.pong/response")
-    public void shouldCloseConnectionOnReceivingUnexpectedPongFromServer() throws Exception {
+    void shouldCloseConnectionOnReceivingUnexpectedPongFromServer() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
