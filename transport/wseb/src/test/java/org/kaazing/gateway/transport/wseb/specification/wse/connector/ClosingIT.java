@@ -120,10 +120,10 @@ public class ClosingIT {
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
+
         k3po.finish();
 
-        // Check no exceptions occurred
-        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
+        assertNoExceptionsOccurred();
     }
 
 
@@ -147,7 +147,10 @@ public class ClosingIT {
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
         connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
+
         k3po.finish();
+
+        assertNoExceptionsOccurred();
     }
 
     // Server only test, not applicable to clients
@@ -182,8 +185,7 @@ public class ClosingIT {
 
         k3po.finish();
 
-        // Check no exceptions occurred
-        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
+        assertNoExceptionsOccurred();
     }
 
     // Server only test, not applicable to clients
@@ -215,7 +217,10 @@ public class ClosingIT {
         CloseFuture closeFuture = connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
         assertTrue(closeFuture.isClosed());
+
         k3po.finish();
+
+        assertNoExceptionsOccurred();
     }
 
     @Test
@@ -238,6 +243,14 @@ public class ClosingIT {
         CloseFuture closeFuture = connectSession.close(false);
         assertTrue(closed.await(4, SECONDS));
         assertTrue(closeFuture.isClosed());
+
         k3po.finish();
+
+        assertNoExceptionsOccurred();
+    }
+
+    private void assertNoExceptionsOccurred() {
+        // Check no exceptions occurred
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"EXCEPTION"}), null, false);
     }
 }
