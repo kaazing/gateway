@@ -68,7 +68,7 @@ public class BinaryIT {
             .setScriptRoot("org/kaazing/specification/wse/data");
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
             .around(timeoutRule);
 
     // This latch is only needed to work around gateway#345
