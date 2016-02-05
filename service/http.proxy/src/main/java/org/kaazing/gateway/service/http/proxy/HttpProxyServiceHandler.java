@@ -273,7 +273,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             serverIpAddress = resource.getHost();
         }
         if (serverIpAddress != null) {
-            setForwardedHeader(forwardedNameValue, "server", serverIpAddress, HEADER_X_FORWARDED_SERVER, acceptSession, connectSession);
+            setForwardedHeader(forwardedNameValue, "by", serverIpAddress, HEADER_X_FORWARDED_SERVER, acceptSession, connectSession);
         }
 
         String protocol = httpAddress.getExternalURI().getScheme();
