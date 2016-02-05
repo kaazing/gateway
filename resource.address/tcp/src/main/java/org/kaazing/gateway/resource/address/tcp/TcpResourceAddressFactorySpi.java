@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,6 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.kaazing.gateway.resource.address.NameResolver;
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
@@ -144,7 +146,11 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
                 host = matcher.group(1);
             }
 
-            Collection<InetAddress> inetAddresses = resolver.getAllByName(host);
+            Collection<InetAddress> inetAddresses = new ArrayList<>();
+            Collection<InetAddress> addresses = ResolutionUtils.getAllByName(host, true);
+            for (InetAddress address : addresses) {
+                inetAddresses.addAll(resolver.getAllByName(address.getHostAddress()));
+            }
             assert (!inetAddresses.isEmpty());
 
             // The returned collection appears to be unmodifiable, so first clone the list (ugh!)

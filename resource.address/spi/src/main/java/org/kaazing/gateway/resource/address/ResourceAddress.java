@@ -491,7 +491,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     if (wildcard != null) {
                         return wildcard.getAllByName(host);
                     }
-                    return ResolutionUtils.getAllByName(host, true);
+                    return asList(InetAddress.getAllByName(host));
                 }
             });
         }
