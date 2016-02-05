@@ -20,55 +20,70 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
+/**
+ * Class for testing preferIPv4Stack behavior
+ */
 public class ResourceAddressFactorySpiPreferIPV4Test {
-	@Before
-    public void setUp() {
-		System.setProperty("java.net.preferIPv4Stack" , "true");
-    }
 
-    @After
-    public void tearDown() {
-    	System.setProperty("java.net.preferIPv4Stack" , "false");
-    }
+    private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
 
     @Test
-    public void testEmptyCollection() {
-    	GatewayConfiguration gc = new GatewayConfigurationBuilder().
-    			service().
-    				name("echo").
-    				type("echo")
-    				.accept(URI.create("ws://[::1]:8000/echo/")).
-    			done().
-    		done();
+    public void testEmptyCollectionWithFlagTrue() {
+        // set the IPV4 flag
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
 
-    	Gateway gateway = new Gateway();
-    	
-    	try {
-    		gateway.start(gc);
-    		assertTrue("This should not be reached", false);
-    	} 
-    	catch (AssertionError e) {
-    		assertTrue(false); 
-    	}
-    	catch (Exception e) {
-    		assertTrue(
-    				"Exception message on binding",
-    				e.getMessage()
-    						.startsWith(
-    								"Error binding to ws://[::1]:8000/: Tried to bind address"));
-    	}
+        // startup the gateway
+        GatewayConfiguration gc = getGatewayConfig();
+        Gateway gateway = new Gateway();
+        startupTheGatewayWithAssertions(gc, gateway);
 
-    	try {
-    		gateway.stop();
-    	} catch (Exception e) {
-    		assertFalse(e instanceof java.lang.NullPointerException);
-    	}
+        // shutdown the gateway
+        try {
+            gateway.stop();
+        } catch (Exception e) {
+            assertFalse(e instanceof java.lang.NullPointerException);
+        }
+
+        // cleanup the IPV4 flag
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
+    }
+
+    /**
+    * Helper method returning a gateway config
+    * 
+    * @return
+    */
+    private GatewayConfiguration getGatewayConfig() {
+        GatewayConfiguration gc = new GatewayConfigurationBuilder().
+                service().
+                    name("echo").
+                        type("echo").
+                        accept(URI.create("ws://[::1]:8000/echo/")).
+                    done().
+                done();
+        return gc;
+    }
+
+    /**
+    * Method for starting up the gateway and ensuring a failure is received
+    * according to the current scenario
+    * 
+    * @param gc
+    * @param gateway
+    */
+    private void startupTheGatewayWithAssertions(GatewayConfiguration gc, Gateway gateway) {
+        try {
+            gateway.start(gc);
+            assertTrue("This should not be reached", false);
+        } catch (AssertionError e) {
+            assertTrue(false);
+        } catch (Exception e) {
+            assertTrue("Exception message on binding", e.getMessage().startsWith("No addresses available for binding for URI"));
+        }
     }
 }
