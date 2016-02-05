@@ -31,20 +31,30 @@ import org.kaazing.gateway.transport.http.HttpConnectSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static java.lang.String.format;
+import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PORT;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 
@@ -234,6 +244,103 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         // Add Via: 1.1 kaazing header
         connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE);
+
+        // Add forwarded headers
+        setupForwardedHeaders(acceptSession, connectSession);
+        
+    }
+
+    private static void setupForwardedHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+        String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
+        Map<String, String> forwardedNameValue = parseForwardedInfo(forwarded);
+
+        String remoteIpAddress = null;
+        ResourceAddress resourceAddress = acceptSession.getRemoteAddress();
+        ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+        if (tcpResourceAddress != null) {
+            URI resource = tcpResourceAddress.getResource();
+            remoteIpAddress = resource.getHost();
+        }
+        if (remoteIpAddress != null) {
+            setForwardedHeader(forwardedNameValue, "for", remoteIpAddress, HEADER_X_FORWARDED_FOR, acceptSession, connectSession);
+        }
+
+        ResourceAddress httpAddress = acceptSession.getLocalAddress();
+        String host = httpAddress.getExternalURI().getHost();
+        setForwardedHeader(forwardedNameValue, "host", host, HEADER_X_FORWARDED_HOST, acceptSession, connectSession);
+
+        ResourceAddress serverTcpResourceAddress = httpAddress.findTransport("tcp");
+        String serverIpAddress = null;
+        if (serverTcpResourceAddress != null) {
+            URI resource = serverTcpResourceAddress.getResource();
+            serverIpAddress = resource.getHost();
+        }
+        if (serverIpAddress != null) {
+            setForwardedHeader(forwardedNameValue, "server", serverIpAddress, HEADER_X_FORWARDED_SERVER, acceptSession, connectSession);
+        }
+
+        String protocol = httpAddress.getExternalURI().getScheme();
+        setForwardedHeader(forwardedNameValue, "proto", protocol, HEADER_X_FORWARDED_PROTO, acceptSession, connectSession);
+
+        String port = format("%d", httpAddress.getExternalURI().getPort());
+        setForwardedHeader(forwardedNameValue, "port", port, HEADER_X_FORWARDED_PORT, acceptSession, connectSession);
+
+        String computedForwarded = forwardedHeader(forwardedNameValue);
+        connectSession.setWriteHeader(HEADER_FORWARDED, computedForwarded);
+    }
+
+    private static Map<String, String> parseForwardedInfo(String forwarded) {
+        Map<String, String> forwardedHeaderInfo = new HashMap<String, String>();
+        if (forwarded != null) {
+            String[] forwardedPairLists = forwarded.split(";"); 
+            for (String forwardedPairList : forwardedPairLists) {
+                String[] forwardedPairs = forwardedPairList.split(",");
+                String[] nameValue = forwardedPairs[0].split("=");
+                String name = nameValue[0].trim();
+                forwardedHeaderInfo.put(name, forwardedPairList.trim());
+            }
+        }
+        return forwardedHeaderInfo;
+    }
+
+    private static void setForwardedHeader(Map<String, String> forwardedNameValue,
+                                    String headerKey,
+                                    String headerValue,
+                                    String xHeaderName,
+                                    HttpAcceptSession acceptSession,
+                                    HttpConnectSession connectSession) {
+        String forwarded = format("%s=%s", headerKey, headerValue);
+        String forwardedReceived = forwardedNameValue.get(headerKey);
+        String xForwarded = acceptSession.getReadHeader(xHeaderName);
+        if (forwardedReceived != null) {
+            forwarded = forwardedReceived + ", " + forwarded;
+        } else {
+            if (xForwarded != null) {
+                String[] values = xForwarded.split(",");
+                String computedXforwarded = format("%s=%s", headerKey, values[0]);
+                for (int i = 1; i < values.length; i++) {
+                    computedXforwarded = computedXforwarded + ", " + format("%s=%s", headerKey, values[i].trim());
+                }
+                forwarded = computedXforwarded + ", " + forwarded;
+            }
+        }
+        forwardedNameValue.put(headerKey, forwarded);
+
+        if (xForwarded != null) {
+            xForwarded = xForwarded + ", " + headerValue;
+        } else {
+            xForwarded = headerValue; // add info from 'forwarded: for=' ?
+        }
+        connectSession.setWriteHeader(xHeaderName, xForwarded);
+    }
+
+    private static String forwardedHeader(Map<String, String> fwNV) {
+        StringBuilder fw = new StringBuilder();
+        for (Map.Entry<String, String> entry : fwNV.entrySet()) {
+            fw.append(entry.getValue() + "; ");
+        }
+
+        return fw.substring(0, fw.length() - 2);
     }
     
     /*

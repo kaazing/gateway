@@ -19,17 +19,11 @@ package org.kaazing.gateway.transport.http.bridge.filter;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_FORWARDED;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PORT;
 
 import java.net.URI;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
@@ -74,6 +68,8 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public static final String AUTH_SCHEME_BASIC = "Basic";
     public static final String AUTH_SCHEME_NEGOTIATE = "Negotiate";
 
+    private static final String HEADER_FORWARDED_REMOTE_IP_ADDRESS = "for=%s";
+
     static final AttributeKey NEW_SESSION_COOKIE_KEY = new AttributeKey(HttpSubjectSecurityFilter.class, "sessionCookie");
 
     private final AuthorizationMap authorizationMap;
@@ -104,16 +100,30 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
     public void doMessageReceived(NextFilter nextFilter, IoSession session, Object message) throws Exception {
         // GL.debug("http", getClass().getSimpleName() + " request received.");
 
-        if (!httpRequestMessageReceived(nextFilter, session, message)) {
-            return;
-        }
+        if (! httpRequestMessageReceived(nextFilter, session, message)) return;
 
         HttpRequestMessage httpRequest = (HttpRequestMessage) message;
         final boolean loggerIsEnabled = logger != null && logger.isTraceEnabled();
 
         String forwarded = httpRequest.getHeader(HEADER_FORWARDED);
-        Map<String, String> forwardedNameValue = parseForwardedInfo(forwarded);
-        setupForwardedHeaders(loggerIsEnabled, session, forwardedNameValue, httpRequest);
+        if ((forwarded == null) || (forwarded.length() == 0)) {
+            String remoteIpAddress = null;
+            ResourceAddress resourceAddress = REMOTE_ADDRESS.get(session);
+            ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+
+            if (tcpResourceAddress != null) {
+                URI resource = tcpResourceAddress.getResource();
+                remoteIpAddress = resource.getHost();
+
+                if (loggerIsEnabled) {
+                    logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address: '%s'", remoteIpAddress));
+                }
+            }
+
+            if (remoteIpAddress != null) {
+                httpRequest.setHeader(HEADER_FORWARDED, format(HEADER_FORWARDED_REMOTE_IP_ADDRESS, remoteIpAddress));
+            }
+        }
 
         // Make sure we start with the subject from the underlying transport session in case it already has an authenticated subject
         // (e.g. we are httpxe and our transport is http or transport is SSL with a client certificate)
@@ -145,104 +155,6 @@ public class HttpSubjectSecurityFilter extends HttpLoginSecurityFilter {
         }
 
         securityMessageReceived(nextFilter, session, httpRequest);
-    }
-
-    private Map<String, String> parseForwardedInfo(String forwarded) {
-        Map<String, String> forwardedHeaderInfo = new HashMap<String, String>();
-        if (forwarded != null) {
-            String[] forwardedPairLists = forwarded.split(";"); 
-            for (String forwardedPairList : forwardedPairLists) {
-                String[] forwardedPairs = forwardedPairList.split(",");
-                String[] nameValue = forwardedPairs[0].split("=");
-                String name = nameValue[0].trim();
-                forwardedHeaderInfo.put(name, forwardedPairList.trim());
-            }
-        }
-        return forwardedHeaderInfo;
-    }
-
-    private void setupForwardedHeaders(boolean loggerIsEnabled,
-                                       IoSession session,
-                                       Map<String, String> forwardedNameValue,
-                                       HttpRequestMessage httpRequest) {
-        String remoteIpAddress = null;
-        ResourceAddress resourceAddress = REMOTE_ADDRESS.get(session);
-        ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
-
-        if (tcpResourceAddress != null) {
-            URI resource = tcpResourceAddress.getResource();
-            remoteIpAddress = resource.getHost();
-
-            if (loggerIsEnabled) {
-                logger.trace(format("HttpSubjectSecurityFilter: Remote IP Address: '%s'", remoteIpAddress));
-            }
-        }
-
-        if (remoteIpAddress != null) {
-            setForwardedHeader(forwardedNameValue, "for", remoteIpAddress, HEADER_X_FORWARDED_FOR, httpRequest);
-        }
-
-        ResourceAddress httpAddress = httpRequest.getLocalAddress();
-        String host = httpAddress.getExternalURI().getHost();
-        setForwardedHeader(forwardedNameValue, "host", host, HEADER_X_FORWARDED_HOST, httpRequest);
-
-        ResourceAddress serverTcpResourceAddress = httpAddress.findTransport("tcp");
-        String serverIpAddress = null;
-        if (serverTcpResourceAddress != null) {
-            URI resource = serverTcpResourceAddress.getResource();
-            serverIpAddress = resource.getHost();
-        }
-        if (serverIpAddress != null) {
-            setForwardedHeader(forwardedNameValue, "server", serverIpAddress, HEADER_X_FORWARDED_SERVER, httpRequest);
-        }
-
-        String protocol = httpAddress.getExternalURI().getScheme();
-        setForwardedHeader(forwardedNameValue, "proto", protocol, HEADER_X_FORWARDED_PROTO, httpRequest);
-
-        String port = format("%d", httpAddress.getExternalURI().getPort());
-        setForwardedHeader(forwardedNameValue, "port", port, HEADER_X_FORWARDED_PORT, httpRequest);
-
-        String computedForwarded = forwardedHeader(forwardedNameValue);
-        httpRequest.setHeader(HEADER_FORWARDED, computedForwarded);
-    }
-
-    private void setForwardedHeader(Map<String, String> forwardedNameValue,
-                                    String headerKey,
-                                    String headerValue,
-                                    String xHeaderName,
-                                    HttpRequestMessage httpRequest) {
-        String forwarded = format("%s=%s", headerKey, headerValue);
-        String forwardedReceived = forwardedNameValue.get(headerKey);
-        String xForwarded = httpRequest.getHeader(xHeaderName);
-        if (forwardedReceived != null) {
-            forwarded = forwardedReceived + ", " + forwarded;
-        } else {
-            if (xForwarded != null) {
-                String[] values = xForwarded.split(",");
-                String computedXforwarded = format("%s=%s", headerKey, values[0]);
-                for (int i = 1; i < values.length; i++) {
-                    computedXforwarded = computedXforwarded + ", " + format("%s=%s", headerKey, values[i].trim());
-                }
-                forwarded = computedXforwarded + ", " + forwarded;
-            }
-        }
-        forwardedNameValue.put(headerKey, forwarded);
-
-        if (xForwarded != null) {
-            xForwarded = xForwarded + ", " + headerValue;
-        } else {
-            xForwarded = headerValue; // add info from 'forwarded: for=' ?
-        }
-        httpRequest.setHeader(xHeaderName, xForwarded);
-    }
-
-    private String forwardedHeader(Map<String, String> fwNV) {
-        StringBuilder fw = new StringBuilder();
-        for (Map.Entry<String, String> entry : fwNV.entrySet()) {
-            fw.append(entry.getValue() + "; ");
-        }
-
-        return fw.substring(0, fw.length() - 2);
     }
 
     protected void writeSessionCookie(IoSession session, HttpRequestMessage httpRequest, DefaultLoginResult loginResult) {
