@@ -39,7 +39,7 @@ public class ExtendedHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8001/echo"))
+                            .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
@@ -47,7 +47,7 @@ public class ExtendedHandshakeIT {
                             .acceptOption("ws.inactivity.timeout", "123secs")
                         .done()
                         .service()
-                            .accept(URI.create("ws://localhost:8004/echoAuth"))
+                            .accept(URI.create("ws://localhost:8080/auth"))
                             .type("echo")
                             .realmName("Kaazing WebSocket Gateway Demo")
                             .crossOrigin()

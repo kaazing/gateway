@@ -36,7 +36,7 @@ public class OpeningHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8001/echo"))
+                            .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
