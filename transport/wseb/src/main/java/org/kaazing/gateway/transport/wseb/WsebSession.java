@@ -23,6 +23,7 @@ import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executor;
@@ -157,7 +158,12 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private TransportSession transportSession;
 
-    private boolean closeReceived = false;
+    private enum CloseState {
+        CLOSE_SENT,
+        CLOSE_RECEIVED
+    }
+
+    private EnumSet<CloseState> closeState = EnumSet.noneOf(CloseState.class);
     private final long closeTimeout;
     private boolean pingEnabled = false;
 
@@ -629,11 +635,19 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
     boolean isCloseReceived() {
-        return closeReceived;
+        return closeState.contains(CloseState.CLOSE_RECEIVED);
     }
 
     private void setCloseReceived() {
-        closeReceived = true;
+        closeState.add(CloseState.CLOSE_RECEIVED);
+    }
+
+    boolean isCloseSent() {
+        return closeState.contains(CloseState.CLOSE_SENT);
+    }
+
+    private void setCloseSent() {
+        closeState.add(CloseState.CLOSE_SENT);
     }
 
     boolean isPingEnabled() {
@@ -799,6 +813,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                     }
                     else {
                         // Wait for close handshake completion from client on upstream
+                        session.setCloseSent();
                         session.getTransportSession().getConfig().setIdleTimeInMillis(
                                 IdleStatus.READER_IDLE, session.closeTimeout);
                     }
@@ -1024,7 +1039,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         protected void doSessionIdle(TransportSession session, IdleStatus status) throws Exception {
             WsebSession wsebSession = session.getWsebSession();
-            if (wsebSession.isClosing() && !wsebSession.isCloseReceived()) {
+            if (wsebSession.isCloseSent() && !wsebSession.isCloseReceived()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug(format("Close handshake timeout while closing wseb session %s", session));
                 }

@@ -100,8 +100,7 @@ public class ClosingIT {
 
     @Test
     @Specification("client.abruptly.closes.downstream/request")
-    @Ignore("This will not work until k3po#132 is resolved (allow http script to force tcp close)")
-    public void shouldFireCorrectEventsIfClientAbruptlyClosesDownstream() throws Exception {
+    public void clientAbruptlyClosesDownstream() throws Exception {
         final AtomicLong timeToClose = new AtomicLong(0);
         CountDownLatch closed = new CountDownLatch(1);
         acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
@@ -126,6 +125,47 @@ public class ClosingIT {
                 timeToClose.get()),
                 timeToClose.get() < 2000);
     }
+
+    @Test
+    @Specification("client.abruptly.closes.upstream/request")
+    public void clientAbruptlyClosesUpstream() throws Exception {
+        final AtomicLong timeToClose = new AtomicLong(0);
+        CountDownLatch closed = new CountDownLatch(1);
+        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
+            @Override
+            protected void doSessionOpened(IoSession session) throws Exception {
+                final long start = currentTimeMillis();
+                session.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+
+                    @Override
+                    public void operationComplete(IoFuture future) {
+                        timeToClose.set(currentTimeMillis() - start);
+                        closed.countDown();
+                    }
+                });
+            }
+
+        });
+        k3po.finish();
+        assertTrue("wsebSession was not closed after 4 seconds", closed.await(4, SECONDS));
+        // Timing is not exact but should be close
+        assertTrue(format("Time taken for ws close handshake %d should be close to ws close timeout of 2000 millisecs",
+                timeToClose.get()),
+                timeToClose.get() > 1500 && timeToClose.get() < 4000);
+    }
+
+    // Client only test
+    @Specification("server.abruptly.closes.downstream/request")
+    void serverAbruptlyClosesDownstream() throws Exception {
+        k3po.finish();
+    }
+
+    // Client only test
+    @Specification("server.abruptly.closes.upstream/response")
+    void serverAbruptlyClosesUpstream() throws Exception {
+        k3po.finish();
+    }
+
 
     @Test
     @Specification("server.send.close/request")
