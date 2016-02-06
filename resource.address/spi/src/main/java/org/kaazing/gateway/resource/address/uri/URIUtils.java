@@ -18,8 +18,6 @@ package org.kaazing.gateway.resource.address.uri;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.kaazing.gateway.resource.address.uri.networkinterface.NetworkInterfaceURI;
-
 /**
  * Utils class over URI methods
  *

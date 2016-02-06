@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.uri;
 
-import org.kaazing.gateway.resource.address.uri.networkinterface.NetworkInterfaceURI;
 
 /**
  * Factory returning the appropriate UriAccessor
@@ -28,7 +27,7 @@ public class URIAccessorFactory {
      * @param uriString
      * @return
      */
-    public URIAccessor makeURIAccessor(String uriString) {
+    URIAccessor makeURIAccessor(String uriString) {
         URIAccessor uri = null;
         try {
             uri = URIWrapper.create(uriString);

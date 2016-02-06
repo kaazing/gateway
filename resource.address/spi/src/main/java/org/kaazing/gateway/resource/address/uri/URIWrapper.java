@@ -27,11 +27,11 @@ public class URIWrapper implements URIAccessor {
 
     private URI uri;
 
-    public URIWrapper(String uriString) {
+    private URIWrapper(String uriString) {
         uri = URI.create(uriString);
     }
 
-    public static URIWrapper create(String uriString) {
+    static URIWrapper create(String uriString) {
         return new URIWrapper(uriString);
     }
 

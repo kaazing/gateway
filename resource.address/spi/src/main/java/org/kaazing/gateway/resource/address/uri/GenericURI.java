@@ -18,8 +18,6 @@ package org.kaazing.gateway.resource.address.uri;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.kaazing.gateway.resource.address.uri.networkinterface.NetworkInterfaceURI;
-
 
 /**
  * Class which is a wrapper either for URI, or for NetworkInterfaceURI
@@ -28,11 +26,6 @@ import org.kaazing.gateway.resource.address.uri.networkinterface.NetworkInterfac
 public class GenericURI implements URIAccessor {
 
     private URIAccessor uri;
-
-    public GenericURI(String uriString) {
-        URIAccessorFactory factory = new URIAccessorFactory();
-        uri = factory.makeURIAccessor(uriString);
-    }
 
     public static String buildURIToString(String scheme, String authority, String path, String query,
         String fragment) {
@@ -56,7 +49,12 @@ public class GenericURI implements URIAccessor {
         return helperURI.toString();
     }
 
-    public static GenericURI create(String uriString) {
+    private GenericURI(String uriString) {
+        URIAccessorFactory factory = new URIAccessorFactory();
+        uri = factory.makeURIAccessor(uriString);
+    }
+
+    static GenericURI create(String uriString) {
         return new GenericURI(uriString);
     }
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.resource.address.uri.networkinterface;
+package org.kaazing.gateway.resource.address.uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.kaazing.gateway.resource.address.uri.URIAccessor;
+import org.kaazing.gateway.resource.address.uri.exception.NetworkInterfaceSyntaxException;
 
 /**
  * Class performing logic similar to java.net.URI class which supports network interface syntax
@@ -50,11 +50,6 @@ public class NetworkInterfaceURI implements URIAccessor {
     private String path;              // null ==> opaque
     private String query;
 
-    public NetworkInterfaceURI(String uri) throws NetworkInterfaceSyntaxException {
-        Parser parser = new Parser(uri);
-        parser.parse();
-    }
-
     public static String buildURIToString(String scheme, String authority, String path, String query, String fragment) {
         URI helperURI = null;
         try {
@@ -76,7 +71,12 @@ public class NetworkInterfaceURI implements URIAccessor {
         return helperURI.toString().replace(HOST_TEMPLATE, host);
     }
 
-    public static NetworkInterfaceURI create(String str) {
+    private NetworkInterfaceURI(String uri) throws NetworkInterfaceSyntaxException {
+        Parser parser = new Parser(uri);
+        parser.parse();
+    }
+
+    static NetworkInterfaceURI create(String str) {
         try {
             return new NetworkInterfaceURI(str);
         } catch (NetworkInterfaceSyntaxException x) {
