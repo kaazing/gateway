@@ -295,7 +295,6 @@ class WsebConnectProcessor extends BridgeConnectProcessor<WsebSession> {
             };
         }
         throw new RuntimeException("No connect listener available for address "+address);
-
     }
 
     private static final class CheckBuffer implements IoFutureListener<WriteFuture> {

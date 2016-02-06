@@ -25,24 +25,17 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.transport.BridgeSession.LOCAL_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.CONTENT_LENGTH_ADJUSTMENT;
 import static org.kaazing.gateway.transport.http.HttpConnectFilter.PROTOCOL_HTTPXE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpUtils.hasCloseHeader;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 
 import java.io.IOException;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.annotation.Resource;
 
@@ -56,7 +49,6 @@ import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.session.IoSessionInitializer;
-import org.apache.mina.util.ConcurrentHashSet;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
@@ -65,26 +57,17 @@ import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
-import org.kaazing.gateway.transport.ExceptionLoggingFilter;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.NamedPipeAddress;
-import org.kaazing.gateway.transport.ObjectLoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpFilterAdapter;
-import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
-import org.kaazing.mina.netty.socket.nio.NioSocketChannelIoSession;
-import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
@@ -92,14 +75,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     public static final TypedAttributeKey<DefaultHttpSession> HTTP_SESSION_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpSession");
     private static final TypedAttributeKey<ConnectFuture> HTTP_CONNECT_FUTURE_KEY = new TypedAttributeKey<>(HttpConnector.class, "httpConnectFuture");
 
-    private static final String TRUNCATE_CONTENT_FILTER = HttpProtocol.NAME + "#truncate-content";
-
     private final Map<String, Set<HttpConnectFilter>> connectFiltersByProtocol;
     private final Set<HttpConnectFilter> allConnectFilters;
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
-    private Properties configuration;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -121,11 +101,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
         this.addressFactory = resourceAddressFactory;
-    }
-
-    @Resource(name = "configuration")
-    public void setConfiguration(Properties configuration) {
-        this.configuration = configuration;
     }
 
     @Override
@@ -219,6 +194,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void addBridgeFilters(IoFilterChain chain) {
 
@@ -339,7 +315,6 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
 
 
         @Override
-        @SuppressWarnings("unchecked")
         protected void doSessionOpened(IoSessionEx session) throws Exception {
 
             IoFilterChain filterChain = session.getFilterChain();
@@ -412,6 +387,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                 httpSession.setReason(httpResponse.getReason());
                 httpSession.setVersion(httpResponse.getVersion());
                 httpSession.setReadHeaders(httpResponse.getHeaders());
+
+                httpSession.getResponseFuture().setReady();
 
                 switch (httpStatus) {
                 case INFO_SWITCHING_PROTOCOLS:

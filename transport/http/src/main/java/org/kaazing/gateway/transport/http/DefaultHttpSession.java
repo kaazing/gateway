@@ -100,6 +100,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private IoHandler upgradeHandler;
     private final UpgradeFuture upgradeFuture;
     private final CommitFuture commitFuture;
+    private final ResponseFuture responseFuture;
     private final AtomicBoolean committing;
     private final AtomicBoolean connectionClose;
     private ResultAwareLoginContext loginContext;
@@ -110,6 +111,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
 	private boolean isGzipped;
 
+    @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
                                IoProcessorEx<DefaultHttpSession> processor,
                                ResourceAddress address,
@@ -131,6 +133,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         upgradeFuture = new DefaultUpgradeFuture(parent);
         commitFuture = new DefaultCommitFuture(this);
+        responseFuture = direction == Direction.READ ? null : new DefaultResponseFuture(this);
     }
 
     public DefaultHttpSession(IoServiceEx service,
@@ -486,6 +489,11 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     @Override
     public final boolean isCommitting() {
         return committing.get() || commitFuture.isCommitted();
+    }
+
+    @Override
+    public ResponseFuture getResponseFuture() {
+        return responseFuture;
     }
 
     public IoHandler getUpgradeHandler() {

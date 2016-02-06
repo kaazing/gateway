@@ -373,7 +373,6 @@ public class WsUtilsTest {
     @Test
     public void shouldRemoveExtensionFilters() throws Exception {
         final IoFilterChain filterChain = shouldAddExtensionFiltersAfterCodec_withResult();
-        final ExtensionHelper extensionHelper = context.mock(ExtensionHelper.class);
 
         context.checking(new Expectations() {
             {

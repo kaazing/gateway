@@ -15,22 +15,25 @@
  */
 package org.kaazing.gateway.transport.http;
 
-import java.net.URI;
+import org.apache.mina.core.future.IoFuture;
+import org.apache.mina.core.future.IoFutureListener;
 
-import org.apache.mina.core.service.IoHandler;
-import org.kaazing.gateway.transport.UpgradeFuture;
+public interface ResponseFuture extends IoFuture {
 
-public interface HttpConnectSession extends HttpSession {
+    boolean isReady();
 
-    // TODO: add helper methods for setting parameters
+    void setReady();
 
-    ResponseFuture getResponseFuture();
+    @Override
+    ResponseFuture await() throws InterruptedException;
 
-    void setRequestURI(URI requestURI);
+    @Override
+    ResponseFuture awaitUninterruptibly();
 
-    void setMethod(HttpMethod method);
+    @Override
+    ResponseFuture addListener(IoFutureListener<?> listener);
 
-    // setContentLength(int length);
+    @Override
+    ResponseFuture removeListener(IoFutureListener<?> listener);
 
-    UpgradeFuture upgrade(IoHandler handler);
 }

@@ -22,6 +22,7 @@ import static org.kaazing.gateway.resource.address.URLUtils.ensureTrailingSlash;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
@@ -66,6 +67,7 @@ import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpProtocol;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.gateway.transport.http.ResponseFuture;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -97,8 +99,31 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     private Properties configuration;
     private boolean specCompliant;
 
+    private static final IoFutureListener<ResponseFuture>
+                CHECK_READER_RESPONSE_LISTENER = new IoFutureListener<ResponseFuture>() {
+
+        @Override
+        public void operationComplete(ResponseFuture future) {
+            HttpConnectSession session = (HttpConnectSession) future.getSession();
+            if (session.getStatus() != HttpStatus.SUCCESS_OK ||
+                !session.getReadHeader(HEADER_CONTENT_TYPE).equals("application/octet-stream")) {
+                String message = session.getStatus() != HttpStatus.SUCCESS_OK ?
+                        "Unexpected upstream response status " + session.getStatus() :
+                        "Unexpected upstream response content type " + session.getReadHeader(HEADER_CONTENT_TYPE);
+                try {
+                    session.getFilterChain().fireExceptionCaught(new IOException(message));
+                } catch (Exception e) {
+                    // Nothing much we can do
+                }
+            }
+
+        }
+
+    };
+
     private final List<IoSessionIdleTracker> sessionIdleTrackers
         = Collections.synchronizedList(new ArrayList<IoSessionIdleTracker>());
+
     private final ThreadLocal<IoSessionIdleTracker> currentSessionIdleTracker
         = new VicariousThreadLocal<IoSessionIdleTracker>() {
         @Override
@@ -445,21 +470,20 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             throw new RuntimeException("Cannot select read handler for address "+readAddress);
         }
 
-    private final class ReadHandler extends IoHandlerAdapter<HttpSession> {
+    private final class ReadHandler extends IoHandlerAdapter<HttpConnectSession> {
         private final WsebSession wsebSession;
-
         ReadHandler(WsebSession wsebSession) {
             this.wsebSession = wsebSession;
         }
 
         @Override
-        protected void doSessionCreated(HttpSession readSession) throws Exception {
+        protected void doSessionCreated(HttpConnectSession readSession) throws Exception {
             addBridgeFilters(readSession.getFilterChain());
             super.doSessionCreated(readSession);
         }
 
         @Override
-        protected void doSessionOpened(HttpSession readSession) throws Exception {
+        protected void doSessionOpened(HttpConnectSession readSession) throws Exception {
             IoFilterChain filterChain = readSession.getFilterChain();
             filterChain.addLast(CODEC_FILTER, new WsebFrameCodecFilter(0, true));
             wsebSession.attachReader(readSession);
@@ -468,17 +492,16 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             // We need a session idle tracker to handle ws close handshake, even if ws.inactivity.timeout is not set
             currentSessionIdleTracker.get().addSession(wsebSession);
 
+            readSession.getResponseFuture().addListener(WsebConnector.CHECK_READER_RESPONSE_LISTENER);
+
         }
 
         @Override
-        protected void doMessageReceived(HttpSession readSession, Object message) throws Exception {
+        protected void doMessageReceived(HttpConnectSession readSession, Object message) throws Exception {
             ResourceAddress readAddress = REMOTE_ADDRESS.get(readSession);
             // handle parallel closure of WSE session during streaming read
-            if (wsebSession == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Could not find WsebSession for read address:"+readAddress);
-                }
-                return;
+            if (readSession != wsebSession.getReader()) {
+                throw new Exception("Protocol violation: data received on downstream after reconnect");
             }
 
             WsMessage wsebMessage = (WsMessage) message;
@@ -514,13 +537,13 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         }
 
         @Override
-        protected void doExceptionCaught(HttpSession readSession, Throwable cause) throws Exception {
+        protected void doExceptionCaught(HttpConnectSession readSession, Throwable cause) throws Exception {
             wsebSession.setCloseException(cause);
             readSession.close(true);
         }
 
         @Override
-        protected void doSessionClosed(HttpSession readSession) throws Exception {
+        protected void doSessionClosed(HttpConnectSession readSession) throws Exception {
             if (readSession.getStatus() != HttpStatus.SUCCESS_OK
                                         || wsebSession.getCloseException() != null) {
                 wsebSession.reset(
