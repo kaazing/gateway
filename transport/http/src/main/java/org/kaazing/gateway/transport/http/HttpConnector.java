@@ -330,12 +330,15 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             DefaultHttpSession httpSession = HTTP_SESSION_KEY.remove(session);
-            if (httpSession != null && !httpSession.isClosing() &&
-                    !hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION))) {
+            boolean connectionClose = hasCloseHeader(httpSession.getReadHeaders(HttpHeaders.HEADER_CONNECTION));
+            if (httpSession != null && !httpSession.isClosing() && !connectionClose) {
             	httpSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 httpSession.reset(new IOException("Early termination of IO session").fillInStackTrace());
                 return;
             }
+            if (connectionClose && !httpSession.isClosing()) {
+                httpSession.getProcessor().remove(httpSession);
+            };
 
             if (!session.isClosing()) {
                 IoFilterChain filterChain = session.getFilterChain();
