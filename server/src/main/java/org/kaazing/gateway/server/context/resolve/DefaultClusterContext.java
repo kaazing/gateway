@@ -21,6 +21,7 @@ import static org.kaazing.gateway.server.context.resolve.DefaultServiceContext.M
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.server.messaging.buffer.ClusterMemoryMessageBufferFactory;
 import org.kaazing.gateway.server.messaging.collections.ClusterCollectionsFactory;
 import org.kaazing.gateway.service.cluster.BalancerMapListener;
@@ -217,7 +219,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             // NOTE: The version of Hazelcast(1.9.4.8) that is being used does not support IPv6 address. The Hazelcast library
             //       throws NumberFormatException when IPv6 address is specified as an interface to bind to.
             String hostAddress = localInterface.getHost();
-            InetAddress address = InetAddress.getByName(hostAddress);
+            InetAddress address = getResolvedAddressFromHost(hostAddress);
+
             if (address instanceof Inet6Address) {
                 throw new IllegalArgumentException("ERROR: Cluster member accept url - '" + localInterface.toString() +
                         "' consists of IPv6 address which is not supported. Use Ipv4 address instead.");
@@ -291,7 +294,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
             // Check to see if the address specified is the wildcard address
             for (String networkInterface : networkConfig.getInterfaces().getInterfaces()) {
-                InetAddress address = InetAddress.getByName(networkInterface);
+                InetAddress address = getResolvedAddressFromHost(networkInterface);
                 if (address.isAnyLocalAddress()) {
                     // this will prevent PROP_SOCKET_BIND_ANY property from being overridden to false
                     // so that Hazelcast can bind to wildcard address
@@ -405,6 +408,27 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         return addresses;
 
+    }
+
+    /**
+     * Method returning resolved addresses from host
+     * @param hostAddress
+     * @return
+     * @throws UnknownHostException
+     */
+    private InetAddress getResolvedAddressFromHost(String hostAddress) throws UnknownHostException {
+        InetAddress address = null;
+        Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, true);
+        if (addresses.isEmpty()) {
+            address = InetAddress.getByName(hostAddress);
+        }
+        else {
+            for (InetAddress addressIt : addresses) {
+                address = addressIt;
+                break;
+            }
+        }
+        return address;
     }
 
     private String[] processEntryPart(String entry, String ipPart) {
