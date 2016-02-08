@@ -32,7 +32,6 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIPort;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.modifyURIScheme;
-import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
 import java.net.URI;
 import java.util.Collection;
@@ -254,14 +253,14 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     private void setOptions(T address, String location, ResourceOptions options, Object qualifier) {
         // default the transport
         ResourceAddress transport = options.getOption(TRANSPORT);
-        URI transportURI = options.getOption(TRANSPORT_URI);
+        String transportURI = options.getOption(TRANSPORT_URI);
 
         if (transport == null && addressFactory != null) {
             ResourceOptions newOptions = ResourceOptions.FACTORY.newResourceOptions(options);
             if (transportURI == null) {
                 ResourceFactory factory = getTransportFactory();
                 if (factory != null) {
-                    transportURI = URI.create(factory.createURI(location));
+                    transportURI = factory.createURI(location);
                     newOptions.setOption(TRANSPORT_URI, transportURI);
                 }
             }
@@ -271,7 +270,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
                 transportOptions.setOption(NEXT_PROTOCOL, getProtocolName());
                 URI locationURI = URI.create(location);
                 transportOptions.setOption(TRANSPORTED_URI, locationURI);
-                transport = addressFactory.newResourceAddress(uriToString(transportURI), transportOptions);
+                transport = addressFactory.newResourceAddress(transportURI, transportOptions);
             }
 
             newOptions.setOption(TRANSPORT, transport);
@@ -358,11 +357,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             options.setOption(QUALIFIER, qualifier);
         }
 
-        URI transportURI = (URI) optionsByName.remove(TRANSPORT.name());
+        String transportURI = (String) optionsByName.remove(TRANSPORT.name());
         if (transportURI == null) {
             ResourceFactory factory = getTransportFactory();
             if (factory != null) {
-                transportURI = URI.create(factory.createURI(location));
+                transportURI = factory.createURI(location);
             }
         }
         if (transportURI != null) {
@@ -406,7 +405,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             }
             URI locationURI = URI.create(location);
             optionsByName.put(TRANSPORTED_URI.name(), locationURI);
-            transport = addressFactory.newResourceAddress(uriToString(transportURI), optionsByName, protocolName);
+            transport = addressFactory.newResourceAddress(transportURI, optionsByName, protocolName);
         }
         if (transport != null) {
             options.setOption(TRANSPORT, transport);

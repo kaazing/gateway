@@ -99,6 +99,11 @@ public class GenericURI implements URIAccessor {
     }
 
     @Override
+    public boolean isAbsolute() {
+        return uri.isAbsolute();
+    }
+
+    @Override
     public String resolve(String uriString) {
             return uri.resolve(uriString);
     }
@@ -122,4 +127,5 @@ public class GenericURI implements URIAccessor {
     public String modifyURIPath(String newPath) {
         return uri.modifyURIPath(newPath);
     }
+
 }

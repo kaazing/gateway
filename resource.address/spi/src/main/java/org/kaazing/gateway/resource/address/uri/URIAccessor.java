@@ -70,6 +70,12 @@ public interface URIAccessor {
     String getUserInfo();
 
     /**
+     * Method returning whether uri is absolute
+     * @return
+     */
+    boolean isAbsolute();
+
+    /**
      * Method resolving URIs
      * @param uriString
      * @return
@@ -103,4 +109,5 @@ public interface URIAccessor {
      * @return
      */
     String modifyURIPath(String newPath);
+
 }

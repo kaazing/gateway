@@ -44,7 +44,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private static final long serialVersionUID = 1L;
 
     public static final ResourceOption<String> NEXT_PROTOCOL = new NextProtocolOption();
-    public static final ResourceOption<URI> TRANSPORT_URI = new TransportURIOption();
+    public static final ResourceOption<String> TRANSPORT_URI = new TransportURIStringOption();
     public static final ResourceOption<ResourceAddress> TRANSPORT = new TransportOption();
     public static final ResourceOption<ResourceAddress> ALTERNATE = new AlternateOption();
     public static final ResourceOption<NameResolver> RESOLVER = new ResolverOption(); // consider moving to TcpResourceAddress, ...
@@ -62,7 +62,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     private String nextProtocol;
     private ResourceAddress transport;
-    private URI transportURI;
+    private String transportURI;
     private ResourceAddress alternate;
     private NameResolver resolver;
     private Object qualifier;
@@ -273,7 +273,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
                     nextProtocol = (String) value;
                     return;
                 case TRANSPORT_URI:
-                    transportURI = (URI) value;
+                    transportURI = (String) value;
                     return;
                 case TRANSPORT:
                     transport = (ResourceAddress) value;
@@ -416,8 +416,8 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
     }
     
-    private static class TransportURIOption extends DefaultResourceOption<URI> {
-        private TransportURIOption() {
+    private static class TransportURIStringOption extends DefaultResourceOption<String> {
+        private TransportURIStringOption() {
             super(Kind.TRANSPORT_URI, "transportURI");
         }
     }

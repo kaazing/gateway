@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.server.config.sep2014.ServiceAcceptOptionsType;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.util.Utils;
@@ -312,12 +313,12 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
         return wsInactivityTimeout;
     }
 
-    private URI getTransportURI(String transportKey) {
-        URI transportURI = null;
+    private String getTransportURI(String transportKey) {
+        String transportURI = null;
         String transport = options.get(transportKey);
         if (transport != null) {
-            transportURI = URI.create(transport);
-            if (!transportURI.isAbsolute()) {
+            transportURI = transport;
+            if (!URIUtils.isAbsolute(transportURI)) {
                 throw new IllegalArgumentException(format(
                         "%s must contain an absolute URI, not \"%s\"", transportKey, transport));
             }

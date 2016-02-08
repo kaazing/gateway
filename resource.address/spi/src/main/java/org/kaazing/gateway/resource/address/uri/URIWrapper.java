@@ -76,6 +76,11 @@ public class URIWrapper implements URIAccessor {
     }
 
     @Override
+    public boolean isAbsolute() {
+        return uri.isAbsolute();
+    }
+
+    @Override
     public String resolve(String uriString) {
         URI resolvedURI = uri.resolve(uriString);
         return URIUtils.uriToString(resolvedURI);
@@ -104,4 +109,5 @@ public class URIWrapper implements URIAccessor {
         URI modifiedURIPath = URLUtils.modifyURIPath(uri, newPath);
         return URIUtils.uriToString(modifiedURIPath);
     }
+
 }

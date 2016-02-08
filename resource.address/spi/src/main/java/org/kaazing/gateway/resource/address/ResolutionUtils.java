@@ -156,7 +156,7 @@ public final class ResolutionUtils {
 
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
-            if (deviceName.equals(networkInterface.getDisplayName().toLowerCase())) {
+            if (deviceName.toLowerCase().equals(networkInterface.getDisplayName().toLowerCase())) {
                 Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
                 while (inetAddresses.hasMoreElements()) {
                     InetAddress inetAddress = inetAddresses.nextElement();

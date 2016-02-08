@@ -50,6 +50,8 @@ public class NetworkInterfaceURI implements URIAccessor {
     private String path;              // null ==> opaque
     private String query;
 
+    private boolean absolute;
+
     public static String buildURIToString(String scheme, String authority, String path, String query, String fragment) {
         URI helperURI = null;
         try {
@@ -125,6 +127,11 @@ public class NetworkInterfaceURI implements URIAccessor {
     }
 
     @Override
+    public boolean isAbsolute() {
+        return absolute;
+    }
+
+    @Override
     public String resolve(String uriString) {
         // TODO Auto-generated method stub
         return null;
@@ -189,6 +196,7 @@ public class NetworkInterfaceURI implements URIAccessor {
             port = mockNetworkInterfaceURI.getPort();
             path = mockNetworkInterfaceURI.getPath();
             query = mockNetworkInterfaceURI.getQuery();
+            absolute = mockNetworkInterfaceURI.isAbsolute();
         }
     }
 
@@ -207,4 +215,5 @@ public class NetworkInterfaceURI implements URIAccessor {
                 (query != null ? "?" + query : "") +
                 (fragment != null ? "#" + fragment : "");
     }
+
 }

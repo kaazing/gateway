@@ -209,4 +209,9 @@ public final class URIUtils {
         return baseURI.modifyURIPath(newPath);
     }
 
+    public static boolean isAbsolute(String uri) {
+        GenericURI baseURI = GenericURI.create(uri);
+        return baseURI.isAbsolute();
+    }
+
 }
