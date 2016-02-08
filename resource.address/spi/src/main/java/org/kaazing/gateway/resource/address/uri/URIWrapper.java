@@ -16,6 +16,8 @@
 package org.kaazing.gateway.resource.address.uri;
 
 import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.kaazing.gateway.resource.address.URLUtils;
 
@@ -26,6 +28,7 @@ import org.kaazing.gateway.resource.address.URLUtils;
 public class URIWrapper implements URIAccessor {
 
     private URI uri;
+    private static final String MOCK_HOST = "localhost";
 
     private URIWrapper(String uriString) {
         uri = URI.create(uriString);
@@ -94,8 +97,16 @@ public class URIWrapper implements URIAccessor {
 
     @Override
     public String modifyURIAuthority(String newAuthority) {
+        Pattern pattern = Pattern.compile("(\\[+@[a-zA-Z0-9 ]*\\]+)");
+        Matcher matcher = pattern.matcher(newAuthority);
+        String matchedToken = MOCK_HOST;
+        // if newAuthority corresponds to NetworkInterfaceURI syntax
+        if (matcher.find()) {
+            matchedToken = matcher.group(0);
+            newAuthority = newAuthority.replace(matchedToken, MOCK_HOST);
+        }
         URI modifiedURIAuthority = URLUtils.modifyURIAuthority(uri, newAuthority);
-        return URIUtils.uriToString(modifiedURIAuthority);
+        return URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
     }
 
     @Override

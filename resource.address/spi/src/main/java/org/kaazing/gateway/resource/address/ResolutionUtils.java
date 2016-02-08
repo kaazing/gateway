@@ -21,15 +21,12 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-
-import javax.management.RuntimeErrorException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,67 +52,6 @@ public final class ResolutionUtils {
     private ResolutionUtils() {
         //not called
      }
-
-    /**
-     * Method performing authority resolution
-     * @param authority
-     * @param allowIPv6
-     * @return
-     */
-    public static List<String> resolveInterfaceAuthorityToAuthorityList(String authority, boolean allowIPv6) {
-        Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
-
-        List<String> resolvedAuthorityValues = new ArrayList<String>();
-        if (authority.lastIndexOf(':') > 0) {
-            String host = authority.substring(0, authority.lastIndexOf(':'));
-            String port = authority.substring(authority.lastIndexOf(':') + 1);
-            List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
-            for (String resolvedAddress : resolvedAddresses) {
-                resolvedAuthorityValues.add(resolvedAddress + ":" + port);
-            }
-        }
-
-        if (resolvedAuthorityValues.isEmpty()) {
-            resolvedAuthorityValues.add(authority);
-        }
-        return resolvedAuthorityValues;
-    }
-
-    /**
-     * Method performing String to URI resolution
-     * @param uri
-     * @param allowIPv6
-     * @return
-     */
-   public static List<URI> resolveStringUriToURIList(String uri, boolean allowIPv6) {
-       Enumeration<NetworkInterface> networkInterfaces = cloneInterfaces(ResolutionUtils.networkInterfaces);
-
-        // The URI might be a device name/port, e.g. @eth0:5942 or [@eth0:1]:5942, so make sure to
-        // resolve device names before continuing.
-        List<URI> resolvedDeviceURIs = new ArrayList<URI>();
-        if (networkInterfaces != null) {
-            if (uri.contains("://") && (uri.lastIndexOf(':') > 0)) {
-                String[] schemeAndHost = uri.split("://");
-                if (schemeAndHost.length == 2) {
-                    String host = schemeAndHost[1].substring(0, schemeAndHost[1].lastIndexOf(':'));
-                    String port = schemeAndHost[1].substring(schemeAndHost[1].lastIndexOf(':') + 1);
-                    List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
-                    for (String resolvedAddress : resolvedAddresses) {
-                        if (!schemeAndHost[0].equalsIgnoreCase("tcp") && !schemeAndHost[0].equalsIgnoreCase("udp")) {
-                            throw new RuntimeErrorException(null, "Resolution scheme not tcp or udp for resolved address " +
-                                        resolvedAddress);
-                        }
-                        resolvedDeviceURIs.add(URI.create(schemeAndHost[0] + "://" + resolvedAddress + ":" + port));
-                    }
-                }
-            }
-        }
-
-        if (resolvedDeviceURIs.isEmpty()) {
-            resolvedDeviceURIs.add(URI.create(uri));
-        }
-        return resolvedDeviceURIs;
-    }
 
    /**
     * Method resolving host to InetAddresses

@@ -17,6 +17,8 @@ package org.kaazing.gateway.resource.address.uri.exception;
 
 public class NetworkInterfaceSyntaxException extends Exception {
 
+    private static final long serialVersionUID = 111111L;
+
     public NetworkInterfaceSyntaxException(String message) {
         throw new IllegalArgumentException(message);
     }
