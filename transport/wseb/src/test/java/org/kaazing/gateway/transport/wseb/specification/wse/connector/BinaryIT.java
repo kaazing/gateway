@@ -71,8 +71,7 @@ public class BinaryIT {
     public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
             .around(timeoutRule);
 
-    // This latch is only needed to work around gateway#345
-    // TODO: remove this latch and all of its usage in the methods below once that issue is resolved
+    // This latch is needed to ensure messageReceived has fired before each test method exits
     private CountDownLatch received = new CountDownLatch(1);
 
     @Test
