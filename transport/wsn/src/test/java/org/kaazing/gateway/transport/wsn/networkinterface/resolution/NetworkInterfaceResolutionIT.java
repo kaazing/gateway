@@ -73,6 +73,7 @@ public class NetworkInterfaceResolutionIT {
                         .done()
                         .service()
                             .accept("tcp://[@" + networkInterface + "]:8001")
+                            .connect("tcp://localhost:8002")
                             .type("proxy")
                             .crossOrigin()
                                 .allowOrigin("*")
