@@ -195,7 +195,7 @@ public class NetworkInterfaceURI implements URIAccessor {
     //TODO: Check whether algorithm is correct with java.net.URI
     private String buildURIFromTokens(String scheme, String host, int port, String path,
             String query, String fragment) {
-        return scheme + "://" + host + ":" + port + "/" + path +
+        return scheme + "://" + host + ":" + port + (path.isEmpty() ? "" : "/") + path +
                 (query != null ? "?" + query : "") +
                 (fragment != null ? "#" + fragment : "");
     }
@@ -203,7 +203,7 @@ public class NetworkInterfaceURI implements URIAccessor {
     //TODO: Check whether algorithm is correct with java.net.URI
     private String buildURIFromTokens(String scheme, String authority, String path,
             String query, String fragment) {
-        return scheme + "://" + authority + "/" + path +
+        return scheme + "://" + authority + (path.isEmpty() ? "" : "/") + path +
                 (query != null ? "?" + query : "") +
                 (fragment != null ? "#" + fragment : "");
     }

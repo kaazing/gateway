@@ -148,8 +148,14 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
             Collection<InetAddress> inetAddresses = new ArrayList<>();
             Collection<InetAddress> addresses = ResolutionUtils.getAllByName(host, true);
-            for (InetAddress address : addresses) {
-                inetAddresses.addAll(resolver.getAllByName(address.getHostAddress()));
+            // network interface resolution performed
+            if (!addresses.isEmpty()) {
+                for (InetAddress address : addresses) {
+                    inetAddresses.addAll(resolver.getAllByName(address.getHostAddress()));
+                }
+            }
+            else {
+                inetAddresses = resolver.getAllByName(host);
             }
             assert (!inetAddresses.isEmpty());
 
@@ -204,7 +210,8 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     @Override
     protected TcpResourceAddress newResourceAddress0(String original, String location) {
 
-        URI uriOriginal = URI.create(original);
+        // TODO: find appropriate implementation
+        URI uriOriginal = URI.create(location);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
