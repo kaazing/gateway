@@ -75,7 +75,11 @@ public class WsebConnectorRule implements TestRule {
                 resourceAddressFactory.newResourceAddress(
                         URI.create(connect),
                         connectOptions);
+        return connect(connectAddress, connectHandler);
+    }
 
+    public ConnectFuture connect(final ResourceAddress connectAddress,
+                                 IoHandler connectHandler) throws InterruptedException {
         ConnectFuture future = wseConnector.connect(connectAddress, connectHandler, null);
 
         future.await(TimeUnit.MILLISECONDS.toMillis(3000));

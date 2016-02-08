@@ -272,6 +272,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.mina.core.service.IoHandler;
+import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
@@ -318,8 +319,7 @@ public class DownstreamIT {
 
     @Test
     @Specification("binary/response.header.content.type.has.unexpected.value/downstream.response")
-    public void shouldCloseConnectionWhenBinaryDownstreamResponseContentTypeHasUnexpectedValue()
-            throws Exception {
+    public void shouldCloseConnectionWhenBinaryDownstreamResponseContentTypeHasUnexpectedValue() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
         context.checking(new Expectations() {
@@ -327,11 +327,12 @@ public class DownstreamIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
+        session.getCloseFuture().await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Arrays.asList(".*nexpected.*type.*"), EMPTY_STRING_SET, null, false);
     }
 

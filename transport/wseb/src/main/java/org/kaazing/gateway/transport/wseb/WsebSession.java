@@ -946,8 +946,9 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         private boolean cannotWrite(WsebSession session) {
             // get parent and check if null (no attached http session)
             final HttpSession writer = session.getWriter();
-            if ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
-                    && (writer == null || writer.isClosing()) ) {
+            if ( session.getWriteAddress() == null // create handshake failed
+                 || ( session.getService().getClass() == WsebAcceptor.class // TODO: make this neater
+                    && (writer == null || writer.isClosing()) ) ) {
                 return true;
             }
             return false;

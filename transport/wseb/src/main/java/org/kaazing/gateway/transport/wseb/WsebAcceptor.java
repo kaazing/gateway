@@ -29,7 +29,6 @@ import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
@@ -112,6 +111,7 @@ import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
 // TODO: will need some sort of session cleanup timeout
+@SuppressWarnings("deprecation")
 public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     public static final String WSE_VERSION = "wseb-1.0";
@@ -254,7 +254,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             bindCookiesHandler(address.findTransport("http[http/1.1]"));
 
             final ResourceAddress transportAddress = address.getTransport();
-            URI transportURI = transportAddress.getExternalURI();
 
             Protocol httpProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource().getScheme());
             final BridgeSessionInitializer<T> httpInitializer = (initializer != null) ? initializer.getParentInitializer(httpProtocol) : null;
@@ -367,7 +366,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         unbindApiPath(address);
 
         final ResourceAddress transportAddress = address.getTransport();
-        URI transportURI = transportAddress.getExternalURI();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
 
         UnbindFuture future = unbindCookiesHandler(address.findTransport("http[http/1.1]"));
@@ -519,9 +517,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             final boolean validateSequenceNo = (sequenceStr != null);
             final long sequenceNo = validateSequenceNo ? Long.parseLong(sequenceStr) : -1;
 
-            final boolean wasHixieHandshake = wasHixieHandshake(session);
-
-
             // negotiate WebSocket protocol
             String wsProtocol;
             List<String> wsProtocols = session.getReadHeaders("X-WebSocket-Protocol");
@@ -583,10 +578,13 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //    return;
             //}
 
-            URI request = session.getRequestURL();
-            URI pathInfo = session.getPathInfo();
             String sessionId = HttpUtils.newSessionId();
 
+            // TODO: the following is dead code. See if we still need support the .kd=s parameter, and if so,
+            // update k3po wse specification SPEC.md and tests to cover and use the request variable below.
+            // If not, remove this dead code and method locateSecureAcceptURI.
+            URI request = session.getRequestURL();
+            URI pathInfo = session.getPathInfo();
             // check to see if we can stream to this session
             // Note: Silverlight does not support redirecting from http to https
             // so check .kd=s parameter (downstream=same) to prevent redirecting to https
@@ -872,13 +870,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                 return false;
             }
             return true;
-        }
-
-        private boolean wasHixieHandshake(HttpAcceptSession session) {
-            // see KG-2749
-            // Are we receiving a Hixie or a standard Http Websocket upgrade request?
-            return session.getReadHeader("Sec-WebSocket-Key1") != null ||
-            session.getReadHeader("Sec-WebSocket-Key") == null;
         }
 
         private IoHandler selectUpstreamHandler(ResourceAddress address,

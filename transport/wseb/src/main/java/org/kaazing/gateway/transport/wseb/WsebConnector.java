@@ -24,6 +24,8 @@ import static org.kaazing.gateway.transport.BridgeSession.REMOTE_ADDRESS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_ACCEPT_COMMANDS;
+import static org.kaazing.gateway.transport.ws.util.WsUtils.HEADER_X_WEBSOCKET_EXTENSIONS;
+import static org.kaazing.gateway.transport.wseb.util.WseUtils.HEADER_X_WEBSOCKET_PROTOCOL;
 import static org.kaazing.gateway.transport.wseb.WsebAcceptor.WSE_VERSION;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -54,6 +57,7 @@ import org.kaazing.gateway.resource.address.Protocol;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
 import org.kaazing.gateway.transport.AbstractBridgeConnector;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -75,6 +79,8 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
+import org.kaazing.gateway.transport.wseb.util.WseUtils;
+import org.kaazing.gateway.util.Utils;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.IoProcessorEx;
@@ -274,8 +280,16 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
                 String wsNextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
                 if (wsNextProtocol != null) {
-                    httpSession.setWriteHeader("X-WebSocket-Protocol", wsNextProtocol);
+                    httpSession.setWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, wsNextProtocol);
                 }
+
+                List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
+                if (wsExtensions!= null) {
+                    for (String extension : wsExtensions) {
+                        httpSession.setWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                    }
+                }
+
                 httpSession.setWriteHeader(HEADER_X_ACCEPT_COMMANDS, "ping");
                 httpSession.setWriteHeader(HttpHeaders.HEADER_X_SEQUENCE_NO, Long.toString(sequenceNo));
 
@@ -328,10 +342,10 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
     private static final TypedAttributeKey<IoBufferEx> CREATE_RESPONSE_KEY = new TypedAttributeKey<>(WsebConnector.class, "createResponse");
 
-    private IoHandler createHandler = new IoHandlerAdapter<HttpSession>() {
+    private IoHandler createHandler = new IoHandlerAdapter<HttpConnectSession>() {
 
         @Override
-        protected void doSessionOpened(final HttpSession createSession) throws Exception {
+        protected void doSessionOpened(final HttpConnectSession createSession) throws Exception {
             Callable<WsebSession> sessionFactory = WSE_SESSION_FACTORY_KEY.remove(createSession);
             final WsebSession wsebSession = sessionFactory.call();
 
@@ -352,7 +366,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         }
 
         @Override
-        protected void doMessageReceived(HttpSession createSession, Object message) throws Exception {
+        protected void doMessageReceived(HttpConnectSession createSession, Object message) throws Exception {
             // Handle fragmentation of response body
             IoBufferEx in = (IoBufferEx) message;
 
@@ -367,13 +381,43 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         }
 
         @Override
-        protected void doSessionClosed(HttpSession createSession) throws Exception {
+        protected void doSessionClosed(HttpConnectSession createSession) throws Exception {
             final WsebSession wsebSession = WSE_SESSION_KEY.remove(createSession);
             assert (wsebSession != null);
 
             IoBufferEx buf = CREATE_RESPONSE_KEY.remove(createSession);
-            if (buf == null || createSession.getStatus() != HttpStatus.SUCCESS_CREATED) {
-                wsebSession.reset(new Exception("Create handshake failed: invalid response").fillInStackTrace());
+
+            String message = null;
+            if (createSession.getStatus() != HttpStatus.SUCCESS_CREATED) {
+                message = "Create handshake failed: invalid response status: " + createSession.getStatus();
+            }
+            else if (!"text/plain;charset=utf-8".equals(createSession.getReadHeader(HEADER_CONTENT_TYPE))) {
+                message = "Create handshake failed: invalid response content type: " +
+                              createSession.getReadHeader(HEADER_CONTENT_TYPE);
+            }
+            else if (createSession.getReadHeader(HEADER_X_WEBSOCKET_PROTOCOL) != null
+                     && (createSession.getWriteHeaders(HEADER_X_WEBSOCKET_PROTOCOL) == null
+                     || !createSession.getWriteHeaders(HEADER_X_WEBSOCKET_PROTOCOL).contains(
+                    createSession.getReadHeader(HEADER_X_WEBSOCKET_PROTOCOL))) ) {
+                message = format("Create handshake failed: none of requested WebSocket protocols %s was negotiated",
+                        wsebSession.getLocalAddress().getOption(NEXT_PROTOCOL));
+            }
+            else {
+                List<String> requestedExtensions = createSession.getWriteHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
+                if (requestedExtensions != null) {
+                    for (String extension : createSession.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS)) {
+                        if (!requestedExtensions.contains(extension)) {
+                                message = format("Create handshake failed: WebSocket extension %s was not requested",
+                                                 extension);
+                        }
+                    }
+                }
+            }
+            if (message == null && buf == null) {
+                message = "Create handshake failed: no response body";
+            }
+            if (message != null) {
+                wsebSession.reset(new Exception(message).fillInStackTrace());
                 return;
             }
 
@@ -383,12 +427,21 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             String[] locations = responseText.split("\n");
 
             if (locations.length < 2) {
-                wsebSession.reset(new Exception("Create handshake failed: invalid response").fillInStackTrace());
+                wsebSession.reset(new Exception(format("Create handshake failed: invalid response %s",
+                        responseText.replace("\n", "\\n"))).fillInStackTrace());
                 return;
             }
 
             URI writeURI = URI.create(locations[0]);
+            if (!validateUpstreamOrDownstreamURI(wsebSession.getLocalAddress().getResource(), writeURI)) {
+                wsebSession.reset(new Exception(format("Create handshake failed: invalid upstream URI %s",
+                        writeURI)).fillInStackTrace());
+            }
             URI readURI = URI.create(locations[1]);
+            if (!validateUpstreamOrDownstreamURI(wsebSession.getLocalAddress().getResource(),readURI)) {
+                wsebSession.reset(new Exception(format("Create handshake failed: invalid downstream URI %s",
+                        readURI)).fillInStackTrace());
+            }
 
             ResourceAddress writeAddress = createWriteAddress(writeURI, createSession, wsebSession);
             ResourceAddress readAddress = createReadAddress(readURI, createSession, wsebSession);
@@ -445,7 +498,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
         }
 
         @Override
-        protected void doExceptionCaught(HttpSession createSession, Throwable cause) throws Exception {
+        protected void doExceptionCaught(HttpConnectSession createSession, Throwable cause) throws Exception {
             if (logger.isDebugEnabled()) {
                 String message = format("Error on WebSocket WSE connection attempt: %s", cause);
                 if (logger.isTraceEnabled()) {
@@ -463,12 +516,25 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
     };
 
     private IoHandler selectReadHandler(ResourceAddress readAddress, WsebSession session) {
-            Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(readAddress.getResource());
-            if ( protocol instanceof HttpProtocol ) {
-                return new ReadHandler(session);
-            }
-            throw new RuntimeException("Cannot select read handler for address "+readAddress);
+        Protocol protocol = bridgeServiceFactory.getTransportFactory().getProtocol(readAddress.getResource());
+        if ( protocol instanceof HttpProtocol ) {
+            return new ReadHandler(session);
         }
+        throw new RuntimeException("Cannot select read handler for address "+readAddress);
+    }
+
+    private boolean validateUpstreamOrDownstreamURI(URI wsURI, URI uri) {
+        if (!Arrays.asList("http", "https").contains(uri.getScheme())) {
+            return false;
+        }
+        if (!Utils.sameOrEquals(wsURI.getHost(), uri.getHost())) {
+            return false;
+        }
+        if (!WseUtils.pathPrefixMatches(wsURI, uri)) {
+            return false;
+        }
+        return true;
+    }
 
     private final class ReadHandler extends IoHandlerAdapter<HttpConnectSession> {
         private final WsebSession wsebSession;
