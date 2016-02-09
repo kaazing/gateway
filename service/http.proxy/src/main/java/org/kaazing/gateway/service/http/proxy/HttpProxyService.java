@@ -16,14 +16,13 @@
 package org.kaazing.gateway.service.http.proxy;
 
 import static java.lang.String.format;
-import org.kaazing.gateway.server.context.resolve.DefaultServiceProperties;
 
 import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Http proxy service
@@ -72,7 +71,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     }
 
     private boolean isForwardedEnabled(ServiceContext serviceContext) {
-        DefaultServiceProperties properties = (DefaultServiceProperties) serviceContext.getProperties();
+        ServiceProperties properties = serviceContext.getProperties();
         boolean forwardedEnabled = false;
         String forwardedEnabledValue = properties.get("use-forwarded");
         if (forwardedEnabledValue != null) {
