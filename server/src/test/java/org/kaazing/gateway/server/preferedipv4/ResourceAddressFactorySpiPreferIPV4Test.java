@@ -16,11 +16,13 @@
 package org.kaazing.gateway.server.preferedipv4;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
@@ -30,18 +32,14 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
  */
 public class ResourceAddressFactorySpiPreferIPV4Test {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
+    private Gateway gateway;
 
-    @Test
-    public void testEmptyCollectionWithFlagTrue() {
-        // set the IPV4 flag
-        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
-
-        // startup the gateway
-        GatewayConfiguration gc = getGatewayConfig();
-        Gateway gateway = new Gateway();
-        startupTheGatewayWithAssertions(gc, gateway);
-
+    @After
+    public void tearDown() throws Exception {
         // shutdown the gateway
         try {
             gateway.stop();
@@ -53,37 +51,50 @@ public class ResourceAddressFactorySpiPreferIPV4Test {
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
     }
 
+    @Test
+    public void failsStartupWhenMatchingIPv6AddressesNotFound() throws Exception {
+        // set the IPV4 flag
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
+
+        // configure the gateway
+        GatewayConfiguration gc = getGatewayConfig();
+        gateway = new Gateway();
+
+        // Exception expectations
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("No addresses available for binding for URI");
+
+        // startup the gateway
+        gateway.start(gc);
+    }
+
+    @Test
+    public void startupWhenMatchingIPv6AddressesFound() throws Exception {
+        // set the IPV4 flag to false
+        System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
+
+        // startup the gateway
+        GatewayConfiguration gc = getGatewayConfig();
+        gateway = new Gateway();
+        gateway.start(gc);
+    }
+
     /**
     * Helper method returning a gateway config
     * 
     * @return
     */
     private GatewayConfiguration getGatewayConfig() {
-        GatewayConfiguration gc = new GatewayConfigurationBuilder().
-                service().
-                    name("echo").
-                        type("echo").
-                        accept(URI.create("ws://[::1]:8000/echo/")).
-                    done().
-                done();
+        // @formatter:off
+        GatewayConfiguration gc =
+                new GatewayConfigurationBuilder()
+                    .service()
+                        .name("echo")
+                        .type("echo")
+                        .accept(URI.create("ws://[::1]:8000/echo/"))
+                    .done()
+                .done();
+        // @formatter:on
         return gc;
-    }
-
-    /**
-    * Method for starting up the gateway and ensuring a failure is received
-    * according to the current scenario
-    * 
-    * @param gc
-    * @param gateway
-    */
-    private void startupTheGatewayWithAssertions(GatewayConfiguration gc, Gateway gateway) {
-        try {
-            gateway.start(gc);
-            assertTrue("This should not be reached", false);
-        } catch (AssertionError e) {
-            assertTrue(false);
-        } catch (Exception e) {
-            assertTrue("Exception message on binding", e.getMessage().startsWith("No addresses available for binding for URI"));
-        }
     }
 }
