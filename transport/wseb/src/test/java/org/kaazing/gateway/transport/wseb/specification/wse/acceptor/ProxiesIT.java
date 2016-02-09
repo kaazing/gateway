@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -106,6 +107,24 @@ public class ProxiesIT {
         session.get().write(session.get().getBufferAllocator().wrap(ByteBuffer.wrap("data1".getBytes())));
         k3po.awaitBarrier("FIRST_DOWNSTREAM_RESPONSE_COMPLETE");
         session.get().write(session.get().getBufferAllocator().wrap(ByteBuffer.wrap("data2".getBytes())));
+        k3po.finish();
+    }
+
+    @Test
+    @Ignore("tickets#321 Secure redirect with wse downstream does not work")
+    @Specification("server.send.secure.downstream.redirect/request")
+    public void shouldReceiveSecureRedirectFromServerOnProxyModeRequest() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
     }
 
