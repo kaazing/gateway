@@ -283,7 +283,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             if (forwarded.equalsIgnoreCase(forAddress)) {
                 connectSession.clearWriteHeaders(HEADER_FORWARDED);
             }
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);    
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
         }
 
         ResourceAddress httpAddress = acceptSession.getLocalAddress();
@@ -294,21 +294,20 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             serverIpAddress = resource.getHost();
         }
         if (serverIpAddress != null) {
-            forwardedSb.append(format("by=%s;",serverIpAddress));
+            forwardedSb.append(format("by=%s;", serverIpAddress));
             connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
         }
 
-        
         String host = httpAddress.getExternalURI().getHost();
-        forwardedSb.append(format("host=%s;",host));
+        forwardedSb.append(format("host=%s;", host));
         connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
 
         String protocol = httpAddress.getExternalURI().getScheme();
-        forwardedSb.append(format("proto=%s;",protocol));
+        forwardedSb.append(format("proto=%s;", protocol));
         connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
 
         String port = format("%d", httpAddress.getExternalURI().getPort());
-        forwardedSb.append(format("port=%s",port));
+        forwardedSb.append(format("port=%s", port));
         connectSession.addWriteHeader(HEADER_X_FORWARDED_PORT, port);
 
         connectSession.addWriteHeader(HEADER_FORWARDED, forwardedSb.toString());
