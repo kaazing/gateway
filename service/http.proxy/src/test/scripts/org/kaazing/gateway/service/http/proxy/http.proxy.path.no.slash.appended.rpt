@@ -14,12 +14,11 @@
 # limitations under the License.
 #
 
-
-connect http://localhost:8110/a/../../example/../jsp/num/file.html
+connect http://localhost:8110/acceptConfigPath/
 connected
 
 write method "GET"
-write parameter "name" "value"
+#write parameter "name" "value"
 write version "HTTP/1.1"
 
 write header "User-Agent" "curl/7.37.1"
@@ -27,12 +26,35 @@ write header host
 write header "Accept" "*/*"
 write close
 
-read status "404" "Not Found"
+read status "200" "OK"
 read version "HTTP/1.1"
-read header "Content-Length" "61"
 read header "Content-Type" "text/html"
+read header "Content-Length" "13"
+read "Hello world\r\n"
+read closed
 
 close
 closed
 
-accept http://localhost:8080/
+
+accept http://localhost:8080/connectConfigPath
+accepted
+connected
+
+read method "GET"
+#read parameter "name" "value"
+read header "Via" "1.1 kaazing"
+read header "User-Agent" "curl/7.37.1"
+read header "Host" "localhost:8080"
+read header "Forwarded" "for=127.0.0.1"
+read header "Accept" "*/*"
+read closed
+
+write status "200" "OK"
+write version "HTTP/1.1"
+write header "Content-Type" "text/html"
+write header content-length
+write "Hello world\r\n"
+write close
+
+closed

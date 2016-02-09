@@ -14,8 +14,7 @@
 # limitations under the License.
 #
 
-
-connect http://localhost:8110/a/../../example/../jsp/num/file.html
+connect http://localhost:8111/a
 connected
 
 write method "GET"
@@ -35,4 +34,5 @@ read header "Content-Type" "text/html"
 close
 closed
 
-accept http://localhost:8080/
+
+accept http://localhost:8081/b/c

@@ -246,7 +246,7 @@ public class HttpBindings extends Bindings<HttpBinding> {
 
         boolean remove(String path, Binding binding)  {
             if ( binding == (bindingsByPath.get(path))) {
-                if ( binding.decrementReferenceCount() == 0 ) {
+                if (binding != null && binding.decrementReferenceCount() == 0 ) {
                     return bindingsByPath.remove(path, binding);
                 }
             }
