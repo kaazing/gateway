@@ -201,7 +201,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
     }
 
-
     /*
      * Write all (except hop-by-hop) headers from source session to destination session.
      *
