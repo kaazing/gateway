@@ -63,13 +63,13 @@ public final class ResolutionUtils {
        List<String> resolvedAddresses = resolveDeviceAddress(host, networkInterfaces, allowIPv6);
        List<InetAddress> resolvedDeviceURIs = new ArrayList<InetAddress>();
        List<InetAddress> resolvedHosts = resolvedDeviceURIs;
-    for (String resolvedAddress : resolvedAddresses) {
+       for (String resolvedAddress : resolvedAddresses) {
            try {
-            resolvedHosts.addAll(asList(InetAddress.getAllByName(resolvedAddress)));
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+               resolvedHosts.addAll(asList(InetAddress.getAllByName(resolvedAddress)));
+           } catch (UnknownHostException e) {
+               // TODO Auto-generated catch block
+               e.printStackTrace();
+           }
        }
        return resolvedHosts;
    }

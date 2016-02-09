@@ -31,6 +31,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -40,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.kaazing.gateway.resource.address.NameResolver;
+import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
@@ -121,7 +123,17 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
                 host = matcher.group(1);
             }
 
-            Collection<InetAddress> inetAddresses = resolver.getAllByName(host);
+            Collection<InetAddress> inetAddresses = new ArrayList<>();
+            Collection<InetAddress> addresses = ResolutionUtils.getAllByName(host, true);
+            // network interface resolution performed
+            if (!addresses.isEmpty()) {
+                for (InetAddress address : addresses) {
+                    inetAddresses.addAll(resolver.getAllByName(address.getHostAddress()));
+                }
+            }
+            else {
+                inetAddresses = resolver.getAllByName(host);
+            }
             assert (!inetAddresses.isEmpty());
 
             // The returned collection appears to be unmodifiable, so first clone the list (ugh!)
@@ -173,7 +185,8 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
     @Override
     protected UdpResourceAddress newResourceAddress0(String original, String location) {
 
-        URI uriOriginal = URI.create(original);
+        // TODO: find appropriate implementation
+        URI uriOriginal = URI.create(location);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
