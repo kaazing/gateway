@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +61,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
 
     private URI connectURI;
+    private boolean useForwardedHeaders;
 
     @Override
     protected AbstractProxyHandler createConnectHandler() {
@@ -70,6 +70,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     public void initServiceConnectManager() {
         connectURI = getConnectURIs().iterator().next();
+    }
+
+    public void setUseForwardedHeaders(boolean useForwardedHeaders) {
+        this.useForwardedHeaders = useForwardedHeaders;
     }
 
     @Override
@@ -84,7 +88,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 return;
             }
 
-            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
+            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession, useForwardedHeaders);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
             super.sessionOpened(acceptSession);
@@ -105,9 +109,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      */
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
+        private final boolean useForwardedHeaders;
 
-        ConnectSessionInitializer(DefaultHttpSession acceptSession) {
+        ConnectSessionInitializer(DefaultHttpSession acceptSession, boolean useForwardedHeaders) {
             this.acceptSession = acceptSession;
+            this.useForwardedHeaders = useForwardedHeaders;
         }
 
         @Override
@@ -117,7 +123,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setMethod(acceptSession.getMethod());
             URI connectURI = computeConnectPath(connectSession.getRequestURI());
             connectSession.setRequestURI(connectURI);
-            processRequestHeaders(acceptSession, connectSession);
+            processRequestHeaders(acceptSession, connectSession, useForwardedHeaders);
         }
 
         private URI computeConnectPath(URI connectURI) {
@@ -225,7 +231,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
      * upgrade one, let the Upgrade header go through as this service supports upgrade
      */
-    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+    private static void processRequestHeaders(HttpAcceptSession acceptSession,
+                                              HttpConnectSession connectSession,
+                                              boolean useForwardedHeaders) {
         boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
 
         // Add Connection: upgrade or Connection: close header
@@ -243,14 +251,26 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE);
 
         // Add forwarded headers
-        setupForwardedHeaders(acceptSession, connectSession);
+        setupForwardedHeaders(acceptSession, connectSession, useForwardedHeaders);
         
     }
 
-    private static void setupForwardedHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
-        String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
-        Map<String, String> forwardedNameValue = parseForwardedInfo(forwarded);
+    private static void setupForwardedHeaders(HttpAcceptSession acceptSession,
+                                              HttpConnectSession connectSession,
+                                              boolean useForwardedHeaders) {
+        if (!useForwardedHeaders) {
+            connectSession.clearWriteHeaders(HEADER_FORWARDED);
+            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_FOR);
+            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_SERVER);
+            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_HOST);
+            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PROTO);
+            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PORT);
+            return;
+        }
 
+        String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
+
+        StringBuilder forwardedSb = new StringBuilder();
         String remoteIpAddress = null;
         ResourceAddress resourceAddress = acceptSession.getRemoteAddress();
         ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
@@ -259,13 +279,15 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             remoteIpAddress = resource.getHost();
         }
         if (remoteIpAddress != null) {
-            setForwardedHeader(forwardedNameValue, "for", remoteIpAddress, HEADER_X_FORWARDED_FOR, acceptSession, connectSession);
+            String forAddress = format("for=%s", remoteIpAddress);
+            forwardedSb.append(forAddress + ";");
+            if (forwarded.equalsIgnoreCase(forAddress)) {
+                connectSession.clearWriteHeaders(HEADER_FORWARDED);
+            }
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);    
         }
 
         ResourceAddress httpAddress = acceptSession.getLocalAddress();
-        String host = httpAddress.getExternalURI().getHost();
-        setForwardedHeader(forwardedNameValue, "host", host, HEADER_X_FORWARDED_HOST, acceptSession, connectSession);
-
         ResourceAddress serverTcpResourceAddress = httpAddress.findTransport("tcp");
         String serverIpAddress = null;
         if (serverTcpResourceAddress != null) {
@@ -273,73 +295,26 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             serverIpAddress = resource.getHost();
         }
         if (serverIpAddress != null) {
-            setForwardedHeader(forwardedNameValue, "by", serverIpAddress, HEADER_X_FORWARDED_SERVER, acceptSession, connectSession);
+            forwardedSb.append(format("by=%s;",serverIpAddress));
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
         }
+
+        
+        String host = httpAddress.getExternalURI().getHost();
+        forwardedSb.append(format("host=%s;",host));
+        connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
 
         String protocol = httpAddress.getExternalURI().getScheme();
-        setForwardedHeader(forwardedNameValue, "proto", protocol, HEADER_X_FORWARDED_PROTO, acceptSession, connectSession);
+        forwardedSb.append(format("proto=%s;",protocol));
+        connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
 
         String port = format("%d", httpAddress.getExternalURI().getPort());
-        setForwardedHeader(forwardedNameValue, "port", port, HEADER_X_FORWARDED_PORT, acceptSession, connectSession);
+        forwardedSb.append(format("port=%s",port));
+        connectSession.addWriteHeader(HEADER_X_FORWARDED_PORT, port);
 
-        String computedForwarded = forwardedHeader(forwardedNameValue);
-        connectSession.setWriteHeader(HEADER_FORWARDED, computedForwarded);
+        connectSession.addWriteHeader(HEADER_FORWARDED, forwardedSb.toString());
     }
 
-    private static Map<String, String> parseForwardedInfo(String forwarded) {
-        Map<String, String> forwardedHeaderInfo = new HashMap<String, String>();
-        if (forwarded != null) {
-            String[] forwardedPairLists = forwarded.split(";"); 
-            for (String forwardedPairList : forwardedPairLists) {
-                String[] forwardedPairs = forwardedPairList.split(",");
-                String[] nameValue = forwardedPairs[0].split("=");
-                String name = nameValue[0].trim();
-                forwardedHeaderInfo.put(name, forwardedPairList.trim());
-            }
-        }
-        return forwardedHeaderInfo;
-    }
-
-    private static void setForwardedHeader(Map<String, String> forwardedNameValue,
-                                    String headerKey,
-                                    String headerValue,
-                                    String xHeaderName,
-                                    HttpAcceptSession acceptSession,
-                                    HttpConnectSession connectSession) {
-        String forwarded = format("%s=%s", headerKey, headerValue);
-        String forwardedReceived = forwardedNameValue.get(headerKey);
-        String xForwarded = acceptSession.getReadHeader(xHeaderName);
-        if (forwardedReceived != null) {
-            forwarded = forwardedReceived + ", " + forwarded;
-        } else {
-            if (xForwarded != null) {
-                String[] values = xForwarded.split(",");
-                String computedXforwarded = format("%s=%s", headerKey, values[0]);
-                for (int i = 1; i < values.length; i++) {
-                    computedXforwarded = computedXforwarded + ", " + format("%s=%s", headerKey, values[i].trim());
-                }
-                forwarded = computedXforwarded + ", " + forwarded;
-            }
-        }
-        forwardedNameValue.put(headerKey, forwarded);
-
-        if (xForwarded != null) {
-            xForwarded = xForwarded + ", " + headerValue;
-        } else {
-            xForwarded = headerValue; // add info from 'forwarded: for=' ?
-        }
-        connectSession.setWriteHeader(xHeaderName, xForwarded);
-    }
-
-    private static String forwardedHeader(Map<String, String> fwNV) {
-        StringBuilder fw = new StringBuilder();
-        for (Map.Entry<String, String> entry : fwNV.entrySet()) {
-            fw.append(entry.getValue() + "; ");
-        }
-
-        return fw.substring(0, fw.length() - 2);
-    }
-    
     /*
      * Get all hop-by-hop headers from Connection header value.
      * Also add Connection header itself to the set

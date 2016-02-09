@@ -986,7 +986,7 @@
 
                     <element maxOccurs="1" minOccurs="0"
                              name="properties"
-                             type="gateway:ServicePropertiesType"/>
+                             type="gateway:httpProxyServicePropertiesType"/>
 
                     <element maxOccurs="1" minOccurs="0"
                              name="accept-options"
@@ -1512,6 +1512,24 @@
                         <annotation/>
                     </element>
                 </all>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="httpProxyServicePropertiesType">
+        <complexContent>
+            <restriction base="gateway:ServicePropertiesType">
+                <sequence>
+                    <element name="use-forwarded" maxOccurs="1" minOccurs="0">
+                        <simpleType>
+                            <restriction base="string">
+                                <enumeration value="disabled"></enumeration>
+                                <enumeration value="enabled"></enumeration>
+                                <whiteSpace value="collapse"></whiteSpace>
+                            </restriction>
+                        </simpleType>
+                    </element>
+                </sequence>
             </restriction>
         </complexContent>
     </complexType>

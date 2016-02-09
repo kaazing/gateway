@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import org.kaazing.gateway.server.context.resolve.DefaultServiceProperties;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
@@ -45,6 +46,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
         handler.initServiceConnectManager();
+        handler.setUseForwardedHeaders(isForwardedEnabled(serviceContext));
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
@@ -66,6 +68,16 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
                                 + " or both must not end in slashes.");
             }
         }
+    }
+
+    private boolean isForwardedEnabled(ServiceContext serviceContext) {
+        DefaultServiceProperties properties = (DefaultServiceProperties) serviceContext.getProperties();
+        boolean forwardedEnabled = false;
+        String forwardedEnabledValue = properties.get("use-forwarded");
+        if (forwardedEnabledValue != null) {
+            forwardedEnabled = forwardedEnabledValue.equalsIgnoreCase("enabled");
+        }
+        return forwardedEnabled;
     }
 
     @Override
