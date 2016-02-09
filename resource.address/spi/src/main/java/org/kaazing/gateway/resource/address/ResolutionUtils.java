@@ -124,11 +124,7 @@ public final class ResolutionUtils {
     * @return
     */
    private static Enumeration<NetworkInterface> cloneInterfaces(List<NetworkInterface> interfaces) {
-       List<NetworkInterface> clone = new ArrayList<NetworkInterface>();
-       for (NetworkInterface interf : interfaces) {
-           clone.add(interf);
-       }
-       return Collections.enumeration(clone);
+       return Collections.enumeration(new ArrayList<>(interfaces));
    }
 
 }
