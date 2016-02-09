@@ -28,7 +28,9 @@ import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 import static org.kaazing.gateway.resource.address.URLUtils.truncateURI;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.MAX_MESSAGE_SIZE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CACHE_CONTROL;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.ws.WsSystemProperty.WSE_IDLE_TIMEOUT;
 import static org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter.DISABLE_INACTIVITY_TIMEOUT;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
@@ -150,7 +152,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     private static final String UPSTREAM_MIXED_TEXT_ESCAPED_SUFFIX = EMULATED_SUFFIX + "/utem";
     static final String DOWNSTREAM_MIXED_TEXT_ESCAPED_SUFFIX = EMULATED_SUFFIX + "/dtem";
 
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     protected static final byte LINEFEED_BYTE = "\n".getBytes()[0];
 
@@ -580,8 +581,9 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             String sessionId = HttpUtils.newSessionId();
 
-            // TODO: the following is dead code. See if we still need support the .kd=s parameter, and if so,
-            // update k3po wse specification SPEC.md and tests to cover and use the request variable below.
+            // TODO: the following and the locateSecureAcceptURI method is dead code. Very likely this is the
+            // cause of regression https://github.com/kaazing/tickets/issues/321: Secure redirect with wse downstream does not work.
+            // TODO: See if we still need support the .kd=s parameter, and if so, update k3po wse specification SPEC.md and tests to cover.
             // If not, remove this dead code and method locateSecureAcceptURI.
             URI request = session.getRequestURL();
             URI pathInfo = session.getPathInfo();
@@ -751,7 +753,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             //
             // write response that session was created and pass redirect urls
             session.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain;charset=UTF-8");
-            session.setWriteHeader(HttpHeaders.HEADER_CACHE_CONTROL, "no-cache");
+            session.setWriteHeader(HEADER_CACHE_CONTROL, "no-cache");
             session.setStatus(HttpStatus.SUCCESS_CREATED);
 
             IoBufferAllocatorEx<?> httpAllocator = session.getBufferAllocator();
@@ -1022,7 +1024,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         }
 
 
-        // TODO: move this to a helper?
+        // TODO: remove? See comment above that references this method
         private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
             // TODO: same-origin requests must consider cross-origin access control
             // internal redirect to secure resource should not trigger 403 Forbidden
@@ -1073,7 +1075,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             String authority = httpSession.getReadHeader("Host");
             URI locationURI = new URI(scheme, authority, requestURI.getPath(), requestURI.getQuery(), requestURI.getFragment());
 
-            httpSession.setWriteHeader("Content-Type", "text/plain; charset=UTF-8");
+            httpSession.setWriteHeader(HEADER_CONTENT_TYPE, "text/plain; charset=UTF-8");
             httpSession.setWriteHeader("Location", locationURI.toString());
             httpSession.setStatus(HttpStatus.SUCCESS_OK);
 

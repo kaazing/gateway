@@ -18,6 +18,7 @@ package org.kaazing.gateway.transport.wseb;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BINARY;
 
 import java.io.IOException;
@@ -274,7 +275,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         session.setWriteHeader("X-Content-Type-Options", "nosniff");
-        session.setWriteHeader("Content-Type", contentType);
+        session.setWriteHeader(HEADER_CONTENT_TYPE, contentType);
         session.setWriteHeader("X-Idle-Timeout", String.valueOf(wsebSession.getClientIdleTimeout()));
 
         // look for mime detection padding override

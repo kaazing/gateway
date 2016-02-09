@@ -1,251 +1,5 @@
 /**
-
-    @Test
-    @Specification({
-        "connection.established/handshake.request",
-        "connection.established/handshake.response" })
-    public void shouldEstablishConnection() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.origin/handshake.request",
-        "request.header.origin/handshake.response" })
-    public void shouldEstablishConnectionWithRequestHeaderOrigin()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.websocket.protocol/handshake.request",
-        "request.header.x.websocket.protocol/handshake.response" })
-    public void shouldEstablishConnectionWithRequestHeaderXWebSocketProtocol()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.websocket.extensions/handshake.request",
-        "request.header.x.websocket.extensions/handshake.response" })
-    public void shouldEstablishConnectionWithRequestHeaderXWebSocketExtensions()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.with.body/handshake.request",
-        "request.with.body/handshake.response" })
-    // Server only test. Spec compliant clients ALWAYS use a POST request with an empty body.
-    public void serverShouldTolerateNonEmptyRequestBody()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.upstream.with.different.port/handshake.request",
-        "response.body.has.upstream.with.different.port/handshake.response" })
-    public void shouldEstablishConnectionWhenResponseBodyHasUpstreamWithDifferentPort()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.downstream.with.different.port/handshake.request",
-        "response.body.has.downstream.with.different.port/handshake.response" })
-    public void shouldEstablishConnectionWhenResponseBodyHasDownstreamWithDifferentPort()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.method.get/handshake.request",
-        "request.method.get/handshake.response" })
-    // Server only test. Spec compliant clients ALWAYS use POST.
-    public void serverShouldTolerateRequestMethodGet() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.method.not.post.or.get/handshake.request",
-        "request.method.not.post.or.get/handshake.response" })
-    public void shouldFailHandshakeWhenRequestMethodNotPostOrGet() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.sequence.number.missing/handshake.request",
-        "request.header.x.sequence.number.missing/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsMissing() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.sequence.number.negative/handshake.request",
-        "request.header.x.sequence.number.negative/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNegative() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.sequence.number.non.integer/handshake.request",
-        "request.header.x.sequence.number.non.integer/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsNotInteger() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.sequence.number.out.of.range/handshake.request",
-        "request.header.x.sequence.number.out.of.range/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXSequenceNoIsOutOfRange() throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.websocket.version.missing/handshake.request",
-        "request.header.x.websocket.version.missing/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionMissing()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.websocket.version.not.wseb-1.0/handshake.request",
-        "request.header.x.websocket.version.not.wseb-1.0/handshake.response" })
-    public void shouldFailHandshakeWhenRequestHeaderXWebSocketVersionNotWseb10()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "request.header.x.accept.commands.not.ping/handshake.request",
-        "request.header.x.accept.commands.not.ping/handshake.response" })
-    public void shouldFailHandshakeWhenHeaderXAcceptCommandsNotPing()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.status.code.not.201/handshake.request",
-        "response.status.code.not.201/handshake.response" })
-    public void shouldFailConnectionWhenResponseStatusCodeNot201()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.content.type.missing/handshake.request",
-        "response.header.content.type.missing/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderContentTypeIsMissing()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.content.type.not.text.plain.charset.utf-8/handshake.request",
-        "response.header.content.type.not.text.plain.charset.utf-8/handshake.response" })
-    public void shouldFailConnectionWhenResponseHeaderContentTypeNotTextPlainCharsetUTF8()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.x.websocket.protocol.not.negotiated/handshake.request",
-        "response.header.x.websocket.protocol.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenXWebSocketProtocolNotNegotiated()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.header.x.websocket.extensions.not.negotiated/handshake.request",
-        "response.header.x.websocket.extensions.not.negotiated/handshake.response" })
-    public void shouldFailConnectionWhenXWebSocketExtensionsNotNegotiated()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.with.no.downstream/handshake.request",
-        "response.body.with.no.downstream/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasNoDownstream()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.upstream.with.scheme.not.http.or.https/handshake.request",
-        "response.body.has.upstream.with.scheme.not.http.or.https/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasUpstreamWithSchemeNotHttpOrHttps()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.upstream.with.different.host/handshake.request",
-        "response.body.has.upstream.with.different.host/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasUpstreamWithDifferentHost()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.upstream.with.different.path.prefix/handshake.request",
-        "response.body.has.upstream.with.different.path.prefix/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasUpstreamWithDifferentPathPrefix()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.downstream.with.scheme.not.http.or.https/handshake.request",
-        "response.body.has.downstream.with.scheme.not.http.or.https/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasDownstreamWithSchemeNotHttpOrHttps()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.downstream.with.different.host/handshake.request",
-        "response.body.has.downstream.with.different.host/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasDownstreamWithDifferentHost()
-            throws Exception {
-        k3po.finish();
-    }
-
-    @Test
-    @Specification({
-        "response.body.has.downstream.with.different.path.prefix/handshake.request",
-        "response.body.has.downstream.with.different.path.prefix/handshake.response" })
-    public void shouldFailConnectionWhenResponseBodyHasDownstreamWithDifferentPathPrefix()
-            throws Exception {
-        k3po.finish();
-    } * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
+ * Copyright 2007-2015, Kaazing Corporation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -318,7 +72,7 @@ public class DownstreamIT {
             .around(timeoutRule);
 
     @Test
-    @Specification("binary/response.header.content.type.has.unexpected.value/downstream.response")
+    @Specification("response.header.content.type.has.unexpected.value/downstream.response")
     public void shouldCloseConnectionWhenBinaryDownstreamResponseContentTypeHasUnexpectedValue() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -337,7 +91,7 @@ public class DownstreamIT {
     }
 
     @Test
-    @Specification("binary/response.status.code.not.200/downstream.response")
+    @Specification("response.status.code.not.200/downstream.response")
     public void shouldCloseConnectionWhenBinaryDownstreamResponseStatusCodeNot200() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -355,7 +109,7 @@ public class DownstreamIT {
     }
 
     @Test
-    @Specification("binary/server.send.frame.after.reconnect/downstream.response")
+    @Specification("server.send.frame.after.reconnect/downstream.response")
     public void shouldCloseConnectionWhenBinaryDownstreamResponseContainsFrameAfterReconnectFrame()
             throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
@@ -374,64 +128,77 @@ public class DownstreamIT {
     }
 
     // Only relevant for browser clients
-    @Specification("binary/request.header.origin/downstream.response")
+    @Specification("request.header.origin/downstream.response")
     void shouldConnectWithDownstreamRequestOriginHeaderSet()
             throws Exception {
         k3po.finish();
     }
 
     // Server only test. Spec compliant clients ALWAYS use GET.
-    @Specification("binary/request.method.post/downstream.response")
+    @Specification("request.method.post/downstream.response")
     void serverShouldTolerateDownstreamRequestMethodPost()
             throws Exception {
         k3po.finish();
     }
 
     // Server only test. Spec compliant clients ALWAYS use GET.
-    @Specification("binary/request.method.post.with.body/downstream.response")
+    @Specification("request.method.post.with.body/downstream.response")
     void serverShouldTolerateDownstreamRequestMethodPostWithBody()
             throws Exception {
         k3po.finish();
     }
 
     // Server only test. Spec compliant clients ALWAYS use GET.
-    @Specification("binary/request.method.not.get.or.post/downstream.response")
+    @Specification("request.method.not.get.or.post/downstream.response")
     void shouldRespondWithBadRequestWhenDownstreamRequestMethodNotGetOrPost()
             throws Exception {
         k3po.finish();
     }
 
     // Server only test. Spec compliant clients do not do this.
-    @Specification("binary/request.out.of.order/downstream.response")
+    @Specification("request.out.of.order/downstream.response")
     void shouldCloseConnectionWhenBinaryDownstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
 
     // Server only test. Spec compliant clients do not do this.
-    @Specification("binary/subsequent.request.out.of.order/response")
+    @Specification("subsequent.request.out.of.order/response")
     void shouldCloseConnectionWhenSubsequentBinaryDownstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
 
-    // Not relevant, WsebConnector always uses binary encoding
-    @Specification("binary.as.escaped.text/response.header.content.type.has.unexpected.value/downstream.response")
-    void shouldCloseConnectionWhenEscapedTextDownstreamResponseContentTypeHasUnexpectedValue()
-            throws Exception {
-        k3po.finish();
-    }
-
-    // Not relevant, WsebConnector always uses binary encoding
-    @Specification("binary.as.mixed.text/response.header.content.type.has.unexpected.value/downstream.response")
-    void shouldCloseConnectionWhenMixedTextDownstreamResponseContentTypeHasUnexpectedValue()
-            throws Exception {
-        k3po.finish();
-    }
-
-    // Not relevant, WsebConnector always uses binary encoding
-    @Specification("binary.as.text/response.header.content.type.has.unexpected.value/downstream.response")
+    // Not relevant, WsebConnector always uses /cbm (mixed frames binary encoding)
+    @Specification("text.encoding/response.header.content.type.has.unexpected.value/downstream.response")
     void shouldCloseConnectionWhenTextDownstreamResponseContentTypeHasUnexpectedValue()
             throws Exception {
         k3po.finish();
     }
 
+    // Not relevant, WsebConnector always uses /cbm (mixed frames binary encoding)
+    @Specification("text.escape.encoding/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenEscapedTextDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Not relevant, WsebConnector always uses /cbm (mixed frames binary encoding)
+    @Specification("binary.frames.only/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenBinaryFramesOnlyBinaryDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Not relevant, WsebConnector always uses /cbm (mixed frames binary encoding)
+    @Specification("binary.frames.only/text.encoding/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenBinaryFramesOnlyTextDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
+
+    // Not relevant, WsebConnector always uses /cbm (mixed frames binary encoding)
+    @Specification("binary.frames.only/text.escaped.encoding/response.header.content.type.has.unexpected.value/downstream.response")
+    void shouldCloseConnectionWhenBinaryFramesOnlyTextEscapedDownstreamResponseContentTypeHasUnexpectedValue()
+            throws Exception {
+        k3po.finish();
+    }
 }

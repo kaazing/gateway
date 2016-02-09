@@ -31,7 +31,6 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;

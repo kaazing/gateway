@@ -30,8 +30,10 @@ import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
+import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -43,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Pattern CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = Pattern.compile("text/plain;\\s*charset=utf-8", CASE_INSENSITIVE);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
@@ -96,7 +97,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // only supported for non-binary upstream
         if (utf8 != null) {
             // Note: encoding filter needs to be closer to the network than the codec filter
-            String contentType = session.getReadHeader(HEADER_CONTENT_TYPE);
+            String contentType = session.getReadHeader(HttpHeaders.HEADER_CONTENT_TYPE);
             if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.matcher((contentType)).matches()) {
                 filterChain.addBefore(CODEC_FILTER, UTF8_FILTER, utf8);
             }

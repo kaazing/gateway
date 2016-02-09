@@ -90,7 +90,7 @@ import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 @SuppressWarnings("deprecation")
 public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
 
-    private static final String CREATE_SUFFIX = WsebAcceptor.EMULATED_SUFFIX + "/cb";
+    private static final String CREATE_SUFFIX = WsebAcceptor.EMULATED_SUFFIX + "/cbm";
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -391,7 +391,8 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             if (createSession.getStatus() != HttpStatus.SUCCESS_CREATED) {
                 message = "Create handshake failed: invalid response status: " + createSession.getStatus();
             }
-            else if (!"text/plain;charset=utf-8".equals(createSession.getReadHeader(HEADER_CONTENT_TYPE))) {
+            else if (createSession.getReadHeader(HEADER_CONTENT_TYPE) == null
+                    || !createSession.getReadHeader(HEADER_CONTENT_TYPE).matches("(?i)text\\/plain;\\s*charset=utf-8")) {
                 message = "Create handshake failed: invalid response content type: " +
                               createSession.getReadHeader(HEADER_CONTENT_TYPE);
             }
