@@ -160,7 +160,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         // we don't need to send idletimeout keep-alive messages if we're already sending PINGs for inactivity timeout
-        // at high enough frequency (these are send every inactivity timeout / 2)
+        // at high enough frequency (these are sent every inactivity timeout / 2)
         int inactivityPingIntervalInSeconds = (int) (wsebSession.getInactivityTimeout() / 2000);
         if (inactivityPingIntervalInSeconds == 0 || inactivityPingIntervalInSeconds > clientIdleTimeout) {
             session.getConfig().setWriterIdleTime(clientIdleTimeout);

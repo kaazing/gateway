@@ -93,7 +93,6 @@ import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolCompatibilityFilter;
 import org.kaazing.gateway.transport.ws.WsAcceptor;
-import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
 import org.kaazing.gateway.transport.ws.extension.ExtensionHelper;
 import org.kaazing.gateway.transport.ws.extension.WebSocketExtension;
@@ -112,7 +111,6 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.kaazing.mina.netty.util.threadlocal.VicariousThreadLocal;
 
-// TODO: will need some sort of session cleanup timeout
 @SuppressWarnings("deprecation")
 public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
@@ -581,26 +579,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             String sessionId = HttpUtils.newSessionId();
 
-            // TODO: the following and the locateSecureAcceptURI method is dead code. Very likely this is the
-            // cause of regression https://github.com/kaazing/tickets/issues/321: Secure redirect with wse downstream does not work.
-            // TODO: See if we still need support the .kd=s parameter, and if so, update k3po wse specification SPEC.md and tests to cover.
-            // If not, remove this dead code and method locateSecureAcceptURI.
-            URI request = session.getRequestURL();
-            URI pathInfo = session.getPathInfo();
-            // check to see if we can stream to this session
-            // Note: Silverlight does not support redirecting from http to https
-            // so check .kd=s parameter (downstream=same) to prevent redirecting to https
-            if (!HttpUtils.canStream(session) && !"s".equals(session.getParameter(".kd"))) {
-                // lookup secure acceptURI
-                URI secureAcceptURI = locateSecureAcceptURI(session);
-                if (secureAcceptURI != null) {
-                    String secureAuthority = secureAcceptURI.getAuthority();
-                    String secureAcceptPath = secureAcceptURI.getPath();
-
-                    request = URI.create("https://" + secureAuthority + secureAcceptPath + pathInfo.toString());
-                }
-            }
-
             final IoBufferAllocatorEx<WsBuffer> allocator = new WsebBufferAllocator(session.getBufferAllocator());
 
             // create new address to use as key and session remote address
@@ -1021,20 +999,6 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             }
 
             return binding.bindAddress();
-        }
-
-
-        // TODO: remove? See comment above that references this method
-        private URI locateSecureAcceptURI(HttpAcceptSession session) throws Exception {
-            // TODO: same-origin requests must consider cross-origin access control
-            // internal redirect to secure resource should not trigger 403 Forbidden
-            ResourceAddress localAddress = session.getLocalAddress();
-            URI resource = localAddress.getResource();
-            Protocol resourceProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(resource);
-            if (WsebProtocol.WSEB_SSL == resourceProtocol || WsProtocol.WSS == resourceProtocol) {
-                return resource;
-            }
-            return null;
         }
 
         private class NoSecurityResourceOptions implements ResourceOptions {
