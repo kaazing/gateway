@@ -637,7 +637,7 @@ public class GatewayContextResolver {
             if (serviceType.equals("http.proxy") && acceptOptions == null && connectOptions == null) {
                 if (acceptURIs.contains(connectURIs.iterator().next())) {
                     throw new RuntimeException(String.format("Different <accept> and <connect> URIs should"
-                            + " be provided for service of type %s", serviceType));
+                            + " be provided for service %s of type %s", serviceName, serviceType));
                 }
             }
 

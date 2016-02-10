@@ -38,7 +38,7 @@ public class HttpProxyIdenticalAcceptConnectIT {
     @Test
     public void shouldFailWhenIdenticalAcceptAndConnect() throws Exception {
         thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Different <accept> and <connect> URIs should be provided for service of type http.proxy");
+        thrown.expectMessage("Different <accept> and <connect> URIs should be provided for service proxy serv of type http.proxy");
         // @formatter:off
         gateway.start(new GatewayConfigurationBuilder()
                 .service()
@@ -46,6 +46,7 @@ public class HttpProxyIdenticalAcceptConnectIT {
                 .accept(URI.create("http://localhost:8081/"))
                 .connect(URI.create("http://localhost:8080/"))
                 .type("http.proxy")
+                .name("proxy serv")
             .done()
         .done());
         // @formatter:on
@@ -60,6 +61,7 @@ public class HttpProxyIdenticalAcceptConnectIT {
                 .accept(URI.create("http://localhost:8081/"))
                 .connect(URI.create("http://localhost:8080/"))
                 .type("http.proxy")
+                .name("proxy serv")
                 .connectOption("http.transport", "tcp://localhost:8081")
             .done()
         .done());
