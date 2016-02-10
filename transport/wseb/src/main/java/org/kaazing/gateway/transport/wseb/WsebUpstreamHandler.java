@@ -88,6 +88,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             session.setStatus(status);
             session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
             session.close(true);
+            return;
         }
 
         IoFilterChain filterChain = session.getFilterChain();

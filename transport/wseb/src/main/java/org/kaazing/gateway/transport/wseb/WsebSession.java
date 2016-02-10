@@ -202,7 +202,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         this.validateSequenceNo = validateSequenceNo;
         readerSequenceNo = sequenceNo+1;
         writerSequenceNo = sequenceNo+1;
-        specCompliant = "true".equals(WSE_SPECIFICATION.getProperty(configuration));
+        specCompliant = WSE_SPECIFICATION.getBooleanProperty(configuration);
         transportSession = new TransportSession(this, processor);
         transportSession.setHandler(transportHandler);
         closeTimeout = Utils.parseTimeInterval(WS_CLOSE_TIMEOUT.getProperty(configuration), TimeUnit.MILLISECONDS);

@@ -419,14 +419,10 @@ public class HttpUtils {
      * @return true if Connection: close header is part of the values
      */
     public static boolean hasCloseHeader(List<String> connectionValues) {
-        if (connectionValues != null) {
-            for (String value : connectionValues) {
-                if (value.equalsIgnoreCase("close")) {
-                    return true;
-                }
-            }
+        if (connectionValues == null) {
+            return false;
         }
-        return false;
+        return connectionValues.stream().anyMatch(v -> v.equalsIgnoreCase("close"));
     }
 
     public static URI getTransportURI(HttpRequestMessage request, IoSession session) {
