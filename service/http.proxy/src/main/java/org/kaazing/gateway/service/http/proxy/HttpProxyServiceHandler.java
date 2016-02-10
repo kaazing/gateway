@@ -251,7 +251,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         // Add forwarded headers
         setupForwardedHeaders(acceptSession, connectSession, useForwardedHeaders);
-        
+
     }
 
     private static void setupForwardedHeaders(HttpAcceptSession acceptSession,
@@ -298,13 +298,13 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
         }
 
-        String host = httpAddress.getExternalURI().getHost();
-        forwardedSb.append(format("host=%s;", host));
-        connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
-
         String protocol = httpAddress.getExternalURI().getScheme();
         forwardedSb.append(format("proto=%s;", protocol));
         connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
+
+        String host = httpAddress.getExternalURI().getHost();
+        forwardedSb.append(format("host=%s;", host));
+        connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
 
         String port = format("%d", httpAddress.getExternalURI().getPort());
         forwardedSb.append(format("port=%s", port));
