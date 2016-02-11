@@ -17,7 +17,12 @@ package org.kaazing.gateway.transport.tcp.specification;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -25,6 +30,10 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -35,17 +44,47 @@ import org.kaazing.mina.core.session.IoSessionEx;
 /**
  * RFC-793
  */
+@RunWith(Parameterized.class)
 public class TcpAcceptorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
     
     private TcpAcceptorRule acceptor = new TcpAcceptorRule();
 
+    private static String networkInterface = "";
+    static {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
+                if (resolvedNetworkInterface.isLoopback()) {
+                    networkInterface = resolvedNetworkInterface.getDisplayName();
+                    break;
+                }
+            }
+            if (networkInterface.equals("")) {
+                throw new RuntimeException("No loopback interfaces could be found");
+            }
+        } catch (SocketException socketEx) {
+            throw new RuntimeException("No interfaces could be found");
+        }
+    }
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                {"tcp://127.0.0.1:8080"}, {"tcp://[@" + networkInterface + "]:8080"}, {"tcp://@" + networkInterface + ":8080"}
+           });
+    }
+
+    @Parameter
+    public String uri;
+
     @Rule
     public TestRule chain = createRuleChain(acceptor, k3po);
 
     private void bindTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
-        acceptor.bind("tcp://127.0.0.1:8080", handler);
+        acceptor.bind(uri, handler);
         k3po.start();
         k3po.notifyBarrier("BOUND");
     }
