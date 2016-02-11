@@ -92,4 +92,10 @@ public class UpstreamIT {
     void shouldCloseConnectionWhenSubsequentUpstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
+
+    // Not applicable for WsebConnector (which does a single chunked upstream request)
+    @Specification("client.send.multiple.requests/upstream.response")
+    void shouldAllowMultipleSequentialUpstreamRequests() throws Exception {
+        k3po.finish();
+    }
 }

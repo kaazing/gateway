@@ -90,4 +90,10 @@ public class UpstreamIT {
     public void shouldCloseConnectionWhenSubsequentUpstreamRequestIsOutOfOrder() throws Exception {
         k3po.finish();
     }
+
+    @Test
+    @Specification("client.send.multiple.requests/upstream.request")
+    public void shouldAllowMultipleSequentialUpstreamRequests() throws Exception {
+        k3po.finish();
+    }
 }
