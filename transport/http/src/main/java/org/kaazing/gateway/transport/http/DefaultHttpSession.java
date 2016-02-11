@@ -30,8 +30,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.security.auth.Subject;
@@ -105,7 +107,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private final AtomicBoolean connectionClose;
     private ResultAwareLoginContext loginContext;
     private final AtomicBoolean shutdownWrite;
-    private IoBufferEx readRequest;
+    private Queue<IoBufferEx> deferredReads = new ConcurrentLinkedQueue<IoBufferEx>();
 
 	private boolean isChunked;
 
@@ -549,12 +551,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return super.getRemoteAddress();
     }
 
-    public IoBufferEx getCurrentReadRequest() {
-        return readRequest;
+    public Queue<IoBufferEx> getDeferredReads() {
+        return deferredReads;
     }
 
-    public void setCurrentReadRequest(IoBufferEx buffer) {
-        readRequest = buffer;
+    public void addDeferredRead(IoBufferEx buffer) {
+        deferredReads.add(buffer);
     }
 
     public boolean isConnectionClose() {
