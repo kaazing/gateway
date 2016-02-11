@@ -33,7 +33,6 @@ import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
-import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -84,6 +83,17 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         if (!(HttpMethod.POST == session.getMethod())) {
             wsebSession.setCloseException(
                     new IOException("Unsupported upstream request method: " + session.getMethod()));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
+            return;
+        }
+
+        String contentLength = session.getReadHeader(HEADER_CONTENT_LENGTH);
+        if (contentLength != null && contentLength.equals("0")) {
+            wsebSession.setCloseException(
+                    new IOException("Invalid upstream request: content length must not be zero"));
             HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
             session.setStatus(status);
             session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");

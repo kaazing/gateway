@@ -30,6 +30,7 @@ import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.test.util.MethodExecutionTrace;
@@ -46,13 +47,14 @@ public class UpstreamIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
+                        .property(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s")
                         .service()
                             .accept(URI.create("wse://localhost:8080/path"))
                             .type("echo")
                         .done()
                     .done();
             // @formatter:on
-            init(configuration, "log4j-trace.properties");
+            init(configuration);
         }
     };
 
@@ -94,6 +96,12 @@ public class UpstreamIT {
     @Test
     @Specification("client.send.multiple.requests/upstream.request")
     public void shouldAllowMultipleSequentialUpstreamRequests() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("zero.content.length.request/upstream.request")
+    public void shouldRejectZeroContentLengthUpstreamRequest() throws Exception {
         k3po.finish();
     }
 }
