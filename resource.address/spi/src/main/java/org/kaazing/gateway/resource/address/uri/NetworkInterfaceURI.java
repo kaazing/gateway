@@ -177,7 +177,7 @@ public class NetworkInterfaceURI implements URIAccessor {
                 throw new NetworkInterfaceSyntaxException("Network interface URI syntax should only"
                         + "be applicable for tcp and udp schemes");
             }
-            Pattern pattern = Pattern.compile("(\\[+@[a-zA-Z0-9 ]*\\]+)");
+            Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 ]*\\]{0,1})");
             Matcher matcher = pattern.matcher(uri);
             if (!matcher.find()) {
                 throw new NetworkInterfaceSyntaxException("Invalid network interface URI syntax");
