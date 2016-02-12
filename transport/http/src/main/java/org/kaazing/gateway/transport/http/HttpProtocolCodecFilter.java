@@ -60,11 +60,12 @@ public class HttpProtocolCodecFilter extends ProtocolCodecFilter {
                 IoBufferEx cachedProtocolBuffer = message.getCache().get(nextProtocol);
                 if (cachedProtocolBuffer != null) {
                     if(cachedProtocolBuffer.capacity()==0) {
-                        // We must commit this http session if the child is committing, to ensure
-                        // the http headers get written
+                        // We must commit this http session if the child is committing but not closing, to ensure
+                        // the http headers get written immediately (before data is sent or the session is closed)
                         HttpSession child = HttpAcceptor.SESSION_KEY.get(session);
-                        if (child != null && child.isCommitting() && session instanceof DefaultHttpSession) {
-                            ((DefaultHttpSession)session).commit().addListener(
+                        if (session instanceof HttpAcceptSession && child != null && child.isCommitting()
+                                && !child.isClosing()) {
+                            ((HttpAcceptSession)session).commit().addListener(
                                     new IoFutureListener<IoFuture>() {
                                         @Override
                                         public void operationComplete(IoFuture future) {
