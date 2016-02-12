@@ -68,6 +68,7 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
     protected ScheduledExecutorService scheduler;
     protected ResultAwareLoginContext loginContext;
     private List<WebSocketExtension> extensions;
+    private Throwable closeException;
 
     public AbstractWsBridgeSession(int ioLayer, Thread ioThread, Executor ioExecutor, IoServiceEx service, IoProcessorEx<S> sIoProcessor, ResourceAddress localAddress,
                                    ResourceAddress remoteAddress, IoBufferAllocatorEx<B> allocator,
@@ -197,6 +198,21 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
             }
         }
         loginContext = null;
+    }
+
+    public Throwable getCloseException() {
+        return closeException;
+    }
+
+    // Use this to prevent multiple reporting of the close exception
+    public Throwable getAndClearCloseException() {
+        Throwable result = closeException;
+        closeException = null;
+        return result;
+    }
+
+    public void setCloseException(Throwable t) {
+        this.closeException = t;
     }
 
 }

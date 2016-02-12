@@ -15,10 +15,10 @@
  */
 package org.kaazing.gateway.transport.wseb;
 
-import static java.lang.String.format;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.apache.mina.core.filterchain.IoFilter;
@@ -26,9 +26,12 @@ import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IdleStatus;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
+import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.ws.Command;
 import org.kaazing.gateway.transport.ws.WsCloseMessage;
@@ -41,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Pattern CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = Pattern.compile("text/plain;\\s*charset=utf-8", CASE_INSENSITIVE);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
@@ -58,10 +60,10 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         this(nextProtocolAddress, wsebSession, null, wsMaxMessageSize);
     }
 
-    public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding, 
+    public WsebUpstreamHandler(ResourceAddress nextProtocolAddress, WsebSession wsebSession, Encoding utf8Encoding,
                                int wsMaxMessageSize) {
         this.wsebSession = wsebSession;
-        this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize);
+        this.codec = new WsebDecodingCodecFilter(wsMaxMessageSize, wsebSession.isPingEnabled());
         this.utf8 = (utf8Encoding != null) ? new EncodingFilter(utf8Encoding) : null;
     }
 
@@ -73,8 +75,29 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
         WsebSession wsebSession = getSession(session);
-        if (wsebSession == null || wsebSession.isClosing()) {
+        if (wsebSession == null || wsebSession.isClosing() && wsebSession.isCloseReceived()) {
             session.close(false);
+            return;
+        }
+
+        if (!(HttpMethod.POST == session.getMethod())) {
+            wsebSession.setCloseException(
+                    new IOException("Unsupported upstream request method: " + session.getMethod()));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
+            return;
+        }
+
+        String contentLength = session.getReadHeader(HEADER_CONTENT_LENGTH);
+        if (contentLength != null && contentLength.equals("0")) {
+            wsebSession.setCloseException(
+                    new IOException("Invalid upstream request: content length must not be zero"));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
             return;
         }
 
@@ -85,7 +108,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // only supported for non-binary upstream
         if (utf8 != null) {
             // Note: encoding filter needs to be closer to the network than the codec filter
-            String contentType = session.getReadHeader(HEADER_CONTENT_TYPE);
+            String contentType = session.getReadHeader(HttpHeaders.HEADER_CONTENT_TYPE);
             if (CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8.matcher((contentType)).matches()) {
                 filterChain.addBefore(CODEC_FILTER, UTF8_FILTER, utf8);
             }
@@ -125,7 +148,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         WsebSession wsebSession = getSession(session);
         WsMessage wsebMessage = (WsMessage)message;
         IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
-        
+
         switch (wsebMessage.getKind()) {
         case COMMAND:
             for (Command command : ((WsCommandMessage)wsebMessage).getCommands()) {
@@ -151,16 +174,11 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-        if (logger.isDebugEnabled()) {
-            String message = format("Exception while handling HTTP upstream for WsebSession: %s", getSession(session));
-            if (logger.isTraceEnabled()) {
-                // note: still debug level, but with extra detail about the exception
-                logger.debug(message, cause);
-            } else {
-                logger.debug(message);
-            }
-        }
-        session.setStatus(HttpStatus.SERVER_INTERNAL_ERROR);
+        wsebSession.setCloseException(cause);
+        HttpStatus status = cause instanceof ProtocolDecoderException ? HttpStatus.CLIENT_BAD_REQUEST
+                : HttpStatus.SERVER_INTERNAL_ERROR;
+        session.setStatus(status);
+        session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
         session.close(true);
     }
 
@@ -169,8 +187,10 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // session is long lived so we do not want to close it when the http session is closed
 
         WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && session.getStatus() != HttpStatus.SUCCESS_OK) {
-            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK
+                                    || wsebSession.getCloseException() != null)) {
+            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+                    wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
     }
 

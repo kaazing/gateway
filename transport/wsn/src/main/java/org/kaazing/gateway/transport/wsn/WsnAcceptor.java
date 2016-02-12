@@ -684,13 +684,14 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         @Override
         protected void doSessionClosed(IoSessionEx session) throws Exception {
             WsnSession wsnSession = SESSION_KEY.remove(session);
-            boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED); 
+            boolean isWsx = !wsnSession.getLocalAddress().getOption(CODEC_REQUIRED);
             if (wsnSession != null && !wsnSession.isClosing()) {
                 if (isWsx) {
                     wsnSession.getProcessor().remove(wsnSession);
                 } else {
                     wsnSession.reset(
-                            new IOException("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+                            new IOException("Network connectivity has been lost or transport was closed at other end",
+                                    wsnSession.getCloseException()).fillInStackTrace());
                 }
             }
 
@@ -950,7 +951,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
             }
 
             doUpgradeFailure(session);
-            }
+        }
 
         /*
          * "Application Basic", "Application Token", "Application Negotiate" challenge schemes

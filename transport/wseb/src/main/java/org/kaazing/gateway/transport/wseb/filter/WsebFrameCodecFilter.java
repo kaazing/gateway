@@ -26,21 +26,23 @@ import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 
 public class WsebFrameCodecFilter extends ProtocolCodecFilter {
 
-    public WsebFrameCodecFilter(int wsMaxMessageSize) {
-        super(new WsCodecFactory(wsMaxMessageSize));
+    public WsebFrameCodecFilter(int wsMaxMessageSize, boolean pingEnabled) {
+        super(new WsCodecFactory(wsMaxMessageSize, pingEnabled));
     }
 
     private static class WsCodecFactory implements ProtocolCodecFactory {
         private int wsMaxMessageSize;
-        
-        public WsCodecFactory(int wsMaxMessageSize) {
+        private boolean pingEnabled;
+
+        public WsCodecFactory(int wsMaxMessageSize, boolean pingEnabled) {
             this.wsMaxMessageSize = wsMaxMessageSize;
+            this.pingEnabled = pingEnabled;
         }
 
         public ProtocolEncoder getEncoder(IoSession session) {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
-            
+
             if (session instanceof BridgeSession) {
                 BridgeSession bridgeSession = (BridgeSession)session;
                 return new WsebFrameEncoder(bridgeSession.getMessageEncoder(), allocator);
@@ -53,7 +55,7 @@ public class WsebFrameCodecFilter extends ProtocolCodecFilter {
             IoSessionEx sessionEx = (IoSessionEx) session;
             IoBufferAllocatorEx<?> allocator = sessionEx.getBufferAllocator();
 
-            return new WsebFrameDecoder(allocator, wsMaxMessageSize);
+            return new WsebFrameDecoder(allocator, wsMaxMessageSize, pingEnabled);
         }
     }
 }

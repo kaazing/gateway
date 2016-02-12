@@ -16,13 +16,13 @@
 package org.kaazing.gateway.transport.ws;
 
 public abstract class Command {
-		
+
 	public abstract int value();
 
 	private static final Command NOOP = new SingleInstructionCommand(0x00);
     private static final Command RECONNECT = new SingleInstructionCommand(0x01);
     private static final Command CLOSE = new SingleInstructionCommand(0x02);
-	
+
 	public static Command noop() {
 		return NOOP;
 	}
@@ -30,22 +30,27 @@ public abstract class Command {
 	public static Command reconnect() {
 		return RECONNECT;
 	}
-	
+
 	public static Command close() {
 	    return CLOSE;
 	}
-	
+
 	private static class SingleInstructionCommand extends Command {
-	    
+
 	    private final int value;
-	    
+
 	    public SingleInstructionCommand(int value) {
 	        this.value = value;
 	    }
-	    
+
 	    @Override
         public int value() {
             return value;
         }
+
+	    @Override
+	    public String toString() {
+	        return value == 0 ? "NOOP" : value == 1 ? "RECONNECT" : value == 2 ? "CLOSE" : "UNKNOWN";
+	    }
 	}
 }

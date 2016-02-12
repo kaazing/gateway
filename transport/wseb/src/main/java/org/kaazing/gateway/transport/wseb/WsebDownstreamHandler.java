@@ -17,9 +17,13 @@ package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BINARY;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +36,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpHeaders;
+import org.kaazing.gateway.transport.http.HttpMethod;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.gateway.transport.http.HttpUtils;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
@@ -45,14 +50,13 @@ import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("deprecation")
 class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebDownstreamHandler.class);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String ENCODING_FILTER = WsebProtocol.NAME + "#escape";
     private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
-    private static final String RECONNECT_FILTER = WsebProtocol.NAME + "#reconnect";
+    private static final EnumSet<HttpMethod> PERMITTED_REQUEST_METHODS = EnumSet.of(HttpMethod.GET, HttpMethod.POST);
 
     private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     // TODO: make this setting available via configuration, with a reasonable default
@@ -62,7 +66,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private final WsebSession wsebSession;
     private final WsebEncodingCodecFilter codec;
     private final IoFilter encoding;
-    private final ScheduledExecutorService scheduler;
     private IoSessionIdleTracker inactivityTracker = null;
     private final BridgeServiceFactory bridgeServiceFactory;
 
@@ -90,7 +93,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             this.codec = escapeEncoding != null ? new WsebEncodingCodecFilter(EscapeTypes.ESCAPE_ZERO_AND_NEWLINES) : new WsebEncodingCodecFilter();
             this.encoding = null;
         }
-        this.scheduler = scheduler;
         this.inactivityTracker = inactivityTracker;
         this.bridgeServiceFactory = bridgeServiceFactory;
     }
@@ -108,16 +110,19 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         WsebSession wsebSession = getSession(session);
-        wsebSession.writerException = cause;
-
+        wsebSession.setCloseException(cause);
+        HttpStatus status = HttpStatus.SERVER_INTERNAL_ERROR;
+        session.setStatus(status);
+        session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
         session.close(true);
     }
 
     @Override
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
         WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.writerException != null)) {
-            wsebSession.reset(new Exception("Network connectivity has been lost or transport was closed at other end").fillInStackTrace());
+        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
+            wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
+                    wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
 
         IoFilterChain filterChain = session.getFilterChain();
@@ -135,17 +140,30 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
+        if (!PERMITTED_REQUEST_METHODS.contains(session.getMethod())) {
+            wsebSession.setCloseException(
+                    new IOException("Unsupported downstream request method: " + session.getMethod()));
+            HttpStatus status = HttpStatus.CLIENT_BAD_REQUEST;
+            session.setStatus(status);
+            session.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+            session.close(true);
+        }
+
         IoFilterChain bridgeFilterChain = session.getFilterChain();
         addBridgeFilters(bridgeFilterChain, wsebSession); // pass in wseb session in case bridge filters need access to ws session data (e.g. extensions)
 
         // check if this session requests a short or a long keepalive timeout
-        int clientIdleTimeout = ("20".equals(session.getParameter(".kkt"))) ? 20 : wsebSession.getClientIdleTimeout();
+        int clientIdleTimeout = wsebSession.getClientIdleTimeout();
+        String requestedKeepAliveIntervalInSeconds = session.getParameter(".kkt");
+        if (requestedKeepAliveIntervalInSeconds != null) {
+            clientIdleTimeout = Integer.parseInt(requestedKeepAliveIntervalInSeconds);
+        }
 
         // we don't need to send idletimeout keep-alive messages if we're already sending PINGs for inactivity timeout
-        // at high enough frequency
-        int inactivityTimeoutInSeconds = (int) (wsebSession.getInactivityTimeout() / 1000);
-        if (inactivityTimeoutInSeconds == 0 || inactivityTimeoutInSeconds > clientIdleTimeout) {
-            session.getConfig().setWriterIdleTime(clientIdleTimeout / 2);
+        // at high enough frequency (these are sent every inactivity timeout / 2)
+        int inactivityPingIntervalInSeconds = (int) (wsebSession.getInactivityTimeout() / 2000);
+        if (inactivityPingIntervalInSeconds == 0 || inactivityPingIntervalInSeconds > clientIdleTimeout) {
+            session.getConfig().setWriterIdleTime(clientIdleTimeout);
         }
 
         // most clients use GET for downstream (empty POST okay too)
@@ -257,7 +275,7 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         }
 
         session.setWriteHeader("X-Content-Type-Options", "nosniff");
-        session.setWriteHeader("Content-Type", contentType);
+        session.setWriteHeader(HEADER_CONTENT_TYPE, contentType);
         session.setWriteHeader("X-Idle-Timeout", String.valueOf(wsebSession.getClientIdleTimeout()));
 
         // look for mime detection padding override

@@ -44,8 +44,6 @@ public class MethodExecutionTrace extends TestWatcher {
      * to help diagnose the failure.
      */
     public MethodExecutionTrace() {
-        // TODO: consider using or exposing programmatic configuration instead,
-        // see https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/BasicConfigurator.html instead
         this("log4j-trace.properties");
     }
 
@@ -71,6 +69,15 @@ public class MethodExecutionTrace extends TestWatcher {
             } catch (IOException e) {
                 throw new RuntimeException(String.format("Could not load resource %s", log4jPropertiesResourceName), e);
             }
+        }
+    }
+
+    // see https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/BasicConfigurator.html instead
+
+    public MethodExecutionTrace(Properties log4jProperties) {
+        MemoryAppender.initialize();
+        if (log4jProperties != null) {
+                PropertyConfigurator.configure(log4jProperties);
         }
     }
 

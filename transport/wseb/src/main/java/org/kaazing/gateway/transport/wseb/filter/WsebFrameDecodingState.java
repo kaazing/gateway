@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.wseb.filter;
 
+import static java.lang.String.format;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +32,8 @@ import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.WsPongMessage;
 import org.kaazing.gateway.transport.ws.WsTextMessage;
+import org.kaazing.gateway.util.ErrorHandler;
+import org.kaazing.gateway.util.Utf8Util;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.filter.codec.statemachine.ConsumeToTerminatorDecodingState;
@@ -41,7 +45,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
     private static final byte COMMAND_TYPE_BYTE = (byte)0x01;
     private static final byte BINARY_TYPE_BYTE = (byte)0x80;
     private static final byte SPECIFIED_LENGTH_TEXT_TYPE_BYTE = (byte)0x81;
-    
+
     private static final byte PING_TYPE_BYTE = (byte)0x89;
     private static final byte PONG_TYPE_BYTE = (byte)0x8A;
 
@@ -50,6 +54,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
     private static final byte TWO_BYTE =  (byte)'2';
 
     private final int maxDataSize;
+    private final boolean pingEnabled;
 
     private final DecodingState READ_FRAME_TYPE = new SingleByteDecodingState() {
 
@@ -65,8 +70,14 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
             case SPECIFIED_LENGTH_TEXT_TYPE_BYTE:
                 return READ_SPECIFIED_LENGTH_TEXT_FRAME_LENGTH;
             case PING_TYPE_BYTE:
+                if (!pingEnabled) {
+                    throw new ProtocolDecoderException("ping and pong commands are not enabled");
+                }
                 return READ_PING_FRAME;
             case PONG_TYPE_BYTE:
+                if (!pingEnabled) {
+                    throw new ProtocolDecoderException("ping and pong commands are not enabled");
+                }
                 return READ_PONG_FRAME;
             default:
                 throw new ProtocolDecoderException("Unexpected frame type: " + Integer.toHexString((frameType & 0xff)));
@@ -105,6 +116,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
             messageSizeSoFar = 0;
             finished = true;
             checkSizeLimit(buffer.remaining());
+            validateUTF8(buffer);
             out.write(new WsTextMessage((IoBufferEx) buffer));
 
             return READ_FRAME_TYPE;
@@ -187,7 +199,7 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         @Override
         protected DecodingState finishDecode(byte lengthByte1, ProtocolDecoderOutput out) throws Exception {
             if ( lengthByte1 != (byte)0 ) {
-                throw new ProtocolDecoderException("Ping frame length must be 0, but got: " + Integer.toHexString((lengthByte1 & 0xff)));
+                throw new ProtocolDecoderException("Pong frame length must be 0, but got: " + Integer.toHexString((lengthByte1 & 0xff)));
             }
             out.write(new WsPongMessage(allocator.wrap(allocator.allocate(0))));
             return READ_FRAME_TYPE;
@@ -232,7 +244,8 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
                 return new FixedLengthDecodingState(allocator, frameSize) {
                     @Override
                     protected DecodingState finishDecode(IoBuffer product, ProtocolDecoderOutput out) throws Exception {
-                        // read the binary frame contents
+                        validateUTF8(product);
+                        // read the text frame contents
                         out.write(new WsTextMessage((IoBufferEx) product));
                         return READ_FRAME_TYPE;
                     }
@@ -241,9 +254,10 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
         }
     };
 
-    WsebFrameDecodingState(IoBufferAllocatorEx<?> allocator, int maxDataSize) {
+    WsebFrameDecodingState(IoBufferAllocatorEx<?> allocator, int maxDataSize, boolean pingEnabled) {
         super(allocator);
         this.maxDataSize = maxDataSize;
+        this.pingEnabled = pingEnabled;
     }
 
     @Override
@@ -276,6 +290,24 @@ public class WsebFrameDecodingState extends DecodingStateMachine {
     private void checkSizeLimit(int sizeSoFar) throws ProtocolDecoderException {
         if (maxDataSize > 0 && sizeSoFar > maxDataSize) {
             throw new ProtocolDecoderException("incoming message size exceeds permitted maximum of " + maxDataSize + " bytes");
+        }
+    }
+
+    private void validateUTF8(IoBuffer buffer) throws ProtocolDecoderException {
+        final StringBuffer error = new StringBuffer("WebSocket text frame content is not valid UTF-8: ");
+        int result = Utf8Util.validateUTF8(buffer.buf(), buffer.position(), buffer.remaining(), new ErrorHandler() {
+
+            @Override
+            public void handleError(String message) {
+                error.append(message);
+
+            }
+        });
+        if (result != 0) {
+            if (result > 0) {
+                error.append(format("final character is incomplete, missing %d bytes", result));
+            }
+            throw new ProtocolDecoderException(error.toString());
         }
     }
 
