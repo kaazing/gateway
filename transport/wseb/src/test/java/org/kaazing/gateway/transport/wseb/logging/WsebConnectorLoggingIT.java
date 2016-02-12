@@ -32,7 +32,6 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -99,7 +98,6 @@ public class WsebConnectorLoggingIT {
     @Test
     @Specification({
         "control/server.send.invalid.ping/response" })
-    //@Ignore("gateway#387: WSE connector (WsebConnector) goes into infinite loop if a protocol error is detected on the reader")
     public void shouldLogProtocolException() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -183,8 +181,7 @@ public class WsebConnectorLoggingIT {
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
-            // TODO: See why the following is not logged (on upstream and downstream)
-            // "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] WRITE",
             "http#.* [^/]*:\\d*] RECEIVED",
@@ -226,8 +223,7 @@ public class WsebConnectorLoggingIT {
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
-            // TODO: See why the following is not logged (on upstream and downstream)
-            //"http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] WRITE",
             "http#.* [^/]*:\\d*] RECEIVED",
@@ -266,8 +262,7 @@ public class WsebConnectorLoggingIT {
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] OPENED",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] WRITE",
             "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] RECEIVED",
-            // TODO: See why the following is not logged (on upstream and downstream)
-            //"http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
+            "http#[^wseb#]*wseb#[^ ]* [^/]*:\\d*] CLOSED",
             "http#.* [^/]*:\\d*] OPENED",
             "http#.* [^/]*:\\d*] WRITE",
             "http#.* [^/]*:\\d*] RECEIVED",
