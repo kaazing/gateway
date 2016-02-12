@@ -15,13 +15,12 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -30,10 +29,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.http.HttpAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
-import org.kaazing.gateway.transport.ws.WsAcceptor;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 
@@ -45,7 +40,6 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  */
 public class WsnAcceptorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
     private ResourceAddressFactory addressFactory;
     private WsnAcceptor wsnAcceptor;
 
@@ -55,11 +49,6 @@ public class WsnAcceptorRule implements TestRule {
     }
 
     public WsnAcceptorRule() {
-        this(null);
-    }
-
-    public WsnAcceptorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
     }
 
     public void bind(String accept, IoHandler acceptHandler) {
@@ -69,7 +58,7 @@ public class WsnAcceptorRule implements TestRule {
 
         wsnAcceptor.bind(acceptAddress, acceptHandler, null);
     }
-   
+
    public void bind(ResourceAddress acceptAddress, IoHandler acceptHandler) {
        wsnAcceptor.bind(acceptAddress, acceptHandler, null);
    }
@@ -78,67 +67,31 @@ public class WsnAcceptorRule implements TestRule {
 
         private final Statement base;
 
-        private NioSocketConnector tcpConnector;
-        private NioSocketAcceptor tcpAcceptor;
-        private WsAcceptor wsAcceptor;
-        private HttpAcceptor httpAcceptor;
-        private SchedulerProvider schedulerProvider;
-
         public AcceptorStatement(Statement base) {
             this.base = base;
         }
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                in.close();
-                PropertyConfigurator.configure(log4j);
-            }
+            SchedulerProvider schedulerProvider = new SchedulerProvider();
+            TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
+            addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+
+            Map<String, Object> resources = new HashMap<String, Object>();
+            resources.put("schedulerProvider",  schedulerProvider);
+            resources.put("configuration",  new Properties());
+            resources.put("bridgeServiceFactory", new BridgeServiceFactory(transportFactory));
+            resources.put("resourceAddressFactory", addressFactory);
+            transportFactory.injectResources(resources);
+
+            wsnAcceptor = (WsnAcceptor)transportFactory.getTransport("wsn").getAcceptor();
+
             try {
-                // Connector setup
-                schedulerProvider = new SchedulerProvider();
-
-                addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
-                BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
-
-                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
-                tcpAcceptor.setResourceAddressFactory(addressFactory);
-                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
-                tcpAcceptor.setSchedulerProvider(schedulerProvider);
-
-                tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
-                tcpConnector.setResourceAddressFactory(addressFactory);
-                tcpConnector.setBridgeServiceFactory(serviceFactory);
-                tcpConnector.setTcpAcceptor(tcpAcceptor);
-
-                httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
-                httpAcceptor.setBridgeServiceFactory(serviceFactory);
-                httpAcceptor.setResourceAddressFactory(addressFactory);
-                httpAcceptor.setSchedulerProvider(schedulerProvider);
-
-                wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
-
-                wsnAcceptor = (WsnAcceptor)transportFactory.getTransport("wsn").getAcceptor();
-                wsnAcceptor.setConfiguration(new Properties());
-                wsnAcceptor.setBridgeServiceFactory(serviceFactory);
-                wsnAcceptor.setSchedulerProvider(schedulerProvider);
-                wsnAcceptor.setResourceAddressFactory(addressFactory);
-                wsnAcceptor.setWsAcceptor(wsAcceptor);
-
                 base.evaluate();
             } finally {
-                tcpConnector.dispose();
-                tcpAcceptor.dispose();
-                httpAcceptor.dispose();
                 wsnAcceptor.dispose();
+                transportFactory.getTransport("http").getAcceptor().dispose();
+                transportFactory.getTransport("tcp").getAcceptor().dispose();
                 schedulerProvider.shutdownNow();
             }
         }
