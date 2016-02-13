@@ -2,7 +2,37 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.44...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.45...HEAD)
+
+**Fixed bugs:**
+
+- wse transport behavior when it receives an invalid WSE control frame on the input stream is incorrect [\#390](https://github.com/kaazing/gateway/issues/390)
+- WSE connector \(WsebConnector\) goes into infinite loop if a protocol error is detected on the reader [\#387](https://github.com/kaazing/gateway/issues/387)
+- Remove Build Warnings [\#375](https://github.com/kaazing/gateway/issues/375)
+- Wse Acceptor: should not connect if method is not Post [\#327](https://github.com/kaazing/gateway/issues/327)
+- Wse Acceptor: should not connect if "X-WebSocket\_Version" is missing or has wrong values [\#326](https://github.com/kaazing/gateway/issues/326)
+- Wse Acceptor: Missing HTTP header: X-WebSocket-Protocol in response [\#325](https://github.com/kaazing/gateway/issues/325)
+- Wse Acceptor: Missing HTTP header: X-WebSocket-Extensions in respose [\#324](https://github.com/kaazing/gateway/issues/324)
+- Wse Acceptor: should not connect if "X-Sequence-Number" is missing or has wrong values [\#323](https://github.com/kaazing/gateway/issues/323)
+- Wse Acceptor: should not connect if "X-Accept-Commands" has wrong values [\#322](https://github.com/kaazing/gateway/issues/322)
+
+**Closed issues:**
+
+- wse transport sometimes fails with "Attempt to read into suspended session that already has a current read request" [\#421](https://github.com/kaazing/gateway/issues/421)
+- http transport is not parsing certain comma separated http headers correctly \(ones used for wseb\) [\#410](https://github.com/kaazing/gateway/issues/410)
+- WSE connector \(WsebConnector\) does not complete the upstream HTTP request when closing  [\#408](https://github.com/kaazing/gateway/issues/408)
+- WSE connector \(WsebConnector\) does not do close handshake [\#345](https://github.com/kaazing/gateway/issues/345)
+
+**Merged pull requests:**
+
+- Fixed org.kaazing.gateway.server.test.Gateway testware class not to swallow exceptions [\#420](https://github.com/kaazing/gateway/pull/420) ([cmebarrow](https://github.com/cmebarrow))
+- Wse spec tests and changes for wse spec compliance [\#418](https://github.com/kaazing/gateway/pull/418) ([cmebarrow](https://github.com/cmebarrow))
+- Fixed issue regarding IndexOutOfBounds when no addresses available [\#414](https://github.com/kaazing/gateway/pull/414) ([vmaraloiu](https://github.com/vmaraloiu))
+- Issue.183 added 2 new scenarios for validating accept and connect trailing slashes [\#412](https://github.com/kaazing/gateway/pull/412) ([msalavastru](https://github.com/msalavastru))
+- Forward Port issue266  from 4.0 to  CE/EE [\#407](https://github.com/kaazing/gateway/pull/407) ([mjolie](https://github.com/mjolie))
+
+## [5.0.1.45](https://github.com/kaazing/gateway/tree/5.0.1.45) (2016-01-28)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.44...5.0.1.45)
 
 **Merged pull requests:**
 
@@ -40,6 +70,7 @@
 
 - Modified xsd file in order to support only one \<connect\> for http.proxy [\#401](https://github.com/kaazing/gateway/pull/401) ([mgherghe](https://github.com/mgherghe))
 - clarified logging [\#398](https://github.com/kaazing/gateway/pull/398) ([dpwspoon](https://github.com/dpwspoon))
+- Issue 384: provide INFO level diagnostics for exceptions like ProtocolDecoderException [\#396](https://github.com/kaazing/gateway/pull/396) ([cmebarrow](https://github.com/cmebarrow))
 - Allow 0 or more spaces in parsing of wse accept content-type header [\#393](https://github.com/kaazing/gateway/pull/393) ([dpwspoon](https://github.com/dpwspoon))
 - Fixed bridge build to include javascript and java bridge [\#391](https://github.com/kaazing/gateway/pull/391) ([dpwspoon](https://github.com/dpwspoon))
 - Http.proxy does not append path in connect \#183 [\#382](https://github.com/kaazing/gateway/pull/382) ([msalavastru](https://github.com/msalavastru))
@@ -229,6 +260,7 @@
 - Add wsn spec tests [\#270](https://github.com/kaazing/gateway/pull/270) ([jitsni](https://github.com/jitsni))
 - Resolves \#264 [\#265](https://github.com/kaazing/gateway/pull/265) ([dpwspoon](https://github.com/dpwspoon))
 - Added ability to filter IP addresses [\#263](https://github.com/kaazing/gateway/pull/263) ([sanjay-saxena](https://github.com/sanjay-saxena))
+- WSE Spec Test [\#262](https://github.com/kaazing/gateway/pull/262) ([pkhanal](https://github.com/pkhanal))
 - fixing md for html I hope [\#261](https://github.com/kaazing/gateway/pull/261) ([michaelcretzman](https://github.com/michaelcretzman))
 - output formatting error [\#260](https://github.com/kaazing/gateway/pull/260) ([michaelcretzman](https://github.com/michaelcretzman))
 - fixing link errors [\#259](https://github.com/kaazing/gateway/pull/259) ([michaelcretzman](https://github.com/michaelcretzman))

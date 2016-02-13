@@ -31,7 +31,6 @@ import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.core.write.WriteRequestQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.service.AbstractIoProcessor;
@@ -72,13 +71,15 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
         try {
             removeInternal(session);
         } finally {
-        // look at write queue and get tail, get future and fire destroy when tail has been written
-            session.getService().getListeners().fireSessionDestroyed(session);
+            doFireSessionDestroyed(session);
         }
 
     }
 
     protected void doFireSessionDestroyed(T session) {
+        // TODO? look at write queue and get tail, get future and fire destroy when tail has been written
+        //       or do fireSessionDestroyed from a listener on the parent session close future
+        session.getService().getListeners().fireSessionDestroyed(session);
     }
 
     protected void removeInternal(T session) {
@@ -116,7 +117,7 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
                     if (remaining == 0) {
                         throw new IllegalStateException("Unexpected empty buffer");
                     }
-                    
+
                     // drain the unwritten write requests to ensure that session.close(false)
                     // still triggers the session close future
                     if (parent.isClosing()) {
@@ -187,7 +188,7 @@ public abstract class AbstractBridgeProcessor<T extends AbstractBridgeSession<?,
             filterChain.fireExceptionCaught(t);
         }
 	}
-	
+
     private static void attachMessageSentInternal(final IoFilterChain filterChain, final IoBufferEx resetBuf, final WriteRequest request, WriteFuture future) {
         if (future.isDone()) {
 			if (future.isWritten()) {

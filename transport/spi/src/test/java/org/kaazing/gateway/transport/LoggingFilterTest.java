@@ -58,7 +58,7 @@ import org.kaazing.mina.core.service.IoServiceEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 
 public class LoggingFilterTest {
-    
+
     @Rule
     public JUnitRuleMockery context = new  JUnitRuleMockery();
 
@@ -67,9 +67,9 @@ public class LoggingFilterTest {
 
     final NextFilter nextFilter = context.mock(NextFilter.class);
     final Logger logger = context.mock(Logger.class);
-    
+
     @Test
-    public void shouldLogExceptionAsErrorWithStack() throws Exception {
+    public void shouldLogExceptionWithStack() throws Exception {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
         final Exception exception = new NullPointerException();
         exception.fillInStackTrace();
@@ -87,7 +87,7 @@ public class LoggingFilterTest {
     }
 
     @Test
-    public void shouldLogIOExceptionAsInfoWithoutStack() throws Exception {
+    public void shouldLogIOExceptionWithoutStackWhenThereIsNoCause() throws Exception {
         LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
         final Exception exception = new IOException();
         exception.fillInStackTrace();
@@ -103,7 +103,26 @@ public class LoggingFilterTest {
 
         filter.exceptionCaught(nextFilter, session, exception);
     }
-    
+
+    @Test
+    public void shouldLogIOExceptionWithMessageIncludingCauseAndCauseExceptionStack() throws Exception {
+        LoggingFilter filter = new ExceptionLoggingFilter(logger, "tcp%s");
+        Exception cause = new Exception("Cause exception");
+        final Exception exception = new IOException("Oops", cause);
+        exception.fillInStackTrace();
+
+        context.checking(new Expectations() {
+            {
+                oneOf(logger).isInfoEnabled(); will(returnValue(true));
+                oneOf(session).getId(); will(returnValue(123L));
+                oneOf(logger).info(with(stringMatching(".*IOException.*Oops.*Cause exception")), with(cause));
+                oneOf(nextFilter).exceptionCaught(session, exception);
+            }
+        });
+
+        filter.exceptionCaught(nextFilter, session, exception);
+    }
+
     @Test
     public void getUserIdentifierShouldReturnLocalAddress() throws Exception {
 
@@ -137,7 +156,7 @@ public class LoggingFilterTest {
         });
         assertEquals("127.0.0.1:2121", LoggingFilter.getUserIdentifier(sessionEx));
     }
-    
+
     @Test
     public void getUserIdentifierShouldReturnIpv6AddressForIoAcceptor() throws Exception {
 

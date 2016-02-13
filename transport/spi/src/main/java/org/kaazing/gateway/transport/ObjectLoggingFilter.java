@@ -15,45 +15,12 @@
  */
 package org.kaazing.gateway.transport;
 
-import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
-
-import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.filterchain.IoFilterChain.Entry;
-import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 
 public class ObjectLoggingFilter extends LoggingFilter {
 
     public ObjectLoggingFilter(Logger logger, String format) {
         super(logger, format);
-    }
-
-    @Override
-    public void sessionOpened(NextFilter nextFilter, IoSession session) throws Exception {
-        super.sessionOpened(nextFilter, session);    // move after codec to log readable objects instead of buffers
-
-        IoFilterChain filterChain = session.getFilterChain();
-        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
-        if (codecEntry != null) {
-            Entry loggingEntry = filterChain.getEntry(this);
-            assert (loggingEntry != null);
-            loggingEntry.remove();
-            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
-        }
-    }
-
-    public static void moveAfterCodec(IoSession session) {
-        // move logging filter after codec to log readable objects instead of buffers
-        IoFilterChain filterChain = session.getFilterChain();
-        Entry loggingEntry = filterChain.getEntry(ObjectLoggingFilter.class);
-        if (loggingEntry == null) {
-            return; // fail fast when tracing not active
-        }
-        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
-        if (codecEntry != null) {
-            loggingEntry.remove();
-            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
-        }
     }
 
 }

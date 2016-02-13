@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,12 +55,12 @@ final class TestTransport extends Transport {
 
     @Override
     public BridgeAcceptor getAcceptor(ResourceAddress address) {
-        return null;
+        return acceptor;
     }
 
     @Override
     public BridgeConnector getConnector(ResourceAddress address) {
-        return null;
+        return connector;
     }
 
     @Override

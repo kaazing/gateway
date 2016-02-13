@@ -35,7 +35,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 public class BinaryIT {
 
     private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/wse/data/binary");
+            .setScriptRoot("org/kaazing/specification/wse/data");
 
     private GatewayRule gateway = new GatewayRule() {
         {
@@ -46,9 +46,6 @@ public class BinaryIT {
                         .service()
                             .accept(URI.create("ws://localhost:8080/path"))
                             .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
                         .done()
                     .done();
             // @formatter:on
@@ -61,7 +58,7 @@ public class BinaryIT {
 
     @Test
     @Specification({
-        "echo.payload.length.0/request"
+        "echo.binary.payload.length.0/request"
         })
     @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
     public void shouldEchoFrameWithPayloadLength0() throws Exception {
@@ -70,7 +67,7 @@ public class BinaryIT {
 
     @Test
     @Specification({
-        "echo.payload.length.127/request"
+        "echo.binary.payload.length.127/request"
         })
     public void shouldEchoFrameWithPayloadLength127() throws Exception {
         k3po.finish();
@@ -78,7 +75,7 @@ public class BinaryIT {
 
     @Test
     @Specification({
-        "echo.payload.length.128/request"
+        "echo.binary.payload.length.128/request"
         })
     public void shouldEchoFrameWithPayloadLength128() throws Exception {
         k3po.finish();
@@ -86,7 +83,7 @@ public class BinaryIT {
 
     @Test
     @Specification({
-        "echo.payload.length.65535/request"
+        "echo.binary.payload.length.65535/request"
         })
     public void shouldEchoFrameWithPayloadLength65535() throws Exception {
         k3po.finish();
@@ -94,7 +91,7 @@ public class BinaryIT {
 
     @Test
     @Specification({
-        "echo.payload.length.65536/request"
+        "echo.binary.payload.length.65536/request"
          })
     public void shouldEchoFrameWithPayloadLength65536() throws Exception {
         k3po.finish();

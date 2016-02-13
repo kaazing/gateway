@@ -195,7 +195,7 @@ public class WsFrameDecoder extends CumulativeProtocolDecoderEx {
     // Validates RSV bits
     private void validateRSV(byte opcodeByte) throws ProtocolDecoderException {
         if ((opcodeByte & 0x70) != 0) {
-            // We don't support for negotiated extensions that deal with RSV bits
+            // We don't support negotiated extensions that deal with RSV bits
             if ((opcodeByte & 0x40) != 0) {
                 throw new ProtocolDecoderException("RSV1 is set");
             }

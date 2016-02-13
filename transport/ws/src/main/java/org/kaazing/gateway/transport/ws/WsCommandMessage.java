@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.ws;
 
+import java.util.Arrays;
+
 
 public class WsCommandMessage extends WsMessage {
     // TODO: fix WsMessage inheritance hierarchy so WsCommandMessage doesn't have getBytes method
@@ -39,6 +41,22 @@ public class WsCommandMessage extends WsMessage {
     @Override
     public Kind getKind() {
         return Kind.COMMAND;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getKind());
+        builder.append(": ");
+        Command[] commandsToLog = commands;
+        if (commands.length > 3) {
+            commandsToLog = Arrays.copyOf(commands, 3);
+        }
+        builder.append(Arrays.toString(commandsToLog));
+        if (commands.length > 3) {
+            builder.append("...");
+        }
+        return builder.toString();
     }
 
 }

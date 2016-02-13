@@ -20,8 +20,8 @@ import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
 public class WsebFrameDecoder extends DecodingStateProtocolDecoder {
 
-	public WsebFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxDataSize) {
-		super(new WsebFrameDecodingState(allocator, maxDataSize));
+	public WsebFrameDecoder(IoBufferAllocatorEx<?> allocator, int maxDataSize, boolean pingEnabled) {
+		super(new WsebFrameDecodingState(allocator, maxDataSize, pingEnabled));
 	}
-	
+
 }

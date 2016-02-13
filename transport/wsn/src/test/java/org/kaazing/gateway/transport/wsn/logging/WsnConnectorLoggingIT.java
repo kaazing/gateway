@@ -38,10 +38,8 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
-import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
-import org.junit.rules.Timeout;
 import org.junit.runners.model.Statement;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -92,6 +90,44 @@ public class WsnConnectorLoggingIT {
     // be done last to ensure all events have occurred (especially session closed).
     public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
             .around(contextRule).around(connector).around(k3po).around(timeoutRule(5, SECONDS));
+
+    @Test
+    @Specification({
+        "extensibility/server.send.text.frame.with.rsv.1/handshake.response.and.frame"
+        })
+    public void shouldLogProtocolException() throws Exception {
+        final IoHandler handler = context.mock(IoHandler.class);
+
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+            }
+        });
+
+        ConnectFuture connectFuture = connector.connect("ws://localhost:8080/echo", null, handler);
+        connectFuture.awaitUninterruptibly();
+        assertTrue(connectFuture.isConnected());
+
+        k3po.finish();
+
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "tcp#.*EXCEPTION.*Protocol.*Exception",
+            "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
+            "wsn#.*CLOSED"
+        }));
+
+        forbiddenPatterns = null;
+    }
 
     @Test
     @Specification({
