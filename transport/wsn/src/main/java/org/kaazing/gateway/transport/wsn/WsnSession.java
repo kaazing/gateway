@@ -59,7 +59,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
     };
 
     private URI httpRequestURI; // the URI of the pre-upgrade HTTP request
-    private Collection<URI> balanceeURIs;
+    private Collection<String> balanceeURIs;
     private WebSocketWireProtocol version;
     AtomicBoolean sendCloseFrame;
     private Throwable closeException;
@@ -86,7 +86,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
         }
     }
 
-    Collection<URI> getBalanceeURIs() {
+    Collection<String> getBalanceeURIs() {
         return balanceeURIs;
     }
 
@@ -99,7 +99,7 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
         return (query != null) && query.contains(".kl=Y");
     }
 
-    public void setBalanceeURIs(Collection<URI> balanceeURIs) {
+    public void setBalanceeURIs(Collection<String> balanceeURIs) {
         this.balanceeURIs = balanceeURIs;
     }
 
