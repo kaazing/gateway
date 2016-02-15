@@ -16,42 +16,69 @@
 package org.kaazing.gateway.server.transport.wseb;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
 
+import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
 public class DuplicateBindTest {
 
-    @Test//(timeout = 10000)
-    public void connectingOnService1ShouldNotGetAccessToService2() throws Exception {
-        GatewayConfiguration gc = new GatewayConfigurationBuilder().service().name("echo1").type("echo")
-                .accept(URI.create("ws://localhost:8000/")).done().service().name("echo2").type("echo")
-                .accept(URI.create("ws://localhost:8000/")).done().done();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+    private Gateway gateway;
 
-        Gateway gateway = new Gateway();
-        try {
-            gateway.start(gc);
-//            assertTrue("This should have failed at gateway start up" , false);
-//            assertFalse("Fail", true);
-        }
-
-        catch (Exception e) {
-            assertTrue(
-                    "Exception message on binding changed and may not be customer friendly",
-                    e.getMessage()
-                            .startsWith(
-                                    "Error binding to ws://localhost:8000/: Tried to bind address [ws://localhost:8000/ (wse://localhost:8000/)]"));
-        }
-
+    @After
+    public void tearDown() throws Exception {
+        // Shutdown the gateway
         try {
             gateway.stop();
         } catch (Exception e) {
             assertFalse(e instanceof java.lang.NullPointerException);
         }
+    }
+
+    @Test(timeout = 10000)
+    public void connectingOnService1ShouldNotGetAccessToService2() throws Exception {
+
+        // Configure the gateway
+        GatewayConfiguration gc = getGatewayConfiguration();
+        gateway = new Gateway();
+
+        // Exception expectations
+        thrown.expect(RuntimeException.class);
+        thrown.expectMessage(
+                "Error binding to ws://localhost:8000/: Tried to bind address [ws://localhost:8000/ (wse://localhost:8000/)]");
+
+        // Startup the gateway
+        gateway.start(gc);
+    }
+
+    /**
+     * Helper method returning a gateway config
+     * @return
+     */
+    private GatewayConfiguration getGatewayConfiguration() {
+        // @formatter:off
+        GatewayConfiguration gc =
+                new GatewayConfigurationBuilder().
+                        service().
+                            name("echo1").
+                            type("echo").
+                            accept(URI.create("ws://localhost:8000/")).
+                        done().
+                        service().
+                            name("echo2").
+                            type("echo").
+                            accept(URI.create("ws://localhost:8000/")).
+                        done().
+                        done();
+        // @formatter:on
+        return gc;
     }
 }
