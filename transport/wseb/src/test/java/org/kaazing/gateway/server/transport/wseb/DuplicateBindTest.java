@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wsn;
+package org.kaazing.gateway.server.transport.wseb;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,7 +27,7 @@ import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilde
 
 public class DuplicateBindTest {
 
-    @Test(timeout = 10000)
+    @Test//(timeout = 10000)
     public void connectingOnService1ShouldNotGetAccessToService2() throws Exception {
         GatewayConfiguration gc = new GatewayConfigurationBuilder().service().name("echo1").type("echo")
                 .accept(URI.create("ws://localhost:8000/")).done().service().name("echo2").type("echo")
@@ -36,8 +36,11 @@ public class DuplicateBindTest {
         Gateway gateway = new Gateway();
         try {
             gateway.start(gc);
-        } catch (Exception e) {
-            // We do not want an address mapping in the original error binding to address
+//            assertTrue("This should have failed at gateway start up" , false);
+//            assertFalse("Fail", true);
+        }
+
+        catch (Exception e) {
             assertTrue(
                     "Exception message on binding changed and may not be customer friendly",
                     e.getMessage()
