@@ -100,6 +100,7 @@ public class WsebConnectorLoggingIT {
         "control/server.send.invalid.ping/response" })
     public void shouldLogProtocolException() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -107,13 +108,16 @@ public class WsebConnectorLoggingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(Throwable.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
         connectFuture.awaitUninterruptibly();
 
-        assertTrue("Closed event was not fired", connectFuture.getSession().getCloseFuture().await(4000));
+        // Must wait for closed otherwise context.assertIsSatisfied my fire before it
+        assertTrue("Closed event was not fired", closed.await(4, SECONDS));
+        assertTrue("Closed future was not closed", connectFuture.getSession().getCloseFuture().isClosed());
         k3po.finish();
 
 
