@@ -117,7 +117,7 @@ public class WsebConnectorLoggingIT {
 
         // Must wait for closed otherwise context.assertIsSatisfied my fire before it
         assertTrue("Closed event was not fired", closed.await(4, SECONDS));
-        assertTrue("Closed future was not closed", connectFuture.getSession().getCloseFuture().isClosed());
+        assertTrue("Closed future was not fulfilled", connectFuture.getSession().getCloseFuture().isClosed());
         k3po.finish();
 
 
@@ -145,7 +145,6 @@ public class WsebConnectorLoggingIT {
         "data/echo.binary.payload.length.127/response" })
     public void shouldLogOpenWriteReceivedAndCloseHandshakeTimedOut() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
-        final CountDownLatch received = new CountDownLatch(1);
 
         Random random = new Random();
         final byte[] bytes = new byte[127];
@@ -156,7 +155,6 @@ public class WsebConnectorLoggingIT {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
-                will(countDown(received));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -170,10 +168,7 @@ public class WsebConnectorLoggingIT {
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
 
-        // This is a workaround for the fact that WsebConnector does not do close properly
-        received.await(10, SECONDS);
-
-        connectSession.close(false).await();
+        assertTrue("connectSession did not close", connectSession.close(false).await(10, SECONDS));
 
         k3po.finish();
 
@@ -216,7 +211,7 @@ public class WsebConnectorLoggingIT {
 
         WsebSession connectSession = (WsebSession) connectFuture.getSession();
 
-        connectSession.close(false).await();
+        assertTrue("connectSession did not close", connectSession.close(false).await(10, SECONDS));
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
