@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.transport.wseb;
+package org.kaazing.gateway.transport.wseb;
 
 import static org.junit.Assert.assertFalse;
 
