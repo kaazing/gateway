@@ -349,7 +349,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
             Callable<WsebSession> sessionFactory = WSE_SESSION_FACTORY_KEY.remove(createSession);
             final WsebSession wsebSession = sessionFactory.call();
 
-            // clean up session map
+            // clean up session idle tracker
             wsebSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
                 @Override
                 public void operationComplete(CloseFuture future) {

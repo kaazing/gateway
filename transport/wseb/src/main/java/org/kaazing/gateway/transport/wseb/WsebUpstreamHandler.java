@@ -40,17 +40,12 @@ import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.wseb.filter.EncodingFilter;
 import org.kaazing.gateway.transport.wseb.filter.WsebDecodingCodecFilter;
 import org.kaazing.gateway.util.Encoding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     private static final Pattern CONTENT_TYPE_TEXT_PLAIN_CHARSET_UTF_8 = Pattern.compile("text/plain;\\s*charset=utf-8", CASE_INSENSITIVE);
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String UTF8_FILTER = WsebProtocol.NAME + "#utf8";
-
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final WsebSession wsebSession;
     private final IoFilter codec;
@@ -74,8 +69,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionOpened(final HttpAcceptSession session) throws Exception {
-        WsebSession wsebSession = getSession(session);
-        if (wsebSession == null || wsebSession.isClosing() && wsebSession.isCloseReceived()) {
+        if (wsebSession.isClosing() && wsebSession.isCloseReceived()) {
             session.close(false);
             return;
         }
@@ -145,7 +139,6 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
             return;
         }
 
-        WsebSession wsebSession = getSession(session);
         WsMessage wsebMessage = (WsMessage)message;
         IoFilterChain filterChain = wsebSession.getTransportSession().getFilterChain();
 
@@ -186,9 +179,7 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
         // session is long lived so we do not want to close it when the http session is closed
 
-        WsebSession wsebSession = getSession(session);
-        if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK
-                                    || wsebSession.getCloseException() != null)) {
+        if (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null) {
             wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
                     wsebSession.getAndClearCloseException()).fillInStackTrace());
         }
@@ -197,15 +188,6 @@ class WsebUpstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     @Override
     protected void doSessionIdle(HttpAcceptSession session, IdleStatus status) throws Exception {
         // do not percolate idle
-    }
-
-    private WsebSession getSession(HttpAcceptSession session) throws Exception {
-        boolean traceEnabled = logger.isTraceEnabled();
-
-        if (traceEnabled) {
-            logger.trace("Remote address resource = '"+session.getRemoteAddress().getResource()+"'");
-        }
-        return wsebSession;
     }
 
     protected final void removeFilter(IoFilterChain filterChain, String name) {

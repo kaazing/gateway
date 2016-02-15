@@ -16,7 +16,6 @@
 package org.kaazing.gateway.transport.wseb;
 
 import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_TYPE;
 import static org.kaazing.gateway.transport.wseb.WsebEncodingStrategy.TEXT_AS_BINARY;
@@ -47,18 +46,14 @@ import org.kaazing.gateway.transport.wseb.filter.WsebEncodingCodecFilter.EscapeT
 import org.kaazing.gateway.transport.wseb.filter.WsebTextAsBinaryEncodingCodecFilter;
 import org.kaazing.gateway.util.Encoding;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("deprecation")
 class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     private static final String CODEC_FILTER = WsebProtocol.NAME + "#codec";
     private static final String ENCODING_FILTER = WsebProtocol.NAME + "#escape";
-    private static final String LOGGER_NAME = String.format("transport.%s.accept", WsebProtocol.NAME);
     private static final EnumSet<HttpMethod> PERMITTED_REQUEST_METHODS = EnumSet.of(HttpMethod.GET, HttpMethod.POST);
 
-    private final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     // TODO: make this setting available via configuration, with a reasonable default
     static final long TIME_TO_TIMEOUT_RECONNECT_MILLIS = TimeUnit.SECONDS.toMillis(60L);
 
@@ -99,17 +94,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doExceptionCaught(HttpAcceptSession session, Throwable cause) throws Exception {
-        if (logger.isDebugEnabled()) {
-            String message = format("Exception while handling HTTP downstream for WsebSession: %s", cause);
-            if (logger.isTraceEnabled()) {
-                // note: still debug level, but with extra detail about the exception
-                logger.debug(message, cause);
-            } else {
-                logger.debug(message);
-            }
-        }
-
-        WsebSession wsebSession = getSession(session);
         wsebSession.setCloseException(cause);
         HttpStatus status = HttpStatus.SERVER_INTERNAL_ERROR;
         session.setStatus(status);
@@ -119,7 +103,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionClosed(HttpAcceptSession session) throws Exception {
-        WsebSession wsebSession = getSession(session);
         if (wsebSession != null && (session.getStatus() != HttpStatus.SUCCESS_OK || wsebSession.getCloseException() != null)) {
             wsebSession.reset(new IOException("Network connectivity has been lost or transport was closed at other end",
                     wsebSession.getAndClearCloseException()).fillInStackTrace());
@@ -131,11 +114,8 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-        WsebSession wsebSession = getSession(session);
-
         // WseSession may have been closed asynchronously
-        // and possibly also removed from the session map
-        if (wsebSession == null || wsebSession.isClosing()) {
+        if (wsebSession.isClosing()) {
             session.close(false);
             return;
         }
@@ -207,16 +187,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
     public void removeBridgeFilters(IoFilterChain filterChain) {
         removeFilter(filterChain, CODEC_FILTER);
         removeFilter(filterChain, ENCODING_FILTER);
-    }
-
-    private WsebSession getSession(HttpAcceptSession session) throws Exception {
-        boolean traceEnabled = logger.isTraceEnabled();
-
-        if (traceEnabled) {
-            logger.trace("Remote address resource = '"+session.getRemoteAddress().getResource()+"'");
-        }
-
-        return wsebSession;
     }
 
     private void reconnectSession(final HttpAcceptSession session, final WsebSession wsebSession) throws Exception {
