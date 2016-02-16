@@ -17,12 +17,9 @@ package org.kaazing.gateway.transport.tcp.specification;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -34,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import org.kaazing.gateway.resource.address.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
@@ -53,21 +51,7 @@ public class TcpAcceptorIT {
 
     private static String networkInterface = "";
     static {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
-                if (resolvedNetworkInterface.isLoopback()) {
-                    networkInterface = resolvedNetworkInterface.getDisplayName();
-                    break;
-                }
-            }
-            if (networkInterface.equals("")) {
-                throw new RuntimeException("No loopback interfaces could be found");
-            }
-        } catch (SocketException socketEx) {
-            throw new RuntimeException("No interfaces could be found");
-        }
+        networkInterface = ResolutionTestUtils.getLoopbackInterface();
     }
 
     @Parameters
