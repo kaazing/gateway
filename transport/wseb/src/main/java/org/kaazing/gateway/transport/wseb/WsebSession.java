@@ -318,6 +318,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
         else {
             if (newWriter != null) {
+                if (!isCloseSent()) {
+                    newWriter.write(WsCommandMessage.CLOSE);
+                    newWriter.write(WsCommandMessage.RECONNECT);
+                }
                 newWriter.close(false);
             }
         }

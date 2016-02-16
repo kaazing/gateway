@@ -114,12 +114,6 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
 
     @Override
     protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-        // WseSession may have been closed asynchronously
-        if (wsebSession.isClosing()) {
-            session.close(false);
-            return;
-        }
-
         if (!PERMITTED_REQUEST_METHODS.contains(session.getMethod())) {
             wsebSession.setCloseException(
                     new IOException("Unsupported downstream request method: " + session.getMethod()));
