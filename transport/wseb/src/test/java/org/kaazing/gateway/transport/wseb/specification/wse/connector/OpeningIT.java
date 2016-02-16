@@ -74,8 +74,8 @@ public class OpeningIT {
 
     @Rule
     // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
-            .around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(contextRule).around(connector)
+            .around(k3po).around(timeoutRule);
 
     @Test
     @Specification("connection.established/handshake.response")
@@ -111,7 +111,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("nextProtocol", "primary, secondary");
+        connectOptions.put("supportedProtocols", new String[]{"primary", "secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
@@ -133,7 +133,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("extensions", Arrays.asList("primary, secondary"));
+        connectOptions.put("extensions", Arrays.asList(new String[]{"primary", "secondary"}));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
@@ -307,7 +307,8 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("nextProtocol", "primary, secondary");
+        connectOptions.put("nextProtocol", "primary");
+        connectOptions.put("supportedProtocols", new String[]{"secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
@@ -317,7 +318,7 @@ public class OpeningIT {
 
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket protocol.*negotiate"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket.*protocol"), EMPTY_STRING_SET, null, false);
     }
 
     @Test
@@ -334,7 +335,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("extensions", Arrays.asList("primary, secondary"));
+        connectOptions.put("extensions", Arrays.asList(new String[]{"primary, secondary"}));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),

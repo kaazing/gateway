@@ -77,6 +77,7 @@ import org.kaazing.gateway.transport.ws.WsCloseMessage;
 import org.kaazing.gateway.transport.ws.WsCommandMessage;
 import org.kaazing.gateway.transport.ws.WsMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsBuffer;
+import org.kaazing.gateway.transport.ws.extension.ExtensionHeaderBuilder;
 import org.kaazing.gateway.transport.wseb.filter.WsebBufferAllocator;
 import org.kaazing.gateway.transport.wseb.filter.WsebFrameCodecFilter;
 import org.kaazing.gateway.transport.wseb.util.WseUtils;
@@ -273,20 +274,27 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 // WSE specification mandates use of POST method.
                 if (specCompliant) {
                     httpSession.setMethod(HttpMethod.POST);
-                    httpSession.setWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);
+                    httpSession.addWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);
                     // Set content length so the HTTP request can be flushed
-                    httpSession.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                    httpSession.addWriteHeader(HEADER_CONTENT_LENGTH, "0");
                 }
 
-                String wsNextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
-                if (wsNextProtocol != null) {
-                    httpSession.setWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, wsNextProtocol);
+                String nextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
+                if (nextProtocol != null) {
+                    httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, nextProtocol);
+                }
+
+                String[] supportedProtocols = connectAddressNext.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS);
+                if (supportedProtocols != null) {
+                    for (String protocol : supportedProtocols) {
+                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, protocol);
+                    }
                 }
 
                 List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
                 if (wsExtensions!= null) {
                     for (String extension : wsExtensions) {
-                        httpSession.setWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
                     }
                 }
 
@@ -400,14 +408,14 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                      && (createSession.getWriteHeaders(HEADER_X_WEBSOCKET_PROTOCOL) == null
                      || !createSession.getWriteHeaders(HEADER_X_WEBSOCKET_PROTOCOL).contains(
                     createSession.getReadHeader(HEADER_X_WEBSOCKET_PROTOCOL))) ) {
-                message = format("Create handshake failed: none of requested WebSocket protocols %s was negotiated",
-                        wsebSession.getLocalAddress().getOption(NEXT_PROTOCOL));
+                message = format("Create handshake failed: negotiated WebSocket protocol %s was not in the requested list %s",
+                        createSession.getReadHeader(HEADER_X_WEBSOCKET_PROTOCOL), createSession.getWriteHeaders(HEADER_X_WEBSOCKET_PROTOCOL));
             }
             else {
                 List<String> requestedExtensions = createSession.getWriteHeaders(HEADER_X_WEBSOCKET_EXTENSIONS);
                 if (requestedExtensions != null) {
                     for (String extension : createSession.getReadHeaders(HEADER_X_WEBSOCKET_EXTENSIONS)) {
-                        if (!requestedExtensions.contains(extension)) {
+                        if (!requestedExtensions.contains(new ExtensionHeaderBuilder(extension).getExtensionToken())) {
                                 message = format("Create handshake failed: WebSocket extension %s was not requested",
                                                  extension);
                         }
