@@ -274,9 +274,9 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 // WSE specification mandates use of POST method.
                 if (specCompliant) {
                     httpSession.setMethod(HttpMethod.POST);
-                    httpSession.addWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);
+                    httpSession.setWriteHeader(HttpHeaders.HEADER_WEBSOCKET_VERSION, WSE_VERSION);
                     // Set content length so the HTTP request can be flushed
-                    httpSession.addWriteHeader(HEADER_CONTENT_LENGTH, "0");
+                    httpSession.setWriteHeader(HEADER_CONTENT_LENGTH, "0");
                 }
 
                 String nextProtocol = connectAddressNext.getOption(NEXT_PROTOCOL);
