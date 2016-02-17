@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -30,7 +29,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.CloseFuture;
@@ -43,13 +41,12 @@ import org.apache.mina.core.session.IoSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
-import org.junit.rules.Timeout;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
@@ -73,10 +70,9 @@ import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class WsnConnectorTest {
-    private static final boolean DEBUG = false;
 
     @Rule
-    public MethodExecutionTrace testExecutionTrace = DEBUG ? new MethodExecutionTrace(null) : new MethodExecutionTrace();
+    public MethodExecutionTrace testExecutionTrace = new MethodExecutionTrace();
 
     @Rule
     public TestRule timeoutRule = new DisableOnDebug(new Timeout(10, SECONDS));
@@ -96,13 +92,6 @@ public class WsnConnectorTest {
     private HttpAcceptor httpAcceptor;
     private WsnAcceptor wsnAcceptor;
 
-    @BeforeClass
-    public static void initLogging() throws Exception {
-
-        if (DEBUG) {
-            PropertyConfigurator.configure("src/test/resources/log4j-diagnostic.properties");
-        }
-    }
     @Before
     public void init() {
         schedulerProvider = new SchedulerProvider();

@@ -14,40 +14,37 @@
  * limitations under the License.
  */
 
-package org.kaazing.gateway.server.transport.wseb.specification.wse.acceptor.data;
+package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 
-
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.URI;
 
-import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
-public class BinaryAsEscapedTextIT {
+public class CommandIT {
 
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/data/binary.as.escaped.text");
+    private K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/wse/control");
 
     private GatewayRule gateway = new GatewayRule() {
         {
-            // @formatter:off
+         // @formatter:off
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept(URI.create("wse://localhost:8080/path"))
                             .type("echo")
-                            .crossOrigin()
-                                .allowOrigin("http://localhost:8001")
-                            .done()
                         .done()
                     .done();
             // @formatter:on
@@ -55,20 +52,27 @@ public class BinaryAsEscapedTextIT {
         }
     };
 
+    private final TestRule trace = new MethodExecutionTrace();
+    private final TestRule timeoutRule = timeoutRule(5, SECONDS);
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po)
+            .around(timeoutRule);
 
-    @Ignore("Bug Gateway #254: echo service does not properly handle 0 length data frames")
-    @Test
-    @Specification({"echo.payload.length.0/request", "echo.payload.length.0/response"})
-    public void shouldEchoFrameWithPayloadLength0() throws Exception {
+    // Client test only
+    @Specification("server.send.nop/request")
+    void shouldReceiveNop() throws Exception {
         k3po.finish();
     }
 
-    @Test
-    @Specification({"echo.payload.length.127/request"})
-    public void shouldEchoFrameWithPayloadLength127() throws Exception {
+    // Client test only
+    @Specification("server.send.reconnect/request")
+    void shouldReceiveReconnect() throws Exception {
         k3po.finish();
     }
 
-}
+    // Client test only
+    @Specification("server.send.close/request")
+    void shouldReceiveClose() throws Exception {
+        k3po.finish();
+    }}

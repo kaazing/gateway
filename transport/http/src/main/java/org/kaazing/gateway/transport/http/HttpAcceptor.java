@@ -84,7 +84,6 @@ import org.kaazing.gateway.transport.http.bridge.HttpRequestMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpResponseMessage;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBuffer;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpBufferAllocator;
-import org.kaazing.gateway.transport.http.bridge.filter.HttpLoginSecurityFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpNextAddressFilter;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolDecoderException;
 import org.kaazing.gateway.transport.http.bridge.filter.HttpSerializeRequestsFilter;
@@ -99,6 +98,7 @@ import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.service.IoProcessorEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.LoggerFactory;
+@SuppressWarnings("deprecation")
 public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, HttpBinding> {
 
     private static final String LOGGER_NAME = format("transport.%s.accept", HttpProtocol.NAME);
@@ -495,17 +495,11 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
         private void fireContentReceived(DefaultHttpSession session, HttpContentMessage content) throws Exception {
             IoBufferEx buffer = content.asBuffer();
             if (buffer != null && buffer.hasRemaining()) {
-                // if suspended add this to session read queue (or variable for now)
-                // if read suspended and read item is already set then throw error (we need a queue!)
+                // if suspended add this to session deferred read queue
                 // KG-9201: if HTTP session is in the middle of thread re-alignment,
                 //          defer message received until re-alignment is complete
                 if (!session.isIoRegistered() || session.isReadSuspended()) {
-                    IoBufferEx currentBuffer = session.getCurrentReadRequest();
-                    if (currentBuffer != null) {
-                        throw new Exception(
-                                "Read error. Attempt to read into suspended session that already has a current read request");
-                    }
-                    session.setCurrentReadRequest(buffer);
+                    session.addDeferredRead(buffer);
                 }
                 else {
                     // direct read for now, in the future this should always get buffered
@@ -517,7 +511,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
     };
 
     @Override
-    public void addBridgeFilters(IoFilterChain chain) { 
+    public void addBridgeFilters(IoFilterChain chain) {
         IoSession transport = chain.getSession();
 
         SocketAddress localAddress = transport.getLocalAddress();
@@ -566,8 +560,5 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     }
 
-    private static  URI getHostPortPathURI(URI resource) {
-        return URI.create("//" + resource.getAuthority() + resource.getPath());
-    }
 }
 

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilter.NextFilter;
@@ -149,7 +150,7 @@ public class WsCheckAliveFilterTest {
         final IoFilterChain filterChain = context.mock(IoFilterChain.class);
         final IoSessionEx session = context.mock(IoSessionEx.class);
         final IoSessionConfigEx sessionConfig = context.mock(IoSessionConfigEx.class);
-        final IoFilter[] filterHolder = new IoFilter[1];
+        final AtomicReference<WsCheckAliveFilter> filterHolder = new AtomicReference<WsCheckAliveFilter>();
 
         context.checking(new Expectations() {
             {
@@ -165,7 +166,7 @@ public class WsCheckAliveFilterTest {
         });
 
         WsCheckAliveFilter.addIfFeatureEnabled(filterChain, FILTER_NAME, STANDARD_INACTIVITY_TIMEOUT_MILLIS, logger);
-        WsCheckAliveFilter filter = (WsCheckAliveFilter)filterHolder[0];
+        WsCheckAliveFilter filter = filterHolder.get();
         filter.onPostAdd(filterChain, FILTER_NAME, nextFilter);
         context.assertIsSatisfied();
     }

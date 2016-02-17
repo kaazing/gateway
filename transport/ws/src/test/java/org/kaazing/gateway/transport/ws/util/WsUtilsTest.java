@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.ws;
+package org.kaazing.gateway.transport.ws.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -373,7 +373,6 @@ public class WsUtilsTest {
     @Test
     public void shouldRemoveExtensionFilters() throws Exception {
         final IoFilterChain filterChain = shouldAddExtensionFiltersAfterCodec_withResult();
-        final ExtensionHelper extensionHelper = context.mock(ExtensionHelper.class);
 
         context.checking(new Expectations() {
             {
