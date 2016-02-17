@@ -129,8 +129,9 @@ public class MethodExecutionTrace extends TestWatcher {
         Runtime r = Runtime.getRuntime();
         long memory = r.totalMemory() / _1_MB;
         long free = r.freeMemory() / _1_MB;
+        long used = memory - free;
         int threads = Thread.activeCount();
-        if (memory > MAX_HEALTH_NENORY_MB || threads > 100) {
+        if (used > MAX_HEALTH_NENORY_MB || threads > 100) {
             System.out.println("HEALTH CHECK WARNING: high memory usage or thread count");
             System.out.println(format("\tMemory: total %d MB, free %d MB", memory, free));
             System.out.println(format("\tThreads: %d", Thread.activeCount()));
