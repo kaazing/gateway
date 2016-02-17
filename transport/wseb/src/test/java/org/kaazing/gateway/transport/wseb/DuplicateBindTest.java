@@ -70,12 +70,12 @@ public class DuplicateBindTest {
                         service().
                             name("echo1").
                             type("echo").
-                            accept(URI.create("ws://localhost:8000/")).
+                            accept(URI.create("wse://localhost:8000/")).
                         done().
                         service().
                             name("echo2").
                             type("echo").
-                            accept(URI.create("ws://localhost:8000/")).
+                            accept(URI.create("wse://localhost:8000/")).
                         done().
                         done();
         // @formatter:on
