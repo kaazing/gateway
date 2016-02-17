@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +74,6 @@ public class OpeningIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
     public TestRule chain = RuleChain.outerRule(trace).around(contextRule).around(connector)
             .around(k3po).around(timeoutRule);
 
@@ -86,9 +86,11 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        s.close(false);
         k3po.finish();
     }
 
@@ -108,6 +110,7 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
@@ -117,7 +120,8 @@ public class OpeningIT {
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        connector.connect(connectAddress, handler);
+        IoSession s = connector.connect(connectAddress, handler).getSession();
+        s.close(false);
         k3po.finish();
     }
 
@@ -130,6 +134,7 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
@@ -139,7 +144,8 @@ public class OpeningIT {
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        connector.connect(connectAddress, handler);
+        IoSession s = connector.connect(connectAddress, handler).getSession();
+        s.close(false);
         k3po.finish();
     }
 
@@ -158,9 +164,11 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        s.close(false);
         k3po.finish();
     }
 
@@ -173,9 +181,11 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        s.close(false);
         k3po.finish();
     }
 

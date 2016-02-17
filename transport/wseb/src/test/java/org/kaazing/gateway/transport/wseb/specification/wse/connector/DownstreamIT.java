@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.service.IoHandler;
-import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Rule;
@@ -75,6 +75,7 @@ public class DownstreamIT {
     @Specification("response.header.content.type.has.unexpected.value/downstream.response")
     public void shouldCloseConnectionWhenBinaryDownstreamResponseContentTypeHasUnexpectedValue() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
@@ -82,11 +83,12 @@ public class DownstreamIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
-        IoSession session = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
-        session.getCloseFuture().await(4, SECONDS);
+        closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Arrays.asList(".*nexpected.*type.*"), EMPTY_STRING_SET, null, false);
     }
 
@@ -94,17 +96,20 @@ public class DownstreamIT {
     @Specification("response.status.code.not.200/downstream.response")
     public void shouldCloseConnectionWhenBinaryDownstreamResponseStatusCodeNot200() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
         connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
+        closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Arrays.asList(".*nexpected.*status.*"), EMPTY_STRING_SET, null, false);
     }
 
@@ -113,17 +118,20 @@ public class DownstreamIT {
     public void shouldCloseConnectionWhenBinaryDownstreamResponseContainsFrameAfterReconnectFrame()
             throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
-                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
         connector.connect("ws://localhost:8080/path?query", null, handler);
         k3po.finish();
+        closed.await(4, SECONDS);
         MemoryAppender.assertMessagesLogged(Arrays.asList(".*received.*after reconnect.*"), EMPTY_STRING_SET, null, false);
     }
 
