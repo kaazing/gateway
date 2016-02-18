@@ -103,6 +103,7 @@ public class ExtendedHandshakeIT {
         k3po.finish();
     }
 
+    // Client only test
     @Specification({"server.sends.message.between.opening.and.extended.handshake/request"})
     void shouldFailWhenServerSendsMessageBetweenOpeningAndExtendedHandshake() throws Exception {
         k3po.finish();
@@ -128,6 +129,7 @@ public class ExtendedHandshakeIT {
         k3po.finish();
     }
 
+    // Client only test
     @Specification({"extended.handshake.response.code.200/request"})
     void shouldFailWhenWebSocketProtocolGets200StatusCode() throws Exception {
         k3po.finish();
