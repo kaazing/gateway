@@ -50,9 +50,8 @@ public class OpeningHandshakeIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, k3po);
 
-    @Test
     @Specification({"extended.handshake.protocol.not.negotiated/request"})
-    public void shouldFailHandshakeWhenExtendedHandshakeProtocolNotNegotiated() throws Exception {
+    void shouldFailHandshakeWhenExtendedHandshakeProtocolNotNegotiated() throws Exception {
         k3po.finish();
     }
 
