@@ -80,8 +80,8 @@ public class ExtendedHandshakeIT {
     public TestRule chain = createRuleChain(gateway, k3po);
 
     @Test
-    @Specification({ "client.sends.message.between.opening.and.extended.handshake/request" })
-    public void shouldFailWhenClientSendsMessageBetweenOpeningAndExtendedHandshake() throws Exception {
+    @Specification({ "connection.established.with.authorization/request" })
+    public void shouldEstablishConnectionWithAuthorization() throws Exception {
         k3po.finish();
     }
 
@@ -92,36 +92,21 @@ public class ExtendedHandshakeIT {
     }
 
     @Test
-    @Specification({ "connection.established.with.authorization/request" })
-    public void shouldEstablishConnectionWithAuthorization() throws Exception {
+    @Specification({"connection.established.data.exchanged.close/request"})
+    public void shouldEstablishConnectionAndExchangeDataAndClose() throws Exception {
         k3po.finish();
     }
 
     @Test
-    @Specification({ "extended.handshake.response.code.101/request"})
-    public void shouldPassWhenWebSocketProtocolGets101StatusCode() throws Exception {
+    @Specification({ "client.sends.message.between.opening.and.extended.handshake/request" })
+    public void shouldFailWhenClientSendsMessageBetweenOpeningAndExtendedHandshake() throws Exception {
         k3po.finish();
     }
 
-    @Test
-    @Ignore("https://github.com/kaazing/tickets/issues/314")
-    @Specification({
-        "extended.handshake.response.code.302/request" })
-    public void shouldPassWhenWebSocketProtocolGets302StatusCode() throws Exception {
+    @Specification({"server.sends.message.between.opening.and.extended.handshake/request"})
+    void shouldFailWhenServerSendsMessageBetweenOpeningAndExtendedHandshake() throws Exception {
         k3po.finish();
     }
-
-    @Test
-	@Specification({ "extended.handshake.response.code.401/request" })
-	public void shouldPassWhenWebSocketProtocolGets401StatusCode() throws Exception {
-		k3po.finish();
-	}
-
-	@Test
-	@Specification({ "extension.in.extended.handshake/request" })
-	public void shouldPassWhenExtensionIsNegotiatedInExtendedHandshake() throws Exception {
-		k3po.finish();
-	}
 
     @Test
     @Ignore("https://github.com/kaazing/tickets/issues/313")
@@ -134,6 +119,32 @@ public class ExtendedHandshakeIT {
     @Ignore("https://github.com/kaazing/tickets/issues/312")
     @Specification({ "extension.in.opening.handshake/request" })
     public void shouldPassWhenExtensionIsNegotiatedInOpeningHandshake() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({ "extension.in.extended.handshake/request" })
+    public void shouldPassWhenExtensionIsNegotiatedInExtendedHandshake() throws Exception {
+        k3po.finish();
+    }
+
+    @Specification({"extended.handshake.response.code.200/request"})
+    void shouldFailWhenWebSocketProtocolGets200StatusCode() throws Exception {
+        k3po.finish();
+    }
+
+    @Test
+    @Specification({ "extended.handshake.response.code.101/request"})
+    public void shouldPassWhenWebSocketProtocolGets101StatusCode() throws Exception {
+        k3po.finish();
+    }
+
+    // NOTE: shouldPassWhenWebSocketProtocolGets302StatusCode() is defined in gateway.service.http.balancer's
+    //       ExtendedHandshakeBalancerIT to avoid circular dependency.
+
+    @Test
+    @Specification({ "extended.handshake.response.code.401/request" })
+    public void shouldPassWhenWebSocketProtocolGets401StatusCode() throws Exception {
         k3po.finish();
     }
 }
