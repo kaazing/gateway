@@ -633,7 +633,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
                     ResultAwareLoginContext loginContext = session.getLoginContext();
                     WsebSession newWsebSession = new WsebSession(session.getIoLayer(), session.getIoThread(), session.getIoExecutor(), WsebAcceptor.this, getProcessor(),
                             localAddress, remoteAddress, allocator, loginContext, clientIdleTimeout, inactivityTimeout,
-                            validateSequenceNo, sequenceNo, negotiated, configuration);
+                            validateSequenceNo, sequenceNo, negotiated, logger, configuration);
                     IoHandler handler = getHandler(newWsebSession.getLocalAddress());
                     newWsebSession.setHandler(handler);
                     newWsebSession.setBridgeServiceFactory(bridgeServiceFactory);

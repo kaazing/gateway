@@ -328,6 +328,7 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                       false,            /* no sequence validation */
                                                                       sequenceNo,      /* starting sequence no */
                                                                       null,
+                                                                      logger,
                                                                       configuration);
 
                                 // ability to write will be reactivated when create response returns with write address
