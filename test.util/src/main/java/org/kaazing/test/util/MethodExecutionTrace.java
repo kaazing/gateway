@@ -135,6 +135,11 @@ public class MethodExecutionTrace extends TestWatcher {
             System.out.println("HEALTH CHECK WARNING: high memory usage or thread count");
             System.out.println(format("\tMemory: total %d MB, free %d MB", memory, free));
             System.out.println(format("\tThreads: %d", Thread.activeCount()));
+            System.out.println("Forcing gc");
+            System.gc();
+            memory = r.totalMemory() / _1_MB;
+            free = r.freeMemory() / _1_MB;
+            System.out.println(format("\tMemory after gc: total %d MB, free %d MB", memory, free));
         }
     }
 }
