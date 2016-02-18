@@ -155,7 +155,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     private TransportSession transportSession;
 
     private enum CloseState {
-        CLOSE_WRITTEN,
         CLOSE_SENT,
         CLOSE_RECEIVED
     }
@@ -257,6 +256,12 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 @Override
                 public void run() {
                     newWriter.setIoAlignment(ioThread, ioExecutor);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
                     attachWriter0(newWriter);
                 }
             });
@@ -627,14 +632,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     private void setCloseSent() {
         closeState.add(CloseState.CLOSE_SENT);
-    }
-
-    boolean isCloseWritten() {
-        return closeState.contains(CloseState.CLOSE_WRITTEN);
-    }
-
-    private void setCloseWritten() {
-        closeState.add(CloseState.CLOSE_WRITTEN);
     }
 
     Logger getLogger() {
