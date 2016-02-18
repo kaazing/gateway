@@ -66,18 +66,18 @@ public class DuplicateBindTest {
     private GatewayConfiguration getGatewayConfiguration() {
         // @formatter:off
         GatewayConfiguration gc =
-                new GatewayConfigurationBuilder().
-                        service().
-                            name("echo1").
-                            type("echo").
-                            accept(URI.create("wse://localhost:8000/")).
-                        done().
-                        service().
-                            name("echo2").
-                            type("echo").
-                            accept(URI.create("wse://localhost:8000/")).
-                        done().
-                        done();
+                new GatewayConfigurationBuilder()
+                        .service()
+                            .name("echo1")
+                            .type("echo")
+                            .accept(URI.create("wse://localhost:8000/"))
+                        .done()
+                        .service()
+                            .name("echo2")
+                            .type("echo")
+                            .accept(URI.create("wse://localhost:8000/"))
+                        .done()
+                        .done();
         // @formatter:on
         return gc;
     }
