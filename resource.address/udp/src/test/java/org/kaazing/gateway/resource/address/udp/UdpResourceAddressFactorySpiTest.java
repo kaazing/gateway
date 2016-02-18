@@ -32,9 +32,13 @@ import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.MAXIMU
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,19 +46,51 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
+@RunWith(Parameterized.class)
 public class UdpResourceAddressFactorySpiTest {
 
+    private static String networkInterface = "";
+    static {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
+                if (resolvedNetworkInterface.isLoopback()) {
+                    networkInterface = resolvedNetworkInterface.getDisplayName();
+                    break;
+                }
+            }
+            if (networkInterface.equals("")) {
+                throw new RuntimeException("No loopback interfaces could be found");
+            }
+        } catch (SocketException socketEx) {
+            throw new RuntimeException("No interfaces could be found");
+        }
+    }
+
     private UdpResourceAddressFactorySpi factory;
-    private String addressURI;
     private Map<String,Object> options;
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {"udp://localhost:2020"}, {"udp://[@" + networkInterface + "]:2020"}, {"udp://@" + networkInterface + ":2020"}
+           });
+    }
+
+    @Parameter
+    public String addressURI;
 
     @Before
     public void before() {
         factory = new UdpResourceAddressFactorySpi();
-        addressURI = "udp://localhost:2020";
         options = new HashMap<>();
         options.put("udp.nextProtocol", "custom");
         options.put("udp.maximumOutboundRate", 534L);
@@ -97,6 +133,22 @@ public class UdpResourceAddressFactorySpiTest {
     }
 
     @Test
+    public void shouldCreateAddressWithBindOptionsAndAllowNetworkInterfaceSyntaxBrackets() {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("udp.bind", "[@" + networkInterface + "]:8080");
+        ResourceAddress address = factory.newResourceAddress(addressURI, options);
+        assertEquals(8080, address.getExternalURI().getPort());
+    }
+
+    @Test
+    public void shouldCreateAddressWithBindOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("udp.bind", "@" + networkInterface + ":8080");
+        ResourceAddress address = factory.newResourceAddress(addressURI, options);
+        assertEquals(8080, address.getExternalURI().getPort());
+    }
+
+    @Test
     public void shouldResolveIPv6Address() {
         Map<String, Object> options = new HashMap<>();
         options.put("resolver", new NameResolver() {
@@ -106,7 +158,12 @@ public class UdpResourceAddressFactorySpiTest {
                 if ("localhost".equals(host)) {
                     return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
                 }
-
+                if ("127.0.0.1".equals(host)) {
+                    return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
+                }
+                if ("0:0:0:0:0:0:0:1".equals(host)) {
+                    return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
+                }
                 throw new UnknownHostException(host);
             }
         });
@@ -149,23 +206,34 @@ public class UdpResourceAddressFactorySpiTest {
                             getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
                             getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
                 }
-
+                if ("127.0.0.1".equals(host)) {
+                    return asList(
+                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
+                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
+                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
+                }
+                if ("0:0:0:0:0:0:0:1".equals(host)) {
+                    return asList(
+                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
+                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
+                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
+                }
                 throw new UnknownHostException(host);
             }
         });
-        options.put("transport", URI.create("pipe://internal"));
+        options.put("transport", "pipe://internal");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         assertNotNull(address);
         assertEquals(URI.create("udp://127.0.0.1:2020"), address.getResource());
-        assertEquals(URI.create("pipe://internal"), address.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", address.getOption(TRANSPORT_URI));
         ResourceAddress alternate = address.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("udp://127.0.0.2:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("udp://127.0.0.3:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }

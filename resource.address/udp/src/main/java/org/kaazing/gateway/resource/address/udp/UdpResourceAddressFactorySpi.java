@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.resource.address.udp;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
 import static org.kaazing.gateway.resource.address.udp.UdpResourceAddress.BIND_ADDRESS;
@@ -78,10 +79,10 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
     @Override
     protected void parseNamedOptions0(String location, ResourceOptions options,
                                       Map<String, Object> optionsByName) {
-        
-        InetSocketAddress bindAddress = (InetSocketAddress) optionsByName.remove(BIND_ADDRESS.name());
+        Object bindAddress = optionsByName.remove(BIND_ADDRESS.name());
         if (bindAddress != null) {
-            options.setOption(BIND_ADDRESS, bindAddress);
+            InetSocketAddress bindAddress0 = parseBindAddress(bindAddress);
+            options.setOption(BIND_ADDRESS, bindAddress0);
         }
 
         Long maximumOutboundRate = (Long) optionsByName.remove(MAXIMUM_OUTBOUND_RATE.name());
@@ -94,6 +95,27 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             options.setOption(INTERFACE, udpInterface);
         }
 
+    }
+
+    private InetSocketAddress parseBindAddress(Object bindAddress) {
+        if (bindAddress instanceof InetSocketAddress) {
+            return (InetSocketAddress) bindAddress;
+        }
+        else if (bindAddress instanceof String) {
+            String[] bindParts = ((String) bindAddress).split(":");
+            switch (bindParts.length) {
+            case 1:
+                // port only
+                return new InetSocketAddress(parseInt(bindParts[0]));
+            case 2:
+                // hostname, port
+                String hostname = bindParts[0];
+                int port = parseInt(bindParts[1]);
+                return new InetSocketAddress(hostname, port);
+            }
+        }
+
+        throw new IllegalArgumentException(BIND_ADDRESS.name());
     }
 
     @Override
