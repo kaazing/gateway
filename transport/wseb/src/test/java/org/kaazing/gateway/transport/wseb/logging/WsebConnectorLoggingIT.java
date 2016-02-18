@@ -145,6 +145,7 @@ public class WsebConnectorLoggingIT {
         "data/echo.binary.payload.length.127/response" })
     public void shouldLogOpenWriteReceivedAndCloseHandshakeTimedOut() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         Random random = new Random();
         final byte[] bytes = new byte[127];
@@ -156,11 +157,11 @@ public class WsebConnectorLoggingIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-        connectFuture.awaitUninterruptibly();
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
 
@@ -168,7 +169,8 @@ public class WsebConnectorLoggingIT {
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
 
-        assertTrue("connectSession did not close", connectSession.close(false).await(10, SECONDS));
+        connectSession.close(false);
+        assertTrue("connectSession did not close", closed.await(10, SECONDS));
 
         k3po.finish();
 
@@ -198,20 +200,21 @@ public class WsebConnectorLoggingIT {
     @Specification("closing/client.send.close/response")
     public void shouldLogOpenAndCleanClientClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
         WsebSession connectSession = (WsebSession) connectFuture.getSession();
-
-        assertTrue("connectSession did not close", connectSession.close(false).await(10, SECONDS));
+        connectSession.close(false);
+        assertTrue("connectSession did not close", closed.await(10, SECONDS));
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
@@ -238,19 +241,21 @@ public class WsebConnectorLoggingIT {
     @Specification("closing/server.send.close/response")
     public void shouldLogOpenAndCleanServerClose() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
         context.checking(new Expectations() {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
-
         WsebSession connectSession = (WsebSession) connectFuture.getSession();
-        connectSession.getCloseFuture().await();
+        connectSession.close(false);
+        assertTrue("connectSession did not close", closed.await(10, SECONDS));
         k3po.finish();
 
         expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
