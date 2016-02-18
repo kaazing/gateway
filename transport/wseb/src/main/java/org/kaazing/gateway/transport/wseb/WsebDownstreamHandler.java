@@ -302,6 +302,10 @@ class WsebDownstreamHandler extends IoHandlerAdapter<HttpAcceptSession> {
         // WseSession may have been closed asynchronously
         // and possibly also removed from the session map
         if (wsebSession == null || wsebSession.isClosing()) {
+            if (!wsebSession.isCloseSent()) {
+                session.write(WsCommandMessage.CLOSE);
+                session.write(WsCommandMessage.RECONNECT);
+            }
             session.close(false);
             return;
         }

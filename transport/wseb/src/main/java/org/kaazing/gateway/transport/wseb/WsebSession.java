@@ -94,9 +94,6 @@ import org.slf4j.Logger;
  */
 public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> {
 
-    private static final boolean ALIGN_DOWNSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_DOWNSTREAM", "true"));
-    private static final boolean ALIGN_UPSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_UPSTREAM", "true"));
-
     static final CachingMessageEncoder WSEB_MESSAGE_ENCODER = new CachingMessageEncoder() {
 
         @Override
@@ -253,26 +250,16 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             attachWriter0(newWriter);
         }
         else {
-            if (ALIGN_DOWNSTREAM) {
-                final Thread ioThread = getIoThread();
-                final Executor ioExecutor = getIoExecutor();
-                newWriter.setIoAlignment(NO_THREAD, NO_EXECUTOR);
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        newWriter.setIoAlignment(ioThread, ioExecutor);
-                        attachWriter0(newWriter);
-                    }
-                });
-            }
-            else {
-                getIoExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        attachWriter0(newWriter);
-                    }
-                });
-            }
+            final Thread ioThread = getIoThread();
+            final Executor ioExecutor = getIoExecutor();
+            newWriter.setIoAlignment(NO_THREAD, NO_EXECUTOR);
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    newWriter.setIoAlignment(ioThread, ioExecutor);
+                    attachWriter0(newWriter);
+                }
+            });
         }
     }
 
@@ -356,17 +343,13 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         if (Thread.currentThread() == getIoThread()) {
             detachWriter0(oldWriter);
         } else {
-            if (ALIGN_DOWNSTREAM) {
-                final Executor ioExecutor = getIoExecutor();
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        detachWriter0(oldWriter);
-                    }
-                });
-            } else {
-                detachWriter0(oldWriter);
-            }
+            final Executor ioExecutor = getIoExecutor();
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    detachWriter0(oldWriter);
+                }
+            });
         }
 
         return detached;
@@ -424,30 +407,20 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             attachReader0(newReader);
         }
         else {
-            if (ALIGN_UPSTREAM) {
-                final Thread ioThread = getIoThread();
-                final Executor ioExecutor = getIoExecutor();
-                // Prevent messageReceived from being fired from setIoAlignment and racing ahead of attachReader0
-                newReader.suspendRead();
-                newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        newReader.setIoAlignment(ioThread, ioExecutor);
-                        attachReader0(newReader);
-                        // now allow messageReceived to fire if data is available
-                        newReader.resumeRead();
-                    }
-                });
-            }
-            else {
-                getIoExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        attachReader0(newReader);
-                    }
-                });
-            }
+            final Thread ioThread = getIoThread();
+            final Executor ioExecutor = getIoExecutor();
+            // Prevent messageReceived from being fired from setIoAlignment and racing ahead of attachReader0
+            newReader.suspendRead();
+            newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    newReader.setIoAlignment(ioThread, ioExecutor);
+                    attachReader0(newReader);
+                    // now allow messageReceived to fire if data is available
+                    newReader.resumeRead();
+                }
+            });
         }
 
     }
