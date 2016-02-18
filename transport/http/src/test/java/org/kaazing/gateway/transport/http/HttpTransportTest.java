@@ -217,9 +217,9 @@ public class HttpTransportTest {
         };
 
         Map<String, Object> bindOptions = new HashMap<>();
-        bindOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
+        bindOptions.put(TRANSPORT.name(), "pipe://transport");
         final Map<String, Object> connectOptions = new HashMap<>();
-        connectOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
+        connectOptions.put(TRANSPORT.name(), "pipe://transport");
 
         httpConnectorToAcceptor("http://localhost:8000/path",
                 acceptHandler, connectHandler,
@@ -325,7 +325,7 @@ public class HttpTransportTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        acceptOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
+        acceptOptions.put(TRANSPORT.name(), "pipe://transport");
 
         final String connectURIString = "http://localhost:8000/path";
         final ResourceAddress bindAddress =

@@ -113,7 +113,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://localhost:9001";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("test://transport"));
+        options.put(TRANSPORT.name(), "test://transport");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -194,7 +194,7 @@ public class VirtualHostKeySelectorTest {
 
         String location = "ssl://localhost:9001";
         Map<String, Object> options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("test://transport"));
+        options.put(TRANSPORT.name(), "test://transport");
         ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
         DummySession session = new DummySession();
@@ -229,7 +229,7 @@ public class VirtualHostKeySelectorTest {
 
             String location = "ssl://www.kaazing.com:9001";
             Map<String, Object> options = new HashMap<>();
-            options.put(TRANSPORT.name(), URI.create("test://transport"));
+            options.put(TRANSPORT.name(), "test://transport");
             ResourceAddress address = addressFactory.newResourceAddress(location, options);
 
             DummySession session = new DummySession();

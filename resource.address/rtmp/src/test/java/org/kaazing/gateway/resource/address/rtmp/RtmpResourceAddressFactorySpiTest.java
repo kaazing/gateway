@@ -44,7 +44,7 @@ public class RtmpResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
-        options.put("rtmp.transport", URI.create("tcp://localhost:2121"));
+        options.put("rtmp.transport", "tcp://localhost:2121");
     }
 
     @Test
@@ -89,14 +89,14 @@ public class RtmpResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2020", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
     }
     
 }

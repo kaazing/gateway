@@ -40,7 +40,7 @@ public class ResourceAddressFactoryTest {
     public void setup() throws Exception {
         addressURI = "test://opaque";
         options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("test://transport"));
+        options.put(TRANSPORT.name(), "test://transport");
     }
 
     @Test (expected = IllegalArgumentException.class)

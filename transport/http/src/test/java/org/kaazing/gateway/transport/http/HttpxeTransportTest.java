@@ -27,7 +27,6 @@ import static org.kaazing.gateway.transport.http.HttpStatus.REDIRECT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpStatus.SUCCESS_OK;
 import static org.kaazing.gateway.transport.http.HttpVersion.HTTP_1_1;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,7 +109,7 @@ public class HttpxeTransportTest {
         String location = "httpxe://localhost:8000/";
         Map<String, Object> options = new HashMap<>();
         options.put("http[http/1.1].injectableHeaders", noneOf(HttpInjectableHeader.class));
-        options.put("http[http/1.1].transport", URI.create(transportURI));
+        options.put("http[http/1.1].transport", transportURI);
 
         httpxeAddress = addressFactory.newResourceAddress(location, options);
         pipeAddress = addressFactory.newResourceAddress(transportURI);
@@ -133,7 +132,7 @@ public class HttpxeTransportTest {
     public void shouldBindAndUnbindLeavingEmptyBindingsMaps() throws Exception {
 
         Map<String, Object> acceptOptions = new HashMap<>();
-        acceptOptions.put(TRANSPORT.name(), URI.create("pipe://transport"));
+        acceptOptions.put(TRANSPORT.name(), "pipe://transport");
 
         final String connectURIString = "httpxe://localhost:8000/path";
         final ResourceAddress bindAddress =

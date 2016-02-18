@@ -159,19 +159,19 @@ public class TcpResourceAddressFactorySpiTest {
                 throw new UnknownHostException(host);
             }
         });
-        options.put("transport", URI.create("pipe://internal"));
+        options.put("transport", "pipe://internal");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         assertNotNull(address);
         assertEquals(URI.create("tcp://127.0.0.1:2020"), address.getResource());
-        assertEquals(URI.create("pipe://internal"), address.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", address.getOption(TRANSPORT_URI));
         ResourceAddress alternate = address.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.2:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.3:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }

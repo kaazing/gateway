@@ -68,7 +68,7 @@ public class WssResourceAddressFactorySpiTest {
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.requiredProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
-        options.put("ws.transport", URI.create("https://localhost:2121/"));
+        options.put("ws.transport", "https://localhost:2121/");
     }
 
     @Test
@@ -127,14 +127,14 @@ public class WssResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("https://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("https://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("https://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("https://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     @Test

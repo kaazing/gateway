@@ -52,7 +52,7 @@ public class HttpxeResourceAddressFactorySpiTest {
         options.put("http.keepAliveTimeout", (int) SECONDS.toMillis(5));
         options.put("http.realmName", "demo");
         options.put("http.requiredRoles", new String[] { "admin" });
-        options.put("http.transport", URI.create("http://localhost:2121/"));
+        options.put("http.transport", "http://localhost:2121/");
     }
 
     @Test
@@ -103,14 +103,14 @@ public class HttpxeResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("http://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("http://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     private void assertEmpty(String[] objects) {

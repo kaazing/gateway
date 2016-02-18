@@ -23,7 +23,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class WseSslResourceAddressTest {
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[]{"amqp/0.91", "amqp/1.0"});
         options.put("ws.requiredProtocols", new String[]{"amqp/0.91", "amqp/1.0"});
-        options.put("ws.transport", URI.create("https://localhost:2121/"));
+        options.put("ws.transport", "https://localhost:2121/");
     }
 
     @Test
@@ -64,7 +63,7 @@ public class WseSslResourceAddressTest {
         System.out.println(address);
         //NOTE: the primary transport is still https(=http|ssl|tcp), the alternate is httpxe|http|ssl|tcp
         //      however in this unit test the alternate is not yet materialized.
-        assertEquals(URI.create("https://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("https://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
 
     

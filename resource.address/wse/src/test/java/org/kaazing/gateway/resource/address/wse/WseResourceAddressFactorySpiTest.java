@@ -66,7 +66,7 @@ public class WseResourceAddressFactorySpiTest {
         options.put("ws.inactivityTimeout", SECONDS.toMillis(5));
         options.put("ws.supportedProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
         options.put("ws.requiredProtocols", new String[] { "amqp/0.91", "amqp/1.0" });
-        options.put("ws.transport", URI.create("http://localhost:2121/"));
+        options.put("ws.transport", "http://localhost:2121/");
     }
 
     @Test
@@ -127,14 +127,14 @@ public class WseResourceAddressFactorySpiTest {
         assertNotNull(address.getOption(TRANSPORT_URI));
         //NOTE: the primary transport is still http|tcp, the alternate is httpxe|http|tcp
         //      however in this unit test the alternate is not yet materialized.
-        assertEquals(URI.create("http://localhost:2020/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2020/", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("http://localhost:2121/"), address.getOption(TRANSPORT_URI));
+        assertEquals("http://localhost:2121/", address.getOption(TRANSPORT_URI));
     }
 
     private void assertEmpty(String[] objects) {

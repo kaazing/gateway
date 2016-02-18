@@ -32,7 +32,6 @@ import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.NEED_C
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.PROTOCOLS;
 import static org.kaazing.gateway.resource.address.ssl.SslResourceAddress.WANT_CLIENT_AUTH;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class SslResourceAddressFactorySpiTest {
         options.put("ssl.nextProtocol", "custom");
         options.put("ssl.qualifier", "random");
         options.put("ssl.encryptionEnabled", Boolean.FALSE);
-        options.put("ssl.transport", URI.create("tcp://localhost:2121"));
+        options.put("ssl.transport", "tcp://localhost:2121");
         options.put("ssl.protocols", new String[] { "SSLv3" });
     }
 
@@ -93,7 +92,7 @@ public class SslResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithTcpTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2020", address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -104,7 +103,7 @@ public class SslResourceAddressFactorySpiTest {
         assertEquals("custom", address.getOption(NEXT_PROTOCOL));
         assertEquals("random", address.getOption(QUALIFIER));
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
         assertFalse(address.getOption(ENCRYPTION_ENABLED));
         assertArrayEquals(new String[] { "SSLv3" }, address.getOption(PROTOCOLS));
     }

@@ -23,7 +23,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ public class RtmpsResourceAddressFactorySpiTest {
         options = new HashMap<>();
         options.put("rtmp.nextProtocol", "custom");
         options.put("rtmp.qualifier", "random");
-        options.put("rtmp.transport", URI.create("ssl://localhost:2121"));
+        options.put("rtmp.transport", "ssl://localhost:2121");
     }
 
     @Test
@@ -87,14 +86,14 @@ public class RtmpsResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("ssl://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("ssl://localhost:2020", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("ssl://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("ssl://localhost:2121", address.getOption(TRANSPORT_URI));
     }
     
 }

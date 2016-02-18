@@ -84,7 +84,7 @@ public class HttpResourceAddressFactorySpiTest {
         options.put("http.keepalive.connections", 10);
         options.put("http.realmName", "demo");
         options.put("http.requiredRoles", new String[] { "admin" });
-        options.put("http.transport", URI.create("tcp://localhost:2121"));
+        options.put("http.transport", "tcp://localhost:2121");
 
         options.put("http.realmAuthorizationMode", "authorizationMode");
         options.put("http.realmChallengeScheme", "challengeScheme");
@@ -166,14 +166,14 @@ public class HttpResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithDefaultTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2020"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2020", address.getOption(TRANSPORT_URI));
     }
     
     @Test
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("tcp://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("tcp://localhost:2121", address.getOption(TRANSPORT_URI));
     }
 
     private void assertEmpty(String[] objects) {
