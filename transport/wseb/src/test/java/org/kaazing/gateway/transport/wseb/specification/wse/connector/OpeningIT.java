@@ -86,11 +86,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
-        s.close(false);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -110,6 +111,8 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -120,8 +123,7 @@ public class OpeningIT {
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        IoSession s = connector.connect(connectAddress, handler).getSession();
-        s.close(false);
+        connector.connect(connectAddress, handler).getSession();
         k3po.finish();
     }
 
@@ -134,6 +136,8 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
@@ -144,8 +148,7 @@ public class OpeningIT {
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        IoSession s = connector.connect(connectAddress, handler).getSession();
-        s.close(false);
+        connector.connect(connectAddress, handler).getSession();
         k3po.finish();
     }
 
@@ -164,11 +167,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
-        s.close(false);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -181,11 +185,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
                 allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        IoSession s = connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
-        s.close(false);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
