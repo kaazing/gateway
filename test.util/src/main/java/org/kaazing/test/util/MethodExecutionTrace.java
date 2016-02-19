@@ -91,7 +91,7 @@ public class MethodExecutionTrace extends TestWatcher {
     @Override
     public void starting(Description description) {
         start = currentTimeMillis();
-        //System.out.println(description.getDisplayName() + " starting");
+        System.out.println(description.getDisplayName() + " starting");
     }
 
     @Override
@@ -125,6 +125,9 @@ public class MethodExecutionTrace extends TestWatcher {
         return format(" (%4.2f secs)", t);
     }
 
+    // Used to check for build issues where heap size was exceeding 5GB (#423). We now
+    // limit heap size in Gateway builds using failsafe argLine parameter with -Xmx1024m
+    // so gc keeps the size down to 1GB.
     private void healthCheck() {
         Runtime r = Runtime.getRuntime();
         long memory = r.totalMemory() / _1_MB;
@@ -135,11 +138,6 @@ public class MethodExecutionTrace extends TestWatcher {
             System.out.println("HEALTH CHECK WARNING: high memory usage or thread count");
             System.out.println(format("\tMemory: total %d MB, free %d MB", memory, free));
             System.out.println(format("\tThreads: %d", Thread.activeCount()));
-//            System.out.println("Forcing gc");
-//            System.gc();
-//            memory = r.totalMemory() / _1_MB;
-//            free = r.freeMemory() / _1_MB;
-//            System.out.println(format("\tMemory after gc: total %d MB, free %d MB", memory, free));
         }
     }
 }

@@ -31,6 +31,7 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -127,6 +128,7 @@ public class ClosingIT {
 
     @Test
     @Specification("client.abruptly.closes.upstream/request")
+    @Ignore("https://github.com/kaazing/gateway/issues/427")
     public void clientAbruptlyClosesUpstream() throws Exception {
         final AtomicLong timeToClose = new AtomicLong(0);
         CountDownLatch closed = new CountDownLatch(1);
