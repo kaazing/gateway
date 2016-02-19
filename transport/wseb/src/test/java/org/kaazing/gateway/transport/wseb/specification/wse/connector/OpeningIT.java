@@ -142,7 +142,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("extensions", Arrays.asList(new String[]{"primary", "secondary"}));
+        connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
@@ -350,7 +350,7 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("extensions", Arrays.asList(new String[]{"primary, secondary"}));
+        connectOptions.put("extensions", Arrays.asList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
