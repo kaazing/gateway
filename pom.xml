@@ -210,6 +210,22 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Try to avoid huge heap size on Travis builds -->
+                <plugin>
+                  <artifactId>maven-failsafe-plugin</artifactId>
+                  <version>${failsafe.plugin.version}</version>
+                  <executions>
+                    <execution>
+                      <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                      </goals>
+                      <configuration>
+                        <argLine>-Xmx1024m</argLine>
+                      </configuration>
+                    </execution>
+                  </executions>
+                </plugin>
 
                 <!-- Adds properties to manifest which are used for finding 
                     duplicate jars on classpath -->

@@ -41,7 +41,7 @@ import org.junit.runner.Description;
  */
 public class MethodExecutionTrace extends TestWatcher {
     private static final int _1_MB = 1024 * 1024;
-    private static final int MAX_HEALTH_NENORY_MB = 500;
+    private static final int MAX_HEALTH_MEMORY_MB = 1024;
     private long start;
 
     /**
@@ -131,15 +131,15 @@ public class MethodExecutionTrace extends TestWatcher {
         long free = r.freeMemory() / _1_MB;
         long used = memory - free;
         int threads = Thread.activeCount();
-        if (used > MAX_HEALTH_NENORY_MB || threads > 100) {
+        if (used > MAX_HEALTH_MEMORY_MB || threads > 100) {
             System.out.println("HEALTH CHECK WARNING: high memory usage or thread count");
             System.out.println(format("\tMemory: total %d MB, free %d MB", memory, free));
             System.out.println(format("\tThreads: %d", Thread.activeCount()));
-            System.out.println("Forcing gc");
-            System.gc();
-            memory = r.totalMemory() / _1_MB;
-            free = r.freeMemory() / _1_MB;
-            System.out.println(format("\tMemory after gc: total %d MB, free %d MB", memory, free));
+//            System.out.println("Forcing gc");
+//            System.gc();
+//            memory = r.totalMemory() / _1_MB;
+//            free = r.freeMemory() / _1_MB;
+//            System.out.println(format("\tMemory after gc: total %d MB, free %d MB", memory, free));
         }
     }
 }
