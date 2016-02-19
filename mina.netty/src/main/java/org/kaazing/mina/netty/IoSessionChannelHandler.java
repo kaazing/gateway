@@ -29,7 +29,6 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.WriteCompletionEvent;
-
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 
 import java.io.IOException;
@@ -65,9 +64,15 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
             throws Exception {
-        // Processor remove takes care of firing sessionClosed on the filter chain.
-        session.getProcessor().remove(session);
         idleTracker.removeSession(session);
+        // Processor remove takes care of firing sessionClosed on the filter chain.
+        if (session.isIoRegistered()) {
+            session.getProcessor().remove(session);
+        }
+        else {
+            // session is being realigned (by calls to setIoAlignment), defer closed processing
+            session.setClosedReceived();
+        }
     }
 
     @Override
