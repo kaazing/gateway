@@ -256,12 +256,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 @Override
                 public void run() {
                     newWriter.setIoAlignment(ioThread, ioExecutor);
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
                     attachWriter0(newWriter);
                 }
             });
