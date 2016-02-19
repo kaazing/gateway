@@ -76,7 +76,6 @@ import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.core.write.DefaultWriteRequestEx;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Explanation of TransportSession, etc
@@ -94,9 +93,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> {
-
-    private static final boolean ALIGN_DOWNSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_DOWNSTREAM", "true"));
-    private static final boolean ALIGN_UPSTREAM = Boolean.parseBoolean(System.getProperty("org.kaazing.gateway.transport.wseb.ALIGN_UPSTREAM", "true"));
 
     static final CachingMessageEncoder WSEB_MESSAGE_ENCODER = new CachingMessageEncoder() {
 
@@ -125,7 +121,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     };
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WsebSession.class);
+    private final Logger logger;
     private static final WriteRequest RECONNECT_REQUEST = new DefaultWriteRequestEx(new Object());
 
     private long readerSequenceNo;
@@ -181,6 +177,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                        boolean validateSequenceNo,
                        long sequenceNo,
                        List<WebSocketExtension> extensions,
+                       Logger logger,
                        Properties configuration) {
         super(ioLayer,
               ioThread,
@@ -193,6 +190,7 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
               Direction.BOTH,
               loginContext,
               extensions);
+        this.logger = logger;
         attachingWrite = new AtomicBoolean(false);
         readSession = new AtomicReference<>();
         pendingNewWriter = new AtomicReference<>();
@@ -251,32 +249,22 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             attachWriter0(newWriter);
         }
         else {
-            if (ALIGN_DOWNSTREAM) {
-                final Thread ioThread = getIoThread();
-                final Executor ioExecutor = getIoExecutor();
-                newWriter.setIoAlignment(NO_THREAD, NO_EXECUTOR);
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        newWriter.setIoAlignment(ioThread, ioExecutor);
-                        attachWriter0(newWriter);
-                    }
-                });
-            }
-            else {
-                getIoExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        attachWriter0(newWriter);
-                    }
-                });
-            }
+            final Thread ioThread = getIoThread();
+            final Executor ioExecutor = getIoExecutor();
+            newWriter.setIoAlignment(NO_THREAD, NO_EXECUTOR);
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    newWriter.setIoAlignment(ioThread, ioExecutor);
+                    attachWriter0(newWriter);
+                }
+            });
         }
     }
 
     private void attachWriter0(final HttpSession newWriter) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("attachWriter on WsebSession wseb#%d, newWriter=%s", this.getId(), newWriter));
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("attachWriter on WsebSession wseb#%d, newWriter=%s", this.getId(), newWriter));
         }
         reconnecting.set(false);
         if (!getTransportSession().isClosing()) {
@@ -318,6 +306,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
         else {
             if (newWriter != null) {
+                if (!isCloseSent()) {
+                    newWriter.write(WsCommandMessage.CLOSE);
+                    newWriter.write(WsCommandMessage.RECONNECT);
+                }
                 newWriter.close(false);
             }
         }
@@ -350,17 +342,13 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         if (Thread.currentThread() == getIoThread()) {
             detachWriter0(oldWriter);
         } else {
-            if (ALIGN_DOWNSTREAM) {
-                final Executor ioExecutor = getIoExecutor();
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        detachWriter0(oldWriter);
-                    }
-                });
-            } else {
-                detachWriter0(oldWriter);
-            }
+            final Executor ioExecutor = getIoExecutor();
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    detachWriter0(oldWriter);
+                }
+            });
         }
 
         return detached;
@@ -371,8 +359,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             if (!oldWriter.isClosing()) {
                 oldWriter.write(WsCommandMessage.RECONNECT);
             }
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("detachWriter on WsebSession wseb#%d, oldWriter=%s", this.getId(), oldWriter));
+            if (logger.isDebugEnabled()) {
+                logger.debug(String.format("detachWriter on WsebSession wseb#%d, oldWriter=%s", this.getId(), oldWriter));
             }
             oldWriter.close(false);
         } else {
@@ -418,37 +406,27 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
             attachReader0(newReader);
         }
         else {
-            if (ALIGN_UPSTREAM) {
-                final Thread ioThread = getIoThread();
-                final Executor ioExecutor = getIoExecutor();
-                // Prevent messageReceived from being fired from setIoAlignment and racing ahead of attachReader0
-                newReader.suspendRead();
-                newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
-                ioExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        newReader.setIoAlignment(ioThread, ioExecutor);
-                        attachReader0(newReader);
-                        // now allow messageReceived to fire if data is available
-                        newReader.resumeRead();
-                    }
-                });
-            }
-            else {
-                getIoExecutor().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        attachReader0(newReader);
-                    }
-                });
-            }
+            final Thread ioThread = getIoThread();
+            final Executor ioExecutor = getIoExecutor();
+            // Prevent messageReceived from being fired from setIoAlignment and racing ahead of attachReader0
+            newReader.suspendRead();
+            newReader.setIoAlignment(NO_THREAD, NO_EXECUTOR);
+            ioExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    newReader.setIoAlignment(ioThread, ioExecutor);
+                    attachReader0(newReader);
+                    // now allow messageReceived to fire if data is available
+                    newReader.resumeRead();
+                }
+            });
         }
 
     }
 
     private void attachReader0(final IoSessionEx newReader) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("attachReader on WsebSession wseb#%d, newReader=%s", this.getId(), newReader));
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("attachReader on WsebSession wseb#%d, newReader=%s", this.getId(), newReader));
         }
         // TODO: needs improved handling of old value for overlapping downstream
         //       from client perspective to detect buffering proxies
@@ -550,8 +528,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
     }
 
     void enqueueReconnectRequest() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("enqueueReconnectRequest on WsebSession %s", this));
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("enqueueReconnectRequest on WsebSession %s", this));
         }
         WriteRequestQueue writeRequestQueue = getWriteRequestQueue();
         writeRequestQueue.offer(this, RECONNECT_REQUEST);
@@ -650,6 +628,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         closeState.add(CloseState.CLOSE_SENT);
     }
 
+    Logger getLogger() {
+        return logger;
+    }
+
     boolean isPingEnabled() {
         return pingEnabled;
     }
@@ -743,6 +725,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         }
     }
 
+    private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
+
     private class FlushCommand implements Runnable {
 
         private final WsebSession session;
@@ -784,8 +768,6 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         return writerSequenceNo;
     }
 
-    private final static BridgeAcceptProcessor<WsebSession> wsebSessionProcessor = new WsebSessionProcessor();
-
     private final static class WsebSessionProcessor extends BridgeAcceptProcessor<WsebSession> {
 
         @Override
@@ -796,8 +778,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 return;
             }
             WsCloseMessage closeMessage = WsCloseMessage.NORMAL_CLOSE;
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Writing WS CLOSE frame to transport of wseb session %s", session));
+            if (session.getLogger().isDebugEnabled()) {
+                session.getLogger().debug(String.format("Writing WS CLOSE frame to transport of wseb session %s", session));
             }
             // Write may not be immediate, especially for WsebConnector case where writer is not immediately attached
             session.getTransportSession().write(closeMessage).addListener(new IoFutureListener<WriteFuture>() {
@@ -834,8 +816,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         @Override
         protected void flushInternal(final WsebSession session) {
             if (cannotWrite(session)) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because writer (%s) " +
+                if (session.getLogger().isTraceEnabled()) {
+                    session.getLogger().trace(String.format("wsebSessionProcessor.flushInternal: returning because writer (%s) " +
                                                        "is null or writer is closing",
                             session.getWriter()));
                 }
@@ -844,8 +826,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
             final IoSessionEx transport = session.getTransportSession();
             if (transport.isClosing()) {
-                if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace(String.format("wsebSessionProcessor.flushInternal: returning because transport (%s) " +
+                if (session.getLogger().isTraceEnabled()) {
+                    session.getLogger().trace(String.format("wsebSessionProcessor.flushInternal: returning because transport (%s) " +
                                                        "is closing", transport));
                 }
                 return;
@@ -870,8 +852,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
                 // identity compare for our marker as a command to reconnect the
                 // stream
                 if (WsebSession.isReconnectRequest(request)) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(format("RECONNECT_REQUEST detected on wseb session %d: passing to wseb processor",
+                    if (session.getLogger().isDebugEnabled()) {
+                        session.getLogger().debug(format("RECONNECT_REQUEST detected on wseb session %d: passing to wseb processor",
                                 session.getId()));
                     }
                     // Bypass the filter chain since WebSocket extension filters should not see this special request.
@@ -1020,14 +1002,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         @Override
         protected void doExceptionCaught(TransportSession session, Throwable cause) throws Exception {
-            if (logger.isDebugEnabled()) {
+            if (session.getLogger().isDebugEnabled()) {
                 String message = format("Exception while handling upstream WebSocket frame for WsebSession: %s", cause);
-                if (logger.isTraceEnabled()) {
+                if (session.getLogger().isTraceEnabled()) {
                     // note: still debug level, but with extra detail about the exception
-                    logger.debug(message, cause);
+                    session.getLogger().debug(message, cause);
                 }
                 else {
-                    logger.debug(message);
+                    session.getLogger().debug(message);
                 }
             }
 
@@ -1046,8 +1028,8 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
         protected void doSessionIdle(TransportSession session, IdleStatus status) throws Exception {
             WsebSession wsebSession = session.getWsebSession();
             if (wsebSession.isCloseSent() && !wsebSession.isCloseReceived()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(format("Close handshake timeout while closing wseb session %s", session));
+                if (session.getLogger().isDebugEnabled()) {
+                    session.getLogger().debug(format("Close handshake timeout while closing wseb session %s", session));
                 }
                 session.close(true);
             }
@@ -1119,6 +1101,10 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
         WsebSession getWsebSession() {
             return wsebSession;
+        }
+
+        Logger getLogger() {
+            return wsebSession.getLogger();
         }
     }
 

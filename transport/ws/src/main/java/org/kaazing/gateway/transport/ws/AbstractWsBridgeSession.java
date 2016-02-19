@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends IoBufferEx> extends AbstractBridgeSession<S, B> {
 
     // This logger logs scheduled events, and must be mentioned explicitly to show up to customers.
-    protected static final Logger logger = LoggerFactory.getLogger("session.scheduled");
+    private static final Logger scheduledEventslogger = LoggerFactory.getLogger("session.scheduled");
 
     // This logger logs websocket logout events, and must be mentioned explicitly to show up to customers.
     protected static final Logger logoutLogger = LoggerFactory.getLogger("session.logout");
@@ -144,8 +144,8 @@ public abstract class AbstractWsBridgeSession<S extends IoSessionEx, B extends I
         if (initSessionTimeoutCommand.compareAndSet(false, true)) {
             final Long sessionTimeout = getSessionTimeout();
             if ( sessionTimeout != null && sessionTimeout > 0) {
-                if ( logger.isTraceEnabled() ) {
-                    logger.trace( "Establishing a session timeout of " + sessionTimeout + " seconds for WebSocket session (" + getId() + ").");
+                if ( scheduledEventslogger.isTraceEnabled() ) {
+                    scheduledEventslogger.trace( "Establishing a session timeout of " + sessionTimeout + " seconds for WebSocket session (" + getId() + ").");
                 }
                 scheduleCommand(this.sessionTimeout, sessionTimeout);
             }

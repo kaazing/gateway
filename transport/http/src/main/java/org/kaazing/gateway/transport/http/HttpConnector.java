@@ -58,6 +58,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
@@ -217,6 +218,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         for (HttpConnectFilter connectFilter : connectFilters) {
             chain.addLast(connectFilter.filterName(), connectFilter.filter());
         }
+        LoggingFilter.moveAfterCodec(transport);
     }
 
     @Override
