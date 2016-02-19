@@ -17,6 +17,7 @@ package org.kaazing.mina.netty;
 
 
 import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.currentThread;
 
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.future.IoFuture;
@@ -67,10 +68,25 @@ public class IoSessionChannelHandler extends SimpleChannelHandler {
         idleTracker.removeSession(session);
         // Processor remove takes care of firing sessionClosed on the filter chain.
         if (session.isIoRegistered()) {
-            session.getProcessor().remove(session);
+            if (currentThread() == session.getIoThread()) {
+                session.getProcessor().remove(session);
+            }
+            else {
+                // This race can occur because org.jboss.netty.channel.socket.nio.AbstractNioChannel.setWorker
+                // only schedules a task to unregister or register instead of doing it immediately
+                session.getIoExecutor().execute(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        session.getProcessor().remove(session);
+                    }
+
+                });
+            }
         }
         else {
             // session is being realigned (by calls to setIoAlignment), defer closed processing
+            // to when we have an operational io executor
             session.setClosedReceived();
         }
     }
