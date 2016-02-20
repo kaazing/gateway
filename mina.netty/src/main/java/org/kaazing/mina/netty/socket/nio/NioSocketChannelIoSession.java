@@ -48,6 +48,11 @@ public class NioSocketChannelIoSession extends ChannelIoSession<NioSocketChannel
         if (ioExecutor == NO_EXECUTOR) {
             channel.setWorker(null);
         }
+        else if (isClosedReceived()) {
+            // Process the closed event now that realignment is complete
+            // We must not register the channel with the worker since it is closed
+            getProcessor().remove(this);
+        }
         else {
             NioWorker newWorker = ((WorkerExecutor) ioExecutor).worker;
             channel.setWorker(newWorker);
