@@ -32,9 +32,13 @@ import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMU
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,19 +46,51 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
+@RunWith(Parameterized.class)
 public class TcpResourceAddressFactorySpiTest {
 
+    private static String networkInterface = "";
+    static {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
+                if (resolvedNetworkInterface.isLoopback()) {
+                    networkInterface = resolvedNetworkInterface.getDisplayName();
+                    break;
+                }
+            }
+            if (networkInterface.equals("")) {
+                throw new RuntimeException("No loopback interfaces could be found");
+            }
+        } catch (SocketException socketEx) {
+            throw new RuntimeException("No interfaces could be found");
+        }
+    }
+
     private TcpResourceAddressFactorySpi factory;
-    private String addressURI;
     private Map<String,Object> options;
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {"tcp://localhost:2020"}, {"tcp://[@" + networkInterface + "]:2020"}, {"tcp://@" + networkInterface + ":2020"}
+           });
+    }
+
+    @Parameter
+    public String addressURI;
 
     @Before
     public void before() {
         factory = new TcpResourceAddressFactorySpi();
-        addressURI = "tcp://localhost:2020";
         options = new HashMap<>();
         options.put("tcp.nextProtocol", "custom");
         options.put("tcp.maximumOutboundRate", 534L);
@@ -109,10 +145,9 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)) {
+                if ("localhost".equals(host)|| "127.0.0.1".equals(host)|| "0:0:0:0:0:0:0:1".equals(host)) {
                     return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
                 }
-
                 throw new UnknownHostException(host);
             }
         });
@@ -149,13 +184,12 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)) {
+                if ("localhost".equals(host) || "127.0.0.1".equals(host)|| "0:0:0:0:0:0:0:1".equals(host)) {
                     return asList(
                             getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
                             getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
                             getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
                 }
-
                 throw new UnknownHostException(host);
             }
         });

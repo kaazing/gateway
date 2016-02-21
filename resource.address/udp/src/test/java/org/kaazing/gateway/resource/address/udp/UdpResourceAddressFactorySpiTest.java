@@ -149,6 +149,24 @@ public class UdpResourceAddressFactorySpiTest {
     }
 
     @Test
+    public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxBrackets() {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("udp.transport", "udp://[@" + networkInterface + "]:8080");
+        ResourceAddress address = factory.newResourceAddress(addressURI, options);
+        // transport not overriden
+        assertEquals(2020, address.getExternalURI().getPort());
+    }
+
+    @Test
+    public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("udp.transport", "udp://@" + networkInterface + ":8080");
+        ResourceAddress address = factory.newResourceAddress(addressURI, options);
+        // transport not overriden
+        assertEquals(2020, address.getExternalURI().getPort());
+    }
+
+    @Test
     public void shouldResolveIPv6Address() {
         Map<String, Object> options = new HashMap<>();
         options.put("resolver", new NameResolver() {
@@ -200,19 +218,7 @@ public class UdpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)) {
-                    return asList(
-                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
-                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
-                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
-                }
-                if ("127.0.0.1".equals(host)) {
-                    return asList(
-                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
-                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
-                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
-                }
-                if ("0:0:0:0:0:0:0:1".equals(host)) {
+                if ("localhost".equals(host) || "127.0.0.1".equals(host) || "0:0:0:0:0:0:0:1".equals(host)) {
                     return asList(
                             getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
                             getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),

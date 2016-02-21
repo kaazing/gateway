@@ -31,7 +31,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kaazing.gateway.server.config.sep2014.ClusterType;
 import org.kaazing.gateway.server.config.sep2014.GatewayConfigDocument;
+import org.kaazing.gateway.server.config.sep2014.ServiceType;
 import org.kaazing.gateway.util.http.DefaultUtilityHttpClient;
 
 /**
@@ -366,6 +368,42 @@ public class GatewayConfigParserTest {
     }
 
     @Test
+    public void testNetworkInterfaceSyntax() {
+        File configFile = null;
+        GatewayConfigDocument doc = null;
+        try {
+            configFile = createTempFileFromResource("org/kaazing/gateway/server/config/parse/data/gateway-config-network-interface-syntax.xml");
+            doc = parser.parse(configFile);
+        } catch (Exception e) {
+                fail("Caught unexpected exception parsing: " + e);
+        } finally {
+            if (configFile != null) {
+                configFile.delete();
+            }
+        }
+
+        // services data
+        ServiceType serviceArray = doc.getGatewayConfig().getServiceArray(0);
+        String accept = serviceArray.getAcceptArray(0);
+        String connect = serviceArray.getConnectArray(0);
+        String bind = serviceArray.getAcceptOptions().getTcpBind();
+        String transport = serviceArray.getAcceptOptions().getHttpTransport();
+
+        // clustering data
+        ClusterType clusterArray = doc.getGatewayConfig().getClusterArray(0);
+        String clusterAccept = clusterArray.getAcceptArray(0);
+        String clusterConnectt = clusterArray.getConnectArray(0);
+
+        // assertions section
+        assertNetworkInterfaceSyntax(accept);
+        assertNetworkInterfaceSyntax(connect);
+        assertNetworkInterfaceSyntax(bind);
+        assertNetworkInterfaceSyntax(transport);
+        assertNetworkInterfaceSyntax(clusterAccept);
+        assertNetworkInterfaceSyntax(clusterConnectt);
+    }
+
+    @Test
     public void testCanConvertAwsInstanceIdIfAvailable() {
         boolean onAWS = false;
         boolean onTravisCI = false;
@@ -450,4 +488,17 @@ public class GatewayConfigParserTest {
         assumeTrue("accept equals localhost", "localhost".equals(accept));
     }
 
+    /**
+     * Method performing network interface syntax assertions
+     * @param element
+     */
+    private void assertNetworkInterfaceSyntax(String element) {
+        Assert.assertFalse("element is null", element == null);
+        Assert.assertFalse("element is empty", "".endsWith(element));
+        Assert.assertFalse("Found pattern in element", element.contains("${hostname}"));
+        Pattern pattern = Pattern.compile("@");
+        Matcher matcher = pattern.matcher(element);
+        boolean found = matcher.find();
+        Assert.assertTrue("Did not find network interface syntax", found);
+    }
 }

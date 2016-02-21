@@ -226,7 +226,9 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                         "' consists of IPv6 address which is not supported. Use Ipv4 address instead.");
             }
 
-            networkConfig.getInterfaces().addInterface(localInterface.getHost());
+            // convertHostToIP method is used in order to address situations in which network interface syntax is present
+            String hostConvertedToIP = convertHostToIP(localInterface.getHost());
+            networkConfig.getInterfaces().addInterface(hostConvertedToIP);
 
             if (localInterface.getPort() != clusterPort) {
                 throw new IllegalArgumentException("Port numbers on the network interfaces in <accept> do not match");
@@ -251,9 +253,11 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         for (MemberId member : clusterMembers) {
             if (member.getProtocol().equals("udp")) {
-                multicastAddresses.add(new InetSocketAddress(member.getHost(), member.getPort()));
+                // convertHostToIP method is used in order to address situations in which network interface syntax is present
+                multicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
             } else if (member.getProtocol().equals("tcp")) {
-                unicastAddresses.add(new InetSocketAddress(member.getHost(), member.getPort()));
+                // convertHostToIP method is used in order to address situations in which network interface syntax is present
+                unicastAddresses.add(new InetSocketAddress(convertHostToIP(member.getHost()), member.getPort()));
             } else if (member.getProtocol().equals("aws")) {
                 awsMember = member;
 
@@ -366,6 +370,23 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         return hazelCastConfig;
     }
 
+    /**
+     * Method returning IP from host
+     * @param host
+     * @return
+     * @throws UnknownHostException
+     */
+    private String convertHostToIP(String host) throws UnknownHostException {
+        byte[] address = getResolvedAddressFromHost(host).getAddress();
+        StringBuffer ip = new StringBuffer();
+        for (int i = 0; i < address.length - 1; i++) {
+            ip.append(address[i]);
+            ip.append(".");
+        }
+        ip.append(address[address.length - 1]);
+        return ip.toString();
+    }
+
     @SuppressWarnings("unused")
     private List<String> processInterfaceOrMemberEntry(String entry) {
         if (entry == null) {
@@ -411,22 +432,29 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     /**
+     * Previous to network interface syntax support, only InetAddress.getByName(hostAddress) was used for when
+     * returning IPs based on host name. This basically did a InetAddress.getAllByName(hostAddress)[0]
+     * Consequently, only the first IP address was returned
+     * A similar approach has been used with added NetworkIntrfaceSyntax support, where only the first IP
+     * is returned for a localInterface, i.e. for an <accept>
      * Method returning resolved addresses from host
      * @param hostAddress
      * @return
      * @throws UnknownHostException
      */
     private InetAddress getResolvedAddressFromHost(String hostAddress) throws UnknownHostException {
+        // TODO: Previous to network interface syntax support, only InetAddress.getByName(hostAddress) was used for when
+        // returning IPs based on host name. This basically did a InetAddress.getAllByName(hostAddress)[0]
+        // Consequently, only the first IP address was returned
+        // A similar approach has been used with added NetworkIntrfaceSyntax support, where only the first IP
+        // is returned for a localInterface, i.e. for an <accept>
         InetAddress address = null;
         Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, true);
         if (addresses.isEmpty()) {
             address = InetAddress.getByName(hostAddress);
         }
         else {
-            for (InetAddress addressIt : addresses) {
-                address = addressIt;
-                break;
-            }
+            address = addresses.iterator().next();
         }
         return address;
     }
