@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.transport.wsn.networkinterface.resolution;
+package org.kaazing.gateway.service.proxy.networkinterface.resolution;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.NetworkInterface;
