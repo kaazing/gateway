@@ -49,10 +49,7 @@ public class TcpAcceptorIT {
     
     private TcpAcceptorRule acceptor = new TcpAcceptorRule();
 
-    private static String networkInterface = "";
-    static {
-        networkInterface = ResolutionTestUtils.getLoopbackInterface();
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Parameters
     public static Collection<Object[]> data() {

@@ -436,7 +436,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * returning IPs based on host name. This basically did a InetAddress.getAllByName(hostAddress)[0]
      * Consequently, only the first IP address was returned
      * A similar approach has been used with added NetworkIntrfaceSyntax support, where only the first IP
-     * is returned for a localInterface, i.e. for an <accept>
+     * is returned for a localInterface
+     * Same approach is used also for cluster members
      * Method returning resolved addresses from host
      * @param hostAddress
      * @return
@@ -447,7 +448,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // returning IPs based on host name. This basically did a InetAddress.getAllByName(hostAddress)[0]
         // Consequently, only the first IP address was returned
         // A similar approach has been used with added NetworkIntrfaceSyntax support, where only the first IP
-        // is returned for a localInterface, i.e. for an <accept>
+        // is returned for a localInterface
+        // Same approach is used also for cluster members
         InetAddress address = null;
         Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, true);
         if (addresses.isEmpty()) {

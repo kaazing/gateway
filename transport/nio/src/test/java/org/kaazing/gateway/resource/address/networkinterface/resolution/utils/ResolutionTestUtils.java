@@ -19,7 +19,12 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-public class ResolutionTestUtils {
+public final class ResolutionTestUtils {
+
+    private ResolutionTestUtils() {
+        // not to be instantiated
+    }
+
     public static String getLoopbackInterface() {
         String networkInterface = "";
         try {

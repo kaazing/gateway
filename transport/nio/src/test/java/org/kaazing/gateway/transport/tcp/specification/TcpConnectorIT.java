@@ -52,10 +52,7 @@ public class TcpConnectorIT {
 
     private TcpConnectorRule connector = new TcpConnectorRule();
 
-    private static String networkInterface = "";
-    static {
-        networkInterface = ResolutionTestUtils.getLoopbackInterface();
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Rule
     public TestRule chain = createRuleChain(connector, k3po);

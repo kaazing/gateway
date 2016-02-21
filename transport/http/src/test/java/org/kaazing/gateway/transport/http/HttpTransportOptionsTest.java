@@ -17,12 +17,9 @@ package org.kaazing.gateway.transport.http;
 
 import static org.junit.Assert.fail;
 
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +40,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.transport.http.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.TransportFactory;
@@ -58,24 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpTransportOptionsTest {
-    private static String networkInterface = "";
-    static {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
-                if (resolvedNetworkInterface.isLoopback()) {
-                    networkInterface = resolvedNetworkInterface.getDisplayName();
-                    break;
-                }
-            }
-            if (networkInterface.equals("")) {
-                throw new RuntimeException("No loopback interfaces could be found");
-            }
-        } catch (SocketException socketEx) {
-            throw new RuntimeException("No interfaces could be found");
-        }
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private static  Logger logger;
 

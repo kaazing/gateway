@@ -32,13 +32,10 @@ import static org.kaazing.gateway.resource.address.tcp.TcpResourceAddress.MAXIMU
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,28 +49,12 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.tcp.networkinterface.resolution.utils.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
 public class TcpResourceAddressFactorySpiTest {
 
-    private static String networkInterface = "";
-    static {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
-                if (resolvedNetworkInterface.isLoopback()) {
-                    networkInterface = resolvedNetworkInterface.getDisplayName();
-                    break;
-                }
-            }
-            if (networkInterface.equals("")) {
-                throw new RuntimeException("No loopback interfaces could be found");
-            }
-        } catch (SocketException socketEx) {
-            throw new RuntimeException("No interfaces could be found");
-        }
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private TcpResourceAddressFactorySpi factory;
     private Map<String,Object> options;

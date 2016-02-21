@@ -55,6 +55,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
 
     private static final String FORMAT_IPV4_AUTHORITY = "%s:%d";
     private static final String FORMAT_IPV6_AUTHORITY = "[%s]:%d";
+    // "@" added in the pattern below in order not to match network interface syntax
     private static final Pattern PATTERN_IPV6_HOST = Pattern.compile("\\[([^@\\]]+)\\]");
 
     @Override

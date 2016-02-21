@@ -50,7 +50,7 @@ public final class ResolutionUtils {
     }
 
     private ResolutionUtils() {
-        //not called
+        // not to be instantiated
      }
 
    /**
@@ -67,7 +67,6 @@ public final class ResolutionUtils {
            try {
                resolvedHosts.addAll(asList(InetAddress.getAllByName(resolvedAddress)));
            } catch (UnknownHostException e) {
-               // TODO Auto-generated catch block
                e.printStackTrace();
            }
        }
