@@ -21,6 +21,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.ALTERNATE;
 import static org.kaazing.gateway.resource.address.ResourceAddress.BIND_ALTERNATE;
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.NEXT_PROTOCOL;
 import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.RESOLVER;
@@ -29,9 +30,11 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORTED_U
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPort;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +45,11 @@ import java.util.Set;
 
 public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
+    private static final String PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION = "Option java.net.preferIPv4Stack is set to"
+                                                               + " true and an IPv6 address was provided in the config.";
+    private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING = "No addresses available for binding for URI: %s.";
     private static final Map<String, Object> EMPTY_OPTIONS = emptyMap();
+    private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     
     private ResourceAddressFactory addressFactory;
 
@@ -147,9 +154,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
             alternate = address;
         }
-
+        
+       
         if (addresses.isEmpty()) {
-            throw new IllegalArgumentException(format("No addresses available for binding for URI: %s", location));
+            throwNoAddressesToBindError(location);
         }
 
         return addresses.get(0);
@@ -236,7 +244,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         }
 
         if (addresses.isEmpty()) {
-            throw new IllegalArgumentException(format("No addresses available for binding for URI: %s", location));
+            throwNoAddressesToBindError(location);
         }
 
         return addresses.get(0);
@@ -462,6 +470,37 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
      */
     protected String getRootSchemeName() {
         return null;
+    }
+    
+    /**
+     * Throw error on specific circumstances:
+     * - no addresses available for binding
+     * - when PreferedIPv4 flag is true and the host IP is IPV6
+     * @param location
+     */
+    private void throwNoAddressesToBindError(URI location) {
+        StringBuffer error = new StringBuffer(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING, location));
+        try {
+            InetAddress address = InetAddress.getByName(location.getHost());
+            error.insert(0, getErrorMessageIfPreferedIPv4(address));
+        } catch (UnknownHostException e) {
+            // InetAddress.getByName(hostAddress) throws an exception (hostAddress may have an
+            // unsupported format, e.g. network interface syntax)
+        }
+        throw new IllegalArgumentException(error.toString());
+    }
+
+    /**
+     * Verify PreferedIPv4 flag and IPV6 in order to throw a complex error message
+     * @param error
+     * @param address
+     */
+    private String getErrorMessageIfPreferedIPv4(InetAddress address) {
+        boolean isPeferedIPv4 = "true".equals(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
+        if (isPeferedIPv4 && (address instanceof Inet6Address)) {
+            return PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION;
+        }
+        return "";
     }
 
 }
