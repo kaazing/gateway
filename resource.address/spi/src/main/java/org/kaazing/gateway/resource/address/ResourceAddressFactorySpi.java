@@ -45,9 +45,9 @@ import java.util.Set;
 
 public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
-    private static final String PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION = "Option java.net.preferIPv4Stack is set to"
-                                                               + " true and an IPv6 address was provided in the config.";
-    private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING = "No addresses available for binding for URI: %s.";
+    private static final String PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION_FORMATTER = "Option java.net.preferIPv4Stack is set to"
+                                                            + " true and an IPv6 address was provided in the config.";
+    private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER = "No addresses available for binding for URI: %s.";
     private static final Map<String, Object> EMPTY_OPTIONS = emptyMap();
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     
@@ -479,28 +479,18 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
      * @param location
      */
     private void throwNoAddressesToBindError(URI location) {
-        StringBuffer error = new StringBuffer(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING, location));
+        StringBuffer error = new StringBuffer(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
         try {
             InetAddress address = InetAddress.getByName(location.getHost());
-            error.insert(0, getErrorMessageIfPreferedIPv4(address));
+            boolean isPreferedIPv4 = "true".equals(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
+            if (isPreferedIPv4 && (address instanceof Inet6Address)) {
+                error.insert(0, PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION_FORMATTER);
+            }
         } catch (UnknownHostException e) {
             // InetAddress.getByName(hostAddress) throws an exception (hostAddress may have an
             // unsupported format, e.g. network interface syntax)
         }
         throw new IllegalArgumentException(error.toString());
-    }
-
-    /**
-     * Verify PreferedIPv4 flag and IPV6 in order to throw a complex error message
-     * @param error
-     * @param address
-     */
-    private String getErrorMessageIfPreferedIPv4(InetAddress address) {
-        boolean isPeferedIPv4 = "true".equals(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
-        if (isPeferedIPv4 && (address instanceof Inet6Address)) {
-            return PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION;
-        }
-        return "";
     }
 
 }
