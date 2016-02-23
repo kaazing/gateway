@@ -27,10 +27,7 @@ public class URIWrapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private static String networkInterface = "";
-    static {
-        networkInterface = ResolutionTestUtils.getLoopbackInterface();
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Test
     public void uriUtilsMethodsBehaviorTcp127001() {

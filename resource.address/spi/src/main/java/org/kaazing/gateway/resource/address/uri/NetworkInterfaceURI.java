@@ -183,6 +183,9 @@ public class NetworkInterfaceURI implements URIAccessor {
                 throw new NetworkInterfaceSyntaxException("Invalid network interface URI syntax");
             }
             matchedToken = matcher.group(0);
+            if (matchedToken.contains(" ") && (!matchedToken.startsWith("[") || !matchedToken.endsWith("]"))) {
+                throw new NetworkInterfaceSyntaxException("Network interface syntax host contains spaces but misses bracket(s)");
+            }
             mockNetworkInterfaceURI = URI.create(uri.replace(matchedToken, HOST_TEMPLATE));
             populateUriDataFromMockInterfaceURI();
         }

@@ -27,10 +27,7 @@ public class NetworkInterfaceURITest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private static String networkInterface = "";
-    static {
-        networkInterface = ResolutionTestUtils.getLoopbackInterface();
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     @Test
     public void uriUtilsMethodsBehaviorTcp127001() {
@@ -52,6 +49,17 @@ public class NetworkInterfaceURITest {
     }
 
     @Test
+    public void uriUtilsMethodsBehaviorUdpLoopbackBrackets() {
+        String uriString = "udp://[@" + networkInterface +
+                "]:8080/test?param1=val#fragment";
+        NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
+        assertEquals("[@" + networkInterface + "]", uri.getHost());
+        assertEquals("udp", uri.getScheme());
+        assertEquals("[@" + networkInterface + "]:8080", uri.getAuthority());
+        generalAsserts(uri);
+    }
+
+    @Test
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
         String uriString = "http://[@" + networkInterface +
                 "]:8080/test?param1=val#fragment";
@@ -64,19 +72,17 @@ public class NetworkInterfaceURITest {
     public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
         String uriString = "tcp://@" + networkInterface +
                 ":8080/test?param1=val#fragment";
-        NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
-        assertEquals("@" + networkInterface, uri.getHost());
-        assertEquals("tcp", uri.getScheme());
-        assertEquals("@" + networkInterface + ":8080", uri.getAuthority());
-        generalAsserts(uri);
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        NetworkInterfaceURI.create(uriString);
     }
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackNoBrackets() {
-        String uriString = "http://@" + networkInterface +
+        String uriString = "udp://@" + networkInterface +
                 ":8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
+        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
         NetworkInterfaceURI.create(uriString);
     }
 

@@ -42,7 +42,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
@@ -53,6 +55,8 @@ import org.kaazing.gateway.resource.address.udp.networkinterface.resolution.util
 
 @RunWith(Parameterized.class)
 public class UdpResourceAddressFactorySpiTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
@@ -62,7 +66,7 @@ public class UdpResourceAddressFactorySpiTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {"udp://localhost:2020"}, {"udp://[@" + networkInterface + "]:2020"}, {"udp://@" + networkInterface + ":2020"}
+                {"udp://localhost:2020"}, {"udp://[@" + networkInterface + "]:2020"}
            });
     }
 
@@ -125,8 +129,9 @@ public class UdpResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithBindOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("udp.bind", "@" + networkInterface + ":8080");
-        ResourceAddress address = factory.newResourceAddress(addressURI, options);
-        assertEquals(8080, address.getExternalURI().getPort());
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        factory.newResourceAddress(addressURI, options);
     }
 
     @Test
@@ -139,7 +144,7 @@ public class UdpResourceAddressFactorySpiTest {
     }
 
     @Test
-    public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
+    public void shouldCreateAddressWithTransportOptionsAndIgnoreNetworkInterfaceSyntaxNoBrackets() {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("udp.transport", "udp://@" + networkInterface + ":8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);

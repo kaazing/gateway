@@ -35,8 +35,8 @@ public class ClusterBalancerServiceIT {
             String clusterMember1URI = "tcp://localhost:8555";
             String clusterMember2URI = "tcp://localhost:8556";
             String clusterMemberNetworkInterface1URI = "tcp://[@" + networkInterface + "]:855";
-            String clusterMemberNetworkInterfaceTcp2URI = "tcp://@" + networkInterface + ":8558";
-            String clusterMemberNetworkInterfaceUdp2URI = "udp://@" + networkInterface + ":8559";
+            String clusterMemberNetworkInterfaceTcp2URI = "tcp://[@" + networkInterface + "]:8558";
+            String clusterMemberNetworkInterfaceUdp2URI = "udp://[@" + networkInterface + "]:8559";
             
             GatewayConfiguration config1 = createGatewayConfigBuilder(clusterMember1URI, clusterMember2URI, "7001", "8000");
             GatewayConfiguration config2 = createGatewayConfigBuilder(clusterMember2URI, clusterMember1URI, "7000", "8001");

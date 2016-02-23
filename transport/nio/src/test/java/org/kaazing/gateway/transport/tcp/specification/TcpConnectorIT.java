@@ -60,7 +60,7 @@ public class TcpConnectorIT {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {     
-                {"tcp://127.0.0.1:8080"}, {"tcp://[@" + networkInterface + "]:8080"}, {"tcp://@" + networkInterface + ":8080"}
+                {"tcp://127.0.0.1:8080"}, {"tcp://[@" + networkInterface + "]:8080"}
            });
     }
 

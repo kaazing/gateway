@@ -62,7 +62,7 @@ public class TcpResourceAddressFactorySpiTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                {"tcp://localhost:2020"}, {"tcp://[@" + networkInterface + "]:2020"}, {"tcp://@" + networkInterface + ":2020"}
+                {"tcp://localhost:2020"}, {"tcp://[@" + networkInterface + "]:2020"}
            });
     }
 

@@ -37,7 +37,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.http.networkinterface.resolution.utils.ResolutionTestUtils;
@@ -56,6 +58,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpTransportOptionsTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private static  Logger logger;
@@ -238,6 +243,8 @@ public class HttpTransportOptionsTest {
         acceptOptionsParam.put("tcp.bind", "@" + networkInterface + ":8080");
         Map<String, Object> connectOptionsParam = new HashMap<>();
         connectOptionsParam.put("http.transport", "tcp://@" + networkInterface + ":8080");
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
         helperConstructLocalRemoteAddressesForAcceptAndConnectSessions( acceptOptionsParam, connectOptionsParam);
     }
 
