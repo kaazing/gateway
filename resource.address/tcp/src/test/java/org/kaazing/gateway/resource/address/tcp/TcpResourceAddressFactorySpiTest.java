@@ -126,7 +126,7 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)|| "127.0.0.1".equals(host)|| "0:0:0:0:0:0:0:1".equals(host)) {
+                if ("localhost".equals(host)|| "127.0.0.1".equals(host)|| host.startsWith("0:0:0:0:0:0:0:1")) {
                     return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
                 }
                 throw new UnknownHostException(host);
@@ -165,7 +165,7 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host) || "127.0.0.1".equals(host)|| "0:0:0:0:0:0:0:1".equals(host)) {
+                if ("localhost".equals(host) || "127.0.0.1".equals(host)|| host.startsWith("0:0:0:0:0:0:0:1")) {
                     return asList(
                             getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
                             getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),

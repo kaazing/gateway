@@ -177,12 +177,15 @@ public class NetworkInterfaceURI implements URIAccessor {
                 throw new NetworkInterfaceSyntaxException("Network interface URI syntax should only"
                         + "be applicable for tcp and udp schemes");
             }
-            Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 ]*\\]{0,1})");
+            Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
             Matcher matcher = pattern.matcher(uri);
             if (!matcher.find()) {
                 throw new NetworkInterfaceSyntaxException("Invalid network interface URI syntax");
             }
             matchedToken = matcher.group(0);
+            if (matchedToken.matches(".*:.*:.*")) {
+                throw new NetworkInterfaceSyntaxException("Multiple ':' characters within network interface syntax not allowed");
+            }
             if (matchedToken.contains(" ") && (!matchedToken.startsWith("[") || !matchedToken.endsWith("]"))) {
                 throw new NetworkInterfaceSyntaxException("Network interface syntax host contains spaces but misses bracket(s)");
             }

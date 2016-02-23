@@ -44,18 +44,6 @@ public class URIWrapperTest {
         String uriString = "tcp://[@" + networkInterface +
                 "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Illegal character in authority at index 6: "
-                + "tcp://[@Software Loopback Interface 1]:8080/test?param1=val#fragment");
-        URIWrapper.create(uriString);
-    }
-
-    @Test
-    public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
-        String uriString = "tcp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Illegal character in authority at index 6: "
-                + "tcp://@Software Loopback Interface 1:8080/test?param1=val#fragment");
         URIWrapper.create(uriString);
     }
 

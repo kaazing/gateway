@@ -80,8 +80,10 @@ public class GenericURITest {
     public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
         String uriString = "tcp://@" + networkInterface +
                 ":8080/test?param1=val#fragment";
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        if (networkInterface.contains(" ")) {
+            thrown.expect(IllegalArgumentException.class);
+            thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        }
         GenericURI.create(uriString);
     }
 
@@ -89,8 +91,10 @@ public class GenericURITest {
     public void uriUtilsMethodsBehaviorUdpLoopbackNoBrackets() {
         String uriString = "udp://@" + networkInterface +
                 ":8080/test?param1=val#fragment";
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        if (networkInterface.contains(" ")) {
+            thrown.expect(IllegalArgumentException.class);
+            thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        }
         GenericURI.create(uriString);
     }
 

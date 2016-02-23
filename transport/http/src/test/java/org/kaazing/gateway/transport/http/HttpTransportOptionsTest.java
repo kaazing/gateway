@@ -243,8 +243,10 @@ public class HttpTransportOptionsTest {
         acceptOptionsParam.put("tcp.bind", "@" + networkInterface + ":8080");
         Map<String, Object> connectOptionsParam = new HashMap<>();
         connectOptionsParam.put("http.transport", "tcp://@" + networkInterface + ":8080");
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        if (networkInterface.contains(" ")) {
+            thrown.expect(IllegalArgumentException.class);
+            thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        }
         helperConstructLocalRemoteAddressesForAcceptAndConnectSessions( acceptOptionsParam, connectOptionsParam);
     }
 

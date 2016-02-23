@@ -451,7 +451,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         // is returned for a localInterface
         // Same approach is used also for cluster members
         InetAddress address = null;
-        Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, true);
+        Collection<InetAddress> addresses = ResolutionUtils.getAllByName(hostAddress, false);
         if (addresses.isEmpty()) {
             address = InetAddress.getByName(hostAddress);
         }

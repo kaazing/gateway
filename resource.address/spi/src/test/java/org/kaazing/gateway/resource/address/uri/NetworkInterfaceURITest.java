@@ -21,13 +21,13 @@ import static org.junit.Assert.assertNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.kaazing.gateway.resource.address.networkinterface.resolution.utils.ResolutionTestUtils;
 
 public class NetworkInterfaceURITest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
+    private static String NETWORK_INTERFACE = "network interface";
+    private static String NETWORK_SUBINTERFACE = "eth0:1";
 
     @Test
     public void uriUtilsMethodsBehaviorTcp127001() {
@@ -39,30 +39,55 @@ public class NetworkInterfaceURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackBrackets() {
-        String uriString = "tcp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "tcp://[@" + NETWORK_INTERFACE + "]:8080/test?param1=val#fragment";
         NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
-        assertEquals("[@" + networkInterface + "]", uri.getHost());
+        assertEquals("[@" + NETWORK_INTERFACE + "]", uri.getHost());
         assertEquals("tcp", uri.getScheme());
-        assertEquals("[@" + networkInterface + "]:8080", uri.getAuthority());
+        assertEquals("[@" + NETWORK_INTERFACE + "]:8080", uri.getAuthority());
         generalAsserts(uri);
     }
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackBrackets() {
-        String uriString = "udp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "udp://[@" + NETWORK_INTERFACE + "]:8080/test?param1=val#fragment";
         NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
-        assertEquals("[@" + networkInterface + "]", uri.getHost());
+        assertEquals("[@" + NETWORK_INTERFACE + "]", uri.getHost());
         assertEquals("udp", uri.getScheme());
-        assertEquals("[@" + networkInterface + "]:8080", uri.getAuthority());
+        assertEquals("[@" + NETWORK_INTERFACE + "]:8080", uri.getAuthority());
+        generalAsserts(uri);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorTcpSubinterfaceLoopbackBrackets() {
+        String uriString = "tcp://[@" + NETWORK_SUBINTERFACE + "]:8080/test?param1=val#fragment";
+        NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
+        assertEquals("[@" + NETWORK_SUBINTERFACE + "]", uri.getHost());
+        assertEquals("tcp", uri.getScheme());
+        assertEquals("[@" + NETWORK_SUBINTERFACE + "]:8080", uri.getAuthority());
+        generalAsserts(uri);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorSubinterfaceUdpLoopbackBrackets() {
+        String uriString = "udp://[@" + NETWORK_SUBINTERFACE + "]:8080/test?param1=val#fragment";
+        NetworkInterfaceURI uri = NetworkInterfaceURI.create(uriString);
+        assertEquals("[@" + NETWORK_SUBINTERFACE + "]", uri.getHost());
+        assertEquals("udp", uri.getScheme());
+        assertEquals("[@" + NETWORK_SUBINTERFACE + "]:8080", uri.getAuthority());
         generalAsserts(uri);
     }
 
     @Test
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
-        String uriString = "http://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "http://[@" + NETWORK_INTERFACE + "]:8080/test?param1=val#fragment";
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
+        NetworkInterfaceURI.create(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorHttpSubinterfaceLoopbackBrackets() {
+        String uriString = "http://[@" + NETWORK_SUBINTERFACE + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
         NetworkInterfaceURI.create(uriString);
@@ -70,8 +95,7 @@ public class NetworkInterfaceURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
-        String uriString = "tcp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "tcp://@" + NETWORK_INTERFACE + ":8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
         NetworkInterfaceURI.create(uriString);
@@ -79,10 +103,26 @@ public class NetworkInterfaceURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackNoBrackets() {
-        String uriString = "udp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "udp://@" + NETWORK_INTERFACE + ":8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
+        NetworkInterfaceURI.create(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorTcpSubinterfaceLoopbackNoBrackets() {
+        String uriString = "tcp://@" + NETWORK_SUBINTERFACE +
+                ":8080/test?param1=val#fragment";
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Multiple ':' characters within network interface syntax not allowed");
+        NetworkInterfaceURI.create(uriString);
+    }
+
+    @Test
+    public void uriUtilsMethodsBehaviorSubinterfaceUdpLoopbackNoBrackets() {
+        String uriString = "udp://@" + NETWORK_SUBINTERFACE + ":8080/test?param1=val#fragment";
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Multiple ':' characters within network interface syntax not allowed");
         NetworkInterfaceURI.create(uriString);
     }
 
