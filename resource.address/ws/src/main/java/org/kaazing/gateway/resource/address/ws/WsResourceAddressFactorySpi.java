@@ -178,7 +178,6 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
     @Override
     protected WsResourceAddress newResourceAddress0(String original, String location) {
 
-        URI uriOrigial = URI.create(original);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
@@ -194,7 +193,7 @@ public class WsResourceAddressFactorySpi extends ResourceAddressFactorySpi<WsRes
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
 
-        return new WsResourceAddress(this, uriOrigial, uriLocation);
+        return new WsResourceAddress(this, original, uriLocation);
     }
 
     @Override

@@ -35,9 +35,8 @@ public final class TestResourceAddressFactorySpi extends ResourceAddressFactoryS
 
     @Override
     protected TestResourceAddress newResourceAddress0(String original, String location) {
-        URI uriOriginal = URI.create(original);
         URI uriLocation = URI.create(location);
-        return new TestResourceAddress(this, uriOriginal, uriLocation);
+        return new TestResourceAddress(this, original, uriLocation);
     }
 
     @Override

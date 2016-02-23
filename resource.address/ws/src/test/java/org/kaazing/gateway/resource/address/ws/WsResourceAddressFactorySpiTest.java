@@ -56,6 +56,7 @@ import org.junit.Test;
 import org.kaazing.gateway.resource.address.Comparators;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class WsResourceAddressFactorySpiTest {
     private final ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -166,16 +167,16 @@ public class WsResourceAddressFactorySpiTest {
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
 
         ResourceAddress wse = address.getOption(ALTERNATE);
-        assertEquals("wse", wse.getExternalURI().getScheme());
+        assertEquals("wse", URIUtils.getScheme(wse.getExternalURI()));
 
         ResourceAddress wsx = wse.getOption(ALTERNATE);
-        assertEquals("wsx", wsx.getExternalURI().getScheme());
+        assertEquals("wsx", URIUtils.getScheme(wsx.getExternalURI()));
 
         ResourceAddress wsdraft = wsx.getOption(ALTERNATE);
-        assertEquals("ws-draft", wsdraft.getExternalURI().getScheme());
+        assertEquals("ws-draft", URIUtils.getScheme(wsdraft.getExternalURI()));
 
         ResourceAddress wsxdraft = wsdraft.getOption(ALTERNATE);
-        assertEquals("wsx-draft", wsxdraft.getExternalURI().getScheme());
+        assertEquals("wsx-draft", URIUtils.getScheme(wsxdraft.getExternalURI()));
 
     }
 

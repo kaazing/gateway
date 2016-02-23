@@ -305,8 +305,8 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
             ResourceOptions sseRemoteOptions = ResourceOptions.FACTORY.newResourceOptions();
             sseRemoteOptions.setOption(TRANSPORT, newHttpBindAddress);
             // note: nextProtocol is null since SSE specification does not required X-Next-Protocol on the wire
-            URI sseBindURI = sseBindAddress.getExternalURI();
-            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(sseBindURI), sseRemoteOptions);
+            String sseBindURI = sseBindAddress.getExternalURI();
+            final ResourceAddress sseRemoteAddress = resourceAddressFactory.newResourceAddress(sseBindURI, sseRemoteOptions);
 
             // create the session
             final SseSession sseSession = newSession(new IoSessionInitializer<IoFuture>() {
@@ -508,11 +508,11 @@ public class SseAcceptor extends AbstractBridgeAcceptor<SseSession, Binding> {
                 // write out the location before any other events
                 ResourceAddress sseRemoteAddress = sseSession.getRemoteAddress();
                 ResourceAddress httpRemoteAddress = sseRemoteAddress.getTransport();
-                URI httpRemoteURI = httpRemoteAddress.getExternalURI();
+                String httpRemoteURI = httpRemoteAddress.getExternalURI();
 
                 // update the location for reconnect in-band
                 SseMessage sseMessage = new SseMessage();
-                sseMessage.setLocation(httpRemoteURI.toString());
+                sseMessage.setLocation(httpRemoteURI);
                 httpSession.write(sseMessage);
             }
 

@@ -186,8 +186,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
             private ResourceAddress getResourcesAddress(HttpBinding newHttpBinding) {
                 ResourceAddress bindAddress = newHttpBinding.bindAddress();
-                URI location = bindAddress.getExternalURI();
-                URI resourcesURI = location.resolve("/;resource");
+                String location = bindAddress.getExternalURI();
+                String resourcesURI = URIUtils.resolve(location, "/;resource");
                 ResourceOptions options = ResourceOptions.FACTORY.newResourceOptions();
                 options.setOption(TRANSPORT_URI, bindAddress.getOption(TRANSPORT_URI));
                 options.setOption(TRANSPORT, bindAddress.getOption(TRANSPORT));
@@ -196,7 +196,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 options.setOption(ORIGIN_SECURITY, bindAddress.getOption(ORIGIN_SECURITY));
                 options.setOption(GATEWAY_ORIGIN_SECURITY, bindAddress.getOption(GATEWAY_ORIGIN_SECURITY));
                 options.setOption(BALANCE_ORIGINS, bindAddress.getOption(BALANCE_ORIGINS));
-                return addressFactory.newResourceAddress(URIUtils.uriToString(resourcesURI), options);
+                return addressFactory.newResourceAddress(resourcesURI, options);
             }
 
         };
@@ -413,7 +413,7 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                 options.setOption(TRANSPORT, transportAddress);
                 options.setOption(NEXT_PROTOCOL, localAddress.getOption(NEXT_PROTOCOL));
 
-                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(URIUtils.uriToString(httpRequest.getExternalURI()), options);
+                final ResourceAddress remoteAddress = addressFactory.newResourceAddress(httpRequest.getExternalURI(), options);
 
                 // percolate subject
                 final Subject subject = httpRequest.getSubject();

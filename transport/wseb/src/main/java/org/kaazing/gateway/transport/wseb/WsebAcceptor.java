@@ -244,7 +244,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             bindCookiesHandler(address.findTransport("http[http/1.1]"));
 
             final ResourceAddress transportAddress = address.getTransport();
-            URI transportURI = transportAddress.getExternalURI();
+            String transportURI = transportAddress.getExternalURI();
 
             Protocol httpProtocol = bridgeServiceFactory.getTransportFactory().getProtocol(transportAddress.getResource().getScheme());
             final BridgeSessionInitializer<T> httpInitializer = (initializer != null) ? initializer.getParentInitializer(httpProtocol) : null;
@@ -305,23 +305,23 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
     }
 
     private ResourceAddress createApiHttpAddress(ResourceAddress httpTransport) {
-        String path = appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        String path = URIUtils.getPath(appendURI(ensureTrailingSlash(httpTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH));
 
-        URI httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
+        String httpLocation = modifyURIPath(httpTransport.getExternalURI(), path);
         ResourceOptions httpOptions = ResourceOptions.FACTORY.newResourceOptions(httpTransport);
         httpOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
         httpOptions.setOption(ALTERNATE, null);
-        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpLocation), httpOptions);
+        return resourceAddressFactory.newResourceAddress(httpLocation, httpOptions);
     }
 
     private ResourceAddress createApiHttpxeAddress(ResourceAddress httpxeTransport) {
-        String path = appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        String path = URIUtils.getPath(appendURI(ensureTrailingSlash(httpxeTransport.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH));
 
         httpxeTransport = httpxeTransport.resolve(path);
-        URI httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
+        String httpxeLocation = modifyURIPath(httpxeTransport.getExternalURI(), path);
         ResourceOptions httpxeOptions = ResourceOptions.FACTORY.newResourceOptions(httpxeTransport);
         httpxeOptions.setOption(NEXT_PROTOCOL, null);       // terminal endpoint, so next protocol null
-        return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpxeLocation), httpxeOptions);
+        return resourceAddressFactory.newResourceAddress(httpxeLocation, httpxeOptions);
     }
 
     private void bindCookiesHandler(ResourceAddress address) {
@@ -357,7 +357,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
         unbindApiPath(address);
 
         final ResourceAddress transportAddress = address.getTransport();
-        URI transportURI = transportAddress.getExternalURI();
+        String transportURI = transportAddress.getExternalURI();
         BridgeAcceptor acceptor = bridgeServiceFactory.newBridgeAcceptor(transportAddress);
 
         UnbindFuture future = unbindCookiesHandler(address.findTransport("http[http/1.1]"));
@@ -376,6 +376,10 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
     String createResolvePath(URI httpUri, final String suffixWithLeadingSlash) {
         return appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash).getPath();
+    }
+
+    private String createResolvePath(String httpUri, final String suffixWithLeadingSlash) {
+        return URIUtils.getPath(appendURI(ensureTrailingSlash(httpUri),suffixWithLeadingSlash));
     }
 
     private static final ExtensionHelper extensionHelper = new ExtensionHelper() {
@@ -653,8 +657,8 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             if (remoteHttp11Address == null || localHttp11Address == null) {
                 throw new RuntimeException("Cannot construct up- and down- stream urls: no http/1.1 transport found.");
             }
-            URI remoteExternalHttp11 = remoteHttp11Address.getExternalURI();
-            URI localExternalHttp11 = localHttp11Address.getExternalURI();
+            String remoteExternalHttp11 = remoteHttp11Address.getExternalURI();
+            String localExternalHttp11 = localHttp11Address.getExternalURI();
 
             final String sessionIdSuffix = '/' + sessionId;
             // add path suffixes for upstream and downstream URLs relative to local bind path
@@ -663,21 +667,21 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
             // it is important for suffixes to be hierarchical
             // (begin with forward slash)
 
-            URI remoteExternalDownstream = new URI(remoteExternalHttp11.getScheme(),
-                                                   remoteExternalHttp11.getUserInfo(),
-                                                   remoteExternalHttp11.getHost(),
-                                                   remoteExternalHttp11.getPort(),
+            URI remoteExternalDownstream = new URI(URIUtils.getScheme(remoteExternalHttp11),
+                                                   URIUtils.getUserInfo(remoteExternalHttp11),
+                                                   URIUtils.getHost(remoteExternalHttp11),
+                                                   URIUtils.getPort(remoteExternalHttp11),
                                                    createResolvePath(localExternalHttp11, downstreamSuffix + sessionIdSuffix),
-                                                   remoteExternalHttp11.getQuery(),
-                                                   remoteExternalHttp11.getFragment());
+                                                   URIUtils.getQuery(remoteExternalHttp11),
+                                                   URIUtils.getFragment(remoteExternalHttp11));
 
-            URI remoteExternalUpstream = new URI(remoteExternalHttp11.getScheme(),
-                                                 remoteExternalHttp11.getUserInfo(),
-                                                 remoteExternalHttp11.getHost(),
-                                                 remoteExternalHttp11.getPort(),
+            URI remoteExternalUpstream = new URI(URIUtils.getScheme(remoteExternalHttp11),
+                                                 URIUtils.getUserInfo(remoteExternalHttp11),
+                                                 URIUtils.getHost(remoteExternalHttp11),
+                                                 URIUtils.getPort(remoteExternalHttp11),
                                                  createResolvePath(localExternalHttp11, upstreamSuffix + sessionIdSuffix),
-                                                 remoteExternalHttp11.getQuery(),
-                                                 remoteExternalHttp11.getFragment());
+                                                 URIUtils.getQuery(remoteExternalHttp11),
+                                                 URIUtils.getFragment(remoteExternalHttp11));
 
             //
             // UP- and DOWN- STREAMS: BIND
@@ -762,7 +766,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             noSecurityOptions.setOption(HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES, null);
-            return resourceAddressFactory.newResourceAddress(URIUtils.uriToString(httpAddress.getExternalURI()),
+            return resourceAddressFactory.newResourceAddress(httpAddress.getExternalURI(),
                     noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
         }
 
@@ -774,7 +778,7 @@ public class WsebAcceptor extends AbstractBridgeAcceptor<WsebSession, Binding> {
 
             noSecurityOptions.setOption(ResourceAddress.IDENTITY_RESOLVER, resolver);
             ResourceAddress httpAddressNoSecurity = resourceAddressFactory.newResourceAddress(
-                    URIUtils.uriToString(httpAddress.getExternalURI()), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
+                    httpAddress.getExternalURI(), noSecurityOptions, httpAddress.getOption(ResourceAddress.QUALIFIER));
 
             // Remove REALM_NAME  option at httpxe layer but preserve all other options like
             // ORIGIN_SECURITY etc. Otherwise, upstream and downstream requests will be subjected

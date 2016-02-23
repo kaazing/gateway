@@ -61,7 +61,6 @@ public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Rtm
     @Override
     protected RtmpResourceAddress newResourceAddress0(String original, String location) {
 
-        URI uriOriginal = URI.create(original);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
@@ -77,7 +76,7 @@ public class RtmpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Rtm
             throw new IllegalArgumentException(format("Missing path in URI: %s", location));
         }
 
-        return new RtmpResourceAddress(this, uriOriginal, uriLocation);
+        return new RtmpResourceAddress(this, original, uriLocation);
     }
 
 }

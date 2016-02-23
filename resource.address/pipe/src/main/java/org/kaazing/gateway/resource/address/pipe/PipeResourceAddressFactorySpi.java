@@ -68,9 +68,8 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
             throw new IllegalArgumentException(String.format(PIPE_PATH_ERROR_MESSAGE, pipeName, pipeName, pathName));
         }
 
-        URI uriOriginal = URI.create(original);
         URI uriLocation = URI.create(location);
-        return new PipeResourceAddress(this, uriOriginal, uriLocation);
+        return new PipeResourceAddress(this, original, uriLocation);
 
     }
 

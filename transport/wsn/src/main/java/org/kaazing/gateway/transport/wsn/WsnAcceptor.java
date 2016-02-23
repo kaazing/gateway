@@ -460,7 +460,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
         // even if the address has an alternate, do not bind the alternate
         apiAddressOptions.setOption(BIND_ALTERNATE, Boolean.FALSE);
 
-        String path = appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH).getPath();
+        String path = URIUtils.getPath(appendURI(ensureTrailingSlash(address.getExternalURI()), HttpProtocolCompatibilityFilter.API_PATH));
         String apiLocation = URIUtils.modifyURIPath(URIUtils.uriToString(transport.getResource()), path);
         return resourceAddressFactory.newResourceAddress(apiLocation, apiAddressOptions);
     }

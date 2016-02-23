@@ -111,8 +111,7 @@ public class NetworkInterfaceURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpSubinterfaceLoopbackNoBrackets() {
-        String uriString = "tcp://@" + NETWORK_SUBINTERFACE +
-                ":8080/test?param1=val#fragment";
+        String uriString = "tcp://@" + NETWORK_SUBINTERFACE + ":8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Multiple ':' characters within network interface syntax not allowed");
         NetworkInterfaceURI.create(uriString);

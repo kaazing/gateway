@@ -169,11 +169,11 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                                                                                         wseConnectFuture);
 
         ResourceAddress httpxeAddress = connectAddress.getTransport();
-        URI uri = appendURI(ensureTrailingSlash(httpxeAddress.getExternalURI()), CREATE_SUFFIX);
-        String query = uri.getQuery();
-        String pathAndQuery = uri.getPath();
+        String uri = appendURI(ensureTrailingSlash(httpxeAddress.getExternalURI()), CREATE_SUFFIX);
+        String query = URIUtils.getQuery(uri);
+        String pathAndQuery = URIUtils.getPath(uri);
         if (query != null) {
-            pathAndQuery += "?"+uri.getQuery();
+            pathAndQuery += "?" + URIUtils.getQuery(uri);
         }
         ResourceAddress createAddress = httpxeAddress.resolve(pathAndQuery);
         BridgeConnector connector = bridgeServiceFactory.newBridgeConnector(createAddress);

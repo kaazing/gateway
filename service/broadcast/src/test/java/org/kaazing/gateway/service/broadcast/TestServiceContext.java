@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.broadcast;
 
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getHost;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getPort;
-import static org.kaazing.gateway.resource.address.uri.URIUtils.uriToString;
 
 import java.io.File;
 import java.io.IOException;
@@ -240,7 +239,7 @@ public class TestServiceContext implements ServiceContext {
     public ConnectFuture connect(ResourceAddress address,
                                  IoHandler connectHandler,
                                  IoSessionInitializer<ConnectFuture> ioSessionInitializer) {
-        return connect(uriToString(address.getExternalURI()), connectHandler, ioSessionInitializer);
+        return connect(address.getExternalURI(), connectHandler, ioSessionInitializer);
     }
 
     @Override

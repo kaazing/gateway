@@ -972,7 +972,7 @@ public class DefaultServiceContext implements ServiceContext {
     @Override
     public ConnectFuture connect(ResourceAddress address, final IoHandler connectHandler,
                                  final IoSessionInitializer<ConnectFuture> connectSessionInitializer) {
-        String uriScheme = address.getExternalURI().getScheme();
+        String uriScheme = getScheme(address.getExternalURI());
         Transport transport = transportFactory.getTransportForScheme(uriScheme);
 
         BridgeConnector connector = transport.getConnector(address);

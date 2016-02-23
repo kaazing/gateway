@@ -57,7 +57,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     private final ResourceAddressFactorySpi factory;
     public static final DefaultResourceOption<IdentityResolver> IDENTITY_RESOLVER = new IdentityResolverOption();
-    private final URI externalURI;
+    private final String externalURI;
     private final URI resourceURI;
 
     private String nextProtocol;
@@ -70,22 +70,22 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
     private Boolean connectRequiresInit;
     private IdentityResolver identityResolver;
 
-    public ResourceAddress(ResourceAddressFactorySpi factory, URI externalURI, URI resourceURI) {
+    public ResourceAddress(ResourceAddressFactorySpi factory, String original, URI resourceURI) {
         this.factory = Objects.requireNonNull(factory, "factory");
-        this.externalURI = Objects.requireNonNull(externalURI, "externalURI");
+        this.externalURI = Objects.requireNonNull(original, "externalURI");
         this.resourceURI = Objects.requireNonNull(resourceURI, "resourceURI");
     }
 
     // note: used by pipe://
     protected ResourceAddress(ResourceAddressFactorySpi factory, URI resourceURI) {
-        this(factory, resourceURI, resourceURI);
+        this(factory, URIUtils.uriToString(resourceURI), resourceURI);
     }
     
     public URI getResource() {
         return resourceURI;
     }
     
-    public URI getExternalURI() {
+    public String getExternalURI() {
         return externalURI;
     }
     
@@ -201,7 +201,7 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
 
     protected final ResourceAddress resolve(String oldPath, String newPath) {
         URI addressURI = getResource();
-        URI externalURI = getExternalURI();
+        String externalURI = getExternalURI();
 
         boolean newPathDiffersFromOld = !oldPath.equals(newPath);
         if ( !newPathDiffersFromOld ) {
@@ -214,10 +214,10 @@ public abstract class ResourceAddress extends SocketAddress implements ResourceO
         }
 
         URI newResourceURI = addressURI.resolve(newPath);
-        URI newExternalURI = externalURI.resolve(newPath);
+        String newExternalURI = URIUtils.resolve(externalURI, newPath);
         ResourceOptions newOptions = FACTORY.newResourceOptions(this);
         resolve(oldPath, newPath, newOptions);
-        String externalUriToString = URIUtils.uriToString(newExternalURI);
+        String externalUriToString = newExternalURI;
         String newResourceUriToString = URIUtils.uriToString(newResourceURI);
         return factory.newResourceAddress0(externalUriToString, newResourceUriToString, newOptions);
     }

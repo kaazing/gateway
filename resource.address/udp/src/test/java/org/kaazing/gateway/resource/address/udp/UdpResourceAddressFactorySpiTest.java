@@ -52,6 +52,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.udp.networkinterface.resolution.utils.ResolutionTestUtils;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 @RunWith(Parameterized.class)
 public class UdpResourceAddressFactorySpiTest {
@@ -122,7 +123,7 @@ public class UdpResourceAddressFactorySpiTest {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("udp.bind", "[@" + networkInterface + "]:8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
-        assertEquals(8080, address.getExternalURI().getPort());
+        assertEquals(8080, address.getResource().getPort());
     }
 
     public void shouldCreateAddressWithBindOptionsAndAllowNetworkInterfaceSyntaxNoBrackets() {
@@ -133,7 +134,7 @@ public class UdpResourceAddressFactorySpiTest {
             thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
         }
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
-        assertEquals(8080, address.getExternalURI().getPort());
+        assertEquals(8080, address.getResource().getPort());
     }
 
     @Test
@@ -142,7 +143,7 @@ public class UdpResourceAddressFactorySpiTest {
         options.put("udp.transport", "udp://[@" + networkInterface + "]:8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         // transport not overriden
-        assertEquals(2020, address.getExternalURI().getPort());
+        assertEquals(2020, URIUtils.getPort(address.getExternalURI()));
     }
 
     @Test
@@ -151,7 +152,7 @@ public class UdpResourceAddressFactorySpiTest {
         options.put("udp.transport", "udp://@" + networkInterface + ":8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         // transport not overriden
-        assertEquals(2020, address.getExternalURI().getPort());
+        assertEquals(2020, URIUtils.getPort(address.getExternalURI()));
     }
 
     @Test

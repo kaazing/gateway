@@ -91,7 +91,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
-	HttpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+	HttpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
 	}
 

@@ -100,7 +100,6 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
     @Override
     protected SslResourceAddress newResourceAddress0(String original, String location) {
 
-        URI uriOriginal = URI.create(original);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
@@ -116,7 +115,7 @@ public class SslResourceAddressFactorySpi extends ResourceAddressFactorySpi<SslR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new SslResourceAddress(this, uriOriginal, uriLocation);
+        return new SslResourceAddress(this, original, uriLocation);
     }
 
     @Override

@@ -57,7 +57,6 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
 import org.kaazing.gateway.resource.address.ssl.SslResourceAddress;
-import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.security.KeySelector;
 import org.kaazing.gateway.security.SecurityContext;
 import org.kaazing.gateway.transport.AbstractBridgeAcceptor;
@@ -522,11 +521,11 @@ public class SslAcceptor extends AbstractBridgeAcceptor<SslSession, NextProtocol
                     assert (boundAddress != null);
 
                     // construct the candidate address with observed transport and next protocol
-                    URI candidateURI = boundAddress.getExternalURI();
+                    String candidateURI = boundAddress.getExternalURI();
                     ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                     candidateOptions.setOption(NEXT_PROTOCOL, NEXT_PROTOCOL_KEY.get(session));
                     candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-                    ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
+                    ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
                     // lookup the binding for this candidate address
                     Binding binding = bindings.getBinding(candidateAddress);

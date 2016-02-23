@@ -208,8 +208,6 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
     @Override
     protected UdpResourceAddress newResourceAddress0(String original, String location) {
 
-        // TODO: find appropriate implementation
-        URI uriOriginal = URI.create(location);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
@@ -225,7 +223,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new UdpResourceAddress(this, uriOriginal, uriLocation);
+        return new UdpResourceAddress(this, original, uriLocation);
     }
     
     @Override

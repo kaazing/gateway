@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.kaazing.gateway.resource.address.uri.URIUtils;
-
 public final class Comparators {
 
     private static final Comparator<String> STRING_COMPARATOR = compareComparable(String.class);
@@ -268,7 +266,7 @@ public final class Comparators {
                     for (ResourceAddress transportAddress: asResourceAddressList(transport)) {
                         ResourceOptions newResultOptions = ResourceOptions.FACTORY.newResourceOptions(resourceAddress);
                         newResultOptions.setOption(TRANSPORT, transportAddress);
-                        ResourceAddress newResult = addressFactory.newResourceAddress(URIUtils.uriToString(resourceAddress.getExternalURI()), newResultOptions);
+                        ResourceAddress newResult = addressFactory.newResourceAddress(resourceAddress.getExternalURI(), newResultOptions);
                         result.add(newResult);
                     }
                 } else {

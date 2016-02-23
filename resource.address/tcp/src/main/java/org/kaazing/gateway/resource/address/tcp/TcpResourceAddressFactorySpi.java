@@ -211,8 +211,6 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     @Override
     protected TcpResourceAddress newResourceAddress0(String original, String location) {
 
-        // TODO: find appropriate implementation
-        URI uriOriginal = URI.create(location);
         URI uriLocation = URI.create(location);
         String path = uriLocation.getPath();
 
@@ -228,7 +226,7 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
             throw new IllegalArgumentException(format("Unexpected path \"%s\" in URI: %s", path, location));
         }
 
-        return new TcpResourceAddress(this, uriOriginal, uriLocation);
+        return new TcpResourceAddress(this, original, uriLocation);
     }
 
     @Override

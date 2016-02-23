@@ -43,7 +43,6 @@ import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
-import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.Bindings.Binding;
 import org.kaazing.gateway.transport.BridgeAcceptHandler;
 import org.kaazing.gateway.transport.BridgeAcceptor;
@@ -131,13 +130,13 @@ public abstract class AbstractBioAcceptor<T extends SocketAddress> implements Br
             private void sessionCreated0(IoSession session) throws Exception {
                 SocketAddress boundAddress0 = session.getLocalAddress();
                 ResourceAddress boundAddress = asResourceAddress(boundAddress0);
-                URI candidateURI = boundAddress.getExternalURI();
+                String candidateURI = boundAddress.getExternalURI();
 
                 ResourceOptions candidateOptions = ResourceOptions.FACTORY.newResourceOptions(boundAddress);
                 String nextProtocol = NEXT_PROTOCOL_KEY.get(session);
                 candidateOptions.setOption(NEXT_PROTOCOL, nextProtocol);
                 candidateOptions.setOption(TRANSPORT, LOCAL_ADDRESS.get(session));
-                ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(URIUtils.uriToString(candidateURI), candidateOptions);
+                ResourceAddress candidateAddress = resourceAddressFactory.newResourceAddress(candidateURI, candidateOptions);
 
                 Binding binding = bindings.getBinding(candidateAddress);
                 if (binding == null) {
