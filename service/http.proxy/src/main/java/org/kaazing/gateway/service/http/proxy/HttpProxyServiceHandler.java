@@ -61,6 +61,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
     private static final String FORWARDED_INJECT = "inject";
     private static final String FORWARDED_EXCLUDE = "exclude";
+    private static final String FORWARDED_FOR = "for";
+    private static final String FORWARDED_BY = "by";
+    private static final String FORWARDED_PROTO = "proto";
+    private static final String FORWARDED_HOST = "host";
+    private static final String FORWARDED_PORT = "port";
 
     private URI connectURI;
     private String forwardedProperty;
@@ -259,68 +264,145 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     }
 
+    /**
+     * Compose the Forwarded header and the X-Forwarded headers and add them to the connect session write headers.
+     * 
+     * @param acceptSession
+     * @param connectSession
+     * @param forwardedProperty - the value of the 'use-forwarded' property used for http.proxy type in gateway-config:
+     * inject ( add the corresponding data to the Forwarded/X-Forwarded headers ), ignore ( this proxy is anonymous, no
+     * forwarded header data is added ), or exclude ( delete any existing Forwarded/X-Forwarded headers received, and do
+     * not add any new data )
+     */
     private static void setupForwardedHeaders(HttpAcceptSession acceptSession,
                                               HttpConnectSession connectSession,
                                               String forwardedProperty) {
         if (FORWARDED_EXCLUDE.equalsIgnoreCase(forwardedProperty)) {
-            connectSession.clearWriteHeaders(HEADER_FORWARDED);
-            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_FOR);
-            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_SERVER);
-            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_HOST);
-            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PROTO);
-            connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PORT);
+            excludeForwardedHeaders(connectSession);
             return;
         }
         StringBuilder forwardedSb = new StringBuilder();
         String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
-        String remoteIpAddress = null;
-        ResourceAddress resourceAddress = acceptSession.getRemoteAddress();
-        ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
-        if (tcpResourceAddress != null) {
-            URI resource = tcpResourceAddress.getResource();
-            remoteIpAddress = resource.getHost();
-        }
+        String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
         if (remoteIpAddress != null) {
             // 'Forwarded: for=' is added to the connectSession in HttpSubjecSecurityFilter if the 'Forwarded' header in
             // the request is empty, so we remove it for now, and inject it along with all the other parameters (by,
             // proto, host, port)
-            String forAddress = format("for=%s", remoteIpAddress);
+            String forAddress = format("%s=%s", FORWARDED_FOR, remoteIpAddress);
             if (forwarded.equalsIgnoreCase(forAddress)) {
                 connectSession.clearWriteHeaders(HEADER_FORWARDED);
             }
             if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
-                forwardedSb.append(forAddress + ";");
-                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+                setForwardedHeader(connectSession, forwardedSb, FORWARDED_FOR, HEADER_X_FORWARDED_FOR, forAddress);
             }
         }
 
         if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
-            ResourceAddress httpAddress = acceptSession.getLocalAddress();
-            ResourceAddress serverTcpResourceAddress = httpAddress.findTransport("tcp");
-            String serverIpAddress = null;
-            if (serverTcpResourceAddress != null) {
-                URI resource = serverTcpResourceAddress.getResource();
-                serverIpAddress = resource.getHost();
-            }
+            
+            String serverIpAddress = getResourceIpAddress(acceptSession, FORWARDED_BY);
             if (serverIpAddress != null) {
-                forwardedSb.append(format("by=%s;", serverIpAddress));
-                connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
+                setForwardedHeader(connectSession, forwardedSb, FORWARDED_BY, HEADER_X_FORWARDED_FOR, serverIpAddress);
             }
 
-            String protocol = httpAddress.getExternalURI().getScheme();
-            forwardedSb.append(format("proto=%s;", protocol));
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
-
-            String host = httpAddress.getExternalURI().getHost();
-            forwardedSb.append(format("host=%s;", host));
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
-
-            String port = format("%d", httpAddress.getExternalURI().getPort());
-            forwardedSb.append(format("port=%s", port));
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_PORT, port);
+            ResourceAddress httpAddress = acceptSession.getLocalAddress();
+            setForwardedHeaderFromExternalURI(httpAddress, FORWARDED_PROTO, HEADER_X_FORWARDED_PROTO, forwardedSb, connectSession);
+            setForwardedHeaderFromExternalURI(httpAddress, FORWARDED_HOST, HEADER_X_FORWARDED_HOST, forwardedSb, connectSession);
+            setForwardedHeaderFromExternalURI(httpAddress, FORWARDED_PORT, HEADER_X_FORWARDED_PORT, forwardedSb, connectSession);
 
             connectSession.addWriteHeader(HEADER_FORWARDED, forwardedSb.toString());
         }
+    }
+
+    /**
+     * Remove the Forwarded headers from the connect session if the 'use-forwarded' property for the http.proxy type is
+     * set to 'exclude'.
+     * 
+     * @param connectSession
+     */
+    private static void excludeForwardedHeaders(HttpConnectSession connectSession) {
+        connectSession.clearWriteHeaders(HEADER_FORWARDED);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_FOR);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_SERVER);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_HOST);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PROTO);
+        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PORT);
+    }
+
+    /**
+     * Get the IP address of the resource based on the parameter name
+     * 
+     * @param acceptSession
+     * @param parameterName - can be either 'for' ( the IP address of the client/server making the request to this
+     * service ), or 'by' ( the IP address of this proxy )
+     * @return - the IP address based on the parameter name received
+     */
+    private static String getResourceIpAddress(HttpAcceptSession acceptSession, String parameterName) {
+        String resourceIpAddress = null;
+        ResourceAddress resourceAddress = null;
+        switch(parameterName) {
+        case FORWARDED_FOR:
+            resourceAddress = acceptSession.getRemoteAddress();
+            break;
+        case FORWARDED_BY:
+            resourceAddress = acceptSession.getLocalAddress();
+            break;
+        }
+        ResourceAddress tcpResourceAddress = resourceAddress.findTransport("tcp");
+        if (tcpResourceAddress != null) {
+            URI resource = tcpResourceAddress.getResource();
+            resourceIpAddress = resource.getHost();
+        }
+        
+        return resourceIpAddress;
+    }
+
+    /**
+     * Append the Forwarded header data to a StringBuilder and also add the X-Forwarded headers to the connectSession
+     * write headers. This is done for the 'proto', 'host' and 'port' parameters.
+     * 
+     * @param httpAddress
+     * @param parameterName
+     * @param headerName
+     * @param forwardedHeaderData - the StringBuilder used to append the complete Forwarded header info
+     * @param connectSession
+     */
+    private static void setForwardedHeaderFromExternalURI(ResourceAddress httpAddress, 
+                                                          String parameterName,
+                                                          String headerName,
+                                                          StringBuilder forwardedHeaderData,
+                                                          HttpConnectSession connectSession){
+        String headerValue = "";
+        URI externalURI = httpAddress.getExternalURI();
+        switch (parameterName) {
+        case FORWARDED_PROTO:
+            headerValue = externalURI.getScheme();
+            break;
+        case FORWARDED_HOST:
+            headerValue = externalURI.getHost();
+            break;
+        case FORWARDED_PORT:
+            headerValue = format("%d",externalURI.getPort());
+            break;
+        }
+        setForwardedHeader(connectSession, forwardedHeaderData, parameterName, headerName, headerValue);
+    }
+
+    /**
+     * Add the Forwarded-X header to the connect session and append the data for the Forwarded header to a StringBuilder
+     * 
+     * @param connectSession
+     * @param forwardedHeaderData
+     * @param parameterName
+     * @param headerName
+     * @param headerValue
+     */
+    private static void setForwardedHeader(HttpConnectSession connectSession, 
+                                           StringBuilder forwardedHeaderData, 
+                                           String parameterName, 
+                                           String headerName, 
+                                           String headerValue) {
+        connectSession.addWriteHeader(headerName, headerValue);
+        forwardedHeaderData.append(format("%s=%s;", parameterName, headerValue));
     }
 
     /*
