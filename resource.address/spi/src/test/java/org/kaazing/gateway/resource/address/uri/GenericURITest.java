@@ -47,8 +47,7 @@ public class GenericURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackBrackets() {
-        String uriString = "tcp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "tcp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         GenericURI uri = GenericURI.create(uriString);
         assertEquals("[@" + networkInterface + "]", uri.getHost());
         assertEquals("tcp", uri.getScheme());
@@ -58,8 +57,7 @@ public class GenericURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackBrackets() {
-        String uriString = "udp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "udp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         GenericURI uri = GenericURI.create(uriString);
         assertEquals("[@" + networkInterface + "]", uri.getHost());
         assertEquals("udp", uri.getScheme());
@@ -69,8 +67,7 @@ public class GenericURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
-        String uriString = "http://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "http://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
         GenericURI.create(uriString);
@@ -78,8 +75,7 @@ public class GenericURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
-        String uriString = "tcp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "tcp://@" + networkInterface + ":8080/test?param1=val#fragment";
         if (networkInterface.contains(" ")) {
             thrown.expect(IllegalArgumentException.class);
             thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
@@ -89,8 +85,7 @@ public class GenericURITest {
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackNoBrackets() {
-        String uriString = "udp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "udp://@" + networkInterface + ":8080/test?param1=val#fragment";
         if (networkInterface.contains(" ")) {
             thrown.expect(IllegalArgumentException.class);
             thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");

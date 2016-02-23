@@ -45,8 +45,7 @@ public class URIUtilsTest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackBrackets() {
-        String uriString = "tcp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "tcp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         assertEquals("[@" + networkInterface + "]", URIUtils.getHost(uriString));
         assertEquals("tcp", URIUtils.getScheme(uriString));
         assertEquals("[@" + networkInterface + "]:8080", URIUtils.getAuthority(uriString));
@@ -55,8 +54,7 @@ public class URIUtilsTest {
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackBrackets() {
-        String uriString = "udp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "udp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         assertEquals("[@" + networkInterface + "]", URIUtils.getHost(uriString));
         assertEquals("udp", URIUtils.getScheme(uriString));
         assertEquals("[@" + networkInterface + "]:8080", URIUtils.getAuthority(uriString));
@@ -65,8 +63,7 @@ public class URIUtilsTest {
 
     @Test
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
-        String uriString = "http://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "http://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
         URIUtils.getHost(uriString);
@@ -74,8 +71,7 @@ public class URIUtilsTest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackNoBrackets() {
-        String uriString = "tcp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "tcp://@" + networkInterface + ":8080/test?param1=val#fragment";
         if (networkInterface.contains(" ")) {
             thrown.expect(IllegalArgumentException.class);
             thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");
@@ -85,8 +81,7 @@ public class URIUtilsTest {
 
     @Test
     public void uriUtilsMethodsBehaviorUdpLoopbackNoBrackets() {
-        String uriString = "udp://@" + networkInterface +
-                ":8080/test?param1=val#fragment";
+        String uriString = "udp://@" + networkInterface + ":8080/test?param1=val#fragment";
         if (networkInterface.contains(" ")) {
             thrown.expect(IllegalArgumentException.class);
             thrown.expectMessage("Network interface syntax host contains spaces but misses bracket(s)");

@@ -41,8 +41,7 @@ public class URIWrapperTest {
 
     @Test
     public void uriUtilsMethodsBehaviorTcpLoopbackBrackets() {
-        String uriString = "tcp://[@" + networkInterface +
-                "]:8080/test?param1=val#fragment";
+        String uriString = "tcp://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
         URIWrapper.create(uriString);
     }
