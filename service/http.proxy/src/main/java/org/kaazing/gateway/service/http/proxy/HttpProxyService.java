@@ -29,6 +29,7 @@ import java.util.Collection;
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
     private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
+    private static final String FORWARDED_IGNORE = "ignore";
 
     @Override
     public String getType() {
@@ -48,7 +49,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
         handler.initServiceConnectManager();
-        handler.setUseForwardedHeaders(isForwardedEnabled(serviceContext));
+        handler.setUseForwardedHeaders(getForwardedProperty(serviceContext));
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
@@ -70,14 +71,13 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         }
     }
 
-    private boolean isForwardedEnabled(ServiceContext serviceContext) {
+    private String getForwardedProperty(ServiceContext serviceContext) {
         ServiceProperties properties = serviceContext.getProperties();
-        boolean forwardedEnabled = false;
-        String forwardedEnabledValue = properties.get("use-forwarded");
-        if (forwardedEnabledValue != null) {
-            forwardedEnabled = forwardedEnabledValue.equalsIgnoreCase("enabled");
+        String forwardedProperty = properties.get("use-forwarded");
+        if (forwardedProperty == null) {
+            forwardedProperty = FORWARDED_IGNORE;
         }
-        return forwardedEnabled;
+        return forwardedProperty;
     }
 
     @Override

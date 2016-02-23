@@ -1523,8 +1523,9 @@
                     <element name="use-forwarded" maxOccurs="1" minOccurs="0">
                         <simpleType>
                             <restriction base="string">
-                                <enumeration value="disabled"></enumeration>
-                                <enumeration value="enabled"></enumeration>
+                                <enumeration value="inject"></enumeration>
+                                <enumeration value="ignore"></enumeration>
+                                <enumeration value="exclude"></enumeration>
                                 <whiteSpace value="collapse"></whiteSpace>
                             </restriction>
                         </simpleType>
