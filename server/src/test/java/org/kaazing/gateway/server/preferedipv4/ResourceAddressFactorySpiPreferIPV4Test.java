@@ -62,7 +62,8 @@ public class ResourceAddressFactorySpiPreferIPV4Test {
 
         // Exception expectations
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config.");
+        thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config."
+                + " No addresses available for binding for URI:");
 
         // startup the gateway
         gateway.start(gc);
