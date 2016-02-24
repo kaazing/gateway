@@ -14,61 +14,60 @@
 # limitations under the License.
 #
 
-connect http://localhost:8111/
+connect tcp://localhost:8111
 connected
 
-write method "GET"
-write version "HTTP/1.1"
+write "GET / HTTP/1.1\r\n"
+write "User-Agent: curl/7.37.1\r\n"
+write "Host: localhost:8111\r\n"
+#write "Accept: */*\r\n"
+write "Connection: close\r\n"
+write "\r\n"
 
-write header "User-Agent" "curl/7.37.1"
-write header host
-write header "Accept" "*/*"
-write close
+write "Hello World\r\n"
 
-read status "200" "OK"
-read version "HTTP/1.1"
-read header "Content-Type" "text/html"
-read header "Content-Length" "13"
-read "Hello world\r\n"
-read closed
+read "HTTP/1.1 200 OK\r\n"
+read "Content-Length: 25\r\n"
+read "Content-Type: text/html\r\n"
+read /Date: .*/ "\r\n"
+read "Server: Kaazing Gateway\r\n"
 
 close
 closed
 
 
-accept http://localhost:8081/
+accept tcp://localhost:8081
 accepted
 connected
 
-read method "GET"
-read header "Via" "1.1 kaazing"
-read header "Via" "1.1 kaazing"
-read header "Via" "1.1 kaazing"
-read header "User-Agent" "curl/7.37.1"
-read header "Host" "localhost:8081"
+read "GET / HTTP/1.1\r\n"
+read "X-Forwarded-Server: 127.0.0.1\r\n"
+read "X-Forwarded-Server: 127.0.0.1\r\n"
+read "X-Forwarded-Proto: http\r\n"
+read "X-Forwarded-Proto: http\r\n"
+read "X-Forwarded-Port: 8112\r\n"
+read "X-Forwarded-Port: 8113\r\n"
+read "X-Forwarded-Host: localhost\r\n"
+read "X-Forwarded-Host: localhost\r\n"
+read "X-Forwarded-For: 127.0.0.1\r\n"
+read "X-Forwarded-For: 127.0.0.1\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "User-Agent: curl/7.37.1\r\n"
+read "Host: localhost:8081\r\n"
+read "Forwarded: for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost;port=8112\r\n"
+read "Forwarded: for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost;port=8113\r\n"
+read "Connection: close\r\n"
+read "\r\n"
 
-#first proxy has 'use-forwarded' disabled by default
+read "Hello World\r\n"
 
-read header "Forwarded" "for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost;port=8112"
-read header "Forwarded" "for=127.0.0.1;by=127.0.0.1;proto=http;host=localhost;port=8113"
-read header "X-Forwarded-For" "127.0.0.1"
-read header "X-Forwarded-For" "127.0.0.1"
-read header "X-Forwarded-Server" "127.0.0.1"
-read header "X-Forwarded-Server" "127.0.0.1"
-read header "X-Forwarded-Proto" "http"
-read header "X-Forwarded-Proto" "http"
-read header "X-Forwarded-Host" "localhost"
-read header "X-Forwarded-Host" "localhost"
-read header "X-Forwarded-Port" "8112"
-read header "X-Forwarded-Port" "8113"
-read header "Accept" "*/*"
-read closed
+write "HTTP/1.1 200 OK\r\n"
+write "Content-Type: text/html\r\n"
+write "Content-Length: 25\r\n"
+write "Connection: close\r\n"
+write "\r\n"
 
-write status "200" "OK"
-write version "HTTP/1.1"
-write header "Content-Type" "text/html"
-write header content-length
-write "Hello world\r\n"
-write close
-
+close
 closed
