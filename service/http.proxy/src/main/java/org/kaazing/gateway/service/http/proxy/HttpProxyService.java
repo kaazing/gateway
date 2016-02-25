@@ -15,18 +15,13 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import static java.lang.String.format;
-
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import static java.lang.String.format;
 
 /**
  * Http proxy service
