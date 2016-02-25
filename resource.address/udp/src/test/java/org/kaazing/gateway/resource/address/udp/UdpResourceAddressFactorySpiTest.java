@@ -162,10 +162,7 @@ public class UdpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host) || "127.0.0.1".equals(host) || host.startsWith("0:0:0:0:0:0:0:1")) {
-                    return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
-                }
-                throw new UnknownHostException(host);
+                return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
             }
         });
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
@@ -201,13 +198,10 @@ public class UdpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host) || "127.0.0.1".equals(host) || host.startsWith("0:0:0:0:0:0:0:1")) {
-                    return asList(
-                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
-                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
-                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
-                }
-                throw new UnknownHostException(host);
+                return asList(
+                        getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
+                        getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
+                        getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
             }
         });
         options.put("transport", "pipe://internal");

@@ -97,7 +97,7 @@ public class URIWrapper implements URIAccessor {
 
     @Override
     public String modifyURIAuthority(String newAuthority) {
-        Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 ]*\\]{0,1})");
+        Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
         Matcher matcher = pattern.matcher(newAuthority);
         String matchedToken = MOCK_HOST;
         // if newAuthority corresponds to NetworkInterfaceURI syntax

@@ -377,14 +377,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * @throws UnknownHostException
      */
     private String convertHostToIP(String host) throws UnknownHostException {
-        byte[] address = getResolvedAddressFromHost(host).getAddress();
-        StringBuffer ip = new StringBuffer();
-        for (int i = 0; i < address.length - 1; i++) {
-            ip.append(address[i]);
-            ip.append(".");
-        }
-        ip.append(address[address.length - 1]);
-        return ip.toString();
+        return getResolvedAddressFromHost(host).getHostAddress();
     }
 
     @SuppressWarnings("unused")
