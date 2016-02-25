@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 public class GL {
 
+    public static final String CLUSTER_LOGGER_NAME = "ha";
+
     protected GL() {
     }
 

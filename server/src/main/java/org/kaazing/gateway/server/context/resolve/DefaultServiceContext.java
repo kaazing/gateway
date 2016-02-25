@@ -20,7 +20,6 @@ import static java.util.Arrays.asList;
 import static org.kaazing.gateway.resource.address.ResourceAddress.CONNECT_REQUIRES_INIT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.REALM_USER_PRINCIPAL_CLASSES;
-import static org.kaazing.gateway.server.context.resolve.DefaultClusterContext.CLUSTER_LOGGER_NAME;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -576,12 +575,14 @@ public class DefaultServiceContext implements ServiceContext {
                         TreeSet<URI> balanceUris = null;
                         TreeSet<URI> newBalanceUris = null;
                         do {
+                            GL.debug(GL.CLUSTER_LOGGER_NAME, "In Bind: While loop for balanceURI: " + balanceURI);
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris == null) {
                                 newBalanceUris = new TreeSet<URI>();
                                 newBalanceUris.addAll(accepts);
                                 balanceUris = sharedBalanceUriMap.putIfAbsent(balanceURI, newBalanceUris);
                                 if (balanceUris == null) {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In bind: balancer uri == null");
                                     break;
                                 }
                             }
@@ -592,8 +593,8 @@ public class DefaultServiceContext implements ServiceContext {
                             }
                         } while (!sharedBalanceUriMap.replace(balanceURI, balanceUris, newBalanceUris));
 
-                        GL.info(CLUSTER_LOGGER_NAME, "Cluster member {}: service {} bound", localMember, serviceType);
-                        GL.debug(CLUSTER_LOGGER_NAME, "Added balance URIs {}, new global list is {}",
+                        GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {}: service {} bound", localMember, serviceType);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "Added balance URIs {}, new global list is {}",
                                 acceptUris, newBalanceUris);
                     }
                 }
@@ -601,6 +602,8 @@ public class DefaultServiceContext implements ServiceContext {
                 memberIdBalancerUriMap.put(localMember, memberBalanceUriMap);
             }
         }
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Bind");
+        clusterContext.logClusterState();
     }
 
     private Map<String, Object> buildResourceAddressOptions(URI transportURI, AcceptOptionsContext acceptOptionsContext) {
@@ -889,8 +892,7 @@ public class DefaultServiceContext implements ServiceContext {
         if (balances != null && balances.size() > 0) {
             CollectionsFactory factory = clusterContext.getCollectionsFactory();
             if (factory != null) {
-                Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = factory
-                        .getMap(MEMBERID_BALANCER_MAP_NAME);
+                Map<MemberId, Map<URI, List<URI>>> memberIdBalancerUriMap = factory.getMap(MEMBERID_BALANCER_MAP_NAME);
                 if (memberIdBalancerUriMap == null) {
                     throw new IllegalStateException("MemberId to BalancerMap is null");
                 }
@@ -899,7 +901,11 @@ public class DefaultServiceContext implements ServiceContext {
 
                 Map<URI, List<URI>> memberBalanceUriMap = memberIdBalancerUriMap.get(localMember);
                 if (memberBalanceUriMap == null) {
-                    throw new IllegalStateException("Member balancerMap is null for member " + localMember);
+                    IllegalStateException is = new IllegalStateException(
+                            "In unbind: Member balancerMap returned null for member " + localMember);
+                    GL.error(GL.CLUSTER_LOGGER_NAME, "In unbind: Member balancerMap returned null for member "
+                            + localMember + is);
+                    throw is;
                 }
                 // Must use TreeSet when replace(x,y,z) or remove(x,y) is used instead of remove(x) , hazelcast map
                 // requires a ordered set to hash consistently.
@@ -912,9 +918,12 @@ public class DefaultServiceContext implements ServiceContext {
                         TreeSet<URI> balanceUris = null;
                         TreeSet<URI> newBalanceUris = null;
                         do {
+                            GL.debug(GL.CLUSTER_LOGGER_NAME,
+                                    "In unbind while loop for balanaceURI: " + balanceURI.toString());
                             boolean didRemove = false;
                             balanceUris = sharedBalanceUriMap.get(balanceURI);
                             if (balanceUris != null) {
+                                GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: balanceUris.size() :" + balanceUris.size());
                                 newBalanceUris = new TreeSet<URI>(balanceUris);
                                 for (URI acceptUri : accepts) {
                                     didRemove = didRemove || newBalanceUris.remove(acceptUri);
@@ -927,20 +936,26 @@ public class DefaultServiceContext implements ServiceContext {
                                 break;
                             }
                             if (newBalanceUris.isEmpty()) {
+                                GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: newBalanceUris.isEmpty()");
                                 if (sharedBalanceUriMap.remove(balanceURI, balanceUris)) {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: remove returned true now break");
                                     break;
                                 } else {
+                                    GL.debug(GL.CLUSTER_LOGGER_NAME, "In unbind: remove returned false now continue");
                                     continue; // start over to refresh the newBalanceUris
                                 }
                             }
                         } while (!sharedBalanceUriMap.replace(balanceURI, balanceUris, newBalanceUris));
 
-                        GL.info(CLUSTER_LOGGER_NAME, "Cluster member {}: service {} unbound", localMember, serviceType);
-                        GL.debug(CLUSTER_LOGGER_NAME, "Removed balance URIs {}, new global list is {}", accepts, newBalanceUris);
+                        GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {}: service {} unbound", localMember, serviceType);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "Removed balance URIs {}, new global list is {}", accepts,
+                                newBalanceUris);
                     }
                 }
                 memberIdBalancerUriMap.put(localMember, memberBalanceUriMap);
             }
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Unbind");
+            clusterContext.logClusterState();
         }
 
         for (URI uri : bindURIs) {

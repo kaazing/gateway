@@ -148,6 +148,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
+        if (addresses.isEmpty()) {
+            throw new IllegalArgumentException(format("No addresses available for binding for URI: %s", location));
+        }
+
         return addresses.get(0);
     }
 
@@ -229,6 +233,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             }
 
             alternate = address;
+        }
+
+        if (addresses.isEmpty()) {
+            throw new IllegalArgumentException(format("No addresses available for binding for URI: %s", location));
         }
 
         return addresses.get(0);

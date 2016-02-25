@@ -16,9 +16,8 @@
 package org.kaazing.gateway.transport.wseb.test;
 
 import static org.junit.Assert.fail;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,23 +25,20 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.apache.mina.core.service.IoHandler;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpConnector;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
 import org.kaazing.gateway.transport.wseb.WsebConnector;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
-
-import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 /**
  * Declaring an instance of this class as a @Rule causes the gateway to be started in process before each test method and stopped
@@ -53,7 +49,7 @@ public class WsebConnectorRule implements TestRule {
 
     private ResourceAddressFactory resourceAddressFactory;
     private WsebConnector wseConnector;
-    private boolean wseSpecCompliant;
+    private Properties configuration;
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -61,11 +57,11 @@ public class WsebConnectorRule implements TestRule {
     }
 
     public WsebConnectorRule() {
-        this(true);
+        this(new Properties());
     }
 
-    public WsebConnectorRule(boolean wseSpecCompliant) {
-        this.wseSpecCompliant = wseSpecCompliant;
+    public WsebConnectorRule(Properties configuration) {
+        this.configuration = configuration;
     }
 
     public ConnectFuture connect(final String connect,
@@ -79,7 +75,11 @@ public class WsebConnectorRule implements TestRule {
                 resourceAddressFactory.newResourceAddress(
                         URI.create(connect),
                         connectOptions);
+        return connect(connectAddress, connectHandler);
+    }
 
+    public ConnectFuture connect(final ResourceAddress connectAddress,
+                                 IoHandler connectHandler) throws InterruptedException {
         ConnectFuture future = wseConnector.connect(connectAddress, connectHandler, null);
 
         future.await(TimeUnit.MILLISECONDS.toMillis(3000));
@@ -123,8 +123,10 @@ public class WsebConnectorRule implements TestRule {
                 tcpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
 
-                Properties configuration = new Properties();
-                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), wseSpecCompliant ? "true" : "false");
+                // Default to spec compliant
+                if (configuration.getProperty(WSE_SPECIFICATION.getPropertyName()) == null) {
+                    configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
+                }
                 wseConnector.setConfiguration(configuration);
 
                 httpConnector.setBridgeServiceFactory(bridgeServiceFactory);
