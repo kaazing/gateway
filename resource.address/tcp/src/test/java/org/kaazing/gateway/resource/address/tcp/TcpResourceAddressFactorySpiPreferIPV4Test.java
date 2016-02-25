@@ -13,40 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.server.preferedipv4;
-
-import static org.junit.Assert.assertFalse;
+package org.kaazing.gateway.resource.address.tcp;
 
 import java.net.URI;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.kaazing.gateway.server.test.Gateway;
-import org.kaazing.gateway.server.test.config.GatewayConfiguration;
-import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 
 /**
- * Class for testing preferIPv4Stack behavior
+ * Class for testing preferIPv4Stack behavior.
  */
-public class ResourceAddressFactorySpiPreferIPV4Test {
+public class TcpResourceAddressFactorySpiPreferIPV4Test {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
-    private Gateway gateway;
+    private TcpResourceAddressFactorySpi factory;
+
+    @Before
+    public void before() {
+        factory = new TcpResourceAddressFactorySpi();
+    }
 
     @After
     public void tearDown() throws Exception {
-        // shutdown the gateway
-        try {
-            gateway.stop();
-        } catch (Exception e) {
-            assertFalse(e instanceof java.lang.NullPointerException);
-        }
-
         // cleanup the IPV4 flag
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
     }
@@ -56,17 +50,13 @@ public class ResourceAddressFactorySpiPreferIPV4Test {
         // set the IPV4 flag
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "true");
 
-        // configure the gateway
-        GatewayConfiguration gc = getGatewayConfig();
-        gateway = new Gateway();
-
         // Exception expectations
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config."
-                + " No addresses available for binding for URI:");
+                + " No addresses available for binding for URI: tcp://[::1]:8000");
 
-        // startup the gateway
-        gateway.start(gc);
+        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
+
     }
 
     @Test
@@ -74,28 +64,8 @@ public class ResourceAddressFactorySpiPreferIPV4Test {
         // set the IPV4 flag to false
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
 
-        // startup the gateway
-        GatewayConfiguration gc = getGatewayConfig();
-        gateway = new Gateway();
-        gateway.start(gc);
+        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
+
     }
 
-    /**
-    * Helper method returning a gateway config
-    * 
-    * @return
-    */
-    private GatewayConfiguration getGatewayConfig() {
-        // @formatter:off
-        GatewayConfiguration gc =
-                new GatewayConfigurationBuilder()
-                    .service()
-                        .name("echo")
-                        .type("echo")
-                        .accept(URI.create("ws://[::1]:8000/echo/"))
-                    .done()
-                .done();
-        // @formatter:on
-        return gc;
-    }
 }

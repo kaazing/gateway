@@ -480,11 +480,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
      * @param location
      */
     private void throwNoAddressesToBindError(URI location) {
-        StringBuffer error = new StringBuffer(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
+        StringBuilder error = new StringBuilder(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
         try {
             InetAddress address = InetAddress.getByName(location.getHost());
-            boolean isPreferedIPv4 = "true".equals(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
-            if (isPreferedIPv4 && (address instanceof Inet6Address)) {
+            boolean preferIPv4Stack = Boolean.parseBoolean(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
+            if (preferIPv4Stack && (address instanceof Inet6Address)) {
                 error.insert(0, PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION);
             }
         } catch (UnknownHostException e) {
