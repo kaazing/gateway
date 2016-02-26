@@ -28,7 +28,7 @@ import org.kaazing.gateway.resource.address.URLUtils;
 public class URIWrapper implements URIAccessor {
 
     private URI uri;
-    private static final String MOCK_HOST = "localhost";
+    private static final String MOCK_HOST = "127.0.0.1";
 
     private URIWrapper(String uriString) {
         uri = URI.create(uriString);

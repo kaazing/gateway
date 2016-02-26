@@ -81,7 +81,7 @@ public class NetworkInterfaceURITest {
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
         String uriString = "http://[@" + NETWORK_INTERFACE + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
+        thrown.expectMessage("Network interface URI syntax should only be applicable for tcp and udp schemes");
         NetworkInterfaceURI.create(uriString);
     }
 
@@ -89,7 +89,7 @@ public class NetworkInterfaceURITest {
     public void uriUtilsMethodsBehaviorHttpSubinterfaceLoopbackBrackets() {
         String uriString = "http://[@" + NETWORK_SUBINTERFACE + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
+        thrown.expectMessage("Network interface URI syntax should only be applicable for tcp and udp schemes");
         NetworkInterfaceURI.create(uriString);
     }
 

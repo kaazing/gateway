@@ -69,7 +69,7 @@ public class GenericURITest {
     public void uriUtilsMethodsBehaviorHttpLoopbackBrackets() {
         String uriString = "http://[@" + networkInterface + "]:8080/test?param1=val#fragment";
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Network interface URI syntax should onlybe applicable for tcp and udp schemes");
+        thrown.expectMessage("Network interface URI syntax should only be applicable for tcp and udp schemes");
         GenericURI.create(uriString);
     }
 

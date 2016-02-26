@@ -28,7 +28,7 @@ import org.kaazing.gateway.resource.address.uri.exception.NetworkInterfaceSyntax
  */
 public class NetworkInterfaceURI implements URIAccessor {
 
-    private static final String HOST_TEMPLATE = "localhost";
+    private static final String HOST_TEMPLATE = "127.0.0.1";
 
     private URI mockNetworkInterfaceURI;
 
@@ -174,7 +174,7 @@ public class NetworkInterfaceURI implements URIAccessor {
          */
         private void parse() throws NetworkInterfaceSyntaxException {
             if (!uri.startsWith("tcp://") && !uri.startsWith("udp://")) {
-                throw new NetworkInterfaceSyntaxException("Network interface URI syntax should only"
+                throw new NetworkInterfaceSyntaxException("Network interface URI syntax should only "
                         + "be applicable for tcp and udp schemes");
             }
             Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
