@@ -40,6 +40,7 @@ import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpNextProtocolHeaderFilter.PROTOCOL_HTTPXE_1_1;
 import static org.kaazing.gateway.transport.http.bridge.filter.HttpProtocolFilter.PROTOCOL_HTTP_1_1;
 import static org.kaazing.gateway.transport.http.resource.HttpDynamicResourceFactory.newHttpDynamicResourceFactory;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -47,6 +48,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -119,9 +121,16 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
 
     private SchedulerProvider schedulerProvider;
 
+    private Properties configuration;
+
     @Resource(name = "schedulerProvider")
     public void setSchedulerProvider(SchedulerProvider provider) {
         this.schedulerProvider = provider;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
     }
 
     public HttpAcceptor() {
@@ -438,7 +447,8 @@ public class HttpAcceptor extends AbstractBridgeAcceptor<DefaultHttpSession, Htt
                                 session,
                                 new HttpBufferAllocator(parentAllocator),
                                 httpRequest,
-                                localAddress.getResource());
+                                localAddress.getResource(),
+                                configuration);
 
                         IoHandler handler = getHandler(newHttpSession.getLocalAddress());
                         if ( handler == null && logger.isTraceEnabled() ) {

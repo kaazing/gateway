@@ -83,6 +83,12 @@ public class ResponsesIT {
     }
 
     @Test
+    @Specification("unwrapped.404.response/request")
+    public void shouldNotWrap404Response() throws Exception {
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
+    }
+
+    @Test
     @Specification("unwrapped.501.response/request")
     public void shouldPassWithUnwrapped501ResponseIn200() throws Exception {
         testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.SERVER_NOT_IMPLEMENTED);
@@ -91,19 +97,13 @@ public class ResponsesIT {
     @Test
     @Specification("connection.header.not.enveloped.in.response.body/request")
     public void shouldPassWhenConnectionHeaderInHeaderNotBody() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
+        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
     }
 
     private void testWrappedResponse(ResourceAddress address, HttpStatus status) throws Exception {
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                // Removing the filter that doesn't keep the wrapped responses
-                IoFilterChain filterChain = session.getParent().getFilterChain();
-                if (filterChain.contains(HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filterName())) {
-                    filterChain.remove(HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filterName());
-                }
-
                 session.setStatus(status);
                 session.setWriteHeader("Content-Type", "text/html");
                 session.setWriteHeader("Connection", "keep-alive");

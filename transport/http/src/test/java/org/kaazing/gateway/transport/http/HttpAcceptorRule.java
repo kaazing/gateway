@@ -24,19 +24,23 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.TransportFactory;
-import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
-import org.kaazing.gateway.transport.nio.internal.NioSocketConnector;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.HTTPXE_SPECIFICATION;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
 /**
- * Declaring an instance of this class as a @Rule causes the gateway to be
+ * Declaring an instance of this class as a @Rule causes the acceptor to be
  * started in process before each test method and stopped after it. The rule
  * can be chained with a K3poRule for use with robot (this causes Robot to be
- * started before the gateway and stopped after it).
+ * started before the acceptor and stopped after it).
  */
 public class HttpAcceptorRule implements TestRule {
 
@@ -61,47 +65,36 @@ public class HttpAcceptorRule implements TestRule {
 
         private final Statement base;
 
-        private NioSocketConnector tcpConnector;
-        private NioSocketAcceptor tcpAcceptor;
-        private SchedulerProvider schedulerProvider;
-
         public AcceptorStatement(Statement base) {
             this.base = base;
         }
 
         @Override
         public void evaluate() throws Throwable {
+            SchedulerProvider schedulerProvider = new SchedulerProvider();
+            TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object>emptyMap());
+            addressFactory = ResourceAddressFactory.newResourceAddressFactory();
+            Properties config = new Properties();
+            config.setProperty(HTTPXE_SPECIFICATION.getPropertyName(), "true");
+
+            Map<String, Object> resources = new HashMap<>();
+            resources.put("schedulerProvider", schedulerProvider);
+            resources.put("configuration", new Properties());
+            resources.put("bridgeServiceFactory", new BridgeServiceFactory(transportFactory));
+            resources.put("resourceAddressFactory", addressFactory);
+            resources.put("configuration", config);
+            transportFactory.injectResources(resources);
+
+            httpAcceptor = (HttpAcceptor) transportFactory.getTransport("http").getAcceptor();
+
             try {
-                schedulerProvider = new SchedulerProvider();
-
-                addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-                TransportFactory transportFactory = TransportFactory.newTransportFactory(Collections.<String, Object> emptyMap());
-                BridgeServiceFactory serviceFactory = new BridgeServiceFactory(transportFactory);
-
-                tcpAcceptor = (NioSocketAcceptor)transportFactory.getTransport("tcp").getAcceptor();
-                tcpAcceptor.setResourceAddressFactory(addressFactory);
-                tcpAcceptor.setBridgeServiceFactory(serviceFactory);
-                tcpAcceptor.setSchedulerProvider(schedulerProvider);
-
-                tcpConnector = (NioSocketConnector)transportFactory.getTransport("tcp").getConnector();
-                tcpConnector.setResourceAddressFactory(addressFactory);
-                tcpConnector.setBridgeServiceFactory(serviceFactory);
-                tcpConnector.setTcpAcceptor(tcpAcceptor);
-
-                httpAcceptor = (HttpAcceptor)transportFactory.getTransport("http").getAcceptor();
-                httpAcceptor.setBridgeServiceFactory(serviceFactory);
-                httpAcceptor.setResourceAddressFactory(addressFactory);
-                httpAcceptor.setSchedulerProvider(schedulerProvider);
-
                 base.evaluate();
             } finally {
-                tcpConnector.dispose();
-                tcpAcceptor.dispose();
                 httpAcceptor.dispose();
+                transportFactory.getTransport("tcp").getAcceptor().dispose();
                 schedulerProvider.shutdownNow();
             }
         }
-
     }
 
 }

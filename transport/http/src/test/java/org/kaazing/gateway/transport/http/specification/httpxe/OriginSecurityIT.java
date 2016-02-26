@@ -37,6 +37,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class OriginSecurityIT {
@@ -53,49 +54,63 @@ public class OriginSecurityIT {
     @Test
     @Specification("request.with.origin.header/request")
     public void shouldPassWithOriginRequestHeader() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
+    }
+
+    @Test
+    @Specification("bad.request.with.origin.header/request")
+    public void shouldFailWithOriginRequestHeader() throws Exception {
+        test(HTTP_ADDRESS, "http://unknownsource.example.com:80");
     }
 
     @Test
     @Specification("request.with.origin.header.and.x.origin.header/request")
     public void shouldPassWithOriginAndXoriginRequests() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
+    }
+
+    @Test
+    @Specification("bad.request.with.origin.header.and.x.origin.header/request")
+    public void shouldFailWithOriginAndXoriginRequests() throws Exception {
+        test(HTTP_ADDRESS, "http://source.example.com:80");
     }
 
     @Test
     @Specification("origin.request.using.ko.parameter/request")
     public void shouldPassWhenUsingKoParameter() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
     }
 
     @Test
     @Specification("origin.request.using.referer/request")
     public void shouldPassWithOnlyRefererAndXoriginRequest() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
     }
 
     @Test
     @Specification("x.origin.header.not.identical.to.origin.header/request")
     public void shouldPassWhenXoriginHeaderDiffersFromOriginHeader() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
     }
 
     @Test
     @Specification("request.with.kac.parameter/request")
     public void shouldPassWithAccessControlWithKacParameter() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://localhost:8000");
     }
 
     @Test
     @Specification("x.origin.encoded.request.header/request")
     public void shouldPassWithEncodedXoriginRequest() throws Exception {
-        test(HTTP_ADDRESS);
+        test(HTTP_ADDRESS, "http://source.example.com:80");
     }
 
-    private void test(ResourceAddress address) throws Exception {
+    private void test(ResourceAddress address, String origin) throws Exception {
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
+                assertEquals(origin, session.getReadHeader("Origin"));
+
                 session.setStatus(HttpStatus.SUCCESS_OK);
                 session.close(false);
             }

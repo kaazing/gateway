@@ -42,6 +42,11 @@ public enum InternalSystemProperty {
     // Next property is to allow us to safely introduce changes
     // to conform with the WSE specification
     WSE_SPECIFICATION("com.kaazing.gateway.server.transport.wse.SPECIFICATION", "false"),
+
+    // Next property is to allow us to safely introduce changes
+    // to conform with the httpxe specification
+    HTTPXE_SPECIFICATION("com.kaazing.gateway.server.transport.httpxe.SPECIFICATION", "false"),
+
     // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
     TCP_PROCESSOR_COUNT("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT",
                         Integer.toString(getRuntime().availableProcessors())),
