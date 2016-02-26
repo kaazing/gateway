@@ -38,13 +38,17 @@ public class ClusterBalancerServiceIT {
             String clusterMemberNetworkInterfaceTcp2URI = "tcp://[@" + networkInterface + "]:8558";
             String clusterMemberNetworkInterfaceUdp2URI = "udp://[@" + networkInterface + "]:8559";
             
-            GatewayConfiguration config1 = createGatewayConfigBuilder(clusterMember1URI, clusterMember2URI, "7001", "8000");
-            GatewayConfiguration config2 = createGatewayConfigBuilder(clusterMember2URI, clusterMember1URI, "7000", "8001");
+            GatewayConfiguration config1 = createGatewayConfigBuilder(
+                    clusterMember1URI, clusterMember2URI, "7001", "8000");
+            GatewayConfiguration config2 = createGatewayConfigBuilder(
+                    clusterMember2URI, clusterMember1URI, "7000", "8001");
             // network interface validation
-            GatewayConfiguration config3 = createGatewayConfigBuilder(clusterMemberNetworkInterface1URI + "1",
-                                                                        clusterMemberNetworkInterfaceTcp2URI, "7011", "8011");
-            GatewayConfiguration config4 = createGatewayConfigBuilder(clusterMemberNetworkInterface1URI + "2",
-                                                                        clusterMemberNetworkInterfaceUdp2URI, "7111", "8111");
+            GatewayConfiguration config3 = createGatewayConfigBuilder(
+                    clusterMemberNetworkInterface1URI + "1",
+                    clusterMemberNetworkInterfaceTcp2URI, "7011", "8011");
+            GatewayConfiguration config4 = createGatewayConfigBuilder(
+                    clusterMemberNetworkInterface1URI + "2",
+                    clusterMemberNetworkInterfaceUdp2URI, "7111", "8111");
             init(config1, config2, config3, config4);
         }
 

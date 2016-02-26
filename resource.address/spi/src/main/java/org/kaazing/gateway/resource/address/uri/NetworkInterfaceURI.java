@@ -73,7 +73,7 @@ public class NetworkInterfaceURI implements URIAccessor {
         return helperURI.toString().replace(HOST_TEMPLATE, host);
     }
 
-    private NetworkInterfaceURI(String uri) throws NetworkInterfaceSyntaxException {
+    public NetworkInterfaceURI(String uri) throws NetworkInterfaceSyntaxException {
         Parser parser = new Parser(uri);
         parser.parse();
     }

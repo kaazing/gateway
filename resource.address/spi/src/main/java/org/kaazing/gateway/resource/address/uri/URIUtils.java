@@ -17,12 +17,18 @@ package org.kaazing.gateway.resource.address.uri;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.kaazing.gateway.resource.address.URLUtils;
+import org.kaazing.gateway.resource.address.uri.exception.NetworkInterfaceSyntaxException;
 
 /**
  * Utils class over URI methods
  *
  */
 public final class URIUtils {
+    private static final String MOCK_HOST = "127.0.0.1";
 
     /**
      * Helper method for toString conversion
@@ -48,8 +54,18 @@ public final class URIUtils {
      * @return
      */
     public static String getHost(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getHost();
+        try {
+            return (new URI(uriString)).getHost();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getHost();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -58,8 +74,18 @@ public final class URIUtils {
      * @return
      */
     public static String getScheme(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getScheme();
+        try {
+            return (new URI(uriString)).getScheme();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getScheme();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -68,8 +94,18 @@ public final class URIUtils {
      * @return
      */
     public static String getAuthority(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getAuthority();
+        try {
+            return (new URI(uriString)).getAuthority();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getAuthority();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -78,8 +114,18 @@ public final class URIUtils {
      * @return
      */
     public static String getFragment(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getFragment();
+        try {
+            return (new URI(uriString)).getFragment();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getFragment();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -88,8 +134,18 @@ public final class URIUtils {
      * @return
      */
     public static String getPath(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getPath();
+        try {
+            return (new URI(uriString)).getPath();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getPath();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -98,8 +154,18 @@ public final class URIUtils {
      * @return
      */
     public static String getQuery(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getQuery();
+        try {
+            return (new URI(uriString)).getQuery();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getQuery();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -108,8 +174,18 @@ public final class URIUtils {
      * @return
      */
     public static int getPort(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getPort();
+        try {
+            return (new URI(uriString)).getPort();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getPort();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -118,8 +194,18 @@ public final class URIUtils {
      * @return
      */
     public static String getUserInfo(String uriString) {
-        GenericURI uri = GenericURI.create(uriString);
-        return uri.getUserInfo();
+        try {
+            return (new URI(uriString)).getUserInfo();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).getUserInfo();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -134,7 +220,13 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String authority, String path,
             String query, String fragment) throws URISyntaxException {
-        return GenericURI.buildURIToString(scheme, authority, path, query, fragment);
+        URI helperURI = null;
+        try {
+            helperURI = new URI(scheme, authority, path, query, fragment);
+        } catch (URISyntaxException e) {
+            return NetworkInterfaceURI.buildURIToString(scheme, authority, path, query, fragment);
+        }
+        return helperURI.toString();
     }
 
     /**
@@ -151,7 +243,13 @@ public final class URIUtils {
      */
     public static String buildURIAsString(String scheme, String userInfo,
             String host, int port, String path, String query, String fragment) throws URISyntaxException {
-        return GenericURI.buildURIToString(scheme, userInfo, host, port, path, query, fragment);
+        URI helperURI = null;
+        try {
+            helperURI = new URI(scheme, userInfo, host, port, path, query, fragment);
+        } catch (URISyntaxException e) {
+            return NetworkInterfaceURI.buildURIToString(scheme, userInfo, host, port, path, query, fragment);
+        }
+        return helperURI.toString();
     }
 
     /**
@@ -161,8 +259,18 @@ public final class URIUtils {
      * @return
      */
     public static String resolve(String uriInitial, String uriString) {
-        GenericURI baseURI = GenericURI.create(uriInitial);
-        return baseURI.resolve(uriString);
+        try {
+            return uriToString((new URI(uriString)).resolve(uriString));
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uriString)).resolve(uriString);
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -172,8 +280,19 @@ public final class URIUtils {
      * @return
      */
     public static String modifyURIScheme(String uri, String newScheme) {
-        GenericURI baseURI = GenericURI.create(uri);
-        return baseURI.modifyURIScheme(newScheme);
+        try {
+            URI uriObj = new URI(uri);
+            return uriToString(URLUtils.modifyURIScheme(uriObj, newScheme));
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uri)).modifyURIScheme(newScheme);
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -183,8 +302,28 @@ public final class URIUtils {
      * @return
      */
     public static String modifyURIAuthority(String uri, String newAuthority) {
-        GenericURI baseURI = GenericURI.create(uri);
-        return baseURI.modifyURIAuthority(newAuthority);
+        try {
+            URI uriObj = new URI(uri);
+            Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
+            Matcher matcher = pattern.matcher(newAuthority);
+            String matchedToken = MOCK_HOST;
+            // if newAuthority corresponds to NetworkInterfaceURI syntax
+            if (matcher.find()) {
+                matchedToken = matcher.group(0);
+                newAuthority = newAuthority.replace(matchedToken, MOCK_HOST);
+            }
+            URI modifiedURIAuthority = URLUtils.modifyURIAuthority(uriObj, newAuthority);
+            return URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uri)).modifyURIAuthority(newAuthority);
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -194,8 +333,19 @@ public final class URIUtils {
      * @return
      */
     public static String modifyURIPort(String uri, int newPort) {
-        GenericURI baseURI = GenericURI.create(uri);
-        return baseURI.modifyURIPort(newPort);
+        try {
+            URI uriObj = new URI(uri);
+            return uriToString(URLUtils.modifyURIPort(uriObj, newPort));
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uri)).modifyURIPort(newPort);
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -205,13 +355,34 @@ public final class URIUtils {
      * @return
      */
     public static String modifyURIPath(String uri, String newPath) {
-        GenericURI baseURI = GenericURI.create(uri);
-        return baseURI.modifyURIPath(newPath);
+        try {
+            URI uriObj = new URI(uri);
+            return uriToString(URLUtils.modifyURIPath(uriObj, newPath));
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uri)).modifyURIPath(newPath);
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
     public static boolean isAbsolute(String uri) {
-        GenericURI baseURI = GenericURI.create(uri);
-        return baseURI.isAbsolute();
+        try {
+            return (new URI(uri)).isAbsolute();
+        }
+        catch (URISyntaxException e) {
+            try {
+                return (new NetworkInterfaceURI(uri)).isAbsolute();
+            }
+            catch (NetworkInterfaceSyntaxException ne) {
+                e.addSuppressed(ne);
+                throw new IllegalArgumentException(e.getMessage(), e);
+            }
+        }
     }
 
 }
