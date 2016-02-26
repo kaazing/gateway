@@ -16,8 +16,15 @@
 
 package org.kaazing.gateway.service.http.proxy;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.config.parse.GatewayConfigParser;
+import org.kaazing.gateway.server.test.Gateway;
+import org.kaazing.gateway.server.test.GatewayRule;
+import org.kaazing.gateway.server.test.config.GatewayConfiguration;
+import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,8 +33,11 @@ import java.net.URL;
 
 public class HttpProxyConfigTest {
 
+    @Rule
+    public final TestRule trace = new MethodExecutionTrace();
+
     @Test
-    public void testValidBalancedService() throws Exception {
+    public void testHttpProxyConfig() throws Exception {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL configUrl = classLoader.getResource("http-proxy-config.xml");
         if (configUrl == null) {
@@ -37,6 +47,59 @@ public class HttpProxyConfigTest {
 
         GatewayConfigParser parser = new GatewayConfigParser();
         parser.parse(new File(file));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUnknownSimpleProperties() throws Exception {
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .service()
+                            .name("simple")
+                            .accept(URI.create("http://localhost:8110"))
+                            .connect(URI.create("http://localhost:8080"))
+                            .type("http.proxy")
+                            .property("foo", "enabled")
+                            .property("bar", "100")
+                        .done()
+                .done();
+        // @formatter:on
+        Gateway gateway = new Gateway();
+        try {
+            gateway.start(configuration);
+        } finally {
+            gateway.stop();
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUnknownNestedProperties() throws Exception {
+        // @formatter:off
+        GatewayConfiguration configuration =
+                new GatewayConfigurationBuilder()
+                        .service()
+                            .name("nested")
+                            .accept(URI.create("http://localhost:8110"))
+                            .connect(URI.create("http://localhost:8080"))
+                            .type("http.proxy")
+                            .nestedProperty("cookie-domain-mapping1")
+                                .property("from", "a.b")
+                                .property("to", "c.d")
+                            .done()
+                            .property("rewrite-cookie-path", "enabled")
+                            .nestedProperty("cookie-path-mapping2")
+                                .property("from", "/foo/")
+                                .property("to", "/bar/")
+                            .done()
+                        .done()
+                .done();
+        // @formatter:on
+        Gateway gateway = new Gateway();
+        try {
+            gateway.start(configuration);
+        } finally {
+            gateway.stop();
+        }
     }
 
 }

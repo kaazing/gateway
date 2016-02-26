@@ -40,11 +40,14 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_LOCATION;
@@ -59,6 +62,25 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger("service.http.proxy");
     
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
+
+    private static final Set KNOWN_SIMPLE_PROPERTIES;
+    static {
+        Set<String> set = new HashSet<>();
+        set.add("rewrite-cookie-domain");
+        set.add("rewrite-cookie-path");
+        set.add("rewrite-location");
+        KNOWN_SIMPLE_PROPERTIES = Collections.unmodifiableSet(set);
+    }
+
+    private static final Set KNOWN_NESTED_PROPERTIES;
+    static {
+        Set<String> set = new HashSet<>();
+        set.add("cookie-domain-mapping");
+        set.add("cookie-path-mapping");
+        set.add("location-mapping");
+        KNOWN_NESTED_PROPERTIES = Collections.unmodifiableSet(set);
+    }
+
 
     private URI connectURI;
     private boolean rewriteCookieDomain;
@@ -77,7 +99,10 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         URI acceptURI = acceptURIs.iterator().next();
         connectURI = connectURIs.iterator().next();
 
+        validateProperties(serviceContext);
+
         ServiceProperties properties = serviceContext.getProperties();
+
         rewriteCookieDomain = "enabled".equals(properties.get("rewrite-cookie-domain"));
         rewriteCookiePath = "enabled".equals(properties.get("rewrite-cookie-path"));
         rewriteLocation = !"disabled".equals(properties.get("rewrite-location"));
@@ -105,6 +130,24 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 locationMap.put(sp.get("from"), sp.get("to"));
             }
             locationMap.put(connectURI.toString(), acceptURI.toString());
+        }
+    }
+
+    private void validateProperties(ServiceContext serviceContext) {
+        ServiceProperties properties = serviceContext.getProperties();
+
+        // validate all properties: rewrite-cookie-domain, rewrite-cookie-path, rewrite-location
+        Iterable<String> simpleProperties = properties.simplePropertyNames();
+        Set<String> unknownProperties = StreamSupport.stream(simpleProperties.spliterator(), false)
+                .filter(p -> !KNOWN_SIMPLE_PROPERTIES.contains(p))
+                .collect(Collectors.toSet());
+        Iterable<String> nestedProperties = properties.nestedPropertyNames();
+        StreamSupport.stream(nestedProperties.spliterator(), false)
+                .filter(p -> !KNOWN_NESTED_PROPERTIES.contains(p))
+                .forEach(unknownProperties::add);
+        if (!unknownProperties.isEmpty()) {
+            throw new IllegalArgumentException(serviceContext.getServiceName() +
+                    " http.proxy service specifies unknown properties : " + unknownProperties);
         }
     }
 
