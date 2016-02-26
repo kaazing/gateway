@@ -28,7 +28,7 @@ import java.net.URI;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-public class HttpProxyRedirectIT {
+public class HttpProxyCookieIT {
 
     private final K3poRule robot = new K3poRule();
 
@@ -41,6 +41,16 @@ public class HttpProxyRedirectIT {
                             .accept(URI.create("http://localhost:8110"))
                             .connect(URI.create("http://localhost:8080"))
                             .type("http.proxy")
+                            .property("rewrite-cookie-domain", "enabled")
+                            .nestedProperty("cookie-domain-mapping")
+                                .property("from", "a.b")
+                                .property("to", "c.d")
+                            .done()
+                            .property("rewrite-cookie-path", "enabled")
+                            .nestedProperty("cookie-path-mapping")
+                                .property("from", "/foo/")
+                                .property("to", "/bar/")
+                            .done()
                             .connectOption("http.keepalive", "disabled")
                         .done()
                     .done();
@@ -52,9 +62,9 @@ public class HttpProxyRedirectIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("http.proxy.redirect")
     @Test
-    public void httpProxyRedirect() throws Exception {
+    @Specification("http.proxy.cookie.rewriting")
+    public void cookieRewriting() throws Exception {
         robot.finish();
     }
 
