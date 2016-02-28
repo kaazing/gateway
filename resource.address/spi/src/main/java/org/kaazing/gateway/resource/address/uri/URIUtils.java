@@ -260,11 +260,11 @@ public final class URIUtils {
      */
     public static String resolve(String uriInitial, String uriString) {
         try {
-            return uriToString((new URI(uriString)).resolve(uriString));
+            return uriToString((new URI(uriInitial)).resolve(uriString));
         }
         catch (URISyntaxException e) {
             try {
-                return (new NetworkInterfaceURI(uriString)).resolve(uriString);
+                return (new NetworkInterfaceURI(uriInitial)).resolve(uriString);
             }
             catch (NetworkInterfaceSyntaxException ne) {
                 e.addSuppressed(ne);
@@ -304,6 +304,7 @@ public final class URIUtils {
     public static String modifyURIAuthority(String uri, String newAuthority) {
         try {
             URI uriObj = new URI(uri);
+            // code below modifies new authority considering also network interface syntax
             Pattern pattern = Pattern.compile("(\\[{0,1}@[a-zA-Z0-9 :]*\\]{0,1})");
             Matcher matcher = pattern.matcher(newAuthority);
             String matchedToken = MOCK_HOST;
@@ -313,7 +314,8 @@ public final class URIUtils {
                 newAuthority = newAuthority.replace(matchedToken, MOCK_HOST);
             }
             URI modifiedURIAuthority = URLUtils.modifyURIAuthority(uriObj, newAuthority);
-            return URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
+            String uriWithModifiedAuthority = URIUtils.uriToString(modifiedURIAuthority).replace(MOCK_HOST, matchedToken);
+            return uriWithModifiedAuthority;
         }
         catch (URISyntaxException e) {
             try {
