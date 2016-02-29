@@ -21,7 +21,6 @@ import static org.kaazing.gateway.resource.address.uri.URIUtils.getPath;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getQuery;
 import static org.kaazing.gateway.resource.address.uri.URIUtils.getScheme;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

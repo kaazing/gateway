@@ -174,7 +174,7 @@ public class HttpUtilsTest {
 
     @Test
     public void testNullFromURIGetsMergedCorrectly() throws Exception {
-        final String into ="http://www.example.com/";
+        final String into = "http://www.example.com/";
         final String actual = HttpUtils.mergeQueryParameters(null, into);
         assertEquals(into, actual);
         assertSame(into, actual);
