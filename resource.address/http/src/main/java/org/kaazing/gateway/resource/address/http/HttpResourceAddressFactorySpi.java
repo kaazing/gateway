@@ -221,7 +221,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
             options.setOption(GATEWAY_ORIGIN_SECURITY, new GatewayHttpOriginSecurity(authorityToSetOfAcceptConstraintsByURI));
         }
 
-        Collection<URI> balanceOrigin = (Collection<URI>) optionsByName.remove(BALANCE_ORIGINS.name());
+        Collection<String> balanceOrigin = (Collection<String>) optionsByName.remove(BALANCE_ORIGINS.name());
         if (balanceOrigin != null) {
             options.setOption(BALANCE_ORIGINS, balanceOrigin);
         }

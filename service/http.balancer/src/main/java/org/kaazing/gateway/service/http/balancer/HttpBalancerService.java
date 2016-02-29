@@ -123,7 +123,7 @@ public class HttpBalancerService implements Service {
                 WsnSession wsnSession = (WsnSession) session;
                 if (wsnSession.isBalanceSupported()) {
                     IoSession parent = wsnSession.getParent();
-                    List<URI> selectedBalanceeURIs = (List<URI>) parent.getAttribute(BALANCEES_KEY);
+                    List<String> selectedBalanceeURIs = (List<String>) parent.getAttribute(BALANCEES_KEY);
                     wsnSession.setBalanceeURIs(selectedBalanceeURIs);
                 }
             }

@@ -290,7 +290,7 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                     //       the balancee URI is selected in the HttpBalancerService's
                     //       preHttpUpgradeSessionInitializer.  That's why the iterator.next() is assumed here.
 
-                    Collection<URI> balanceeURIs = wsnSession.getBalanceeURIs();
+                    Collection<String> balanceeURIs = wsnSession.getBalanceeURIs();
                     String response = "" + '\uf0ff'; // Unique prefix to avoid collisions with responses from non Kaazing servers
                     if (balanceeURIs == null) {
                         // No balancer participated in this session initialization

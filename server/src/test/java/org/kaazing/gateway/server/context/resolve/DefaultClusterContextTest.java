@@ -402,15 +402,15 @@ public class DefaultClusterContextTest {
     }
 
     private void validateClusterState(ClusterContext... clusterContext) {
-        Set<URI> balanceTargets = new HashSet<>();
+        Set<String> balanceTargets = new HashSet<>();
         if (clusterContext[0] != null) {
-            balanceTargets.add(URI.create("ws://node1.example.com:8080/path"));
+            balanceTargets.add("ws://node1.example.com:8080/path");
         }
         if (clusterContext[1] != null) {
-            balanceTargets.add(URI.create("ws://node2.example.com:8080/path"));
+            balanceTargets.add("ws://node2.example.com:8080/path");
         }
-        balanceTargets.add(URI.create("ws://node3.example.com:8080/path"));
-        balanceTargets.add(URI.create("ws://node4.example.com:8080/path"));
+        balanceTargets.add("ws://node3.example.com:8080/path");
+        balanceTargets.add("ws://node4.example.com:8080/path");
         if (clusterContext[0] != null) {
             if (!validateSharedBalancer(clusterContext[0].getCollectionsFactory(), balanceTargets)) {
                 fail("Expected 4 URIs as balance targets in cluster member 1's memory");
@@ -457,7 +457,7 @@ public class DefaultClusterContextTest {
         }
     }
 
-    private boolean validateSharedBalancer(CollectionsFactory factory, Set<URI> balanceTargets) {
+    private boolean validateSharedBalancer(CollectionsFactory factory, Set<String> balanceTargets) {
         Map<String, Set<String>> sharedBalancerMap = factory.getMap(BALANCER_MAP_NAME);
 
         Set<String> currentBalanceTargets = sharedBalancerMap.get("ws://www.example.com:8080/path");
