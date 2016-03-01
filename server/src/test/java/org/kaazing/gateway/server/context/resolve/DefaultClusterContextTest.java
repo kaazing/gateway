@@ -42,6 +42,9 @@ import org.kaazing.gateway.service.cluster.MemberId;
 import org.kaazing.gateway.service.cluster.MembershipEventListener;
 import org.kaazing.gateway.service.messaging.collections.CollectionsFactory;
 import org.kaazing.gateway.util.scheduler.SchedulerProvider;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @Ignore("KG-8712: When we sweep skipped tests, move this out of the unit tests.")
 public class DefaultClusterContextTest {

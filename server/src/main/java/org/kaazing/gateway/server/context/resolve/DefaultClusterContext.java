@@ -795,6 +795,31 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         logBalancerMap();
     }
 
+    @Override
+    /*
+     * Logs cluster state at Info Level, recommended use only for startup or methods that are called only one time when
+     * cluster state changes !
+     */
+    public void logClusterStateAtInfoLevel() {
+        if (clusterInstance != null) {
+            Cluster cluster = clusterInstance.getCluster();
+            if (cluster != null) {
+                GL.info(GL.CLUSTER_LOGGER_NAME, "Current cluster members:");
+                Set<Member> currentMembers = clusterInstance.getCluster().getMembers();
+                for (Member currentMember : currentMembers) {
+                    MemberId memberId = getMemberId(currentMember);
+                    GL.info(GL.CLUSTER_LOGGER_NAME, "      member: {}", memberId);
+                }
+            }
+        }
+        GL.info(GL.CLUSTER_LOGGER_NAME, "Current shared balancer map:");
+        Map<String, Set<String>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        for (String balanceURI : balancerMap.keySet()) {
+            Set<String> balanceTargets = balancerMap.get(balanceURI);
+            GL.info(GL.CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+        }
+
+    }
     private void logClusterMembers() {
         // log current cluster state on TRACE level
         if (clusterInstance != null) {

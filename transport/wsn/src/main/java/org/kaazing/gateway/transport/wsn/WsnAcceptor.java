@@ -358,20 +358,6 @@ public class WsnAcceptor extends AbstractBridgeAcceptor<WsnSession, WsnBindings.
                         writeFuture = parent.write(parentBuf); // Write on parent session to avoid encoding on ByteSocket connections
                     }
 
-                    // KG-3496: serialize the balancer directive write and the
-                    // session close, so that the close cannot win.  Moved the
-                    // session close to here with the redirectResponse logic.
-                    if (redirectResponse) {
-                        writeFuture.addListener(new IoFutureListener<WriteFuture>() {
-                            @Override
-                            public void operationComplete(WriteFuture future) {
-                                // (KG-6305) Must send a WS CLOSE frame to conform to RFC 6455 so client knows the websocket is closed
-                                if (wsnSession.sendCloseFrame.compareAndSet(true, false)) {
-                                    wsnSession.getParent().write(WsCloseMessage.NORMAL_CLOSE);
-                                }
-                            }
-                        });
-                    }
                 }
             }
 

@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.server;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
@@ -24,6 +25,7 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
