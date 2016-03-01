@@ -59,7 +59,6 @@ import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
 import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_FOR;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_HOST;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PORT;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_PROTO;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_X_FORWARDED_SERVER;
 import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
@@ -71,11 +70,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
     private static final String FORWARDED_INJECT = "inject";
     private static final String FORWARDED_EXCLUDE = "exclude";
+    private static final String FORWARDED_IGNORE = "ignore";
     private static final String FORWARDED_FOR = "for";
     private static final String FORWARDED_BY = "by";
     private static final String FORWARDED_PROTO = "proto";
     private static final String FORWARDED_HOST = "host";
-    private static final String FORWARDED_PORT = "port";
+
 
     private static final Set KNOWN_SIMPLE_PROPERTIES;
     static {
@@ -83,6 +83,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         set.add("rewrite-cookie-domain");
         set.add("rewrite-cookie-path");
         set.add("rewrite-location");
+        set.add("use-forwarded");
         KNOWN_SIMPLE_PROPERTIES = Collections.unmodifiableSet(set);
     }
 
@@ -95,9 +96,17 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         KNOWN_NESTED_PROPERTIES = Collections.unmodifiableSet(set);
     }
 
+    private static final Set<String> USE_FORWARDED_VALUES;
+    static {
+        Set<String> set = new HashSet<>();
+        set.add(FORWARDED_INJECT);
+        set.add(FORWARDED_EXCLUDE);
+        set.add(FORWARDED_IGNORE);
+        USE_FORWARDED_VALUES = Collections.unmodifiableSet(set);
+    }
 
     private URI connectURI;
-    private String forwardedProperty;
+    private String useForwarded;
     private boolean rewriteCookieDomain;
     private boolean rewriteCookiePath;
     private boolean rewriteLocation;
@@ -146,6 +155,15 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
             locationMap.put(connectURI.toString(), acceptURI.toString());
         }
+
+        useForwarded = properties.get("use-forwarded");
+        if (useForwarded == null) {
+            useForwarded = FORWARDED_IGNORE;
+        }
+        if (!USE_FORWARDED_VALUES.contains(useForwarded)) {
+            throw new IllegalArgumentException(serviceContext.getServiceName()
+                    + " http.proxy service specifies unknown property value : " + useForwarded + " for use-forwarded");
+        }
     }
 
     private void validateProperties(ServiceContext serviceContext) {
@@ -166,13 +184,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         }
     }
 
+    
+
     @Override
     protected AbstractProxyHandler createConnectHandler() {
         return new ConnectHandler();
-    }
-
-    public void setUseForwardedHeaders(String forwardedProperty) {
-        this.forwardedProperty = forwardedProperty;
     }
 
     @Override
@@ -188,7 +204,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
 
             ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession,
-                    forwardedProperty);
+                    useForwarded);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
             super.sessionOpened(acceptSession);
@@ -208,11 +224,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      */
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
-        private final String forwardedProperty;
+        private final String useForwarded;
 
-        ConnectSessionInitializer(DefaultHttpSession acceptSession, String forwardedProperty) {
+        ConnectSessionInitializer(DefaultHttpSession acceptSession, String useForwarded) {
             this.acceptSession = acceptSession;
-            this.forwardedProperty = forwardedProperty;
+            this.useForwarded = useForwarded;
         }
 
         @Override
@@ -222,7 +238,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setMethod(acceptSession.getMethod());
             URI connectURI = computeConnectPath(connectSession.getRequestURI());
             connectSession.setRequestURI(connectURI);
-            processRequestHeaders(acceptSession, connectSession, forwardedProperty);
+            processRequestHeaders(acceptSession, connectSession, useForwarded);
         }
 
         private URI computeConnectPath(URI connectURI) {
@@ -247,8 +263,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 DefaultHttpSession connectSession = (DefaultHttpSession) future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " [" + acceptSession + "->"
-                            + connectSession + "]");
+                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " [" + acceptSession + "->" + connectSession + "]");
                 }
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
@@ -259,8 +274,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
-                LOGGER.warn(
-                        "Connection to " + getConnectURIs().iterator().next() + " failed [" + acceptSession + "->]");
+                LOGGER.warn("Connection to " + getConnectURIs().iterator().next() + " failed [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
             }
@@ -451,20 +465,18 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             excludeForwardedHeaders(connectSession);
             return;
         }
-        StringBuilder forwardedSb = new StringBuilder();
         String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
         String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
         if (remoteIpAddress != null) {
             // 'Forwarded: for=' is added to the connectSession in HttpSubjecSecurityFilter if the 'Forwarded' header in
             // the request is empty, so we remove it for now, and inject it along with all the other parameters (by,
-            // proto, host, port)
-            String forAddress = format("%s=%s", FORWARDED_FOR, remoteIpAddress);
-            if (forwarded.equalsIgnoreCase(forAddress)) {
+            // proto, host)
+            String forwardedFor = format("%s=%s", FORWARDED_FOR, remoteIpAddress);
+            if (forwarded.equalsIgnoreCase(forwardedFor)) {
                 connectSession.clearWriteHeaders(HEADER_FORWARDED);
             }
             if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
                 connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
-                forwardedSb.append(forAddress + ";");
             }
         }
 
@@ -473,23 +485,19 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             String serverIpAddress = getResourceIpAddress(acceptSession, FORWARDED_BY);
             if (serverIpAddress != null) {
                 connectSession.addWriteHeader(HEADER_X_FORWARDED_SERVER, serverIpAddress);
-                forwardedSb.append(format("%s=%s;", FORWARDED_BY, serverIpAddress));
             }
 
-            URI externalURI = acceptSession.getLocalAddress().getExternalURI();
-            String protocol = externalURI.getScheme();
+            String protocol = acceptSession.isSecure() ? "https" : "http";
             connectSession.addWriteHeader(HEADER_X_FORWARDED_PROTO, protocol);
-            forwardedSb.append(format("%s=%s;", FORWARDED_PROTO, protocol));
 
+            URI externalURI = acceptSession.getLocalAddress().getExternalURI();
             String host = externalURI.getHost();
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, host);
-            forwardedSb.append(format("%s=%s;", FORWARDED_HOST, host));
-
             String port = format("%d", externalURI.getPort());
-            connectSession.addWriteHeader(HEADER_X_FORWARDED_PORT, port);
-            forwardedSb.append(format("%s=%s", FORWARDED_PORT, port));
-
-            connectSession.addWriteHeader(HEADER_FORWARDED, forwardedSb.toString());
+            connectSession.addWriteHeader(HEADER_X_FORWARDED_HOST, format("%s:%s", host, port));
+            
+            connectSession.addWriteHeader(HEADER_FORWARDED,
+                    format("%s=%s;%s=%s;%s=%s;%s=%s:%s", FORWARDED_FOR, remoteIpAddress, FORWARDED_BY, serverIpAddress,
+                            FORWARDED_PROTO, protocol, FORWARDED_HOST, host, port));
         }
     }
 
@@ -505,7 +513,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         connectSession.clearWriteHeaders(HEADER_X_FORWARDED_SERVER);
         connectSession.clearWriteHeaders(HEADER_X_FORWARDED_HOST);
         connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PROTO);
-        connectSession.clearWriteHeaders(HEADER_X_FORWARDED_PORT);
     }
 
     /**

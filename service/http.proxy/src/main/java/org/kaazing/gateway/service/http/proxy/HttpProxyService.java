@@ -16,7 +16,6 @@
 package org.kaazing.gateway.service.http.proxy;
 
 import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.ServiceProperties;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 import java.net.URI;
@@ -29,7 +28,6 @@ import static java.lang.String.format;
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
     private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
-    private static final String FORWARDED_IGNORE = "ignore";
 
     @Override
     public String getType() {
@@ -49,7 +47,6 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
         handler.init();
-        handler.setUseForwardedHeaders(getForwardedProperty(serviceContext));
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
@@ -69,15 +66,6 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         if (acceptPathIsSlash ^ connectPathIsSlash) {
             throw new IllegalArgumentException(format(TRAILING_SLASH_ERROR, acceptURI, connectURI));
         }
-    }
-
-    private String getForwardedProperty(ServiceContext serviceContext) {
-        ServiceProperties properties = serviceContext.getProperties();
-        String forwardedProperty = properties.get("use-forwarded");
-        if (forwardedProperty == null) {
-            forwardedProperty = FORWARDED_IGNORE;
-        }
-        return forwardedProperty;
     }
 
     @Override

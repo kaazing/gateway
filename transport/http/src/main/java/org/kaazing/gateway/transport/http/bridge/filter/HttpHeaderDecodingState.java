@@ -75,7 +75,6 @@ public abstract class HttpHeaderDecodingState extends DecodingStateMachine {
         COMMA_SEPARATED_HEADERS.add("X-Forwarded-Server");
         COMMA_SEPARATED_HEADERS.add("X-Forwarded-Proto");
         COMMA_SEPARATED_HEADERS.add("X-Forwarded-Host");
-        COMMA_SEPARATED_HEADERS.add("X-Forwarded-Port");
 
     }
 
