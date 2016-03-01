@@ -58,7 +58,7 @@ public interface HttpSession extends BridgeSession {
 	Map<String, List<String>> getReadHeaders();
 	
 	Collection<HttpCookie> getReadCookies();
-	
+
 	boolean isSecure();
 		
 	boolean isCommitting();

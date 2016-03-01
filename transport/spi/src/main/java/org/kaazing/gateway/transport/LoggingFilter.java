@@ -20,9 +20,9 @@ import static java.lang.String.format;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 
 import javax.security.auth.Subject;
+
 import org.apache.mina.core.filterchain.IoFilterAdapter;
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
@@ -33,14 +33,15 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.logging.LogLevel;
 import org.slf4j.Logger;
-import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
-import org.kaazing.gateway.resource.address.IdentityResolver;
 
+import static org.kaazing.gateway.resource.address.ResourceAddress.IDENTITY_RESOLVER;
+
+import org.kaazing.gateway.resource.address.IdentityResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.transport.BridgeAcceptor;
-
 import org.kaazing.gateway.transport.bridge.Message;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.mina.filter.codec.ProtocolCodecFilter;
 import org.kaazing.gateway.util.Utils;
 
 public class LoggingFilter extends IoFilterAdapter {
@@ -60,11 +61,11 @@ public class LoggingFilter extends IoFilterAdapter {
     private final String writeFormat;
 
     private static enum Strategy {
-        DEBUG(LogLevel.DEBUG), 
-        ERROR(LogLevel.ERROR), 
-        INFO(LogLevel.INFO), 
-        NONE(LogLevel.NONE), 
-        TRACE(LogLevel.TRACE), 
+        DEBUG(LogLevel.DEBUG),
+        ERROR(LogLevel.ERROR),
+        INFO(LogLevel.INFO),
+        NONE(LogLevel.NONE),
+        TRACE(LogLevel.TRACE),
         WARN(LogLevel.WARN);
 
         final LogLevel level;
@@ -77,12 +78,14 @@ public class LoggingFilter extends IoFilterAdapter {
             return LoggingFilter.shouldLog(logger, level);
         }
 
-        void log(Logger logger, String message, Throwable cause) {
+        void log(Logger logger, String message, Throwable t) {
             if (shouldLog(logger)) {
-                // Include stack trace except for IOException (to avoid overkill in this common case
-                // which can be caused by abrupt client connection close or inactivity timeout)
-                if (shouldIncludeStackTrace(cause)) {
-                    Utils.log(logger, level, message, cause);
+                // Include stack trace except for IOException, where we only log stack trace of the cause,
+                // if there is one, to avoid overkill in this common case which can be caused by abrupt
+                // client connection close or inactivity timeout.
+                Throwable stack = t instanceof IOException ? t.getCause() : t;
+                if (stack != null) {
+                    Utils.log(logger, level, message, stack);
                 } else {
                     Utils.log(logger, level, message);
                 }
@@ -198,6 +201,16 @@ public class LoggingFilter extends IoFilterAdapter {
 
         logSessionOpened(session);
         super.sessionOpened(nextFilter, session);
+
+        // Move after codec to log codec exceptions (should they occur) and decoded messages
+        IoFilterChain filterChain = session.getFilterChain();
+        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
+        if (codecEntry != null) {
+            Entry loggingEntry = filterChain.getEntry(this);
+            assert (loggingEntry != null);
+            loggingEntry.remove();
+            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
+        }
     }
 
     @Override
@@ -287,7 +300,7 @@ public class LoggingFilter extends IoFilterAdapter {
         // Ultimately we should treat unexpected exceptions as ERROR level
         // but we are cautious for now since we don't want customers to suddenly
         // see lots of exception stacks in the logs
-        return shouldIncludeStackTrace(exception) ? Strategy.INFO : Strategy.INFO;
+        return Strategy.INFO;
     }
 
     protected Strategy getSessionClosedStrategy() {
@@ -331,7 +344,11 @@ public class LoggingFilter extends IoFilterAdapter {
     }
 
     protected void logExceptionCaught(IoSession session, Throwable cause) {
-        getExceptionCaughtStrategy(cause).log(logger, String.format(exceptionFormat, session.getId(), cause), cause);
+        String causeMessage = cause.toString();
+        if (cause.getCause() != null) {
+            causeMessage += ", caused by " + cause.getCause().toString();
+        }
+        getExceptionCaughtStrategy(cause).log(logger, String.format(exceptionFormat, session.getId(), causeMessage), cause);
     }
 
     protected void logSessionClosed(IoSession session) {
@@ -373,7 +390,7 @@ public class LoggingFilter extends IoFilterAdapter {
      */
     private static String resolveIdentity(SocketAddress address, IoSessionEx session) {
         if (address instanceof ResourceAddress) {
-            Subject subject = ((IoSessionEx)session).getSubject();
+            Subject subject = session.getSubject();
             if (subject == null) {
                 subject = new Subject();
             }
@@ -450,10 +467,6 @@ public class LoggingFilter extends IoFilterAdapter {
         return false;
     }
 
-    private static boolean shouldIncludeStackTrace(Throwable throwable) {
-        return !(throwable instanceof IOException);
-    }
-
     public static void log(Logger logger, LogLevel eventLevel, String message, Throwable cause) {
         switch (eventLevel) {
             case TRACE : logger.trace(message, cause); return;
@@ -495,6 +508,21 @@ public class LoggingFilter extends IoFilterAdapter {
             case WARN  : logger.warn(message, param1, param2, param3); return;
             case ERROR : logger.error(message, param1, param2, param3); return;
             default    : return;
+        }
+    }
+
+    public static void moveAfterCodec(IoSession session) {
+        // move logging filter after codec to log readable objects instead of buffers
+        // and make sure it catches and logs any protocol decoder or encoder exceptions
+        IoFilterChain filterChain = session.getFilterChain();
+        Entry loggingEntry = filterChain.getEntry(LoggingFilter.class);
+        if (loggingEntry == null) {
+            return; // fail fast when tracing not active
+        }
+        Entry codecEntry = filterChain.getEntry(ProtocolCodecFilter.class);
+        if (codecEntry != null) {
+            loggingEntry.remove();
+            codecEntry.addAfter(loggingEntry.getName(), loggingEntry.getFilter());
         }
     }
 }

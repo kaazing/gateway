@@ -18,35 +18,30 @@ package org.kaazing.gateway.transport.wseb;
 import static java.lang.Thread.currentThread;
 import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.INACTIVITY_TIMEOUT;
 
-import org.apache.mina.core.write.WriteRequest;
-import org.kaazing.gateway.transport.IoFilterAdapter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
-import org.kaazing.gateway.transport.ws.WsMessage;
-import org.kaazing.gateway.transport.ws.WsPingMessage;
 import org.kaazing.gateway.transport.ws.bridge.filter.WsCheckAliveFilter;
-import org.kaazing.mina.core.session.DummySessionEx;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.mina.netty.DefaultIoSessionIdleTracker;
 import org.kaazing.mina.netty.IoSessionIdleTracker;
 import org.slf4j.Logger;
 
 /**
- * The purpose of this class is to use WsCheckAliveFilter to close off WsebSessions when connectivity 
- * to the client is lost. In order to make it work, we set up a dummy session (and filter chain) for each added 
- * WsebSession, and use mina.netty's DefaultIoSessionIdleTracker to fire idle events on that. 
- * This is a stopgap until we have a single emulated TCP session as the parent of the WsebSession. Once we have that, 
- * we will just set the WsCheckAliveFilter filter on the parent's filter chain, as we do for WSN, and use 
- * DefaultIoSessionIdleTracker to support idleTimeout on the TCPE session. 
+ * The purpose of this class is to use WsCheckAliveFilter to close off WsebSessions when connectivity
+ * to the client is lost. In order to make it work, we set up a dummy session (and filter chain) for each added
+ * WsebSession, and use mina.netty's DefaultIoSessionIdleTracker to fire idle events on that.
+ * This is a stopgap until we have a single emulated TCP session as the parent of the WsebSession. Once we have that,
+ * we will just set the WsCheckAliveFilter filter on the parent's filter chain, as we do for WSN, and use
+ * DefaultIoSessionIdleTracker to support idleTimeout on the TCPE session.
  */
-class WsebInactivityTracker implements IoSessionIdleTracker {
+class WsebTransportSessionIdleTracker implements IoSessionIdleTracker {
     private static final String CHECK_ALIVE_FILTER = WsebProtocol.NAME + "#checkalive";
     private static final TypedAttributeKey<Boolean> ALREADY_TRACKED = new TypedAttributeKey<>(
-            WsebInactivityTracker.class, "tracked");
-    
+            WsebTransportSessionIdleTracker.class, "tracked");
+
     private final Logger logger;
     private final IoSessionIdleTracker idleTracker = new DefaultIoSessionIdleTracker();
-    
-    public WsebInactivityTracker(Logger logger) {
+
+    public WsebTransportSessionIdleTracker(Logger logger) {
         this.logger = logger;
     }
 
@@ -66,7 +61,7 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
             });
         }
     }
-    
+
     private void addSession0(IoSessionEx wsebSession) {
         if (ALREADY_TRACKED.get(wsebSession, false)) {
             // Expected for downstream reconnects
@@ -75,7 +70,7 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
         IoSessionEx transportSession = ((WsebSession)wsebSession).getTransportSession();
         ALREADY_TRACKED.set(wsebSession, true);
         idleTracker.addSession(transportSession);
-        WsCheckAliveFilter.addIfFeatureEnabled(transportSession.getFilterChain(), CHECK_ALIVE_FILTER, 
+        WsCheckAliveFilter.addIfFeatureEnabled(transportSession.getFilterChain(), CHECK_ALIVE_FILTER,
                 ((WsebSession) wsebSession).getLocalAddress().getOption(INACTIVITY_TIMEOUT), wsebSession, logger);
     }
 
@@ -91,5 +86,5 @@ class WsebInactivityTracker implements IoSessionIdleTracker {
     public void dispose() {
         idleTracker.dispose();
     }
-    
+
 }

@@ -53,7 +53,7 @@ public final class ITUtil {
      * </ol>
      * @param gateway  Rule to start up and shut down the gateway (or acceptor or etc)
      * @param robot    Rule to startup and stop k3po
-     * @param timeout  The maximum allowed time duration of each test (including Gateway and robot startup and shutdown)
+     * @param timeout  The maximum allowed time duration of each test
      * @param timeUnit The unit for the timeout
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */
@@ -61,17 +61,17 @@ public final class ITUtil {
                 TestRule trace = new MethodExecutionTrace();
                 TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(timeout, timeUnit)
                         .withLookingForStuckThread(true).build());
-                return RuleChain.outerRule(trace).around(robot).around(timeoutRule).around(gateway);
+                return RuleChain.outerRule(trace).around(gateway).around(robot).around(timeoutRule);
     }
 
     /**
-     * Creates a rule (chain) out of a k3po or other rule, adding extra rules as follows:<ol>
+     * Creates a rule (chain) out of a gateway or other rule, adding extra rules as follows:<ol>
      * <li> a timeout rule
      * <li> a rule to print console messages at the start and end of each test method and print trace level
      * log messages on test failure.
      * </ol>
      * @param rule    Rule to startup and stop gateway
-     * @param timeout  The maximum allowed time duration of each test (including Gateway and robot startup and shutdown)
+     * @param timeout  The maximum allowed time duration of each test (including the gateway rule)
      * @param timeUnit The unit for the timeout
      * @return         A TestRule which should be the only public @Rule in our robot tests
      */

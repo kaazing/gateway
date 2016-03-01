@@ -78,12 +78,4 @@ public class WsSessionTimeoutCommand extends WsScheduledCommand implements Runna
         }
     }
 
-    private void doLog(String value, final Logger logger) {
-        if (session == null) {
-            logger.trace(String.format("[ws #%s] " + value, sessionId + "/closing"));
-        } else {
-            logger.trace(String.format("[ws #%s] " + value, sessionId));
-        }
-    }
-
 }

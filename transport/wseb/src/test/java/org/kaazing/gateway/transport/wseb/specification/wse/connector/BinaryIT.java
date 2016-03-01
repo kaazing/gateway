@@ -16,10 +16,12 @@
 
 package org.kaazing.gateway.transport.wseb.specification.wse.connector;
 
+import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.nio.ByteBuffer;
+import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
@@ -36,6 +38,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.gateway.transport.test.Expectations;
 import org.kaazing.gateway.transport.wseb.test.WsebConnectorRule;
+import org.kaazing.gateway.util.InternalSystemProperty;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
@@ -43,7 +46,13 @@ import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class BinaryIT {
-    private final WsebConnectorRule connector = new WsebConnectorRule();
+    private final WsebConnectorRule connector;
+
+    {
+        Properties configuration = new Properties();
+        configuration.setProperty(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "1s");
+        connector = new WsebConnectorRule(configuration);
+    }
 
     private JUnitRuleMockery context = new JUnitRuleMockery() {
         {
@@ -53,23 +62,22 @@ public class BinaryIT {
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
-    private final TestRule timeoutRule = timeoutRule(10, SECONDS);
+    private final TestRule timeoutRule = timeoutRule(15, SECONDS);
 
     private final K3poRule k3po = new K3poRule()
-            .setScriptRoot("org/kaazing/specification/wse/data/binary");
+            .setScriptRoot("org/kaazing/specification/wse/data");
 
     @Rule
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(contextRule).around(k3po)
-            .around(timeoutRule)            ;
+    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
+            .around(timeoutRule);
 
-    // This latch is only needed to work around gateway#345
-    // TODO: remove this latch and all of its usage in the methods below once that issue is resolved
+    // This latch is needed to ensure messageReceived has fired before each test method exits
     private CountDownLatch received = new CountDownLatch(1);
 
     @Test
     @Ignore("Issue gateway#306: IllegalArgumentException: message is empty. Forgot to call flip")
     @Specification({
-        "echo.payload.length.0/response" })
+        "echo.binary.payload.length.0/response" })
     public void shouldEchoFrameWithPayloadLength0() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -83,7 +91,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -97,15 +105,12 @@ public class BinaryIT {
 
         received.await(10, SECONDS);
 
-        connectSession.close(false).await();
-
-
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "echo.payload.length.127/response" })
+        "echo.binary.payload.length.127/response" })
     public void shouldEchoFrameWithPayloadLength127() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -119,11 +124,12 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
         ConnectFuture connectFuture = connector.connect("ws://localhost:8080/path?query", null, handler);
+        assertTrue("Connect failed", connectFuture.await(5,  SECONDS));
 
         IoSessionEx connectSession = (IoSessionEx) connectFuture.getSession();
 
@@ -131,16 +137,14 @@ public class BinaryIT {
         IoBufferEx buffer = allocator.wrap(ByteBuffer.wrap(bytes));
         connectSession.write(buffer);
 
-        received.await(10, SECONDS);
-
-        connectSession.close(false).await();
+        assertTrue("Echoed data not received", received.await(10, SECONDS));
 
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "echo.payload.length.128/response" })
+        "echo.binary.payload.length.128/response" })
     public void shouldEchoFrameWithPayloadLength128() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -154,7 +158,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -168,15 +172,12 @@ public class BinaryIT {
 
         received.await(10, SECONDS);
 
-        connectSession.close(false).await();
-
-
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "echo.payload.length.65535/response" })
+        "echo.binary.payload.length.65535/response" })
     public void shouldEchoFrameWithPayloadLength65535() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -190,7 +191,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -204,15 +205,12 @@ public class BinaryIT {
 
         received.await(10, SECONDS);
 
-        connectSession.close(false).await();
-
-
         k3po.finish();
     }
 
     @Test
     @Specification({
-        "echo.payload.length.65536/response" })
+        "echo.binary.payload.length.65536/response" })
     public void shouldEchoFrameWithPayloadLength65536() throws Exception {
         final IoHandler handler = context.mock(IoHandler.class);
 
@@ -226,7 +224,7 @@ public class BinaryIT {
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
                 oneOf(handler).messageReceived(with(any(IoSessionEx.class)), with(ioBufferMatching(bytes)));
                 will(countDown(received));
-                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
 
@@ -239,9 +237,6 @@ public class BinaryIT {
         connectSession.write(buffer);
 
         received.await(10, SECONDS);
-
-        connectSession.close(false).await();
-
 
         k3po.finish();
     }

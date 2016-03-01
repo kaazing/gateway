@@ -19,6 +19,8 @@ import static java.lang.String.valueOf;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONTENT_LENGTH;
 
+import java.util.Queue;
+
 import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.filterchain.IoFilterChain.Entry;
 import org.apache.mina.core.future.CloseFuture;
@@ -48,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSession> {
-    
+
     private static final IoFutureListener<CommitFuture> WRITE_RESUMER = new WriteResumer();
     private static final IoFutureListener<CommitFuture> UPGRADER = new Upgrader();
 
@@ -226,13 +228,17 @@ public class HttpAcceptProcessor extends BridgeAcceptProcessor<DefaultHttpSessio
 
     @Override
     protected void consume(DefaultHttpSession session) {
-        // TODO: this should use a queue in the future
-        IoBufferEx buffer = session.getCurrentReadRequest();
-        if (buffer != null && buffer.hasRemaining()) {
-            // direct read for now, in the future this should always get buffered
-            session.setCurrentReadRequest(null);
-            IoFilterChain filterChain = session.getFilterChain();
-            filterChain.fireMessageReceived(buffer);
+        if (session.isReadSuspended()) {
+            return;
+        }
+        Queue<IoBufferEx> deferredReads = session.getDeferredReads();
+        IoBufferEx buffer;
+        while ( (buffer = deferredReads.poll()) != null) {
+            if (buffer.hasRemaining()) {
+                // direct read for now, in the future this should always get buffered
+                IoFilterChain filterChain = session.getFilterChain();
+                filterChain.fireMessageReceived(buffer);
+            }
         }
     }
 

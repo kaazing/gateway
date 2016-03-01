@@ -44,5 +44,7 @@ public interface HttpHeaders {
     String HEADER_CONNECTION = "Connection";
     String HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
     String HEADER_X_SEQUENCE_NO = "X-Sequence-No";
+    String HEADER_SET_COOKIE = "Set-Cookie";
+    String HEADER_LOCATION = "Location";
 
 }

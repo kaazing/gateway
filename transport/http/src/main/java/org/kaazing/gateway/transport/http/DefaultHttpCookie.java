@@ -179,15 +179,8 @@ public class DefaultHttpCookie implements MutableHttpCookie, Comparable<DefaultH
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("HTTP-COOKIE [");
-        builder.append("name=").append(name).append(", ");
-        builder.append("domain=").append(domain).append(", ");
-        builder.append("maxAge=").append(maxAge).append(", ");
-        builder.append("secure=").append(secure).append(", ");
-        builder.append("version=").append(version).append(", ");
-        builder.append("value=").append(value);
-        builder.append("]");
-        return builder.toString();
+        return "HTTP-COOKIE [" + "name=" + name + ", " + "domain=" + domain + ", " + "path=" + path + ", " +
+                "maxAge=" + maxAge + ", " + "secure=" + secure + ", " + "version=" + version + ", " +
+                "value=" + value + "]";
     }
 }
