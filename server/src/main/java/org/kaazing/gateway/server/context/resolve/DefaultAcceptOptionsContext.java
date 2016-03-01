@@ -34,7 +34,6 @@ import static org.kaazing.gateway.service.TransportOptionNames.SUPPORTED_PROTOCO
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_MAXIMUM_OUTBOUND_RATE;
 import static org.kaazing.gateway.service.TransportOptionNames.TCP_TRANSPORT;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -244,8 +243,11 @@ public class DefaultAcceptOptionsContext implements AcceptOptionsContext {
                 // Special check for *.transport which should be validated as a URI
                 if (key.endsWith(".transport")) {
                     try {
-                        URI transportURI = URI.create(entry.getValue());
-                        result.put(key, transportURI);
+                        // Exception will be thrown in an invalid *.transport format provided
+                        // (including Network Interface syntax)
+                        URIUtils.getHost(entry.getValue());
+                        // if successful, put value in map
+                        result.put(key, entry.getValue());
                     } catch (IllegalArgumentException ex) {
                         if (logger.isInfoEnabled()) {
                             logger.info(String.format("Skipping option %s, expected valid URI but recieved: %s",
