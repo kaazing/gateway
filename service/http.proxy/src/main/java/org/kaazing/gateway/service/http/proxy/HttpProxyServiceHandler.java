@@ -259,11 +259,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         @Override
         public void operationComplete(ConnectFuture future) {
+            URI connectURI = getConnectURIs().iterator().next();
             if (future.isConnected()) {
                 DefaultHttpSession connectSession = (DefaultHttpSession) future.getSession();
 
                 if (LOGGER.isTraceEnabled()) {
-                    LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " [" + acceptSession + "->" + connectSession + "]");
+                    LOGGER.trace("Connected to " + connectURI + " [" + acceptSession + "->" + connectSession + "]");
                 }
                 if (acceptSession == null || acceptSession.isClosing()) {
                     connectSession.close(true);
@@ -274,7 +275,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                     flushQueuedMessages(acceptSession, attachedSessionManager);
                 }
             } else {
-                LOGGER.warn("Connection to " + getConnectURIs().iterator().next() + " failed [" + acceptSession + "->]");
+                LOGGER.warn("Connection to " + connectURI + " failed [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
             }

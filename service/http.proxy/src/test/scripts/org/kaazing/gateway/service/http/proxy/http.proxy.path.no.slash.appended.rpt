@@ -46,7 +46,6 @@ read method "GET"
 read header "Via" "1.1 kaazing"
 read header "User-Agent" "curl/7.37.1"
 read header "Host" "localhost:8080"
-read header "Forwarded" "for=127.0.0.1"
 read header "Accept" "*/*"
 read closed
 

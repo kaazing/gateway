@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-connect tcp://localhost:8111
+connect tcp://localhost:8009
 connected
 
 write "GET / HTTP/1.1\r\n"
 write "User-Agent: curl/7.37.1\r\n"
-write "Host: localhost:8111\r\n"
+write "Host: localhost:8009\r\n"
 #write "Accept: */*\r\n"
 write "Connection: close\r\n"
 write "\r\n"
@@ -49,6 +49,8 @@ read "X-Forwarded-Host: localhost:8112\r\n"
 read "X-Forwarded-Host: localhost:8113\r\n"
 read "X-Forwarded-For: 127.0.0.1\r\n"
 read "X-Forwarded-For: 127.0.0.1\r\n"
+read "Via: 1.1 kaazing\r\n"
+read "Via: 1.1 kaazing\r\n"
 read "Via: 1.1 kaazing\r\n"
 read "Via: 1.1 kaazing\r\n"
 read "Via: 1.1 kaazing\r\n"

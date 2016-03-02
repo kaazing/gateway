@@ -36,7 +36,6 @@ public interface HttpHeaders {
     String HEADER_X_FORWARDED_SERVER = "X-Forwarded-Server";
     String HEADER_X_FORWARDED_HOST = "X-Forwarded-Host";
     String HEADER_X_FORWARDED_PROTO = "X-Forwarded-Proto";
-    String HEADER_X_FORWARDED_PORT = "X-Forwarded-Port";
     String HEADER_CACHE_CONTROL = "Cache-Control";
 
     String HEADER_UPGRADE = "Upgrade";
