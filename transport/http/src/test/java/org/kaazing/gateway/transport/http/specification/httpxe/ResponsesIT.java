@@ -16,7 +16,6 @@
 
 package org.kaazing.gateway.transport.http.specification.httpxe;
 
-import org.apache.mina.core.filterchain.IoFilterChain;
 import org.apache.mina.core.service.IoHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +23,6 @@ import org.junit.rules.TestRule;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
-import org.kaazing.gateway.transport.http.HttpAcceptFilter;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpStatus;
@@ -49,77 +47,64 @@ public class ResponsesIT {
     @Test
     @Specification("unwrapped.101.response/request")
     public void shouldPassWithUnwrapped101Response() throws Exception {
-        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
+        test(HTTPXE_ADDRESS, HttpStatus.INFO_SWITCHING_PROTOCOLS);
     }
 
     @Test
     @Specification("wrapped.201.response.in.200/request")
     public void shouldPassWithWrapped201ResponseIn200() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.SUCCESS_CREATED);
+        test(HTTPXE_ADDRESS, HttpStatus.SUCCESS_CREATED);
     }
 
     @Test
     @Specification("wrapped.302.response.in.200/request")
     public void shouldPassWithWrapped302ResponseIn200() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.REDIRECT_FOUND);
+        test(HTTPXE_ADDRESS, HttpStatus.REDIRECT_FOUND);
     }
 
     @Test
     @Specification("unwrapped.304.response/request")
     public void shouldPassWithUnwrapped304Response() throws Exception {
-        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.REDIRECT_NOT_MODIFIED);
+        test(HTTPXE_ADDRESS, HttpStatus.REDIRECT_NOT_MODIFIED);
     }
 
     @Test
     @Specification("wrapped.400.response.in.200/request")
     public void shouldPassWithWrapped400ResponseIn200() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
+        test(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
     }
 
     @Test
     @Specification("unwrapped.404.response/request")
     public void shouldPassWithUnwrapped404Response() throws Exception {
-        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
+        test(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
     }
 
     @Test
     @Specification("unwrapped.404.response/request")
     public void shouldNotWrap404Response() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
+        test(HTTPXE_ADDRESS, HttpStatus.CLIENT_NOT_FOUND);
     }
 
     @Test
     @Specification("unwrapped.501.response/request")
     public void shouldPassWithUnwrapped501ResponseIn200() throws Exception {
-        testUnwrappedResponse(HTTPXE_ADDRESS, HttpStatus.SERVER_NOT_IMPLEMENTED);
+        test(HTTPXE_ADDRESS, HttpStatus.SERVER_NOT_IMPLEMENTED);
     }
 
     @Test
     @Specification("connection.header.not.enveloped.in.response.body/request")
     public void shouldPassWhenConnectionHeaderInHeaderNotBody() throws Exception {
-        testWrappedResponse(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
+        test(HTTPXE_ADDRESS, HttpStatus.CLIENT_BAD_REQUEST);
     }
 
-    private void testWrappedResponse(ResourceAddress address, HttpStatus status) throws Exception {
+    private void test(ResourceAddress address, HttpStatus status) throws Exception {
         final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
             @Override
             protected void doSessionOpened(HttpAcceptSession session) throws Exception {
                 session.setStatus(status);
                 session.setWriteHeader("Content-Type", "text/html");
                 session.setWriteHeader("Connection", "keep-alive");
-                session.close(false);
-            }
-        };
-        acceptor.bind(address, acceptHandler);
-
-        k3po.finish();
-    }
-
-    private void testUnwrappedResponse(ResourceAddress address, HttpStatus status) throws Exception {
-        final IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>() {
-            @Override
-            protected void doSessionOpened(HttpAcceptSession session) throws Exception {
-                session.setStatus(status);
                 session.close(false);
             }
         };
