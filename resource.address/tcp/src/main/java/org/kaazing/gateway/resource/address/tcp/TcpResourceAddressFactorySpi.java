@@ -46,8 +46,8 @@ import org.kaazing.gateway.resource.address.ResourceOptions;
 
 public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpResourceAddress> {
 
-	private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
-	private static final String SCHEME_NAME = "tcp";
+    private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
+    private static final String SCHEME_NAME = "tcp";
     private static final String PROTOCOL_NAME = "tcp";
 
     private static final String FORMAT_IPV4_AUTHORITY = "%s:%d";
