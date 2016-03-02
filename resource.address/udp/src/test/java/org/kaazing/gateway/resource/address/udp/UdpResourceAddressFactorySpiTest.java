@@ -51,8 +51,8 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.udp.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
 public class UdpResourceAddressFactorySpiTest {

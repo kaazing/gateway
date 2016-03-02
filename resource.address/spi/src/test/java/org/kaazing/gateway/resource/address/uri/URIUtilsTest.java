@@ -21,7 +21,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.kaazing.gateway.resource.address.networkinterface.resolution.utils.ResolutionTestUtils;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 public class URIUtilsTest {
     @Rule

@@ -20,11 +20,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
-import org.kaazing.gateway.service.http.balancer.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.server.test.GatewayClusterRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 public class ClusterBalancerServiceIT {
     private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();

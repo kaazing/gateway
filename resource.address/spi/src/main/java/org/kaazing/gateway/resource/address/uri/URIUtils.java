@@ -21,7 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.kaazing.gateway.resource.address.URLUtils;
-import org.kaazing.gateway.resource.address.uri.exception.NetworkInterfaceSyntaxException;
 
 /**
  * Utils class over URI methods
@@ -61,9 +60,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getHost();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -81,9 +79,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getScheme();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -101,9 +98,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getAuthority();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -121,9 +117,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getFragment();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -141,9 +136,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getPath();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -161,9 +155,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getQuery();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -181,9 +174,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getPort();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -201,9 +193,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriString)).getUserInfo();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -266,9 +257,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uriInitial)).resolve(uriString);
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -288,9 +278,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uri)).modifyURIScheme(newScheme);
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -321,9 +310,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uri)).modifyURIAuthority(newAuthority);
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -343,9 +331,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uri)).modifyURIPort(newPort);
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -365,9 +352,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uri)).modifyURIPath(newPath);
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }
@@ -380,9 +366,8 @@ public final class URIUtils {
             try {
                 return (new NetworkInterfaceURI(uri)).isAbsolute();
             }
-            catch (NetworkInterfaceSyntaxException ne) {
-                e.addSuppressed(ne);
-                throw new IllegalArgumentException(e.getMessage(), e);
+            catch (IllegalArgumentException ne) {
+                throw new IllegalArgumentException(ne.getMessage(), ne);
             }
         }
     }

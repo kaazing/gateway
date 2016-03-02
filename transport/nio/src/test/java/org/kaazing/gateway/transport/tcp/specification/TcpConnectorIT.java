@@ -34,13 +34,13 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-import org.kaazing.gateway.resource.address.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
  * RFC-793

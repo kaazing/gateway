@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.resource.address.udp.networkinterface.resolution.utils;
+package org.kaazing.test.util;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;

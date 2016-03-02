@@ -109,7 +109,7 @@ public final class ResolutionUtils {
 
             // add an internal URI for any sub interfaces that match the hostAddress
             Enumeration<NetworkInterface> subInterfaces = networkInterface.getSubInterfaces();
-            if ((subInterfaces != null) && subInterfaces.hasMoreElements()) {
+            if (subInterfaces.hasMoreElements()) {
                 resolvedAddresses.addAll(resolveDeviceAddress(deviceName, subInterfaces, allowIPv6));
             }
         }

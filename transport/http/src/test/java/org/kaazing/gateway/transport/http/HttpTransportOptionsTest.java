@@ -42,7 +42,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
-import org.kaazing.gateway.transport.http.networkinterface.resolution.utils.ResolutionTestUtils;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.BridgeSession;
 import org.kaazing.gateway.transport.TransportFactory;
@@ -54,6 +53,7 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.future.UnbindFuture;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ResolutionTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

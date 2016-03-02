@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.tcp.networkinterface.resolution.utils.ResolutionTestUtils;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
 public class TcpResourceAddressFactorySpiTest {
