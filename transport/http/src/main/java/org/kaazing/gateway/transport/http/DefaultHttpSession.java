@@ -41,6 +41,7 @@ import javax.security.auth.Subject;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.IoProcessor;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.http.HttpResourceAddress;
 import org.kaazing.gateway.security.auth.context.ResultAwareLoginContext;
 import org.kaazing.gateway.transport.AbstractBridgeSession;
 import org.kaazing.gateway.transport.CommitFuture;
@@ -113,6 +114,8 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
 	private boolean isGzipped;
 
+	private int redirectsAllowed;
+
     @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
                                IoProcessorEx<DefaultHttpSession> processor,
@@ -136,6 +139,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         upgradeFuture = new DefaultUpgradeFuture(parent);
         commitFuture = new DefaultCommitFuture(this);
         responseFuture = direction == Direction.READ ? null : new DefaultResponseFuture(this);
+
+        // TODO: add and use new HttpResourceAddress "maximum.redirects" option of type Integer, default 5
+        //redirectsAllowed = ((HttpResourceAddress) remoteAddress).getOption(HttpResourceAddress.MAXIMUM_REDIRECTS);
+        redirectsAllowed = 0;
     }
 
     public DefaultHttpSession(IoServiceEx service,
@@ -601,6 +608,14 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return address != null &&
                 ( ! "httpxe/1.1".equals(address.getOption(ResourceAddress.NEXT_PROTOCOL)) &&
                   ! conditionallyWrappedResponsesRequired(this));
+    }
+
+    int getAndDecrementRedirectsAllowed() {
+        int result = redirectsAllowed;
+        if (result > 0) {
+            redirectsAllowed--;
+        }
+        return result;
     }
 
 
