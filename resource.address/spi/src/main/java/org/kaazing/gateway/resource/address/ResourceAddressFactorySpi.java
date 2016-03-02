@@ -31,10 +31,7 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIPort;
 import static org.kaazing.gateway.resource.address.URLUtils.modifyURIScheme;
 
-import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,12 +42,9 @@ import java.util.Set;
 
 public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
-    private static final String PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION =
-            "Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config.";
     private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER =
             " No addresses available for binding for URI: %s.";
     private static final Map<String, Object> EMPTY_OPTIONS = emptyMap();
-    private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
 
     private ResourceAddressFactory addressFactory;
 
@@ -474,24 +468,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
     }
 
     /**
-     * Throw error on specific circumstances:
-     * - no addresses available for binding
-     * - when PreferedIPv4 flag is true and the host IP is IPV6
+     * Throws general exception when no addresses to bind are found.
      * @param location
      */
     private void throwNoAddressesToBindError(URI location) {
-        StringBuilder error = new StringBuilder(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
-        try {
-            InetAddress address = InetAddress.getByName(location.getHost());
-            boolean preferIPv4Stack = Boolean.parseBoolean(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
-            if (preferIPv4Stack && (address instanceof Inet6Address)) {
-                error.insert(0, PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION);
-            }
-        } catch (UnknownHostException e) {
-            // InetAddress.getByName(hostAddress) throws an exception (hostAddress may have an
-            // unsupported format, e.g. network interface syntax)
-        }
-        throw new IllegalArgumentException(error.toString());
+        throw new IllegalArgumentException(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
     }
 
 }

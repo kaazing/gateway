@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kaazing.gateway.resource.address.tcp;
+package org.kaazing.gateway.resource.address.udp;
 
 import java.net.URI;
 
@@ -26,19 +26,17 @@ import org.junit.rules.ExpectedException;
 /**
  * Class for testing preferIPv4Stack behavior.
  */
-public class TcpResourceAddressFactorySpiPreferIPV4Test {
-
+public class UdpResourceAddressFactorySpiPreferIPV4Test {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
     private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
-    private TcpResourceAddressFactorySpi factory = new TcpResourceAddressFactorySpi();
     private String systemPreferedIPv4 = "";
+    private UdpResourceAddressFactorySpi factory = new UdpResourceAddressFactorySpi();
 
     @Before
     public void before() {
         String initialSystemPrefereIPv4Stack = System.getProperty(JAVA_NET_PREFER_IPV4_STACK);
-        if (initialSystemPrefereIPv4Stack != null){
+        if (initialSystemPrefereIPv4Stack != null) {
             systemPreferedIPv4 = initialSystemPrefereIPv4Stack;
         }
     }
@@ -56,19 +54,15 @@ public class TcpResourceAddressFactorySpiPreferIPV4Test {
         // Exception expectations
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config."
-                + " No addresses available for binding for URI: tcp://[::1]:8000");
-
-        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
-
+                + " No addresses available for binding for URI: udp://[::1]:8000");
+        factory.newResourceAddress(URI.create("udp://[::1]:8000"));
     }
 
     @Test
     public void startupWhenMatchingIPv6AddressesFound() throws Exception {
         // set the IPV4 flag to false
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
-
-        factory.newResourceAddress(URI.create("tcp://[::1]:8000"));
-
+        factory.newResourceAddress(URI.create("udp://[::1]:8000"));
     }
 
 }
