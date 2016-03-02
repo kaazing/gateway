@@ -26,6 +26,7 @@ import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.ENCR
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.GATEWAY_ORIGIN_SECURITY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.INJECTABLE_HEADERS;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE;
+import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.HTTP_REDIRECT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_TIMEOUT;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.LOGIN_CONTEXT_FACTORY;
 import static org.kaazing.gateway.resource.address.http.HttpResourceAddress.KEEP_ALIVE_CONNECTIONS;
@@ -123,6 +124,11 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         Boolean keepAlive = (Boolean) optionsByName.remove(KEEP_ALIVE.name());
         if (keepAlive != null) {
             options.setOption(KEEP_ALIVE, keepAlive);
+        }
+
+        Boolean httpRedirect = (Boolean) optionsByName.remove(HTTP_REDIRECT.name());
+        if (keepAlive != null) {
+            options.setOption(HTTP_REDIRECT, httpRedirect);
         }
 
         Integer keepAliveTimeout = (Integer) optionsByName.remove(KEEP_ALIVE_TIMEOUT.name());
@@ -307,6 +313,7 @@ public class HttpResourceAddressFactorySpi extends ResourceAddressFactorySpi<Htt
         super.setOptions(address, options, qualifier);
 
         address.setOption0(KEEP_ALIVE, options.getOption(KEEP_ALIVE));
+        address.setOption0(HTTP_REDIRECT,options.getOption(HTTP_REDIRECT));
         address.setOption0(KEEP_ALIVE_TIMEOUT, options.getOption(KEEP_ALIVE_TIMEOUT));
         address.setOption0(KEEP_ALIVE_CONNECTIONS, options.getOption(KEEP_ALIVE_CONNECTIONS));
         address.setOption0(REQUIRED_ROLES, options.getOption(REQUIRED_ROLES));
