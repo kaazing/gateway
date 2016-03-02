@@ -187,6 +187,10 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         servicePath = null;
         pathInfo = null;
+
+        // TODO: add and use new HttpResourceAddress "maximum.redirects" option of type Integer, default 5
+        //redirectsAllowed = ((HttpResourceAddress) remoteAddress).getOption(HttpResourceAddress.MAXIMUM_REDIRECTS);
+        redirectsAllowed = 0;
     }
 
     @Override
