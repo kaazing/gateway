@@ -879,6 +879,13 @@ public class HttpUtils {
         return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
     }
 
+    public static boolean hasStreamingScheme(String uri) {
+        if (uri == null || URIUtils.getScheme(uri) == null) {
+            return false;
+        }
 
+        final String scheme = URIUtils.getScheme(uri);
+        return ("tcp".equalsIgnoreCase(scheme) || "ssl".equalsIgnoreCase(scheme));
+    }
 
 }
