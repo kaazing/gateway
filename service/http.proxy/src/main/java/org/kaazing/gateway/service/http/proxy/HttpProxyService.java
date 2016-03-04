@@ -27,7 +27,7 @@ import static java.lang.String.format;
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
-    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
+    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or both not.";
 
     @Override
     public String getType() {
