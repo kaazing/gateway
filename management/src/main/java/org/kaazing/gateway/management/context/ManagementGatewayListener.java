@@ -29,6 +29,7 @@ import org.kaazing.gateway.management.monitoring.configuration.MonitoringDataMan
 import org.kaazing.gateway.management.monitoring.configuration.impl.MonitoringDataManagerInjectorImpl;
 import org.kaazing.gateway.management.monitoring.service.impl.MonitoredServiceImpl;
 import org.kaazing.gateway.server.GatewayObserverFactorySpiPrototype;
+import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.MonitoringEntityFactory;
 import org.kaazing.gateway.service.Service;
 import org.kaazing.gateway.service.ServiceContext;
@@ -51,7 +52,7 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     }
 
     @Override
-    public void startingGateway() {
+    public void startingGateway(GatewayContext gatewayContext) {
         managementContext.createGatewayManagementBean();
         MonitoringDataManagerInjector injector = new MonitoringDataManagerInjectorImpl(configuration);
         monitoringDataManager = injector.makeMonitoringDataManager();
@@ -91,7 +92,7 @@ public class ManagementGatewayListener extends GatewayObserverFactorySpiPrototyp
     }
 
     @Override
-    public void stoppedGateway() {
+    public void stoppedGateway(GatewayContext gatewayContext) {
         monitoringDataManager.close();
     }
 
