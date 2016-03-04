@@ -58,9 +58,12 @@ public class OriginSecurityIT {
     }
 
     @Test
-    @Specification("bad.request.with.origin.header/request")
+    @Specification("unauthorized.request.with.origin.header/request")
     public void shouldFailWithOriginRequestHeader() throws Exception {
-        test(HTTP_ADDRESS, "http://unknownsource.example.com:80");
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Test
@@ -70,9 +73,12 @@ public class OriginSecurityIT {
     }
 
     @Test
-    @Specification("bad.request.with.origin.header.and.x.origin.header/request")
+    @Specification("unauthorized.request.with.origin.header.and.x.origin.header/request")
     public void shouldFailWithOriginAndXoriginRequests() throws Exception {
-        test(HTTP_ADDRESS, "http://source.example.com:80");
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Test
@@ -88,9 +94,27 @@ public class OriginSecurityIT {
     }
 
     @Test
+    @Specification("unauthorized.origin.request.using.referer/request")
+    public void shouldFailWithOnlyRefererAndXoriginRequest() throws Exception {
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+    }
+
+    @Test
     @Specification("x.origin.header.not.identical.to.origin.header/request")
     public void shouldPassWhenXoriginHeaderDiffersFromOriginHeader() throws Exception {
         test(HTTP_ADDRESS, "http://source.example.com:80");
+    }
+
+    @Test
+    @Specification("unauthorized.x.origin.header.not.identical.to.origin.header/request")
+    public void shouldFailWhenXoriginHeaderDiffersFromOriginHeader() throws Exception {
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     @Test
@@ -103,6 +127,33 @@ public class OriginSecurityIT {
     @Specification("x.origin.encoded.request.header/request")
     public void shouldPassWithEncodedXoriginRequest() throws Exception {
         test(HTTP_ADDRESS, "http://source.example.com:80");
+    }
+
+    @Test
+    @Specification("unauthorized.x.origin.encoded.request.header/request")
+    public void shouldFailWithEncodedXoriginRequest() throws Exception {
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("unauthorized.x.origin.encoded.request.header.1/request")
+    public void shouldFailWithEncodedXoriginRequest1() throws Exception {
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
+    }
+
+    @Test
+    @Specification("unauthorized.x.origin.encoded.request.header.2/request")
+    public void shouldFailWithEncodedXoriginRequest2() throws Exception {
+        IoHandler acceptHandler = new IoHandlerAdapter<HttpAcceptSession>();
+        acceptor.bind(HTTP_ADDRESS, acceptHandler);
+
+        k3po.finish();
     }
 
     private void test(ResourceAddress address, String origin) throws Exception {
