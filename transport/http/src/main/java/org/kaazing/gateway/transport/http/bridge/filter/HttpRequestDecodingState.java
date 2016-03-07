@@ -138,7 +138,10 @@ public class HttpRequestDecodingState extends DecodingStateMachine {
                 hostHeaderValues.add(requestURI.getHost()
                         + (requestURI.getPort() == -1 ? "" : ":" + requestURI.getPort()));
                 headers.put(HEADER_HOST, hostHeaderValues);
-                requestURI = URI.create(requestURI.getPath());
+                String query = requestURI.getQuery();
+                requestURI = (query == null)
+                    ? URI.create(requestURI.getPath())
+                    : URI.create(requestURI.getPath() + "?" + query);
             }   
 
 			// KG-1469 Canonicalize Host header to make hostname lowercase to ensure correct lookup in service registry

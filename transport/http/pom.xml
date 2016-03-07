@@ -159,6 +159,10 @@
             <artifactId>jmock-script</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
+            <artifactId>specification.httpxe</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
