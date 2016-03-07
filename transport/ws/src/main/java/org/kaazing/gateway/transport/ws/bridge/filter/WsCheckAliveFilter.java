@@ -40,8 +40,6 @@ import java.util.Properties;
 
 import org.apache.mina.core.filterchain.IoFilter;
 import org.apache.mina.core.filterchain.IoFilterChain;
-import org.apache.mina.core.future.IoFutureListener;
-import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ws.WsResourceAddress;
@@ -85,13 +83,6 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
     private NextAction nextAction = NextAction.PING;
 
     private long pingSentTime = 0;
-
-    private final IoFutureListener<WriteFuture> setPingTimeOnWrite = new IoFutureListener<WriteFuture>() {
-        @Override
-        public void operationComplete(WriteFuture future) {
-            pingWritten(System.currentTimeMillis());
-        }
-    };
 
     public static void validateSystemProperties(Properties configuration, Logger logger) {
         // Fail gateway startup if the obsolete system property from JMS Edition release 3.5.3 is used (KG-7125)
@@ -222,8 +213,8 @@ public class WsCheckAliveFilter extends IoFilterAdapter<IoSessionEx> {
                 if (filterChain.contains(WsAcceptor.CLOSE_FILTER)) {
                     filterChain.remove(WsAcceptor.CLOSE_FILTER);
                 }
-
-                session.close(true);
+                IoSession sessionToClose = wsSession != null ? wsSession : session;
+                sessionToClose.close(true);
                 break;
             case PING:
                 writePing(nextFilter, session);

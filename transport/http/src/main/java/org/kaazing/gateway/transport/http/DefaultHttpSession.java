@@ -30,8 +30,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.security.auth.Subject;
@@ -100,16 +102,18 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
     private IoHandler upgradeHandler;
     private final UpgradeFuture upgradeFuture;
     private final CommitFuture commitFuture;
+    private final ResponseFuture responseFuture;
     private final AtomicBoolean committing;
     private final AtomicBoolean connectionClose;
     private ResultAwareLoginContext loginContext;
     private final AtomicBoolean shutdownWrite;
-    private IoBufferEx readRequest;
+    private Queue<IoBufferEx> deferredReads = new ConcurrentLinkedQueue<IoBufferEx>();
 
 	private boolean isChunked;
 
 	private boolean isGzipped;
 
+    @SuppressWarnings("deprecation")
     private DefaultHttpSession(IoServiceEx service,
                                IoProcessorEx<DefaultHttpSession> processor,
                                ResourceAddress address,
@@ -121,7 +125,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         writeHeaders = new LinkedHashMap<>();
         writeCookies = new HashSet<>();
-        status = HttpStatus.SUCCESS_OK;
+        status = direction == Direction.READ ? HttpStatus.SUCCESS_OK : null;
         reason = null;
 
         secure = SslUtils.isSecure(parent);
@@ -131,6 +135,7 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
 
         upgradeFuture = new DefaultUpgradeFuture(parent);
         commitFuture = new DefaultCommitFuture(this);
+        responseFuture = direction == Direction.READ ? null : new DefaultResponseFuture(this);
     }
 
     public DefaultHttpSession(IoServiceEx service,
@@ -488,6 +493,11 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return committing.get() || commitFuture.isCommitted();
     }
 
+    @Override
+    public ResponseFuture getResponseFuture() {
+        return responseFuture;
+    }
+
     public IoHandler getUpgradeHandler() {
         return upgradeHandler;
     }
@@ -541,12 +551,12 @@ public class DefaultHttpSession extends AbstractBridgeSession<DefaultHttpSession
         return super.getRemoteAddress();
     }
 
-    public IoBufferEx getCurrentReadRequest() {
-        return readRequest;
+    public Queue<IoBufferEx> getDeferredReads() {
+        return deferredReads;
     }
 
-    public void setCurrentReadRequest(IoBufferEx buffer) {
-        readRequest = buffer;
+    public void addDeferredRead(IoBufferEx buffer) {
+        deferredReads.add(buffer);
     }
 
     public boolean isConnectionClose() {

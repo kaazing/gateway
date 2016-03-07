@@ -21,10 +21,13 @@ import org.kaazing.gateway.service.proxy.AbstractProxyService;
 import java.net.URI;
 import java.util.Collection;
 
+import static java.lang.String.format;
+
 /**
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
+    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or both not.";
 
     @Override
     public String getType() {
@@ -38,9 +41,31 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }
+
+        checkForTrailingSlashes(serviceContext);
+
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
-        handler.initServiceConnectManager();
+        handler.init();
+    }
+
+    private void checkForTrailingSlashes(ServiceContext serviceContext) {
+        Collection<URI> acceptURIs = serviceContext.getAccepts();
+        Collection<URI> connectURIs = serviceContext.getConnects();
+
+        assert acceptURIs.size() == 1;
+        assert connectURIs.size() == 1;
+
+        URI acceptURI = acceptURIs.iterator().next();
+        URI connectURI = connectURIs.iterator().next();
+        String acceptPath = acceptURI.getPath();
+        String connectPath = connectURI.getPath();
+
+        boolean acceptPathIsSlash = acceptPath.endsWith("/");
+        boolean connectPathIsSlash = connectPath.endsWith("/");
+        if (acceptPathIsSlash ^ connectPathIsSlash) {
+            throw new IllegalArgumentException(format(TRAILING_SLASH_ERROR, acceptURI, connectURI));
+        }
     }
 
     @Override

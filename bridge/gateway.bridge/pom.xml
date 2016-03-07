@@ -57,6 +57,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <!-- 1.8 (latest at this time) does not seem to working with the configuration below, so hardcoding to 1.7 -->
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>

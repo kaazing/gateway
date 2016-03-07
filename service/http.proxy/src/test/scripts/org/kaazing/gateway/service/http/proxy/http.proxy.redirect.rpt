@@ -56,7 +56,7 @@ read "\r\n"
 
 write "HTTP/1.1 302 Found\r\n"
 write "Server: Apache-Coyote/1.1\r\n"
-write "Location: http://localhost:8110/examples/\r\n"
+write "Location: http://localhost:8080/examples/\r\n"
 write "Transfer-Encoding: chunked\r\n"
 write "Date: Sat, 14 Feb 2015 00:55:22 GMT\r\n"
 write "Connection: close\r\n"

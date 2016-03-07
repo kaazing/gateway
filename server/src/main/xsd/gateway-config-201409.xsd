@@ -968,7 +968,7 @@
                              name="accept"
                              type="anyURI"/>
 
-                    <element maxOccurs="unbounded" minOccurs="0"
+                    <element maxOccurs="1" minOccurs="1"
                              name="connect"
                              type="anyURI"/>
 
