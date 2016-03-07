@@ -381,6 +381,7 @@ public final class URIUtils {
         private static final String HOST_TEMPLATE = "127.0.0.1";
 
         private URI mockNetworkInterfaceURI;
+        private Parser parser;
 
         // -- Properties and components of this instance -- similar to java.net.URI
 
@@ -424,7 +425,7 @@ public final class URIUtils {
         }
 
         public NetworkInterfaceURI(String uri) throws IllegalArgumentException {
-            Parser parser = new Parser(uri);
+            parser = new Parser(uri);
             parser.parse();
         }
 
@@ -506,8 +507,7 @@ public final class URIUtils {
          * @return
          */
         public String resolve(String uriString) {
-            // TODO Auto-generated method stub
-            return null;
+            return parser.resolve(uriString);
         }
 
         /**
@@ -580,6 +580,10 @@ public final class URIUtils {
                 }
                 mockNetworkInterfaceURI = URI.create(uri.replace(matchedToken, HOST_TEMPLATE));
                 populateUriDataFromMockInterfaceURI();
+            }
+
+            private String resolve(String uriString) {
+                return uriToString(mockNetworkInterfaceURI.resolve(uriString)).replace(HOST_TEMPLATE, matchedToken);
             }
 
             private void populateUriDataFromMockInterfaceURI() {

@@ -42,7 +42,7 @@
      <service>
           <name>Proxy test</name>
           <accept>tcp://[@Software Loopback Interface 1]:7080</accept>    
-          <connect>udp://@Software Loopback Interface 1:7083</connect>            
+          <connect>udp://[@Software Loopback Interface 1]:7083</connect>
           <type>proxy</type>
                 
           <accept-options>

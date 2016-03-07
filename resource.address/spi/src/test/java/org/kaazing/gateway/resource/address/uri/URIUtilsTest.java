@@ -17,6 +17,7 @@ package org.kaazing.gateway.resource.address.uri;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -109,6 +110,7 @@ public class URIUtilsTest {
         assertEquals("param1=val", URIUtils.getQuery(uri));
         assertEquals(8080, URIUtils.getPort(uri));
         assertNull(URIUtils.getUserInfo(uri));
+        assertTrue(URIUtils.resolve(uri, "/a=b").endsWith("/a=b"));
     }
 
 }

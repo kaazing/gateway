@@ -16,10 +16,6 @@
 package org.kaazing.gateway.service.proxy.networkinterface.resolution;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -28,26 +24,10 @@ import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 public class NetworkInterfaceResolutionIT {
-    private static String networkInterface = "";
-    static {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface resolvedNetworkInterface = interfaces.nextElement();
-                if (resolvedNetworkInterface.isLoopback()) {
-                    networkInterface = resolvedNetworkInterface.getDisplayName();
-                    break;
-                }
-            }
-            if (networkInterface.equals("")) {
-                throw new RuntimeException("No loopback interfaces could be found");
-            }
-        } catch (SocketException socketEx) {
-            throw new RuntimeException("No interfaces could be found");
-        }
-    }
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
 
     private GatewayRule gateway = new GatewayRule() {
         {
