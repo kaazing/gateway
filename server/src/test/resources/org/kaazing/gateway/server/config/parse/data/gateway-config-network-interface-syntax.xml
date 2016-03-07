@@ -36,13 +36,13 @@
      <cluster>
            <name>Cluster</name>
            <accept>tcp://[@Software Loopback Interface 1]:2345</accept>
-           <connect>udp://[@Software Loopback Interface 1]:54327</connect>
+           <connect>udp://localhost:54327</connect>
      </cluster>
 
      <service>
-          <name>Proxy test</name>
+          <name>Proxy test Win compliance</name>
           <accept>tcp://[@Software Loopback Interface 1]:7080</accept>    
-          <connect>udp://[@Software Loopback Interface 1]:7083</connect>
+          <connect>udp://localhost:7083</connect>
           <type>proxy</type>
                 
           <accept-options>
@@ -52,7 +52,23 @@
           
           <cross-site-constraint>
               <allow-origin>*</allow-origin>
-          </cross-site-constraint>     
+          </cross-site-constraint>
+     </service>
+
+    <service>
+          <name>Proxy test Linux compliance</name>
+          <accept>tcp://[@eth0:1]:7080</accept>
+          <connect>udp://localhost:7083</connect>
+          <type>proxy</type>
+
+          <accept-options>
+               <tcp.bind>[@eth0:1]:7082</tcp.bind>
+               <http.transport>udp://[@eth0:1]:7081</http.transport>
+          </accept-options>
+
+          <cross-site-constraint>
+              <allow-origin>*</allow-origin>
+          </cross-site-constraint>
      </service>
 
     <!-- Security configuration -->

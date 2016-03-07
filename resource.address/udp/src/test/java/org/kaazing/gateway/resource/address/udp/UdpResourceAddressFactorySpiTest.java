@@ -51,7 +51,6 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
-import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.test.util.ResolutionTestUtils;
 
 @RunWith(Parameterized.class)
@@ -140,19 +139,21 @@ public class UdpResourceAddressFactorySpiTest {
     @Test
     public void shouldCreateAddressWithTransportOptionsAndAllowNetworkInterfaceSyntaxBrackets() {
         Map<String, Object> options = new HashMap<String, Object>();
+        // udp.transport option does not exist, therefre the option will be ignored and the transport will not be overiden
         options.put("udp.transport", "udp://[@" + networkInterface + "]:8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         // transport not overriden
-        assertEquals(2020, URIUtils.getPort(address.getExternalURI()));
+        assertEquals(2020, address.getResource().getPort());
     }
 
     @Test
     public void shouldCreateAddressWithTransportOptionsAndIgnoreNetworkInterfaceSyntaxNoBrackets() {
         Map<String, Object> options = new HashMap<String, Object>();
+        // udp.transport option does not exist, therefre the option will be ignored and the transport will not be overiden
         options.put("udp.transport", "udp://@" + networkInterface + ":8080");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         // transport not overriden
-        assertEquals(2020, URIUtils.getPort(address.getExternalURI()));
+        assertEquals(2020, address.getResource().getPort());
     }
 
     @Test

@@ -36,12 +36,20 @@ public class NetworkInterfaceResolutionIT {
                     new GatewayConfigurationBuilder()
                         .cluster()
                             .accept("tcp://[@" + networkInterface + "]:2345")
-                            .connect("tcp://[@" + networkInterface + "]:5432")
+                            .connect("tcp://localhost:5432")
                             .name("clusterName")
                         .done()
                         .service()
+                            .accept("tcp://[@" + networkInterface + "]:8001")
+                            .connect("tcp://localhost:8002")
+                            .type("proxy")
+                            .crossOrigin()
+                                .allowOrigin("*")
+                            .done()
+                        .done()
+                        .service()
                             .accept("tcp://localhost:8003")
-                                .acceptOption("tcp.bind", "[@" + networkInterface + "]:7082")
+                             .acceptOption("tcp.bind", "[@" + networkInterface + "]:7082")
                             .connect("tcp://localhost:8004")
                             .type("proxy")
                         .done()
@@ -50,14 +58,6 @@ public class NetworkInterfaceResolutionIT {
                                 .acceptOption("http.transport", "tcp://[@" + networkInterface + "]:8111")
                             .connect("http://localhost:8080")
                             .type("proxy")
-                        .done()
-                        .service()
-                            .accept("tcp://[@" + networkInterface + "]:8001")
-                            .connect("tcp://[@" + networkInterface + "]:8002")
-                            .type("proxy")
-                            .crossOrigin()
-                                .allowOrigin("*")
-                            .done()
                         .done()
                     .done();
             // @formatter:on
@@ -70,15 +70,15 @@ public class NetworkInterfaceResolutionIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification("network.interface.accept")
-    @Test
-    public void networkInterfaceAccept() throws Exception {
-        robot.finish();
-    }
-
     @Specification("network.interface.cluster")
     @Test
     public void networkInterfaceCluster() throws Exception {
+        robot.finish();
+    }
+
+    @Specification("network.interface.accept")
+    @Test
+    public void networkInterfaceAccept() throws Exception {
         robot.finish();
     }
 

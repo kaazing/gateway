@@ -383,24 +383,28 @@ public class GatewayConfigParserTest {
         }
 
         // services data
-        ServiceType serviceArray = doc.getGatewayConfig().getServiceArray(0);
-        String accept = serviceArray.getAcceptArray(0);
-        String connect = serviceArray.getConnectArray(0);
-        String bind = serviceArray.getAcceptOptions().getTcpBind();
-        String transport = serviceArray.getAcceptOptions().getHttpTransport();
+        ServiceType serviceArray1 = doc.getGatewayConfig().getServiceArray(0);
+        String accept1 = serviceArray1.getAcceptArray(0);
+        String bind1 = serviceArray1.getAcceptOptions().getTcpBind();
+        String transport1 = serviceArray1.getAcceptOptions().getHttpTransport();
+
+        ServiceType serviceArray2 = doc.getGatewayConfig().getServiceArray(1);
+        String accept2 = serviceArray2.getAcceptArray(0);
+        String bind2 = serviceArray2.getAcceptOptions().getTcpBind();
+        String transport2 = serviceArray2.getAcceptOptions().getHttpTransport();
 
         // clustering data
         ClusterType clusterArray = doc.getGatewayConfig().getClusterArray(0);
         String clusterAccept = clusterArray.getAcceptArray(0);
-        String clusterConnectt = clusterArray.getConnectArray(0);
 
         // assertions section
-        assertNetworkInterfaceSyntax(accept);
-        assertNetworkInterfaceSyntax(connect);
-        assertNetworkInterfaceSyntax(bind);
-        assertNetworkInterfaceSyntax(transport);
+        assertNetworkInterfaceSyntax(accept1);
+        assertNetworkInterfaceSyntax(bind1);
+        assertNetworkInterfaceSyntax(transport1);
+        assertNetworkInterfaceSyntax(accept2);
+        assertNetworkInterfaceSyntax(bind2);
+        assertNetworkInterfaceSyntax(transport2);
         assertNetworkInterfaceSyntax(clusterAccept);
-        assertNetworkInterfaceSyntax(clusterConnectt);
     }
 
     @Test

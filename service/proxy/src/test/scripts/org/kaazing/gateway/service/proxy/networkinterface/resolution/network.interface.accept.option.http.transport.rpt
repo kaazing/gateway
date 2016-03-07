@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-#TODO
-
 connect tcp://localhost:8111
 connected
 
