@@ -46,7 +46,7 @@ public class Launcher {
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayObserver.newInstance(context);
+        gatewayListener = GatewayObserver.newInstance();
         gatewayListener.startingGateway(context);
         try {
             initInternal(context);
