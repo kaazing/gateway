@@ -35,6 +35,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,6 +45,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.ResourceAddressFactory;
+import org.kaazing.gateway.resource.address.ResourceOptions;
 
 public class TcpResourceAddressFactorySpiTest {
 
@@ -77,11 +80,40 @@ public class TcpResourceAddressFactorySpiTest {
     public void shouldRequireExplicitPort() throws Exception {
         factory.newResourceAddress(URI.create("tcp://127.0.0.1"));
     }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void shouldRequireExplicitPortOnIPv6() throws Exception {
+        factory.newResourceAddress(URI.create("tcp://[::1]"));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldRequireExplicitPortOnIPv6FromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "[::1]");
+        TcpResourceAddress address = factory.newResourceAddress(URI.create("tcp://[::1]:2020"), options);
+        System.out.println(address.getExternalURI());
+    }
 
     @Test
     public void shouldCreateAddressWithResolvedHost() throws Exception {
         ResourceAddress address = factory.newResourceAddress(addressURI);
         assertEquals(URI.create("tcp://127.0.0.1:2020"), address.getResource());
+    }
+    
+    @Test
+    public void shouldCreateAddressWithResolvedIPv6HostFromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "[::1]:2020");
+        ResourceAddress address = factory.newResourceAddress(URI.create("tcp://[::1]:2020"), options);
+        assertEquals(URI.create("tcp://[0:0:0:0:0:0:0:1]:2020"), address.getResource());
+    }
+    
+    @Test
+    public void shouldCreateAddressWithResolvedIPv6PortOnlyFromString() throws Exception {
+        Map<String, Object> options = new HashMap<>();
+        options.put(BIND_ADDRESS.name(), "2020");
+        ResourceAddress address = factory.newResourceAddress(URI.create("tcp://[::1]:2020"), options);
+        assertEquals(URI.create("tcp://[0:0:0:0:0:0:0:1]:2020"), address.getResource());
     }
 
     @Test

@@ -97,19 +97,23 @@ public class TcpResourceAddressFactorySpi extends ResourceAddressFactorySpi<TcpR
     private InetSocketAddress parseBindAddress(Object bindAddress) {
         if (bindAddress instanceof InetSocketAddress) {
             return (InetSocketAddress) bindAddress;
-        }
-        else if (bindAddress instanceof String) {
-            String[] bindParts = ((String) bindAddress).split(":");
-            switch (bindParts.length) {
-            case 1:
-                // port only
-                return new InetSocketAddress(parseInt(bindParts[0]));
-            case 2:
-                // hostname, port
-                String hostname = bindParts[0];
-                int port = parseInt(bindParts[1]);
-                return new InetSocketAddress(hostname, port);
+        } else if (bindAddress instanceof String) {
+            String address = (String) bindAddress;
+            int c;
+            // host plus port
+            if ((c = address.lastIndexOf(':')) > -1) {
+                // parse abc:123 and [a:b:c]:123
+                if (c > address.indexOf(']')) {
+                    return new InetSocketAddress(
+                            address.substring(0, c), 
+                            parseInt(address.substring(c + 1))
+                    );
+                }
+                throw new IllegalArgumentException(
+                    String.format("%s port is mandatory for: %s", BIND_ADDRESS.name(), address));
             }
+            // port only
+            return new InetSocketAddress(parseInt(address));
         }
 
         throw new IllegalArgumentException(BIND_ADDRESS.name());
