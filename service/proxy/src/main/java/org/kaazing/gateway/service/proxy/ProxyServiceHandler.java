@@ -18,6 +18,7 @@ package org.kaazing.gateway.service.proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.session.IoSession;
@@ -64,7 +65,7 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             // see commented ProxyConnectManager below for implementation hint.
             // Note: simpler to randomize order into a copy before initial connect, then consume until no connectURI
             // alternatives left
-            ConnectFuture future = getNextConnectFuture(new IoSessionInitializer<ConnectFuture>() {
+            final ConnectFuture future = getNextConnectFuture(new IoSessionInitializer<ConnectFuture>() {
                 @Override
                 public void initializeSession(IoSession connectSession, ConnectFuture future) {
                     if (acceptSession.isClosing()) {
@@ -89,6 +90,16 @@ public class ProxyServiceHandler extends AbstractProxyAcceptHandler {
             if (future == null) {
                 acceptSession.close(false);
             } else {
+                // If accept session is closed, fail the connect future
+                acceptSession.getCloseFuture().addListener(new IoFutureListener<CloseFuture>() {
+                    @Override
+                    public void operationComplete(CloseFuture ioFuture) {
+                        if (!future.isConnected()) {
+                            future.setException(new RuntimeException("Failing connect future because accept is closed"));
+                        }
+                    }
+                });
+
                 // flush queued messages and attach the accept and connected sessions together
                 future.addListener(new ConnectListener(acceptSession));
             }

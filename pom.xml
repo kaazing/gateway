@@ -11,7 +11,7 @@
 
     <artifactId>gateway</artifactId>
     <name>Kaazing Gateway</name>
-    <version>5.0.1.46</version>
+    <version>5.0.1.47</version>
     <packaging>pom</packaging>
 
     <url>https://github.com/kaazing/gateway</url>
@@ -28,7 +28,7 @@
         <maven.compiler.testSource>1.8</maven.compiler.testSource>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
         <hazelcast.version>1.9.4.8</hazelcast.version>
-        <k3po.version>3.0.0-alpha-18</k3po.version>
+        <k3po.version>3.0.0-alpha-22</k3po.version>
         <jdom.version>1.1</jdom.version>
         <jmock.version>2.6.0</jmock.version>
         <slf4j.log4j.version>1.7.5</slf4j.log4j.version>
@@ -204,12 +204,34 @@
                 <version>${k3po.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.kaazing</groupId>
+                <artifactId>specification.httpxe</artifactId>
+                <version>${k3po.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
+                <!-- Try to avoid huge heap size on Travis builds -->
+                <plugin>
+                  <artifactId>maven-failsafe-plugin</artifactId>
+                  <version>${failsafe.plugin.version}</version>
+                  <executions>
+                    <execution>
+                      <goals>
+                        <goal>integration-test</goal>
+                        <goal>verify</goal>
+                      </goals>
+                      <configuration>
+                        <argLine>-Xmx1024m</argLine>
+                      </configuration>
+                    </execution>
+                  </executions>
+                </plugin>
 
                 <!-- Adds properties to manifest which are used for finding 
                     duplicate jars on classpath -->

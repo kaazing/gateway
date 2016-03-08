@@ -5,7 +5,7 @@
       <parent>
         <groupId>org.kaazing</groupId>
         <artifactId>gateway</artifactId>
-        <version>5.0.1.46</version>
+        <version>5.0.1.47</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>gateway.service</artifactId>
@@ -28,6 +28,14 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-cloud</artifactId>
         </dependency>
 
         <!-- test scope dependencies -->

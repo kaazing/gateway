@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -58,6 +59,7 @@ import org.kaazing.gateway.transport.BridgeServiceFactory;
 import org.kaazing.gateway.transport.DefaultIoSessionConfigEx;
 import org.kaazing.gateway.transport.DefaultTransportMetadata;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
+import org.kaazing.gateway.transport.LoggingFilter;
 import org.kaazing.gateway.transport.TypedAttributeKey;
 import org.kaazing.gateway.transport.http.bridge.HttpContentMessage;
 import org.kaazing.gateway.transport.http.bridge.HttpMessage;
@@ -80,6 +82,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     private BridgeServiceFactory bridgeServiceFactory;
     private ResourceAddressFactory addressFactory;
     private final PersistentConnectionPool persistentConnectionsStore;
+    private Properties configuration;
 
     public HttpConnector() {
         super(new DefaultIoSessionConfigEx());
@@ -101,6 +104,11 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
     @Resource(name = "resourceAddressFactory")
     public void setResourceAddressFactory(ResourceAddressFactory resourceAddressFactory) {
         this.addressFactory = resourceAddressFactory;
+    }
+
+    @Resource(name = "configuration")
+    public void setConfiguration(Properties configuration) {
+        this.configuration = configuration;
     }
 
     @Override
@@ -217,6 +225,7 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
         for (HttpConnectFilter connectFilter : connectFilters) {
             chain.addLast(connectFilter.filterName(), connectFilter.filter());
         }
+        LoggingFilter.moveAfterCodec(transport);
     }
 
     @Override
@@ -300,7 +309,8 @@ public class HttpConnector extends AbstractBridgeConnector<DefaultHttpSession> {
                                 localAddress,
                                 connectAddress,
                                 parentEx,
-                                new HttpBufferAllocator(parentAllocator));
+                                new HttpBufferAllocator(parentAllocator),
+                                configuration);
                         parent.setAttribute(HTTP_SESSION_KEY, httpSession);
                         return httpSession;
                     }

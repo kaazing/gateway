@@ -15,20 +15,19 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import static java.lang.String.format;
-
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Iterator;
+
+import static java.lang.String.format;
 
 /**
  * Http proxy service
  */
 public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandler> {
-    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or not.";
+    private static final String TRAILING_SLASH_ERROR = "Accept URI is '%s' and connect URI is '%s'. Either both URI should end with / or both not.";
 
     @Override
     public String getType() {
@@ -47,7 +46,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
 
         HttpProxyServiceHandler handler = getHandler();
         handler.setConnectURIs(connectURIs);
-        handler.initServiceConnectManager();
+        handler.init();
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {

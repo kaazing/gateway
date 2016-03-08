@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,9 +74,8 @@ public class OpeningIT {
     private final TestRule timeoutRule = timeoutRule(5, SECONDS);
 
     @Rule
-    // contextRule after k3po so we don't choke on exceptionCaught happening when k3po closes connections
-    public TestRule chain = RuleChain.outerRule(trace).around(connector).around(k3po).around(contextRule)
-            .around(timeoutRule);
+    public TestRule chain = RuleChain.outerRule(trace).around(contextRule).around(connector)
+            .around(k3po).around(timeoutRule);
 
     @Test
     @Specification("connection.established/handshake.response")
@@ -86,9 +86,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -108,16 +111,19 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("nextProtocol", "primary, secondary");
+        connectOptions.put("supportedProtocols", new String[]{"primary", "secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        connector.connect(connectAddress, handler);
+        connector.connect(connectAddress, handler).getSession();
         k3po.finish();
     }
 
@@ -130,16 +136,19 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("extensions", Arrays.asList("primary, secondary"));
+        connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
                         connectOptions);
 
-        connector.connect(connectAddress, handler);
+        connector.connect(connectAddress, handler).getSession();
         k3po.finish();
     }
 
@@ -158,9 +167,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -173,9 +185,12 @@ public class OpeningIT {
             {
                 oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
                 oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                // No close handshake so IOException may occur depending on timing of k3po closing connections
+                allowing(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                allowing(handler).sessionClosed(with(any(IoSessionEx.class)));
             }
         });
-        connector.connect("ws://localhost:8080/path?query", null, handler);
+        connector.connect("ws://localhost:8080/path?query", null, handler).getSession();
         k3po.finish();
     }
 
@@ -307,7 +322,8 @@ public class OpeningIT {
             }
         });
         Map<String, Object> connectOptions = new HashMap<String, Object>();
-        connectOptions.put("nextProtocol", "primary, secondary");
+        connectOptions.put("nextProtocol", "primary");
+        connectOptions.put("supportedProtocols", new String[]{"secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
                         URI.create("ws://localhost:8080/path?query"),
@@ -317,7 +333,7 @@ public class OpeningIT {
 
         k3po.finish();
         assertTrue(session.getCloseFuture().await(4, SECONDS));
-        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket protocol.*negotiate"), EMPTY_STRING_SET, null, false);
+        MemoryAppender.assertMessagesLogged(Arrays.asList("WebSocket.*protocol"), EMPTY_STRING_SET, null, false);
     }
 
     @Test

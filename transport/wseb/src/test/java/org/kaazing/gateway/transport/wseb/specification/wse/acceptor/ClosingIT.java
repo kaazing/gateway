@@ -21,7 +21,11 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -43,6 +47,7 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.kaazing.test.util.ITUtil;
+import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.test.util.MethodExecutionTrace;
 
 public class ClosingIT {
@@ -128,29 +133,27 @@ public class ClosingIT {
     @Test
     @Specification("client.abruptly.closes.upstream/request")
     public void clientAbruptlyClosesUpstream() throws Exception {
-        final AtomicLong timeToClose = new AtomicLong(0);
-        CountDownLatch closed = new CountDownLatch(1);
-        acceptor.bind("wse://localhost:8080/path", new IoHandlerAdapter<IoSession>() {
-            @Override
-            protected void doSessionOpened(IoSession session) throws Exception {
-                final long start = currentTimeMillis();
-                session.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
+        final IoHandler handler = context.mock(IoHandler.class);
+        final CountDownLatch closed = new CountDownLatch(1);
 
-                    @Override
-                    public void operationComplete(IoFuture future) {
-                        timeToClose.set(currentTimeMillis() - start);
-                        closed.countDown();
-                    }
-                });
+        context.checking(new Expectations() {
+            {
+                oneOf(handler).sessionCreated(with(any(IoSessionEx.class)));
+                oneOf(handler).sessionOpened(with(any(IoSessionEx.class)));
+                oneOf(handler).exceptionCaught(with(any(IoSessionEx.class)), with(any(IOException.class)));
+                oneOf(handler).sessionClosed(with(any(IoSessionEx.class)));
+                will(countDown(closed));
             }
-
         });
+
+        acceptor.bind("wse://localhost:8080/path", handler);
         k3po.finish();
         assertTrue("wsebSession was not closed after 4 seconds", closed.await(4, SECONDS));
-        // Timing is not exact but should be close
-        assertTrue(format("Time taken for ws close handshake %d should be close to ws close timeout of 2000 millisecs",
-                timeToClose.get()),
-                timeToClose.get() > 1500 && timeToClose.get() < 4000);
+
+        // Check no exceptions occurred (like "expected current thread... to match..." as in issue #427)
+        // except for IOException which is expected because of client abrupt close
+        final Set<String> EMPTY_STRING_SET = Collections.emptySet();
+        MemoryAppender.assertMessagesLogged(EMPTY_STRING_SET, Arrays.asList(new String[]{"[^O]Exception"}), null, false);
     }
 
     // Client only test

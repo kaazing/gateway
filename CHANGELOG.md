@@ -2,7 +2,34 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.45...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.46...HEAD)
+
+**Fixed bugs:**
+
+- BroadcastServiceTest.testSlowConsumer\(\) is timing out [\#364](https://github.com/kaazing/gateway/issues/364)
+
+**Closed issues:**
+
+- Exception sometimes occurs using emulated WebSocket: RuntimeException expected current thread ... to match ... [\#427](https://github.com/kaazing/gateway/issues/427)
+- Gateway Travis build failed in wseb transport, 3 test failures [\#424](https://github.com/kaazing/gateway/issues/424)
+- Recent gateway builds are failing on Travis in wsn transport, "Killed" [\#423](https://github.com/kaazing/gateway/issues/423)
+
+**Merged pull requests:**
+
+- Proxy service fails the connect future when the corresponding accept is closed [\#439](https://github.com/kaazing/gateway/pull/439) ([jitsni](https://github.com/jitsni))
+- Fix line endings on DuplicateBindTest.java [\#436](https://github.com/kaazing/gateway/pull/436) ([Anisotrop](https://github.com/Anisotrop))
+- Minor correction of the IllegalArgumentException message throwen from checkForTralingSlashes\(\) [\#435](https://github.com/kaazing/gateway/pull/435) ([ilyaanisimov-kaazing](https://github.com/ilyaanisimov-kaazing))
+- Duplicate bind test fix [\#434](https://github.com/kaazing/gateway/pull/434) ([Anisotrop](https://github.com/Anisotrop))
+- Adding code to rewrite cookie domain, cookie path, location headers [\#432](https://github.com/kaazing/gateway/pull/432) ([jitsni](https://github.com/jitsni))
+- Throw error on specific circumstances when PreferedIPv4 flag is true and the host IP is IPV6 [\#431](https://github.com/kaazing/gateway/pull/431) ([vmaraloiu](https://github.com/vmaraloiu))
+- Issue 427: thread alignment violation in wse due to race with client close [\#428](https://github.com/kaazing/gateway/pull/428) ([cmebarrow](https://github.com/cmebarrow))
+- Changes to resolve build failures in wseb transport [\#426](https://github.com/kaazing/gateway/pull/426) ([cmebarrow](https://github.com/cmebarrow))
+- Added hazelcast-client and hazelcast-cloud as dependencies [\#422](https://github.com/kaazing/gateway/pull/422) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+- HTTPX: Tests for Extended Handshake  [\#417](https://github.com/kaazing/gateway/pull/417) ([sanjay-saxena](https://github.com/sanjay-saxena))
+- Httpxe.spec.tests [\#413](https://github.com/kaazing/gateway/pull/413) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.46](https://github.com/kaazing/gateway/tree/5.0.1.46) (2016-02-13)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.45...5.0.1.46)
 
 **Fixed bugs:**
 
@@ -73,7 +100,6 @@
 - Issue 384: provide INFO level diagnostics for exceptions like ProtocolDecoderException [\#396](https://github.com/kaazing/gateway/pull/396) ([cmebarrow](https://github.com/cmebarrow))
 - Allow 0 or more spaces in parsing of wse accept content-type header [\#393](https://github.com/kaazing/gateway/pull/393) ([dpwspoon](https://github.com/dpwspoon))
 - Fixed bridge build to include javascript and java bridge [\#391](https://github.com/kaazing/gateway/pull/391) ([dpwspoon](https://github.com/dpwspoon))
-- Http.proxy does not append path in connect \#183 [\#382](https://github.com/kaazing/gateway/pull/382) ([msalavastru](https://github.com/msalavastru))
 
 ## [5.0.1.42](https://github.com/kaazing/gateway/tree/5.0.1.42) (2016-01-06)
 [Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.41...5.0.1.42)
