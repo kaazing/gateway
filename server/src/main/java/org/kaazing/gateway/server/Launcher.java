@@ -46,8 +46,8 @@ public class Launcher {
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayObserver.newInstance(context.getInjectables());
-        gatewayListener.startingGateway();
+        gatewayListener = GatewayObserver.newInstance();
+        gatewayListener.startingGateway(context);
         try {
             initInternal(context);
         } catch (Exception e) {
@@ -134,7 +134,7 @@ public class Launcher {
             }
         }
 
-        gatewayListener.stoppedGateway();
+        gatewayListener.stoppedGateway(context);
 
         context.dispose();
 
