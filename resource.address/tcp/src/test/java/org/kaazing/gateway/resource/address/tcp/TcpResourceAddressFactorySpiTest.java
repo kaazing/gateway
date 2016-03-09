@@ -113,7 +113,7 @@ public class TcpResourceAddressFactorySpiTest {
         Map<String, Object> options = new HashMap<>();
         options.put(BIND_ADDRESS.name(), "2020");
         ResourceAddress address = factory.newResourceAddress(URI.create("tcp://[::1]:2020"), options);
-        assertEquals(URI.create("tcp://[0:0:0:0:0:0:0:1]:2020"), address.getResource());
+        assertEquals(URI.create("tcp://[::1]:2020"), address.getExternalURI());
     }
 
     @Test
