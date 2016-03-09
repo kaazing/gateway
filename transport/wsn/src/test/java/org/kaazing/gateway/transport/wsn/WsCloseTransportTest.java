@@ -15,6 +15,8 @@
  */
 package org.kaazing.gateway.transport.wsn;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -159,12 +161,12 @@ public class WsCloseTransportTest {
 
         final Properties wsAcceptProperties = new Properties();
         if (wsAcceptCloseTimeout != null) {
-            wsAcceptProperties.setProperty(WsCloseFilter.WS_CLOSE_TIMEOUT_PROPERTY_NAME, wsAcceptCloseTimeout);
+            wsAcceptProperties.setProperty(WS_CLOSE_TIMEOUT.getPropertyName(), wsAcceptCloseTimeout);
         }
 
         final Properties wsConnectProperties = new Properties();
         if (wsConnectCloseTimeout != null) {
-            wsConnectProperties.setProperty(WsCloseFilter.WS_CLOSE_TIMEOUT_PROPERTY_NAME, wsConnectCloseTimeout);
+            wsConnectProperties.setProperty(WS_CLOSE_TIMEOUT.getPropertyName(), wsConnectCloseTimeout);
         }
 
         wsnAcceptor.setBridgeServiceFactory(bridgeServiceFactory);

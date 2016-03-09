@@ -89,9 +89,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     private static final String CLUSTER_LOG_FORMAT = "HAZELCAST: [%s] - %s";
     private static final String INSTANCE_KEY_MAP = "instanceKeyMap";
 
-    // This is also used in DefaultServiceContext
-    static final String CLUSTER_LOGGER_NAME = "ha";
-    private final Logger logger = LoggerFactory.getLogger(CLUSTER_LOGGER_NAME);
+    private final Logger logger = LoggerFactory.getLogger(GL.CLUSTER_LOGGER_NAME);
 
     private final String localInstanceKey = Utils.randomHexString(16);
 
@@ -136,13 +134,13 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         if (localInterfaces.size() + clusterMembers.size() == 0) {
             // if no local interfaces
             if (localInterfaces.size() == 0) {
-                GL.info(CLUSTER_LOGGER_NAME, "No network interfaces specified in the gateway configuration");
+                GL.info(GL.CLUSTER_LOGGER_NAME, "No network interfaces specified in the gateway configuration");
                 throw new IllegalArgumentException("No network interfaces specified in the gateway configuration");
             }
 
             // if no members
             if (clusterMembers.size() == 0) {
-                GL.info(CLUSTER_LOGGER_NAME, "No cluster members specified in the gateway configuration");
+                GL.info(GL.CLUSTER_LOGGER_NAME, "No cluster members specified in the gateway configuration");
                 throw new IllegalArgumentException("No cluster members specified in the gateway configuration");
             }
         }
@@ -153,10 +151,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
             initializeCluster(config);
 
-            GL.info(CLUSTER_LOGGER_NAME, "Cluster Member started: IP Address: {}; Port: {}; id: {}",
+            GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster Member started: IP Address: {}; Port: {}; id: {}",
                     localNodeId.getHost(), localNodeId.getPort(), localNodeId.getId());
         } catch (Exception e) {
-            GL.error(CLUSTER_LOGGER_NAME, "Unable to initialize cluster due to an exception: {}", e);
+            GL.error(GL.CLUSTER_LOGGER_NAME, "Unable to initialize cluster due to an exception: {}", e);
             throw new RuntimeException(String.format("Unable to initialize cluster due to an exception: %s", e), e);
         }
     }
@@ -508,7 +506,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         if (!inetSocketAddress.isUnresolved()) {
             String ipAddr = inetSocketAddress.getAddress().getHostAddress();
             hostname = ipAddr;
-            GL.debug(CLUSTER_LOGGER_NAME, "getMemberId: Hostname: {}; IP Address: {}", hostname, ipAddr);
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "getMemberId: Hostname: {}; IP Address: {}", hostname, ipAddr);
         }
         return new MemberId("tcp", hostname, inetSocketAddress.getPort());
     }
@@ -518,15 +516,16 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
         @Override
         public void memberAdded(MembershipEvent membershipEvent) {
             MemberId newMemberId = getMemberId(membershipEvent.getMember());
-            GL.info(CLUSTER_LOGGER_NAME, "Cluster member {} is now online", newMemberId.getId());
+            GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {} is now online", newMemberId.getId());
             fireMemberAdded(newMemberId);
-            logClusterMembers();
+            GL.info(GL.CLUSTER_LOGGER_NAME, "Member Added");
+            logClusterStateAtInfoLevel();
         }
 
         @Override
         public void memberRemoved(MembershipEvent membershipEvent) {
             MemberId removedMember = getMemberId(membershipEvent.getMember());
-            GL.info(CLUSTER_LOGGER_NAME, "Cluster member {} has gone down", removedMember);
+            GL.info(GL.CLUSTER_LOGGER_NAME, "Cluster member {} has gone down", removedMember);
 
             // Clean up the member's instanceKey
             Map<MemberId, String> instanceKeyMap = getCollectionsFactory().getMap(INSTANCE_KEY_MAP);
@@ -546,10 +545,10 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
             Map<String, List<String>> memberBalancedUrisMap = memberIdBalancerUriMap.remove(removedMember);
             if (memberBalancedUrisMap != null) {
-                GL.debug(CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
+                GL.debug(GL.CLUSTER_LOGGER_NAME, "Cleaning up balancer cluster state for member {}", removedMember);
                 try {
                     for (String key : memberBalancedUrisMap.keySet()) {
-                        GL.debug(CLUSTER_LOGGER_NAME, "URI Key: {}", key);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "URI Key: {}", key);
                         List<String> memberBalancedUris = memberBalancedUrisMap.get(key);
                         TreeSet<String> globalBalancedUris = null;
                         TreeSet<String> newGlobalBalancedUris = null;
@@ -557,13 +556,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
                             globalBalancedUris = sharedBalanceUriMap.get(key);
                             newGlobalBalancedUris = new TreeSet<String>(globalBalancedUris);
                             for (String memberBalancedUri : memberBalancedUris) {
-                                GL.debug(CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
+                                GL.debug(GL.CLUSTER_LOGGER_NAME, "Attempting to removing Balanced URI : {}", memberBalancedUri);
                                 newGlobalBalancedUris.remove(memberBalancedUri);
                             }
                         } while (!sharedBalanceUriMap.replace(key, globalBalancedUris, newGlobalBalancedUris));
 
-                        GL.debug(CLUSTER_LOGGER_NAME, "Removed balanced URIs for cluster member {}, new global list: {}",
-                                removedMember, newGlobalBalancedUris);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME,
+                                "Removed balanced URIs for cluster member {}, new global list: {}", removedMember,
+                                newGlobalBalancedUris);
                     }
                 } catch (Exception e) {
                     throw new IllegalStateException("Unable to remove the balanced URIs served by the member going down from " +
@@ -572,7 +572,8 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             }
 
             fireMemberRemoved(removedMember);
-            logClusterMembers();
+            GL.info(GL.CLUSTER_LOGGER_NAME, "Member Removed");
+            logClusterStateAtInfoLevel();
         }
     };
 
@@ -621,7 +622,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
             EntryListener<String, Collection<String>>() {
         @Override
         public void entryAdded(EntryEvent<String, Collection<String>> newEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
+            GL.trace(GL.CLUSTER_LOGGER_NAME, "New entry for balance URI: {}   value: {}", newEntryEvent.getKey(), newEntryEvent
                     .getValue());
             fireBalancerEntryAdded(newEntryEvent);
         }
@@ -633,14 +634,14 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
 
         @Override
         public void entryRemoved(EntryEvent<String, Collection<String>> removedEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
+            GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry removed for balance URI: {}   value: {}", removedEntryEvent
                     .getKey(), removedEntryEvent.getValue());
             fireBalancerEntryRemoved(removedEntryEvent);
         }
 
         @Override
         public void entryUpdated(EntryEvent<String, Collection<String>> updatedEntryEvent) {
-            GL.trace(CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
+            GL.trace(GL.CLUSTER_LOGGER_NAME, "Entry updated for balance URI: {}   value: {}", updatedEntryEvent
                     .getKey(), updatedEntryEvent.getValue());
             fireBalancerEntryUpdated(updatedEntryEvent);
         }
@@ -726,6 +727,7 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     public void addMembershipEventListener(MembershipEventListener eventListener) {
         if (eventListener != null) {
             membershipEventListeners.add(eventListener);
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "MemberShipEventListener Added");
         }
     }
 
@@ -754,14 +756,18 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     public void addBalancerMapListener(BalancerMapListener balancerMapListener) {
         if (balancerMapListener != null) {
             balancerMapListeners.add(balancerMapListener);
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Add balancerMapListener");
         }
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Add balancerMapListener");
     }
 
     @Override
     public void removeBalancerMapListener(BalancerMapListener balancerMapListener) {
         if (balancerMapListener != null) {
             balancerMapListeners.remove(balancerMapListener);
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Remove balancerMapListener");
         }
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Remove balancerMapListener");
     }
 
     @Override
@@ -790,32 +796,72 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
     }
 
     @Override
+    /*
+     * Logs cluster state and balancer service maps contents when ha logging is enabled at trace level !
+     */
     public void logClusterState() {
         logClusterMembers();
         logBalancerMap();
     }
 
+    @Override
+    /*
+     * Logs cluster state at Info Level, recommended use only for startup or methods that are called only one time when
+     * cluster state changes !
+     */
+    public void logClusterStateAtInfoLevel() {
+        if (clusterInstance != null) {
+            Cluster cluster = clusterInstance.getCluster();
+            if (cluster != null) {
+                GL.info(GL.CLUSTER_LOGGER_NAME, "Current cluster members:");
+                Set<Member> currentMembers = clusterInstance.getCluster().getMembers();
+                for (Member currentMember : currentMembers) {
+                    MemberId memberId = getMemberId(currentMember);
+                    GL.info(GL.CLUSTER_LOGGER_NAME, "      member: {}", memberId);
+                }
+            }
+        }
+        GL.info(GL.CLUSTER_LOGGER_NAME, "Current shared balancer map:");
+        Map<String, Set<String>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        for (String balanceURI : balancerMap.keySet()) {
+            Set<String> balanceTargets = balancerMap.get(balanceURI);
+            GL.info(GL.CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+        }
+
+    }
     private void logClusterMembers() {
         // log current cluster state on TRACE level
         if (clusterInstance != null) {
             Cluster cluster = clusterInstance.getCluster();
             if (cluster != null) {
-                GL.trace(CLUSTER_LOGGER_NAME, "Current cluster members:");
+                GL.trace(GL.CLUSTER_LOGGER_NAME, "Current cluster members:");
                 Set<Member> currentMembers = clusterInstance.getCluster().getMembers();
                 for (Member currentMember : currentMembers) {
                     MemberId memberId = getMemberId(currentMember);
-                    GL.trace(CLUSTER_LOGGER_NAME, "      member: {}", memberId);
+                    GL.trace(GL.CLUSTER_LOGGER_NAME, "      member: {}", memberId);
                 }
             }
         }
     }
 
     private void logBalancerMap() {
-        GL.trace(CLUSTER_LOGGER_NAME, "Current balancer map:");
-        Map<String, TreeSet<String>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
+        GL.trace(GL.CLUSTER_LOGGER_NAME, "Current members of balancer map:");
+        Map<MemberId, Map<String, List<String>>> memberIdBalancerUriMap =
+                              getCollectionsFactory().getMap(MEMBERID_BALANCER_MAP_NAME);
+        for (MemberId memberID : memberIdBalancerUriMap.keySet()) {
+            GL.trace(GL.CLUSTER_LOGGER_NAME, " MemberID {}", memberID);
+            Map<String, List<String>> balanceURIMap = memberIdBalancerUriMap.get(memberID);
+            for (String balanceURI : balanceURIMap.keySet()) {
+                List<String> balanceTargets = balanceURIMap.get(balanceURI);
+                GL.trace(GL.CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+            }
+
+        }
+        GL.trace(GL.CLUSTER_LOGGER_NAME, "Current shared balancer map::");
+        Map<String, Set<String>> balancerMap = getCollectionsFactory().getMap(BALANCER_MAP_NAME);
         for (String balanceURI : balancerMap.keySet()) {
-            TreeSet<String> balanceTargets = balancerMap.get(balanceURI);
-            GL.trace(CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
+            Set<String> balanceTargets = balancerMap.get(balanceURI);
+            GL.trace(GL.CLUSTER_LOGGER_NAME, "     balance URI: {}    target list: {}", balanceURI, balanceTargets);
         }
     }
 
@@ -823,12 +869,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire member added event
      */
     private void fireMemberAdded(MemberId newMember) {
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing member added for : {}", newMember);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing member added for : {}", newMember);
         for (MembershipEventListener listener : membershipEventListeners) {
             try {
                 listener.memberAdded(newMember);
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in member added event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in member added event {}", e);
             }
         }
     }
@@ -837,12 +883,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire member removed event
      */
     private void fireMemberRemoved(MemberId exMember) {
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing member removed for: {}", exMember);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing member removed for: {}", exMember);
         for (MembershipEventListener listener : membershipEventListeners) {
             try {
                 listener.memberRemoved(exMember);
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in member removed event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in member removed event {}", e);
             }
         }
     }
@@ -851,12 +897,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire instanceKeyAdded event
      */
     private void fireInstanceKeyAdded(String instanceKey) {
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing instanceKeyAdded for: {}", instanceKey);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing instanceKeyAdded for: {}", instanceKey);
         for (InstanceKeyListener listener : instanceKeyListeners) {
             try {
                 listener.instanceKeyAdded(instanceKey);
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in instanceKeyAdded event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in instanceKeyAdded event {}", e);
             }
         }
     }
@@ -865,12 +911,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      * Fire instanceKeyRemoved event
      */
     private void fireInstanceKeyRemoved(String instanceKey) {
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing instanceKeyRemoved for: {}", instanceKey);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing instanceKeyRemoved for: {}", instanceKey);
         for (InstanceKeyListener listener : instanceKeyListeners) {
             try {
                 listener.instanceKeyRemoved(instanceKey);
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in instanceKeyRemoved event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in instanceKeyRemoved event {}", e);
             }
         }
     }
@@ -880,12 +926,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      */
     private void fireBalancerEntryAdded(EntryEvent<String, Collection<String>> entryEvent) {
         String balancerURI = entryEvent.getKey();
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryAdded for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
                 listener.balancerEntryAdded(balancerURI, entryEvent.getValue());
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in balancerEntryAdded event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryAdded event {}", e);
             }
         }
     }
@@ -895,12 +941,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      */
     private void fireBalancerEntryRemoved(EntryEvent<String, Collection<String>> entryEvent) {
         String balancerURI = entryEvent.getKey();
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryRemoved for: {}", balancerURI);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryRemoved for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
                 listener.balancerEntryRemoved(balancerURI, entryEvent.getValue());
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in balancerEntryRemoved event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryRemoved event {}", e);
             }
         }
     }
@@ -910,12 +956,12 @@ public class DefaultClusterContext implements ClusterContext, LogListener {
      */
     private void fireBalancerEntryUpdated(EntryEvent<String, Collection<String>> entryEvent) {
         String balancerURI = entryEvent.getKey();
-        GL.debug(CLUSTER_LOGGER_NAME, "Firing balancerEntryUpdated for: {}", balancerURI);
+        GL.debug(GL.CLUSTER_LOGGER_NAME, "Firing balancerEntryUpdated for: {}", balancerURI);
         for (BalancerMapListener listener : balancerMapListeners) {
             try {
                 listener.balancerEntryUpdated(balancerURI, entryEvent.getValue());
             } catch (Throwable e) {
-                GL.error(CLUSTER_LOGGER_NAME, "Error in balancerEntryUpdated event {}", e);
+                GL.error(GL.CLUSTER_LOGGER_NAME, "Error in balancerEntryUpdated event {}", e);
             }
         }
     }

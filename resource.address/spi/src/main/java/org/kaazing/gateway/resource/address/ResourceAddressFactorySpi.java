@@ -44,18 +44,20 @@ import java.util.Set;
 
 public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
 
+    private static final String NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER =
+            " No addresses available for binding for URI: %s.";
     private static final Map<String, Object> EMPTY_OPTIONS = emptyMap();
-    
+
     private ResourceAddressFactory addressFactory;
 
     public void setResourceAddressFactory(ResourceAddressFactory addressFactory) {
         this.addressFactory = addressFactory;
     }
-    
+
     protected ResourceAddressFactory getResourceAddressFactory() {
         return addressFactory;
     }
-    
+
     /**
      * Returns the name of the scheme provided by factories using this
      * service provider.
@@ -150,6 +152,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
+        if (addresses.isEmpty()) {
+            throwNoAddressesToBindError(location);
+        }
+
         return addresses.get(0);
     }
 
@@ -233,6 +239,10 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             alternate = address;
         }
 
+        if (addresses.isEmpty()) {
+            throwNoAddressesToBindError(location);
+        }
+
         return addresses.get(0);
     }
 
@@ -290,11 +300,11 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (options.hasOption(NEXT_PROTOCOL)) {
             address.setOption0(NEXT_PROTOCOL, options.getOption(NEXT_PROTOCOL));
         }
-        
+
         if (options.hasOption(TRANSPORT_URI)) {
             address.setOption0(TRANSPORT_URI, options.getOption(TRANSPORT_URI));
         }
-        
+
         if (options.hasOption(TRANSPORT)) {
             address.setOption0(TRANSPORT, options.getOption(TRANSPORT));
         }
@@ -302,12 +312,12 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (options.hasOption(ALTERNATE)) {
             address.setOption0(ALTERNATE, options.getOption(ALTERNATE));
         }
-        
+
         // JRF: still relevant for address after name resolution?
         if (options.hasOption(RESOLVER)) {
             address.setOption0(RESOLVER, options.getOption(RESOLVER));
         }
-        
+
         if (options.hasOption(BIND_ALTERNATE)) {
             address.setOption0(BIND_ALTERNATE, options.getOption(BIND_ALTERNATE));
         }
@@ -324,7 +334,7 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
             address.setOption0(QUALIFIER, newQualifier);
         }
     }
-    
+
     /**
      * Returns the default port for the scheme provided by factories using
      * this service provider.
@@ -372,12 +382,12 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
         if (alternate != null) {
             options.setOption(ALTERNATE, alternate);
         }
-        
+
         NameResolver resolver = (NameResolver) optionsByName.remove(RESOLVER.name());
         if (resolver != null) {
             options.setOption(RESOLVER, resolver);
         }
-        
+
         Boolean bindAlternate = (Boolean) optionsByName.remove(BIND_ALTERNATE.name());
         if (bindAlternate != null) {
             options.setOption(BIND_ALTERNATE, bindAlternate);
@@ -458,6 +468,14 @@ public abstract class ResourceAddressFactorySpi<T extends ResourceAddress> {
      */
     protected String getRootSchemeName() {
         return null;
+    }
+
+    /**
+     * Throws general exception when no addresses to bind are found.
+     * @param location
+     */
+    private void throwNoAddressesToBindError(String location) {
+        throw new IllegalArgumentException(format(NO_ADDRESSES_AVAILABLE_FOR_BINDING_FORMATTER, location));
     }
 
 }

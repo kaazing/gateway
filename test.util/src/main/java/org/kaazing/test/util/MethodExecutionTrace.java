@@ -15,6 +15,9 @@
  */
 package org.kaazing.test.util;
 
+import static java.lang.String.format;
+import static java.lang.System.currentTimeMillis;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -28,15 +31,18 @@ import org.junit.runner.Description;
  * This class can be used to print out a message at the start and end of each test method in a JUnit test class
  * by including the following at the start of the class:<pre>
  *    @Rule
- *    public MethodRule testExecutionTrace = new MethodExecutionTrace();
+ *    public TestRule testExecutionTrace = new MethodExecutionTrace();
  * </pre>
  * It can also be chained with other rules, for example:<pre>
  *    private MethodRule trace = new MethodExecutionTrace();
  *    @Rule
- *    public TestRule chain = outerRule(trace).around(robot).around(gateway);
+ *    public TestRule chain = outerRule(trace).around(gateway).around(k3po).around(timeout);
  * </pre>
  */
 public class MethodExecutionTrace extends TestWatcher {
+    private static final int _1_MB = 1024 * 1024;
+    private static final int MAX_HEALTH_MEMORY_MB = 1024;
+    private long start;
 
     /**
      * This constructor will configure log4j using the log4j-trace.properties file from the
@@ -44,8 +50,6 @@ public class MethodExecutionTrace extends TestWatcher {
      * to help diagnose the failure.
      */
     public MethodExecutionTrace() {
-        // TODO: consider using or exposing programmatic configuration instead,
-        // see https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/BasicConfigurator.html instead
         this("log4j-trace.properties");
     }
 
@@ -56,6 +60,7 @@ public class MethodExecutionTrace extends TestWatcher {
      * @param log4jPropertiesResourceName
      */
     public MethodExecutionTrace(String log4jPropertiesResourceName) {
+        healthCheck();
         MemoryAppender.initialize();
         if (log4jPropertiesResourceName != null) {
             // Initialize log4j using a properties file available on the class path
@@ -74,19 +79,29 @@ public class MethodExecutionTrace extends TestWatcher {
         }
     }
 
+    // see https://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/BasicConfigurator.html instead
+
+    public MethodExecutionTrace(Properties log4jProperties) {
+        MemoryAppender.initialize();
+        if (log4jProperties != null) {
+                PropertyConfigurator.configure(log4jProperties);
+        }
+    }
+
     @Override
     public void starting(Description description) {
+        start = currentTimeMillis();
         System.out.println(description.getDisplayName() + " starting");
     }
 
     @Override
     public void failed(Throwable e, Description description) {
         if (e instanceof AssumptionViolatedException) {
-            System.out.println(String.format("%s skipped programmatically with reason: %s",
+            System.out.println(format("%s skipped programmatically with reason: %s",
                     getFullMethodName(description) , e.getMessage()));
         }
         else {
-            System.out.println(getFullMethodName(description) + " FAILED with exception " + e);
+            System.out.println(getFullMethodName(description) + " FAILED with exception " + e + getDuration());
             e.printStackTrace(System.out);
             System.out.println("=================== BEGIN STORED LOG MESSAGES ===========================");
             MemoryAppender.printAllMessages();
@@ -97,11 +112,32 @@ public class MethodExecutionTrace extends TestWatcher {
 
     @Override
     public void succeeded(Description description) {
-            System.out.println(getFullMethodName(description) + " " + "success");
-            MemoryAppender.initialize();
+        System.out.println(getFullMethodName(description) + " success" + getDuration());
+        MemoryAppender.initialize();
     }
 
     private String getFullMethodName(Description description) {
         return description.getTestClass().getSimpleName() + "." + description.getMethodName();
+    }
+
+    private String getDuration() {
+        float t = (System.currentTimeMillis() - start) / (float) 1000;
+        return format(" (%4.2f secs)", t);
+    }
+
+    // Used to check for build issues where heap size was exceeding 5GB (#423). We now
+    // limit heap size in Gateway builds using failsafe argLine parameter with -Xmx1024m
+    // so gc keeps the size down to 1GB.
+    private void healthCheck() {
+        Runtime r = Runtime.getRuntime();
+        long memory = r.totalMemory() / _1_MB;
+        long free = r.freeMemory() / _1_MB;
+        long used = memory - free;
+        int threads = Thread.activeCount();
+        if (used > MAX_HEALTH_MEMORY_MB || threads > 100) {
+            System.out.println("HEALTH CHECK WARNING: high memory usage or thread count");
+            System.out.println(format("\tMemory: total %d MB, free %d MB", memory, free));
+            System.out.println(format("\tThreads: %d", Thread.activeCount()));
+        }
     }
 }

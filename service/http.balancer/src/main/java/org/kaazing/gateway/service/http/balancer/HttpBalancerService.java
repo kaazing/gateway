@@ -47,6 +47,8 @@ import org.kaazing.gateway.transport.sse.SseProtocol;
 import org.kaazing.gateway.transport.ws.WsProtocol;
 import org.kaazing.gateway.transport.wseb.WsebAcceptor;
 import org.kaazing.gateway.transport.wsn.WsnSession;
+import org.kaazing.gateway.util.GL;
+
 
 /**
  * Gateway service of type "balancer".
@@ -92,6 +94,8 @@ public class HttpBalancerService implements Service {
 
         // Register the Gateway's connection capabilities with the handlers so that session counts are tracked
         wsebHandler.setTransportFactory(transportFactory);
+        GL.info(GL.CLUSTER_LOGGER_NAME,"Finished  HttpBalancerService.init()");
+        clusterContext.logClusterStateAtInfoLevel();
     }
 
     @Override
@@ -110,6 +114,7 @@ public class HttpBalancerService implements Service {
                         String selectedBalanceeURI = availableBalanceeURIs.get((int) (Math.random() * availableBalanceeURIs.size()));
                         selectedBalanceeURIs = new ArrayList<>(1);
                         selectedBalanceeURIs.add(selectedBalanceeURI);
+                        GL.debug(GL.CLUSTER_LOGGER_NAME, "HttpBalancerService initializeSession Selected Balancee URI: {}", selectedBalanceeURI);
                     }
                     IoSession parent = httpSession.getParent();
                     parent.setAttribute(BALANCEES_KEY, selectedBalanceeURIs);

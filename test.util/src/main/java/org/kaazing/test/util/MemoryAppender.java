@@ -70,12 +70,13 @@ public class MemoryAppender extends ConsoleAppender {
         return eventsList;
     }
 
-    public static void assertMessagesLogged(Collection<String> expectedPatterns,
+    public static void assertMessagesLogged(Collection<String> expectedPatternsRO,
                                             Collection<String> unexpectedPatterns,
                                             String filterPattern,
                                             boolean verbose) {
         Set<String> encounteredPatterns = new TreeSet<String>();
         List<String> encounteredUnexpectedMessages = new ArrayList<String>();
+        List<String> expectedPatterns = new ArrayList<String>(expectedPatternsRO);
         Collection<String> unexpected = unexpectedPatterns == null ? Collections.<String>emptyList() : unexpectedPatterns;
 
         for (LoggingEvent event : MemoryAppender.getEvents()) {

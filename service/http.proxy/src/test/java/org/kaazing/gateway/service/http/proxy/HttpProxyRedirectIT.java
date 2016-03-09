@@ -40,7 +40,7 @@ public class HttpProxyRedirectIT {
                             .connect("http://localhost:8080")
                             .type("http.proxy")
                             .connectOption("http.keepalive", "disabled")
-                            .done()
+                        .done()
                     .done();
             // @formatter:on
             init(configuration);

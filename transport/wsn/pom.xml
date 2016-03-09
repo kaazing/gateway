@@ -140,6 +140,12 @@
         </dependency>
         <dependency>
             <groupId>org.kaazing</groupId>
+            <artifactId>specification.httpx</artifactId>
+            <version>${k3po.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.kaazing</groupId>
             <artifactId>specification.ws</artifactId>
             <version>2.0.1</version>
             <scope>test</scope>

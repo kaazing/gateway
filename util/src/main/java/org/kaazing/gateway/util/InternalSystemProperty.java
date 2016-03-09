@@ -34,11 +34,19 @@ public enum InternalSystemProperty {
     WS_ENABLED_TRANSPORTS
             ("org.kaazing.gateway.server.transport.ws.ENABLED_TRANSPORTS"),
 
+    WS_CLOSE_TIMEOUT
+            ("org.kaazing.gateway.transport.ws.CLOSE_TIMEOUT", "5sec"),
+
     WSE_IDLE_TIMEOUT
             ("org.kaazing.gateway.server.transport.wse.IDLE_TIMEOUT", "60"),
     // Next property is to allow us to safely introduce changes
     // to conform with the WSE specification
     WSE_SPECIFICATION("com.kaazing.gateway.server.transport.wse.SPECIFICATION", "false"),
+
+    // Next property is to allow us to safely introduce changes
+    // to conform with the httpxe specification
+    HTTPXE_SPECIFICATION("com.kaazing.gateway.server.transport.httpxe.SPECIFICATION", "false"),
+
     // We are deliberately changing the default that Netty uses (availableProcessors() * 2):
     TCP_PROCESSOR_COUNT("org.kaazing.gateway.server.transport.tcp.PROCESSOR_COUNT",
                         Integer.toString(getRuntime().availableProcessors())),

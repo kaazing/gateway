@@ -24,6 +24,9 @@ import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
 import org.kaazing.gateway.service.cluster.ClusterContext;
+import org.kaazing.gateway.util.GL;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +46,8 @@ public class Launcher {
     }
 
     public void init(GatewayContext context) throws Exception {
-        gatewayListener = GatewayObserver.newInstance(context.getInjectables());
-        gatewayListener.startingGateway();
+        gatewayListener = GatewayObserver.newInstance();
+        gatewayListener.startingGateway(context);
         try {
             initInternal(context);
         } catch (Exception e) {
@@ -106,7 +109,8 @@ public class Launcher {
 
         if (cluster != null) {
             // now that the Gateway has started, log what it knows about the cluster
-            cluster.logClusterState();
+            GL.debug(GL.CLUSTER_LOGGER_NAME, "Exit Gateway launcher initInternal");
+            cluster.logClusterStateAtInfoLevel();
         }
     }
 
@@ -130,7 +134,7 @@ public class Launcher {
             }
         }
 
-        gatewayListener.stoppedGateway();
+        gatewayListener.stoppedGateway(context);
 
         context.dispose();
 

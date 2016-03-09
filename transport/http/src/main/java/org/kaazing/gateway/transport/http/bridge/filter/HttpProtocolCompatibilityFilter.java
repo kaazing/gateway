@@ -214,6 +214,7 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // install a filter to conditionally wrap the response -
                 // sometimes we want to respond wrapped(e.g. create response 401),
                 // and other times we do not (e.g. create response 201)
+
                 session.getFilterChain().addBefore(HttpAcceptFilter.PROTOCOL_HTTPXE.filterName(),
                                                    HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filterName(),
                                                    HttpAcceptFilter.CONDITIONAL_WRAPPED_RESPONSE.filter());
@@ -494,6 +495,10 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                     httpRequest.setMethod(HttpMethod.TRACE);
                     //httpRequest.removeParameter(QUERY_PARAM_METHOD);
                     break;
+                case 'H':
+                    httpRequest.setMethod(HttpMethod.HEAD);
+                    //httpRequest.removeParameter(QUERY_PARAM_METHOD);
+                    break;
                 }
             }
         }
@@ -684,6 +689,17 @@ public class HttpProtocolCompatibilityFilter extends HttpFilterAdapter<IoSession
                 // we want wrapping so remove this filter
                 session.getFilterChain().remove(this);
                 break;
+
+            case REDIRECT_FOUND:
+            case CLIENT_BAD_REQUEST:
+            case SUCCESS_CREATED:
+                boolean httpxeSpecCompliant = httpSession.isHttpxeSpecCompliant();
+                if (httpxeSpecCompliant) {
+                    // we want wrapping so remove this filter
+                    session.getFilterChain().remove(this);
+                    break;
+                }
+                // fall-through
             default:
 
                 // we do not want wrapped responses so push data to parent http/1.1 session

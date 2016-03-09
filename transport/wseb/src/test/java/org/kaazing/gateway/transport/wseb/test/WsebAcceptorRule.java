@@ -15,20 +15,19 @@
  */
 package org.kaazing.gateway.transport.wseb.test;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.mina.core.service.IoHandler;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.TransportFactory;
 import org.kaazing.gateway.transport.http.HttpAcceptor;
 import org.kaazing.gateway.transport.nio.internal.NioSocketAcceptor;
@@ -44,30 +43,35 @@ import org.kaazing.gateway.util.scheduler.SchedulerProvider;
  */
 public class WsebAcceptorRule implements TestRule {
 
-    private final String log4jPropertiesResourceName;
+    private final Properties configuration;
     private ResourceAddressFactory resourceAddressFactory;
     private WsebAcceptor wsebAcceptor;
 
 
     @Override
     public Statement apply(Statement base, Description description) {
-        return new ConnectorStatement(base);
+        return new AcceptorStatement(base);
     }
     public WsebAcceptorRule() {
-        this(null);
+        this(new Properties());
     }
 
-    public WsebAcceptorRule(String log4jPropertiesResourceName) {
-        this.log4jPropertiesResourceName = log4jPropertiesResourceName;
+    public WsebAcceptorRule(Properties configuration) {
+        this.configuration = configuration;
     }
-    
+
     public void bind(final String accept,
-                                  IoHandlerAdapter<?> acceptHandler) throws InterruptedException {
+                     IoHandler acceptHandler) throws InterruptedException {
         ResourceAddress acceptAddress = resourceAddressFactory.newResourceAddress(accept);
         wsebAcceptor.bind(acceptAddress, acceptHandler, null);
     }
 
-    private final class ConnectorStatement extends Statement {
+    public void bind(ResourceAddress acceptAddress,
+                     IoHandler acceptHandler) throws InterruptedException {
+        wsebAcceptor.bind(acceptAddress, acceptHandler, null);
+    }
+
+    private final class AcceptorStatement extends Statement {
 
         private final Statement base;
         private Map<String, ?> config = Collections.emptyMap();
@@ -82,22 +86,12 @@ public class WsebAcceptorRule implements TestRule {
 
         private SchedulerProvider schedulerProvider;
 
-        public ConnectorStatement(Statement base) {
+        public AcceptorStatement(Statement base) {
             this.base = base;
         }
 
         @Override
         public void evaluate() throws Throwable {
-            if (log4jPropertiesResourceName != null) {
-                // Initialize log4j using a properties file available on the class path
-                Properties log4j = new Properties();
-                InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(log4jPropertiesResourceName);
-                if (in == null) {
-                    throw new IOException(String.format("Could not load resource %s", log4jPropertiesResourceName));
-                }
-                log4j.load(in);
-                PropertyConfigurator.configure(log4j);
-            }
             try {
                 // Connector setup
                 resourceAddressFactory = ResourceAddressFactory.newResourceAddressFactory();
@@ -108,7 +102,7 @@ public class WsebAcceptorRule implements TestRule {
                 wsAcceptor = (WsAcceptor)transportFactory.getTransport("ws").getAcceptor();
 
                 schedulerProvider = new SchedulerProvider();
-        
+
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
                 tcpAcceptor.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpAcceptor.setResourceAddressFactory(resourceAddressFactory);
@@ -122,6 +116,8 @@ public class WsebAcceptorRule implements TestRule {
                 wsebAcceptor.setResourceAddressFactory(resourceAddressFactory);
                 wsebAcceptor.setSchedulerProvider(schedulerProvider);
                 wsebAcceptor.setWsAcceptor(wsAcceptor);
+                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
+                wsebAcceptor.setConfiguration(configuration);
 
                 base.evaluate();
             } finally {

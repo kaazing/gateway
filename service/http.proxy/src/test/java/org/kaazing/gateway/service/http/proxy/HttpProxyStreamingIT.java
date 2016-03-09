@@ -15,6 +15,7 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.net.InetSocketAddress;
@@ -23,12 +24,16 @@ import java.net.Socket;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.DisableOnDebug;
+import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxyStreamingIT {
 
@@ -51,8 +56,13 @@ public class HttpProxyStreamingIT {
         }
     };
 
+    TestRule trace = new MethodExecutionTrace();
+    TestRule timeoutRule = new DisableOnDebug(Timeout.builder().withTimeout(10, SECONDS)
+            .withLookingForStuckThread(true).build());
+
     @Rule
-    public TestRule chain = createRuleChain(gateway, k3po);
+    public TestRule chain = RuleChain.outerRule(trace).around(gateway).around(k3po).around(timeoutRule);
+
 
     @Test
     @Specification("http.proxy.origin.server.response.streaming")

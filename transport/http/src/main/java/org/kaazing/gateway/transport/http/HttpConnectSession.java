@@ -24,6 +24,8 @@ public interface HttpConnectSession extends HttpSession {
 
     // TODO: add helper methods for setting parameters
 
+    ResponseFuture getResponseFuture();
+
     void setRequestURI(URI requestURI);
 
     void setMethod(HttpMethod method);

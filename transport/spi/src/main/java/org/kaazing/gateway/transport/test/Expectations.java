@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.AttributeKey;
@@ -170,6 +171,17 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
+    public Action closeSession(final int parameterIndex) {
+        return new CustomAction("close session") {
+
+            @Override
+            public Object invoke(Invocation invocation) throws Throwable {
+                ((IoSession)invocation.getParameter(parameterIndex)).close(false);
+                return null;
+            }
+        };
+    }
+
     public Action countDown(final CountDownLatch latch) {
         return new CustomAction("count down latch") {
 
@@ -208,12 +220,13 @@ public class Expectations extends org.jmock.Expectations {
         };
     }
 
-    public Action saveParameter(final Object[] parameterStorage, final int parameterIndex) {
+    public <T> Action saveParameter(final AtomicReference<T> parameterStorage, final int parameterIndex) {
         return new CustomAction("save parameter") {
 
+            @SuppressWarnings("unchecked")
             @Override
             public Object invoke(Invocation invocation) throws Throwable {
-                parameterStorage[0] = invocation.getParameter(parameterIndex);
+                parameterStorage.set((T) invocation.getParameter(parameterIndex));
                 return null;
             }
         };

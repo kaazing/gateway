@@ -15,7 +15,10 @@
  */
 package org.kaazing.gateway.transport.wseb.connector;
 
+import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.util.Properties;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +32,13 @@ import org.kaazing.mina.core.session.IoSessionEx;
 public class WsebConnectorIT {
 
     private final K3poRule robot = new K3poRule();
-    private final WsebConnectorRule connector = new WsebConnectorRule(false);
+    private final WsebConnectorRule connector;
+
+    {
+        Properties configuration = new Properties();
+        configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "false");
+        connector = new WsebConnectorRule(configuration);
+    }
 
     @Rule
     public TestRule chain = createRuleChain(connector, robot);

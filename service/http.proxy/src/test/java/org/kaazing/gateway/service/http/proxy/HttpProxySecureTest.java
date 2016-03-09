@@ -26,12 +26,13 @@ import java.security.KeyStore;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.kaazing.gateway.server.test.Gateway;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.test.util.MethodExecutionTrace;
 
 public class HttpProxySecureTest {
     private final KeyStore keyStore = TlsTestUtil.keyStore();
@@ -39,10 +40,8 @@ public class HttpProxySecureTest {
     private final KeyStore trustStore = TlsTestUtil.trustStore();
     private final SSLSocketFactory clientSocketFactory = TlsTestUtil.clientSocketFactory();
 
-    @BeforeClass
-    public static void initClass() throws Exception {
-        BasicConfigurator.configure();
-    }
+    @Rule
+    public TestRule testExecutionTrace = new MethodExecutionTrace();
 
     // client <---- ssl/http ---> gateway <---- ssl/http -----> origin server
     @Test(timeout = 5000)

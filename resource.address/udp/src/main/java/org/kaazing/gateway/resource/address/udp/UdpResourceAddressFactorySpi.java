@@ -46,9 +46,11 @@ import org.kaazing.gateway.resource.address.ResolutionUtils;
 import org.kaazing.gateway.resource.address.ResourceAddressFactorySpi;
 import org.kaazing.gateway.resource.address.ResourceFactory;
 import org.kaazing.gateway.resource.address.ResourceOptions;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 
 public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpResourceAddress> {
 
+    private static final String JAVA_NET_PREFER_IPV4_STACK = "java.net.preferIPv4Stack";
     private static final String SCHEME_NAME = "udp";
     private static final String PROTOCOL_NAME = "udp";
 
@@ -56,6 +58,9 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
     private static final String FORMAT_IPV6_AUTHORITY = "[%s]:%d";
     // "@" added in the pattern below in order not to match network interface syntax
     private static final Pattern PATTERN_IPV6_HOST = Pattern.compile("\\[([^@\\]]+)\\]");
+    private static final String PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION_FORMATTER =
+            "Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config. No addresses"
+            + " available for binding for URI: %s.";
 
     @Override
     public String getSchemeName() {
@@ -180,7 +185,7 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
                 }
             }
 
-            boolean preferIPv4 = "true".equalsIgnoreCase(System.getProperty("java.net.preferIPv4Stack"));
+            boolean preferIPv4 = "true".equalsIgnoreCase(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
             if (!preferIPv4) {
                 // Add all the remaning (IPv6) addresses.  Because InetAddress.getAllByName() is lame
                 // and returns duplicates when java.net.preferIPv4Stack is true, I have to add them
@@ -207,7 +212,11 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         catch (UnknownHostException e) {
             throw new IllegalArgumentException(format("Unable to resolve DNS name: %s", getHost(location)), e);
         }
-        
+
+        if (udpAddresses.isEmpty()) {
+            throwPreferedIPv4StackIPv6AddressError(location, udpAddresses);
+        }
+
         return udpAddresses;
     }
 
@@ -259,5 +268,25 @@ public class UdpResourceAddressFactorySpi extends ResourceAddressFactorySpi<UdpR
         }
         return newHost;
     }
-    
+
+    /**
+     * Throw error on specific circumstances:
+     *   - no addresses available for binding
+     *   - when PreferedIPv4 flag is true and the host IP is IPV6
+     * @param location
+     * @param tcpAddresses
+     */
+    private void throwPreferedIPv4StackIPv6AddressError(String location, List<UdpResourceAddress> tcpAddresses) {
+        try {
+            InetAddress address = InetAddress.getByName(URIUtils.getHost(location));
+            boolean preferIPv4Stack = Boolean.parseBoolean(System.getProperty(JAVA_NET_PREFER_IPV4_STACK));
+            if (preferIPv4Stack && (address instanceof Inet6Address)) {
+                throw new IllegalArgumentException(format(PREFER_IPV4_STACK_IPV6_ADDRESS_EXCEPTION_FORMATTER, location));
+            }
+        } catch (UnknownHostException e) {
+            // InetAddress.getByName(hostAddress) throws an exception (hostAddress may have an
+            // unsupported format, e.g. network interface syntax)
+        }
+    }
+
 }

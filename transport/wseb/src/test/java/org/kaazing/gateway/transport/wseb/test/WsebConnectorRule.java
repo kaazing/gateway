@@ -48,7 +48,7 @@ public class WsebConnectorRule implements TestRule {
 
     private ResourceAddressFactory resourceAddressFactory;
     private WsebConnector wseConnector;
-    private boolean wseSpecCompliant;
+    private Properties configuration;
 
     @Override
     public Statement apply(Statement base, Description description) {
@@ -56,11 +56,11 @@ public class WsebConnectorRule implements TestRule {
     }
 
     public WsebConnectorRule() {
-        this(true);
+        this(new Properties());
     }
 
-    public WsebConnectorRule(boolean wseSpecCompliant) {
-        this.wseSpecCompliant = wseSpecCompliant;
+    public WsebConnectorRule(Properties configuration) {
+        this.configuration = configuration;
     }
 
     public ConnectFuture connect(final String connect,
@@ -74,7 +74,11 @@ public class WsebConnectorRule implements TestRule {
                 resourceAddressFactory.newResourceAddress(
                         connect,
                         connectOptions);
+        return connect(connectAddress, connectHandler);
+    }
 
+    public ConnectFuture connect(final ResourceAddress connectAddress,
+                                 IoHandler connectHandler) throws InterruptedException {
         ConnectFuture future = wseConnector.connect(connectAddress, connectHandler, null);
 
         future.await(TimeUnit.MILLISECONDS.toMillis(3000));
@@ -118,8 +122,10 @@ public class WsebConnectorRule implements TestRule {
                 tcpConnector.setBridgeServiceFactory(bridgeServiceFactory);
                 tcpConnector.setTcpAcceptor(tcpAcceptor);
 
-                Properties configuration = new Properties();
-                configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), wseSpecCompliant ? "true" : "false");
+                // Default to spec compliant
+                if (configuration.getProperty(WSE_SPECIFICATION.getPropertyName()) == null) {
+                    configuration.setProperty(WSE_SPECIFICATION.getPropertyName(), "true");
+                }
                 wseConnector.setConfiguration(configuration);
 
                 httpConnector.setBridgeServiceFactory(bridgeServiceFactory);

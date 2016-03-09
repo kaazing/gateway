@@ -74,4 +74,5 @@ public interface ClusterContext {
     CollectionsFactory getCollectionsFactory();
 
     void logClusterState();
+    void logClusterStateAtInfoLevel();
 }

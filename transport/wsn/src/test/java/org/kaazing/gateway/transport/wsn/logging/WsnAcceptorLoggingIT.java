@@ -22,9 +22,7 @@ import static org.kaazing.test.util.ITUtil.timeoutRule;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -73,22 +71,38 @@ public class WsnAcceptorLoggingIT {
                         .done()
                     .done();
             // @formatter:on
-            Properties log4j = new Properties();
-            log4j.setProperty("log4j.rootLogger", "TRACE, A1");
-            log4j.setProperty("log4j.appender.A1", "org.kaazing.test.util.MemoryAppender");
-            log4j.setProperty("log4j.appender.A1.layout", "org.apache.log4j.PatternLayout");
-            log4j.setProperty("log4j.appender.A1.layout.ConversionPattern", "%-4r %c [%t] %-5p %c{1} %x - %m%n");
-            PropertyConfigurator.configure(log4j);
-
             init(configuration);
         }
     };
-    
+
+    private TestRule trace = new MethodExecutionTrace(); // trace level logging
+
     @Rule
     // Special ordering: gateway around k3po allows gateway to detect k3po closing any still open connections
     // to make sure we get the log messages for the abrupt close
-    public final TestRule chain = RuleChain.outerRule(new MethodExecutionTrace()).around(checkLogMessageRule)
+    public final TestRule chain = RuleChain.outerRule(trace).around(checkLogMessageRule)
             .around(gateway).around(k3po).around(timeoutRule(5, SECONDS));
+
+    @Test
+    @Specification({
+        "ws/extensibility/client.send.text.frame.with.rsv.1/handshake.request.and.frame"
+        })
+    public void shouldLogProtocolException() throws Exception {
+        k3po.finish();
+        expectedPatterns = new ArrayList<String>(Arrays.asList(new String[] {
+            "tcp#.*OPENED",
+            "tcp#.*WRITE",
+            "tcp#.*RECEIVED",
+            "tcp#.*CLOSED",
+            "http#.*OPENED",
+            "http#.*CLOSED",
+            "wsn#.*OPENED",
+            "tcp#.*EXCEPTION.*Protocol.*Exception",
+            "wsn#.*EXCEPTION.*IOException.*caused by.*Protocol.*Exception",
+            "wsn#.*CLOSED"
+        }));
+        forbiddenPatterns = null;
+    }
 
     @Test
     @Specification({

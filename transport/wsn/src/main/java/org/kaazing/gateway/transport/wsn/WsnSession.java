@@ -62,7 +62,6 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
     private Collection<String> balanceeURIs;
     private WebSocketWireProtocol version;
     AtomicBoolean sendCloseFrame;
-    private Throwable closeException;
 
     public WsnSession(IoServiceEx service, IoProcessorEx<WsnSession> processor, ResourceAddress localAddress,
                       ResourceAddress remoteAddress, IoSessionEx parent, IoBufferAllocatorEx<WsBuffer> allocator,
@@ -124,15 +123,6 @@ public class WsnSession extends AbstractWsBridgeSession<WsnSession, WsBuffer> {
 
     @Override
     public void reset(final Throwable cause) {
-        this.closeException = cause;
         super.reset(cause);
-    }
-
-    public Throwable getCloseException() {
-        return closeException;
-    }
-
-    void setCloseException(Throwable t) {
-        this.closeException = t;
     }
 }
