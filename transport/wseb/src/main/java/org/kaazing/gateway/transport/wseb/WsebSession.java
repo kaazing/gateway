@@ -208,10 +208,14 @@ public class WsebSession extends AbstractWsBridgeSession<WsebSession, WsBuffer> 
 
     protected void setIoAlignment0(Thread ioThread, Executor ioExecutor) {
         transportSession.setIoAlignment(ioThread, ioExecutor);
-        super.setIoAlignment0(ioThread, ioExecutor);
+        IoSessionEx reader = getReader();
+        if (reader != null) {
+            reader.setIoAlignment(ioThread, ioExecutor);
+        }
+        // No need to align writer here as it gets re-aligned since it is parent session
+        // should we detachReader()/detachWriter() too ?
 
-        // TODO shoud we detachWriter() too so that newly attached writer gets aligned by default ?
-        // TODO writer gets aligned now since it is parent. what about reader alignment ?
+        super.setIoAlignment0(ioThread, ioExecutor);
     }
 
     @Override

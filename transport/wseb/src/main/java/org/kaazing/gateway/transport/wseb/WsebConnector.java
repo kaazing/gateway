@@ -287,14 +287,18 @@ public class WsebConnector extends AbstractBridgeConnector<WsebSession> {
                 String[] supportedProtocols = connectAddressNext.getOption(WsResourceAddress.SUPPORTED_PROTOCOLS);
                 if (supportedProtocols != null) {
                     for (String protocol : supportedProtocols) {
-                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, protocol);
+                        if (protocol != null) {
+                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_PROTOCOL, protocol);
+                        }
                     }
                 }
 
                 List<String> wsExtensions = connectAddressNext.getOption(WsResourceAddress.EXTENSIONS);
                 if (wsExtensions!= null) {
                     for (String extension : wsExtensions) {
-                        httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                        if (extension != null) {
+                            httpSession.addWriteHeader(HEADER_X_WEBSOCKET_EXTENSIONS, extension);
+                        }
                     }
                 }
 
