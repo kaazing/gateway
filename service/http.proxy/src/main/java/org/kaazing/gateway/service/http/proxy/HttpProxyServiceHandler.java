@@ -466,22 +466,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             excludeForwardedHeaders(connectSession);
             return;
         }
-        String forwarded = acceptSession.getReadHeader(HEADER_FORWARDED);
-        String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
-        if (remoteIpAddress != null) {
-            // 'Forwarded: for=' is added to the connectSession in HttpSubjecSecurityFilter if the 'Forwarded' header in
-            // the request is empty, so we remove it for now, and inject it along with all the other parameters (by,
-            // proto, host)
-            String forwardedFor = format("%s=%s", FORWARDED_FOR, remoteIpAddress);
-            if (forwarded.equalsIgnoreCase(forwardedFor)) {
-                connectSession.clearWriteHeaders(HEADER_FORWARDED);
-            }
-            if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
-                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
-            }
-        }
 
         if (FORWARDED_INJECT.equalsIgnoreCase(forwardedProperty)) {
+            String remoteIpAddress = getResourceIpAddress(acceptSession, FORWARDED_FOR);
+            if (remoteIpAddress != null) {
+                connectSession.addWriteHeader(HEADER_X_FORWARDED_FOR, remoteIpAddress);
+            }
 
             String serverIpAddress = getResourceIpAddress(acceptSession, FORWARDED_BY);
             if (serverIpAddress != null) {
