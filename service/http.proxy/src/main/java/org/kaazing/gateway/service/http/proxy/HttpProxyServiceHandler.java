@@ -15,6 +15,19 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
+import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
+import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
+import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
+
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -28,31 +41,19 @@ import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.gateway.transport.http.DefaultHttpSession;
 import org.kaazing.gateway.transport.http.HttpAcceptSession;
 import org.kaazing.gateway.transport.http.HttpConnectSession;
-import org.kaazing.gateway.transport.http.HttpHeaders;
 import org.kaazing.gateway.transport.http.HttpSession;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.mina.core.session.IoSessionEx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_CONNECTION;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_UPGRADE;
-import static org.kaazing.gateway.transport.http.HttpHeaders.HEADER_VIA;
-import static org.kaazing.gateway.transport.http.HttpStatus.INFO_SWITCHING_PROTOCOLS;
-import static org.kaazing.gateway.transport.http.HttpStatus.CLIENT_NOT_FOUND;
-
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("http.proxy");
     
     private static final String VIA_HEADER_VALUE = "1.1 kaazing";
+
+    private static final String SEPARATOR = "-";
 
     private URI connectURI;
 
@@ -133,6 +134,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         public void operationComplete(ConnectFuture future) {
             if (future.isConnected()) {
                 DefaultHttpSession connectSession = (DefaultHttpSession)future.getSession();
+                performLoopDetection(connectSession, connectSession.getWriteHeaders(HEADER_VIA));
 
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectSession+"]");
@@ -149,6 +151,25 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 LOGGER.warn("Connection to " + getConnectURIs().iterator().next() + " failed ["+acceptSession+"->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
+            }
+        }
+
+        /**
+         * Helper method performing loop detection
+         * @param connectSession
+         * @param viaHeaders
+         */
+        private void performLoopDetection(DefaultHttpSession connectSession, List<String> viaHeaders) {
+            if (viaHeaders != null && viaHeaders.size() > 1) {
+                String lastViaHeader = viaHeaders.get(viaHeaders.size() - 1);
+                for (int i = 0; i < viaHeaders.size() - 1; i++) {
+                    if (viaHeaders.get(i).equals(lastViaHeader)) {
+                        LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
+                                " terminated due to loop detection ["+acceptSession+"->"+connectSession+"]");
+                        acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
+                        acceptSession.close(true);
+                    }
+                }
             }
         }
 
@@ -232,8 +253,9 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
         }
 
-        // Add Via: 1.1 kaazing header
-        connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE);
+        // Add Via: 1.1 kaazing + authority header
+        String authority = acceptSession.getLocalAddress().getExternalURI().getAuthority();
+        connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE + SEPARATOR + authority);
     }
     
     /*
