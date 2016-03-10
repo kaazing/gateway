@@ -156,8 +156,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
         /**
          * Helper method performing loop detection
-         * @param connectSession
-         * @param viaHeaders
+         * @param connectSession - session parameter
+         * @param viaHeaders - list holding Via headers
          */
         private void performLoopDetection(DefaultHttpSession connectSession, List<String> viaHeaders) {
             if (viaHeaders != null && viaHeaders.size() > 1) {

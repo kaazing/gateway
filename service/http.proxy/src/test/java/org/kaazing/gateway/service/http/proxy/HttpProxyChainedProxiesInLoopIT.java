@@ -64,7 +64,7 @@ public class HttpProxyChainedProxiesInLoopIT {
     @Rule
     public TestRule chain = createRuleChain(gateway, robot);
 
-    @Specification({"http.proxy.linked.proxy.request.loop"})
+    @Specification("http.proxy.linked.proxy.request.loop")
     @Test
     public void linkedProxies() throws Exception {
         robot.finish();
