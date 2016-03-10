@@ -28,7 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.kaazing.gateway.resource.address.ResourceAddress;
 
 public class PipeResourceAddressFactorySpiTest {
@@ -36,6 +38,9 @@ public class PipeResourceAddressFactorySpiTest {
     private PipeResourceAddressFactorySpi addressFactorySpi;
     private URI addressURI;
     private Map<String, Object> options;
+    
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void before() {
@@ -98,8 +103,11 @@ public class PipeResourceAddressFactorySpiTest {
         assertEquals(URI.create("socks://localhost:2121"), address.getOption(TRANSPORT_URI));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotUsePathInPipeURL() throws Exception {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Use pipe://customera instead of pipe://customera/app1 because "
+            + "paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.");
         addressFactorySpi.newResourceAddress(URI.create("pipe://customera/app1"));
     }
 
