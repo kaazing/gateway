@@ -167,13 +167,12 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         private void performLoopDetection(DefaultHttpSession connectSession, List<String> viaHeaders) {
             if (viaHeaders != null && viaHeaders.size() > 1) {
                 String lastViaHeader = viaHeaders.get(viaHeaders.size() - 1);
-                for (int i = 0; i < viaHeaders.size() - 1; i++) {
-                    if (viaHeaders.get(i).equals(lastViaHeader)) {
-                        LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
-                                " terminated due to loop detection ["+acceptSession+"->"+connectSession+"]");
-                        acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
-                        acceptSession.close(true);
-                    }
+                List<String> viaHeadersToCheck = viaHeaders.subList(0, viaHeaders.size() - 1);
+                if (viaHeadersToCheck.stream().anyMatch(h -> h.equals(lastViaHeader))) {
+                    LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
+                            " terminated due to loop detection ["+acceptSession+"->"+connectSession+"]");
+                    acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
+                    acceptSession.close(true);
                 }
             }
         }

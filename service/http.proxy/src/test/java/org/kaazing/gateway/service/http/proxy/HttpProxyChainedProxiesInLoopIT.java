@@ -66,7 +66,7 @@ public class HttpProxyChainedProxiesInLoopIT {
 
     @Specification("http.proxy.linked.proxy.request.loop")
     @Test
-    public void linkedProxies() throws Exception {
+    public void loopingProxies508Received() throws Exception {
         robot.finish();
     }
 
