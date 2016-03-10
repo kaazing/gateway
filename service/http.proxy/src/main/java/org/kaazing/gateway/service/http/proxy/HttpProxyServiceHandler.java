@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
@@ -50,12 +51,14 @@ import org.slf4j.LoggerFactory;
 class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("http.proxy");
-    
-    private static final String VIA_HEADER_VALUE = "1.1 kaazing";
+    private static final String VIA_HEADER_FORMATTER = "1.1 kaazing-%s";
 
-    private static final String SEPARATOR = "-";
-
+    private final String viaHeader;
     private URI connectURI;
+
+    public HttpProxyServiceHandler() {
+        viaHeader = String.format(VIA_HEADER_FORMATTER, UUID.randomUUID());
+    }
 
     @Override
     protected AbstractProxyHandler createConnectHandler() {
@@ -78,7 +81,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 return;
             }
 
-            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
+            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession, viaHeader);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
             super.sessionOpened(acceptSession);
@@ -99,9 +102,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      */
     private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
+        private final String viaHeader;
 
-        ConnectSessionInitializer(DefaultHttpSession acceptSession) {
+        ConnectSessionInitializer(DefaultHttpSession acceptSession, String viaHeader) {
             this.acceptSession = acceptSession;
+            this.viaHeader = viaHeader;
         }
 
         @Override
@@ -111,7 +116,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setMethod(acceptSession.getMethod());
             URI connectURI = computeConnectPath(connectSession.getRequestURI());
             connectSession.setRequestURI(connectURI);
-            processRequestHeaders(acceptSession, connectSession);
+            processRequestHeaders(acceptSession, connectSession, viaHeader);
         }
 
         private URI computeConnectPath(URI connectURI) {
@@ -239,7 +244,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
      * upgrade one, let the Upgrade header go through as this service supports upgrade
      */
-    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
+    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession,
+                                                                                String viaHeader) {
         boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
 
         // Add Connection: upgrade or Connection: close header
@@ -253,9 +259,8 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             }
         }
 
-        // Add Via: 1.1 kaazing + authority header
-        String authority = acceptSession.getLocalAddress().getExternalURI().getAuthority();
-        connectSession.addWriteHeader(HEADER_VIA, VIA_HEADER_VALUE + SEPARATOR + authority);
+        // Add Via: 1.1 kaazing + uuid header
+        connectSession.addWriteHeader(HEADER_VIA, viaHeader);
     }
     
     /*
