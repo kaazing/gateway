@@ -63,7 +63,7 @@ public class RequestMethodsIT {
 
     private TestRule contextRule = ITUtil.toTestRule(context);
     private final TestRule trace = new MethodExecutionTrace();
-    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/gateway/transport/http/method.definitions");
+    private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/http/rfc7231/method.definitions");
     private final TestRule timeoutRule = new DisableOnDebug(new Timeout(5, SECONDS));
 
     @Rule
