@@ -80,6 +80,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 acceptSession.close(false);
                 return;
             }
+            performLoopDetection(acceptSession);
 
             ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession, viaHeader);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
@@ -94,6 +95,21 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         String requestPath = requestURI.normalize().getPath();
 
         return requestPath.startsWith(acceptPath);
+    }
+
+
+    /**
+     * Helper method performing loop detection
+     * @param acceptSession - session parameter
+     */
+    private void performLoopDetection(DefaultHttpSession acceptSession) {
+        List<String> viaHeaders = acceptSession.getReadHeaders(HEADER_VIA);
+        if (viaHeaders != null && viaHeaders.stream().anyMatch(h -> h.equals(viaHeader))) {
+                LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
+                        " failed due to loop detection [" + acceptSession + "->]");
+                acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
+                acceptSession.close(true);
+            }
     }
 
     /*
@@ -139,7 +155,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
         public void operationComplete(ConnectFuture future) {
             if (future.isConnected()) {
                 DefaultHttpSession connectSession = (DefaultHttpSession)future.getSession();
-                performLoopDetection(connectSession, connectSession.getWriteHeaders(HEADER_VIA));
 
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("Connected to " + getConnectURIs().iterator().next() + " ["+acceptSession+"->"+connectSession+"]");
@@ -156,24 +171,6 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 LOGGER.warn("Connection to " + getConnectURIs().iterator().next() + " failed ["+acceptSession+"->]");
                 acceptSession.setStatus(HttpStatus.SERVER_GATEWAY_TIMEOUT);
                 acceptSession.close(true);
-            }
-        }
-
-        /**
-         * Helper method performing loop detection
-         * @param connectSession - session parameter
-         * @param viaHeaders - list holding Via headers
-         */
-        private void performLoopDetection(DefaultHttpSession connectSession, List<String> viaHeaders) {
-            if (viaHeaders != null && viaHeaders.size() > 1) {
-                String lastViaHeader = viaHeaders.get(viaHeaders.size() - 1);
-                List<String> viaHeadersToCheck = viaHeaders.subList(0, viaHeaders.size() - 1);
-                if (viaHeadersToCheck.stream().anyMatch(h -> h.equals(lastViaHeader))) {
-                    LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
-                            " terminated due to loop detection ["+acceptSession+"->"+connectSession+"]");
-                    acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
-                    acceptSession.close(true);
-                }
             }
         }
 
