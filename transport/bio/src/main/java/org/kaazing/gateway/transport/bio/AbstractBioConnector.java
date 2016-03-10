@@ -23,7 +23,6 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.mina.core.future.ConnectFuture;
@@ -36,8 +35,8 @@ import org.kaazing.gateway.resource.address.ResourceAddressFactory;
 import org.kaazing.gateway.transport.BridgeConnectHandler;
 import org.kaazing.gateway.transport.BridgeConnector;
 import org.kaazing.gateway.transport.BridgeServiceFactory;
-import org.kaazing.gateway.transport.NamedPipeAddress;
 import org.kaazing.gateway.transport.LoggingFilter;
+import org.kaazing.gateway.transport.NamedPipeAddress;
 import org.kaazing.gateway.transport.SocketAddressFactory;
 import org.slf4j.Logger;
 
@@ -77,9 +76,9 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
 
     @Override
     public void dispose() {
-    	if (connector != null) {
-    		connector.dispose();
-    	}
+        if (connector != null) {
+            connector.dispose();
+        }
     }
 
     @Override
@@ -165,7 +164,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
                                                final String transportName, String nextProtocol) {
         String addressFormat = "%s://%s";
         String pipeName = namedPipeAddress.getPipeName();
-        URI transport = URI.create(format(addressFormat, transportName, pipeName));
+        String transport = format(addressFormat, transportName, pipeName);
         return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
     }
 
@@ -175,7 +174,7 @@ public abstract class AbstractBioConnector<T extends SocketAddress> implements B
         String hostAddress = inetAddress.getHostAddress();
         String addressFormat = (inetAddress instanceof Inet6Address) ? "%s://[%s]:%s" : "%s://%s:%s";
         int port = inetSocketAddress.getPort();
-        URI transport = URI.create(format(addressFormat, transportName, hostAddress, port));
+        String transport = format(addressFormat, transportName, hostAddress, port);
         return resourceAddressFactory.newResourceAddress(transport, nextProtocol);
     }
 

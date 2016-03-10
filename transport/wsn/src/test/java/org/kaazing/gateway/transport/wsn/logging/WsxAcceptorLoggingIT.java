@@ -18,7 +18,6 @@ package org.kaazing.gateway.transport.wsn.logging;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +26,12 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.kaazing.k3po.junit.annotation.Specification;
-import org.kaazing.k3po.junit.rules.K3poRule;
-
 import org.kaazing.gateway.server.test.GatewayRule;
-import org.kaazing.test.util.MemoryAppender;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
+import org.kaazing.k3po.junit.annotation.Specification;
+import org.kaazing.k3po.junit.rules.K3poRule;
+import org.kaazing.test.util.MemoryAppender;
 
 /**
  * RFC-6455, section 5.2 "Base Framing Protocol"
@@ -48,11 +46,11 @@ public class WsxAcceptorLoggingIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8000/echo"))
+                            .accept("ws://localhost:8000/echo")
                             .type("echo")
                         .done()
                         .service()
-                            .accept(URI.create("ws://localhost:8001/echo"))
+                            .accept("ws://localhost:8001/echo")
                             .type("echo")
                             .acceptOption("ws.inactivity.timeout", "1sec")
                         .done()

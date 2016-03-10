@@ -16,6 +16,14 @@
 
 package org.kaazing.gateway.transport.wseb;
 
+import static java.lang.System.currentTimeMillis;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY;
+import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP;
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
+import java.util.concurrent.TimeUnit;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,15 +40,6 @@ import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.session.IoSessionEx;
 
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.System.currentTimeMillis;
-import static java.net.URI.create;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY;
-import static org.kaazing.gateway.transport.ws.AbstractWsBridgeSession.LAST_ROUND_TRIP_LATENCY_TIMESTAMP;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-
 public class WsebRoundTripLatencyIT {
 
     private K3poRule k3po = new K3poRule();
@@ -53,7 +52,7 @@ public class WsebRoundTripLatencyIT {
         GatewayConfiguration configuration =
                 new GatewayConfigurationBuilder()
                     .service()
-                        .accept(create("wse://localhost:8123/echo"))
+                        .accept("wse://localhost:8123/echo")
                         .acceptOption("ws.inactivity.timeout", "2sec")
                         .type("echo")
                     .done()

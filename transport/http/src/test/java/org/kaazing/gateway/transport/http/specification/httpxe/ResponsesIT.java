@@ -16,6 +16,8 @@
 
 package org.kaazing.gateway.transport.http.specification.httpxe;
 
+import static org.kaazing.test.util.ITUtil.createRuleChain;
+
 import org.apache.mina.core.service.IoHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,10 +30,6 @@ import org.kaazing.gateway.transport.http.HttpAcceptorRule;
 import org.kaazing.gateway.transport.http.HttpStatus;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
-
-import java.net.URI;
-
-import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 public class ResponsesIT {
 
@@ -116,7 +114,7 @@ public class ResponsesIT {
     private static ResourceAddress httpxeAddress() {
         String address = "httpxe://localhost:8000/path";
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        return addressFactory.newResourceAddress(URI.create(address));
+        return addressFactory.newResourceAddress(address);
     }
 
 }

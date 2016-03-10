@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,7 +36,7 @@ public class HttpOriginSecurityFilterIT {
             GatewayConfiguration gc = new GatewayConfigurationBuilder()
                 .service()
                     .name("echoAuth")
-                    .accept(URI.create("ws://localhost:8084/echoAuth"))
+                    .accept("ws://localhost:8084/echoAuth")
                     .type("echo")
                 .done()
 //                .service()

@@ -15,13 +15,13 @@
  */
 package org.kaazing.gateway.service.http.proxy;
 
-import org.kaazing.gateway.service.ServiceContext;
-import org.kaazing.gateway.service.proxy.AbstractProxyService;
+import static java.lang.String.format;
 
-import java.net.URI;
 import java.util.Collection;
 
-import static java.lang.String.format;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
+import org.kaazing.gateway.service.ServiceContext;
+import org.kaazing.gateway.service.proxy.AbstractProxyService;
 
 /**
  * Http proxy service
@@ -37,7 +37,7 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }
@@ -50,16 +50,16 @@ public class HttpProxyService extends AbstractProxyService<HttpProxyServiceHandl
     }
 
     private void checkForTrailingSlashes(ServiceContext serviceContext) {
-        Collection<URI> acceptURIs = serviceContext.getAccepts();
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> acceptURIs = serviceContext.getAccepts();
+        Collection<String> connectURIs = serviceContext.getConnects();
 
         assert acceptURIs.size() == 1;
         assert connectURIs.size() == 1;
 
-        URI acceptURI = acceptURIs.iterator().next();
-        URI connectURI = connectURIs.iterator().next();
-        String acceptPath = acceptURI.getPath();
-        String connectPath = connectURI.getPath();
+        String acceptURI = acceptURIs.iterator().next();
+        String connectURI = connectURIs.iterator().next();
+        String acceptPath = URIUtils.getPath(acceptURI);
+        String connectPath = URIUtils.getPath(connectURI);
 
         boolean acceptPathIsSlash = acceptPath.endsWith("/");
         boolean connectPathIsSlash = connectPath.endsWith("/");

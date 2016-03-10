@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,7 +36,7 @@ public class WsBinaryContinuationIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8001/echo"))
+                            .accept("ws://localhost:8001/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")

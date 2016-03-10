@@ -18,7 +18,6 @@ package org.kaazing.gateway.service.http.directory;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.io.File;
-import java.net.URI;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,14 +42,14 @@ public class DirectoryServiceEmbeddedGWTestIT {
                         .webRootDirectory(new File("src/test/webapp"))
                         .tempDirectory(new File("target/test-gateway-temp-directory"))
                         .service()
-                            .accept(URI.create(DIRECTORY_SERVICE_ACCEPT))
+                            .accept(DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .property("directory", "/public")
                                 .crossOrigin().allowOrigin("*")
                             .done()
                         .done()
                         .service()
-                            .accept(URI.create(AUTH_DIRECTORY_SERVICE_ACCEPT))
+                            .accept(AUTH_DIRECTORY_SERVICE_ACCEPT)
                             .type("directory")
                             .realmName("demo")
                             .property("directory", "/public")

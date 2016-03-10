@@ -33,20 +33,20 @@ import org.junit.Test;
 
 public class ResourceAddressFactoryTest {
 
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Before
     public void setup() throws Exception {
-        addressURI = URI.create("test://opaque");
+        addressURI = "test://opaque";
         options = new HashMap<>();
-        options.put(TRANSPORT.name(), URI.create("test://transport"));
+        options.put(TRANSPORT.name(), "test://transport");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldNotFindFactorySpiForUnregisteredScheme() {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
-        URI addressURI = URI.create("unregistered://opaque");
+        String addressURI = "unregistered://opaque";
         addressFactory.newResourceAddress(addressURI);
     }
 
@@ -54,14 +54,14 @@ public class ResourceAddressFactoryTest {
     public void shouldCreateResourceAddress() {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
     }
 
     @Test
     public void shouldCreateResourceAddressWithNextProtocol() {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI, "nextProtocol");
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         assertEquals("nextProtocol", address.getOption(NEXT_PROTOCOL));
     }
 
@@ -69,7 +69,7 @@ public class ResourceAddressFactoryTest {
     public void shouldCreateResourceAddressWithoutNextProtocol() {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         assertNull(address.getOption(NEXT_PROTOCOL));
     }
     
@@ -78,7 +78,7 @@ public class ResourceAddressFactoryTest {
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI, options);
         ResourceAddress transport = address.getTransport();
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         assertNotNull(transport);
         assertEquals(URI.create("test://transport"), transport.getResource());
     }
@@ -108,7 +108,7 @@ public class ResourceAddressFactoryTest {
 
         ResourceAddressFactory addressFactory = newResourceAddressFactory();
         ResourceAddress address = addressFactory.newResourceAddress(addressURI);
-        assertEquals(addressURI, address.getResource());
+        assertEquals(URI.create(addressURI), address.getResource());
         assertTrue(address.getOption(BIND_ALTERNATE));
     }
 

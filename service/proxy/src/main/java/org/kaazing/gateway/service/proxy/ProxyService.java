@@ -17,7 +17,6 @@ package org.kaazing.gateway.service.proxy;
 
 import static java.util.ServiceLoader.load;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.ServiceLoader;
 
@@ -53,7 +52,7 @@ public class ProxyService extends AbstractProxyService<ProxyServiceHandler> {
     @Override
     public void init(ServiceContext serviceContext) throws Exception {
         super.init(serviceContext);
-        Collection<URI> connectURIs = serviceContext.getConnects();
+        Collection<String> connectURIs = serviceContext.getConnects();
         if (connectURIs == null || connectURIs.isEmpty()) {
             throw new IllegalArgumentException("Missing required element: <connect>");
         }

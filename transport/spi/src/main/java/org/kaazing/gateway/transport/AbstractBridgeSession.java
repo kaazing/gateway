@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.transport;
 
-import java.net.URI;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,7 +22,6 @@ import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.service.TransportMetadata;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-
 import org.kaazing.gateway.resource.address.ResourceAddress;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
@@ -315,8 +313,8 @@ public abstract class AbstractBridgeSession<S extends IoSessionEx, B extends IoB
     @Override
     public String toString() {
 
-        URI externalRemoteURI = getRemoteAddress().getExternalURI();
-        URI externalLocalURI = getLocalAddress().getExternalURI();
+        String externalRemoteURI = getRemoteAddress().getExternalURI();
+        String externalLocalURI = getLocalAddress().getExternalURI();
         if (getService() instanceof BridgeAcceptor) {
             StringBuilder sb = new StringBuilder();
             sb.append('(').append(getIdAsString()).append(": ").append(getServiceName());

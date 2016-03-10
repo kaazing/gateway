@@ -15,7 +15,6 @@
  */
 package org.kaazing.gateway.service;
 
-import java.net.URI;
 import java.util.Map;
 
 @Deprecated
@@ -23,7 +22,7 @@ public interface AcceptOptionsContext {
 
     Map<String, Object> asOptionsMap();
 
-    URI getInternalURI(URI externalURI);
+    String getInternalURI(String externalURI);
 
     /**
      * Add a binding to the accept-options from the given scheme to the given authority.  If a service needs to
@@ -78,7 +77,7 @@ public interface AcceptOptionsContext {
         }
 
         @Override
-        public URI getInternalURI(URI externalURI) {
+        public String getInternalURI(String externalURI) {
             return delegate.getInternalURI(externalURI);
         }
 

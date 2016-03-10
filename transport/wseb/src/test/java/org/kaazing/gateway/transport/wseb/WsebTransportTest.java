@@ -19,7 +19,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.kaazing.gateway.util.Utils.asByteBuffer;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -149,7 +148,7 @@ public class WsebTransportTest {
     @Test
     public void connectorShouldReceiveMessageFromAcceptor() throws Exception {
 
-        URI location = URI.create("wse://localhost:8000/echo");
+        String location = "wse://localhost:8000/echo";
         Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
         ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
         final CountDownLatch acceptSessionClosed = new CountDownLatch(1);
@@ -208,7 +207,7 @@ public class WsebTransportTest {
 	@Test
 	public void connectorShouldWriteAndReceiveMessage() throws Exception {
 
-		URI location = URI.create("wse://localhost:8000/echo");
+		String location = "wse://localhost:8000/echo";
 		Map<String, Object> addressOptions = Collections.emptyMap(); //Collections.<String, Object>singletonMap("http.transport", URI.create("pipe://internal"));
 		ResourceAddress address = addressFactory.newResourceAddress(location, addressOptions);
 		final CountDownLatch acceptSessionClosed = new CountDownLatch(1);

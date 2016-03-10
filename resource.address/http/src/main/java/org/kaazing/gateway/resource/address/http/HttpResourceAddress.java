@@ -56,7 +56,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     public static final ResourceOption<HttpOriginSecurity> ORIGIN_SECURITY = new HttpOriginSecurityOption();
     public static final ResourceOption<File> TEMP_DIRECTORY = new HttpTempDirectoryOption();
     public static final ResourceOption<GatewayHttpOriginSecurity> GATEWAY_ORIGIN_SECURITY = new GatewayHttpOriginSecurityOption();
-    public static final ResourceOption<Collection<URI>> BALANCE_ORIGINS = new HttpBalanceOriginsOption();
+    public static final ResourceOption<Collection<String>> BALANCE_ORIGINS = new HttpBalanceOriginsOption();
 
     public static final ResourceOption<String> AUTHENTICATION_CONNECT = new AuthenticationConnectOption();
     public static final ResourceOption<String> AUTHENTICATION_IDENTIFIER = new AuthenticationIdentifierOption();
@@ -82,7 +82,7 @@ public final class HttpResourceAddress extends ResourceAddress {
     private HttpOriginSecurity originSecurity;
     private File tempDirectory;
     private GatewayHttpOriginSecurity gatewayOriginSecurity;
-    private Collection<URI> balanceOrigins;
+    private Collection<String> balanceOrigins;
 
     private String authenticationConnect;
     private String authenticationIdentifier;
@@ -91,7 +91,7 @@ public final class HttpResourceAddress extends ResourceAddress {
 
     private Collection<Class<? extends Principal>> realmUserPrincipalClasses;
 
-	HttpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+	HttpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
 		super(factory, original, resource);
 	}
 
@@ -220,7 +220,7 @@ public final class HttpResourceAddress extends ResourceAddress {
                     gatewayOriginSecurity = (GatewayHttpOriginSecurity) value;
                     return;
                 case BALANCE_ORIGINS:
-                    balanceOrigins = (Collection<URI>) value;
+                    balanceOrigins = (Collection<String>) value;
                     return;
                 case SERVER_HEADER:
                     serverHeaderEnabled = (Boolean) value;
@@ -367,7 +367,7 @@ public final class HttpResourceAddress extends ResourceAddress {
         }
     }
 
-    private static final class HttpBalanceOriginsOption extends HttpResourceOption<Collection<URI>> {
+    private static final class HttpBalanceOriginsOption extends HttpResourceOption<Collection<String>> {
         private HttpBalanceOriginsOption() {
             super(Kind.BALANCE_ORIGINS, "balanceOrigins");
         }

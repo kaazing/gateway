@@ -15,11 +15,11 @@
  */
 package org.kaazing.gateway.server;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.server.context.GatewayContext;
 import org.kaazing.gateway.service.AcceptOptionsContext;
 import org.kaazing.gateway.service.ServiceContext;
@@ -82,13 +82,13 @@ public class Launcher {
             serviceContext.start();
             gatewayListener.startedService(serviceContext);
             AcceptOptionsContext ctx = serviceContext.getAcceptOptionsContext();
-            Collection<URI> serviceAccepts = serviceContext.getAccepts();
-            for (URI serviceAccept : serviceAccepts) {
-                URI mappedURI = ctx.getInternalURI(serviceAccept);
+            Collection<String> serviceAccepts = serviceContext.getAccepts();
+            for (String serviceAccept : serviceAccepts) {
+                String mappedURI = ctx.getInternalURI(serviceAccept);
                 if ((mappedURI == null) || mappedURI.equals(serviceAccept)) {
                     mappedURIs.add(serviceAccept.toString());
                 } else {
-                    mappedURIs.add(serviceAccept + " @ " + mappedURI.getAuthority());
+                    mappedURIs.add(serviceAccept + " @ " + URIUtils.getAuthority(mappedURI));
                 }
             }
         }
@@ -117,7 +117,7 @@ public class Launcher {
     public void destroy() throws Exception {
         long stopAt = System.currentTimeMillis();
 
-        Set<URI> boundURIs = new TreeSet<>();
+        Set<String> boundURIs = new TreeSet<>();
         for (ServiceContext serviceContext : context.getServices()) {
             boundURIs.addAll(serviceContext.getAccepts());
             try {
@@ -143,7 +143,7 @@ public class Launcher {
         LOGGER.info("Stopping server");
         if (!boundURIs.isEmpty()) {
             LOGGER.info("Stopping services");
-            for (URI boundURI : boundURIs) {
+            for (String boundURI : boundURIs) {
                 LOGGER.info("  " + boundURI);
             }
             LOGGER.info("Stopped services");
