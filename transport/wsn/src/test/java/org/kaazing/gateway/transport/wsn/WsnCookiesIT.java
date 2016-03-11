@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.junit.rules.RuleChain.outerRule;
 
-import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Rule;
@@ -25,11 +24,9 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-
 import org.kaazing.gateway.server.test.GatewayRule;
 import org.kaazing.gateway.server.test.config.GatewayConfiguration;
 import org.kaazing.gateway.server.test.config.builder.GatewayConfigurationBuilder;
-
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 
@@ -41,7 +38,7 @@ public class WsnCookiesIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("wsn://localhost:8000/echo"))
+                            .accept("wsn://localhost:8000/echo")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")

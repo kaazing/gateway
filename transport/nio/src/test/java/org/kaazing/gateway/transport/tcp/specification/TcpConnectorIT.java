@@ -19,6 +19,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -28,27 +30,45 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
 import org.kaazing.k3po.junit.annotation.Specification;
 import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferAllocatorEx;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.mina.core.session.IoSessionEx;
+import org.kaazing.test.util.ResolutionTestUtils;
 
 /**
  * RFC-793
  */
+@RunWith(Parameterized.class)
 public class TcpConnectorIT {
 
     private final K3poRule k3po = new K3poRule().setScriptRoot("org/kaazing/specification/tcp/rfc793");
 
     private TcpConnectorRule connector = new TcpConnectorRule();
 
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
+
     @Rule
     public TestRule chain = createRuleChain(connector, k3po);
 
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {     
+                {"tcp://127.0.0.1:8080"}, {"tcp://[@" + networkInterface + "]:8080"}
+           });
+    }
+
+    @Parameter
+    public String uri;
+
     private void connectTo8080(IoHandlerAdapter<IoSessionEx> handler) throws InterruptedException {
-        final String connectURIString = "tcp://127.0.0.1:8080";
+        final String connectURIString = uri;
         ConnectFuture x = connector.connect(connectURIString, handler, null);
         x.await(1, SECONDS);
         Assert.assertTrue("Failed to connect, exception " + x.getException(), x.isConnected());

@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -120,7 +119,7 @@ public class OpeningIT {
         connectOptions.put("supportedProtocols", new String[]{"primary", "secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        URI.create("ws://localhost:8080/path?query"),
+                        "ws://localhost:8080/path?query",
                         connectOptions);
 
         connector.connect(connectAddress, handler).getSession();
@@ -145,7 +144,7 @@ public class OpeningIT {
         connectOptions.put("extensions", Arrays.asList("primary", "secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        URI.create("ws://localhost:8080/path?query"),
+                        "ws://localhost:8080/path?query",
                         connectOptions);
 
         connector.connect(connectAddress, handler).getSession();
@@ -326,7 +325,7 @@ public class OpeningIT {
         connectOptions.put("supportedProtocols", new String[]{"secondary"});
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        URI.create("ws://localhost:8080/path?query"),
+                        "ws://localhost:8080/path?query",
                         connectOptions);
 
         IoSession session = connector.connect(connectAddress, handler).getSession();
@@ -353,7 +352,7 @@ public class OpeningIT {
         connectOptions.put("extensions", Arrays.asList("primary, secondary"));
         final ResourceAddress connectAddress =
                 ResourceAddressFactory.newResourceAddressFactory().newResourceAddress(
-                        URI.create("ws://localhost:8080/path?query"),
+                        "ws://localhost:8080/path?query",
                         connectOptions);
 
         IoSession session = connector.connect(connectAddress, handler).getSession();

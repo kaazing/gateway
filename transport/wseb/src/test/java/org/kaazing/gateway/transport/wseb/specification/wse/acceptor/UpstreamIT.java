@@ -19,8 +19,6 @@ package org.kaazing.gateway.transport.wseb.specification.wse.acceptor;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.kaazing.gateway.util.InternalSystemProperty.WSE_SPECIFICATION;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -49,7 +47,7 @@ public class UpstreamIT {
                         .property(WSE_SPECIFICATION.getPropertyName(), "true")
                         .property(InternalSystemProperty.WS_CLOSE_TIMEOUT.getPropertyName(), "2s")
                         .service()
-                            .accept(URI.create("wse://localhost:8080/path"))
+                            .accept("wse://localhost:8080/path")
                             .type("echo")
                         .done()
                     .done();

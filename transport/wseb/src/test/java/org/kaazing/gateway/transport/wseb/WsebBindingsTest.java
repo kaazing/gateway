@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
@@ -220,7 +219,7 @@ public class WsebBindingsTest {
         final String connectURIString = "ws://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();
@@ -250,7 +249,7 @@ public class WsebBindingsTest {
         final String connectURIString = "wss://localhost:8000/echo";
         final ResourceAddress bindAddress =
                 addressFactory.newResourceAddress(
-                        URI.create(connectURIString),
+                        connectURIString,
                         acceptOptions);
 
         final IoHandler ioHandler = new IoHandlerAdapter();

@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -36,7 +34,7 @@ public class UnresolvableHostnameIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("ws://unresolvable.kaazing.me:8000"))
+                        .accept("ws://unresolvable.kaazing.me:8000")
                         .type("echo")
                         .acceptOption("ws.bind", "21111")
                     .done()

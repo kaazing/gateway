@@ -32,7 +32,7 @@ public class McpResourceAddressFactorySpi extends UdpResourceAddressFactorySpi {
     }
     
     @Override
-    protected UdpResourceAddress newResourceAddress0(URI original, URI location) {
+    protected UdpResourceAddress newResourceAddress0(String original, String location) {
         
         UdpResourceAddress address = super.newResourceAddress0(original, location);
         URI resource = address.getResource();

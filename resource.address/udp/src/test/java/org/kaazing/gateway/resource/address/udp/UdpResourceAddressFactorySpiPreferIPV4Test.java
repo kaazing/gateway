@@ -15,8 +15,6 @@
  */
 package org.kaazing.gateway.resource.address.udp;
 
-import java.net.URI;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,14 +53,14 @@ public class UdpResourceAddressFactorySpiPreferIPV4Test {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Option java.net.preferIPv4Stack is set to true and an IPv6 address was provided in the config."
                 + " No addresses available for binding for URI: udp://[::1]:8000");
-        factory.newResourceAddress(URI.create("udp://[::1]:8000"));
+        factory.newResourceAddress("udp://[::1]:8000");
     }
 
     @Test
     public void startupWhenMatchingIPv6AddressesFound() throws Exception {
         // set the IPV4 flag to false
         System.setProperty(JAVA_NET_PREFER_IPV4_STACK, "false");
-        factory.newResourceAddress(URI.create("udp://[::1]:8000"));
+        factory.newResourceAddress("udp://[::1]:8000");
     }
 
 }

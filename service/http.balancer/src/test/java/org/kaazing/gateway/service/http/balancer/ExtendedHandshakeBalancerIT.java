@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.http.balancer;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +36,7 @@ public class ExtendedHandshakeBalancerIT {
                     // balancer service
                     .service()
                         .type("balancer")
-                        .accept(URI.create("ws://localhost:8080/path"))
+                        .accept("ws://localhost:8080/path")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()
@@ -46,8 +44,8 @@ public class ExtendedHandshakeBalancerIT {
                     // echo service
                     .service()
                         .type("echo")
-                        .accept(URI.create("ws://localhost:8090/path"))
-                        .balance(URI.create("ws://localhost:8080/path"))
+                        .accept("ws://localhost:8090/path")
+                        .balance("ws://localhost:8080/path")
                         .crossOrigin()
                             .allowOrigin("*")
                         .done()

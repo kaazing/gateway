@@ -23,7 +23,6 @@ import static org.kaazing.gateway.resource.address.ResourceAddress.QUALIFIER;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT;
 import static org.kaazing.gateway.resource.address.ResourceAddress.TRANSPORT_URI;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class PipeResourceAddressFactorySpiTest {
 
     private PipeResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
     private Map<String, Object> options;
     
     @Rule
@@ -45,11 +44,11 @@ public class PipeResourceAddressFactorySpiTest {
     @Before
     public void before() {
         addressFactorySpi = new PipeResourceAddressFactorySpi();
-        addressURI = URI.create("pipe://authority");
+        addressURI = "pipe://authority";
         options = new HashMap<>();
         options.put("pipe.nextProtocol", "custom");
         options.put("pipe.qualifier", "random");
-        options.put("pipe.transport", URI.create("socks://localhost:2121"));
+        options.put("pipe.transport", "socks://localhost:2121");
     }
 
     @Test
@@ -59,18 +58,18 @@ public class PipeResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireHttpSchemeName() throws Exception {
-        addressFactorySpi.newResourceAddress(URI.create("test://opaque"));
+        addressFactorySpi.newResourceAddress("test://opaque");
     }
 
     @Test
     public void shouldNotRequireExplicitPath() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("pipe://localhost:80"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("pipe://localhost:80");
         assertNotNull(address);
     }
 
     @Test 
     public void shouldNotRequireExplicitPort() throws Exception {
-        ResourceAddress address = addressFactorySpi.newResourceAddress(URI.create("pipe://authority"));
+        ResourceAddress address = addressFactorySpi.newResourceAddress("pipe://authority");
         assertNotNull(address);
     }
 
@@ -100,7 +99,7 @@ public class PipeResourceAddressFactorySpiTest {
     public void shouldCreateAddressWithTransport() throws Exception {
         ResourceAddress address = addressFactorySpi.newResourceAddress(addressURI, options);
         assertNotNull(address.getOption(TRANSPORT_URI));
-        assertEquals(URI.create("socks://localhost:2121"), address.getOption(TRANSPORT_URI));
+        assertEquals("socks://localhost:2121", address.getOption(TRANSPORT_URI));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class PipeResourceAddressFactorySpiTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Use pipe://customera instead of pipe://customera/app1 because "
             + "named pipe URIs shouldn't contain paths.");
-        addressFactorySpi.newResourceAddress(URI.create("pipe://customera/app1"));
+        addressFactorySpi.newResourceAddress("pipe://customera/app1");
     }
 
 }

@@ -16,7 +16,14 @@
 
 package org.kaazing.gateway.transport.http.specification.httpxe;
 
-import org.apache.mina.core.buffer.IoBuffer;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.kaazing.test.util.ITUtil.timeoutRule;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
+
 import org.apache.mina.core.service.IoHandler;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -37,16 +44,6 @@ import org.kaazing.k3po.junit.rules.K3poRule;
 import org.kaazing.mina.core.buffer.IoBufferEx;
 import org.kaazing.test.util.ITUtil;
 import org.kaazing.test.util.MethodExecutionTrace;
-
-import java.net.URI;
-import java.nio.ByteBuffer;
-import java.util.concurrent.CountDownLatch;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.kaazing.test.util.ITUtil.createRuleChain;
-import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 /**
  * Defines how httpxe will deal with http methods.
@@ -232,13 +229,13 @@ public class RequestsIT {
     private static ResourceAddress httpAddress() {
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
         String address = "http://localhost:8000/path";
-        return addressFactory.newResourceAddress(URI.create(address));
+        return addressFactory.newResourceAddress(address);
     }
 
     private static ResourceAddress httpxeAddress() {
         String address = "httpxe://localhost:8000/path";
         ResourceAddressFactory addressFactory = ResourceAddressFactory.newResourceAddressFactory();
-        return addressFactory.newResourceAddress(URI.create(address));
+        return addressFactory.newResourceAddress(address);
     }
 
 }

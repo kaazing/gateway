@@ -17,7 +17,6 @@ package org.kaazing.gateway.transport.wsn;
 
 import static org.kaazing.gateway.util.InternalSystemProperty.WS_CLOSE_TIMEOUT;
 
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -424,8 +423,8 @@ public class WsCloseTransportTest {
             }
         };
 
-        final URI uri = URI.create("wsn://localhost:4444/echo");
-        final List<URI> accepts = new ArrayList<>(1);
+        final String uri = "wsn://localhost:4444/echo";
+        final List<String> accepts = new ArrayList<>(1);
         accepts.add(uri);
 
 //        final Map<URI, ? extends CrossSiteConstraintContext> crossSiteConstraints = new HashMap<URI, DefaultCrossSiteConstraintContext>();
