@@ -107,7 +107,7 @@ public class PipeResourceAddressFactorySpiTest {
     public void shouldNotUsePathInPipeURL() throws Exception {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("Use pipe://customera instead of pipe://customera/app1 because "
-            + "paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.");
+            + "named pipe URIs shouldn't contain paths.");
         addressFactorySpi.newResourceAddress(URI.create("pipe://customera/app1"));
     }
 

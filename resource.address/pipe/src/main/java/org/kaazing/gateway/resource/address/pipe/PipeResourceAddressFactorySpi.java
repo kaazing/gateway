@@ -29,7 +29,7 @@ public class PipeResourceAddressFactorySpi extends ResourceAddressFactorySpi<Pip
     private static final String PROTOCOL_NAME = "pipe";
 
     private static final String PIPE_PATH_ERROR_MESSAGE = "Use pipe://%s instead of pipe://%s%s "
-            + "because paths are ignored for pipe:// URIs. See 'pipe://' in the documentation for more details.";
+                                        + "because named pipe URIs shouldn't contain paths.";
 
     @Override
     public String getSchemeName() {
