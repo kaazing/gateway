@@ -34,6 +34,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,19 +43,35 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 import org.kaazing.gateway.resource.address.NameResolver;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.test.util.ResolutionTestUtils;
 
+@RunWith(Parameterized.class)
 public class TcpResourceAddressFactorySpiTest {
 
+    private static String networkInterface = ResolutionTestUtils.getLoopbackInterface();
+
     private TcpResourceAddressFactorySpi factory;
-    private URI addressURI;
     private Map<String,Object> options;
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {"tcp://localhost:2020"}, {"tcp://[@" + networkInterface + "]:2020"}
+           });
+    }
+
+    @Parameter
+    public String addressURI;
 
     @Before
     public void before() {
         factory = new TcpResourceAddressFactorySpi();
-        addressURI = URI.create("tcp://localhost:2020");
         options = new HashMap<>();
         options.put("tcp.nextProtocol", "custom");
         options.put("tcp.maximumOutboundRate", 534L);
@@ -70,12 +87,12 @@ public class TcpResourceAddressFactorySpiTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireTcpSchemeName() throws Exception {
-        factory.newResourceAddress(URI.create("test://opaque"));
+        factory.newResourceAddress("test://opaque");
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void shouldRequireExplicitPort() throws Exception {
-        factory.newResourceAddress(URI.create("tcp://127.0.0.1"));
+        factory.newResourceAddress("tcp://127.0.0.1");
     }
 
     @Test
@@ -109,11 +126,7 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)) {
-                    return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
-                }
-
-                throw new UnknownHostException(host);
+                return singleton(getByAddress("::1", new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
             }
         });
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
@@ -131,7 +144,7 @@ public class TcpResourceAddressFactorySpiTest {
         // Skip the test if IPV6 is not set up or mapped to IPv4
         assumeTrue(!expectedURI.isEmpty());
 
-        URI addressURI = URI.create("tcp://[::1]:2020");
+        String addressURI = "tcp://[::1]:2020";
         ResourceAddress resourceAddress = factory.newResourceAddress(addressURI);
         Set<URI> gotURI = new HashSet<>();
         while(resourceAddress != null) {
@@ -149,29 +162,25 @@ public class TcpResourceAddressFactorySpiTest {
 
             @Override
             public Collection<InetAddress> getAllByName(String host) throws UnknownHostException {
-                if ("localhost".equals(host)) {
-                    return asList(
-                            getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
-                            getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
-                            getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
-                }
-
-                throw new UnknownHostException(host);
+                return asList(
+                        getByAddress("127.0.0.1", new byte[] { 0x7f, 0x00, 0x00, 0x01 }),
+                        getByAddress("127.0.0.2", new byte[] { 0x7f, 0x00, 0x00, 0x02 }),
+                        getByAddress("127.0.0.3", new byte[] { 0x7f, 0x00, 0x00, 0x03 }));
             }
         });
-        options.put("transport", URI.create("pipe://internal"));
+        options.put("transport", "pipe://internal");
         ResourceAddress address = factory.newResourceAddress(addressURI, options);
         assertNotNull(address);
         assertEquals(URI.create("tcp://127.0.0.1:2020"), address.getResource());
-        assertEquals(URI.create("pipe://internal"), address.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", address.getOption(TRANSPORT_URI));
         ResourceAddress alternate = address.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.2:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNotNull(alternate);
         assertEquals(URI.create("tcp://127.0.0.3:2020"), alternate.getResource());
-        assertEquals(URI.create("pipe://internal"), alternate.getOption(TRANSPORT_URI));
+        assertEquals("pipe://internal", alternate.getOption(TRANSPORT_URI));
         alternate = alternate.getOption(ALTERNATE);
         assertNull(alternate);
     }

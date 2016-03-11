@@ -2,7 +2,21 @@
 
 ## [Unreleased](https://github.com/kaazing/gateway/tree/HEAD)
 
-[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.46...HEAD)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.47...HEAD)
+
+**Fixed bugs:**
+
+- Sporadic Travis build failure in random tests due to hang during Gateway shutdown [\#292](https://github.com/kaazing/gateway/issues/292)
+
+**Merged pull requests:**
+
+- Delete accidentally added file transport/wseb/dumpfile.pcap. [\#441](https://github.com/kaazing/gateway/pull/441) ([cmebarrow](https://github.com/cmebarrow))
+- Added gatewayContext to startingGateway and stoppingGateway methods from GatewayObserverApi [\#440](https://github.com/kaazing/gateway/pull/440) ([mgherghe](https://github.com/mgherghe))
+- Pull request holding URI to String and network interface support changes [\#437](https://github.com/kaazing/gateway/pull/437) ([irina-mitrea-luxoft](https://github.com/irina-mitrea-luxoft))
+- Wseb session thread migration [\#392](https://github.com/kaazing/gateway/pull/392) ([jitsni](https://github.com/jitsni))
+
+## [5.0.1.47](https://github.com/kaazing/gateway/tree/5.0.1.47) (2016-03-08)
+[Full Changelog](https://github.com/kaazing/gateway/compare/5.0.1.46...5.0.1.47)
 
 **Fixed bugs:**
 

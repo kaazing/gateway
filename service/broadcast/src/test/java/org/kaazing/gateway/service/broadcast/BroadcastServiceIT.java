@@ -17,8 +17,6 @@ package org.kaazing.gateway.service.broadcast;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -38,8 +36,8 @@ public class BroadcastServiceIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("tcp://localhost:8090"))
-                            .connect(URI.create("tcp://localhost:7788"))
+                            .accept("tcp://localhost:8090")
+                            .connect("tcp://localhost:7788")
                             .type("broadcast")
                         .done()
                     .done();

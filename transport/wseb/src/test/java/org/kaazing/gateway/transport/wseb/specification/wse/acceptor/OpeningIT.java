@@ -21,7 +21,6 @@ import static org.kaazing.gateway.resource.address.ws.WsResourceAddress.SUPPORTE
 import static org.kaazing.test.util.ITUtil.timeoutRule;
 
 import java.net.ProtocolException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -96,7 +95,7 @@ public class OpeningIT {
     public void shouldEstablishConnectionWithRequestHeaderXWebSocketProtocol() throws Exception {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put(SUPPORTED_PROTOCOLS.name(), new String[]{"primary"});
-        ResourceAddress address = resourceAddressFactory.newResourceAddress(URI.create("wse://localhost:8080/path"),
+        ResourceAddress address = resourceAddressFactory.newResourceAddress("wse://localhost:8080/path",
                 options);
         acceptor.bind(address, mockHandler());
         k3po.finish();

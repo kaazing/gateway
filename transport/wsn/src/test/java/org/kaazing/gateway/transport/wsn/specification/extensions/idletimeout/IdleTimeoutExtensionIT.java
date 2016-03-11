@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.extensions.idletimeout;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +39,7 @@ public class IdleTimeoutExtensionIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                     .service()
-                        .accept(URI.create("wsn://localhost:8001/echo"))
+                        .accept("wsn://localhost:8001/echo")
                         .type("echo")
                         .crossOrigin()
                             .allowOrigin("*")

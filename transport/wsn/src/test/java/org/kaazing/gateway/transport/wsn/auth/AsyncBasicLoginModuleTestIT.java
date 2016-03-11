@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.auth;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -36,7 +34,7 @@ public class AsyncBasicLoginModuleTestIT {
         {
             GatewayConfiguration configuration = new GatewayConfigurationBuilder()
                 .service()
-                    .accept(URI.create("ws://localhost:8001/echoAuth"))
+                    .accept("ws://localhost:8001/echoAuth")
                     .type("echo")
                     .realmName("demo")
                         .authorization()

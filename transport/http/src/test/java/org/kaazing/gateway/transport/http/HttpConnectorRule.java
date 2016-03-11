@@ -16,7 +16,6 @@
 
 package org.kaazing.gateway.transport.http;
 
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class HttpConnectorRule implements TestRule {
     public ConnectFuture connect(String connect, IoHandler connectHandler, IoSessionInitializer<? extends ConnectFuture> initializer) {
         Map<String, Object> connectOptions = new HashMap<>();
         ResourceAddress connectAddress =
-                addressFactory.newResourceAddress(URI.create(connect), connectOptions);
+                addressFactory.newResourceAddress(connect, connectOptions);
 
         return httpConnector.connect(connectAddress, connectHandler, initializer);
     }

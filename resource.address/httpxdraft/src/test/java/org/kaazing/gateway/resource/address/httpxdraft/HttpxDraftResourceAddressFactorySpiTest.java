@@ -27,12 +27,12 @@ import org.kaazing.gateway.resource.address.ResourceAddress;
 public class HttpxDraftResourceAddressFactorySpiTest {
 
     private HttpxDraftResourceAddressFactorySpi addressFactorySpi;
-    private URI addressURI;
+    private String addressURI;
 
     @Before
     public void before() {
         addressFactorySpi = new HttpxDraftResourceAddressFactorySpi();
-        addressURI = URI.create("httpx-draft://localhost:2020/");
+        addressURI = "httpx-draft://localhost:2020/";
     }
 
     @Test 

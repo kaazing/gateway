@@ -15,9 +15,8 @@
  */
 package org.kaazing.gateway.resource.address;
 
-import java.net.URI;
 
 public abstract class ResourceFactory {
     
-    public abstract URI createURI(URI location);
+    public abstract String createURI(String location);
 }

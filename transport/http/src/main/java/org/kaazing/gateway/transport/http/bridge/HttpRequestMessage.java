@@ -47,7 +47,7 @@ public class HttpRequestMessage extends HttpStartMessage {
 	private ResourceAddress localAddress;
 	private Subject subject;
 	private ResultAwareLoginContext loginContext;
-	private URI externalURI;
+	private String externalURI;
 
 	private QueryUpdate queryUpdate;
 
@@ -81,11 +81,11 @@ public class HttpRequestMessage extends HttpStartMessage {
         return localAddress;
     }
 
-    public void setExternalURI(URI externalURI) {
+    public void setExternalURI(String externalURI) {
         this.externalURI = externalURI;
     }
 
-    public URI getExternalURI() {
+    public String getExternalURI() {
         return externalURI;
     }
 

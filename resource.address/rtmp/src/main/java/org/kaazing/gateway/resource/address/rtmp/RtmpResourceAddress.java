@@ -26,7 +26,7 @@ public class RtmpResourceAddress extends ResourceAddress {
     
     private static final long serialVersionUID = 1L;
 
-    RtmpResourceAddress(ResourceAddressFactorySpi factory, URI original, URI resource) {
+    RtmpResourceAddress(ResourceAddressFactorySpi factory, String original, URI resource) {
         super(factory, original, resource);
     }
 

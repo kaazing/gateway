@@ -35,6 +35,7 @@ import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.service.IoHandler;
 import org.apache.mina.core.session.IoSession;
 import org.kaazing.gateway.resource.address.ResourceAddress;
+import org.kaazing.gateway.resource.address.uri.URIUtils;
 import org.kaazing.gateway.transport.BridgeAcceptor;
 import org.kaazing.gateway.transport.BridgeSessionInitializer;
 import org.kaazing.gateway.transport.IoHandlerAdapter;
@@ -109,7 +110,7 @@ public class WsAcceptor implements BridgeAcceptor {
             } else {
                 if (logger.isDebugEnabled()) {
                     String format = "No bridge acceptor found for address '%s'.  Is the %s transport enabled?";
-                    logger.warn(format(format, address.getExternalURI(), address.getExternalURI().getScheme()));
+                    logger.warn(format(format, address.getExternalURI(), URIUtils.getScheme(address.getExternalURI())));
                 }
             }
             address = address.getOption(ALTERNATE);

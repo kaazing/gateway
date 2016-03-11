@@ -18,8 +18,6 @@ package org.kaazing.gateway.transport.wsn.specification.httpx;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +37,7 @@ public class ExtendedHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")
@@ -47,7 +45,7 @@ public class ExtendedHandshakeIT {
                             .acceptOption("ws.inactivity.timeout", "123secs")
                         .done()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/auth"))
+                            .accept("ws://localhost:8080/auth")
                             .type("echo")
                             .realmName("Kaazing WebSocket Gateway Demo")
                             .crossOrigin()

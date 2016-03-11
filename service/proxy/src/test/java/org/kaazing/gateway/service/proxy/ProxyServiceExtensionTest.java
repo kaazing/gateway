@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -42,8 +41,8 @@ public class ProxyServiceExtensionTest {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("tcp://localhost:8888"))
-                            .connect(URI.create("tcp://localhost:8051"))
+                            .accept("tcp://localhost:8888")
+                            .connect("tcp://localhost:8051")
                             .type("proxy")
                         .done()
                     .done();

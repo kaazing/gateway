@@ -17,8 +17,6 @@ package org.kaazing.gateway.transport.wsn.specification.httpx;
 
 import static org.kaazing.test.util.ITUtil.createRuleChain;
 
-import java.net.URI;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -36,7 +34,7 @@ public class OpeningHandshakeIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                         .service()
-                            .accept(URI.create("ws://localhost:8080/path"))
+                            .accept("ws://localhost:8080/path")
                             .type("echo")
                             .crossOrigin()
                                 .allowOrigin("*")

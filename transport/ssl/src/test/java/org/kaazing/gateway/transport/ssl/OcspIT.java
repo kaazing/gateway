@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.net.URI;
 import java.security.KeyStore;
 import java.security.Security;
 
@@ -91,7 +90,7 @@ public class OcspIT {
             GatewayConfiguration configuration =
                     new GatewayConfigurationBuilder()
                             .service()
-                                .accept(URI.create("ssl://localhost:9558"))
+                                .accept("ssl://localhost:9558")
                                 .type("echo")
                                 .acceptOption("ssl.verify-client", "required")
                             .done()

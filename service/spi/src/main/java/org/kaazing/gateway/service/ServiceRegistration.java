@@ -15,19 +15,18 @@
  */
 package org.kaazing.gateway.service;
 
-import java.net.URI;
 
 public class ServiceRegistration {
 
-    private final URI serviceURI;
+    private final String serviceURI;
     private final ServiceContext serviceContext;
 
-    public ServiceRegistration(URI serviceURI, ServiceContext serviceContext) {
+    public ServiceRegistration(String serviceURI, ServiceContext serviceContext) {
         this.serviceURI = serviceURI;
         this.serviceContext = serviceContext;
     }
 
-    public URI getURI() {
+    public String getURI() {
         return serviceURI;
     }
 
