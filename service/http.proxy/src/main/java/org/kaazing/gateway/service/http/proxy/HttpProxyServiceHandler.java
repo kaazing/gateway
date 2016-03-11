@@ -80,9 +80,11 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
                 acceptSession.close(false);
                 return;
             }
-            performLoopDetection(acceptSession);
+            if (!validateNoLoopDetected(acceptSession)) {
+                return;
+            }
 
-            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession, viaHeader);
+            ConnectSessionInitializer sessionInitializer = new ConnectSessionInitializer(acceptSession);
             ConnectFuture future = getServiceContext().connect(connectURI, getConnectHandler(), sessionInitializer);
             future.addListener(new ConnectListener(acceptSession));
             super.sessionOpened(acceptSession);
@@ -101,28 +103,29 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
     /**
      * Helper method performing loop detection
      * @param acceptSession - session parameter
+     * @return - whether a loop was detected or not
      */
-    private void performLoopDetection(DefaultHttpSession acceptSession) {
+    private boolean validateNoLoopDetected(DefaultHttpSession acceptSession) {
         List<String> viaHeaders = acceptSession.getReadHeaders(HEADER_VIA);
         if (viaHeaders != null && viaHeaders.stream().anyMatch(h -> h.equals(viaHeader))) {
                 LOGGER.warn("Connection to " + getConnectURIs().iterator().next() +
                         " failed due to loop detection [" + acceptSession + "->]");
                 acceptSession.setStatus(HttpStatus.SERVER_LOOP_DETECTED);
                 acceptSession.close(true);
+                return true;
             }
+        return false;
     }
 
     /*
      * Initializer for connect session. It adds the processed accept session headers
      * on the connect session
      */
-    private static class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
+    private class ConnectSessionInitializer implements IoSessionInitializer<ConnectFuture> {
         private final DefaultHttpSession acceptSession;
-        private final String viaHeader;
 
-        ConnectSessionInitializer(DefaultHttpSession acceptSession, String viaHeader) {
+        ConnectSessionInitializer(DefaultHttpSession acceptSession) {
             this.acceptSession = acceptSession;
-            this.viaHeader = viaHeader;
         }
 
         @Override
@@ -132,7 +135,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
             connectSession.setMethod(acceptSession.getMethod());
             URI connectURI = computeConnectPath(connectSession.getRequestURI());
             connectSession.setRequestURI(connectURI);
-            processRequestHeaders(acceptSession, connectSession, viaHeader);
+            processRequestHeaders(acceptSession, connectSession);
         }
 
         private URI computeConnectPath(URI connectURI) {
@@ -240,8 +243,7 @@ class HttpProxyServiceHandler extends AbstractProxyAcceptHandler {
      * Write all (except hop-by-hop) request headers from accept session to connect session. If the request is an
      * upgrade one, let the Upgrade header go through as this service supports upgrade
      */
-    private static void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession,
-                                                                                String viaHeader) {
+    private void processRequestHeaders(HttpAcceptSession acceptSession, HttpConnectSession connectSession) {
         boolean upgrade = processHopByHopHeaders(acceptSession, connectSession);
 
         // Add Connection: upgrade or Connection: close header
